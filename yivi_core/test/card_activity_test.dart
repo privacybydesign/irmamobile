@@ -10,6 +10,7 @@ import "package:yivi_core/src/providers/activity_providers.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/card_activity_section.dart";
+import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 
@@ -132,6 +133,54 @@ void main() {
     );
     await settle(tester);
   }
+
+  testWidgets("who issued the card: its logo with the trust badge, and the "
+      "issuer's trust sheet behind the ⓘ", (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 2400);
+    addTearDown(tester.view.reset);
+    await pumpHome(
+      tester,
+      repo: repo,
+      overrides: <Override>[
+        irmaRepositoryProvider.overrideWithValue(repo),
+        schemalessCredentialOrderControllerProvider.overrideWith(
+          () => _FixedOrder([_card]),
+        ),
+      ],
+      home: BlocProvider<HomeTabState>.value(
+        value: tabs,
+        child: CredentialDetailPane(
+          hash: _card.hash,
+          onSwitch: (_) {},
+          onDeleted: () {},
+        ),
+      ),
+    );
+    await settle(tester);
+
+    final issuer = find.byKey(const Key("credential_detail_issuer"));
+    expect(issuer, findsOneWidget);
+    expect(
+      find.descendant(of: issuer, matching: find.text(_card.issuer.name)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: issuer,
+        matching: find.byKey(const Key("session_requestor_trust")),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.descendant(
+        of: issuer,
+        matching: find.byKey(const Key("session_requestor_info")),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("requestor_trust_sheet")), findsOneWidget);
+  });
 
   testWidgets("a card lists its newest five, with a summary", (tester) async {
     await pump(tester);

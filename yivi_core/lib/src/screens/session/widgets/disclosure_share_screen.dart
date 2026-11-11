@@ -940,7 +940,29 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       bundle,
       widget.session.disclosurePlan?.issueDuringDisclosure,
     );
-    // A card that can't be used says so; the share button does the fix.
+    // A card that can't be used says so, with the way on in its strip: get
+    // it again when there is nothing else to choose, else change the choice.
+    // The share button does the fix too.
+    final renewal = problem == null ? null : onlyRenewalFor(p, bundle);
+    final problemAction = problem == null
+        ? null
+        : renewal != null
+        ? SmallPill(
+            key: Key("share_fetch_again_$i"),
+            label: context.tr(
+              replacesCard(renewal, bundle)
+                  ? "share.next.fetch_again"
+                  : "share.next.add_again",
+            ),
+            onPressed: () => _openSheet(i, addNew: renewal),
+          )
+        : canChange(p)
+        ? SmallPill(
+            key: Key("share_change_$i"),
+            label: context.tr("share.change_choice"),
+            onPressed: () => _openSheet(i),
+          )
+        : null;
     final tile = _LandedRing(
       shown: _landed.contains(i),
       child: SharedCardTile(
@@ -949,6 +971,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         landingKey: _landingKey(i),
         isNew: isNew,
         problemStrip: true,
+        problemAction: problemAction,
         footer: problem != null
             ? null
             : _choiceStrip(i, p, k) ?? _togetherStrip(bundle),

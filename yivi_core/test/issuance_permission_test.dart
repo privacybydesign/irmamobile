@@ -20,6 +20,7 @@ import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
 
@@ -191,7 +192,7 @@ void main() {
     expect(added, 1);
   });
 
-  testWidgets("the band under the bar comes with the small title", (
+  testWidgets("the band under the bar comes with who gives the card", (
     tester,
   ) async {
     tester.view.devicePixelRatio = 1;
@@ -213,19 +214,62 @@ void main() {
       ),
     );
     final band = find.byKey(const Key("scroll_edge_band"));
+    final bar = find.byKey(const Key("requestor_compact_bar"));
     final scroll = find.byKey(const Key("issuance_scroll_view"));
     expect(band, findsNothing);
+    expect(bar, findsNothing);
     // Under the bar, but the large title still shows.
     await tester.drag(scroll, const Offset(0, -12));
     await tester.pumpAndSettle();
     expect(band, findsNothing);
-    // Past the large title: the small title, and the band with it.
+    expect(bar, findsNothing);
+    // Past the issuer's name: who gives the card in the bar, as on the
+    // share screen, and the band with it.
     await tester.drag(scroll, const Offset(0, -400));
     await tester.pumpAndSettle();
     expect(band, findsOneWidget);
+    expect(
+      find.descendant(of: bar, matching: find.text("Gemeente")),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: bar, matching: find.text("gives you 4 cards")),
+      findsOneWidget,
+    );
     await tester.drag(scroll, const Offset(0, 800));
     await tester.pumpAndSettle();
     expect(band, findsNothing);
+    expect(bar, findsNothing);
+  });
+
+  testWidgets("the issuer's logo is a hero into its trust sheet, as the "
+      "requestor's on the share screen", (tester) async {
+    await _pump(
+      tester,
+      IssuancePermission(issuedCredentials: [_card("email")]),
+    );
+    final logo = find.byWidgetPredicate(
+      (w) => w is Hero && w.tag == requestorLogoHeroTag(testParty("Gemeente")),
+    );
+    expect(logo, findsOneWidget);
+    await tester.tap(find.byKey(const Key("session_requestor_info")));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    // In flight: the logo goes from the card into the sheet.
+    expect(
+      find.descendant(of: find.byType(Overlay), matching: logo),
+      findsWidgets,
+    );
+    await tester.pumpAndSettle();
+    // In the sheet, and back in the card under it (offstage) to fly back to.
+    expect(
+      find.byWidgetPredicate(
+        (w) =>
+            w is Hero && w.tag == requestorLogoHeroTag(testParty("Gemeente")),
+        skipOffstage: false,
+      ),
+      findsNWidgets(2),
+    );
   });
 
   final phone = _card(

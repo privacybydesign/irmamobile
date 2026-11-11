@@ -515,8 +515,8 @@ Finder findCredentialCards({bool skipOffstage = true}) =>
 /// permission screen, one per credential, in screen order. Pass one of them
 /// to [evaluateCredentialCard] to check that credential's name, issuer and
 /// attributes ("You will receive").
-/// The offered cards on the issuance permission: the big card, or the
-/// cards of the pile. Not the small pictures above each card's values.
+/// The offered cards on the issuance permission: the picture (58 wide) on
+/// each card's tile. Not smaller pictures, such as a thumbnail.
 /// The issuance permission: the full-screen one, or its content in the
 /// Change sheet.
 Finder _issuancePage({bool skipOffstage = true}) => find.byWidgetPredicate(
@@ -527,7 +527,7 @@ Finder _issuancePage({bool skipOffstage = true}) => find.byWidgetPredicate(
 Finder findIssuanceCards({bool skipOffstage = false}) => find.descendant(
   of: _issuancePage(skipOffstage: skipOffstage),
   matching: find.byWidgetPredicate(
-    (w) => w is CredentialCardArt && w.width > 60,
+    (w) => w is CredentialCardArt && w.width >= 50,
     skipOffstage: skipOffstage,
   ),
   skipOffstage: skipOffstage,

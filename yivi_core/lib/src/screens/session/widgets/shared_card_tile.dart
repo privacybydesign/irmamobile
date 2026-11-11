@@ -53,6 +53,10 @@ class SharedCardTile extends ConsumerWidget {
   /// The card was added during this request: a green "New" chip.
   final bool isNew;
 
+  /// A button at the end of the problem strip ([problemStrip]): get the card
+  /// again, or change the choice.
+  final Widget? problemAction;
+
   const SharedCardTile({
     super.key,
     required this.bundle,
@@ -64,6 +68,7 @@ class SharedCardTile extends ConsumerWidget {
     this.footer,
     this.problemStrip = false,
     this.isNew = false,
+    this.problemAction,
   }) : assert((fixLabel == null) == (onFix == null));
 
   /// The art, marked as a landing spot.
@@ -127,6 +132,7 @@ class SharedCardTile extends ConsumerWidget {
                   style: CardTileStrip.textStyle(context),
                 ),
               ),
+              ?problemAction,
             ],
           )
         : footer;

@@ -520,6 +520,10 @@
     "heading": {
       "one": "Je krijgt een kaartje van",
       "many": "Je krijgt {count} kaartjes van"
+    },
+    "bar_subtitle": {
+      "one": "geeft je een kaartje",
+      "many": "geeft je {count} kaartjes"
     }
   },
   "email_issuance": {

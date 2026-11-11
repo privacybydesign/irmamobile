@@ -1021,11 +1021,20 @@ void main() {
         find.text("One more thing to sort out, then you can share"),
         findsOneWidget,
       );
-      // The note in a calm strip, without a button: the share button does
-      // the fix.
-      expect(find.byKey(const Key("shared_card_problem")), findsOneWidget);
+      // The note in a calm strip, with the only way on at its end, where
+      // "Change choice" is on a card with a choice; the share button too.
+      final strip = find.byKey(const Key("shared_card_problem"));
+      expect(strip, findsOneWidget);
       expect(find.byKey(const Key("shared_card_fix")), findsNothing);
-      expect(find.text("Add again"), findsOneWidget);
+      expect(
+        find.descendant(
+          of: strip,
+          matching: find.byKey(const Key("share_fetch_again_0")),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("share_change_0")), findsNothing);
+      expect(find.text("Add again"), findsNWidgets(2));
 
       // It opens the sheet straight on adding a new one: its details.
       await tester.tap(_share);
@@ -1038,6 +1047,63 @@ void main() {
       await tester.tap(find.byKey(const Key("sheet_open_website")));
       await tester.pumpAndSettle();
       expect(calls.obtained, ["address"]);
+    });
+
+    testWidgets("revoked with another kind to choose: Change choice in its "
+        "strip, not Add again", (tester) async {
+      await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(
+                _instance("address", "Address", "Nijmegen", revoked: true),
+              ),
+            ],
+            obtainableOptions: [
+              _descriptor("address", "Address"),
+              _descriptor("passport", "Passport"),
+            ],
+          ),
+        ]),
+      );
+
+      final strip = find.byKey(const Key("shared_card_problem"));
+      expect(
+        find.descendant(
+          of: strip,
+          matching: find.byKey(const Key("share_change_0")),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("share_fetch_again_0")), findsNothing);
+      await tester.tap(find.byKey(const Key("share_change_0")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("glass_sheet")), findsOneWidget);
+    });
+
+    testWidgets("Add again in the strip opens adding a new one", (
+      tester,
+    ) async {
+      final calls = await _pump(
+        tester,
+        session: _session([
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: [
+              _bundle(
+                _instance("address", "Address", "Nijmegen", revoked: true),
+              ),
+            ],
+            obtainableOptions: [_descriptor("address", "Address")],
+          ),
+        ]),
+      );
+      await tester.tap(find.byKey(const Key("share_fetch_again_0")));
+      await tester.pumpAndSettle();
+      expect(calls.shared, isEmpty);
+      expect(find.byKey(const Key("add_data_details_issuer")), findsOneWidget);
     });
 
     testWidgets("used up and not renewable in Yivi: Close", (tester) async {

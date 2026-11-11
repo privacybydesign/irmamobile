@@ -517,6 +517,10 @@
     "heading": {
       "one": "You get a card from",
       "many": "You get {count} cards from"
+    },
+    "bar_subtitle": {
+      "one": "gives you a card",
+      "many": "gives you {count} cards"
     }
   },
   "email_issuance": {

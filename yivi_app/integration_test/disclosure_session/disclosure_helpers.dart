@@ -61,45 +61,29 @@ bool shareButtonEnabled(WidgetTester tester) {
 
 Future<void> evaluateFeedback(
   WidgetTester tester, {
-  feedbackType = DisclosureFeedbackType.success,
   isSignatureSession = false,
 }) async {
-  // Expect the success screen
+  // Expect the success screen: a check and "Shared with …" or "Signed"
+  // (or "Done" when nothing was shared).
   final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
   expect(feedbackScreenFinder, findsOneWidget);
   expect(
-    (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen)
-        .feedbackType,
-    feedbackType,
+    find.descendant(
+      of: feedbackScreenFinder,
+      matching: find.byKey(const Key("share_done_check")),
+    ),
+    findsOneWidget,
   );
-
-  if (feedbackType == DisclosureFeedbackType.success) {
-    // The result: a check and "Shared with …" or "Signed and shared" (or
-    // "Done" when nothing was shared).
-    expect(
-      find.descendant(
-        of: feedbackScreenFinder,
-        matching: find.byKey(const Key("share_done_check")),
-      ),
-      findsOneWidget,
-    );
-    final title = find.byKey(const Key("share_done_title"));
-    expect(title, findsOneWidget);
-    final text = tester.widget<Text>(title).data!;
-    if (isSignatureSession) {
-      expect(text, "Signed");
-    } else {
-      expect(text.startsWith("Shared with") || text == "Done", isTrue);
-    }
-
-    await tester.tapAndSettle(find.byKey(const Key("ok_button")));
+  final title = find.byKey(const Key("share_done_title"));
+  expect(title, findsOneWidget);
+  final text = tester.widget<Text>(title).data!;
+  if (isSignatureSession) {
+    expect(text, "Signed");
   } else {
-    if (feedbackType == DisclosureFeedbackType.canceled) {
-      expect(find.text("Canceled"), findsOneWidget);
-    }
-    await tester.waitFor(find.text("OK"));
-    await tester.tapAndSettle(find.text("OK"));
+    expect(text.startsWith("Shared with") || text == "Done", isTrue);
   }
+
+  await tester.tapAndSettle(find.byKey(const Key("ok_button")));
 
   // Session flow should be over now
   expect(find.byType(SessionScreen), findsNothing);

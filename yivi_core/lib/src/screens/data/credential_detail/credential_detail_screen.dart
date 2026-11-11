@@ -29,6 +29,8 @@ import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/two_pane.dart";
 import "../../add_data/add_data_sheet.dart";
+import "../../session/widgets/requestor_card.dart";
+import "../../session/widgets/requestor_trust_sheet.dart";
 import "../card_transition/card_transition.dart";
 import "../card_transition/card_transition_layer.dart";
 import "../wallet/card_hero.dart";
@@ -566,11 +568,21 @@ class _Details extends ConsumerWidget {
         // keeps the usual gap itself when there is none.
         heading("wallet.detail.activity", below: 2),
         CardActivitySection(credential: credential),
-        const SizedBox(height: 24),
-        _AboutRow(
-          label: FlutterI18n.translate(context, "wallet.detail.issued_by"),
-          value: credential.issuer.name,
+        // Who issued it, as the share screen shows who asks: the logo with
+        // its trust badge, who vouches for it, and an ⓘ to its trust sheet.
+        heading("wallet.detail.issued_by"),
+        RequestorCard.compact(
+          key: const Key("credential_detail_issuer"),
+          requestor: credential.issuer,
+          // No logo hero: the details can be on screen twice in a route
+          // (turning to the side pane).
+          onInfo: () => showRequestorTrustSheet(
+            context: context,
+            requestor: credential.issuer,
+            issuer: true,
+          ),
         ),
+        const SizedBox(height: 24),
         _AboutRow(
           label: FlutterI18n.translate(context, "wallet.detail.format"),
           value: format,

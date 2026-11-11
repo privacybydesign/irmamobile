@@ -343,6 +343,23 @@ bool canChange(DisclosurePickOne pickOne) =>
     (pickOne.ownedOptions ?? const []).length + addableOptions(pickOne).length >
     1;
 
+/// The only way on for [bundle], a card with a problem for [pickOne]: it is
+/// the one card in the app, and the request takes no other kind, so there
+/// is nothing to choose but getting it again. Null when there is a choice
+/// (or no way to get it again).
+CredentialDescriptor? onlyRenewalFor(
+  DisclosurePickOne pickOne,
+  DisclosureBundle bundle,
+) {
+  if ((pickOne.ownedOptions ?? const []).length != 1) return null;
+  if (problemOfBundle(bundle) == null) return null;
+  final ids = bundle.credentials.map((c) => c.credentialId).toSet();
+  if (!addableOptions(pickOne).every((d) => ids.contains(d.credentialId))) {
+    return null;
+  }
+  return fixFor(pickOne, bundle);
+}
+
 /// Whether adding [fix] for [bundle] replaces a card (one the app holds only
 /// once), rather than adding one next to it.
 bool replacesCard(CredentialDescriptor fix, DisclosureBundle bundle) =>

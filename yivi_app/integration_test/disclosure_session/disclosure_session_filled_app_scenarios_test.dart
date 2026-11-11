@@ -4,6 +4,7 @@ import "package:integration_test/integration_test.dart";
 import "../irma_binding.dart";
 import "filled_app_scenarios/filled_choice.dart";
 import "filled_app_scenarios/filled_choice_mixed.dart";
+import "filled_app_scenarios/filled_default_last_shared.dart";
 import "filled_app_scenarios/filled_discon.dart";
 import "filled_app_scenarios/filled_multi_bundle_choice.dart";
 import "filled_app_scenarios/filled_multi_cred_bundle.dart";
@@ -44,6 +45,13 @@ void main() {
       testWidgets(
         "filled-no-choice-same-creds",
         (tester) => filledNoChoiceSameCredsTest(tester, irmaBinding),
+      );
+
+      // Only email, with two addresses in the app: the request starts on
+      // the one last shared with this requestor.
+      testWidgets(
+        "filled-default-last-shared",
+        (tester) => filledDefaultLastSharedTest(tester, irmaBinding),
       );
 
       // Address from municipality OR

@@ -73,8 +73,11 @@ class IssuancePermission extends StatefulWidget {
 }
 
 class _IssuancePermissionState extends State<IssuancePermission> {
+  /// The issuer's card has scrolled under the bar: the compact bar then
+  /// says who gives the card, as the share screen's says who asks.
   final _barTitleVisible = ValueNotifier(false);
   final _headingKey = GlobalKey(debugLabel: "issuance_heading");
+  final _issuerCardKey = GlobalKey(debugLabel: "issuance_issuer_card");
 
   List<schemaless.Credential> get _cards => widget.issuedCredentials;
 
@@ -95,6 +98,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       context: context,
       requestor: issuer,
       issuer: true,
+      logoHero: true,
       technicalDetails: session == null
           ? null
           : issuanceTechnicalDetailsOf(
@@ -125,6 +129,8 @@ class _IssuancePermissionState extends State<IssuancePermission> {
             issuer: issuer,
             count: count,
             onTrust: () => _openIssuer(issuer),
+            cardKey: _issuerCardKey,
+            logoHero: true,
           );
     final values = [
       const YouGetLabel(),
@@ -210,8 +216,23 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     return SessionScaffold(
       appBarTitle: "issuance.title",
       scrollsUnderBars: true,
-      // The bar's title once the heading has scrolled under it.
-      barTitleVisibility: _barTitleVisible,
+      // Once the issuer's name goes under the bar: who gives the card, in
+      // the bar (without an issuer, the bar's title).
+      barTitleVisibility: issuer == null ? _barTitleVisible : null,
+      startBar: issuer == null
+          ? null
+          : CompactBarDropIn(
+              shown: _barTitleVisible,
+              bar: (t) => RequestorCompactBar(
+                requestor: issuer,
+                subtitle: count > 1
+                    ? context.tr("issuance.bar_subtitle.many", {
+                        "count": "$count",
+                      })
+                    : context.tr("issuance.bar_subtitle.one"),
+                opacity: t,
+              ),
+            ),
       edgeShown: _barTitleVisible,
       bottomNavigationBar: bar,
       onDismiss: widget.onDismiss,
@@ -221,7 +242,12 @@ class _IssuancePermissionState extends State<IssuancePermission> {
           onNotification: (n) {
             if (n.depth == 0) {
               _barTitleVisible.value =
-                  headerUnderBar(context, _headingKey) ?? false;
+                  (issuer == null
+                      ? headerUnderBar(context, _headingKey)
+                      // The top of the name, 12 into the card, as on the
+                      // share screen.
+                      : headerUnderBar(context, _issuerCardKey, at: 12)) ??
+                  false;
             }
             return false;
           },
@@ -568,6 +594,13 @@ class IssuerHeading extends StatelessWidget {
   /// Where the issuer's logo is: it flies into the issuer's page.
   final GlobalKey? logoKey;
 
+  /// The issuer's card, to see when it goes under the bar.
+  final GlobalKey? cardKey;
+
+  /// The logo is a hero into the trust sheet ([RequestorLogo.hero]), on the
+  /// permission as a screen of its own.
+  final bool logoHero;
+
   const IssuerHeading({
     super.key,
     required this.issuer,
@@ -575,6 +608,8 @@ class IssuerHeading extends StatelessWidget {
     required this.onTrust,
     this.titleKey,
     this.logoKey,
+    this.cardKey,
+    this.logoHero = false,
   });
 
   @override
@@ -600,10 +635,14 @@ class IssuerHeading extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        RequestorCard.compact(
-          requestor: issuer,
-          onInfo: onTrust,
-          logoKey: logoKey,
+        KeyedSubtree(
+          key: cardKey,
+          child: RequestorCard.compact(
+            requestor: issuer,
+            onInfo: onTrust,
+            logoKey: logoKey,
+            logoHero: logoHero,
+          ),
         ),
       ],
     );
