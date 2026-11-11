@@ -2,13 +2,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../util/after_frame.dart";
 
-typedef KeyboardSettledCallback =
-    void Function(
-      BuildContext context,
-      double bottomInset,
-      bool isKeyboardVisible,
-    );
-
 class KeyboardAnimationListener extends StatefulWidget {
   const KeyboardAnimationListener({
     super.key,
@@ -20,7 +13,7 @@ class KeyboardAnimationListener extends StatefulWidget {
 
   /// Called when the keyboard is "settled": viewInsets.bottom stayed within
   /// half a pixel from one frame to the next.
-  final KeyboardSettledCallback? onKeyboardSettled;
+  final VoidCallback? onKeyboardSettled;
 
   @override
   State<KeyboardAnimationListener> createState() =>
@@ -73,9 +66,7 @@ class _KeyboardAnimationListenerState extends State<KeyboardAnimationListener>
 
       if (_stableFrames >= 1) {
         _watching = false;
-
-        final visible = inset > 0;
-        widget.onKeyboardSettled?.call(context, inset, visible);
+        widget.onKeyboardSettled?.call();
         return;
       }
 

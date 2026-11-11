@@ -26,9 +26,8 @@ class EnrollmentChoosePin extends EnrollmentState {
 
 class EnrollmentConfirmPin extends EnrollmentState {
   final EnrollmentStepNumber? step;
-  final bool confirmationFailed;
 
-  EnrollmentConfirmPin({this.step, this.confirmationFailed = false});
+  EnrollmentConfirmPin({this.step});
 }
 
 /// The page that offers Face ID, Touch ID or the fingerprint.

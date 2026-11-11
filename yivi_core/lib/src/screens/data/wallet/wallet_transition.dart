@@ -6,6 +6,7 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/pane_handoff.dart";
 import "../../../widgets/slot_registry.dart";
 import "../card_transition/card_transition.dart";
+import "../card_transition/repaints_with.dart";
 
 /// State shared between a home tab and the detail route of what opens from
 /// it (a card from the list or grid, an activity entry): the tapped item
@@ -332,6 +333,10 @@ class WalletStackSlot extends StatefulWidget {
     return cover.laidOutBox;
   }
 
+  /// The card at [index] of the stack, once laid out: where it rests (the
+  /// card transition measures it here).
+  static RenderBox? boxAt(int index) => _byIndex[index].laidOutBox;
+
   @override
   State<WalletStackSlot> createState() => _WalletStackSlotState();
 }
@@ -402,31 +407,15 @@ class CoveredByStack extends SingleChildRenderObjectWidget {
   }
 }
 
-class RenderCoveredByStack extends RenderProxyBox {
-  RenderCoveredByStack(this.hash, this.incoming, this._repaint);
+class RenderCoveredByStack extends RenderProxyBox with RepaintsWith {
+  RenderCoveredByStack(this.hash, this.incoming, Listenable repaint) {
+    repaintSource = repaint;
+  }
 
   String hash;
   bool incoming;
-  Listenable _repaint;
 
-  set repaint(Listenable value) {
-    if (value == _repaint) return;
-    if (attached) _repaint.removeListener(markNeedsPaint);
-    _repaint = value;
-    if (attached) _repaint.addListener(markNeedsPaint);
-  }
-
-  @override
-  void attach(PipelineOwner owner) {
-    super.attach(owner);
-    _repaint.addListener(markNeedsPaint);
-  }
-
-  @override
-  void detach() {
-    _repaint.removeListener(markNeedsPaint);
-    super.detach();
-  }
+  set repaint(Listenable value) => repaintSource = value;
 
   @override
   void paint(PaintingContext context, Offset offset) {

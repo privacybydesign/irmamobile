@@ -69,7 +69,6 @@ class YiviPalette {
   final Color noteText;
   final Color successSurface;
   final Color successText;
-  final Color successOutline;
   final Color warningSurface;
   final Color warningText;
   final Color errorSurface;
@@ -119,7 +118,6 @@ class YiviPalette {
     required this.noteText,
     required this.successSurface,
     required this.successText,
-    required this.successOutline,
     required this.warningSurface,
     required this.warningText,
     required this.errorSurface,
@@ -152,7 +150,6 @@ class YiviPalette {
     noteText: Color(0xFF123254),
     successSurface: Color(0xFFD7EFE0),
     successText: Color(0xFF00602A),
-    successOutline: Color(0xFFBFE5CC),
     warningSurface: Color(0xFFFBEFD8),
     warningText: Color(0xFF7A4F00),
     errorSurface: Color(0xFFF5DBDB),
@@ -185,7 +182,6 @@ class YiviPalette {
     noteText: Color(0xFFCFE4FF),
     successSurface: Color(0xFF133324),
     successText: Color(0xFF7EDBA4),
-    successOutline: Color(0xFF1F4A32),
     warningSurface: Color(0xFF33270F),
     warningText: Color(0xFFF2C46B),
     errorSurface: Color(0xFF3A1A1C),
@@ -240,7 +236,6 @@ class YiviPalette {
     noteText: noteText,
     successSurface: successSurface,
     successText: successText,
-    successOutline: successOutline,
     warningSurface: warningSurface,
     warningText: warningText,
     errorSurface: errorSurface,

@@ -3,12 +3,10 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
-import "../../../../util/handle_pointer.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
-import "../../../../widgets/resend_countdown.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
@@ -32,7 +30,8 @@ class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
   }
 
   @override
-  void resetFlow() => ref.read(smsIssuanceProvider.notifier).reset();
+  void resetFlow() =>
+      ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +39,7 @@ class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
     ref.listen(smsIssuanceProvider, (prev, next) {
       if (next.error is SmsIssuanceInvalidCodeError &&
           (prev?.error != next.error)) {
-        codeController.text = "";
-        codeFocus.requestFocus();
+        clearWrongCode();
       }
     });
 
@@ -63,14 +61,9 @@ class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
 
     final smsRetriever = ref.watch(smsRetrieverProvider);
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          _goBack();
-        }
-      },
-      child: ContactScrollPage(
+    return backAsks(
+      _goBack,
+      ContactScrollPage(
         appBar: IrmaAppBar(
           titleTranslationKey: "sms_issuance.verify_code.title",
           leading: YiviBackButton(onTap: _goBack),
@@ -101,19 +94,12 @@ class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
               "sms_issuance.verify_code.invalid_code_error",
             ),
           // The dialog to send it again only after the minute.
-          ResendCountdown(
+          ContactResend.link(
             until: ref
                 .read(smsIssuanceProvider.notifier)
                 .resendAt(state.phoneNumber),
-            builder: (context, left) => ContactTextLink(
-              labelKey: "sms_issuance.verify_code.no_sms_received",
-              label: left == null
-                  ? null
-                  : context.tr("contact_sheet.send_again_in", {"time": left}),
-              onTap: left == null
-                  ? () => _showResendDialog(state.phoneNumber)
-                  : null,
-            ),
+            linkKey: "sms_issuance.verify_code.no_sms_received",
+            onResend: () => _showResendDialog(state.phoneNumber),
           ),
         ],
         bottomBar: IrmaBottomBar(
@@ -124,25 +110,11 @@ class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
     );
   }
 
-  /// A code being checked or its issuance starting: a second one would
-  /// start a second issuance.
-  var _handling = false;
-
-  Future<void> _handleCode(String code) async {
-    if (_handling) return;
-    _handling = true;
-    try {
-      final session = await ref
-          .read(smsIssuanceProvider.notifier)
-          .verifyCode(code: code.toUpperCase());
-
-      if (session != null && mounted) {
-        await handlePointer(context, session);
-      }
-    } finally {
-      _handling = false;
-    }
-  }
+  /// Once at a time: a second code would start a second issuance.
+  Future<void> _handleCode(String code) => handleCode(
+    code,
+    (code) => ref.read(smsIssuanceProvider.notifier).verifyCode(code: code),
+  );
 
   Future<void> _goBack() => confirmThen(
     "sms_issuance.verify_code.back_dialog",

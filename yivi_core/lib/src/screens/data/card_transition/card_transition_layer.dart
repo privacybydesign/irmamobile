@@ -7,6 +7,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "card_transition.dart";
 import "choreography.dart";
+import "repaints_with.dart";
 
 /// The open card's details, over the home screen, from the tap until the
 /// card is back in the stack: the real ones (the card at the top and all
@@ -190,31 +191,15 @@ class _OpenCardRender extends SingleChildRenderObjectWidget {
         ..background = background;
 }
 
-class _RenderOpenCard extends RenderProxyBox {
-  _RenderOpenCard(this._transition);
+class _RenderOpenCard extends RenderProxyBox with RepaintsWith {
+  _RenderOpenCard(CardTransition transition) {
+    repaintSource = transition;
+  }
 
   Color background = const Color(0x00000000);
 
-  CardTransition _transition;
-  set transition(CardTransition value) {
-    if (value == _transition) return;
-    if (attached) _transition.removeListener(markNeedsPaint);
-    _transition = value;
-    if (attached) _transition.addListener(markNeedsPaint);
-    markNeedsPaint();
-  }
-
-  @override
-  void attach(PipelineOwner owner) {
-    super.attach(owner);
-    _transition.addListener(markNeedsPaint);
-  }
-
-  @override
-  void detach() {
-    _transition.removeListener(markNeedsPaint);
-    super.detach();
-  }
+  CardTransition get _transition => repaintSource! as CardTransition;
+  set transition(CardTransition value) => repaintSource = value;
 
   @override
   bool get isRepaintBoundary => true;
@@ -495,8 +480,10 @@ class _FollowRender extends SingleChildRenderObjectWidget {
     ..scaleOrigin = scaleOrigin;
 }
 
-class _RenderFollow extends RenderProxyBox {
-  _RenderFollow(this._transition);
+class _RenderFollow extends RenderProxyBox with RepaintsWith {
+  _RenderFollow(CardTransition? transition) {
+    repaintSource = transition;
+  }
 
   double Function(CardTransition t)? opacityOf;
   Offset Function(CardTransition t)? offsetOf;
@@ -508,26 +495,8 @@ class _RenderFollow extends RenderProxyBox {
   Radius? corner;
   Alignment scaleOrigin = Alignment.topCenter;
 
-  CardTransition? _transition;
-  set transition(CardTransition? value) {
-    if (value == _transition) return;
-    if (attached) _transition?.removeListener(markNeedsPaint);
-    _transition = value;
-    if (attached) _transition?.addListener(markNeedsPaint);
-    markNeedsPaint();
-  }
-
-  @override
-  void attach(PipelineOwner owner) {
-    super.attach(owner);
-    _transition?.addListener(markNeedsPaint);
-  }
-
-  @override
-  void detach() {
-    _transition?.removeListener(markNeedsPaint);
-    super.detach();
-  }
+  CardTransition? get _transition => repaintSource as CardTransition?;
+  set transition(CardTransition? value) => repaintSource = value;
 
   // Its own layer: repainting it each frame repaints only itself, and its
   // child (a repaint boundary below) is not drawn again.

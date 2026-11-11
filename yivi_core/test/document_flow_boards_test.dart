@@ -195,10 +195,7 @@ void main() {
     Future<void> pumpScreen(WidgetTester tester) => _pump(
       tester,
       MrzReaderScreen(
-        translationKeys: MrzReaderTranslationKeys(
-          title: "passport.scan.title",
-          manualEntryButton: "passport.scan.manual",
-        ),
+        documentType: DocumentType.passport,
         onSuccess: (_) {},
         onManualAdd: () {},
         onCancel: () {},

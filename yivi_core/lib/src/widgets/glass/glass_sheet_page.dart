@@ -4,8 +4,8 @@ part of "glass_sheet.dart";
 /// [GlassSheetScrollView], and [bottom] (a button) pinned to the bottom of
 /// the sheet, as on a full screen.
 ///
-/// The content scrolls on under the header and the [pinned] part; once it
-/// is under them, they get the hard scroll edge of iOS ([ScrollEdgeBand]).
+/// The content scrolls on under the header; once it is under it, the header
+/// gets the hard scroll edge of iOS ([ScrollEdgeBand]).
 class GlassSheetPage extends StatefulWidget {
   final String title;
 
@@ -32,18 +32,6 @@ class GlassSheetPage extends StatefulWidget {
   /// See [GlassSheetHeader.closeAtStart].
   final bool closeAtStart;
 
-  /// See [GlassSheetHeader.leading].
-  final Widget? leading;
-
-  /// Right under the title bar, the full width of the sheet, and above the
-  /// scrolling [child], staying put while the page scrolls (the progress of
-  /// adding a card).
-  final Widget? pinned;
-
-  /// On a phone held sideways: a second line under the title (see
-  /// [GlassSheetHeader.subtitle]).
-  final Widget? subtitle;
-
   /// Around [child] in the scroll view; zero when [child] pads itself.
   final EdgeInsets padding;
 
@@ -60,11 +48,6 @@ class GlassSheetPage extends StatefulWidget {
   // no padding, does not scroll (each column scrolls on its own) and leaves
   // the bottom to the columns, whatever [padding], [scrolls] and
   // [childClearsBottom] say for upright.
-
-  /// Whether the bar gets the hard scroll edge once content scrolls under
-  /// it. Without it, only the buttons float over the content (a page whose
-  /// bar has no title).
-  final bool edge;
 
   /// With [scrolls] false, on a phone held upright: the bottom bar shows
   /// the buttons the screens inside put in the page's [SheetActionSlot]
@@ -109,14 +92,10 @@ class GlassSheetPage extends StatefulWidget {
     this.action,
     this.closable = true,
     this.closeAtStart = false,
-    this.leading,
-    this.pinned,
-    this.subtitle,
     EdgeInsets padding = EdgeInsets.zero,
     bool scrolls = true,
     bool childClearsBottom = false,
     bool split = false,
-    this.edge = true,
     this.slotBottom = false,
     this.fit = false,
     this.titleWidgetCentred = false,
@@ -175,7 +154,6 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final role = _SheetPageRole.maybeOf(context);
     final title = widget.title;
     final onBack = widget.onBack;
-    final pinned = widget.pinned;
     final action = widget.action;
     final inBar = sheetActionInBar(context);
     final bottomUp =
@@ -189,7 +167,6 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         !useSheetColumns(context);
     role?.chrome[role.pageKey] = (
       back: onBack != null,
-      pinned: pinned != null,
       action: inBar && (action != null || _slot.action != null),
       title: widget.titleWidget?.key,
     );
@@ -211,22 +188,11 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     if (report != null && !widget.fit) {
       afterFrame(() => report(null));
     }
-    final pinnedFades = moving && other != null && !other.pinned;
     // A title widget both pages have (same key) does not fade out and in:
     // the top page's stays, the one underneath is hidden under it.
     final titleKey = widget.titleWidget?.key;
     final sharedTitle =
         moving && other != null && titleKey != null && other.title == titleKey;
-    // Underneath, the top page's pinned part stands in for this one, unless
-    // it has none.
-    final pinnedShown = pinned == null
-        ? null
-        : _kept(
-            top || pinnedFades,
-            pinnedFades
-                ? FadeTransition(opacity: role.ownOpacity, child: pinned)
-                : pinned,
-          );
     final head = <Widget>[
       // In pages the bar stays put while pages change; only the titles fade
       // into each other. The way on in the bar comes from the page, or from
@@ -254,7 +220,6 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
                 : () => _slot.action?.onTap?.call(),
             closable: widget.closable,
             closeAtStart: widget.closeAtStart,
-            leading: widget.leading,
             buttons: top,
             titleOpacity: sharedTitle
                 ? (top ? null : kAlwaysDismissedAnimation)
@@ -265,13 +230,10 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             actionOpacity: moving && other != null && !other.action
                 ? role.ownOpacity
                 : null,
-            subtitle: widget.subtitle,
             extra: bottomUp ? widget.bottom : null,
           );
         },
       ),
-      // The progress: a line the full width of the sheet, under the bar.
-      ?pinnedShown,
     ];
     final body = NotificationListener<ScrollNotification>(
       onNotification: _onScroll,
@@ -291,22 +253,21 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         children: [
           // Clipped to the sheet's top corners itself: it is drawn outside
           // the sheet's rounded clip, and filled the corners square.
-          if (widget.edge)
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: _GlassSheet._radius,
-                ),
-                // The band is the edge of this page's content: it goes
-                // with it as pages change, so it never switches at the end,
-                // and the content under it never shows through the bar.
-                child: role == null
-                    ? ScrollEdgeBand(under: _under, color: palette.sheet)
-                    : role.slide(
-                        ScrollEdgeBand(under: _under, color: palette.sheet),
-                      ),
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: _GlassSheet._radius,
               ),
+              // The band is the edge of this page's content: it goes
+              // with it as pages change, so it never switches at the end,
+              // and the content under it never shows through the bar.
+              child: role == null
+                  ? ScrollEdgeBand(under: _under, color: palette.sheet)
+                  : role.slide(
+                      ScrollEdgeBand(under: _under, color: palette.sheet),
+                    ),
             ),
+          ),
           Column(
             key: _barKey,
             mainAxisSize: MainAxisSize.min,
@@ -353,12 +314,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         ? given
         : given == null
         ? button
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 10,
-            children: [given, button],
-          );
+        : sheetStack(given, button);
     if (_slot.takesBottom) return _slotBody(padding, child!);
     // Sideways with the way on out of the bar: at the bottom of the split's
     // left column, not in a bar across the sheet.
@@ -470,12 +426,7 @@ extension on _GlassSheetPageState {
           return SheetBottomBar(
             child: above == null
                 ? _kept(!empty, row)
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 10,
-                    children: [above, _kept(!empty, row)],
-                  ),
+                : sheetStack(above, _kept(!empty, row)),
           );
         },
       ),
@@ -614,13 +565,12 @@ class _FitMeasureState extends State<_FitMeasure> {
   @override
   Widget build(BuildContext context) {
     return _SizeChanged(
-      onChanged: () =>
-          WidgetsBinding.instance.addPostFrameCallback((_) => _measure()),
+      onChanged: () => afterFrame(_measure),
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxHeight != _room) {
             _room = constraints.maxHeight;
-            WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+            afterFrame(_measure);
           }
           return KeyedSubtree(key: _content, child: widget.child);
         },
@@ -632,13 +582,13 @@ class _FitMeasureState extends State<_FitMeasure> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // On top again (back from a page over it): say so once more.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+    afterFrame(_measure);
   }
 
   @override
   void didUpdateWidget(_FitMeasure old) {
     super.didUpdateWidget(old);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+    afterFrame(_measure);
   }
 }
 

@@ -131,12 +131,10 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       if (event is EnrollmentPinMismatch) {
         yield EnrollmentChoosePin(step: _pinStep);
       } else if (event is EnrollmentPinConfirmed) {
-        if (_pin == event.pin) {
-          unawaited(_startAccount());
-          yield* _goTo(_biometricOrNext());
-        } else {
-          yield EnrollmentConfirmPin(step: _pinStep, confirmationFailed: true);
-        }
+        // The confirm screen compares the two PINs itself: a different one
+        // comes as EnrollmentPinMismatch.
+        unawaited(_startAccount());
+        yield* _goTo(_biometricOrNext());
       } else if (event is EnrollmentPreviousPressed) {
         yield EnrollmentChoosePin(step: _pinStep);
       }

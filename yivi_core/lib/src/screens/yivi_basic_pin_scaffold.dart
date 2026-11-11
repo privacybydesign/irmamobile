@@ -57,12 +57,7 @@ class YiviBasicPinScaffold extends StatelessWidget {
             detail: error,
             detailKind: PinDetailKind.error,
             pinError: error != null,
-            listener: (context, state) {
-              if (maxPinSize == shortPinSize &&
-                  state.pin.length == maxPinSize) {
-                submit(state.toString());
-              }
-            },
+            listener: submitWhenFull(maxPinSize, submit),
           );
         },
       ),

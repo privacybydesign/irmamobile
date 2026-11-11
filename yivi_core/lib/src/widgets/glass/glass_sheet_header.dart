@@ -40,11 +40,6 @@ class GlassSheetHeader extends StatelessWidget {
   /// Without [onBack] only.
   final bool closeAtStart;
 
-  /// A button of the page's own (Add data's search, once its field has
-  /// scrolled away): at the start of the bar, or before the buttons at the
-  /// end when the start is taken.
-  final Widget? leading;
-
   /// The title fades while pages of [GlassSheetPages] change (the bar
   /// itself stays put); null when it simply shows.
   final Animation<double>? titleOpacity;
@@ -60,10 +55,6 @@ class GlassSheetHeader extends StatelessWidget {
   /// Off for the page under the top one: its buttons sit under the top
   /// page's own.
   final bool buttons;
-
-  /// On a phone held sideways: a second line under the title (who a card is
-  /// added for).
-  final Widget? subtitle;
 
   /// [titleWidget] stays centred between the buttons on a phone held
   /// sideways too, as upright (a tag, or nothing while the title waits for
@@ -85,12 +76,10 @@ class GlassSheetHeader extends StatelessWidget {
     this.onAction,
     this.closable = true,
     this.closeAtStart = false,
-    this.leading,
     this.titleOpacity,
     this.backOpacity,
     this.actionOpacity,
     this.buttons = true,
-    this.subtitle,
     this.titleWidgetCentred = false,
     this.extra,
   });
@@ -107,7 +96,6 @@ class GlassSheetHeader extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final floating = _GlassSheetFloating.of(context);
     final titleWidget = this.titleWidget;
-    final subtitle = sideways ? this.subtitle : null;
     final action = sheetActionInBar(context) ? this.action : null;
     final onBack = this.onBack;
 
@@ -148,12 +136,7 @@ class GlassSheetHeader extends StatelessWidget {
             opacity: titleWidget == null ? 1 : 0,
             alwaysIncludeSemantics: true,
             duration: _switch(context),
-            child: subtitle == null
-                ? text
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [text, subtitle],
-                  ),
+            child: text,
           ),
           AnimatedSwitcher(
             duration: _switch(context),
@@ -180,9 +163,8 @@ class GlassSheetHeader extends StatelessWidget {
         : this.closable || keepsClose || adding;
     final closeStart =
         !floating && closable && closeAtStart && onBack == null && !keepsClose;
-    final leading = this.leading == null ? null : shown(this.leading!);
-    final Widget? taken = closeStart
-        ? shown(IrmaCloseButton(onTap: close))
+    final Widget? start = closeStart
+        ? _closeButton(context)
         : floating
         ? (onBack != null || closable
               ? shown(
@@ -197,17 +179,8 @@ class GlassSheetHeader extends StatelessWidget {
                   ),
                 )
               : null)
-        : (onBack != null
-              ? shown(
-                  FadeTransition(
-                    opacity: backOpacity ?? kAlwaysCompleteAnimation,
-                    child: YiviBackButton(onTap: onBack),
-                  ),
-                )
-              : null);
-    final start = taken ?? leading;
+        : (onBack != null ? _backButton(onBack) : null);
     final end = <Widget>[
-      if (taken != null) ?leading,
       if (action != null)
         Flexible(
           child: shown(
@@ -228,8 +201,7 @@ class GlassSheetHeader extends StatelessWidget {
             ),
           ),
         ),
-      if (!floating && closable && !closeStart)
-        shown(IrmaCloseButton(onTap: close)),
+      if (!floating && closable && !closeStart) _closeButton(context),
     ];
     return Padding(
       // A little room under the buttons, for the band once content scrolls
@@ -260,24 +232,32 @@ class GlassSheetHeader extends StatelessWidget {
     );
   }
 
+  /// The round back button, faded with [backOpacity] while pages change.
+  Widget _backButton(VoidCallback onBack) => _kept(
+    buttons,
+    FadeTransition(
+      opacity: backOpacity ?? kAlwaysCompleteAnimation,
+      child: YiviBackButton(onTap: onBack),
+    ),
+  );
+
+  /// The round close button. Through [closeGlassSheet], so a
+  /// [GlassSheetConfirmDismiss] can ask first.
+  Widget _closeButton(BuildContext context) =>
+      _kept(buttons, IrmaCloseButton(onTap: () => closeGlassSheet(context)));
+
   /// A phone held sideways with [extra]: one row from the start, the back
   /// button (or the close button on a first page), [titleWidget], [extra],
   /// and at the end the way on ([action]), or the close button when there is
   /// none.
   Widget _startRow(BuildContext context) {
-    void close() => closeGlassSheet(context);
     final action = sheetActionInBar(context) ? this.action : null;
     final onBack = this.onBack;
     Widget shown(Widget child) => _kept(buttons, child);
     final Widget? start = onBack != null
-        ? shown(
-            FadeTransition(
-              opacity: backOpacity ?? kAlwaysCompleteAnimation,
-              child: YiviBackButton(onTap: onBack),
-            ),
-          )
+        ? _backButton(onBack)
         : closeAtStart || closable
-        ? shown(IrmaCloseButton(onTap: close))
+        ? _closeButton(context)
         : null;
     final titleWidget = this.titleWidget;
     return Padding(
@@ -320,7 +300,7 @@ class GlassSheetHeader extends StatelessWidget {
                 ),
               )
             else if (onBack != null)
-              shown(IrmaCloseButton(onTap: close)),
+              _closeButton(context),
           ],
         ),
       ),
@@ -333,8 +313,6 @@ class GlassSheetHeader extends StatelessWidget {
   Widget _row(BuildContext context) {
     final palette = YiviPalette.of(context);
     final titleWidget = this.titleWidget!;
-    final subtitle = this.subtitle;
-    final leading = this.leading;
     final text = Semantics(
       header: true,
       namesRoute: true,
@@ -350,13 +328,7 @@ class GlassSheetHeader extends StatelessWidget {
     );
     final heading = FadeTransition(
       opacity: titleOpacity ?? kAlwaysCompleteAnimation,
-      child: subtitle == null
-          ? text
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [text, subtitle],
-            ),
+      child: text,
     );
     return Padding(
       // A little room under the buttons, for the band once content scrolls
@@ -367,14 +339,7 @@ class GlassSheetHeader extends StatelessWidget {
         child: Row(
           spacing: 12,
           children: [
-            if (onBack != null)
-              _kept(
-                buttons,
-                FadeTransition(
-                  opacity: backOpacity ?? kAlwaysCompleteAnimation,
-                  child: YiviBackButton(onTap: onBack),
-                ),
-              ),
+            if (onBack case final onBack?) _backButton(onBack),
             heading,
             Expanded(
               child: FadeTransition(
@@ -382,14 +347,7 @@ class GlassSheetHeader extends StatelessWidget {
                 child: titleWidget,
               ),
             ),
-            ?leading,
-            if (closable)
-              _kept(
-                buttons,
-                // Through closeGlassSheet, so a [GlassSheetConfirmDismiss] can
-                // ask first.
-                IrmaCloseButton(onTap: () => closeGlassSheet(context)),
-              ),
+            if (closable) _closeButton(context),
           ],
         ),
       ),

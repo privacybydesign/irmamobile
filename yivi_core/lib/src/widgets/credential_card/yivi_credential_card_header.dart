@@ -4,7 +4,7 @@ import "../../theme/theme.dart";
 import "../irma_avatar.dart";
 import "../translated_text.dart";
 
-TextStyle issuerLabelStyle(IrmaThemeData theme) => TextStyle(
+TextStyle _issuerLabelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
   fontSize: 14,
   fontWeight: FontWeight.w400,
@@ -12,19 +12,18 @@ TextStyle issuerLabelStyle(IrmaThemeData theme) => TextStyle(
   height: 1.4,
 );
 
-TextStyle credentialNameStyle(IrmaThemeData theme, double fontSize) =>
-    TextStyle(
-      fontFamily: theme.primaryFontFamily,
-      fontSize: fontSize,
-      fontWeight: FontWeight.w600,
-      color: theme.dark,
-      height: 26 / 19,
-    );
+TextStyle _credentialNameStyle(IrmaThemeData theme) => TextStyle(
+  fontFamily: theme.primaryFontFamily,
+  fontSize: 19,
+  fontWeight: FontWeight.w600,
+  color: theme.dark,
+  height: 26 / 19,
+);
 
 class YiviCredentialCardHeader extends StatelessWidget {
   final String credentialName;
   final Widget? logoImage;
-  final String? issuerName;
+  final String issuerName;
   final Widget? trailing;
   final bool isExpired;
   final bool isExpiringSoon;
@@ -33,7 +32,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
   const YiviCredentialCardHeader({
     required this.credentialName,
     this.logoImage,
-    this.issuerName,
+    required this.issuerName,
     this.trailing,
     this.isExpiringSoon = false,
     this.isExpired = false,
@@ -75,8 +74,6 @@ class YiviCredentialCardHeader extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final status = statusText(theme);
 
-    // Always use the compact layout for now — the expanded variant has
-    // been retired while we align the header style with the design.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -105,13 +102,11 @@ class YiviCredentialCardHeader extends StatelessWidget {
                     children: [
                       Text(
                         credentialName,
-                        style: credentialNameStyle(theme, 19),
+                        style: _credentialNameStyle(theme),
                         softWrap: true,
                       ),
-                      if (issuerName != null) ...[
-                        const SizedBox(height: 1),
-                        Text(issuerName!, style: issuerLabelStyle(theme)),
-                      ],
+                      const SizedBox(height: 1),
+                      Text(issuerName, style: _issuerLabelStyle(theme)),
                     ],
                   ),
                 ),

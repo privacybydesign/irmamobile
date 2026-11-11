@@ -213,16 +213,16 @@ void main() {
   });
 
   test(
-    "a different second PIN asks again, without making an account",
+    "a different second PIN chooses again, without making an account",
     () async {
       final bloc = newBloc();
       await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
       await next(bloc, EnrollmentNextPressed());
       await next(bloc, EnrollmentPinChosen("12345"));
-      final again = await next(bloc, EnrollmentPinConfirmed("54321"));
+      // The confirm screen compares the PINs and reports the mismatch.
+      final again = await next(bloc, EnrollmentPinMismatch());
 
-      expect(again, isA<EnrollmentConfirmPin>());
-      expect((again as EnrollmentConfirmPin).confirmationFailed, isTrue);
+      expect(again, isA<EnrollmentChoosePin>());
       expect(enrollments(), 0);
     },
   );

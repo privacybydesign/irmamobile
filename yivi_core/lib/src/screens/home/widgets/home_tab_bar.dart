@@ -174,7 +174,8 @@ class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
 
   bool get _rtl => Directionality.of(context) == TextDirection.rtl;
 
-  /// The tab at [place], counted from the left.
+  /// The tab at [place], counted from the left; the other way round, the
+  /// place of a tab (it is the same mapping).
   int _tabAt(int place) => _rtl ? _count - 1 - place : place;
 
   int _placeAt(double dx) =>
@@ -262,7 +263,7 @@ class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
         _width = constraints.maxWidth;
         _height = constraints.maxHeight;
         final tabWidth = _tabWidth;
-        final place = _rtl ? _count - 1 - index : index;
+        final place = _tabAt(index);
         final pressing = _pointer != null;
         return Listener(
           behavior: HitTestBehavior.opaque,
@@ -350,13 +351,7 @@ class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
                                     max(
                                       0.0,
                                       1 -
-                                          (_middleOf(
-                                                        _rtl
-                                                            ? _count - 1 - i
-                                                            : i,
-                                                      ) -
-                                                      x)
-                                                  .abs() /
+                                          (_middleOf(_tabAt(i)) - x).abs() /
                                               tabWidth,
                                     ),
                             handlesTaps: false,

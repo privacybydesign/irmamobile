@@ -118,16 +118,6 @@ func handleNativeEvent(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.queryLogs(event)
 		}
-	case "GetLogEvent":
-		event := &getLogEvent{}
-		if err = json.Unmarshal(payloadBytes, &event); err == nil {
-			err = bridgeEventHandler.getLog(event)
-		}
-	case "CredentialActivityEvent":
-		event := &credentialActivityEvent{}
-		if err = json.Unmarshal(payloadBytes, &event); err == nil {
-			err = bridgeEventHandler.credentialActivity(event)
-		}
 	case "CountLogsEvent":
 		event := &countLogsEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {

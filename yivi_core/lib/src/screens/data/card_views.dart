@@ -33,7 +33,6 @@ class _StackView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cardHeight = width / CredentialCardArt.aspectRatio;
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final onMove = _reorder(ref);
     // What a card transition measures when one of them is tapped.
     StackCards.hashes = [for (final c in cards) c.hash];
@@ -58,6 +57,8 @@ class _StackView extends ConsumerWidget {
         final c = cards[i];
         return PushAway(
           hash: c.hash,
+          // Measured here, outside the card's press (it gives way under the
+          // finger): the card's place at rest, for the card transition.
           child: WalletStackSlot(
             hash: c.hash,
             index: i,
@@ -68,36 +69,29 @@ class _StackView extends ConsumerWidget {
                 key: Key("stack_nudge_${c.hash}"),
                 open: c.hash == openHash,
                 width: width,
-                reduceMotion: reduceMotion,
-                // Measured here, outside the card's press (it gives way
-                // under the finger): the card's place at rest.
-                child: RegisteredSlot(
-                  registry: StackCards.slots,
-                  id: i,
-                  child: _CardButton(
-                    credential: c,
-                    hintText: hintTexts[c.hash],
-                    pressDepth: 6,
-                    moves: arrangeable
-                        ? moveActions(
-                            context,
-                            index: i,
-                            count: cards.length,
-                            onMove: onMove,
-                          )
-                        : null,
-                    // Under the next card only its strip shows.
-                    revealHeight: i == cards.length - 1 ? null : _stripHeight,
-                    // Sinks or falls while a card opens; the open card
-                    // itself is drawn by its details.
-                    child: StackCardFollow(
-                      index: i,
+                child: _CardButton(
+                  credential: c,
+                  hintText: hintTexts[c.hash],
+                  pressDepth: 6,
+                  moves: arrangeable
+                      ? moveActions(
+                          context,
+                          index: i,
+                          count: cards.length,
+                          onMove: onMove,
+                        )
+                      : null,
+                  // Under the next card only its strip shows.
+                  revealHeight: i == cards.length - 1 ? null : _stripHeight,
+                  // Sinks or falls while a card opens; the open card
+                  // itself is drawn by its details.
+                  child: StackCardFollow(
+                    index: i,
+                    width: width,
+                    child: CredentialCardArt(
+                      credential: c,
                       width: width,
-                      child: CredentialCardArt(
-                        credential: c,
-                        width: width,
-                        hintText: hintTexts[c.hash],
-                      ),
+                      hintText: hintTexts[c.hash],
                     ),
                   ),
                 ),
@@ -127,14 +121,12 @@ Duration _slideForFlight() {
 class _Nudge extends StatelessWidget {
   final bool open;
   final double width;
-  final bool reduceMotion;
   final Widget child;
 
   const _Nudge({
     super.key,
     required this.open,
     required this.width,
-    required this.reduceMotion,
     required this.child,
   });
 
@@ -142,9 +134,7 @@ class _Nudge extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(end: open ? 1 : 0),
-      duration: reduceMotion
-          ? Duration.zero
-          : const Duration(milliseconds: 320),
+      duration: YiviMotion.duration(context, const Duration(milliseconds: 320)),
       curve: Curves.easeOutCubic,
       child: child,
       builder: (context, t, child) => Transform.translate(

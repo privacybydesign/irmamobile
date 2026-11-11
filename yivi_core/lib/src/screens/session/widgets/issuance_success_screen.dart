@@ -141,7 +141,6 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
     }
 
     return ActionFeedback(
-      success: true,
       titleTranslationKey: "issuance.success_feedback.header",
       explanationTranslationKey: text,
       explanationTranslationParams: params,

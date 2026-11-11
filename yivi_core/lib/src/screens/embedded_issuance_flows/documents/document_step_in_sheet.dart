@@ -5,6 +5,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/surface_card.dart";
+import "../../../widgets/translated_text.dart";
 
 /// Marks the document screens shown as a step in a sheet (`DocumentSheetStep`):
 /// they leave out their own app bar and Cancel (the sheet's bar has the
@@ -114,3 +115,41 @@ class SheetPictureCard extends StatelessWidget {
     );
   }
 }
+
+/// The heading of a document step in a sheet held upright, centred above
+/// what the step shows ("Scan passport", the face check).
+class DocumentSheetHeading extends StatelessWidget {
+  final String titleKey;
+
+  /// The key of the heading's text.
+  final Key? textKey;
+
+  const DocumentSheetHeading(this.titleKey, {super.key, this.textKey});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+      child: TranslatedText(
+        titleKey,
+        key: textKey,
+        isHeader: true,
+        textAlign: TextAlign.center,
+        style: palette
+            .display(24, weight: FontWeight.w700)
+            .copyWith(height: 30 / 24, color: palette.text),
+      ),
+    );
+  }
+}
+
+/// The heading of a document step in the left column of a sheet held
+/// sideways ([documentStepSplit]).
+TextStyle documentSplitHeadingStyle(YiviPalette palette) => palette
+    .display(20, weight: FontWeight.w700)
+    .copyWith(height: 28 / 20, color: palette.heading);
+
+/// The text under [documentSplitHeadingStyle].
+TextStyle documentSplitBodyStyle(YiviPalette palette) =>
+    palette.body(14.5).copyWith(height: 21 / 14.5);

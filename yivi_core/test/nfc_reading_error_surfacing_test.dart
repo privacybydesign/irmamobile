@@ -202,21 +202,6 @@ final _mrz = ScannedPassportMrz(
   dateOfExpiry: DateTime(2030, 12, 31),
 );
 
-NfcReadingTranslationKeys _passportKeys() => NfcReadingTranslationKeys(
-  cancelDialogTitle: "passport.nfc.cancel_dialog.title",
-  cancelDialogExplanation: "passport.nfc.cancel_dialog.explanation",
-  cancelDialogDecline: "passport.nfc.cancel_dialog.decline",
-  cancelDialogConfirm: "passport.nfc.cancel_dialog.confirm",
-  error: "passport.nfc.error",
-  errorGeneric: "passport.nfc.error_generic",
-  title: "passport.nfc.title",
-  cancelledByUser: "passport.nfc.cancelled_by_user",
-  cancelled: "passport.nfc.cancelled",
-  timeoutWaitingForTag: "passport.nfc.timeout_waiting_for_tag",
-  tagLostTryAgain: "passport.nfc.tag_lost_try_again",
-  failedToInitiateSession: "passport.nfc.failed_to_initiate_session",
-);
-
 /// Pumps the NFC reading screen on a router that also owns the `/error` route
 /// the screen falls back to, and returns that router so a test can navigate
 /// away mid-flow and inspect the resulting stack.
@@ -227,7 +212,7 @@ Future<GoRouter> _pumpNfcScreen(
   RegulaFaceService? faceService,
   ValueNotifier<bool>? sheetPreparing,
 }) async {
-  final screen = NfcReadingScreen(mrz: _mrz, translationKeys: _passportKeys());
+  final screen = NfcReadingScreen(mrz: _mrz);
   final router = GoRouter(
     initialLocation: "/nfc",
     routes: [

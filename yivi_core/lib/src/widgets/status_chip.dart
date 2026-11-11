@@ -81,14 +81,3 @@ class StatusChip extends StatelessWidget {
     );
   }
 }
-
-/// [StatusChip]s in a row that wraps.
-class StatusChipRow extends StatelessWidget {
-  final List<Widget> chips;
-
-  const StatusChipRow({super.key, required this.chips});
-
-  @override
-  Widget build(BuildContext context) =>
-      Wrap(spacing: 8, runSpacing: 8, children: chips);
-}

@@ -60,16 +60,6 @@ type queryLogsEvent struct {
 	Query     clientmodels.LogQuery `json:"query"`
 }
 
-type getLogEvent struct {
-	RequestId string `json:"request_id"`
-	Id        string `json:"id"`
-}
-
-type credentialActivityEvent struct {
-	RequestId string   `json:"request_id"`
-	Hashes    []string `json:"hashes"`
-}
-
 // countLogsEvent asks how many entries each filter matches: the app fades
 // the options of its filter sheet that would match nothing.
 type countLogsEvent struct {
@@ -197,20 +187,6 @@ type logPageEvent struct {
 	RequestId string               `json:"request_id"`
 	Page      clientmodels.LogPage `json:"page"`
 	Error     string               `json:"error,omitempty"`
-}
-
-// logEntryEvent answers a getLogEvent; Entry is nil when there is none.
-type logEntryEvent struct {
-	RequestId string                `json:"request_id"`
-	Entry     *clientmodels.LogInfo `json:"entry"`
-	Error     string                `json:"error,omitempty"`
-}
-
-// credentialActivityResultEvent answers a credentialActivityEvent.
-type credentialActivityResultEvent struct {
-	RequestId string                                     `json:"request_id"`
-	Activity  map[string]clientmodels.CredentialActivity `json:"activity"`
-	Error     string                                     `json:"error,omitempty"`
 }
 
 // logCountsEvent answers a countLogsEvent, one count per filter, in order.

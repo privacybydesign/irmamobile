@@ -150,7 +150,7 @@ class _IssueIslandState extends State<IssueIsland>
                     0.12 + 0.88 * t,
                     1,
                   ),
-                  child: _ContentFade(
+                  child: _IslandContentScope(
                     t: contentIn,
                     child: panel(17 + 13 * t.clamp(0.0, 1.0)),
                   ),
@@ -290,19 +290,8 @@ class _IssueIslandState extends State<IssueIsland>
   };
 }
 
-/// The island's content at [t]: it fades in from 4 above as the island
-/// grows, and out first as it folds (read by [_IssueIslandState._content]).
-class _ContentFade extends StatelessWidget {
-  final double t;
-  final Widget child;
-
-  const _ContentFade({required this.t, required this.child});
-
-  @override
-  Widget build(BuildContext context) => _IslandContentScope(t: t, child: child);
-}
-
-/// How far the island's content is in, for [_IssueIslandState._content].
+/// How far the island's content is in, for [_IssueIslandState._content]: it
+/// fades in from 4 above as the island grows, and out first as it folds.
 class _IslandContentScope extends InheritedWidget {
   final double t;
 

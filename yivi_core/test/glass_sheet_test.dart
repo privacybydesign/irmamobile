@@ -657,7 +657,6 @@ void main() {
                     key: const ValueKey("two"),
                     title: "Second",
                     onBack: () => setState(() => two = false),
-                    pinned: const Text("progress"),
                     child: const Text("second page"),
                   ),
               ],
@@ -683,17 +682,14 @@ void main() {
       expect(shown(find.text("field")), inExclusiveRange(0, 1));
       expect(shown(find.text("Second")), 0);
       expect(shown(back), 0);
-      expect(shown(find.text("progress")), 0);
 
       await tester.pump(const Duration(milliseconds: 150));
       // Later: the field is gone; the new ones are coming.
       expect(shown(find.text("field")), 0);
       expect(shown(back), greaterThan(0));
-      expect(shown(find.text("progress")), greaterThan(0));
 
       await tester.pumpAndSettle();
       expect(shown(back), 1);
-      expect(shown(find.text("progress")), 1);
     });
 
     testWidgets("the band of a scrolled bar goes with its page as the next "

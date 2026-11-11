@@ -22,7 +22,7 @@ class NotificationCard extends ConsumerWidget {
 
   /// Called with the context of the card picture, so the detail view can
   /// open from it.
-  final void Function(BuildContext pictureContext)? onTap;
+  final void Function(BuildContext pictureContext) onTap;
 
   /// Whether the detail pane shows this notification's card: the row gets a
   /// red border.
@@ -30,7 +30,7 @@ class NotificationCard extends ConsumerWidget {
 
   const NotificationCard({
     required this.notification,
-    this.onTap,
+    required this.onTap,
     this.selected = false,
   });
 
@@ -101,7 +101,7 @@ class NotificationCard extends ConsumerWidget {
     }
 
     return Semantics(
-      button: onTap != null,
+      button: true,
       label: [
         title,
         contentMessage,
@@ -119,7 +119,7 @@ class NotificationCard extends ConsumerWidget {
         clipBehavior: Clip.antiAlias,
         child: Builder(
           builder: (pictureContext) => InkWell(
-            onTap: onTap == null ? null : () => onTap!(pictureContext),
+            onTap: () => onTap(pictureContext),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(

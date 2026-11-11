@@ -144,8 +144,7 @@
     },
     "toast": "Gelukt! De nieuwe pincode is opgeslagen",
     "enter_pin": {
-      "instruction": "Vul eerst je huidige pincode in",
-      "error": "Vul je huidige pincode in"
+      "instruction": "Vul eerst je huidige pincode in"
     },
     "confirm_pin": {
       "instruction": "Vul je nieuwe pincode nog een keer in."
@@ -230,7 +229,6 @@
       "staging": "Staging (testomgeving)",
       "title": "Gegevens toevoegen",
       "details": {
-        "title": "Gegevens toevoegen",
         "purpose_question": "Wat kan ik met deze gegevens?",
         "howto_question": "Hoe werkt het?",
         "get_button": "Volgende",
@@ -493,16 +491,12 @@
         "header": "Ga verder in je browser"
       }
     },
-    "card_count": "{count} kaartjes",
-    "from_issuers": "van {count} uitgevers",
-    "for_request": "Voor {requestor}",
     "question": {
       "add_anyway": "Toch toevoegen",
       "risky_reason": "Voeg dit alleen toe als je {issuer} vertrouwt"
     },
     "trust": {
-      "fact_responsibility": "Toevoegen is je eigen verantwoordelijkheid",
-      "label_hint": "Wat betekent dit?"
+      "fact_responsibility": "Toevoegen is je eigen verantwoordelijkheid"
     },
     "tech": {
       "group": {
@@ -635,9 +629,6 @@
   "embedded_issuance": {
     "code_label": "Verificatiecode"
   },
-  "external_issuer": {
-    "returned": "Je bent terug van de website van {issuer}"
-  },
   "more_tab": {
     "app_management": "App-beheer",
     "settings": "Instellingen",
@@ -744,7 +735,6 @@
   },
   "session": {
     "navigation_bar": {
-      "back": "Terug",
       "cancel": "Annuleer"
     },
     "pairing": {
@@ -807,9 +797,6 @@
     "go_back": "Ga terug",
     "add": "Toevoegen",
     "activate": "Activeren"
-  },
-  "search": {
-    "cancel": "Annuleer"
   },
   "update": {
     "title": "Update beschikbaar",
@@ -1473,7 +1460,6 @@
     "change_choice": "Wijzig keuze",
     "new_chip": "Nieuw",
     "together": "Deze horen bij elkaar. {requestor} krijgt ze allebei, of geen van beide.",
-    "also_share": "Ook delen",
     "add_both": "Allebei toevoegen",
     "and": " en ",
     "optional": {
@@ -1542,7 +1528,6 @@
     "sent_to_phone": "Code ge-sms't naar",
     "change": "Wijzigen",
     "code_label_email": "Code uit de e-mail",
-    "code_label_phone": "Code uit de sms",
     "hint_email": "Niet ontvangen? Kijk ook in je spam.",
     "hint_phone": "Het kan een minuutje duren.",
     "send_again": "Opnieuw sturen",

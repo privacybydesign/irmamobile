@@ -12,8 +12,17 @@ extension DocumentTranslationKeys on DocumentType {
   /// App bar title shared with the MRZ scanning screen of this document.
   String get scanTitleKey => "$keySegment.scan.title";
 
+  /// "Enter manually" on the MRZ scanning screen.
+  String get scanManualKey => "$keySegment.scan.manual";
+
+  /// A text of the manual entry screen: `{document}.manual.[part]`.
+  String manualKey(String part) => "$keySegment.manual.$part";
+
+  /// A text of the chip-reading screen: `{document}.nfc.[part]`.
+  String nfcKey(String part) => "$keySegment.nfc.$part";
+
   /// App bar title of the chip-reading screen.
-  String get nfcTitleKey => "$keySegment.nfc.title";
+  String get nfcTitleKey => nfcKey("title");
 
   /// Where to find the details, under the manual entry fields.
   String get manualTipKey => "document_flow.manual.tip_$keySegment";

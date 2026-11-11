@@ -240,8 +240,8 @@ final _removalLogProvider = FutureProvider.autoDispose<LogPage>((ref) {
 final removedCardTypesProvider =
     FutureProvider.autoDispose<List<ActivityCardRef>>((ref) async {
       final wallet = ref.watch(walletCardsProvider);
+      final held = ref.watch(cardTypesInAppProvider);
       final page = await ref.watch(_removalLogProvider.future);
-      final held = {for (final c in wallet) c.credentialId};
       final seen = <String>{};
       return [
         for (final log in page.entries)

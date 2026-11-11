@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
+import "../../../../widgets/dashed_outline_painter.dart";
 import "document_colors.dart";
 
 /// A document as drawn in the instruction picture, flat and front-on: the
@@ -93,36 +94,6 @@ class _BandPainter extends CustomPainter {
   bool shouldRepaint(_BandPainter old) => old.sweep != sweep;
 }
 
-/// The dashed red outline of the zone.
-class _DashedOutline extends CustomPainter {
-  const _DashedOutline({required this.radius});
-
-  final double radius;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          (Offset.zero & size).deflate(0.75),
-          Radius.circular(radius),
-        ),
-      );
-    final paint = Paint()
-      ..color = const Color(0xFFBA3354)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    for (final metric in path.computeMetrics()) {
-      for (var d = 0.0; d < metric.length; d += 6) {
-        canvas.drawPath(metric.extractPath(d, d + 3.5), paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedOutline old) => old.radius != radius;
-}
-
 /// The machine readable zone: its lines in a monospace face, tinted and
 /// outlined, with the band sweeping over it.
 class _Zone extends StatelessWidget {
@@ -141,7 +112,15 @@ class _Zone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      foregroundPainter: const _DashedOutline(radius: 5),
+      // The dashed red outline of the zone.
+      foregroundPainter: const DashedOutlinePainter(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(5)),
+        ),
+        color: Color(0xFFBA3354),
+        dash: 3.5,
+        period: 6,
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(5),
         child: Stack(

@@ -36,31 +36,16 @@ enum NfcDocumentPicture {
 /// The wait for the chip: a phone settling on [document] with two rings
 /// pulsing out, on a 3.2 s loop. It rests, without rings, when the system asks
 /// for less motion and during integration tests.
-class NfcPhoneOnDocument extends StatelessWidget {
+class NfcPhoneOnDocument extends StatefulWidget {
   const NfcPhoneOnDocument({required this.document, super.key});
 
   final NfcDocumentPicture document;
 
   @override
-  Widget build(BuildContext context) {
-    final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
-    return TickerMode(
-      enabled: !isIntegrationTest,
-      child: _PhoneOnDocument(document: document),
-    );
-  }
+  State<NfcPhoneOnDocument> createState() => _PhoneOnDocumentState();
 }
 
-class _PhoneOnDocument extends StatefulWidget {
-  const _PhoneOnDocument({required this.document});
-
-  final NfcDocumentPicture document;
-
-  @override
-  State<_PhoneOnDocument> createState() => _PhoneOnDocumentState();
-}
-
-class _PhoneOnDocumentState extends State<_PhoneOnDocument>
+class _PhoneOnDocumentState extends State<NfcPhoneOnDocument>
     with SingleTickerProviderStateMixin {
   static const _size = 300.0;
   static const _loop = Duration(milliseconds: 3200);

@@ -134,14 +134,29 @@ class HeaderEdgeBand extends StatelessWidget {
   const HeaderEdgeBand({super.key, required this.shown});
 
   @override
+  Widget build(BuildContext context) => ShownTween(
+    shown: shown,
+    builder: (t) => ScrollEdgeBand(under: AlwaysStoppedAnimation(t)),
+  );
+}
+
+/// Eases from 0 to 1 over 240 ms as [shown] turns true, and back as it
+/// turns false: a header part that comes and goes as the page scrolls
+/// ([HeaderEdgeBand], [CompactBarDropIn]). [builder] gets how far it is in.
+class ShownTween extends StatelessWidget {
+  final ValueListenable<bool> shown;
+  final Widget Function(double t) builder;
+
+  const ShownTween({super.key, required this.shown, required this.builder});
+
+  @override
   Widget build(BuildContext context) => ValueListenableBuilder<bool>(
     valueListenable: shown,
     builder: (context, on, _) => TweenAnimationBuilder<double>(
       tween: Tween(end: on ? 1 : 0),
       duration: const Duration(milliseconds: 240),
       curve: Curves.easeOut,
-      builder: (context, t, _) =>
-          ScrollEdgeBand(under: AlwaysStoppedAnimation(t)),
+      builder: (context, t, _) => builder(t),
     ),
   );
 }
@@ -251,27 +266,32 @@ class RenderBarOverBody extends RenderBox
   double computeMaxIntrinsicHeight(double width) =>
       _bar.getMaxIntrinsicHeight(width) + _body.getMaxIntrinsicHeight(width);
 
+  /// The body's constraints under a bar [barHeight] high, in [constraints].
+  BoxConstraints _bodyConstraints(
+    BoxConstraints constraints,
+    double barHeight,
+  ) {
+    final width = constraints.maxWidth;
+    final rest = (constraints.maxHeight - barHeight).clamp(
+      0.0,
+      double.infinity,
+    );
+    return _expand && rest.isFinite
+        ? BoxConstraints.tightFor(width: width, height: rest)
+        : BoxConstraints(minWidth: width, maxWidth: width, maxHeight: rest);
+  }
+
   @override
   Size computeDryLayout(BoxConstraints constraints) {
     final width = constraints.maxWidth;
     final barHeight = _bar
         .getDryLayout(BoxConstraints.tightFor(width: width))
         .height;
-    final rest = (constraints.maxHeight - barHeight).clamp(
-      0.0,
-      double.infinity,
-    );
-    final bodyHeight = _expand && rest.isFinite
-        ? rest
-        : _body
-              .getDryLayout(
-                BoxConstraints(
-                  minWidth: width,
-                  maxWidth: width,
-                  maxHeight: rest,
-                ),
-              )
-              .height;
+    final body = _bodyConstraints(constraints, barHeight);
+    // A tight body (expand) is as high as it is told, without asking it.
+    final bodyHeight = body.hasTightHeight
+        ? body.maxHeight
+        : _body.getDryLayout(body).height;
     return constraints.constrain(Size(width, barHeight + bodyHeight));
   }
 
@@ -280,14 +300,8 @@ class RenderBarOverBody extends RenderBox
     final width = constraints.maxWidth;
     _bar.layout(BoxConstraints.tightFor(width: width), parentUsesSize: true);
     final barHeight = _bar.size.height;
-    final rest = (constraints.maxHeight - barHeight).clamp(
-      0.0,
-      double.infinity,
-    );
     _body.layout(
-      _expand && rest.isFinite
-          ? BoxConstraints.tightFor(width: width, height: rest)
-          : BoxConstraints(minWidth: width, maxWidth: width, maxHeight: rest),
+      _bodyConstraints(constraints, barHeight),
       parentUsesSize: true,
     );
     (_bar.parentData! as _BarOverBodyData).offset = Offset.zero;

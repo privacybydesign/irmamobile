@@ -43,6 +43,7 @@ import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
+import "../util/nfc_credentials.dart";
 import "app_language.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
@@ -365,9 +366,6 @@ class IrmaRepository {
   void clearInAppLaunches() {
     _credentialObtainState.add(_CredentialObtainState());
   }
-
-  Stream<Set<String>> getInAppLaunchedCredentialTypes() =>
-      _credentialObtainState.map((state) => state.inAppLaunchedCredentialTypes);
 
   /// True when [session] is an issuance session that issued at least one
   /// credential the user launched in-app (via [openIssueURL]). Used to keep
@@ -890,23 +888,16 @@ class IrmaRepository {
     }
     if (!context.mounted) return;
 
-    ref.read(emailIssuerUrlProvider.notifier).set(_issuerBase(issueUrl));
+    prepareEmbeddedFlow(credentialId, issueUrl, ref);
     context.pushEmailIssuanceScreen(purpose: EmailIssuancePurpose.linkKeyshare);
   }
 
+  /// The documents ([nfcRequiringCredentialIds]), the phone number and the
+  /// e-mail address, in production and staging.
   static const _embeddedFlowIds = {
-    //----------- production
-    "pbdf.pbdf.passport",
-    "pbdf.pbdf.drivinglicence",
-    "pbdf.pbdf.idcard",
-    "pbdf.pbdf.residencepermit",
+    ...nfcRequiringCredentialIds,
     "pbdf.sidn-pbdf.mobilenumber",
     "pbdf.sidn-pbdf.email",
-    //----------- staging
-    "pbdf-staging.pbdf.passport",
-    "pbdf-staging.pbdf.drivinglicence",
-    "pbdf-staging.pbdf.idcard",
-    "pbdf-staging.pbdf.residencepermit",
     "pbdf-staging.sidn-pbdf.mobilenumber",
     "pbdf-staging.sidn-pbdf.email",
   };
@@ -1136,12 +1127,6 @@ class IrmaRepository {
       continueOnSecondDevice: continueOnSecondDevice,
     );
     _pendingPointerSubject.add(sessionPtr);
-  }
-
-  /// Only meant for testing and debug purposes.
-  Future<void> startTestIssueWizard(String wizardKey) async {
-    final issueWizardPointer = IssueWizardPointer(wizardKey);
-    _pendingPointerSubject.add(issueWizardPointer);
   }
 }
 

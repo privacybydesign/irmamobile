@@ -51,7 +51,6 @@ class Link extends StatelessWidget {
       key: const Key("irma_link"),
       child: TextLink(
         label: FlutterI18n.translate(context, label),
-        textAlign: TextAlign.center,
         onPressed: onTap,
       ),
     );

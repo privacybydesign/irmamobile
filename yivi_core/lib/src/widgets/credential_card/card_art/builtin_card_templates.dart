@@ -187,6 +187,14 @@ const builtinImageSlots = {"photo"};
 /// `mobilenumber`.
 const _aliases = {"phone_number": "mobilenumber"};
 
+/// The ids a template knows [a] by: its attribute id (the last step of its
+/// claim path) and its alias, if it has one. Empty without a claim path.
+Set<String> _templateIds(schemaless.Attribute a) {
+  if (a.claimPath.isEmpty) return const {};
+  final claim = "${a.claimPath.last}";
+  return {claim, ?_aliases[claim]};
+}
+
 /// The values a built-in template is filled with: each attribute's value and
 /// name by its attribute id (the last step of its claim path), the
 /// credential's name and issuer, and a transparent picture for an image slot
@@ -203,9 +211,8 @@ Map<String, String> builtinTemplateValues(
   };
   for (final a in credential.attributes) {
     if (a.claimPath.isEmpty) continue;
-    final claim = "${a.claimPath.last}";
     final value = text(a);
-    for (final id in {claim, ?_aliases[claim]}) {
+    for (final id in _templateIds(a)) {
       if (value.isNotEmpty || !builtinImageSlots.contains(id)) {
         values[id] = value;
       }
@@ -231,12 +238,7 @@ List<schemaless.Attribute> builtinHeaderAttributes(
   return [
     for (final id in ids)
       for (final a in credential.attributes)
-        if (a.claimPath.isNotEmpty &&
-            {
-              "${a.claimPath.last}",
-              ?_aliases["${a.claimPath.last}"],
-            }.contains(id))
-          a,
+        if (_templateIds(a).contains(id)) a,
   ];
 }
 

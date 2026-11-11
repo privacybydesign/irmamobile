@@ -240,15 +240,7 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
     state = state.copyWith(error: EmailIssuanceNoError());
   }
 
-  void reset() {
-    state = EmailIssuanceState(
-      email: "",
-      enteredCode: "",
-      stage: .enteringEmail,
-      emailSource: .typed,
-      error: EmailIssuanceNoError(),
-    );
-  }
+  void reset() => state = build();
 
   /// Skips sending for a code that is already on its way, as when the link in
   /// the e-mail opens the app.

@@ -80,10 +80,8 @@ class GlassDialog extends StatelessWidget {
   /// Buttons, top to bottom. Leave empty when [body] holds its own buttons.
   final List<Widget> actions;
 
-  /// Keys of the title, the message and the card, for tests; by default
-  /// `dialog_title`, `dialog_message` and `dialog`.
-  final Key titleKey;
-  final Key messageKey;
+  /// The key of the card, for tests; by default `dialog`. The title and the
+  /// message have the keys `dialog_title` and `dialog_message`.
   final Key cardKey;
 
   const GlassDialog({
@@ -93,8 +91,6 @@ class GlassDialog extends StatelessWidget {
     this.body,
     this.icon,
     this.actions = const [],
-    this.titleKey = const Key("dialog_title"),
-    this.messageKey = const Key("dialog_message"),
     this.cardKey = const Key("dialog"),
   });
 
@@ -120,7 +116,7 @@ class GlassDialog extends StatelessWidget {
           label: FlutterI18n.translate(context, "accessibility.alert"),
           child: Text(
             title,
-            key: titleKey,
+            key: const Key("dialog_title"),
             textAlign: TextAlign.center,
             style: palette
                 .display(20, weight: FontWeight.w700)
@@ -132,7 +128,7 @@ class GlassDialog extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               message!,
-              key: messageKey,
+              key: const Key("dialog_message"),
               textAlign: TextAlign.center,
               style: palette.body(15).copyWith(height: 22 / 15),
             ),

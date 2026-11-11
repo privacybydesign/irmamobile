@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../count_badge.dart";
 import "../press_scale.dart";
 
 /// The app's round icon button: close, back, add, search, the view menu, the
@@ -86,23 +87,15 @@ class RoundIconButton extends StatelessWidget {
           Positioned(
             top: -4,
             right: -4,
-            child: Container(
-              constraints: const BoxConstraints(minWidth: 20),
-              height: 20,
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              alignment: Alignment.center,
-              decoration: ShapeDecoration(
-                color: palette.primary,
-                shape: StadiumBorder(
-                  side: BorderSide(color: palette.background, width: 2),
-                ),
-              ),
-              child: Text(
-                "$count",
-                style: palette
-                    .body(11.5)
-                    .copyWith(fontWeight: FontWeight.w700, color: Colors.white),
-              ),
+            child: CountBadge(
+              count: count,
+              fill: palette.primary,
+              ink: Colors.white,
+              size: 20,
+              fontSize: 11.5,
+              ring: palette.background,
+              plus: false,
+              lineHeight: null,
             ),
           ),
       ],

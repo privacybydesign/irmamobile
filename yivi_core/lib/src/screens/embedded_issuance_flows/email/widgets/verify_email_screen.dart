@@ -6,7 +6,6 @@ import "../../../../models/email_code_pointer.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/yivi_palette.dart";
-import "../../../../util/handle_pointer.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
@@ -19,7 +18,7 @@ import "../../widgets/embedded_issuance_error_screen.dart";
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   final EmailIssuancePurpose purpose;
 
-  const VerifyEmailScreen({this.purpose = EmailIssuancePurpose.addCredential});
+  const VerifyEmailScreen({required this.purpose});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -82,12 +81,12 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
     ref.listen(emailIssuanceProvider, (prev, next) {
       if (next.error is EmailIssuanceInvalidCodeError &&
           (prev?.error != next.error)) {
-        codeController.text = "";
-        setState(() {
-          _codeComplete = false;
-          _codeFromLink = false;
-        });
-        codeFocus.requestFocus();
+        clearWrongCode(
+          () => setState(() {
+            _codeComplete = false;
+            _codeFromLink = false;
+          }),
+        );
       }
     });
 
@@ -114,14 +113,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
 
     final palette = YiviPalette.of(context);
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          _goBack();
-        }
-      },
-      child: ContactScrollPage(
+    return backAsks(
+      _goBack,
+      ContactScrollPage(
         appBar: IrmaAppBar(
           titleTranslationKey: titleKey,
           leading: YiviBackButton(onTap: _goBack),
@@ -172,19 +166,12 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
             ),
           // The dialog to send it again only after the minute.
           if (!_linking)
-            ResendCountdown(
+            ContactResend.link(
               until: ref
                   .read(emailIssuanceProvider.notifier)
                   .resendAt(state.email),
-              builder: (context, left) => ContactTextLink(
-                labelKey: "email_issuance.verify_code.no_email_received",
-                label: left == null
-                    ? null
-                    : context.tr("contact_sheet.send_again_in", {"time": left}),
-                onTap: left == null
-                    ? () => _showResendDialog(state.email)
-                    : null,
-              ),
+              linkKey: "email_issuance.verify_code.no_email_received",
+              onResend: () => _showResendDialog(state.email),
             ),
         ],
         bottomBar: _linking
@@ -214,27 +201,15 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
     );
   }
 
-  /// A code being checked or its issuance starting: a second one (the
-  /// button, the code completing again, the link) would start a second
-  /// issuance.
-  var _handling = false;
-
+  /// Once at a time: a second code (the button, the code completing again,
+  /// the link) would start a second issuance.
   Future<void> _handleCode(String code) async {
-    if (_handling) return;
-    _handling = true;
-    try {
-      final session = await ref
-          .read(emailIssuanceProvider.notifier)
-          .verifyCode(code: code.toUpperCase());
-
-      if (session == null || !mounted) return;
-
-      final sessionId = await handlePointer(context, session);
-      if (_linking && sessionId != null && mounted) {
-        ref.read(emailLinkingProvider.notifier).trackIssuance(sessionId);
-      }
-    } finally {
-      _handling = false;
+    final sessionId = await handleCode(
+      code,
+      (code) => ref.read(emailIssuanceProvider.notifier).verifyCode(code: code),
+    );
+    if (_linking && sessionId != null && mounted) {
+      ref.read(emailLinkingProvider.notifier).trackIssuance(sessionId);
     }
   }
 

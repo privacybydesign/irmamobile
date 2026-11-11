@@ -10,14 +10,14 @@ import "../../../../util/test_detection.dart";
 import "document_camera_frame.dart";
 import "mrz_camera_feed.dart";
 
-class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
+class MrzScanner extends ConsumerStatefulWidget {
   const MrzScanner({
     super.key,
     required this.onSuccess,
     required this.mrzParser,
   });
   final void Function(MrzResult mrzResult) onSuccess;
-  final Parser mrzParser;
+  final MrzParser mrzParser;
 
   @override
   MrzScannerState createState() => MrzScannerState();

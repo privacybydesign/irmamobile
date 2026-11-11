@@ -144,8 +144,7 @@
     },
     "toast": "Erfolgreich! Ihre neue PIN wurde gespeichert",
     "enter_pin": {
-      "instruction": "Geben Sie Ihre aktuelle PIN ein",
-      "error": "Geben Sie Ihre aktuelle PIN ein"
+      "instruction": "Geben Sie Ihre aktuelle PIN ein"
     },
     "confirm_pin": {
       "instruction": "Geben Sie Ihre neue PIN zur Bestätigung erneut ein"
@@ -230,7 +229,6 @@
       "staging": "Staging (Testumgebung)",
       "title": "Daten hinzufügen",
       "details": {
-        "title": "Daten hinzufügen",
         "purpose_question": "Was kann ich mit diesen Daten machen?",
         "howto_question": "Wie funktioniert es?",
         "get_button": "Weiter",
@@ -493,16 +491,12 @@
         "header": "Weiter in deinem Browser"
       }
     },
-    "card_count": "{count} Karten",
-    "from_issuers": "von {count} Ausstellern",
-    "for_request": "Für {requestor}",
     "question": {
       "add_anyway": "Trotzdem hinzufügen",
       "risky_reason": "Füge dies nur hinzu, wenn du {issuer} vertraust"
     },
     "trust": {
-      "fact_responsibility": "Das Hinzufügen liegt in deiner eigenen Verantwortung",
-      "label_hint": "Was bedeutet das?"
+      "fact_responsibility": "Das Hinzufügen liegt in deiner eigenen Verantwortung"
     },
     "tech": {
       "group": {
@@ -635,9 +629,6 @@
   "embedded_issuance": {
     "code_label": "Bestätigungscode"
   },
-  "external_issuer": {
-    "returned": "Sie sind zurück von der Website von {issuer}"
-  },
   "more_tab": {
     "app_management": "App-Verwaltung",
     "settings": "Einstellungen",
@@ -744,7 +735,6 @@
   },
   "session": {
     "navigation_bar": {
-      "back": "Zurück",
       "cancel": "Abbrechen"
     },
     "pairing": {
@@ -807,9 +797,6 @@
     "go_back": "Zurück",
     "add": "Hinzufügen",
     "activate": "Aktivieren"
-  },
-  "search": {
-    "cancel": "Abbrechen"
   },
   "update": {
     "title": "Update verfügbar",
@@ -1473,7 +1460,6 @@
     "change_choice": "Auswahl ändern",
     "new_chip": "Neu",
     "together": "Diese gehören zusammen. {requestor} bekommt beide oder keine.",
-    "also_share": "Auch teilen",
     "add_both": "Beide hinzufügen",
     "and": " und ",
     "optional": {
@@ -1542,7 +1528,6 @@
     "sent_to_phone": "Code per SMS an",
     "change": "Ändern",
     "code_label_email": "Code aus der E-Mail",
-    "code_label_phone": "Code aus der SMS",
     "hint_email": "Nicht angekommen? Sieh auch im Spam nach.",
     "hint_phone": "Das kann eine Minute dauern.",
     "send_again": "Erneut senden",

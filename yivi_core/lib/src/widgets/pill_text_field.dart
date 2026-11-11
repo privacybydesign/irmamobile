@@ -10,6 +10,12 @@ TextStyle fieldLabelStyle(BuildContext context) {
       .copyWith(height: 20 / 14, color: palette.heading);
 }
 
+/// The outline of a pill text field in [color]: 1.5 wide, corners of 18.
+OutlineInputBorder pillFieldBorder(Color color) => OutlineInputBorder(
+  borderRadius: const BorderRadius.all(Radius.circular(18)),
+  borderSide: BorderSide(color: color, width: 1.5),
+);
+
 /// A text field: a label above it, a rounded field on the surface colour,
 /// and an outline that turns link blue on focus.
 class PillTextField extends StatelessWidget {
@@ -18,7 +24,6 @@ class PillTextField extends StatelessWidget {
   final TextEditingController? controller;
   final ValueChanged<String>? onSubmitted;
   final TextInputType? keyboardType;
-  final bool autofocus;
   final int? minLines;
   final int maxLines;
 
@@ -32,29 +37,22 @@ class PillTextField extends StatelessWidget {
     this.controller,
     this.onSubmitted,
     this.keyboardType,
-    this.autofocus = false,
     this.minLines,
     this.maxLines = 1,
     this.fieldKey,
   });
 
-  static const _radius = BorderRadius.all(Radius.circular(18));
-
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-
-    OutlineInputBorder border(Color color) => OutlineInputBorder(
-      borderRadius: _radius,
-      borderSide: BorderSide(color: color, width: 1.5),
-    );
 
     final field = TextField(
       key: fieldKey,
       controller: controller,
       onSubmitted: onSubmitted,
       keyboardType: keyboardType,
-      autofocus: autofocus,
+      // It always opens with the keyboard (it is in a dialog of its own).
+      autofocus: true,
       minLines: minLines,
       maxLines: maxLines,
       cursorColor: palette.link,
@@ -69,8 +67,8 @@ class PillTextField extends StatelessWidget {
           horizontal: 20,
           vertical: 17,
         ),
-        enabledBorder: border(palette.outline),
-        focusedBorder: border(palette.link),
+        enabledBorder: pillFieldBorder(palette.outline),
+        focusedBorder: pillFieldBorder(palette.link),
       ),
     );
 
@@ -135,38 +133,20 @@ class FieldError extends StatelessWidget {
 }
 
 /// The look of [PillTextField] for a [TextFormField] that keeps its own
-/// validator: a rounded field on the surface colour with the label above it
-/// in the outline, link blue on focus, red with an error.
-InputDecoration pillInputDecoration(
-  BuildContext context, {
-  String? label,
-  String? hint,
-  Widget? suffixIcon,
-}) {
+/// validator: a rounded field on the surface colour, link blue on focus,
+/// red with an error.
+InputDecoration pillInputDecoration(BuildContext context, {String? hint}) {
   final palette = YiviPalette.of(context);
-  OutlineInputBorder border(Color color) => OutlineInputBorder(
-    borderRadius: PillTextField._radius,
-    borderSide: BorderSide(color: color, width: 1.5),
-  );
   return InputDecoration(
     filled: true,
     fillColor: palette.surface,
-    labelText: label,
-    labelStyle: palette
-        .body(14, weight: FontWeight.w600)
-        .copyWith(color: palette.heading),
-    floatingLabelStyle: palette
-        .body(14, weight: FontWeight.w600)
-        .copyWith(color: palette.heading),
-    floatingLabelBehavior: FloatingLabelBehavior.always,
     hintText: hint,
     hintStyle: palette.body(16).copyWith(color: palette.secondaryText),
     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 17),
-    suffixIcon: suffixIcon,
-    enabledBorder: border(palette.outline),
-    focusedBorder: border(palette.link),
-    errorBorder: border(palette.danger),
-    focusedErrorBorder: border(palette.danger),
+    enabledBorder: pillFieldBorder(palette.outline),
+    focusedBorder: pillFieldBorder(palette.link),
+    errorBorder: pillFieldBorder(palette.danger),
+    focusedErrorBorder: pillFieldBorder(palette.danger),
     errorStyle: palette
         .body(14, weight: FontWeight.w600)
         .copyWith(color: palette.danger),

@@ -179,7 +179,7 @@ class RequestorLogo extends StatelessWidget {
       // Still found by [flightKey], for the flight into the done screen.
       return key == null ? flies : KeyedSubtree(key: key, child: flies);
     }
-    return key == null ? logo : FlightSpot(flightKey: key, child: logo);
+    return FlightSpot.maybe(key, logo);
   }
 }
 
@@ -209,9 +209,6 @@ Widget requestorAvatar(TrustedParty requestor, {double size = 46}) =>
 class RequestorCard extends StatelessWidget {
   final TrustedParty requestor;
 
-  /// "is asking for your data", under the pill; none on the pairing screen.
-  final String? ask;
-
   /// Opens the trust sheet.
   final VoidCallback? onInfo;
 
@@ -223,24 +220,19 @@ class RequestorCard extends StatelessWidget {
   final bool logoHero;
 
   /// The share screen's form, under its title and in the landscape panel:
-  /// the logo (52) beside the name, [ask] and the pill with ⓘ, all aligned
-  /// to the left like the title. Without it the centred form of the pairing
+  /// the logo (52) beside the name and who vouches, with ⓘ, all aligned to
+  /// the left like the title. Without it the centred form of the pairing
   /// screen.
   final bool compact;
 
-  const RequestorCard({
-    super.key,
-    required this.requestor,
-    this.ask,
-    this.onInfo,
-  }) : compact = false,
-       logoKey = null,
-       logoHero = false;
+  const RequestorCard({super.key, required this.requestor, this.onInfo})
+    : compact = false,
+      logoKey = null,
+      logoHero = false;
 
   const RequestorCard.compact({
     super.key,
     required this.requestor,
-    this.ask,
     this.onInfo,
     this.logoKey,
     this.logoHero = false,
@@ -303,23 +295,12 @@ class RequestorCard extends StatelessWidget {
                   .copyWith(height: 28 / 22, color: palette.text),
             ),
             if (pillRow != null) ...[const SizedBox(height: 8), pillRow],
-            if (ask != null) ...[
-              const SizedBox(height: 14),
-              Text(
-                ask!,
-                key: const Key("session_requestor_ask"),
-                textAlign: TextAlign.center,
-                style: palette
-                    .body(16)
-                    .copyWith(height: 23 / 16, color: palette.heading),
-              ),
-            ],
           ],
         ),
       ),
     );
 
-    final status = [label, ask].nonNulls.join(", ");
+    final status = label ?? "";
     if (tap == null) {
       return Semantics(
         container: true,
@@ -355,7 +336,7 @@ class RequestorCard extends StatelessWidget {
   ) {
     final palette = YiviPalette.of(context);
     final ink = style.badge ?? palette.secondaryText;
-    final status = [label, ask].nonNulls.join(", ");
+    final status = label ?? "";
     return DecoratedBox(
       key: const Key("session_requestor_header"),
       decoration: SurfaceCard.decoration(context),
@@ -391,17 +372,6 @@ class RequestorCard extends StatelessWidget {
                           .display(17, weight: FontWeight.w700)
                           .copyWith(height: 22 / 17, color: palette.text),
                     ),
-                    if (ask != null)
-                      Text(
-                        ask!,
-                        key: const Key("session_requestor_ask"),
-                        style: palette
-                            .body(13.5)
-                            .copyWith(
-                              height: 18 / 13.5,
-                              color: palette.heading,
-                            ),
-                      ),
                     if (label != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 3),
@@ -508,6 +478,59 @@ class RequestorCompactBar extends StatelessWidget {
       ),
       title: requestor.name,
       subtitle: TextSpan(text: subtitle),
+    );
+  }
+}
+
+/// A red wash behind the top of a page about a party nobody vouches for,
+/// [height] down (the wash itself has [washKey]). With [fill] the page
+/// fills the wash's stack; without, the stack takes the page's own size
+/// (a sheet page, whose height follows its content).
+class TrustWash extends StatelessWidget {
+  final bool on;
+  final Key washKey;
+  final double height;
+  final bool fill;
+  final Widget child;
+
+  const TrustWash({
+    super.key,
+    required this.on,
+    required this.washKey,
+    this.height = 460,
+    this.fill = false,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!on) return child;
+    final palette = YiviPalette.of(context);
+    return Stack(
+      children: [
+        Positioned(
+          key: washKey,
+          left: 0,
+          right: 0,
+          top: 0,
+          height: height,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    palette.errorSurface,
+                    palette.errorSurface.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (fill) Positioned.fill(child: child) else child,
+      ],
     );
   }
 }

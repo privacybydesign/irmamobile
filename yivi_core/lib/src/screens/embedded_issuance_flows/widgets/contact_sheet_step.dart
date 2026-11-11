@@ -14,7 +14,6 @@ import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/pill_text_field.dart";
-import "../../../widgets/resend_countdown.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "../email/widgets/email_address_entry.dart";
 import "../sms/widgets/phone_number_entry.dart";
@@ -59,7 +58,7 @@ class ContactSheetStep extends ConsumerStatefulWidget {
     super.key,
     required this.kind,
     required this.subject,
-    this.total = 4,
+    required this.total,
     this.code = false,
     required this.onBack,
   });
@@ -400,17 +399,10 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         onTap: complete ? () => _verify(_codeController.text) : null,
       );
       final sideways = useSheetColumns(context);
-      final resend = ResendCountdown(
+      final resend = ContactResend.row(
         until: _flow.resendAt(ref, state.target),
-        builder: (context, left) => ContactResendRow(
-          hint: _sentAgain
-              ? context.tr("contact_sheet.sent_again")
-              : _k("hint"),
-          label: left == null
-              ? context.tr("contact_sheet.send_again")
-              : context.tr("contact_sheet.send_again_in", {"time": left}),
-          onTap: left == null ? () => _sendAgain(state.target) : null,
-        ),
+        hint: _sentAgain ? context.tr("contact_sheet.sent_again") : _k("hint"),
+        onResend: () => _sendAgain(state.target),
       );
       body = _split(
         key: const Key("contact_sheet_code"),
@@ -445,7 +437,6 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
                   ? "email_verification_code_input_field"
                   : "sms_verification_code_input_field",
             ),
-            labelKey: "contact_sheet.code_label_${_email ? "email" : "phone"}",
             controller: _codeController,
             focusNode: _codeFocus,
             length: _flow.codeLength,
@@ -538,11 +529,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       titleWidgetCentred: true,
       titleUnder: _headingKey,
       bottomInBar: true,
-      bottom: IssueSheetProgress(
-        subject: widget.subject,
-        step: code ? 3 : 2,
-        total: widget.total,
-      ),
+      bottom: IssueSheetProgress(step: code ? 3 : 2, total: widget.total),
       child: landscape
           ? body
           : Padding(padding: const EdgeInsets.only(top: 8), child: body),

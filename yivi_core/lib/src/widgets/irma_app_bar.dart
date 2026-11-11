@@ -82,7 +82,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget> actions;
 
   /// Shows the title only while true, fading it in and out. For screens
-  /// whose content starts with a large title (see `LargeTitleScrollView`),
+  /// whose content starts with a large title,
   /// as on iOS: the bar's title appears once the large one has scrolled
   /// under the bar. Null keeps the title always visible.
   final ValueListenable<bool>? titleVisibility;

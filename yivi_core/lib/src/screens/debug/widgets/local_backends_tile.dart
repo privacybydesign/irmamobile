@@ -35,7 +35,6 @@ class LocalBackendsTile extends ConsumerWidget {
         body: PillTextField(
           fieldKey: const Key("local_backend_host_field"),
           controller: controller,
-          autofocus: true,
           label: "Host",
           hint: "localhost",
         ),

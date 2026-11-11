@@ -141,7 +141,11 @@ void main() {
   ) async {
     await _pump(
       tester,
-      IssuancePermission(issuedCredentials: [email], onGivePermission: () {}),
+      IssuancePermission(
+        issuedCredentials: [email],
+        onDismiss: () {},
+        onGivePermission: () {},
+      ),
     );
 
     // The same question page as in the Change sheet.
@@ -178,6 +182,7 @@ void main() {
           _card("phone", attributes: [_value("phone", "Phone", "0612345678")]),
           _card("name", attributes: [_value("name", "Name", "Anna")]),
         ],
+        onDismiss: () {},
         onGivePermission: () => added++,
       ),
     );
@@ -211,6 +216,8 @@ void main() {
               ],
             ),
         ],
+        onDismiss: () {},
+        onGivePermission: () {},
       ),
     );
     final band = find.byKey(const Key("scroll_edge_band"));
@@ -246,7 +253,11 @@ void main() {
       "requestor's on the share screen", (tester) async {
     await _pump(
       tester,
-      IssuancePermission(issuedCredentials: [_card("email")]),
+      IssuancePermission(
+        issuedCredentials: [_card("email")],
+        onDismiss: () {},
+        onGivePermission: () {},
+      ),
     );
     final logo = find.byWidgetPredicate(
       (w) => w is Hero && w.tag == requestorLogoHeroTag(testParty("Gemeente")),
@@ -284,6 +295,8 @@ void main() {
       IssuancePermission(
         issuedCredentials: [email, phone],
         forRequest: testSession(steps: twoSteps),
+        onDismiss: () {},
+        onGivePermission: () {},
       ),
     );
 
@@ -309,6 +322,8 @@ void main() {
       IssuancePermission(
         issuedCredentials: [email],
         forRequest: testSession(steps: twoSteps),
+        onDismiss: () {},
+        onGivePermission: () {},
       ),
     );
 
@@ -345,6 +360,8 @@ void main() {
             ]),
           ],
         ),
+        onDismiss: () {},
+        onGivePermission: () {},
       ),
     );
 
@@ -394,6 +411,8 @@ void main() {
             ]),
           ],
         ),
+        onDismiss: () {},
+        onGivePermission: () {},
       ),
     );
 

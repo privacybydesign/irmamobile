@@ -264,7 +264,7 @@ void main() {
       ]);
       final button = shareButton(state, const {});
       expect(button.enabled, isFalse);
-      expect(button.blockedBy, CardProblem.revoked);
+      expect(problemOfBundle(button.blockedCard!), CardProblem.revoked);
       expect(button.label, ShareLabel.share);
       expect(
         fixFor(
@@ -298,7 +298,7 @@ void main() {
       final button = shareButton(_session([pickOne]), const {});
       expect(button.label, ShareLabel.share);
       expect(button.enabled, isFalse);
-      expect(button.blockedBy, CardProblem.revoked);
+      expect(problemOfBundle(button.blockedCard!), CardProblem.revoked);
     });
 
     test("renewing a card at its issuer keeps whether it is a singleton", () {
@@ -364,7 +364,10 @@ void main() {
         ),
       ]);
       expect(shareButton(state, const {}).enabled, isTrue);
-      expect(shareButton(state, const {0: 0}).blockedBy, CardProblem.revoked);
+      expect(
+        problemOfBundle(shareButton(state, const {0: 0}).blockedCard!),
+        CardProblem.revoked,
+      );
     });
   });
 

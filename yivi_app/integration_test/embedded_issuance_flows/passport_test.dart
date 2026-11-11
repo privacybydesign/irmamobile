@@ -37,7 +37,7 @@ void main() {
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
-      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
+      await tester.waitFor(find.byType(MrzReaderScreen));
       // Back in the sheet's bar: to the instruction, the camera off.
       await sheetBack(tester);
       await tester.waitFor(find.byType(DocumentInstructionScreen));
@@ -71,7 +71,7 @@ void main() {
       );
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
+      await tester.waitFor(find.byType(MrzReaderScreen));
 
       final fakeMrz = PassportMrzResult(
         documentNumber: "XR0000001",
@@ -87,7 +87,7 @@ void main() {
       );
 
       final scannerState = tester.state<MrzReaderScreenState>(
-        find.byType(MrzReaderScreen<PassportMrzParser>),
+        find.byType(MrzReaderScreen),
       );
       scannerState.widget.onSuccess(fakeMrz);
 
@@ -108,7 +108,7 @@ void main() {
       await openPassportInstructionScreen(tester, irmaBinding);
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
+      await tester.waitFor(find.byType(MrzReaderScreen));
 
       // No Cancel in the sheet: its back goes to the instruction.
       await sheetBack(tester);
@@ -145,7 +145,7 @@ void main() {
       );
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
+      await tester.waitFor(find.byType(MrzReaderScreen));
 
       final fakeMrz = PassportMrzResult(
         documentNumber: "XR0000001",
@@ -161,7 +161,7 @@ void main() {
       );
 
       final scannerState = tester.state<MrzReaderScreenState>(
-        find.byType(MrzReaderScreen<PassportMrzParser>),
+        find.byType(MrzReaderScreen),
       );
       scannerState.widget.onSuccess(fakeMrz);
 

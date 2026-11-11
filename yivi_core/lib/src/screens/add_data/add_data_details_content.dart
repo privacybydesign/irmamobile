@@ -45,9 +45,6 @@ class AddDataDetailsContent extends StatelessWidget {
   final String? howIntro;
   final AddDataDetailsPart part;
 
-  /// The card's width in [AddDataDetailsPart.card].
-  final double cardWidth;
-
   const AddDataDetailsContent({
     super.key,
     required this.credential,
@@ -56,7 +53,6 @@ class AddDataDetailsContent extends StatelessWidget {
     this.titleKey,
     this.howIntro,
     this.part = AddDataDetailsPart.all,
-    this.cardWidth = 220,
   });
 
   @override
@@ -98,26 +94,7 @@ class AddDataDetailsContent extends StatelessWidget {
         children: [
           _picture(_heroWidth * 0.8),
           const SizedBox(height: 16),
-          Semantics(
-            header: true,
-            child: Text(
-              credential.name,
-              key: titleKey ?? const Key("add_data_details_name"),
-              style: palette
-                  .display(24, weight: FontWeight.w700)
-                  .copyWith(height: 30 / 24, color: palette.text),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            context.tr("data.add.details.from", {
-              "issuer": credential.issuer.name,
-            }),
-            key: const Key("add_data_details_issuer"),
-            style: palette
-                .body(13)
-                .copyWith(height: 18 / 13, color: palette.secondaryText),
-          ),
+          ..._nameAndIssuer(context, TextAlign.start),
           const SizedBox(height: 12),
           introLine,
         ],
@@ -182,15 +159,12 @@ class AddDataDetailsContent extends StatelessWidget {
       descriptor: credential,
       width: width,
     );
-    final key = heroKey;
-    return key == null ? picture : FlightSpot(flightKey: key, child: picture);
+    return FlightSpot.maybe(heroKey, picture);
   }
 
   /// The top of the page upright: the card, the card's name as the page's
   /// heading, and "From {issuer}".
   Widget _hero(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final issuer = credential.issuer;
     return Column(
       key: const Key("add_data_details_hero"),
       children: [
@@ -200,28 +174,36 @@ class AddDataDetailsContent extends StatelessWidget {
           child: _picture(_heroWidth),
         ),
         const SizedBox(height: 22),
-        Semantics(
-          header: true,
-          child: Text(
-            credential.name,
-            key: titleKey ?? const Key("add_data_details_name"),
-            textAlign: TextAlign.center,
-            style: palette
-                .display(24, weight: FontWeight.w700)
-                .copyWith(height: 30 / 24, color: palette.text),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          context.tr("data.add.details.from", {"issuer": issuer.name}),
-          key: const Key("add_data_details_issuer"),
-          textAlign: TextAlign.center,
-          style: palette
-              .body(13)
-              .copyWith(height: 18 / 13, color: palette.secondaryText),
-        ),
+        ..._nameAndIssuer(context, TextAlign.center),
       ],
     );
+  }
+
+  /// The card's name, as the page's heading, and "From {issuer}" under it.
+  List<Widget> _nameAndIssuer(BuildContext context, TextAlign align) {
+    final palette = YiviPalette.of(context);
+    return [
+      Semantics(
+        header: true,
+        child: Text(
+          credential.name,
+          key: titleKey ?? const Key("add_data_details_name"),
+          textAlign: align,
+          style: palette
+              .display(24, weight: FontWeight.w700)
+              .copyWith(height: 30 / 24, color: palette.text),
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        context.tr("data.add.details.from", {"issuer": credential.issuer.name}),
+        key: const Key("add_data_details_issuer"),
+        textAlign: align,
+        style: palette
+            .body(13)
+            .copyWith(height: 18 / 13, color: palette.secondaryText),
+      ),
+    ];
   }
 
   static const double _heroWidth = 200;

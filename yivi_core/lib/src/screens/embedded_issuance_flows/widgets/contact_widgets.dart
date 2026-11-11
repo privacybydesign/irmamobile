@@ -6,10 +6,13 @@ import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
 import "../../../../routing.dart";
+import "../../../models/session.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/handle_pointer.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_layout.dart";
@@ -18,6 +21,7 @@ import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/keyboard_animation_listener.dart";
 import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/resend_countdown.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 
@@ -123,9 +127,7 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
         appBar: widget.appBar,
         body: KeyboardAnimationListener(
           key: _scrollableKey,
-          onKeyboardSettled: (context, inset, visible) {
-            _handleFocusChange();
-          },
+          onKeyboardSettled: _handleFocusChange,
           child: SingleChildScrollView(
             controller: _scrollController,
             child: SafeArea(
@@ -158,6 +160,70 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
         floatingActionButtonLocation: .centerFloat,
         resizeToAvoidBottomInset: true,
         bottomNavigationBar: keyboardUp ? null : widget.bottomBar,
+      ),
+    );
+  }
+}
+
+/// The full-screen step where the e-mail address or phone number is typed:
+/// the [ContactIntro], the [field] under its label, and "Next" ([nextKey],
+/// enabled with [onNext]) with a way back ([backKey]); with the keyboard up
+/// only "Next", right above it.
+class ContactEnterPage extends StatelessWidget {
+  final String titleKey;
+  final FocusNode focusNode;
+  final double fieldAlignment;
+  final IconData icon;
+  final DialogTone tone;
+  final String headerKey;
+  final String bodyKey;
+  final String labelKey;
+  final Widget field;
+  final String nextKey;
+  final String backKey;
+  final VoidCallback? onNext;
+
+  const ContactEnterPage({
+    super.key,
+    required this.titleKey,
+    required this.focusNode,
+    required this.fieldAlignment,
+    required this.icon,
+    required this.tone,
+    required this.headerKey,
+    required this.bodyKey,
+    required this.labelKey,
+    required this.field,
+    required this.nextKey,
+    required this.backKey,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ContactScrollPage(
+      appBar: IrmaAppBar(titleTranslationKey: titleKey),
+      focusNode: focusNode,
+      fieldAlignment: fieldAlignment,
+      before: [
+        ContactIntro(
+          icon: icon,
+          tone: tone,
+          headerKey: headerKey,
+          bodyKey: bodyKey,
+        ),
+        ContactFieldLabel(labelKey),
+      ],
+      field: field,
+      keyboardButton: FancyPillButton(
+        label: FlutterI18n.translate(context, nextKey),
+        onPressed: onNext,
+      ),
+      bottomBar: IrmaBottomBar(
+        primaryButtonLabel: nextKey,
+        secondaryButtonLabel: backKey,
+        onPrimaryPressed: onNext,
+        onSecondaryPressed: context.pop,
       ),
     );
   }
@@ -505,6 +571,45 @@ mixin VerifyCodeScreen<W extends ConsumerStatefulWidget> on ConsumerState<W>
   Future<void> confirmThen(String keys, VoidCallback action) async {
     if (await confirmContactStep(context, keys) && mounted) action();
   }
+
+  /// A code being checked or its issuance starting: a second one would
+  /// start a second issuance.
+  var _handling = false;
+
+  /// Checks [code] with [verify] and starts the issuance it gives
+  /// ([handlePointer]); does nothing while one is under way. The session's
+  /// id, or null.
+  Future<int?> handleCode(
+    String code,
+    Future<SessionPointer?> Function(String code) verify,
+  ) async {
+    if (_handling) return null;
+    _handling = true;
+    try {
+      final session = await verify(code.toUpperCase());
+      if (session == null || !mounted) return null;
+      return await handlePointer(context, session);
+    } finally {
+      _handling = false;
+    }
+  }
+
+  /// A wrong code: empty boxes, focused for another try; [then] before the
+  /// focus.
+  void clearWrongCode([VoidCallback? then]) {
+    codeController.text = "";
+    then?.call();
+    codeFocus.requestFocus();
+  }
+
+  /// [child], where back goes through [goBack] (which asks first).
+  Widget backAsks(Future<void> Function() goBack, Widget child) => PopScope(
+    canPop: false,
+    onPopInvokedWithResult: (didPop, _) {
+      if (!didPop) goBack();
+    },
+    child: child,
+  );
 }
 
 /// Where the code went, folded into one row, with "Change". Also the
@@ -645,6 +750,59 @@ class ContactResendRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Sending a code again, once [until] has passed ([ResendCountdown]); until
+/// then dimmed, "Send again in 0:42".
+class ContactResend extends StatelessWidget {
+  final DateTime? until;
+  final VoidCallback onResend;
+  final String? _hint;
+  final String? _linkKey;
+
+  /// A [hint] and "Send again" on one row ([ContactResendRow]).
+  const ContactResend.row({
+    super.key,
+    required this.until,
+    required String hint,
+    required this.onResend,
+  }) : _hint = hint,
+       _linkKey = null;
+
+  /// A centred link with [linkKey]'s text ("No email received?",
+  /// [ContactTextLink]).
+  const ContactResend.link({
+    super.key,
+    required this.until,
+    required String linkKey,
+    required this.onResend,
+  }) : _linkKey = linkKey,
+       _hint = null;
+
+  @override
+  Widget build(BuildContext context) {
+    return ResendCountdown(
+      until: until,
+      builder: (context, left) {
+        final waiting = left == null
+            ? null
+            : context.tr("contact_sheet.send_again_in", {"time": left});
+        final onTap = left == null ? onResend : null;
+        if (_linkKey case final linkKey?) {
+          return ContactTextLink(
+            labelKey: linkKey,
+            label: waiting,
+            onTap: onTap,
+          );
+        }
+        return ContactResendRow(
+          hint: _hint!,
+          label: waiting ?? context.tr("contact_sheet.send_again"),
+          onTap: onTap,
+        );
+      },
     );
   }
 }

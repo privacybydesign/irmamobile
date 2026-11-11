@@ -48,21 +48,21 @@ String issuanceAddLabel(BuildContext context, int count) => count > 1
 /// neutral "Add anyway", with the reason above it. A document read from its
 /// chip shows its data as the document flow does ([DocumentIssuanceData]).
 class IssuancePermission extends StatefulWidget {
-  final VoidCallback? onDismiss;
-  final VoidCallback? onGivePermission;
+  final VoidCallback onDismiss;
+  final VoidCallback onGivePermission;
   final List<schemaless.Credential> issuedCredentials;
 
   /// The request waiting underneath this issuance, if any.
   final SessionState? forRequest;
 
   /// The issuance itself, for the technical details under the issuer's
-  /// details; none without it.
+  /// details; none without it (tests).
   final SessionState? session;
 
   const IssuancePermission({
     super.key,
-    this.onDismiss,
-    this.onGivePermission,
+    required this.onDismiss,
+    required this.onGivePermission,
     this.forRequest,
     this.session,
     required this.issuedCredentials,
@@ -101,18 +101,13 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       logoHero: true,
       technicalDetails: session == null
           ? null
-          : issuanceTechnicalDetailsOf(
-              session,
-              _cards,
-              (key, [params]) => context.tr(key, params ?? const {}),
-            ),
+          : issuanceTechnicalDetailsOf(session, _cards, context.tr),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final offer = _offer;
-    final palette = YiviPalette.of(context);
     final isDocument =
         _cards.isNotEmpty &&
         _cards.every((c) => credentialRequiresNfc(c.credentialId));
@@ -140,18 +135,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       else
         ...offer.receives(context),
     ];
-    final reason = risky
-        ? Text(
-            context.tr("issuance.question.risky_reason", {
-              "issuer": issuer.name,
-            }),
-            key: const Key("issuance_risky_reason"),
-            textAlign: TextAlign.center,
-            style: palette
-                .body(13.5, weight: FontWeight.w600)
-                .copyWith(color: palette.errorText, height: 19 / 13.5),
-          )
-        : null;
+    final reason = risky ? IssuanceRiskyReason(issuer: issuer) : null;
     final button = _button(risky: risky);
 
     // Held sideways, and on a tablet: who gives it at the left with the
@@ -274,30 +258,21 @@ class _IssuancePermissionState extends State<IssuancePermission> {
   }
 
   /// The way on: add (a neutral "Add anyway" when nobody vouches for the
-  /// issuer), or back when there is nothing to add. No Cancel: the close
-  /// button at the top declines.
+  /// issuer). No Cancel: the close button at the top declines.
   Widget _button({required bool risky}) {
-    if (widget.onGivePermission == null) {
-      return PillButton(
-        key: const Key("bottom_bar_primary"),
-        label: context.tr("session.navigation_bar.back"),
-        size: PillSize.large,
-        onPressed: () => widget.onDismiss?.call(),
-      );
-    }
     if (risky) {
       return PillButton(
         key: const Key("bottom_bar_primary"),
         label: context.tr("issuance.question.add_anyway"),
         style: PillStyle.neutral,
         size: PillSize.large,
-        onPressed: () => widget.onGivePermission?.call(),
+        onPressed: widget.onGivePermission,
       );
     }
     return FancyPillButton(
       key: const Key("bottom_bar_primary"),
       label: issuanceAddLabel(context, _cards.length),
-      onPressed: () => widget.onGivePermission?.call(),
+      onPressed: widget.onGivePermission,
     );
   }
 }
@@ -419,22 +394,22 @@ class IssuanceOffer {
   }
 }
 
-/// An issuance permission on a phone held sideways: a panel at the left
-/// with [overview] (the card or pile and its chips) in the middle of the
-/// room above [actions]; the [title] question, the [note] and [receives] at
-/// the right, scrolling.
+/// "Success" after adding cards, on a phone held sideways: a panel at the
+/// left with [overview] (the card or pile with its check) in the middle of
+/// the room above [actions]; the [title], the [note] and [receives] at the
+/// right, scrolling.
 class IssuanceLandscape extends StatelessWidget {
   final String title;
   final List<Widget> overview;
-  final Widget? note;
+  final Widget note;
   final List<Widget> receives;
-  final Widget? actions;
+  final Widget actions;
 
   const IssuanceLandscape({
     super.key,
     required this.title,
     required this.overview,
-    this.note,
+    required this.note,
     required this.receives,
     required this.actions,
   });
@@ -469,10 +444,8 @@ class IssuanceLandscape extends StatelessWidget {
                 ),
               ),
             ),
-            if (actions case final actions?) ...[
-              const SizedBox(height: 16),
-              actions,
-            ],
+            const SizedBox(height: 16),
+            actions,
           ],
         ),
       ),
@@ -495,7 +468,8 @@ class IssuanceLandscape extends StatelessWidget {
                 ),
               ),
             ),
-            if (note != null) ...[const SizedBox(height: 16), note!],
+            const SizedBox(height: 16),
+            note,
             const SizedBox(height: 12),
             ...receives,
           ],
@@ -660,6 +634,32 @@ class YouGetLabel extends StatelessWidget {
   );
 }
 
+/// Why adding says "anyway": nobody vouches for [issuer]. In red above the
+/// button.
+class IssuanceRiskyReason extends StatelessWidget {
+  final schemaless.TrustedParty issuer;
+  final TextAlign textAlign;
+
+  const IssuanceRiskyReason({
+    super.key,
+    required this.issuer,
+    this.textAlign = TextAlign.center,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Text(
+      context.tr("issuance.question.risky_reason", {"issuer": issuer.name}),
+      key: const Key("issuance_risky_reason"),
+      textAlign: textAlign,
+      style: palette
+          .body(13.5, weight: FontWeight.w600)
+          .copyWith(color: palette.errorText, height: 19 / 13.5),
+    );
+  }
+}
+
 /// A red wash behind the top of the page when nobody vouches for the
 /// issuer, as the share screen has for a requestor nobody vouches for.
 class IssuanceTrustWash extends StatelessWidget {
@@ -669,34 +669,9 @@ class IssuanceTrustWash extends StatelessWidget {
   const IssuanceTrustWash({super.key, required this.on, required this.child});
 
   @override
-  Widget build(BuildContext context) {
-    if (!on) return child;
-    final palette = YiviPalette.of(context);
-    return Stack(
-      children: [
-        Positioned(
-          key: const Key("issuance_trust_wash"),
-          left: 0,
-          right: 0,
-          top: 0,
-          height: 460,
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    palette.errorSurface,
-                    palette.errorSurface.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        child,
-      ],
-    );
-  }
+  Widget build(BuildContext context) => TrustWash(
+    on: on,
+    washKey: const Key("issuance_trust_wash"),
+    child: child,
+  );
 }

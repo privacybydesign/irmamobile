@@ -72,6 +72,9 @@ class _Suggestion {
   });
 }
 
+/// The sides of a row of tags or suggestions that runs to the screen's edges.
+const _inset = EdgeInsets.symmetric(horizontal: 16);
+
 /// The height of the row of suggestions under the field while searching.
 const double _suggestionRowHeight = 40;
 
@@ -503,42 +506,56 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   Widget? _suggestionRow({bool inset = true}) {
     final suggestions = _suggestions();
     if (suggestions.isEmpty) return null;
-    return SizedBox(
-      height: _suggestionRowHeight,
-      child: ListView.separated(
-        key: const Key("activity_suggestions"),
-        scrollDirection: Axis.horizontal,
-        clipBehavior: inset ? Clip.hardEdge : Clip.none,
-        padding: inset ? const EdgeInsets.symmetric(horizontal: 16) : null,
-        itemCount: suggestions.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (_, i) {
-          final s = suggestions[i];
-          return Center(
-            child: ActivitySuggestionChip(
-              key: Key("activity_suggestion_${s.key}"),
-              label: s.title,
-              leading: s.leading,
-              onTap: () => _pick(s.query),
-            ),
-          );
-        },
-      ),
-    );
+    return _sideRow(const Key("activity_suggestions"), _suggestionRowHeight, [
+      for (final s in suggestions)
+        ActivitySuggestionChip(
+          key: Key("activity_suggestion_${s.key}"),
+          label: s.title,
+          leading: s.leading,
+          onTap: () => _pick(s.query),
+        ),
+    ], padding: inset ? _inset : null);
   }
 
   /// A row of tags that scrolls sideways.
-  Widget _tagRow(List<Widget> chips, {EdgeInsets? padding}) => SizedBox(
-    height: activityChipHeight,
+  Widget _tagRow(List<Widget> chips, {EdgeInsets? padding}) => _sideRow(
+    const Key("activity_chips"),
+    activityChipHeight,
+    chips,
+    padding: padding,
+  );
+
+  /// [children] in a row [height] high that scrolls sideways, 8 apart;
+  /// clipped to the row only when [padding] insets them.
+  Widget _sideRow(
+    Key key,
+    double height,
+    List<Widget> children, {
+    EdgeInsets? padding,
+  }) => SizedBox(
+    height: height,
     child: ListView.separated(
-      key: const Key("activity_chips"),
+      key: key,
       scrollDirection: Axis.horizontal,
       clipBehavior: padding == null ? Clip.none : Clip.hardEdge,
       padding: padding,
-      itemCount: chips.length,
+      itemCount: children.length,
       separatorBuilder: (_, _) => const SizedBox(width: 8),
-      itemBuilder: (_, i) => Center(child: chips[i]),
+      itemBuilder: (_, i) => Center(child: children[i]),
     ),
+  );
+
+  /// The search field, in the bar on a phone held upright ([height] 44) or
+  /// over the list (48, the field's own height).
+  Widget _searchField({double height = 48}) => GlassSearchField(
+    fieldKey: const Key("activity_search_field"),
+    hintKey: "activity.query.search_hint",
+    controller: _search,
+    focusNode: _focus,
+    onChanged: _onTyped,
+    onSubmitted: _searchText,
+    onCleared: _cleared,
+    height: height,
   );
 
   // -------------------------------------------------------------------- chips
@@ -651,9 +668,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     // The entry in the detail pane: the picked one, or the newest.
-    final open = useHomePanes(context)
-        ? ref.watch(selectedActivityProvider) ?? logEntries.firstOrNull
-        : null;
+    final open = useHomePanes(context) ? _paneEntry(state) : null;
 
     // A header per day, then its rows.
     final groups = <List<LogInfo>>[];
@@ -891,10 +906,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       if (chips.isNotEmpty) ...[
-                        _tagRow(
-                          chips,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
+                        _tagRow(chips, padding: _inset),
                         const SizedBox(height: 2),
                       ],
                       ?suggestionRow,
@@ -902,7 +914,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                   ))
           : chips.isEmpty
           ? null
-          : _tagRow(chips, padding: const EdgeInsets.symmetric(horizontal: 16));
+          : _tagRow(chips, padding: _inset);
       final listTop = HomeTabTop.listTop(
         context,
         below: below == null ? 0 : belowHeight,
@@ -922,18 +934,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           searchRow: Row(
             spacing: 4,
             children: [
-              Expanded(
-                child: GlassSearchField(
-                  fieldKey: const Key("activity_search_field"),
-                  hintKey: "activity.query.search_hint",
-                  controller: _search,
-                  focusNode: _focus,
-                  onChanged: _onTyped,
-                  onSubmitted: _searchText,
-                  onCleared: _cleared,
-                  height: 44,
-                ),
-              ),
+              Expanded(child: _searchField(height: 44)),
               fieldAction,
             ],
           ),
@@ -983,17 +984,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         Row(
           spacing: 8,
           children: [
-            Expanded(
-              child: GlassSearchField(
-                fieldKey: const Key("activity_search_field"),
-                hintKey: "activity.query.search_hint",
-                controller: _search,
-                focusNode: _focus,
-                onChanged: _onTyped,
-                onSubmitted: _searchText,
-                onCleared: _cleared,
-              ),
-            ),
+            Expanded(child: _searchField()),
             fieldAction,
           ],
         ),
@@ -1035,16 +1026,18 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     return Scaffold(
       backgroundColor: palette.background,
       resizeToAvoidBottomInset: false,
-      body: _withDetailPane(list),
+      body: _withDetailPane(list, state),
     );
   }
 
+  /// The entry in the detail pane: the picked one, or the newest.
+  LogInfo? _paneEntry(ActivityLogState state) =>
+      ref.watch(selectedActivityProvider) ?? state.entries.firstOrNull;
+
   /// The tablet layout: the activity next to the details of the picked
   /// entry (the newest until the user picks one).
-  Widget _withDetailPane(Widget list) {
-    final entry =
-        ref.watch(selectedActivityProvider) ??
-        ref.watch(activityLogProvider).entries.firstOrNull;
+  Widget _withDetailPane(Widget list, ActivityLogState state) {
+    final entry = _paneEntry(state);
     return TwoPane(
       list: list,
       detail: entry == null

@@ -4,7 +4,6 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../models/mrz.dart";
 import "document_instruction_screen.dart";
-import "document_translation_keys.dart";
 import "driving_licence_mrz_manual_entry_screen.dart";
 import "mrz_reader_screen.dart";
 import "nfc_reading_screen.dart";
@@ -34,46 +33,36 @@ abstract final class DocumentFlowSteps {
     required VoidCallback onManual,
     required VoidCallback onCancel,
   }) {
-    final s = type.keySegment;
-    final keys = MrzReaderTranslationKeys(
-      title: "$s.scan.title",
-      manualEntryButton: "$s.scan.manual",
-    );
-    return switch (type) {
-      .drivingLicence => MrzReaderScreen(
-        translationKeys: keys,
-        instructionKey: type.instructionKey,
-        onSuccess: (r) => onRead(
-          ScannedDrivingLicenceMrz.fromMRZResult(r as DrivingLicenceMrzResult),
+    final (
+      MrzParser parser,
+      ScannedMrz Function(MrzResult) scanned,
+    ) = switch (type) {
+      .drivingLicence => (
+        DrivingLicenceMrzParser(),
+        (r) => ScannedDrivingLicenceMrz.fromMRZResult(
+          r as DrivingLicenceMrzResult,
         ),
-        onManualAdd: onManual,
-        onCancel: onCancel,
-        mrzParser: DrivingLicenceMrzParser(),
       ),
-      .passport => MrzReaderScreen(
-        translationKeys: keys,
-        instructionKey: type.instructionKey,
-        onSuccess: (r) =>
-            onRead(ScannedPassportMrz.fromMRZResult(r as PassportMrzResult)),
-        onManualAdd: onManual,
-        onCancel: onCancel,
-        mrzParser: PassportMrzParser(),
+      .passport => (
+        PassportMrzParser(),
+        (r) => ScannedPassportMrz.fromMRZResult(r as PassportMrzResult),
       ),
       // A residence permit is a card in ID-card format too.
-      .identityCard || .residencePermit => MrzReaderScreen(
-        translationKeys: keys,
-        instructionKey: type.instructionKey,
-        onSuccess: (r) => onRead(
-          ScannedIdCardMrz.fromMRZResult(
-            r as PassportMrzResult,
-            documentType: type,
-          ),
+      .identityCard || .residencePermit => (
+        IdCardMrzParser(),
+        (r) => ScannedIdCardMrz.fromMRZResult(
+          r as PassportMrzResult,
+          documentType: type,
         ),
-        onManualAdd: onManual,
-        onCancel: onCancel,
-        mrzParser: IdCardMrzParser(),
       ),
     };
+    return MrzReaderScreen(
+      documentType: type,
+      onSuccess: (r) => onRead(scanned(r)),
+      onManualAdd: onManual,
+      onCancel: onCancel,
+      mrzParser: parser,
+    );
   }
 
   /// Typing the MRZ details in; [onRead] gets them.
@@ -88,22 +77,8 @@ abstract final class DocumentFlowSteps {
         onContinue: (r) => onRead(ScannedDrivingLicenceMrz.fromMRZResult(r)),
       );
     }
-    final s = type.keySegment;
     return PassportMrzManualEntryScreen(
-      translationKeys: PassportMrzManualEntryTranslationKeys(
-        title: "$s.manual.title",
-        appBarTitle: type.scanTitleKey,
-        tip: type.manualTipKey,
-        explanation: "$s.manual.explanation",
-        dateOfBirth: "$s.manual.fields.date_of_birth",
-        dateOfBirthRequired: "$s.manual.fields.date_of_birth_required",
-        dateOfExpiry: "$s.manual.fields.date_of_expiry",
-        dateOfExpiryRequired: "$s.manual.fields.date_of_expiry_required",
-        documentNumber: "$s.manual.fields.document_nr",
-        documentNumberRequired: "$s.manual.fields.document_nr_required",
-        documentNumberInvalid: "$s.manual.fields.document_nr_invalid",
-        dateInvalid: "$s.manual.fields.date_invalid",
-      ),
+      documentType: type,
       onCancel: onCancel,
       onContinue: (data) => onRead(
         type == .passport
@@ -127,30 +102,5 @@ abstract final class DocumentFlowSteps {
     ScannedMrz mrz, {
     required VoidCallback onCancel,
     Future<bool> Function(BuildContext context)? faceIntro,
-  }) {
-    final s = mrz.documentType.keySegment;
-    return NfcReadingScreen(
-      translationKeys: NfcReadingTranslationKeys(
-        cancelDialogTitle: "$s.nfc.cancel_dialog.title",
-        cancelDialogExplanation: "$s.nfc.cancel_dialog.explanation",
-        cancelDialogDecline: "$s.nfc.cancel_dialog.decline",
-        cancelDialogConfirm: "$s.nfc.cancel_dialog.confirm",
-        error: "$s.nfc.error",
-        errorGeneric: "$s.nfc.error_generic",
-        title: "$s.nfc.title",
-        cancelledByUser: "$s.nfc.cancelled_by_user",
-        cancelled: "$s.nfc.cancelled",
-        timeoutWaitingForTag: "$s.nfc.timeout_waiting_for_tag",
-        tagLostTryAgain: "$s.nfc.tag_lost_try_again",
-        failedToInitiateSession: "$s.nfc.failed_to_initiate_session",
-        wrongDocument: mrz is ScannedIdCardMrz ? "$s.nfc.wrong_document" : null,
-        wrongDocumentTip: mrz is ScannedIdCardMrz
-            ? "$s.nfc.wrong_document_tip"
-            : null,
-      ),
-      mrz: mrz,
-      onCancel: onCancel,
-      faceIntro: faceIntro,
-    );
-  }
+  }) => NfcReadingScreen(mrz: mrz, onCancel: onCancel, faceIntro: faceIntro);
 }

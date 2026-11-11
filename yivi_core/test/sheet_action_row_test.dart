@@ -145,13 +145,7 @@ void main() {
     ) async {
       await pumpTranslated(
         tester,
-        _wrap(
-          IssueSheetProgress(
-            subject: IssueSheetSubject.request(_shop),
-            step: 2,
-            total: 4,
-          ),
-        ),
+        _wrap(const IssueSheetProgress(step: 2, total: 4)),
       );
       // The step just reached fills from the start, the one before is full.
       await tester.pump(const Duration(milliseconds: 100));

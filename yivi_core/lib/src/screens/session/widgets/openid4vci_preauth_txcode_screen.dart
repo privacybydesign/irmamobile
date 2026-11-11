@@ -227,10 +227,6 @@ class _OpenID4VCIPreAuthTxCodeScreenState
 
     // Any length: one wide field, sent with Continue.
     final palette = YiviPalette.of(context);
-    OutlineInputBorder border(Color color) => OutlineInputBorder(
-      borderRadius: const BorderRadius.all(Radius.circular(18)),
-      borderSide: BorderSide(color: color, width: 1.5),
-    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -254,10 +250,12 @@ class _OpenID4VCIPreAuthTxCodeScreenState
               horizontal: 20,
               vertical: 16,
             ),
-            enabledBorder: border(
+            enabledBorder: pillFieldBorder(
               codeInvalid ? palette.danger : palette.outline,
             ),
-            focusedBorder: border(codeInvalid ? palette.danger : palette.link),
+            focusedBorder: pillFieldBorder(
+              codeInvalid ? palette.danger : palette.link,
+            ),
           ),
           onChanged: (_) => setState(() {}),
           onSubmitted: (value) {

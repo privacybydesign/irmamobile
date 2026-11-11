@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "package:yivi_core/src/widgets/irma_quote.dart";
+import "package:yivi_core/src/widgets/signed_message.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -80,11 +80,10 @@ Future<void> randomBlindTest(
   expect(overViewScreenFinder, findsOneWidget);
 
   // The signable message should be present
-  final quoteFinder = find.byKey(const Key("signature_message"));
+  final quoteFinder = find.byType(SignedMessage);
   expect(quoteFinder, findsOneWidget);
 
-  final actualQuoteText =
-      (quoteFinder.evaluate().first.widget as IrmaQuote).quote;
+  final actualQuoteText = tester.widget<SignedMessage>(quoteFinder).message;
   const expectedQuoteText = "Message to be signed by user";
   expect(actualQuoteText, expectedQuoteText);
 

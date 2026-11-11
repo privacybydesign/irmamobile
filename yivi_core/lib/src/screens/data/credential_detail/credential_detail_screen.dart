@@ -101,20 +101,9 @@ class _CredentialDetailScreenState
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
-    final cards = ref.watch(walletCardsProvider);
-    final credential = cards.firstWhereOrNull((c) => c.hash == _hash);
-
-    final hints = ref.watch(instanceHintsProvider);
-    final hintText = credential == null
-        ? null
-        : instanceHintText(context, hints[_hash] ?? const NoHint());
-
-    final siblings = credential == null
-        ? const <schemaless.Credential>[]
-        : cards
-              .where((c) => c.credentialId == credential.credentialId)
-              .toList();
-    final hintTexts = instanceHintTexts(context, siblings, hints);
+    final card = _watchCard(context, ref, _hash);
+    final credential = card?.credential;
+    final hintText = card?.hintTexts[_hash];
 
     final transition = widget.transition;
     return WalletDetailScaffold(
@@ -137,7 +126,7 @@ class _CredentialDetailScreenState
         if (credential == null) return const SizedBox.shrink();
         return LayoutBuilder(
           builder: (context, constraints) {
-            final width = (constraints.maxWidth - 32).clamp(0.0, _maxWidth);
+            final width = _cardWidth(constraints.maxWidth - 32);
             return NotificationListener<ScrollNotification>(
               onNotification: _onScroll,
               child: ListView(
@@ -178,9 +167,8 @@ class _CredentialDetailScreenState
                     ),
                   ),
                   WalletReveal(
-                    animation: transition != null
-                        ? kAlwaysCompleteAnimation
-                        : animation,
+                    // Always complete in a card transition (no route).
+                    animation: animation,
                     child: CentredMaxWidth(
                       maxWidth: _maxWidth,
                       child: _Details(
@@ -188,8 +176,8 @@ class _CredentialDetailScreenState
                         // Only on the card the search found, not on a sibling
                         // picked after.
                         found: _hash == widget.hash ? widget.found : null,
-                        siblings: siblings,
-                        hintTexts: hintTexts,
+                        siblings: card!.siblings,
+                        hintTexts: card.hintTexts,
                         onSwitch: (hash) => setState(() => _hash = hash),
                         // Its place in the stack is gone: no way back.
                         onDeleted: () => transition != null
@@ -233,24 +221,19 @@ class CredentialDetailPane extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cards = ref.watch(walletCardsProvider);
-    final credential = cards.firstWhereOrNull((c) => c.hash == hash);
-    if (credential == null) return const SizedBox.shrink();
-
-    final hints = ref.watch(instanceHintsProvider);
-    final hintText = instanceHintText(context, hints[hash] ?? const NoHint());
+    final card = _watchCard(context, ref, hash);
+    if (card == null) return const SizedBox.shrink();
+    final credential = card.credential;
+    final hintText = card.hintTexts[hash]!;
     // Held sideways the pane is low: the card shows small, beside its name,
     // instead of big above the details.
     final compact = usePhoneLandscape(context);
-    final siblings = cards
-        .where((c) => c.credentialId == credential.credentialId)
-        .toList();
     final details = _Details(
       credential: credential,
       found: found,
       showTitle: !compact,
-      siblings: siblings,
-      hintTexts: instanceHintTexts(context, siblings, hints),
+      siblings: card.siblings,
+      hintTexts: card.hintTexts,
       onSwitch: onSwitch,
       onDeleted: onDeleted,
     );
@@ -259,10 +242,7 @@ class CredentialDetailPane extends ConsumerWidget {
       builder: (context, constraints) {
         // The room inside the padding, which is wider at a side panel: a
         // card any wider would be squeezed to fit, out of proportion.
-        final width = (constraints.maxWidth - padding.horizontal).clamp(
-          0.0,
-          _maxWidth,
-        );
+        final width = _cardWidth(constraints.maxWidth - padding.horizontal);
         return ListView(
           key: Key("credential_detail_pane_$hash"),
           padding: padding,
@@ -285,6 +265,60 @@ class CredentialDetailPane extends ConsumerWidget {
   }
 }
 
+/// The card [hash] in the wallet, the cards of its type (itself among them)
+/// and their instance hints by hash; null when it is gone.
+({
+  schemaless.Credential credential,
+  List<schemaless.Credential> siblings,
+  Map<String, String> hintTexts,
+})?
+_watchCard(BuildContext context, WidgetRef ref, String hash) {
+  final cards = ref.watch(walletCardsProvider);
+  final credential = cards.firstWhereOrNull((c) => c.hash == hash);
+  if (credential == null) return null;
+  final hints = ref.watch(instanceHintsProvider);
+  final siblings = cards
+      .where((c) => c.credentialId == credential.credentialId)
+      .toList();
+  return (
+    credential: credential,
+    siblings: siblings,
+    hintTexts: instanceHintTexts(context, siblings, hints),
+  );
+}
+
+/// The card's width in [room], at most [_maxWidth].
+double _cardWidth(double room) => room.clamp(0.0, _maxWidth);
+
+/// The card's name and issuer, its name in [size].
+class _Title extends StatelessWidget {
+  final schemaless.Credential credential;
+  final double size;
+
+  const _Title({required this.credential, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            credential.name,
+            style: palette.display(size, weight: FontWeight.w700),
+          ),
+        ),
+        Text(
+          credential.issuer.name,
+          style: palette.body(14).copyWith(color: palette.secondaryText),
+        ),
+      ],
+    );
+  }
+}
+
 /// The top of the detail pane on a phone held sideways: the card, 112
 /// wide, with its name and issuer beside it.
 class _CompactHeader extends StatelessWidget {
@@ -295,7 +329,6 @@ class _CompactHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     return Row(
       key: const Key("credential_detail_compact_header"),
       spacing: 14,
@@ -305,24 +338,7 @@ class _CompactHeader extends StatelessWidget {
           width: 112,
           hintText: hintText,
         ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Semantics(
-                header: true,
-                child: Text(
-                  credential.name,
-                  style: palette.display(20, weight: FontWeight.w700),
-                ),
-              ),
-              Text(
-                credential.issuer.name,
-                style: palette.body(14).copyWith(color: palette.secondaryText),
-              ),
-            ],
-          ),
-        ),
+        Expanded(child: _Title(credential: credential, size: 20)),
       ],
     );
   }
@@ -402,24 +418,7 @@ class _Details extends ConsumerWidget {
           const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    credential.name,
-                    style: palette.display(24, weight: FontWeight.w700),
-                  ),
-                ),
-                Text(
-                  credential.issuer.name,
-                  style: palette
-                      .body(14)
-                      .copyWith(color: palette.secondaryText),
-                ),
-              ],
-            ),
+            child: _Title(credential: credential, size: 24),
           ),
         ],
         const SizedBox(height: 16),
@@ -684,17 +683,18 @@ class _Details extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await confirmDeleteCredential(context);
-    if (!confirmed || !context.mounted) return;
     // Shown on the Data tab, once this page has closed.
     final toast = appToastFor(context, overTabBar: true);
     final message = FlutterI18n.translate(
       context,
       "credential.options.delete_success",
     );
-    IrmaRepositoryProvider.of(
+    final deleted = await confirmAndDeleteCredential(
       context,
-    ).deleteCredential(credential.credentialInstanceIds);
+      IrmaRepositoryProvider.of(context),
+      credential.credentialInstanceIds,
+    );
+    if (!deleted) return;
     onDeleted();
     toast(message);
   }

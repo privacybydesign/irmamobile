@@ -1,4 +1,3 @@
-import "package:flutter/scheduler.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -8,6 +7,7 @@ import "../../providers/app_locked_provider.dart";
 import "../../providers/preferences_provider.dart";
 import "../../providers/store_review_provider.dart";
 import "../../util/after_frame.dart";
+import "../../util/rebuild_when_safe.dart";
 import "store_review_gate_dialog.dart";
 
 /// The only route on which the review prompt may appear: the idle home screen.
@@ -29,7 +29,8 @@ class StoreReviewGate extends ConsumerStatefulWidget {
   ConsumerState<StoreReviewGate> createState() => _StoreReviewGateState();
 }
 
-class _StoreReviewGateState extends ConsumerState<StoreReviewGate> {
+class _StoreReviewGateState extends ConsumerState<StoreReviewGate>
+    with RebuildWhenSafe {
   // Guards against scheduling a second attempt while one is already in flight
   // (the async availability check and the dialog span multiple frames).
   bool _asking = false;
@@ -37,23 +38,12 @@ class _StoreReviewGateState extends ConsumerState<StoreReviewGate> {
   @override
   void initState() {
     super.initState();
-    widget.router.routerDelegate.addListener(_scheduleRebuild);
-  }
-
-  void _scheduleRebuild() {
-    if (!mounted) return;
-    final phase = SchedulerBinding.instance.schedulerPhase;
-    if (phase == SchedulerPhase.idle ||
-        phase == SchedulerPhase.postFrameCallbacks) {
-      setState(() {});
-    } else {
-      afterFrame(() => setState(() {}));
-    }
+    widget.router.routerDelegate.addListener(rebuildWhenSafe);
   }
 
   @override
   void dispose() {
-    widget.router.routerDelegate.removeListener(_scheduleRebuild);
+    widget.router.routerDelegate.removeListener(rebuildWhenSafe);
     super.dispose();
   }
 

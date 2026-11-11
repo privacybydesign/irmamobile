@@ -13,7 +13,6 @@ import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/large_title_scroll_view.dart";
 
 import "helpers/credential_factory.dart";
 import "support/pump_translated.dart";
@@ -101,16 +100,12 @@ void main() {
       barTitleVisibility: visible,
       onDismiss: () {},
       body: Builder(
-        builder: (context) => LargeTitleScrollView(
+        builder: (context) => _LargeTitleList(
           title: "Do you want to share this data?",
-          barTitleVisible: visible,
+          titlePassed: visible,
           padding:
               MediaQuery.paddingOf(context) +
               const EdgeInsets.fromLTRB(16, 16, 16, 120),
-          children: [
-            for (var i = 0; i < 20; i++)
-              SizedBox(height: 80, child: Text("Row $i")),
-          ],
         ),
       ),
     );
@@ -133,7 +128,7 @@ void main() {
       // Past it: the test font wraps the title to a few lines, so go well
       // beyond its height.
       final titleHeight = tester
-          .getSize(find.byKey(const Key("large_title")))
+          .getSize(find.text("Do you want to share this data?"))
           .height;
       await tester.drag(find.byType(ListView), Offset(0, -titleHeight - 40));
       await tester.pumpAndSettle();
@@ -166,16 +161,11 @@ void main() {
       await _pump(
         tester,
         _inPage(
-          RequestorCard(
-            requestor: _party("Webshop Noord"),
-            ask: "is asking for your data",
-            onInfo: () {},
-          ),
+          RequestorCard(requestor: _party("Webshop Noord"), onInfo: () {}),
         ),
       );
       expect(find.text("Webshop Noord"), findsOneWidget);
       expect(find.text("Registered with Yivi"), findsOneWidget);
-      expect(find.text("is asking for your data"), findsOneWidget);
       expect(find.byKey(const Key("session_requestor_info")), findsOneWidget);
       // No badge on the logo: the pill has the check.
       expect(find.byType(RequestorTrustBadge), findsNothing);
@@ -240,7 +230,6 @@ void main() {
                 ),
               ],
             ),
-            trailing: const Text("Change"),
           ),
         ),
       );
@@ -248,7 +237,6 @@ void main() {
       expect(find.text("Email address"), findsWidgets);
       expect(find.text("Gemeente Nijmegen"), findsWidgets);
       expect(find.text("s.devries@werk.example"), findsOneWidget);
-      expect(find.text("Change"), findsOneWidget);
       expect(find.byKey(const Key("shared_card_chip")), findsNothing);
     });
 
@@ -402,4 +390,54 @@ void main() {
       }
     });
   });
+}
+
+/// A list that starts with a large title, and sets [titlePassed] once that
+/// title has scrolled under the bar: what a session screen with a large
+/// title does with `SessionScaffold.barTitleVisibility`.
+class _LargeTitleList extends StatefulWidget {
+  final String title;
+  final ValueNotifier<bool> titlePassed;
+  final EdgeInsets padding;
+
+  const _LargeTitleList({
+    required this.title,
+    required this.titlePassed,
+    required this.padding,
+  });
+
+  @override
+  State<_LargeTitleList> createState() => _LargeTitleListState();
+}
+
+class _LargeTitleListState extends State<_LargeTitleList> {
+  final _controller = ScrollController();
+  final _titleKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      final height = _titleKey.currentContext?.size?.height;
+      if (height != null) {
+        widget.titlePassed.value = _controller.offset >= height;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    controller: _controller,
+    padding: widget.padding,
+    children: [
+      Text(widget.title, key: _titleKey),
+      for (var i = 0; i < 20; i++) SizedBox(height: 80, child: Text("Row $i")),
+    ],
+  );
 }

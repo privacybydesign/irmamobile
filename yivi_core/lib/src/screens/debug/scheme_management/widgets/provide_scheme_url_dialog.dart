@@ -33,7 +33,6 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
       message: translatedContent,
       body: PillTextField(
         controller: controller,
-        autofocus: true,
         keyboardType: TextInputType.url,
         hint: "https://",
         onSubmitted: (url) => navigator.pop(url),

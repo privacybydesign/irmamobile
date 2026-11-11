@@ -72,24 +72,6 @@ class _StubIssuer implements PassportIssuer {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-NfcReadingTranslationKeys _translationKeys() {
-  const key = "passport.nfc";
-  return NfcReadingTranslationKeys(
-    cancelDialogTitle: key,
-    cancelDialogExplanation: key,
-    cancelDialogDecline: key,
-    cancelDialogConfirm: key,
-    error: key,
-    errorGeneric: key,
-    title: key,
-    cancelledByUser: key,
-    cancelled: key,
-    timeoutWaitingForTag: key,
-    tagLostTryAgain: key,
-    failedToInitiateSession: key,
-  );
-}
-
 Widget _testWidget(_RecordingReader reader) {
   return ProviderScope(
     overrides: [
@@ -109,10 +91,7 @@ Widget _testWidget(_RecordingReader reader) {
             ),
             ...GlobalMaterialLocalizations.delegates,
           ],
-          home: NfcReadingScreen(
-            mrz: _mrz,
-            translationKeys: _translationKeys(),
-          ),
+          home: NfcReadingScreen(mrz: _mrz),
         ),
       ),
     ),

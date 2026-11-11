@@ -28,20 +28,13 @@ class CardTile extends StatelessWidget {
   final Widget? trailing;
   final List<Widget> body;
 
-  /// Drawn around the tile, e.g. red for a card with a problem.
-  final Color? outline;
-
   /// A spot for a card that is not there yet: see-through, with a dashed
-  /// outline in [outline] instead of a shadow.
+  /// outline instead of a shadow.
   final bool dashed;
 
   /// A strip across the bottom of the tile, edge to edge: a [CardTileStrip]
   /// with another choice, a problem, or a note.
   final Widget? footer;
-
-  /// The header and body at half strength, for a card that is shown but
-  /// not (yet) included. The outline and anything on it stay at full.
-  final bool faded;
 
   /// Lines the title may take; one by default, cut off with "…".
   final int titleMaxLines;
@@ -57,10 +50,8 @@ class CardTile extends StatelessWidget {
     this.chip,
     this.trailing,
     this.body = const [],
-    this.outline,
     this.dashed = false,
     this.footer,
-    this.faded = false,
     this.titleMaxLines = 1,
     this.subtitleMaxLines = 1,
   });
@@ -81,9 +72,7 @@ class CardTile extends StatelessWidget {
             color: palette.surface,
             shape: RoundedRectangleBorder(
               borderRadius: YiviCorners.cardRadius,
-              side: outline != null
-                  ? BorderSide(color: outline!, width: 1.5)
-                  : YiviEdges.block(context),
+              side: YiviEdges.block(context),
             ),
           );
     return CustomPaint(
@@ -91,7 +80,7 @@ class CardTile extends StatelessWidget {
           ? DashedOutlinePainter(
               shape: _shape,
               rtl: Directionality.of(context) == TextDirection.rtl,
-              color: outline ?? palette.link.withValues(alpha: 0.35),
+              color: palette.link.withValues(alpha: 0.35),
             )
           : null,
       child: DecoratedBox(
@@ -143,36 +132,29 @@ class CardTile extends StatelessWidget {
     );
   }
 
-  /// The content, faded when [faded], with the [footer] strip under it,
-  /// clipped to the tile's corners.
+  /// The content, with the [footer] strip under it, clipped to the tile's
+  /// corners.
   Widget _withFooter(Widget content) {
-    final shown = faded ? Opacity(opacity: 0.5, child: content) : content;
     final strip = footer;
-    if (strip == null) return shown;
+    if (strip == null) return content;
     return ClipPath(
       clipper: const ShapeBorderClipper(shape: _shape),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [shown, strip],
+        children: [content, strip],
       ),
     );
   }
 }
 
 /// A strip across the bottom of a [CardTile]: a line above and a row with
-/// [children] (what state the card is in, and a pill to act on it). [background] and
-/// [line] colour it for a problem.
+/// [children] (what state the card is in, and a pill to act on it). [line]
+/// colours the line above it.
 class CardTileStrip extends StatelessWidget {
   final List<Widget> children;
-  final Color? background;
   final Color? line;
 
-  const CardTileStrip({
-    super.key,
-    required this.children,
-    this.background,
-    this.line,
-  });
+  const CardTileStrip({super.key, required this.children, this.line});
 
   /// The text in a strip.
   static TextStyle textStyle(BuildContext context) {
@@ -187,8 +169,6 @@ class CardTileStrip extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        // On the card itself; a problem colours it.
-        color: background,
         border: Border(top: BorderSide(color: line ?? palette.divider)),
       ),
       child: Padding(

@@ -36,7 +36,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     final navigator = Navigator.of(context);
 
     final hasLongPin = await repo.preferences.getLongPin().first;
-    final maxPinSize = hasLongPin ? 16 : 5;
+    final maxPinSize = hasLongPin ? longPinSize : shortPinSize;
 
     return navigator.push(
       MaterialPageRoute(
@@ -46,11 +46,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
             instruction: instruction,
             maxPinSize: maxPinSize,
             onSubmit: (pin) => navigator.pop(pin),
-            listener: (context, state) {
-              if (!hasLongPin && state.pin.length == 5) {
-                navigator.pop(state.toString());
-              }
-            },
+            listener: submitWhenFull(maxPinSize, navigator.pop),
           ),
         ),
       ),

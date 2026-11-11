@@ -546,8 +546,9 @@ void _collapseAges(List<_Node> children) {
   }
 
   for (final child in children) {
-    if (child is _GroupNode) _collapseAges(child.children);
-    if (child is _ItemNode) _collapseAges(child.children);
+    if (_childrenOf(child) case final grandchildren?) {
+      _collapseAges(grandchildren);
+    }
   }
 }
 
@@ -820,8 +821,6 @@ class _LeafContent extends StatelessWidget {
   }
 }
 
-/// "✓ Exactly what they ask" beside a value that is precisely what the
-/// request wants, or "Asked: …" beside one that is not.
 /// What a [ValueTag] says about a value: it is exactly what was asked
 /// (green, with a check), it is not (red), or it is what is asked of a card
 /// that is not in the app yet (blue).

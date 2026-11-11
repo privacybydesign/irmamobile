@@ -108,12 +108,7 @@ class _PredictiveBackState extends State<_PredictiveBack>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    final swipe = _swipe;
-    if (swipe != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (swipe.navigator.mounted) swipe.navigator.didStopUserGesture();
-      });
-    }
+    _swipe?.abandon();
     super.dispose();
   }
 
@@ -230,14 +225,7 @@ class _BackSwipeDetectorState extends State<_BackSwipeDetector> {
   @override
   void dispose() {
     _recognizer.dispose();
-    // Gone in the middle of a swipe: the navigator still thinks a finger
-    // holds it.
-    final swipe = _swipe;
-    if (swipe != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (swipe.navigator.mounted) swipe.navigator.didStopUserGesture();
-      });
-    }
+    _swipe?.abandon();
     super.dispose();
   }
 
@@ -291,6 +279,12 @@ class _BackSwipe {
     // ignore: invalid_use_of_protected_member
     route.controller!,
   );
+
+  /// The page that swiped is gone in the middle of the swipe: the navigator
+  /// still thinks a finger holds it, so tell it the gesture ended.
+  void abandon() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (navigator.mounted) navigator.didStopUserGesture();
+  });
 
   /// Under the finger: the page follows it exactly.
   void update(double delta) => controller.value -= delta;

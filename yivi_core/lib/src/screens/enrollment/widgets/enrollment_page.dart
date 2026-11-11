@@ -40,13 +40,11 @@ const double _topBarHeight = 44;
 /// - a tablet held upright: one centred column of at most
 ///   [enrollmentColumnMaxWidth].
 ///
-/// [leading] (the back button) and [trailing] (Skip) float in a bar at the
-/// top. Either part scrolls when it does not fit (a small phone, large text,
+/// [trailing] (Skip, or close) floats in a bar at the top. Either part scrolls when it does not fit (a small phone, large text,
 /// the keyboard up).
 class EnrollmentPage extends StatelessWidget {
   final Widget? about;
   final Widget action;
-  final Widget? leading;
   final Widget? trailing;
 
   /// Gives [action] the full height of its column on a phone held
@@ -57,7 +55,6 @@ class EnrollmentPage extends StatelessWidget {
     super.key,
     this.about,
     required this.action,
-    this.leading,
     this.trailing,
     this.fillAction = false,
   });
@@ -67,7 +64,7 @@ class EnrollmentPage extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final sideways = enrollmentSideways(context);
     final tablet = enrollmentTablet(context);
-    final hasBar = leading != null || trailing != null;
+    final hasBar = trailing != null;
     final barSpace = hasBar ? _topBarHeight + 8 : 0.0;
 
     final Widget body;
@@ -105,7 +102,7 @@ class EnrollmentPage extends StatelessWidget {
                 top: FloatingBarPlacement.topGap(context),
                 child: SizedBox(
                   height: _topBarHeight,
-                  child: Row(children: [?leading, const Spacer(), ?trailing]),
+                  child: Row(children: [const Spacer(), ?trailing]),
                 ),
               ),
           ],
@@ -301,15 +298,9 @@ class EnrollmentTitle extends StatelessWidget {
 /// The explanation under an enrollment page's title.
 class EnrollmentLead extends StatelessWidget {
   final String translationKey;
-  final Map<String, String> translationParams;
   final TextAlign? textAlign;
 
-  const EnrollmentLead(
-    this.translationKey, {
-    super.key,
-    this.translationParams = const {},
-    this.textAlign,
-  });
+  const EnrollmentLead(this.translationKey, {super.key, this.textAlign});
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +308,6 @@ class EnrollmentLead extends StatelessWidget {
     final tablet = enrollmentTablet(context);
     return TranslatedText(
       translationKey,
-      translationParams: translationParams,
       textAlign: textAlign,
       style: palette
           .body(tablet ? 17 : 16)

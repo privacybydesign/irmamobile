@@ -5,6 +5,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:permission_handler/permission_handler.dart";
+import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
@@ -19,35 +20,26 @@ import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/translated_text.dart";
 import "document_instruction_screen.dart" show DocumentTipBox;
 import "document_step_in_sheet.dart";
+import "document_translation_keys.dart";
 import "widgets/dark_glass.dart";
 import "widgets/document_camera_frame.dart";
+import "widgets/document_flow_footer.dart";
 import "widgets/mrz_scanner.dart";
 
-class MrzReaderTranslationKeys {
-  final String title;
-  final String manualEntryButton;
-
-  MrzReaderTranslationKeys({
-    required this.title,
-    required this.manualEntryButton,
-  });
-}
-
 /// Reads the MRZ of a document with the camera.
-class MrzReaderScreen<Parser extends MrzParser> extends ConsumerStatefulWidget {
+class MrzReaderScreen extends ConsumerStatefulWidget {
   final void Function(MrzResult mrzResult) onSuccess;
   final VoidCallback onManualAdd;
   final VoidCallback onCancel;
-  final Parser mrzParser;
-  final MrzReaderTranslationKeys translationKeys;
+  final MrzParser mrzParser;
 
-  /// The document's instruction ("Open your passport on …", its tip): what
-  /// the camera step says beside the camera in a sheet held sideways.
-  final String? instructionKey;
+  /// The document: its scan title, "Enter manually" and its instruction
+  /// ("Open your passport on …", its tip), which the camera step says
+  /// beside the camera in a sheet held sideways.
+  final DocumentType documentType;
 
   const MrzReaderScreen({
-    required this.translationKeys,
-    this.instructionKey,
+    required this.documentType,
     required this.onSuccess,
     required this.onManualAdd,
     required this.onCancel,
@@ -97,20 +89,20 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
     // sheet's bar, "Enter manually" under it, no Cancel.
     if (DocumentStepInSheet.of(context)) {
       return _SheetCamera(
-        titleKey: widget.translationKeys.title,
+        titleKey: widget.documentType.scanTitleKey,
         body: body,
-        manualLabel: widget.translationKeys.manualEntryButton,
+        manualLabel: widget.documentType.scanManualKey,
         onManual: widget.onManualAdd,
-        instructionKey: widget.instructionKey,
+        instructionKey: widget.documentType.instructionKey,
       );
     }
 
     // The picture fills the screen under a floating title and a dark glass
     // panel with the buttons: at the bottom, or at the right held sideways.
     return _CameraScaffold(
-      title: widget.translationKeys.title,
+      title: widget.documentType.scanTitleKey,
       body: body,
-      manualLabel: widget.translationKeys.manualEntryButton,
+      manualLabel: widget.documentType.scanManualKey,
       onManual: widget.onManualAdd,
       onCancel: widget.onCancel,
     );
@@ -215,13 +207,13 @@ class _CameraScaffold extends StatelessWidget {
                   spacing: 4,
                   children: [
                     PillButton(
-                      key: const Key("bottom_bar_primary"),
+                      key: DocumentFlowButton.primaryKey,
                       label: FlutterI18n.translate(context, manualLabel),
                       onDark: true,
                       onPressed: onManual,
                     ),
                     PillButton(
-                      key: const Key("bottom_bar_secondary"),
+                      key: DocumentFlowButton.secondaryKey,
                       label: FlutterI18n.translate(
                         context,
                         "document_flow.cancel",
@@ -249,14 +241,16 @@ class _SheetCamera extends StatelessWidget {
   final Widget body;
   final String manualLabel;
   final VoidCallback onManual;
-  final String? instructionKey;
+
+  /// What to do, beside the camera held sideways (`.title` and `.tip`).
+  final String instructionKey;
 
   const _SheetCamera({
     required this.titleKey,
     required this.body,
     required this.manualLabel,
     required this.onManual,
-    this.instructionKey,
+    required this.instructionKey,
   });
 
   @override
@@ -272,7 +266,7 @@ class _SheetCamera extends StatelessWidget {
       return SheetSlotAction(
         action: null,
         secondary: SheetAction(
-          key: const Key("bottom_bar_primary"),
+          key: DocumentFlowButton.primaryKey,
           label: FlutterI18n.translate(context, manualLabel),
           onTap: onManual,
         ),
@@ -282,20 +276,9 @@ class _SheetCamera extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // The page's heading, as on every step of adding a card.
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
-                child: TranslatedText(
-                  titleKey,
-                  key: const Key("sheet_camera_heading"),
-                  isHeader: true,
-                  textAlign: TextAlign.center,
-                  style: YiviPalette.of(context)
-                      .display(24, weight: FontWeight.w700)
-                      .copyWith(
-                        height: 30 / 24,
-                        color: YiviPalette.of(context).text,
-                      ),
-                ),
+              DocumentSheetHeading(
+                titleKey,
+                textKey: const Key("sheet_camera_heading"),
               ),
               Expanded(child: card),
             ],
@@ -309,35 +292,29 @@ class _SheetCamera extends StatelessWidget {
             action: null,
             child: Center(
               child: TextLink(
-                key: const Key("bottom_bar_primary"),
+                key: DocumentFlowButton.primaryKey,
                 label: FlutterI18n.translate(context, manualLabel),
                 onPressed: onManual,
               ),
             ),
           )
         : PillButton(
-            key: const Key("bottom_bar_primary"),
+            key: DocumentFlowButton.primaryKey,
             label: FlutterI18n.translate(context, manualLabel),
             onPressed: onManual,
           );
     // Held sideways: what to do and "Enter manually" at the left, the
     // camera at the right.
-    final instruction = instructionKey;
     if (useSheetColumns(context)) {
-      final palette = YiviPalette.of(context);
       return SheetSplit(
         endFills: true,
         start: [
-          if (instruction != null) ...[
-            TranslatedText(
-              "$instruction.title",
-              isHeader: true,
-              style: palette
-                  .display(20, weight: FontWeight.w700)
-                  .copyWith(height: 28 / 20, color: palette.heading),
-            ),
-            DocumentTipBox(textKey: "$instruction.tip"),
-          ],
+          TranslatedText(
+            "$instructionKey.title",
+            isHeader: true,
+            style: documentSplitHeadingStyle(YiviPalette.of(context)),
+          ),
+          DocumentTipBox(textKey: "$instructionKey.tip"),
         ],
         end: card,
         actions: manual,

@@ -187,7 +187,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
-  await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
+  await tester.waitFor(find.byType(MrzReaderScreen));
 
   final fakeMrz = PassportMrzResult(
     documentNumber: "XR0000001",
@@ -203,7 +203,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   );
 
   final scannerState = tester.state<MrzReaderScreenState>(
-    find.byType(MrzReaderScreen<PassportMrzParser>),
+    find.byType(MrzReaderScreen),
   );
   scannerState.widget.onSuccess(fakeMrz);
 

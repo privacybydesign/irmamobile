@@ -8,23 +8,12 @@ import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "../util/reveal_whole.dart";
 import "configurable_expansion_tile.dart";
-import "irma_card.dart";
 
 class Collapsible extends StatefulWidget {
   final String header;
   final Widget content;
-  final ScrollController? parentScrollController;
 
-  /// Draws no card of its own, for a question in a GlassGroup with others.
-  final bool flat;
-
-  const Collapsible({
-    super.key,
-    required this.header,
-    required this.content,
-    this.parentScrollController,
-    this.flat = false,
-  });
+  const Collapsible({super.key, required this.header, required this.content});
 
   @override
   State<Collapsible> createState() => _CollapsibleState();
@@ -41,7 +30,7 @@ class _CollapsibleState extends State<Collapsible> {
   /// scrolls under (as far as the page scrolls), the answer below it.
   Future<void> _jumpToCollapsable() async {
     await Future.delayed(_expandDuration);
-    if (widget.parentScrollController == null || !mounted) return;
+    if (!mounted) return;
     final scrollable = Scrollable.maybeOf(context, axis: Axis.vertical);
     if (scrollable == null) return;
     revealWhole(
@@ -74,7 +63,7 @@ class _CollapsibleState extends State<Collapsible> {
     final theme = IrmaTheme.of(context);
 
     final palette = YiviPalette.of(context);
-    final tile = ConfigurableExpansionTile(
+    return ConfigurableExpansionTile(
       initiallyExpanded: false,
       onExpansionChanged: _onExpansionChanged,
       animatedWidgetFollowingHeader: Padding(
@@ -123,12 +112,6 @@ class _CollapsibleState extends State<Collapsible> {
           ),
         ),
       ],
-    );
-    if (widget.flat) return tile;
-    return IrmaCard(
-      padding: EdgeInsets.zero,
-      margin: EdgeInsets.zero,
-      child: tile,
     );
   }
 }

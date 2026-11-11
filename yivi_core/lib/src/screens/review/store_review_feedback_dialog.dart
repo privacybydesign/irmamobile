@@ -79,7 +79,6 @@ class _StoreReviewFeedbackDialogState
             hint: context.tr("review.feedback.hint"),
             minLines: 3,
             maxLines: 6,
-            autofocus: true,
             keyboardType: TextInputType.multiline,
           ),
           Padding(

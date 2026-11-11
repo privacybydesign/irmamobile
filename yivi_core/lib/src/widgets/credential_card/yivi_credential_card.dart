@@ -25,10 +25,8 @@ class YiviCredentialCard extends ConsumerWidget {
 
   final Widget? image;
   final List<Attribute>? compareTo;
-  final Function()? onTap;
   final IrmaCardStyle style;
   final Widget? headerTrailing;
-  final EdgeInsetsGeometry? padding;
   final bool hideFooter;
   final bool hideNotObtainable;
 
@@ -47,27 +45,18 @@ class YiviCredentialCard extends ConsumerWidget {
     required this.status,
     this.image,
     this.compareTo,
-    this.onTap,
     this.headerTrailing,
     this.style = IrmaCardStyle.normal,
-    this.padding,
     this.hideFooter = false,
     this.hideNotObtainable = false,
     this.disclosure = false,
     this.namespaced = false,
   });
 
-  static const _defaultLowInstanceCountThreshold = 5;
-
   YiviCredentialCard.fromCredential({
     Key? key,
     required Credential credential,
-    List<Attribute>? compareTo,
-    Function()? onTap,
     Widget? headerTrailing,
-    IrmaCardStyle style = IrmaCardStyle.normal,
-    EdgeInsetsGeometry? padding,
-    bool hideFooter = false,
   }) : this(
          key: key,
          namespaced: credential.credentialInstanceIds.containsKey(
@@ -87,26 +76,28 @@ class YiviCredentialCard extends ConsumerWidget {
            revoked: credential.revoked,
            batchInstanceCountsRemaining:
                credential.batchInstanceCountsRemaining,
-           lowInstanceCountThreshold: _defaultLowInstanceCountThreshold,
            credentialId: credential.credentialId,
            issueUrl: credential.issueUrl,
          ),
-         compareTo: compareTo,
-         onTap: onTap,
          headerTrailing: headerTrailing,
-         style: style,
-         padding: padding,
-         hideFooter: hideFooter,
        );
 
   YiviCredentialCard.fromDescriptor({
     Key? key,
     required CredentialDescriptor descriptor,
-    Function()? onTap,
-    Widget? headerTrailing,
-    IrmaCardStyle style = IrmaCardStyle.normal,
-    EdgeInsetsGeometry? padding,
     bool hideNotObtainable = false,
+  }) : this._fromRequested(
+         key: key,
+         descriptor: descriptor,
+         requested: _requestedAttributes(descriptor),
+         hideNotObtainable: hideNotObtainable,
+       );
+
+  YiviCredentialCard._fromRequested({
+    Key? key,
+    required CredentialDescriptor descriptor,
+    required List<Attribute> requested,
+    required bool hideNotObtainable,
   }) : this(
          key: key,
          namespaced: descriptor.format == CredentialFormat.msoMdoc,
@@ -118,36 +109,8 @@ class YiviCredentialCard extends ConsumerWidget {
                  mimeType: descriptor.image!.mimeType,
                )
              : null,
-         attributes: descriptor.attributes
-             .where(
-               (a) =>
-                   a.requestedValue != null &&
-                   a.requestedValue!.hasConcreteValue,
-             )
-             .map(
-               (a) => Attribute(
-                 claimPath: a.claimPath,
-                 displayName: a.displayName,
-                 description: a.description,
-                 value: a.requestedValue,
-               ),
-             )
-             .toList(),
-         compareTo: descriptor.attributes
-             .where(
-               (a) =>
-                   a.requestedValue != null &&
-                   a.requestedValue!.hasConcreteValue,
-             )
-             .map(
-               (a) => Attribute(
-                 claimPath: a.claimPath,
-                 displayName: a.displayName,
-                 description: a.description,
-                 value: a.requestedValue,
-               ),
-             )
-             .toList(),
+         attributes: requested,
+         compareTo: requested,
          status: CredentialCardStatus(
            revoked: false,
            batchInstanceCountsRemaining: {},
@@ -155,14 +118,28 @@ class YiviCredentialCard extends ConsumerWidget {
            credentialId: descriptor.credentialId,
            issueUrl: descriptor.issueURL,
          ),
-         onTap: onTap,
-         headerTrailing: headerTrailing,
-         style: style,
-         padding: padding,
          hideFooter: true,
          hideNotObtainable: hideNotObtainable,
          disclosure: true,
        );
+
+  /// The attributes of [descriptor] with a concrete requested value, as
+  /// attributes holding that value.
+  static List<Attribute> _requestedAttributes(
+    CredentialDescriptor descriptor,
+  ) => descriptor.attributes
+      .where(
+        (a) => a.requestedValue != null && a.requestedValue!.hasConcreteValue,
+      )
+      .map(
+        (a) => Attribute(
+          claimPath: a.claimPath,
+          displayName: a.displayName,
+          description: a.description,
+          value: a.requestedValue,
+        ),
+      )
+      .toList();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -176,8 +153,6 @@ class YiviCredentialCard extends ConsumerWidget {
 
     return IrmaCard(
       style: status.isExpired || status.revoked ? IrmaCardStyle.danger : style,
-      onTap: onTap,
-      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

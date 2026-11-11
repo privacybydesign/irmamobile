@@ -120,37 +120,16 @@ class _OwnedCard extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: _Ring(
+          // The ring of the chosen card, fading in over 220 ms when it
+          // appears.
+          child: FadingTileOutline(
             shown: selected,
+            color: YiviPalette.of(context).link,
+            duration: const Duration(milliseconds: 220),
+            outlineKey: const Key("sheet_chosen_ring"),
             child: SharedCardTile(bundle: bundle),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// The ring of the chosen card, fading in over 220 ms when it appears.
-class _Ring extends StatelessWidget {
-  final bool shown;
-  final Widget child;
-
-  const _Ring({required this.shown, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    if (!shown) return child;
-    final palette = YiviPalette.of(context);
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: YiviMotion.duration(context, const Duration(milliseconds: 220)),
-      curve: Curves.easeOut,
-      child: child,
-      builder: (context, t, child) => CardTileOutline(
-        key: const Key("sheet_chosen_ring"),
-        shown: true,
-        color: palette.link.withValues(alpha: t),
-        child: child!,
       ),
     );
   }
@@ -224,13 +203,13 @@ class _AddKindRow extends ConsumerWidget {
   final VoidCallback onTap;
 
   /// Where its picture is: it rises from there into the first step.
-  final GlobalKey? artKey;
+  final GlobalKey artKey;
 
   const _AddKindRow({
     super.key,
     required this.descriptor,
     required this.onTap,
-    this.artKey,
+    required this.artKey,
   });
 
   /// The "how" line of [d].
@@ -275,12 +254,10 @@ class _AddKindRow extends ConsumerWidget {
             child: Row(
               spacing: 12,
               children: [
-                artKey == null
-                    ? FadedCardArt(descriptor: descriptor)
-                    : FlightSpot(
-                        flightKey: artKey!,
-                        child: FadedCardArt(descriptor: descriptor),
-                      ),
+                FlightSpot(
+                  flightKey: artKey,
+                  child: FadedCardArt(descriptor: descriptor),
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

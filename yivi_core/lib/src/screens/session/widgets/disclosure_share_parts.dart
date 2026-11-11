@@ -8,35 +8,6 @@ class _Spaced {
   const _Spaced(this.gap, this.child);
 }
 
-/// The compact bar once the requestor card has scrolled away: it
-/// fades in and comes down 8 pt, as on the detail pages.
-class _CompactBarSlot extends StatelessWidget {
-  final ValueListenable<bool> shown;
-  final schemaless.TrustedParty requestor;
-  final String subtitle;
-  final GlobalKey? logoKey;
-
-  const _CompactBarSlot({
-    required this.shown,
-    required this.requestor,
-    required this.subtitle,
-    this.logoKey,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CompactBarDropIn(
-      shown: shown,
-      bar: (t) => RequestorCompactBar(
-        requestor: requestor,
-        subtitle: subtitle,
-        opacity: t,
-        logoKey: logoKey,
-      ),
-    );
-  }
-}
-
 class _SectionLabel extends StatelessWidget {
   final String title;
 
@@ -261,12 +232,7 @@ class _ShareProgress extends StatelessWidget {
                   ? palette
                         .body(13.5, weight: FontWeight.w600)
                         .copyWith(height: 19 / 13.5, color: palette.errorText)
-                  : palette
-                        .body(12)
-                        .copyWith(
-                          height: 16 / 12,
-                          color: palette.secondaryText.withValues(alpha: 0.85),
-                        ),
+                  : ProgressPartTrack.lineStyle(context),
             ),
           ),
         ],
@@ -311,26 +277,8 @@ class _SharePartState extends State<_SharePart>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(2),
-      child: Container(
-        width: 28,
-        height: 4,
-        color: palette.text.withValues(alpha: 0.12),
-        alignment: AlignmentDirectional.centerStart,
-        child: AnimatedBuilder(
-          animation: _fill,
-          builder: (context, _) => FractionallySizedBox(
-            widthFactor: YiviMotion.ease.transform(_fill.value),
-            heightFactor: 1,
-            child: ColoredBox(color: palette.successText),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      ProgressPartTrack(width: 28, fill: _fill);
 }
 
 /// The green ring around a card that landed while the screen was open: it
@@ -342,21 +290,12 @@ class _LandedRing extends StatelessWidget {
   const _LandedRing({required this.shown, required this.child});
 
   @override
-  Widget build(BuildContext context) {
-    if (!shown) return child;
-    final palette = YiviPalette.of(context);
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: YiviMotion.duration(context, const Duration(milliseconds: 350)),
-      curve: Curves.easeOut,
-      child: child,
-      builder: (context, t, child) => CardTileOutline(
-        shown: true,
-        color: palette.successText.withValues(alpha: t),
-        child: child!,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => FadingTileOutline(
+    shown: shown,
+    color: YiviPalette.of(context).successText,
+    duration: const Duration(milliseconds: 350),
+    child: child,
+  );
 }
 
 /// A card in the app of a kind the request takes, that does not count for
@@ -365,7 +304,7 @@ class _LandedRing extends StatelessWidget {
 /// the user can do: get it again if it changed, or else not share.
 class _MismatchTile extends StatelessWidget {
   final WalletMismatch mismatch;
-  final GlobalKey? landingKey;
+  final GlobalKey landingKey;
   final String requestor;
 
   const _MismatchTile({
@@ -384,9 +323,7 @@ class _MismatchTile extends StatelessWidget {
     final art = CredentialCardArt(credential: card, width: CardTile.miniWidth);
     return CardTile(
       key: const Key("share_not_counted"),
-      art: landingKey == null
-          ? art
-          : FlightSpot(flightKey: landingKey!, child: art),
+      art: FlightSpot(flightKey: landingKey, child: art),
       title: card.name,
       subtitle: card.issuer.name,
       chip: StatusChip(
@@ -533,50 +470,6 @@ class _SidewaysCardsState extends State<_SidewaysCards> {
             ),
           ),
         ),
-      ],
-    );
-  }
-}
-
-/// A red wash behind the top of the page when nobody vouches for the
-/// requestor.
-class _TrustWash extends StatelessWidget {
-  final bool on;
-  final Widget child;
-
-  /// How far down the wash goes: 460, 300 held sideways.
-  final double height;
-
-  const _TrustWash({required this.on, required this.child, this.height = 460});
-
-  @override
-  Widget build(BuildContext context) {
-    if (!on) return child;
-    final palette = YiviPalette.of(context);
-    return Stack(
-      children: [
-        Positioned(
-          key: const Key("share_trust_wash"),
-          left: 0,
-          right: 0,
-          top: 0,
-          height: height,
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    palette.errorSurface,
-                    palette.errorSurface.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(child: child),
       ],
     );
   }

@@ -5,8 +5,6 @@ import "../theme/theme.dart";
 import "glass/pill_buttons.dart";
 import "irma_bottom_bar_base.dart";
 
-enum IrmaBottomBarAlignment { horizontal, automatic }
-
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
   final VoidCallback? onPrimaryPressed;
@@ -18,7 +16,6 @@ class IrmaBottomBar extends StatelessWidget {
   /// The values for the placeholders in [secondaryButtonLabel].
   final Map<String, String>? secondaryButtonParams;
   final VoidCallback? onSecondaryPressed;
-  final IrmaBottomBarAlignment alignment;
 
   const IrmaBottomBar({
     super.key,
@@ -28,7 +25,6 @@ class IrmaBottomBar extends StatelessWidget {
     this.secondaryButtonLabel,
     this.secondaryButtonParams,
     this.onSecondaryPressed,
-    this.alignment = IrmaBottomBarAlignment.automatic,
   });
 
   Widget _buildPrimaryButton(BuildContext context) {
@@ -74,10 +70,8 @@ class IrmaBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    // Change layout according to limited height (i.e. landscape mode) and alignment setting.
-    final vertical =
-        alignment == IrmaBottomBarAlignment.automatic &&
-        MediaQuery.sizeOf(context).height > 450;
+    // Change layout according to limited height (i.e. landscape mode).
+    final vertical = MediaQuery.sizeOf(context).height > 450;
     return IrmaBottomBarBase(
       // "Cancel" under the main button sits low, as on iOS.
       endsWithTextButton: vertical && secondaryButtonLabel != null,

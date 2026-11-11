@@ -17,6 +17,9 @@ class NotificationsLoaded extends NotificationsState {
   bool get hasUnreadNotifications =>
       notifications.any((notification) => !notification.read);
 
+  /// How many notifications are not read yet.
+  int get unreadCount => notifications.where((n) => !n.read).length;
+
   const NotificationsLoaded(this.notifications);
 }
 

@@ -13,7 +13,6 @@ import "../../../widgets/credential_card/faded_card_art.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/press_scale.dart";
-import "shared_card_tile.dart";
 
 /// A row of an [EmptyCardSpot]: a field, its value, and whether that value
 /// is what the request asks of the card ("Asked").
@@ -90,12 +89,6 @@ class EmptyCardSpot extends StatelessWidget {
     this.strip,
   });
 
-  /// The picture, where an added card lands (hidden while it flies in).
-  Widget _landing(Widget art) {
-    final key = landingKey;
-    return key == null ? art : FlightSpot(flightKey: key, child: art);
-  }
-
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
@@ -105,7 +98,9 @@ class EmptyCardSpot extends StatelessWidget {
       dashed: true,
       titleMaxLines: choice == null ? 1 : 3,
       subtitleMaxLines: together ? 3 : 1,
-      art: _landing(
+      // The picture, where an added card lands (hidden while it flies in).
+      art: FlightSpot.maybe(
+        landingKey,
         choice != null
             ? _KindsArt(kinds: choice)
             : FadedCardArt(descriptor: descriptor, canAdd: canAdd),
@@ -229,7 +224,7 @@ class _KindsArt extends StatelessWidget {
     }
 
     return SizedBox(
-      width: SharedCardTile.miniWidth,
+      width: CardTile.miniWidth,
       height: _height,
       child: Stack(
         clipBehavior: Clip.none,

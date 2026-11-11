@@ -102,17 +102,9 @@ class FaceVerificationIntroScreen extends StatelessWidget {
             children: [
               // In a sheet the bar has no title: the page's heading.
               if (DocumentStepInSheet.of(context))
-                Padding(
-                  padding: const .fromLTRB(8, 0, 8, 16),
-                  child: TranslatedText(
-                    "face_verification.intro.head",
-                    key: const Key("face_intro_heading"),
-                    isHeader: true,
-                    textAlign: TextAlign.center,
-                    style: palette
-                        .display(24, weight: FontWeight.w700)
-                        .copyWith(height: 30 / 24, color: palette.text),
-                  ),
+                const DocumentSheetHeading(
+                  "face_verification.intro.head",
+                  textKey: Key("face_intro_heading"),
                 ),
               const SurfaceCard(
                 height: 230,

@@ -61,6 +61,11 @@ final issuerOpenerProvider =
               .openIssueURL(context, d.credentialId, d.issueURL, widgetRef),
     );
 
+/// [name] as it reads inside a sentence in the app's language
+/// ([inSentence]).
+String inSentenceAt(BuildContext context, String name) =>
+    inSentence(name, language: context.lang);
+
 /// Adding a card inside a sheet, in three steps under an
 /// [IssueSheetProgress]: 1 its details (as on the add-data page), 2 proving
 /// it (Yivi's own e-mail, phone or document steps, or the issuer's website,
@@ -324,8 +329,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       _nestedId == null &&
       !_pin;
 
-  String _inSentence(String name) => inSentence(name, language: context.lang);
-
   /// Takes the next session that starts into this sheet (an issuance
   /// scanned on the lock screen): its offer, the PIN if irmago asks and
   /// "Success" show here, without a type picked first.
@@ -391,14 +394,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     _granted = false;
   }
 
-  /// None of the steps that prove the card is under way: no website opened,
-  /// no e-mail, phone or document step.
   /// Back from the document screens to the details.
   void _leaveDocument() => setState(() {
     _document = null;
     _faceCheck = false;
   });
 
+  /// None of the steps that prove the card is under way: no website opened,
+  /// no e-mail, phone or document step.
   void _clearSteps() {
     _opened = false;
     _website = false;
@@ -450,9 +453,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// "Add" on the details: Yivi's own e-mail, phone or document steps in the
   /// sheet, or the issuer's website with the sheet waiting for what comes
   /// back. Either way the issuance then shows in the sheet.
-  Future<void> _add(CredentialDescriptor d) async {
+  void _add(CredentialDescriptor d) {
     beforeIssueAdd(d);
-    final open = ref.read(issuerOpenerProvider);
     final flow = _repo.embeddedFlowOf(d.credentialId);
     if (flow == EmbeddedFlow.email || flow == EmbeddedFlow.phone) {
       if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
@@ -476,16 +478,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       });
       return;
     }
-    if (flow != null) {
-      // Not one of the documents the sheet knows: its own screens, from the
-      // page behind the sheet.
-      final navigator = Navigator.of(context);
-      final pageContext = navigator.context;
-      navigator.pop();
-      await open(pageContext, d, ref);
-      return;
-    }
-    // The issuer's website: first the page that says so.
+    // The issuer's website (every document Yivi issues itself has a
+    // DocumentType): first the page that says so.
     setState(() => _website = true);
   }
 
@@ -524,7 +518,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           builder: (dialogContext) => GlassDialog(
             cardKey: const Key("sheet_stop_dialog"),
             title: context.tr("share.sheet.stop_title", {
-              "name": _inSentence(d.name),
+              "name": inSentenceAt(context, d.name),
             }),
             message: issueStopText(),
             actions: [
@@ -818,7 +812,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             opened: _opened,
             onOpen: () => _openWebsite(adding),
             onBack: _leaveWebsite,
-            bottom: IssueSheetProgress(subject: subject, step: 2, total: total),
+            bottom: IssueSheetProgress(step: 2, total: total),
             titleWidget: IssueRequestorPill.maybe(subject),
             onOther: issueHasOtherChoices ? _issueChooseOther : null,
           ),
@@ -873,9 +867,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     ];
   }
 
-  /// The issuer's details, from the trust label on the question, as pages
-  /// of the sheet (back returns to the question), and their technical
-  /// details under them.
   /// The issuer's logo on the question page, and on the issuer's page: it
   /// flies between them as the page slides in and out.
   final _issuerLogoFrom = GlobalKey(debugLabel: "issuer_logo_from");
@@ -931,6 +922,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     );
   }
 
+  /// The issuer's details, from the trust label on the question, as pages
+  /// of the sheet (back returns to the question), and their technical
+  /// details under them.
   List<Widget> _issuerPages(int? nested) {
     final offer = _lastOffer;
     final cards = offer?.offeredCredentials;
@@ -955,11 +949,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           key: ValueKey(("issuer_tech", nested)),
           child: TechnicalDetailsSheet(
             key: const Key("issuer_technical_details"),
-            groups: issuanceTechnicalDetailsOf(
-              offer,
-              cards,
-              (key, [params]) => context.tr(key, params ?? const {}),
-            ),
+            groups: issuanceTechnicalDetailsOf(offer, cards, context.tr),
             onBack: () => setState(() => _issuerDepth = 1),
           ),
         ),
@@ -1074,7 +1064,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       split: split != null,
       action: action,
       bottomInBar: true,
-      bottom: IssueSheetProgress(subject: subject, step: 1, total: total),
+      bottom: IssueSheetProgress(step: 1, total: total),
       child:
           split ??
           Column(
@@ -1168,23 +1158,16 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             ),
           )
         : null;
-    final palette = YiviPalette.of(context);
     // Above the button: why it says "anyway" for an issuer nobody vouches
     // for (no progress then: it is the last step anyway); else the progress.
     final bottom = risky
-        ? Text(
-            context.tr("issuance.question.risky_reason", {
-              "issuer": issuer.name,
-            }),
-            key: const Key("issuance_risky_reason"),
+        ? IssuanceRiskyReason(
+            issuer: issuer,
             textAlign: useSheetColumns(context)
                 ? TextAlign.start
                 : TextAlign.center,
-            style: palette
-                .body(13.5, weight: FontWeight.w600)
-                .copyWith(color: palette.errorText, height: 19 / 13.5),
           )
-        : IssueSheetProgress.lastStep(subject, total);
+        : IssueSheetProgress.lastStep(total);
     final content = offer == null ? null : _offerContent(offer);
     final question = issuer == null
         ? null
@@ -1195,10 +1178,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             logoKey: _issuerLogoFrom,
             onTrust: () => _openIssuerPage(issuer),
           );
-    final loading = Padding(
-      padding: const EdgeInsets.symmetric(vertical: 80),
-      child: Center(child: LoadingIndicator()),
-    );
+    final loading = _loading();
     // The cards: their values in tiles, the mismatch note above them.
     List<Widget> cardsAndValues(IssuanceOffer content) => [
       const YouGetLabel(),
@@ -1249,6 +1229,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     return IssuanceTrustWash(on: risky, child: page);
   }
 
+  /// A page still waiting for the issuance's next state.
+  Widget _loading() => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 80),
+    child: Center(child: LoadingIndicator()),
+  );
+
   /// What the offer holds: the card(s) and their values.
   IssuanceOffer _offerContent(SessionState offer) =>
       IssuanceOffer(cards: offer.offeredCredentials!, forRequest: issueRequest);
@@ -1272,10 +1258,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           closable: false,
           title: context.tr("issuance.title"),
           onBack: () => _dismissNested(sessionId),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 80),
-            child: Center(child: LoadingIndicator()),
-          ),
+          child: _loading(),
         );
       }
       return OpenID4VCIPreAuthTxCodeScreen(
@@ -1312,7 +1295,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final palette = YiviPalette.of(context);
     final action = issueSuccessAction(cards);
     final link = issueSuccessLink(cards);
-    final linkButton = link == null
+    final linkText = link == null
+        ? null
+        : TextLink(key: link.key, label: link.label, onPressed: link.onTap);
+    final linkButton = linkText == null
         ? null
         : Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -1330,20 +1316,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                             : -8,
                         0,
                       ),
-                      child: TextLink(
-                        key: link.key,
-                        label: link.label,
-                        onPressed: link.onTap,
-                      ),
+                      child: linkText,
                     ),
                   )
-                : Center(
-                    child: TextLink(
-                      key: link.key,
-                      label: link.label,
-                      onPressed: link.onTap,
-                    ),
-                  ),
+                : Center(child: linkText),
           );
     // "Success" is the page's heading; the bar names it only once that has
     // scrolled away. Done: no progress; the way on is the way out.
@@ -1414,12 +1390,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                 Center(child: heading),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    issueSuccessText(cards),
-                    key: const Key("sheet_added_text"),
-                    textAlign: TextAlign.center,
-                    style: palette.body(16).copyWith(height: 24 / 16),
-                  ),
+                  child: text,
                 ),
               ],
             ),

@@ -198,6 +198,10 @@ Widget formSheetTransition(Animation<double> curved, Widget child) =>
       ),
     );
 
+/// How long a form sheet on a tablet takes to come in, and to go.
+const formSheetDuration = Duration(milliseconds: 260);
+const formSheetReverseDuration = Duration(milliseconds: 240);
+
 /// The easing of [formSheetTransition].
 CurvedAnimation formSheetCurve(Animation<double> animation) => CurvedAnimation(
   parent: animation,
@@ -251,10 +255,10 @@ class _GlassFormSheetRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 260);
+  Duration get transitionDuration => formSheetDuration;
 
   @override
-  Duration get reverseTransitionDuration => const Duration(milliseconds: 240);
+  Duration get reverseTransitionDuration => formSheetReverseDuration;
 
   /// Made once: a new one each frame would add a listener every time.
   late final CurvedAnimation _curved = formSheetCurve(animation!);
@@ -741,61 +745,58 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
     return MediaQuery.removeViewInsets(
       context: context,
       removeBottom: true,
-      child: Padding(
-        padding: EdgeInsets.zero,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          // At most this high: a sheet that fits its content is lower.
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: height),
-            child: Material(
-              type: MaterialType.transparency,
-              child: LayoutBuilder(
-                builder: (context, _) => GestureDetector(
-                  // Dragging the sheet outside its list (its header). Kept out
-                  // of the semantics tree: as a scroll action it hid the whole
-                  // sheet (title, close button, content) from screen readers.
-                  // They close it with the close button or the barrier.
-                  excludeFromSemantics: true,
-                  behavior: HitTestBehavior.opaque,
-                  onVerticalDragStart: (_) {
-                    _dragging = true;
-                    _startGesture();
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        // At most this high: a sheet that fits its content is lower.
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: height),
+          child: Material(
+            type: MaterialType.transparency,
+            child: LayoutBuilder(
+              builder: (context, _) => GestureDetector(
+                // Dragging the sheet outside its list (its header). Kept out
+                // of the semantics tree: as a scroll action it hid the whole
+                // sheet (title, close button, content) from screen readers.
+                // They close it with the close button or the barrier.
+                excludeFromSemantics: true,
+                behavior: HitTestBehavior.opaque,
+                onVerticalDragStart: (_) {
+                  _dragging = true;
+                  _startGesture();
+                },
+                onVerticalDragUpdate: (d) {
+                  if (_dragging) {
+                    _drag(d.primaryDelta ?? 0, _measure(context));
+                  }
+                },
+                onVerticalDragEnd: (d) {
+                  if (!_dragging) return;
+                  _dragging = false;
+                  _release(d.velocity.pixelsPerSecond.dy);
+                },
+                // Interrupted by the system: back in place.
+                onVerticalDragCancel: () {
+                  if (!_dragging) return;
+                  _dragging = false;
+                  if (_gesture && !_pulling) _release(0);
+                },
+                child: NotificationListener<ScrollStartNotification>(
+                  onNotification: (n) {
+                    _measure(context);
+                    return _onScrollStart(n);
                   },
-                  onVerticalDragUpdate: (d) {
-                    if (_dragging) {
-                      _drag(d.primaryDelta ?? 0, _measure(context));
-                    }
-                  },
-                  onVerticalDragEnd: (d) {
-                    if (!_dragging) return;
-                    _dragging = false;
-                    _release(d.velocity.pixelsPerSecond.dy);
-                  },
-                  // Interrupted by the system: back in place.
-                  onVerticalDragCancel: () {
-                    if (!_dragging) return;
-                    _dragging = false;
-                    if (_gesture && !_pulling) _release(0);
-                  },
-                  child: NotificationListener<ScrollStartNotification>(
-                    onNotification: (n) {
-                      _measure(context);
-                      return _onScrollStart(n);
-                    },
-                    child: GlassSheetScope(
-                      physics: _physics,
-                      child: _GlassSheet(
-                        attached: true,
-                        height: height,
-                        onFitted: _setFitted,
-                        keyboard: media.viewInsets.bottom,
-                        bottomInset: media.viewInsets.bottom > 0
-                            ? 0
-                            : media.padding.bottom,
-                        sides: sides,
-                        child: builder(context),
-                      ),
+                  child: GlassSheetScope(
+                    physics: _physics,
+                    child: _GlassSheet(
+                      attached: true,
+                      height: height,
+                      onFitted: _setFitted,
+                      keyboard: media.viewInsets.bottom,
+                      bottomInset: media.viewInsets.bottom > 0
+                          ? 0
+                          : media.padding.bottom,
+                      sides: sides,
+                      child: builder(context),
                     ),
                   ),
                 ),

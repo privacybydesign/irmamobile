@@ -195,14 +195,12 @@ class ManualEntryLayout extends StatelessWidget {
         TranslatedText(
           titleKey,
           isHeader: true,
-          style: palette
-              .display(20, weight: FontWeight.w700)
-              .copyWith(height: 28 / 20, color: palette.heading),
+          style: documentSplitHeadingStyle(palette),
         ),
         if (!keyboard) ...[
           TranslatedText(
             explanationKey,
-            style: palette.body(14.5).copyWith(height: 21 / 14.5),
+            style: documentSplitBodyStyle(palette),
           ),
           DocumentTipBox(textKey: tipKey),
         ],

@@ -10,7 +10,6 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
-import "../../../providers/last_shared_provider.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_motion.dart";
@@ -39,6 +38,7 @@ import "../models/technical_details.dart";
 import "change_choice_sheet.dart";
 import "done_flight.dart";
 import "empty_card_spot.dart";
+import "progress_part.dart";
 import "requestor_card.dart";
 import "requestor_trust_sheet.dart";
 import "session_columns.dart";
@@ -104,8 +104,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// compact bar then says who asks).
   final _headerKey = GlobalKey(debugLabel: "share_requestor_card");
   final _scrolledPast = ValueNotifier(false);
-
-  /// The requestor's logo: it flies into the trust sheet and back.
 
   /// The message to sign: it grows into the message sheet, and flies into
   /// the done screen.
@@ -356,13 +354,12 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final palette = YiviPalette.of(context);
     final session = widget.session;
     final requestor = session.requestor.name;
-    final choices = ref.watch(sessionUserChoicesProvider(_sessionId));
     final pickOnes = _pickOnes;
-    final selections = selectionsFrom(
+    final selections = sessionSelections(
+      ref,
+      _sessionId,
       pickOnes,
-      choices.disclosureChoices,
-      choices.addedOptionalIndices,
-      preferred: ref.watch(lastSharedBundlesProvider(_sessionId)),
+      listen: true,
     );
     final wallet = ref.watch(walletCardsProvider);
     final button = shareButton(session, selections, wallet: wallet);
@@ -526,10 +523,10 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       ShareButtonState(cannotAdd: final p?) =>
         _issuersOf(p).isEmpty
             ? t("share.reason.cant_add_unknown", {
-                "name": _inSentence(_spotName(p)),
+                "name": inSentenceAt(context, _spotName(p)),
               })
             : t("share.reason.cant_add", {
-                "name": _inSentence(_spotName(p)),
+                "name": inSentenceAt(context, _spotName(p)),
                 "issuer": _issuersOf(p),
               }),
       ShareButtonState(cannotRenewFrom: final issuer?) => t(
@@ -609,9 +606,12 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         // The band is the right column's own (see _SidewaysCards).
         scrollEdge: false,
         cornerClose: true,
-        body: _TrustWash(
+        // Held sideways the wash goes 300 down.
+        body: TrustWash(
           on: trust.risky,
+          washKey: const Key("share_trust_wash"),
           height: 300,
+          fill: true,
           child: Builder(
             builder: (context) {
               final top = sidewaysContentTop(context);
@@ -643,14 +643,21 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       scrollsUnderBars: true,
       bottomNavigationBar: bar,
       edgeColor: trust.risky ? palette.errorSurface : null,
-      startBar: _CompactBarSlot(
+      // The compact bar once the requestor card has scrolled away: it
+      // fades in and comes down 8 pt, as on the detail pages.
+      startBar: CompactBarDropIn(
         shown: _scrolledPast,
-        requestor: session.requestor,
-        subtitle: ask,
-        logoKey: _barLogoKey,
+        bar: (t) => RequestorCompactBar(
+          requestor: session.requestor,
+          subtitle: ask,
+          opacity: t,
+          logoKey: _barLogoKey,
+        ),
       ),
-      body: _TrustWash(
+      body: TrustWash(
         on: trust.risky,
+        washKey: const Key("share_trust_wash"),
+        fill: true,
         child: Builder(
           builder: (context) {
             final insets = BarInsets.of(context);
@@ -691,12 +698,11 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// into the done screen (see [DoneFlight]).
   void _captureForDone() {
     final pickOnes = _pickOnes;
-    final choices = ref.read(sessionUserChoicesProvider(_sessionId));
-    final selections = selectionsFrom(
+    final selections = sessionSelections(
+      ref,
+      _sessionId,
       pickOnes,
-      choices.disclosureChoices,
-      choices.addedOptionalIndices,
-      preferred: ref.read(lastSharedBundlesProvider(_sessionId)),
+      listen: false,
     );
     DoneFlight.capture(
       context,
@@ -801,10 +807,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       p,
       widget.session.disclosurePlan?.issueDuringDisclosure,
     ),
-    inList: _inSentence,
+    inList: (name) => inSentenceAt(context, name),
   );
-
-  String _inSentence(String name) => inSentence(name, language: context.lang);
 
   static String _issuersOf(DisclosurePickOne p) => {
     for (final d in p.obtainableOptions ?? const <CredentialDescriptor>[])
@@ -881,7 +885,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                   "name": addable
                       .firstWhere((d) => inApp.contains(d.credentialId))
                       .name,
-                  "other": _inSentence(missing.single.name),
+                  "other": inSentenceAt(context, missing.single.name),
                   "requestor": requestor,
                 })
               : t("share.spot.together_both", {"requestor": requestor}))

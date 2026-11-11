@@ -8,6 +8,7 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_tile.dart";
@@ -22,20 +23,14 @@ import "../models/disclosure_view_model.dart";
 /// cards that go together) as small card art, its name and issuer, and only
 /// the values that are shared.
 ///
-/// [trailing] sits at the end of the header (the Change sheet's radio), or
-/// nothing. A card with a [CardProblem] gets
+/// A card with a [CardProblem] gets
 /// its chip, its values greyed, and a calm line that says it can't be used
 /// any more; the fix is the share button's, not the card's. In the Change
 /// sheet [onFix] ("Add a new passport") sits under that line.
 class SharedCardTile extends ConsumerWidget {
   final DisclosureBundle bundle;
-  final Widget? trailing;
   final String? fixLabel;
   final VoidCallback? onFix;
-
-  /// Shows the problem chip and note. Off after sharing, when they no
-  /// longer apply.
-  final bool showStatus;
 
   /// Marks the small card art as where a card added in the Change sheet
   /// lands (a [FlightSpot]).
@@ -60,10 +55,8 @@ class SharedCardTile extends ConsumerWidget {
   const SharedCardTile({
     super.key,
     required this.bundle,
-    this.trailing,
     this.fixLabel,
     this.onFix,
-    this.showStatus = true,
     this.landingKey,
     this.footer,
     this.problemStrip = false,
@@ -71,21 +64,12 @@ class SharedCardTile extends ConsumerWidget {
     this.problemAction,
   }) : assert((fixLabel == null) == (onFix == null));
 
-  /// The art, marked as a landing spot.
-  Widget _landing(BuildContext context, Widget art) {
-    final key = landingKey;
-    return key == null ? art : FlightSpot(flightKey: key, child: art);
-  }
-
-  /// Width of the small card art, at the card's 358:226 ratio.
-  static const double miniWidth = CardTile.miniWidth;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
     final wallet = ref.watch(walletCardsProvider);
     final cards = bundle.credentials;
-    final problem = showStatus ? problemOfBundle(bundle) : null;
+    final problem = problemOfBundle(bundle);
     final name = cards.map((c) => c.name).join(" + ");
     final issuers = cards.map((c) => c.issuer.name).toSet().join(", ");
 
@@ -141,8 +125,9 @@ class SharedCardTile extends ConsumerWidget {
     return CardTile(
       key: const Key("shared_card_tile"),
       footer: bottom,
-      art: _landing(
-        context,
+      // Marked as a landing spot.
+      art: FlightSpot.maybe(
+        landingKey,
         CardTileMiniCards(
           cards: [for (final c in cards) sharedCardFor(c, wallet)],
         ),
@@ -150,7 +135,6 @@ class SharedCardTile extends ConsumerWidget {
       title: name,
       subtitle: issuers,
       chip: chip,
-      trailing: trailing,
       body: [
         for (final c in cards)
           if (c.attributes.isNotEmpty)
@@ -213,6 +197,43 @@ class SharedCardTile extends ConsumerWidget {
 
   static String _problemKey(CardProblem p) =>
       "share.problem.${_problemName(p)}";
+}
+
+/// A [CardTileOutline] in [color] that fades in over [duration] when it
+/// appears, and then stays: the chosen card in the Change sheet, a card
+/// that landed on the share screen. [outlineKey] is the outline's key.
+class FadingTileOutline extends StatelessWidget {
+  final bool shown;
+  final Color color;
+  final Duration duration;
+  final Key? outlineKey;
+  final Widget child;
+
+  const FadingTileOutline({
+    super.key,
+    required this.shown,
+    required this.color,
+    required this.duration,
+    this.outlineKey,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!shown) return child;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: YiviMotion.duration(context, duration),
+      curve: Curves.easeOut,
+      child: child,
+      builder: (context, t, child) => CardTileOutline(
+        key: outlineKey,
+        shown: true,
+        color: color.withValues(alpha: t),
+        child: child!,
+      ),
+    );
+  }
 }
 
 /// The card picture of [instance]: the wallet card with the same hash

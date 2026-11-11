@@ -219,22 +219,6 @@ func (ah *eventHandler) queryLogs(event *queryLogsEvent) error {
 	return nil
 }
 
-func (ah *eventHandler) getLog(event *getLogEvent) error {
-	answerLog("Answering GetLogEvent panicked", func() {
-		entry, err := yiviClient.GetLog(event.Id)
-		dispatchEvent(&logEntryEvent{RequestId: event.RequestId, Entry: entry, Error: errorText(err)})
-	})
-	return nil
-}
-
-func (ah *eventHandler) credentialActivity(event *credentialActivityEvent) error {
-	answerLog("Answering CredentialActivityEvent panicked", func() {
-		activity, err := yiviClient.CredentialActivity(event.Hashes)
-		dispatchEvent(&credentialActivityResultEvent{RequestId: event.RequestId, Activity: activity, Error: errorText(err)})
-	})
-	return nil
-}
-
 func (ah *eventHandler) countLogs(event *countLogsEvent) error {
 	answerLog("Answering CountLogsEvent panicked", func() {
 		counts := make([]int, len(event.Filters))

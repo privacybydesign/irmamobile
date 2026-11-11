@@ -113,19 +113,10 @@ class IssuanceFlight {
         if (rect != null) first = false;
         return rect;
       },
-      keys: const [
-        FlightKey(0, FlightKey.start, turn: -0.035),
-        FlightKey(0.2, FlightKey.start, lifted: true, turn: -0.035),
-        FlightKey(0.8, FlightKey.end, lifted: true),
-        FlightKey(1, FlightKey.end),
-      ],
+      keys: FlightKey.carry(lift: 0.2, hold: 0.8, startTurn: -0.035),
       duration: duration,
       lift: YiviFlight.liftCarried,
-      shadow: const BoxShadow(
-        color: Color(0x3D102846),
-        blurRadius: 28,
-        offset: Offset(0, 12),
-      ),
+      shadow: YiviFlight.shadowCarried,
       copyKey: const Key("issuance_flight_card"),
       copy: (context, frame) =>
           CredentialCardArt(credential: card, width: frame.size.width),

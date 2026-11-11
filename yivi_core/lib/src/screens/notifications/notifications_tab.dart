@@ -146,7 +146,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
               return Center(child: LoadingIndicator());
             } else if (state is NotificationsLoaded) {
               final notifications = state.notifications;
-              final unread = notifications.where((n) => !n.read).length;
+              final unread = state.unreadCount;
               final panes = useHomePanes(context);
               final paneHash = panes ? _paneHash(notifications) : null;
               final openId = panes

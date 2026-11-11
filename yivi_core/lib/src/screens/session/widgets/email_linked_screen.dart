@@ -10,7 +10,6 @@ class EmailLinkedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActionFeedback(
-      success: true,
       titleTranslationKey: "email_linking.done.title",
       explanationTranslationKey: "email_linking.done.body",
       onDismiss: () => onDismiss(context),

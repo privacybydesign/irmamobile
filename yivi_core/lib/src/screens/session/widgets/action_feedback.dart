@@ -4,7 +4,6 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/landscape_action_bar.dart";
@@ -16,9 +15,7 @@ import "success_graphic.dart";
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
-  final bool success;
   final String titleTranslationKey;
-  final Map<String, String>? titleTranslationParams;
   final String explanationTranslationKey;
   final Map<String, String>? explanationTranslationParams;
 
@@ -32,9 +29,7 @@ class ActionFeedback extends StatelessWidget {
   const ActionFeedback({
     this.hero,
     super.key,
-    required this.success,
     required this.titleTranslationKey,
-    this.titleTranslationParams,
     required this.explanationTranslationKey,
     this.explanationTranslationParams,
     required this.onDismiss,
@@ -47,17 +42,9 @@ class ActionFeedback extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
 
-    final graphic = success
-        ? (hero ?? SuccessGraphic())
-        // A blue disc with a question mark, as the other status screens.
-        : const ToneDisc(
-            icon: Icons.help_outline_rounded,
-            tone: DialogTone.info,
-            size: 140,
-          );
+    final graphic = hero ?? SuccessGraphic();
     final title = TranslatedText(
       titleTranslationKey,
-      translationParams: titleTranslationParams,
       style: palette.display(26, weight: FontWeight.w700),
     );
     final explanation = TranslatedText(
@@ -83,9 +70,7 @@ class ActionFeedback extends StatelessWidget {
       return PopScope(
         canPop: false,
         child: SessionScaffold(
-          appBarTitle: success
-              ? "disclosure.feedback.header.success"
-              : "ui.error",
+          appBarTitle: "disclosure.feedback.header.success",
           onDismiss: onDismiss,
           wide: true,
           scrollsUnderBars: true,
@@ -140,9 +125,7 @@ class ActionFeedback extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: SessionScaffold(
-        appBarTitle: success
-            ? "disclosure.feedback.header.success"
-            : "ui.error",
+        appBarTitle: "disclosure.feedback.header.success",
         onDismiss: onDismiss,
         // Tablets: one centred column, the button right under the text.
         body: useSessionColumns(context)

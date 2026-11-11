@@ -4,15 +4,13 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/slot_registry.dart";
+import "../wallet/wallet_transition.dart";
 import "card_transition_layer.dart";
 import "choreography.dart";
 
-/// Where the Data tab's stack draws its cards, by place: what a card
-/// transition measures when one is tapped.
+/// The Data tab's stack as a card transition measures it when a card is
+/// tapped: its cards' places are their [WalletStackSlot]s.
 abstract final class StackCards {
-  static final slots = SlotRegistry<int>();
-
   /// The cards' hashes, by place, as the stack last built them.
   static List<String> hashes = const [];
 
@@ -21,9 +19,8 @@ abstract final class StackCards {
   static TransitionSnapshot? snapshot(BuildContext context, int picked) {
     final rects = <Rect>[];
     for (var i = 0; i < hashes.length; i++) {
-      final slot = slots[i];
-      final box = slot != null && slot.mounted ? slot.findRenderObject() : null;
-      if (box is! RenderBox || !box.hasSize || !box.attached) return null;
+      final box = WalletStackSlot.boxAt(i);
+      if (box == null) return null;
       rects.add(box.localToGlobal(Offset.zero) & box.size);
     }
     if (picked < 0 || picked >= rects.length) return null;

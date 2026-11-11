@@ -12,7 +12,6 @@ import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_corners.dart";
-import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
@@ -34,7 +33,7 @@ import "issue_flow.dart";
 import "issue_sheet_progress.dart";
 import "shared_card_tile.dart";
 
-export "issue_flow.dart" show issuerOpenerProvider;
+export "issue_flow.dart" show inSentenceAt, issuerOpenerProvider;
 
 part "change_choice_rows.dart";
 
@@ -56,11 +55,11 @@ Future<void> showChangeChoiceSheet({
   required int index,
   CredentialDescriptor? addNew,
   bool kindsOnly = false,
-  GlobalKey? landingKey,
+  required GlobalKey landingKey,
   GlobalKey? liftFrom,
-  GlobalKey? returnTo,
-  Widget Function(DisclosureBundle bundle, double strip)? tileCopy,
-  VoidCallback? onLanded,
+  required GlobalKey returnTo,
+  required Widget Function(DisclosureBundle bundle, double strip) tileCopy,
+  required VoidCallback onLanded,
 }) {
   // A card picked up first: the sheet waits and comes in under it. The
   // tapped card first rises to its row's place ([ChangeChoiceSheet] lifts
@@ -90,6 +89,29 @@ Future<void> showChangeChoiceSheet({
   );
 }
 
+/// The owned option in use per pick-one of [pickOnes] in session
+/// [sessionId] ([selectionsFrom]): what the user picked, else what was
+/// shared before, else the default. Watched with [listen], else read once.
+Map<int, int> sessionSelections(
+  WidgetRef ref,
+  int sessionId,
+  List<DisclosurePickOne> pickOnes, {
+  required bool listen,
+}) {
+  final choices = listen
+      ? ref.watch(sessionUserChoicesProvider(sessionId))
+      : ref.read(sessionUserChoicesProvider(sessionId));
+  final preferred = listen
+      ? ref.watch(lastSharedBundlesProvider(sessionId))
+      : ref.read(lastSharedBundlesProvider(sessionId));
+  return selectionsFrom(
+    pickOnes,
+    choices.disclosureChoices,
+    choices.addedOptionalIndices,
+    preferred: preferred,
+  );
+}
+
 /// A copy of a card tile, built at a flight's [size] (taller or shorter than
 /// the tile: its top stays, the rest is cut), on a transparent material.
 Widget tileAtSize(Size size, Widget tile) => Material(
@@ -116,7 +138,7 @@ class ChangeChoiceSheet extends ConsumerStatefulWidget {
   final bool kindsOnly;
 
   /// Where a card added in the sheet lands on the share screen.
-  final GlobalKey? landingKey;
+  final GlobalKey landingKey;
 
   /// What was tapped on the share screen: the card (it is picked up and put
   /// down in the sheet), or the picture of a card to add (it rises into the
@@ -124,14 +146,14 @@ class ChangeChoiceSheet extends ConsumerStatefulWidget {
   final GlobalKey? liftFrom;
 
   /// The card on the share screen the chosen card goes back to.
-  final GlobalKey? returnTo;
+  final GlobalKey returnTo;
 
   /// The share screen's tile of a card, with its bottom strip at [strip]
   /// opacity: what flies between the share screen and the sheet.
-  final Widget Function(DisclosureBundle bundle, double strip)? tileCopy;
+  final Widget Function(DisclosureBundle bundle, double strip) tileCopy;
 
   /// A card added in the sheet has landed in its place on the share screen.
-  final VoidCallback? onLanded;
+  final VoidCallback onLanded;
 
   const ChangeChoiceSheet({
     super.key,
@@ -139,11 +161,11 @@ class ChangeChoiceSheet extends ConsumerStatefulWidget {
     required this.index,
     this.addNew,
     this.kindsOnly = false,
-    this.landingKey,
+    required this.landingKey,
     this.liftFrom,
-    this.returnTo,
-    this.tileCopy,
-    this.onLanded,
+    required this.returnTo,
+    required this.tileCopy,
+    required this.onLanded,
   });
 
   @override
@@ -177,24 +199,17 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         debugLabel: "sheet_row_${b.credentials.first.hash}",
       );
 
-  /// The bundle in use now.
+  /// The bundle in use now (none for optional data left out).
   DisclosureBundle? get _current {
     final pickOne = _pickOne;
     if (pickOne == null) return null;
-    final choices = ref.read(sessionUserChoicesProvider(widget.sessionId));
-    if (pickOne.optional &&
-        !choices.addedOptionalIndices.contains(widget.index)) {
-      return null;
-    }
-    final selections = selectionsFrom(
-      [pickOne],
-      {0: ?choices.disclosureChoices[widget.index]},
-      {if (choices.addedOptionalIndices.contains(widget.index)) 0},
-      preferred: {
-        0: ?ref.read(lastSharedBundlesProvider(widget.sessionId))[widget.index],
-      },
+    final selections = sessionSelections(
+      ref,
+      widget.sessionId,
+      issueRequest?.disclosurePlan?.disclosureChoicesOverview ?? const [],
+      listen: false,
     );
-    final k = selectionOf(pickOne, selections[0]);
+    final k = selectionOf(pickOne, selections[widget.index]);
     final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
     return k >= 0 && k < owned.length ? owned[k] : null;
   }
@@ -217,7 +232,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final bundle = _current;
     final row = _currentRow;
     final copy = widget.tileCopy;
-    if (!mounted || bundle == null || row == null || copy == null) {
+    if (!mounted || bundle == null || row == null) {
       if (row != null) YiviFlight.show([row]);
       return;
     }
@@ -254,10 +269,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   void _setCloseDelay() {
     if (_landing) return;
     final flies =
-        issueAdding == null &&
-        widget.returnTo != null &&
-        widget.tileCopy != null &&
-        !MediaQuery.disableAnimationsOf(context);
+        issueAdding == null && !MediaQuery.disableAnimationsOf(context);
     delayGlassSheetClose(
       context,
       flies
@@ -334,7 +346,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final bundle = _picked ?? _current;
     final to = widget.returnTo;
     final copy = widget.tileCopy;
-    if (bundle == null || to == null || copy == null) return;
+    if (bundle == null) return;
     final row = _rowKey(bundle);
     _handFlight = YiviFlight.follow(
       context,
@@ -368,7 +380,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   void _flyBack(DisclosureBundle bundle) {
     final to = widget.returnTo;
     final copy = widget.tileCopy;
-    if (to == null || copy == null) return;
     final row = _rowKey(bundle);
     YiviFlight.start(
       context,
@@ -406,7 +417,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         keys: FlightKey.carry(startOpacity: 0.6),
         duration: const Duration(milliseconds: 620),
         lift: YiviFlight.liftCarried,
-        shadow: _carriedShadow,
+        shadow: YiviFlight.shadowCarried,
         radius: const BorderRadius.all(Radius.circular(4)),
         hide: [from, issueHeroKey],
         copy: (context, frame) => SizedBox.fromSize(
@@ -420,13 +431,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       );
     });
   }
-
-  /// The shadow of a card carried between the page and a sheet.
-  static const _carriedShadow = BoxShadow(
-    color: Color(0x3D102846),
-    blurRadius: 28,
-    offset: Offset(0, 12),
-  );
 
   /// The sheet is closing because a card added in it lands on the share
   /// screen: no card flies back from the list.
@@ -480,7 +484,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       return SheetAction(
         key: const Key("sheet_together_next"),
         label: context.tr("share.sheet.together_add_next", {
-          "next": _inSentence(next.name),
+          "next": inSentenceAt(context, next.name),
         }),
         onTap: () => setState(() {
           issueReset();
@@ -539,7 +543,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     if (next != null) {
       return context.tr("share.sheet.together_added", {
         ..._successParams(cards),
-        "next": _inSentence(next.name),
+        "next": inSentenceAt(context, next.name),
       });
     }
     // The last card of a set added one by one: the set is in.
@@ -604,8 +608,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   SessionUserChoicesNotifier get _choices =>
       ref.read(sessionUserChoicesProvider(widget.sessionId).notifier);
 
-  String _inSentence(String name) => inSentence(name, language: context.lang);
-
   /// "Share nothing": the optional data is left out.
   void _pickNothing() {
     _press(_nothing);
@@ -657,7 +659,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
     // A card of a set flies only once the set is whole: until then the
     // spot stays empty.
-    if (landing != null && i >= 0 && _nextOfSet(cards) == null) {
+    if (i >= 0 && _nextOfSet(cards) == null) {
       _landing = true;
       final spot = landing.currentContext;
       if (spot != null && !_inView(spot)) {
@@ -671,15 +673,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         context,
         from: issueAddedKeys[i],
         to: YiviFlight.boxOf(landing),
-        keys: const [
-          FlightKey(0, FlightKey.start, turn: -0.035),
-          FlightKey(0.2, FlightKey.start, lifted: true, turn: -0.035),
-          FlightKey(0.8, FlightKey.end, lifted: true),
-          FlightKey(1, FlightKey.end),
-        ],
+        keys: FlightKey.carry(lift: 0.2, hold: 0.8, startTurn: -0.035),
         duration: const Duration(milliseconds: 950),
         lift: YiviFlight.liftCarried,
-        shadow: _carriedShadow,
+        shadow: YiviFlight.shadowCarried,
         radius: const BorderRadius.all(Radius.circular(4)),
         hide: [landing],
         copyKey: const Key("sheet_flight_card"),
@@ -789,7 +786,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                 key: Key("sheet_together_in_app_${d.credentialId}"),
                 art: CredentialTypeThumbnail(
                   descriptor: d,
-                  width: SharedCardTile.miniWidth,
+                  width: CardTile.miniWidth,
                   owned: true,
                 ),
                 title: d.name,
@@ -831,19 +828,15 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       );
 
   Widget _buildChoose(DisclosurePickOne pickOne) {
-    if (spotTogether(
-      pickOne,
-      ref
-          .watch(sessionStateProvider(widget.sessionId))
-          .value
-          ?.disclosurePlan
-          ?.issueDuringDisclosure,
-    )) {
+    final plan = ref
+        .watch(sessionStateProvider(widget.sessionId))
+        .value
+        ?.disclosurePlan;
+    if (spotTogether(pickOne, plan?.issueDuringDisclosure)) {
       return _buildTogether(pickOne);
     }
     final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
     if (widget.kindsOnly || owned.isEmpty) return _buildKinds(pickOne);
-    final choices = ref.watch(sessionUserChoicesProvider(widget.sessionId));
     // A card that can't be used carries its own "Add a new one"; its kind
     // is not offered again below.
     final problemIds = {
@@ -868,20 +861,16 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           b,
     ];
     final addable = [...kept.where(another), ...kept.where((b) => !another(b))];
-    final selections = selectionsFrom(
-      [pickOne],
-      {0: ?choices.disclosureChoices[widget.index]},
-      {if (choices.addedOptionalIndices.contains(widget.index)) 0},
-      preferred: {
-        0: ?ref.watch(
-          lastSharedBundlesProvider(widget.sessionId),
-        )[widget.index],
-      },
+    // Optional data left out is -1.
+    final selected = selectionOf(
+      pickOne,
+      sessionSelections(
+        ref,
+        widget.sessionId,
+        plan?.disclosureChoicesOverview ?? const [],
+        listen: true,
+      )[widget.index],
     );
-    final selected =
-        pickOne.optional && !choices.addedOptionalIndices.contains(widget.index)
-        ? -1
-        : selectionOf(pickOne, selections[0]);
     final landscape = useSheetColumns(context);
 
     // The outline: on the card in use, or the one in the app just tapped.
@@ -929,7 +918,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
               onTap: _pickNothing,
             ),
           ],
-          ..._inRows(landscape, gap: 10, first: 18, [
+          ..._inRows(landscape, first: 18, [
             for (final b in owned)
               FlightSpot(
                 flightKey: _rowKey(b),
@@ -1068,7 +1057,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     List<ObtainableBundle> addable,
     String requestor,
     bool landscape,
-  ) => _inRows(landscape, gap: 10, first: 12, [
+  ) => _inRows(landscape, first: 12, [
     for (final b in addable)
       if (b.owned.isEmpty && b.missing.length == 1)
         _AddKindRow(
@@ -1103,7 +1092,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           : t("share.spot.together_one_left", {
               "name": andList(ownedNames, t("share.and")),
               "other": andList([
-                for (final n in missingNames) _inSentence(n),
+                for (final n in missingNames) inSentenceAt(context, n),
               ], t("share.and")),
               "requestor": requestor,
             }),
@@ -1120,26 +1109,26 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
   }
 
-  /// [cards] under each other with [gap] between them (and [first] above the
-  /// first: room for the outline around a card), or on a phone held
-  /// sideways two side by side, the rows [gap] apart.
+  /// [cards] under each other 10 apart (and [first] above the first: room
+  /// for the outline around a card), or on a phone held sideways two side
+  /// by side, the rows 10 apart.
   static List<Widget> _inRows(
     bool landscape,
     List<Widget> cards, {
-    required double gap,
-    double? first,
+    required double first,
   }) {
+    const gap = 10.0;
     if (!landscape) {
       return [
         for (final (n, c) in cards.indexed) ...[
-          SizedBox(height: n == 0 ? first ?? gap : gap),
+          SizedBox(height: n == 0 ? first : gap),
           c,
         ],
       ];
     }
     return [
       for (var n = 0; n < cards.length; n += 2) ...[
-        SizedBox(height: n == 0 ? first ?? gap : gap),
+        SizedBox(height: n == 0 ? first : gap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 16,

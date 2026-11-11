@@ -390,13 +390,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // or OpenID4VCI launch). Keep them in-app on finish — skip any return
     // URL the issuer set, and skip the iOS ArrowBack / Android background
     // fallbacks.
-    if (_inAppLaunchedSuccess!) {
-      return IssuanceSuccessScreen(
-        credentials: session.offeredCredentials ?? const [],
-        onDismiss: (_) => _popToUnderlyingOrHome(),
-        flyHome: true,
-      );
-    }
+    // "Success", with the card flying into the data tab on OK.
+    Widget issued() => IssuanceSuccessScreen(
+      credentials: session.offeredCredentials ?? const [],
+      onDismiss: (_) => _popToUnderlyingOrHome(),
+      flyHome: true,
+    );
+
+    if (_inAppLaunchedSuccess!) return issued();
 
     // "Shared with {requestor}", with what to do now.
     Widget shared({
@@ -439,13 +440,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // opening it here would be a pointless redirect on the wrong device.
     // (tel: is handled above; it stays device-agnostic.)
     if (session.continueOnSecondDevice) {
-      if (session.type == .issuance) {
-        return IssuanceSuccessScreen(
-          credentials: session.offeredCredentials ?? const [],
-          onDismiss: (_) => _popToUnderlyingOrHome(),
-          flyHome: true,
-        );
-      }
+      if (session.type == .issuance) return issued();
       return shared(onOtherDevice: true);
     }
 
@@ -575,8 +570,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
     }
   }
-
-  /// The host of [url] without "www.", for "Back to {host}".
 
   /// Opens the return URL: in the in-app browser over home (popped first),
   /// or outside the app, popping once it opened so a failure can show the

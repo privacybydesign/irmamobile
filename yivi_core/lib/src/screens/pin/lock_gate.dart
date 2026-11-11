@@ -1,4 +1,3 @@
-import "package:flutter/scheduler.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -8,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../routing.dart";
 import "../../providers/app_locked_provider.dart";
 import "../../util/after_frame.dart";
+import "../../util/rebuild_when_safe.dart";
 import "../../widgets/app_toast.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../home/home_screen.dart";
@@ -59,7 +59,7 @@ class LockGate extends ConsumerStatefulWidget {
   ConsumerState<LockGate> createState() => _LockGateState();
 }
 
-class _LockGateState extends ConsumerState<LockGate> {
+class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
   // Whether the lock overlay was showing on the previous build, so we can
   // detect the unlock transition (overlay dismissed) and offer biometric.
   bool _overlayShown = false;
@@ -67,31 +67,14 @@ class _LockGateState extends ConsumerState<LockGate> {
   @override
   void initState() {
     super.initState();
-    widget.router.routerDelegate.addListener(_scheduleRebuild);
-    lockScannerSheetHolds.addListener(_scheduleRebuild);
-  }
-
-  void _scheduleRebuild() {
-    if (!mounted) return;
-    // Notifications fired DURING build (initial route configuration
-    // by the Router; some GoRouterDelegate paths) can't call setState
-    // directly without throwing. Defer those to the post-frame; for
-    // anything fired while idle (user navigation, test-driven
-    // pushes), rebuild now so the overlay state matches the new
-    // route on the same frame.
-    final phase = SchedulerBinding.instance.schedulerPhase;
-    if (phase == SchedulerPhase.idle ||
-        phase == SchedulerPhase.postFrameCallbacks) {
-      setState(() {});
-    } else {
-      afterFrame(() => setState(() {}));
-    }
+    widget.router.routerDelegate.addListener(rebuildWhenSafe);
+    lockScannerSheetHolds.addListener(rebuildWhenSafe);
   }
 
   @override
   void dispose() {
-    widget.router.routerDelegate.removeListener(_scheduleRebuild);
-    lockScannerSheetHolds.removeListener(_scheduleRebuild);
+    widget.router.routerDelegate.removeListener(rebuildWhenSafe);
+    lockScannerSheetHolds.removeListener(rebuildWhenSafe);
     super.dispose();
   }
 

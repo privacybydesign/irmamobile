@@ -90,24 +90,6 @@ class _IdleFaceService implements RegulaFaceService {
       Future<RegulaLivenessResult>.delayed(const Duration(days: 1));
 }
 
-NfcReadingTranslationKeys _translationKeys() {
-  const key = "passport.nfc";
-  return NfcReadingTranslationKeys(
-    cancelDialogTitle: "$key.cancel_dialog.title",
-    cancelDialogExplanation: "$key.cancel_dialog.explanation",
-    cancelDialogDecline: "$key.cancel_dialog.decline",
-    cancelDialogConfirm: "$key.cancel_dialog.confirm",
-    error: "$key.error",
-    errorGeneric: "$key.error_generic",
-    title: "$key.title",
-    cancelledByUser: "$key.cancelled_by_user",
-    cancelled: "$key.cancelled",
-    timeoutWaitingForTag: "$key.timeout_waiting_for_tag",
-    tagLostTryAgain: "$key.tag_lost_try_again",
-    failedToInitiateSession: "$key.failed_initiate_session",
-  );
-}
-
 Widget _app(Widget home, {List<Override> overrides = const []}) =>
     ProviderScope(
       overrides: overrides,
@@ -162,7 +144,6 @@ void main() {
               dateOfBirth: DateTime(1990, 1, 1),
               dateOfExpiry: DateTime(2030, 12, 31),
             ),
-            translationKeys: _translationKeys(),
           ),
           overrides: [
             passportReaderProvider.overrideWith2((mrz) {

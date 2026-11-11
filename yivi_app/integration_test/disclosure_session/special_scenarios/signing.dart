@@ -1,9 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
-import "package:yivi_core/src/widgets/irma_quote.dart";
+import "package:yivi_core/src/widgets/signed_message.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -44,10 +43,10 @@ Future<void> signingTest(
   );
 
   expect(find.text("YOU SIGN"), findsOneWidget);
-  final quoteFinder = find.byKey(const Key("signature_message"));
+  final quoteFinder = find.byType(SignedMessage);
   expect(quoteFinder, findsOneWidget);
   expect(
-    (quoteFinder.evaluate().first.widget as IrmaQuote).quote,
+    tester.widget<SignedMessage>(quoteFinder).message,
     "Message to be signed by user",
   );
 

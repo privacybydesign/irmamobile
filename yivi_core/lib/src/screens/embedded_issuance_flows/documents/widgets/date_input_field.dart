@@ -8,7 +8,7 @@ import "manual_entry_layout.dart";
 
 class DateInputField extends StatefulWidget {
   final TextEditingController controller;
-  final Key? fieldKey;
+  final Key fieldKey;
   final String labelText;
   final String requiredText;
   final String dateInvalidText;
@@ -18,7 +18,7 @@ class DateInputField extends StatefulWidget {
     required this.labelText,
     required this.requiredText,
     required this.dateInvalidText,
-    this.fieldKey,
+    required this.fieldKey,
     super.key,
   });
 
@@ -48,7 +48,7 @@ class _DateInputFieldState extends State<DateInputField> {
     return DocumentField(
       label: widget.labelText,
       field: TextFormField(
-        key: widget.fieldKey ?? const Key("date_input_field"),
+        key: widget.fieldKey,
         controller: widget.controller,
         keyboardType: .number,
         textInputAction: .next,

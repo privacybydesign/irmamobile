@@ -29,7 +29,7 @@ class WaitingRequestAnnouncement extends StatelessWidget {
       key: const Key("waiting_request_announcement"),
       mainAxisSize: MainAxisSize.min,
       children: [
-        _Avatar(parts: parts, size: 56),
+        _Avatar(parts: parts),
         const SizedBox(height: 14),
         // What the screen reader lands on; the line under it follows.
         Semantics(
@@ -124,9 +124,10 @@ class _Parts {
 
 class _Avatar extends StatelessWidget {
   final _Parts parts;
-  final double size;
 
-  const _Avatar({required this.parts, required this.size});
+  const _Avatar({required this.parts});
+
+  static const double size = 56;
 
   @override
   Widget build(BuildContext context) {

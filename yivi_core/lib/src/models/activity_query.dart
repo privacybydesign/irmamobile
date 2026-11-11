@@ -62,7 +62,7 @@ class ClaimTokenGroup {
 bool _isIndex(Object? seg) => seg == null || seg is num;
 
 /// The path with every list position as null.
-List<Object?> claimPattern(List<dynamic> path) => [
+List<Object?> _claimPattern(List<dynamic> path) => [
   for (final seg in path) _isIndex(seg) ? null : seg,
 ];
 
@@ -89,7 +89,7 @@ List<ClaimTokenGroup> claimTokenGroups(List<schemaless.Attribute> attributes) {
   for (final a in attributes) {
     if (a.value == null || a.claimPath.isEmpty) continue;
     final path = a.claimPath;
-    final pattern = claimPattern(path);
+    final pattern = _claimPattern(path);
     final first = path.first;
     if (path.length == 1) {
       final t = ClaimToken(

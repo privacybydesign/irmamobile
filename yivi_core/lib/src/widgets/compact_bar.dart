@@ -38,21 +38,16 @@ class CompactBarDropIn extends StatelessWidget {
   const CompactBarDropIn({super.key, required this.shown, required this.bar});
 
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
-    valueListenable: shown,
-    builder: (context, on, _) => TweenAnimationBuilder<double>(
-      tween: Tween(end: on ? 1 : 0),
-      duration: const Duration(milliseconds: 240),
-      curve: Curves.easeOut,
-      builder: (context, t, _) => t == 0
-          ? const SizedBox.shrink()
-          : IgnorePointer(
-              child: Transform.translate(
-                offset: Offset(0, (1 - t) * -8),
-                child: bar(t),
-              ),
+  Widget build(BuildContext context) => ShownTween(
+    shown: shown,
+    builder: (t) => t == 0
+        ? const SizedBox.shrink()
+        : IgnorePointer(
+            child: Transform.translate(
+              offset: Offset(0, (1 - t) * -8),
+              child: bar(t),
             ),
-    ),
+          ),
   );
 }
 

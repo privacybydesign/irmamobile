@@ -7,6 +7,7 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
@@ -68,7 +69,7 @@ class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
     super.key,
     required this.requestor,
     required this.onDismiss,
-    bool? isSignatureSession,
+    this.isSignatureSession = false,
     this.message,
     this.shared = const [],
     this.onOtherDevice = false,
@@ -76,7 +77,7 @@ class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
     this.onReturn,
     this.goBackYourself = false,
     this.onBackToWebsite,
-  }) : isSignatureSession = isSignatureSession ?? false;
+  });
 
   @override
   ConsumerState<DisclosureFeedbackScreen> createState() =>
@@ -228,7 +229,6 @@ class DisclosureFeedbackScreenState
         ? _NextBox(
             head: context.tr("share.done.next.back_head"),
             text: context.tr("share.done.next.back_text"),
-            statusBar: true,
           )
         : null;
     final label = host != null
@@ -783,7 +783,7 @@ class _HandoverState extends State<_Handover>
       _Handover._mini,
     );
     if (t <= 0) return null;
-    final e = const Cubic(0.2, 0.8, 0.2, 1).transform(t);
+    final e = YiviMotion.ease.transform(t);
     final (dx, dy, turn) = _Handover._minis[i];
     final palette = YiviPalette.of(context);
     return Positioned(
@@ -966,20 +966,14 @@ class _Paper extends StatelessWidget {
   }
 }
 
-/// What to do now, at the top of the done screen: a head and a line, and on
-/// iOS without a link back a small status bar with ◀ lit, where they tap to
-/// go back. The bar shows no app name: they may have come from a browser,
+/// What to do now on the done screen, on iOS without a link back: a small
+/// status bar with ◀ lit, where they tap to go back, a head and a line. The bar shows no app name: they may have come from a browser,
 /// mail or another app.
 class _NextBox extends StatelessWidget {
   final String head;
   final String text;
-  final bool statusBar;
 
-  const _NextBox({
-    required this.head,
-    required this.text,
-    required this.statusBar,
-  });
+  const _NextBox({required this.head, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -997,54 +991,53 @@ class _NextBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 4,
         children: [
-          if (statusBar)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: ExcludeSemantics(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(8, 3, 8, 3),
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(7),
-                          ),
-                          side: BorderSide(color: palette.primary, width: 2),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: ExcludeSemantics(
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(8, 3, 8, 3),
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(7),
                         ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: 5,
-                        children: [
-                          Text(
-                            "\u25C0",
-                            style: palette
-                                .body(12, weight: FontWeight.w700)
-                                .copyWith(color: palette.link),
-                          ),
-                          Container(
-                            width: 46,
-                            height: 9,
-                            decoration: ShapeDecoration(
-                              color: palette.link.withValues(alpha: 0.35),
-                              shape: const StadiumBorder(),
-                            ),
-                          ),
-                        ],
+                        side: BorderSide(color: palette.primary, width: 2),
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      "9:41",
-                      style: palette
-                          .body(12, weight: FontWeight.w600)
-                          .copyWith(color: palette.secondaryText),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 5,
+                      children: [
+                        Text(
+                          "\u25C0",
+                          style: palette
+                              .body(12, weight: FontWeight.w700)
+                              .copyWith(color: palette.link),
+                        ),
+                        Container(
+                          width: 46,
+                          height: 9,
+                          decoration: ShapeDecoration(
+                            color: palette.link.withValues(alpha: 0.35),
+                            shape: const StadiumBorder(),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    "9:41",
+                    style: palette
+                        .body(12, weight: FontWeight.w600)
+                        .copyWith(color: palette.secondaryText),
+                  ),
+                ],
               ),
             ),
+          ),
           Text(
             head,
             style: palette

@@ -285,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final railMiddle =
         padding.top + (height - padding.top - padding.bottom) / 2;
     final scanMiddle =
-        railMiddle + HomeRail.height / 2 - 10 - HomeRail.scanButtonSize / 2;
+        railMiddle + HomeRail.height / 2 - 10 - HomeScanButton.size / 2;
     return Positioned(
       left: railRight + 12,
       top: scanMiddle,

@@ -206,13 +206,12 @@ class _CredentialsDetailsScreenState
     BuildContext context,
     schemaless.Credential credential,
   ) async {
-    final confirmed = await confirmDeleteCredential(context);
-    if (confirmed && context.mounted) {
-      IrmaRepositoryProvider.of(
-        context,
-      ).deleteCredential(credential.credentialInstanceIds);
-      _showDeletedSnackbar();
-    }
+    final deleted = await confirmAndDeleteCredential(
+      context,
+      IrmaRepositoryProvider.of(context),
+      credential.credentialInstanceIds,
+    );
+    if (deleted) _showDeletedSnackbar();
   }
 
   void _showDeletedSnackbar() => showAppToast(

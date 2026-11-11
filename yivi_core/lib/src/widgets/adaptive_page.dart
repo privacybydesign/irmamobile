@@ -34,9 +34,6 @@ enum PhoneTransition {
   /// disclosure, e-mail and phone, documents. The next step of such a flow
   /// is pushed.
   rise,
-
-  /// Cross-fades, for the lock screen.
-  fade,
 }
 
 /// A go_router page that presents its [child] by [mode] on tablets and with
@@ -128,16 +125,14 @@ class _AdaptiveRoute<T> extends PageRoute<T>
   @override
   Duration get transitionDuration => _platformPush
       ? super.transitionDuration
-      : _sheet
-      ? const Duration(milliseconds: 260)
       : _phone == PhoneTransition.rise && !_expanded
       ? const Duration(milliseconds: 420)
-      : const Duration(milliseconds: 260);
+      : formSheetDuration;
 
   @override
   Duration get reverseTransitionDuration => _platformPush
       ? super.reverseTransitionDuration
-      : const Duration(milliseconds: 240);
+      : formSheetReverseDuration;
 
   @override
   Widget buildContent(BuildContext context) {
@@ -301,7 +296,6 @@ class _AdaptiveRoute<T> extends PageRoute<T>
         ).animate(curved),
         child: child,
       ),
-      PhoneTransition.fade => FadeTransition(opacity: curved, child: child),
     };
   }
 

@@ -41,7 +41,6 @@ class FancyPillButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final PillSize size;
   final Widget? leading;
-  final Widget? trailing;
 
   const FancyPillButton({
     super.key,
@@ -49,7 +48,6 @@ class FancyPillButton extends StatelessWidget {
     required this.onPressed,
     this.size = PillSize.large,
     this.leading,
-    this.trailing,
   });
 
   @override
@@ -138,7 +136,6 @@ class FancyPillButton extends StatelessWidget {
                           children: [
                             ?leading,
                             Flexible(child: text),
-                            ?trailing,
                           ],
                         ),
                       ),
@@ -416,14 +413,12 @@ class SmallPill extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final SmallPillTone tone;
-  final IconData? icon;
 
   const SmallPill({
     super.key,
     required this.label,
     required this.onPressed,
     this.tone = SmallPillTone.tint,
-    this.icon,
   });
 
   static const double height = 32;
@@ -449,12 +444,11 @@ class SmallPill extends StatelessWidget {
             widthFactor: 1,
             heightFactor: 1,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(icon == null ? 14 : 10, 4, 14, 4),
+              padding: const EdgeInsets.fromLTRB(14, 4, 14, 4),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 spacing: 6,
                 children: [
-                  if (icon != null) Icon(icon, size: 16, color: fg),
                   Flexible(
                     child: Text(
                       label,
@@ -487,14 +481,12 @@ class TextLink extends StatelessWidget {
 
   /// For a dark picture such as the camera.
   final Color? color;
-  final TextAlign textAlign;
 
   const TextLink({
     super.key,
     required this.label,
     required this.onPressed,
     this.color,
-    this.textAlign = TextAlign.center,
   });
 
   @override
@@ -521,7 +513,7 @@ class TextLink extends StatelessWidget {
                   heightFactor: 1,
                   child: Text(
                     label,
-                    textAlign: textAlign,
+                    textAlign: TextAlign.center,
                     style: palette
                         .body(15, weight: FontWeight.w600)
                         .copyWith(
@@ -550,9 +542,6 @@ class PlainIconButton extends StatelessWidget {
   final bool danger;
   final double iconSize;
 
-  /// Overrides the icon colour, e.g. for a filled star.
-  final Color? color;
-
   const PlainIconButton({
     super.key,
     required this.icon,
@@ -560,7 +549,6 @@ class PlainIconButton extends StatelessWidget {
     required this.semanticsLabel,
     this.danger = false,
     this.iconSize = 22,
-    this.color,
   });
 
   @override
@@ -584,11 +572,9 @@ class PlainIconButton extends StatelessWidget {
               child: Icon(
                 icon,
                 size: iconSize,
-                color:
-                    color ??
-                    (danger ? palette.danger : palette.heading).withValues(
-                      alpha: onPressed == null ? 0.4 : 1,
-                    ),
+                color: (danger ? palette.danger : palette.heading).withValues(
+                  alpha: onPressed == null ? 0.4 : 1,
+                ),
               ),
             ),
           ),

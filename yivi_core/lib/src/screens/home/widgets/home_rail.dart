@@ -23,12 +23,10 @@ class HomeRail extends StatelessWidget {
   /// A tab's height.
   static const double tabHeight = 58;
 
-  /// The Scan QR button's size.
-  static const double scanButtonSize = HomeScanButton.size;
-
   /// From the top of the tabs to the bottom of the Scan button, padding
   /// included: what a tip beside the button measures from.
-  static const double height = 8 + 4 * tabHeight + 13 + scanButtonSize + 10;
+  static const double height =
+      8 + 4 * tabHeight + 13 + HomeScanButton.size + 10;
 
   @override
   Widget build(BuildContext context) {
@@ -272,9 +270,7 @@ class _UnreadCount extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return BlocBuilder<NotificationsBloc, NotificationsState>(
       builder: (context, state) {
-        final unread = state is NotificationsLoaded
-            ? state.notifications.where((n) => !n.read).length
-            : 0;
+        final unread = state is NotificationsLoaded ? state.unreadCount : 0;
         if (unread == 0) return const SizedBox.shrink();
         return Container(
           constraints: const BoxConstraints(minWidth: 22),

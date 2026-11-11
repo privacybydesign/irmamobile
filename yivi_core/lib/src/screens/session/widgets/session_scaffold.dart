@@ -12,8 +12,8 @@ class SessionScaffold extends StatelessWidget {
   final String? appBarTitle;
   final VoidCallback? onDismiss;
 
-  /// The body spans the whole width, for the two-column tablet layouts
-  /// ([SessionColumns]) that centre themselves.
+  /// The body spans the whole width, for the two-column sideways layouts
+  /// that centre themselves.
   final bool wide;
 
   /// The body pads its own scrolling content for the floating bars (with
@@ -21,7 +21,7 @@ class SessionScaffold extends StatelessWidget {
   /// kept between the bars.
   final bool scrollsUnderBars;
 
-  /// For a body that starts with a large title (`LargeTitleScrollView`):
+  /// For a body that starts with a large title:
   /// the bar's title shows only while this is true.
   final ValueListenable<bool>? barTitleVisibility;
 

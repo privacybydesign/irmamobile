@@ -144,8 +144,7 @@
     },
     "toast": "Success! Your new PIN has been saved",
     "enter_pin": {
-      "instruction": "Enter your current PIN",
-      "error": "Enter your current PIN"
+      "instruction": "Enter your current PIN"
     },
     "confirm_pin": {
       "instruction": "Enter your new PIN again"
@@ -230,7 +229,6 @@
       "staging": "Staging (test environment)",
       "title": "Adding data",
       "details": {
-        "title": "Adding data",
         "purpose_question": "What can I do with this data?",
         "howto_question": "How does it work?",
         "get_button": "Next",
@@ -490,16 +488,12 @@
         "header": "Continue in your browser"
       }
     },
-    "card_count": "{count} cards",
-    "from_issuers": "from {count} issuers",
-    "for_request": "For {requestor}",
     "question": {
       "add_anyway": "Add anyway",
       "risky_reason": "Only add this if you trust {issuer}"
     },
     "trust": {
-      "fact_responsibility": "Adding it is your own responsibility",
-      "label_hint": "What does this mean?"
+      "fact_responsibility": "Adding it is your own responsibility"
     },
     "tech": {
       "group": {
@@ -632,9 +626,6 @@
   "embedded_issuance": {
     "code_label": "Verification code"
   },
-  "external_issuer": {
-    "returned": "You're back from the website of {issuer}"
-  },
   "more_tab": {
     "app_management": "App management",
     "settings": "Settings",
@@ -741,7 +732,6 @@
   },
   "session": {
     "navigation_bar": {
-      "back": "Back",
       "cancel": "Cancel"
     },
     "pairing": {
@@ -804,9 +794,6 @@
     "go_back": "Go back",
     "add": "Add",
     "activate": "Activate"
-  },
-  "search": {
-    "cancel": "Cancel"
   },
   "update": {
     "title": "Update available",
@@ -1473,7 +1460,6 @@
     "change_choice": "Change choice",
     "new_chip": "New",
     "together": "These go together. {requestor} gets both, or neither.",
-    "also_share": "Share too",
     "add_both": "Add both",
     "and": " and ",
     "optional": {
@@ -1542,7 +1528,6 @@
     "sent_to_phone": "Code texted to",
     "change": "Change",
     "code_label_email": "Code from the email",
-    "code_label_phone": "Code from the text message",
     "hint_email": "Not there? Check your spam.",
     "hint_phone": "It can take a minute.",
     "send_again": "Send again",

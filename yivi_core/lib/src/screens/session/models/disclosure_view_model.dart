@@ -497,8 +497,7 @@ class ShareButtonState {
   /// What it does instead while something is missing or can't be used.
   final NextStep? next;
 
-  /// The problem of a selected card that blocks sharing, and that card.
-  final CardProblem? blockedBy;
+  /// The selected card whose problem blocks sharing.
   final DisclosureBundle? blockedCard;
 
   /// Set when a required card has a problem it cannot get out of in Yivi:
@@ -524,7 +523,6 @@ class ShareButtonState {
     required this.label,
     required this.enabled,
     this.next,
-    this.blockedBy,
     this.blockedCard,
     this.cannotRenewFrom,
     this.missing,
@@ -643,7 +641,6 @@ ShareButtonState shareButton(
     return ShareButtonState(
       label: ShareLabel.close,
       enabled: true,
-      blockedBy: blockedBy,
       blockedCard: blockedCard,
       cannotRenewFrom: cannotRenewFrom,
       ready: ready,
@@ -661,7 +658,6 @@ ShareButtonState shareButton(
     label: label,
     enabled: blockedBy == null && missing == null,
     next: next,
-    blockedBy: blockedBy,
     blockedCard: blockedCard,
     missing: missing,
     mismatch: mismatch,

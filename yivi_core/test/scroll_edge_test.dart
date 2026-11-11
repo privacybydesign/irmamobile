@@ -67,15 +67,14 @@ void main() {
   });
 
   group("in a sheet", () {
-    Future<void> open(WidgetTester tester, {Widget? pinned}) async {
+    Future<void> open(WidgetTester tester) async {
       await tester.pumpWidget(
         _app(const Scaffold(body: Center(child: Text("page")))),
       );
       await tester.pumpAndSettle();
       showGlassSheet<void>(
         context: _page,
-        builder: (_) =>
-            GlassSheetPage(title: "Sheet", pinned: pinned, child: _rows()),
+        builder: (_) => GlassSheetPage(title: "Sheet", child: _rows()),
       );
       await tester.pumpAndSettle();
     }
@@ -106,27 +105,6 @@ void main() {
       await tester.drag(find.text("row 6"), const Offset(0, 120));
       await tester.pumpAndSettle();
       expect(_band, findsNothing);
-    });
-
-    testWidgets("the edge takes in the pinned part (the progress)", (
-      tester,
-    ) async {
-      await open(
-        tester,
-        pinned: const SizedBox(
-          key: Key("progress"),
-          height: 28,
-          child: Text("1 of 3"),
-        ),
-      );
-      await tester.drag(find.text("row 4"), const Offset(0, -60));
-      await tester.pumpAndSettle();
-      final progress = tester.getRect(find.byKey(const Key("progress")));
-      // The progress line ends the bar: the edge reaches down to it.
-      expect(
-        tester.getRect(_band).bottom,
-        greaterThanOrEqualTo(progress.bottom),
-      );
     });
 
     testWidgets("a tap on the header does not reach the content under it", (

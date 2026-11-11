@@ -16,7 +16,7 @@ import "package:vcmrtd/vcmrtd.dart";
 /// a failure.
 final nfcAvailableProvider = FutureProvider<bool>((ref) async {
   try {
-    final status = await NfcProvider.nfcStatus;
+    final status = await ref.read(nfcStatusReaderProvider)();
     return status != NfcStatus.notSupported;
   } catch (_) {
     return true;

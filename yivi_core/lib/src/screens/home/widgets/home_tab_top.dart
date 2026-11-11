@@ -77,10 +77,7 @@ class HomeTabTop extends StatefulWidget {
   /// From the top of the screen to the list while searching: under the bar
   /// and, [below] high, what is pinned under it.
   static double listTop(BuildContext context, {double below = 0}) =>
-      MediaQuery.paddingOf(context).top +
-      barHeight +
-      2 +
-      (below > 0 ? below + belowGap : 0);
+      bandBottom(context, below: below) + 2;
 
   /// From the top of the screen to the bottom of the band, with [below]
   /// pinned under the bar: where a list's section headers stick.

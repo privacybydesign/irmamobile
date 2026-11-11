@@ -1,44 +1,11 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
+import "package:vcmrtd/vcmrtd.dart";
 
+import "document_translation_keys.dart";
 import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
 import "widgets/manual_entry_layout.dart";
-
-class PassportMrzManualEntryTranslationKeys {
-  final String title;
-  final String explanation;
-  final String dateOfBirth;
-  final String dateOfBirthRequired;
-  final String dateOfExpiry;
-  final String dateOfExpiryRequired;
-  final String documentNumber;
-  final String documentNumberRequired;
-  final String documentNumberInvalid;
-  final String dateInvalid;
-
-  /// The bar title: the scan title of the document ("Scan passport"), next
-  /// to the heading in the page.
-  final String appBarTitle;
-
-  /// Where to find the details, under the fields.
-  final String tip;
-
-  PassportMrzManualEntryTranslationKeys({
-    required this.title,
-    required this.appBarTitle,
-    required this.tip,
-    required this.explanation,
-    required this.dateOfBirth,
-    required this.dateOfBirthRequired,
-    required this.dateOfExpiry,
-    required this.dateOfExpiryRequired,
-    required this.documentNumber,
-    required this.documentNumberRequired,
-    required this.documentNumberInvalid,
-    required this.dateInvalid,
-  });
-}
 
 /// Data returned on continue.
 class PassportMrzManualEntryData {
@@ -59,12 +26,14 @@ class PassportMrzManualEntryScreen extends StatefulWidget {
   /// Receives what was typed in the three fields.
   final void Function(PassportMrzManualEntryData data) onContinue;
   final VoidCallback onCancel;
-  final PassportMrzManualEntryTranslationKeys translationKeys;
+
+  /// A passport or a card in ID-card format: whose texts it shows.
+  final DocumentType documentType;
 
   const PassportMrzManualEntryScreen({
     required this.onContinue,
     required this.onCancel,
-    required this.translationKeys,
+    required this.documentType,
     super.key,
   });
 
@@ -129,62 +98,38 @@ class _PassportMrzManualEntryScreenState
 
   @override
   Widget build(BuildContext context) {
+    final type = widget.documentType;
+    String t(String field) =>
+        FlutterI18n.translate(context, type.manualKey("fields.$field"));
     return ManualEntryScaffold(
-      appBarTitleKey: widget.translationKeys.appBarTitle,
+      appBarTitleKey: type.scanTitleKey,
       formKey: _manualEntryFormKey,
       onChanged: _recomputeCanContinue,
-      titleKey: widget.translationKeys.title,
-      explanationKey: widget.translationKeys.explanation,
-      tipKey: widget.translationKeys.tip,
+      titleKey: type.manualKey("title"),
+      explanationKey: type.manualKey("explanation"),
+      tipKey: type.manualTipKey,
       onContinue: _canContinue ? _onContinuePressed : null,
       onCancel: widget.onCancel,
       fields: [
         DocumentNrInputField(
           controller: _documentNrCtrl,
-          labelText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.documentNumber,
-          ),
-          requiredText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.documentNumberRequired,
-          ),
-          invalidText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.documentNumberInvalid,
-          ),
+          labelText: t("document_nr"),
+          requiredText: t("document_nr_required"),
+          invalidText: t("document_nr_invalid"),
         ),
         DateInputField(
           controller: _dateOfBirthCtrl,
           fieldKey: const Key("passport_dob_field"),
-          labelText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.dateOfBirth,
-          ),
-          requiredText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.dateOfBirthRequired,
-          ),
-          dateInvalidText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.dateInvalid,
-          ),
+          labelText: t("date_of_birth"),
+          requiredText: t("date_of_birth_required"),
+          dateInvalidText: t("date_invalid"),
         ),
         DateInputField(
           controller: _expiryDateCtrl,
           fieldKey: const Key("passport_expiry_date_field"),
-          dateInvalidText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.dateInvalid,
-          ),
-          labelText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.dateOfExpiry,
-          ),
-          requiredText: FlutterI18n.translate(
-            context,
-            widget.translationKeys.dateOfExpiryRequired,
-          ),
+          dateInvalidText: t("date_invalid"),
+          labelText: t("date_of_expiry"),
+          requiredText: t("date_of_expiry_required"),
         ),
       ],
     );

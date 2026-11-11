@@ -70,13 +70,11 @@ List<_Node> _normalize(List<_Node> nodes) {
       out.add(n.children.first);
       continue;
     }
-    final allItems =
-        n.children.isNotEmpty && n.children.every((c) => c is _ItemNode);
     out.add(
       _GroupNode(
         label: n.label,
         path: n.path,
-        children: allItems
+        children: _isList(n)
             ? [for (final c in n.children) _normalizeItem(c as _ItemNode)]
             : _normalize(n.children),
       ),
@@ -164,16 +162,10 @@ Iterable<String> _values(BuildContext context, _Node n) sync* {
       for (final v in p.values) {
         yield formatAttributeValue(context, v);
       }
-    case _GroupNode g:
-      for (final c in g.children) {
-        yield* _values(context, c);
-      }
-    case _ItemNode i:
-      for (final c in i.children) {
-        yield* _values(context, c);
-      }
     default:
-      break;
+      for (final c in _childrenOf(n) ?? const <_Node>[]) {
+        yield* _values(context, c);
+      }
   }
 }
 

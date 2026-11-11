@@ -21,6 +21,7 @@ import "../../providers/search_query_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
@@ -39,7 +40,6 @@ import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/press_scale.dart";
 import "../../widgets/search_mark.dart";
-import "../../widgets/slot_registry.dart";
 import "../../widgets/tab_layout.dart";
 import "../../widgets/title_scroll_edge.dart";
 import "../../widgets/translated_text.dart";
@@ -826,6 +826,11 @@ class _ViewMenu extends ConsumerWidget {
     CardArrangement.issuer: Icons.account_balance_outlined,
   };
 
+  /// What a screen reader says for the menu's button: "View: Stack".
+  static String _semanticsLabel(BuildContext context, WalletView view) =>
+      "${context.tr("wallet.view.label")}: "
+      "${context.tr("wallet.view.${view.name}")}";
+
   Future<void> _open(BuildContext context, WidgetRef ref) =>
       open(context, ref, view: view, arrangeable: arrangeable);
 
@@ -889,7 +894,7 @@ class _ViewMenu extends ConsumerWidget {
     final label = context.tr("wallet.view.${view.name}");
     return Semantics(
       button: true,
-      label: "${context.tr("wallet.view.label")}: $label",
+      label: _semanticsLabel(context, view),
       excludeSemantics: true,
       child: GestureDetector(
         key: const Key("wallet_arrange"),
@@ -947,9 +952,7 @@ class _ViewMenuButton extends ConsumerWidget {
     return RoundIconButton(
       key: const Key("wallet_arrange"),
       icon: CupertinoIcons.ellipsis,
-      label:
-          "${context.tr("wallet.view.label")}: "
-          "${context.tr("wallet.view.${view.name}")}",
+      label: _ViewMenu._semanticsLabel(context, view),
       onTap: () =>
           _ViewMenu.open(context, ref, view: view, arrangeable: count > 1),
     );
@@ -1049,12 +1052,10 @@ class _ProblematicCredentialCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await confirmDeleteCredential(context);
-    if (confirmed && context.mounted) {
-      ref
-          .read(irmaRepositoryProvider)
-          .deleteCredential(credential.credentialInstanceIds);
-    }
-  }
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) =>
+      confirmAndDeleteCredential(
+        context,
+        ref.read(irmaRepositoryProvider),
+        credential.credentialInstanceIds,
+      );
 }

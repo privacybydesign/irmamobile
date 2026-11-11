@@ -53,41 +53,6 @@ class SheetBottomBar extends StatelessWidget {
   }
 }
 
-/// A sheet's content in two columns on a phone held sideways, [start] (e.g.
-/// a picture) at [startWidth] and [end] taking the rest. Use it only in a
-/// landscape branch (see [useSheetColumns]); portrait keeps its own
-/// layout.
-class SheetColumns extends StatelessWidget {
-  /// The start column's width unless said otherwise: a card drawn there
-  /// fills it.
-  static const double defaultStartWidth = 250;
-
-  final Widget start;
-  final Widget end;
-  final double startWidth;
-  final double gap;
-  final CrossAxisAlignment crossAxisAlignment;
-
-  const SheetColumns({
-    super.key,
-    required this.start,
-    required this.end,
-    this.startWidth = defaultStartWidth,
-    this.gap = 24,
-    this.crossAxisAlignment = CrossAxisAlignment.start,
-  });
-
-  @override
-  Widget build(BuildContext context) => Row(
-    crossAxisAlignment: crossAxisAlignment,
-    children: [
-      SizedBox(width: startWidth, child: start),
-      SizedBox(width: gap),
-      Expanded(child: end),
-    ],
-  );
-}
-
 /// A step of a sheet on a phone held sideways: [start] (the words: what it
 /// is, the heading, the explanation) in the left column and [end] (what you
 /// read or fill in: the card, the field, the picture) in the right, two
@@ -145,12 +110,7 @@ class SheetSplit extends StatelessWidget {
         ? own
         : own == null
         ? pageBottom
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 10,
-            children: [pageBottom, own],
-          );
+        : sheetStack(pageBottom, own);
     return _InSplit(
       child: Padding(
         padding: const EdgeInsets.only(top: 12),
@@ -211,6 +171,15 @@ class SheetSplit extends StatelessWidget {
     );
   }
 }
+
+/// [top] (a page's own bottom, the progress) right above [bottom] (its
+/// buttons), 10 apart, at the bottom of a sheet page.
+Widget sheetStack(Widget top, Widget bottom) => Column(
+  mainAxisSize: MainAxisSize.min,
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  spacing: 10,
+  children: [top, bottom],
+);
 
 class _InSplit extends InheritedWidget {
   const _InSplit({required super.child});

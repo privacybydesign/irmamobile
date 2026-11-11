@@ -45,11 +45,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
         instructionKey: instructionKey,
         maxPinSize: maxPinSize,
         onSubmit: _comparePins,
-        listener: (context, state) {
-          if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
-            _comparePins(state.toString());
-          }
-        },
+        listener: submitWhenFull(maxPinSize, _comparePins),
       ),
     );
   }

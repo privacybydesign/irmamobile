@@ -4,22 +4,14 @@ import "package:material_ui/material_ui.dart";
 import "../../../widgets/collapsible.dart";
 
 class HelpItem extends StatelessWidget {
-  final ScrollController parentScrollController;
-
   final String headerTranslationKey;
   final Widget body;
 
-  const HelpItem({
-    required this.parentScrollController,
-    required this.headerTranslationKey,
-    required this.body,
-  });
+  const HelpItem({required this.headerTranslationKey, required this.body});
 
   @override
   Widget build(BuildContext context) => Collapsible(
-    flat: true,
     header: FlutterI18n.translate(context, headerTranslationKey),
-    parentScrollController: parentScrollController,
     content: body,
   );
 }

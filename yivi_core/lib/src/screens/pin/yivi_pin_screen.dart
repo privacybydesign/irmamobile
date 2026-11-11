@@ -331,19 +331,18 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     widget.listener?.call(context, _state);
   }
 
+  /// The arrow, and the Enter key: submit when enough digits are present
+  /// (short PINs auto-submit via [YiviPinScreen.listener], so the key mainly
+  /// serves the long PIN).
   void _submit() {
     if (_canSubmit) widget.onSubmit(_state.toString());
   }
-
-  /// Enter key: submit when enough digits are present (short PINs auto-submit
-  /// via [YiviPinScreen.listener], so this mainly serves the long PIN).
-  void _submitFromKeyboard() => _submit();
 
   @override
   Widget build(BuildContext context) {
     return PinHardwareKeyboardListener(
       onEnterNumber: widget.enabled ? _enterNumber : (_) {},
-      onSubmit: _submitFromKeyboard,
+      onSubmit: _submit,
       child: OrientationBuilder(
         builder: (context, orientation) {
           // Held upright a tablet has the centred column; held sideways

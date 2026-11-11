@@ -66,11 +66,11 @@ class DocumentSheetStep extends ConsumerStatefulWidget {
     super.key,
     required this.type,
     required this.subject,
-    this.total = 5,
+    required this.total,
     required this.onBack,
     required this.onStopped,
     required this.onFaceCheck,
-    this.readAgain = 0,
+    required this.readAgain,
   });
 
   @override
@@ -291,11 +291,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
       // Above the screens' buttons, staying put while they change (also on
       // a screen without buttons, which keeps their room).
       bottomInBar: true,
-      bottom: IssueSheetProgress(
-        subject: widget.subject,
-        step: _screen.step,
-        total: widget.total,
-      ),
+      bottom: IssueSheetProgress(step: _screen.step, total: widget.total),
       // The screens fill the page; upright their buttons are in the page's
       // bottom bar, which stays put while they change.
       scrolls: false,

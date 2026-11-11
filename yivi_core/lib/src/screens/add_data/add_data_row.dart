@@ -23,7 +23,7 @@ class AddDataRow extends StatelessWidget {
     super.key,
     required this.item,
     required this.nfcBlocked,
-    this.owned = false,
+    required this.owned,
     required this.onTap,
   });
 

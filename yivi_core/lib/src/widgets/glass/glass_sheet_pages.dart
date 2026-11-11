@@ -8,7 +8,7 @@ part of "glass_sheet.dart";
 /// removes it.
 ///
 /// A [GlassSheetPage] slides only its body: its bar (the titles fade into
-/// each other) and its pinned part stay where they are, so the sheet's top
+/// each other) stays where it is, so the sheet's top
 /// does not move between steps. Any other page slides as a whole when it is
 /// wrapped in a [GlassSheetPageMotion].
 class GlassSheetPages extends StatefulWidget {
@@ -524,7 +524,7 @@ class _SheetPageRole extends InheritedWidget {
 /// What a [GlassSheetPage] has in its bar; [title] is the key of its title
 /// widget, so two pages with the same one (the "For {requestor}" pill on
 /// every step of adding a card) keep it in place instead of fading it.
-typedef _Chrome = ({bool back, bool pinned, bool action, Key? title});
+typedef _Chrome = ({bool back, bool action, Key? title});
 
 /// [child] on the sheet's colour while [coloured]; see-through otherwise,
 /// with the same widgets either way (see [_SheetPageRole.slide]).

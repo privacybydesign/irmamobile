@@ -65,37 +65,3 @@ IssueWizardQA _$IssueWizardQAFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$IssueWizardQAToJson(IssueWizardQA instance) =>
     <String, dynamic>{'question': instance.question, 'answer': instance.answer};
-
-IssueWizardItem _$IssueWizardItemFromJson(Map<String, dynamic> json) =>
-    IssueWizardItem(
-      type: json['type'] as String,
-      credential: json['credential'] as String?,
-      header: json['header'] == null
-          ? const TranslatedValue.empty()
-          : TranslatedValue.fromJson(json['header'] as Map<String, dynamic>?),
-      text: json['text'] == null
-          ? const TranslatedValue.empty()
-          : TranslatedValue.fromJson(json['text'] as Map<String, dynamic>?),
-      label: json['label'] == null
-          ? const TranslatedValue.empty()
-          : TranslatedValue.fromJson(json['label'] as Map<String, dynamic>?),
-      sessionURL: json['sessionUrl'] as String?,
-      url: json['url'] == null
-          ? const TranslatedValue.empty()
-          : TranslatedValue.fromJson(json['url'] as Map<String, dynamic>?),
-      inApp: json['inapp'] as bool? ?? false,
-      completed: json['completed'] as bool? ?? false,
-    );
-
-Map<String, dynamic> _$IssueWizardItemToJson(IssueWizardItem instance) =>
-    <String, dynamic>{
-      'type': instance.type,
-      'credential': instance.credential,
-      'header': instance.header,
-      'text': instance.text,
-      'label': instance.label,
-      'sessionUrl': instance.sessionURL,
-      'url': instance.url,
-      'inapp': instance.inApp,
-      'completed': instance.completed,
-    };

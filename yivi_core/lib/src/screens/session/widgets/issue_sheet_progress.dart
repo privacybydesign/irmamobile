@@ -3,11 +3,11 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
-import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/press_scale.dart";
+import "progress_part.dart";
 import "requestor_card.dart";
 
 /// What a card is added for: the request behind the sheet ("For
@@ -22,13 +22,9 @@ sealed class IssueSheetSubject {
     ({int n, int total})? ofSet,
   }) = _ForRequest;
   const factory IssueSheetSubject.none() = _NoSubject;
-
-  /// The requestor the card is added for, if any.
-  TrustedParty? get requestor => null;
 }
 
 class _ForRequest extends IssueSheetSubject {
-  @override
   final TrustedParty requestor;
   final ({int n, int total})? ofSet;
   const _ForRequest(this.requestor, {this.ofSet});
@@ -65,8 +61,6 @@ class _NoSubject extends IssueSheetSubject {
 /// page that is coming on top. So as soon as a page is pushed or popped the
 /// parts fill on or empty back (420 ms), on the bar that stays put.
 class IssueSheetProgress extends StatefulWidget {
-  final IssueSheetSubject subject;
-
   /// The step on screen, from 1 to [total]. The ones up to it are filled.
   final int step;
 
@@ -75,19 +69,13 @@ class IssueSheetProgress extends StatefulWidget {
   /// face check).
   final int total;
 
-  const IssueSheetProgress({
-    super.key,
-    required this.subject,
-    required this.step,
-    this.total = 3,
-  }) : assert(step >= 1 && step <= total);
+  const IssueSheetProgress({super.key, required this.step, required this.total})
+    : assert(step >= 1 && step <= total);
 
-  /// The progress at the last step, adding the card; none without a
-  /// [subject], or for an issuance without steps before it ([total] 0).
-  static IssueSheetProgress? lastStep(IssueSheetSubject? subject, int total) =>
-      subject == null || total == 0
-      ? null
-      : IssueSheetProgress(subject: subject, step: total, total: total);
+  /// The progress at the last step, adding the card; none for an issuance
+  /// without steps before it ([total] 0).
+  static IssueSheetProgress? lastStep(int total) =>
+      total == 0 ? null : IssueSheetProgress(step: total, total: total);
 
   @override
   State<IssueSheetProgress> createState() => _IssueSheetProgressState();
@@ -104,7 +92,6 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
   /// A part's width: narrower for a long flow (a document with a face
   /// check), so it fits a sheet's left column held sideways.
   double get _partWidth => widget.total > 4 ? 18 : 28;
-  static const double _partHeight = 4;
 
   @override
   void didChangeDependencies() {
@@ -156,7 +143,6 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final step = widget.step;
     final total = widget.total;
     final params = {"step": "$step", "total": "$total"};
@@ -178,12 +164,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
             spacing: 6,
             children: [
               for (var i = 1; i <= total; i++)
-                _Part(
-                  width: _partWidth,
-                  height: _partHeight,
-                  index: i,
-                  shown: _shown!,
-                ),
+                _Part(width: _partWidth, index: i, shown: _shown!),
             ],
           ),
           Flexible(
@@ -191,14 +172,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              // A step lighter than other secondary text: the parts say
-              // it already.
-              style: palette
-                  .body(12)
-                  .copyWith(
-                    color: palette.secondaryText.withValues(alpha: 0.85),
-                    height: 16 / 12,
-                  ),
+              style: ProgressPartTrack.lineStyle(context),
             ),
           ),
         ],
@@ -325,18 +299,12 @@ class IssueRequestorPill extends StatelessWidget {
 /// edge. It fills (or empties) over 420 ms as the step shown passes it.
 class _Part extends StatefulWidget {
   final double width;
-  final double height;
 
   /// Which step this part is, from 1.
   final int index;
   final ValueListenable<int> shown;
 
-  const _Part({
-    required this.width,
-    required this.height,
-    required this.index,
-    required this.shown,
-  });
+  const _Part({required this.width, required this.index, required this.shown});
 
   @override
   State<_Part> createState() => _PartState();
@@ -385,24 +353,6 @@ class _PartState extends State<_Part> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(widget.height / 2),
-      child: Container(
-        width: widget.width,
-        height: widget.height,
-        color: palette.text.withValues(alpha: 0.12),
-        alignment: AlignmentDirectional.centerStart,
-        child: AnimatedBuilder(
-          animation: _fill,
-          builder: (context, _) => FractionallySizedBox(
-            widthFactor: YiviMotion.ease.transform(_fill.value),
-            heightFactor: 1,
-            child: ColoredBox(color: palette.successText),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      ProgressPartTrack(width: widget.width, fill: _fill);
 }

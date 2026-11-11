@@ -122,14 +122,12 @@ class NfcStageScaffold extends StatelessWidget {
                     titleKey,
                     translationParams: textParams,
                     isHeader: true,
-                    style: palette
-                        .display(20, weight: FontWeight.w700)
-                        .copyWith(height: 28 / 20, color: palette.heading),
+                    style: documentSplitHeadingStyle(palette),
                   ),
                   TranslatedText(
                     bodyKey,
                     translationParams: textParams,
-                    style: palette.body(14.5).copyWith(height: 21 / 14.5),
+                    style: documentSplitBodyStyle(palette),
                   ),
                 ],
               ),

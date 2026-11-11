@@ -34,48 +34,20 @@ class ActivityFacetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final leading = this.leading;
-    final fill = palette.link;
     final ink = palette.onLink;
-    return Semantics(
-      button: true,
-      label: FlutterI18n.translate(
-        context,
-        "activity.query.remove_filter",
-        translationParams: {"filter": label},
+    return _TagPill(
+      semanticsKey: "activity.query.remove_filter",
+      label: label,
+      leading: leading,
+      leadingInset: 4,
+      decoration: BoxDecoration(
+        color: palette.link,
+        borderRadius: YiviCorners.chipRadius,
       ),
-      excludeSemantics: true,
-      child: GestureDetector(
-        onTap: onRemove,
-        child: PressScale(
-          scale: PressScale.glass,
-          child: Container(
-            height: activityTagHeight,
-            padding: EdgeInsets.fromLTRB(leading == null ? 12 : 4, 0, 10, 0),
-            decoration: BoxDecoration(
-              color: fill,
-              borderRadius: YiviCorners.chipRadius,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 6,
-              children: [
-                ?leading,
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 220),
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: palette.display(13).copyWith(color: ink),
-                  ),
-                ),
-                Icon(Icons.close_rounded, size: 16, color: ink),
-              ],
-            ),
-          ),
-        ),
-      ),
+      labelStyle: palette.display(13).copyWith(color: ink),
+      icon: Icons.close_rounded,
+      iconColor: ink,
+      onTap: onRemove,
     );
   }
 }
@@ -98,12 +70,65 @@ class ActivitySuggestionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    return _TagPill(
+      semanticsKey: "activity.query.add_filter",
+      label: label,
+      leading: leading,
+      leadingInset: 6,
+      decoration: ShapeDecoration(
+        color: palette.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: YiviCorners.chipRadius,
+          side: BorderSide(color: palette.divider),
+        ),
+      ),
+      labelStyle: palette
+          .display(13, weight: FontWeight.w500)
+          .copyWith(color: palette.text),
+      icon: Icons.add_rounded,
+      iconColor: palette.secondaryText,
+      onTap: onTap,
+    );
+  }
+}
+
+/// A tag or a suggestion under the activity search field: [leading], the
+/// label and an [icon] that says what a tap does, in [decoration].
+class _TagPill extends StatelessWidget {
+  /// What a screen reader says: the translation of this with the label as
+  /// its filter.
+  final String semanticsKey;
+  final String label;
+  final Widget? leading;
+
+  /// The space before [leading], when there is one.
+  final double leadingInset;
+  final Decoration decoration;
+  final TextStyle labelStyle;
+  final IconData icon;
+  final Color iconColor;
+  final VoidCallback onTap;
+
+  const _TagPill({
+    required this.semanticsKey,
+    required this.label,
+    required this.leading,
+    required this.leadingInset,
+    required this.decoration,
+    required this.labelStyle,
+    required this.icon,
+    required this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final leading = this.leading;
     return Semantics(
       button: true,
       label: FlutterI18n.translate(
         context,
-        "activity.query.add_filter",
+        semanticsKey,
         translationParams: {"filter": label},
       ),
       excludeSemantics: true,
@@ -113,14 +138,13 @@ class ActivitySuggestionChip extends StatelessWidget {
           scale: PressScale.glass,
           child: Container(
             height: activityTagHeight,
-            padding: EdgeInsets.fromLTRB(leading == null ? 12 : 6, 0, 10, 0),
-            decoration: ShapeDecoration(
-              color: palette.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: YiviCorners.chipRadius,
-                side: BorderSide(color: palette.divider),
-              ),
+            padding: EdgeInsets.fromLTRB(
+              leading == null ? 12 : leadingInset,
+              0,
+              10,
+              0,
             ),
+            decoration: decoration,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               spacing: 6,
@@ -132,12 +156,10 @@ class ActivitySuggestionChip extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: palette
-                        .display(13, weight: FontWeight.w500)
-                        .copyWith(color: palette.text),
+                    style: labelStyle,
                   ),
                 ),
-                Icon(Icons.add_rounded, size: 16, color: palette.secondaryText),
+                Icon(icon, size: 16, color: iconColor),
               ],
             ),
           ),

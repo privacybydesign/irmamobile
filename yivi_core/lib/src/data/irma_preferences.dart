@@ -114,10 +114,6 @@ class IrmaPreferences {
          _localBackendHostKey,
          defaultValue: "",
        ) {
-    // Remove unused IRMA -> Yivi name change notification key
-    preferences.remove(_showNameChangeNotificationKey);
-    // Remove old value for displaying the dev mode toggle
-    preferences.remove(_developerModePrefVisibleKey);
     _retiredKeys.forEach(preferences.remove);
   }
 
@@ -164,15 +160,6 @@ class IrmaPreferences {
   static const String _biometricPromptDismissedKey =
       "preference.biometric_prompt_dismissed";
   final Preference<bool> _biometricPromptDismissed;
-
-  /// Originates from the notification that  IRMA is ABOUT TO change to Yivi, only used for cleanup-purposes
-  static const String _showNameChangeNotificationKey =
-      "preference.show_name_change_notification";
-
-  /// Old value that was used for displaying the dev mode toggle,
-  /// now it's only used for cleanup-purposes
-  static const String _developerModePrefVisibleKey =
-      "preference.devmode_visible";
 
   static const String _preferredLanguageKey =
       "preference.preferred_language_code";
@@ -223,9 +210,12 @@ class IrmaPreferences {
   static const String _appearanceKey = "preference.appearance";
   final Preference<String> _appearance;
 
-  /// Retired: the pins of the old type-based data tab, its feature flags,
-  /// and the old disclosure screen's dialog and intro.
+  /// Retired: the notification that IRMA was about to become Yivi, the old
+  /// developer mode toggle visibility, the pins of the old type-based data
+  /// tab, its feature flags, and the old disclosure screen's dialog and intro.
   static const List<String> _retiredKeys = [
+    "preference.show_name_change_notification",
+    "preference.devmode_visible",
     "preference.favourite_credentials",
     "preference.feature_flag.dataTabV2",
     "preference.feature_flag.dataTabCategories",

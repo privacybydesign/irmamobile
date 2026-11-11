@@ -168,6 +168,13 @@ class YiviFlight {
   /// The lift of a card carried between a page and a sheet.
   static const liftCarried = 1.05;
 
+  /// The shadow of a card carried between a page and a sheet.
+  static const shadowCarried = BoxShadow(
+    color: Color(0x3D102846),
+    blurRadius: 28,
+    offset: Offset(0, 12),
+  );
+
   static final _hidden = _HiddenKeys();
   static final _entries = <OverlayEntry>[];
 
@@ -286,10 +293,8 @@ class YiviFlight {
     required Widget Function(BuildContext context, FlightFrame frame) copy,
     required List<FlightKey> keys,
     required Duration duration,
-    double lift = liftCard,
     BorderRadius radius = BorderRadius.zero,
     Iterable<Key> hide = const [],
-    VoidCallback? onLanded,
     Key? copyKey,
   }) {
     final handle = FlightHandle();
@@ -303,10 +308,9 @@ class YiviFlight {
       duration: duration,
       // One to one with the hand; the landing eases ([FlightHandle.land]).
       curve: Curves.linear,
-      lift: lift,
+      lift: liftCard,
       radius: radius,
       hide: hide,
-      onLanded: onLanded,
       copyKey: copyKey,
     );
     return flies ? handle : null;
@@ -334,6 +338,11 @@ class FlightSpot extends StatelessWidget {
   final Widget child;
 
   const FlightSpot({super.key, required this.flightKey, required this.child});
+
+  /// [child] as a [FlightSpot] at [flightKey]; just [child] without a key.
+  static Widget maybe(GlobalKey? flightKey, Widget child) => flightKey == null
+      ? child
+      : FlightSpot(flightKey: flightKey, child: child);
 
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<Set<Key>>(

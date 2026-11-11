@@ -265,15 +265,7 @@ class SmsIssuer extends Notifier<SmsIssuanceState> {
     state = state.copyWith(error: SmsIssuanceNoError());
   }
 
-  void reset() {
-    state = SmsIssuanceState(
-      stage: .enteringPhoneNumber,
-      enteredCode: "",
-      phoneNumber: state.phoneNumber,
-      error: SmsIssuanceNoError(),
-    );
-  }
-
+  /// Back to typing the number, the one typed before filled in.
   void goBackToEnterPhone() {
     state = SmsIssuanceState(
       stage: .enteringPhoneNumber,
