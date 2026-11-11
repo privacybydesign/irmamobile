@@ -27,6 +27,7 @@ const _unlockedPathPrefixes = {
   "/enrollment",
   "/reset_pin",
   "/modal_pin",
+  "/device_lock_required",
   "/rooted_warning",
   "/update_required",
   "/error",

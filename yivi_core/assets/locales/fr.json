@@ -680,6 +680,14 @@
     "explanation": "Nous sommes désolés, mais l'organisation Yivi ne possède pas de copie de votre code PIN. Si vous souhaitez continuer à utiliser Yivi, vous devrez saisir un nouveau code PIN et recharger toutes vos données.",
     "reset": "Tout recommencer"
   },
+  "device_lock_required": {
+    "title": "Configurez un verrouillage de l'écran",
+    "explanation_android": "Votre téléphone n'a pas de verrouillage de l'écran. Yivi protège vos données grâce à la sécurité de votre téléphone et ne fonctionne donc que sur un téléphone doté d'un verrouillage de l'écran : un code PIN, un schéma ou un mot de passe, également utilisés par le déverrouillage par empreinte digitale et reconnaissance faciale.\n\nConfigurez un verrouillage de l'écran dans les paramètres de votre téléphone, puis revenez dans Yivi.",
+    "explanation_ios": "Votre iPhone n'a pas de code d'accès. Yivi protège vos données grâce à la sécurité de votre iPhone et ne fonctionne donc que sur un iPhone doté d'un code d'accès, également utilisé par Face ID et Touch ID.\n\nConfigurez un code d'accès dans Réglages, sous Face ID et code (ou Touch ID et code), puis revenez dans Yivi.",
+    "open_settings": "Ouvrir les paramètres",
+    "check_again": "Vérifier à nouveau",
+    "continue_anyway_debug": "Continuer quand même (version de débogage)"
+  },
   "rooted_warning": {
     "title": "Appareil non sécurisé",
     "explanation": "Le système d'exploitation de votre appareil semble modifié (root/jailbreak). La sécurité de vos données ne peut donc pas être garantie.",
