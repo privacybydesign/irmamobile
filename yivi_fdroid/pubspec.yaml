@@ -42,7 +42,10 @@ dependency_overrides:
   pointycastle:
     git:
       url: https://github.com/privacybydesign/pc-dart.git
-      ref: master
+      # Pinned to a commit: the fork has no tags, and following master would pick
+      # up whatever is pushed there next. 47302073 is master minus its last commit
+      # (0f361ed6), which only adds debug prints to CMac.init.
+      ref: 47302073aa8d60d71d98717ffeafc2afa9cb9389
 
 flutter:
   uses-material-design: true
