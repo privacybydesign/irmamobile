@@ -1476,7 +1476,8 @@
       "add_again": "Add again",
       "fetch_again": "Get it again",
       "pick": "Choose what to add",
-      "add_card": "Add {card}"
+      "add_card": "Add {card}",
+      "add_short": "Add card"
     },
     "also_choose": "You have another one",
     "also_add": "In your app",

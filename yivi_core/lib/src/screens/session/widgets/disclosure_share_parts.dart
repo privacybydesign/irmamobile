@@ -85,6 +85,11 @@ class _ShareBar extends StatelessWidget {
   /// The line is a warning (a card that does not count): red, semibold.
   final bool warn;
   final String label;
+
+  /// Said instead of [label] when that would wrap onto a second line in the
+  /// button ("Mobiel telefoonnummer - staging toevoegen"): the card it is
+  /// about is right above it.
+  final String? shortLabel;
   final bool primary;
 
   /// Nobody vouches for the requestor: a sober dark "Share anyway" with the
@@ -110,6 +115,7 @@ class _ShareBar extends StatelessWidget {
     this.line,
     this.warn = false,
     required this.label,
+    this.shortLabel,
     required this.primary,
     this.risky = false,
     required this.onPressed,
@@ -119,19 +125,47 @@ class _ShareBar extends StatelessWidget {
     this.inBar = true,
   });
 
+  /// [label], or [shortLabel] when [label] would not fit on one line in a
+  /// button of [width] (its text: Alexandria 16 bold, 20 in from each side).
+  String _labelFor(BuildContext context, double width) {
+    final short = shortLabel;
+    if (short == null) return label;
+    final painter = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: YiviPalette.of(context).display(16, weight: FontWeight.w700),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout(maxWidth: (width - 40).clamp(0, double.infinity));
+    final fits = !painter.didExceedMaxLines;
+    painter.dispose();
+    return fits ? label : short;
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final Widget button = risky
-        ? PillButton(
-            label: label,
-            style: PillStyle.neutral,
-            size: PillSize.large,
-            onPressed: onPressed,
-          )
-        : primary
-        ? FancyPillButton(label: label, onPressed: onPressed)
-        : PillButton(label: label, size: PillSize.large, onPressed: onPressed);
+    final Widget button = LayoutBuilder(
+      builder: (context, constraints) {
+        final label = _labelFor(context, constraints.maxWidth);
+        return risky
+            ? PillButton(
+                label: label,
+                style: PillStyle.neutral,
+                size: PillSize.large,
+                onPressed: onPressed,
+              )
+            : primary
+            ? FancyPillButton(label: label, onPressed: onPressed)
+            : PillButton(
+                label: label,
+                size: PillSize.large,
+                onPressed: onPressed,
+              );
+      },
+    );
     final pill = isNext
         ? KeyedSubtree(key: const Key("share_next"), child: button)
         : button;

@@ -1476,7 +1476,8 @@
       "add_again": "Opnieuw toevoegen",
       "fetch_again": "Opnieuw ophalen",
       "pick": "Kies wat je toevoegt",
-      "add_card": "{card} toevoegen"
+      "add_card": "{card} toevoegen",
+      "add_short": "Kaartje toevoegen"
     },
     "also_choose": "Je hebt er nog een",
     "also_add": "Staat in je app",

@@ -1264,6 +1264,35 @@ void main() {
       expect(find.text("Add ID card"), findsWidgets);
     });
 
+    testWidgets("a name too long for one line: the button says Add card", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        session: _session([
+          email,
+          DisclosurePickOne(
+            optional: false,
+            ownedOptions: const [],
+            obtainableOptions: [
+              _descriptor("mobile", "Mobile phone number - staging"),
+            ],
+          ),
+        ]),
+      );
+      expect(
+        find.descendant(of: _share, matching: find.text("Add card")),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: _share,
+          matching: find.text("Add Mobile phone number - staging"),
+        ),
+        findsNothing,
+      );
+    });
+
     testWidgets("one way to get it: the spot looks like the card, with the "
         "values asked of it, marked Asked", (tester) async {
       await _pump(

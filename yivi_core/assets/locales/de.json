@@ -1476,7 +1476,8 @@
       "add_again": "Erneut hinzufügen",
       "fetch_again": "Erneut abrufen",
       "pick": "Wähle, was du hinzufügst",
-      "add_card": "{card} hinzufügen"
+      "add_card": "{card} hinzufügen",
+      "add_short": "Karte hinzufügen"
     },
     "also_choose": "Du hast noch eine",
     "also_add": "In deiner App",

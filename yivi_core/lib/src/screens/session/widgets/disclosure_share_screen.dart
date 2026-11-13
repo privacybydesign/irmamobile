@@ -579,6 +579,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
                   : "share.trust.risky.share_anyway",
             )
           : t("share.button.${_labelName(button.label)}"),
+      shortLabel: next?.kind == NextKind.add ? t("share.next.add_short") : null,
       primary: button.label != ShareLabel.close && !risky,
       risky: risky,
       onPressed: next != null
