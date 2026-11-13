@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A return URL that a requestor gives a session is not opened when its scheme is `javascript`, `vbscript`, `data`, `blob`, `about`, `file`, `content`, `intent` or `android-app`. Web links, phone numbers and other apps' own schemes still work
 - The in-app browser only opens `https` pages, on Android enforced in the native code too. A cleartext `http` return URL with `inapp` opens in the user's own browser instead
 - A deep link is passed to the app as properly encoded JSON. It used to be pasted into a JSON string, so a link with a quote in it could add fields to the event or break it
-- The Android apps state their network security configuration: no cleartext traffic, and only the certificate authorities that ship with Android. Flutter applies the cleartext rule to the Dart network stack too
+- The Android apps state their network security configuration: no cleartext traffic, and only the certificate authorities that ship with Android. That covers the Android network stack; Dart has its own, so the app also refuses every connection from Dart that is not `https`, on both platforms
 - The TLS configuration of the Go bridge (the embedded root certificates and only AEAD cipher suites for TLS 1.2) also applies to the OpenID4VCI, OpenID4VP, status list and did:web traffic. Before, it only reached the IRMA and keyshare traffic
 - In the F-Droid app, the face capture WebView only navigates to `https` pages on the host of the capture page, and cannot read files or content providers
 - The storage key on Android is generated with the default `SecureRandom` instead of `getInstanceStrong()`, which is the same generator there but can block on some devices

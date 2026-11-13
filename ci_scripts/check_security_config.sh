@@ -57,6 +57,10 @@ for app in "${ANDROID_APPS[@]}"; do
   require "cleartext traffic must stay off" 'cleartextTrafficPermitted="false"' \
     "$app/android/app/src/main/res/xml/network_security_config.xml"
 done
+require "Dart must run in the zone that refuses cleartext connections" \
+  'zoneValues: appZoneValues' yivi_core/lib/yivi_core.dart
+require "the app zone must refuse cleartext connections" \
+  '#flutter.io.allow_http: false' yivi_core/lib/yivi_core.dart
 forbid "an Android manifest allows cleartext traffic" \
   'usesCleartextTraffic="true"|cleartextTrafficPermitted="true"' \
   --include='*.xml' "${ANDROID_SOURCES[@]}"
