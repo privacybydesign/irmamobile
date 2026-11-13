@@ -50,10 +50,37 @@ class EnrollmentScreen extends StatelessWidget {
   }
 }
 
-class _ProvidedEnrollmentScreen extends StatelessWidget {
+class _ProvidedEnrollmentScreen extends StatefulWidget {
   final IrmaRepository repo;
 
   const _ProvidedEnrollmentScreen({required this.repo});
+
+  @override
+  State<_ProvidedEnrollmentScreen> createState() =>
+      _ProvidedEnrollmentScreenState();
+}
+
+class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
+  IrmaRepository get repo => widget.repo;
+
+  /// The PIN chosen in the first step, for the confirm step to compare
+  /// with. Kept here, not in build: anything that rebuilds the screen
+  /// between the two steps (a theme change) would otherwise forget it.
+  final _newPin = ValueNotifier("");
+
+  @override
+  void initState() {
+    super.initState();
+    // The default for this value is intentionally
+    // different for the fresh install and upgrade flows.
+    repo.preferences.setLongPin(false);
+  }
+
+  @override
+  void dispose() {
+    _newPin.dispose();
+    super.dispose();
+  }
 
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
     // The empty Data tab points out the Scan button on the first visit.
@@ -79,11 +106,6 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     void addEvent(EnrollmentBlocEvent event) => bloc.add(event);
     void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());
     void addOnNextPressed() => bloc.add(EnrollmentNextPressed());
-    final newPin = ValueNotifier("");
-
-    // The default for this value is intentionally
-    // different for the fresh install and upgrade flows.
-    repo.preferences.setLongPin(false);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // AnnotatedRegion replaces the whole style; the theme's has readable
@@ -117,7 +139,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
                   : _step(context, state.step!),
               onPrevious: addOnPreviousPressed,
               onChoosePin: (pin) => addEvent(EnrollmentPinChosen(pin)),
-              newPinNotifier: newPin,
+              newPinNotifier: _newPin,
             );
           }
           if (state is EnrollmentConfirmPin) {
@@ -125,7 +147,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
               stepLabel: state.step == null
                   ? null
                   : _step(context, state.step!),
-              newPinNotifier: newPin,
+              newPinNotifier: _newPin,
               onPrevious: addOnPreviousPressed,
               submitConfirmationPin: (pin) =>
                   addEvent(EnrollmentPinConfirmed(pin)),
