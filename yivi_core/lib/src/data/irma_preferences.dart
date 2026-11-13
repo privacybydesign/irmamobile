@@ -80,6 +80,10 @@ class IrmaPreferences {
          _reviewLastAskEpochMsKey,
          defaultValue: 0,
        ),
+       _acceptedTermsAtEpochMs = preferences.getInt(
+         _acceptedTermsAtEpochMsKey,
+         defaultValue: 0,
+       ),
        _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
@@ -166,6 +170,13 @@ class IrmaPreferences {
 
   static const String _acceptedTermsUrlKey = "preference.accepted_terms_url";
   final Preference<String> _acceptedTermsUrl;
+
+  /// When the user accepted the terms in [_acceptedTermsUrl] (ms since epoch),
+  /// or 0 when unknown: no terms accepted, or accepted before this was recorded.
+  /// Together with the versioned URL this is the record of the consent.
+  static const String _acceptedTermsAtEpochMsKey =
+      "preference.accepted_terms_at_epoch_ms";
+  final Preference<int> _acceptedTermsAtEpochMs;
 
   // Used to store the prefered order of credentials in the data tab
   static const String _credentialOrderKey = "preference.credential_order";
@@ -275,8 +286,26 @@ class IrmaPreferences {
   Stream<bool> hasAcceptedLatestTerms() =>
       _acceptedTermsUrl.map((url) => url == mostRecentTermsUrlNl);
 
-  Future<bool> markLatestTermsAsAccepted(bool accepted) => _acceptedTermsUrl
-      .setValue(accepted ? mostRecentTermsUrlNl : "no-terms-accepted");
+  Future<bool> markLatestTermsAsAccepted(bool accepted) async {
+    await _acceptedTermsAtEpochMs.setValue(
+      accepted ? DateTime.now().millisecondsSinceEpoch : 0,
+    );
+    return _acceptedTermsUrl.setValue(
+      accepted ? mostRecentTermsUrlNl : "no-terms-accepted",
+    );
+  }
+
+  /// The versioned terms URL the user accepted, or null when none was.
+  String? get acceptedTermsUrl {
+    final url = _acceptedTermsUrl.getValue();
+    return url == "no-terms-accepted" ? null : url;
+  }
+
+  /// When the user accepted [acceptedTermsUrl], or null when that is unknown.
+  DateTime? get acceptedTermsAt {
+    final epochMs = _acceptedTermsAtEpochMs.getValue();
+    return epochMs == 0 ? null : DateTime.fromMillisecondsSinceEpoch(epochMs);
+  }
 
   List<String> getCredentialOrder() => _credentialOrder.getValue();
 

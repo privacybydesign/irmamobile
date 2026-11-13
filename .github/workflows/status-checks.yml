@@ -65,6 +65,8 @@ jobs:
           fi
 
           echo "Versions are in sync."
+      - name: Check security configuration
+        run: ./ci_scripts/check_security_config.sh
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane lint

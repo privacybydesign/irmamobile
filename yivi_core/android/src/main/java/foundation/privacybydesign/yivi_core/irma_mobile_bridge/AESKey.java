@@ -1,7 +1,6 @@
 package foundation.privacybydesign.yivi_core.irma_mobile_bridge;
 
 import android.content.Context;
-import android.os.Build;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -26,14 +25,12 @@ public class AESKey {
         return tee.decrypt(ciphertext);
     }
 
-    private static byte[] generateKey() throws GeneralSecurityException {
+    private static byte[] generateKey() {
         byte[] key = new byte[32];
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            SecureRandom.getInstanceStrong().nextBytes(key);
-        } else {
-            new SecureRandom().nextBytes(key);
-        }
+        // The default SecureRandom is the platform CSPRNG. getInstanceStrong() gives the
+        // same generator on Android, but may block on some devices.
+        new SecureRandom().nextBytes(key);
 
         return key;
     }

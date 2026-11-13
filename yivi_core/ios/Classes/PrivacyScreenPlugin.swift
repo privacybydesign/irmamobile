@@ -15,6 +15,9 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
     /// is removed or its hierarchy is torn down.
     private static weak var blurView: UIVisualEffectView?
 
+    /// The cover shown while the screen is being recorded or mirrored, if it is up.
+    private static weak var captureCover: UIView?
+
     /// How many in-app flows currently need the blur held back, see
     /// `suspendPrivacyScreen`. A count rather than a flag, so overlapping flows
     /// cannot un-suspend each other.
@@ -45,6 +48,85 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
         notificationCenter.addObserver(self, selector: #selector(appWillResignActive(_:)), name: UIApplication.willResignActiveNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(appDidEnterBackground(_:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(appResumed(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        // iOS has no way to keep an app out of a screen recording, AirPlay or a mirrored
+        // display, like FLAG_SECURE does on Android. What it does tell us is when the
+        // screen is being captured, so the app covers itself for as long as that lasts.
+        notificationCenter.addObserver(self, selector: #selector(captureChanged(_:)), name: UIScreen.capturedDidChangeNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(captureChanged(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(captureChanged(_:)), name: UIWindow.didBecomeKeyNotification, object: nil)
+    }
+
+    @objc static func captureChanged(_ notification: Notification) {
+        updateCaptureCover()
+    }
+
+    /// Puts the cover up when the screen is captured and the privacy screen is on, and
+    /// takes it down otherwise. Safe to call at any time and any number of times.
+    private static func updateCaptureCover() {
+        let window = activeWindow()
+        let captured = window?.windowScene?.screen.isCaptured ?? false
+        guard enabled, captured, let window = window else {
+            captureCover?.removeFromSuperview()
+            captureCover = nil
+            return
+        }
+        if let cover = captureCover {
+            // Flutter can add views after the cover went up: keep it in front.
+            cover.superview?.bringSubviewToFront(cover)
+            return
+        }
+
+        // Opaque, unlike the blur used for the app switcher: a recording is something
+        // an attacker can pause and enhance.
+        let cover = UIView(frame: window.bounds)
+        cover.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        cover.backgroundColor = .systemBackground
+
+        let label = UILabel()
+        label.text = captureCoverText()
+        label.textColor = .label
+        label.font = .preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        cover.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerYAnchor.constraint(equalTo: cover.centerYAnchor),
+            label.leadingAnchor.constraint(equalTo: cover.layoutMarginsGuide.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(equalTo: cover.layoutMarginsGuide.trailingAnchor, constant: -16),
+        ])
+
+        window.addSubview(cover)
+        captureCover = cover
+        // The cover hides the app from VoiceOver too, so say why.
+        UIAccessibility.post(notification: .screenChanged, argument: label)
+    }
+
+    /// The app's window. Looked up through the connected scenes: `keyWindow` is
+    /// deprecated and unreliable under the UIScene life cycle.
+    private static func activeWindow() -> UIWindow? {
+        let windows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+        return windows.first { $0.isKeyWindow } ?? windows.first
+    }
+
+    /// Shown on the cover. Native code cannot reach the app's translations, so the
+    /// few languages the app supports are spelled out here, picked by system language.
+    private static func captureCoverText() -> String {
+        let language = Locale.preferredLanguages.first?.prefix(2) ?? "en"
+        switch language {
+        case "nl":
+            return "Yivi is verborgen zolang je scherm wordt opgenomen of gedeeld."
+        case "de":
+            return "Yivi ist ausgeblendet, solange Ihr Bildschirm aufgezeichnet oder geteilt wird."
+        case "fr":
+            return "Yivi est masqué tant que votre écran est enregistré ou partagé."
+        default:
+            return "Yivi is hidden while your screen is being recorded or shared."
+        }
     }
 
     @objc static func appWillResignActive(_ notification:Notification) {
@@ -102,10 +184,12 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "enablePrivacyScreen":
             PrivacyScreenPlugin.enabled = true;
+            PrivacyScreenPlugin.updateCaptureCover()
             result(true)
             break
         case "disablePrivacyScreen":
             PrivacyScreenPlugin.enabled = false;
+            PrivacyScreenPlugin.updateCaptureCover()
             result(true)
             break
         // Hold back the blur for a flow that shows system UI on top of the app,

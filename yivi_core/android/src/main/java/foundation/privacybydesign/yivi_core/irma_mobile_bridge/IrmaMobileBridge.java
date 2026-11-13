@@ -92,8 +92,7 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
         final String initLocale = locale;
         activity.runOnUiThread(() -> init(initLocale));
         if (initialURL != null) {
-          channel.invokeMethod("HandleURLEvent",
-            String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
+          channel.invokeMethod("HandleURLEvent", handleUrlEventPayload(initialURL, true));
           initialURL = null;
           // Drop the launching intent's data so a later maybeCreateBridge() — e.g.,
           // after a configuration change — doesn't read the same URL and replay it.
@@ -130,10 +129,29 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     }
 
     if (appReady) {
-      channel.invokeMethod("HandleURLEvent", String.format("{\"url\": \"%s\"}", link));
+      channel.invokeMethod("HandleURLEvent", handleUrlEventPayload(link, false));
     } else {
       initialURL = link;
     }
+  }
+
+  /**
+   * The JSON payload of a HandleURLEvent. The URL comes from another app or a web page,
+   * so it is encoded as a JSON string instead of pasted into one: a URL with a quote in
+   * it must not be able to add fields to the event or break it.
+   */
+  static String handleUrlEventPayload(Uri url, boolean isInitialURL) {
+    JSONObject payload = new JSONObject();
+    try {
+      payload.put("url", url.toString());
+      if (isInitialURL) {
+        payload.put("isInitialURL", true);
+      }
+    } catch (JSONException e) {
+      // Only thrown for a null key or a non-finite number, neither of which is passed.
+      throw new IllegalStateException(e);
+    }
+    return payload.toString();
   }
 
   @Override

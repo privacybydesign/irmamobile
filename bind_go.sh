@@ -185,6 +185,15 @@ fi
 
 cd yivi_core
 
+# Go build flags for every gomobile bind below:
+#   -trimpath  records module paths instead of this machine's file system paths, so
+#              the binaries do not reveal the build machine's directory layout and
+#              do not depend on where the repository is checked out.
+#   -s -w      leave out the Go symbol table and DWARF debug information. Go stack
+#              traces keep working: they use the runtime's own function table.
+# PIE, RELRO and BIND_NOW come from the NDK and Xcode defaults.
+GO_BUILD_FLAGS=(-trimpath -ldflags "-s -w")
+
 # --- Helper: build one Android ABI into an AAR ---
 build_android_abi() {
   local target="$1"
@@ -200,6 +209,7 @@ build_android_abi() {
   gomobile bind -target "${target}" -androidapi 26 \
     -o "${outfile}" \
     -tags jwx_es256k \
+    "${GO_BUILD_FLAGS[@]}" \
     github.com/privacybydesign/irmamobile/irmagobridge
 }
 
@@ -214,6 +224,7 @@ if [ "$BUILD_IOS" = true ]; then
   echo "==> Building gomobile for ios..."
   gomobile bind -target ios -iosversion 15.6 -o ios/Irmagobridge.xcframework \
     -tags jwx_es256k \
+    "${GO_BUILD_FLAGS[@]}" \
     github.com/privacybydesign/irmamobile/irmagobridge &
   ALL_PIDS+=($!)
 fi

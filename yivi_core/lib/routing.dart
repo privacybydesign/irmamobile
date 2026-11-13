@@ -13,15 +13,21 @@ import "src/models/log_entry.dart";
 import "src/models/mrz.dart";
 import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
+import "src/providers/app_integrity_provider.dart";
+import "src/providers/device_security_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "src/screens/add_data/schemaless_add_data_screen.dart";
+import "src/screens/app_integrity/app_integrity.dart";
+import "src/screens/app_integrity/app_integrity_blocked_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/debug/debug_screen.dart";
+import "src/screens/device_lock/device_lock_required_screen.dart";
+import "src/screens/device_lock/device_security.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -59,7 +65,20 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final rootedDeviceDetector = ref.read(rootedDeviceDetectorProvider);
-  final redirectionTriggers = RedirectionListenable(repo, rootedDeviceDetector);
+  final deviceLockRequirement = DeviceLockRequirement(
+    ref.read(deviceSecurityProvider),
+  );
+  final appIntegrityGuard = AppIntegrityGuard(ref.read(appIntegrityProvider));
+  // Filled in once the first integrity report is in, which is before the
+  // warning it belongs to can be shown.
+  IntegrityReport integrityReport = IntegrityReport.clean;
+  appIntegrityGuard.firstReport.then((report) => integrityReport = report);
+  final redirectionTriggers = RedirectionListenable(
+    repo,
+    rootedDeviceDetector,
+    deviceLockRequirement,
+    appIntegrityGuard,
+  );
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
@@ -228,9 +247,30 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
+        path: "/device_lock_required",
+        builder: (context, state) {
+          return DeviceLockRequiredScreen(
+            onOpenSettingsPressed: deviceLockRequirement.openSecuritySettings,
+            onCheckAgainPressed: deviceLockRequirement.recheck,
+            onContinueAnywayPressed: deviceLockRequirement.skipForDebugging,
+          );
+        },
+      ),
+      GoRoute(
+        path: "/app_integrity_blocked",
+        builder: (context, state) => const AppIntegrityBlockedScreen(),
+      ),
+      GoRoute(
         path: "/rooted_warning",
         builder: (context, state) {
           return RootedWarningScreen(
+            // An emulator or a cloned app is not a modified operating system,
+            // so it gets its own explanation.
+            explanationTranslationKey:
+                integrityReport.untrustedEnvironment &&
+                    !integrityReport.modifiedDevice
+                ? "rooted_warning.explanation_environment"
+                : "rooted_warning.explanation",
             onAcceptRiskButtonPressed: () {
               DetectRootedDeviceIrmaPrefsRepository(
                 preferences: repo.preferences,
@@ -764,6 +804,15 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
     ],
     redirect: (context, state) {
+      if (redirectionTriggers.value.integrityBlocked) {
+        return "/app_integrity_blocked";
+      }
+      if (redirectionTriggers.value.deviceLockRequired) {
+        return "/device_lock_required";
+      }
+      if (state.matchedLocation == "/device_lock_required") {
+        return "/loading";
+      }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
         return "/rooted_warning";
       }
@@ -803,9 +852,19 @@ class RouteNotFoundScreen extends StatelessWidget {
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
   late final Stream<RedirectionTriggers> _streamSubscription;
 
-  RedirectionListenable(IrmaRepository repo, RootedDeviceDetector detector)
-    : super(RedirectionTriggers.withDefaults()) {
-    final warningStream = _displayDeviceIsRootedWarning(repo, detector);
+  RedirectionListenable(
+    IrmaRepository repo,
+    RootedDeviceDetector detector,
+    DeviceLockRequirement deviceLockRequirement,
+    AppIntegrityGuard appIntegrityGuard,
+  ) : super(RedirectionTriggers.withDefaults()) {
+    final integrityBlockedStream = appIntegrityGuard.blocked;
+    final deviceLockStream = deviceLockRequirement.lockRequired;
+    final warningStream = _displayDeviceIsRootedWarning(
+      repo,
+      detector,
+      appIntegrityGuard,
+    );
     final infoStream = repo
         .getVersionInformation()
         .map<VersionInformation?>((version) => version)
@@ -814,13 +873,24 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
     final enrollmentStream = repo.getEnrollmentStatus();
 
     // combine the streams into one
-    _streamSubscription = Rx.combineLatest4(
+    _streamSubscription = Rx.combineLatest6(
+      integrityBlockedStream,
+      deviceLockStream,
       warningStream,
       infoStream,
       nameChangedStream,
       enrollmentStream,
-      (deviceRootedWarning, versionInfo, nameChangedWarning, enrollment) {
+      (
+        integrityBlocked,
+        deviceLockRequired,
+        deviceRootedWarning,
+        versionInfo,
+        nameChangedWarning,
+        enrollment,
+      ) {
         return RedirectionTriggers(
+          integrityBlocked: integrityBlocked,
+          deviceLockRequired: deviceLockRequired,
           showDeviceRootedWarning: deviceRootedWarning,
           showNameChangedMessage: nameChangedWarning,
           versionInformation: versionInfo,
@@ -839,12 +909,16 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
 }
 
 class RedirectionTriggers {
+  final bool integrityBlocked;
+  final bool deviceLockRequired;
   final bool showDeviceRootedWarning;
   final bool showNameChangedMessage;
   final VersionInformation? versionInformation;
   final EnrollmentStatus enrollmentStatus;
 
   RedirectionTriggers({
+    this.integrityBlocked = false,
+    this.deviceLockRequired = false,
     required this.showDeviceRootedWarning,
     required this.showNameChangedMessage,
     required this.versionInformation,
@@ -853,17 +927,23 @@ class RedirectionTriggers {
 
   RedirectionTriggers.withDefaults()
     : enrollmentStatus = .undetermined,
+      integrityBlocked = false,
+      deviceLockRequired = false,
       showDeviceRootedWarning = false,
       showNameChangedMessage = false,
       versionInformation = null;
 
   RedirectionTriggers copyWith({
+    bool? integrityBlocked,
+    bool? deviceLockRequired,
     bool? showDeviceRootedWarning,
     bool? showNameChangedMessage,
     VersionInformation? versionInformation,
     EnrollmentStatus? enrollmentStatus,
   }) {
     return RedirectionTriggers(
+      integrityBlocked: integrityBlocked ?? this.integrityBlocked,
+      deviceLockRequired: deviceLockRequired ?? this.deviceLockRequired,
       showDeviceRootedWarning:
           showDeviceRootedWarning ?? this.showDeviceRootedWarning,
       showNameChangedMessage:
@@ -879,6 +959,8 @@ class RedirectionTriggers {
       return true;
     }
     return other is RedirectionTriggers &&
+        integrityBlocked == other.integrityBlocked &&
+        deviceLockRequired == other.deviceLockRequired &&
         showDeviceRootedWarning == other.showDeviceRootedWarning &&
         showNameChangedMessage == other.showNameChangedMessage &&
         versionInformation == other.versionInformation &&
@@ -887,11 +969,13 @@ class RedirectionTriggers {
 
   @override
   String toString() {
-    return "enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation";
+    return "integrity blocked: $integrityBlocked, enroll: $enrollmentStatus, device lock required: $deviceLockRequired, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation";
   }
 
   @override
   int get hashCode => Object.hash(
+    integrityBlocked,
+    deviceLockRequired,
     showNameChangedMessage,
     showDeviceRootedWarning,
     versionInformation,
@@ -902,14 +986,21 @@ class RedirectionTriggers {
 Stream<bool> _displayDeviceIsRootedWarning(
   IrmaRepository irmaRepo,
   RootedDeviceDetector detector,
+  AppIntegrityGuard appIntegrityGuard,
 ) {
   final repo = DetectRootedDeviceIrmaPrefsRepository(
     preferences: irmaRepo.preferences,
     detector: detector,
   );
   final streamController = StreamController<bool>();
-  repo.isDeviceRooted().then((isRooted) {
-    if (isRooted) {
+  // The same warning, accepted once, covers a rooted or jailbroken device and
+  // the other environments the app's protections cannot be relied on in: a
+  // hooking framework, an emulator, an app-cloning container.
+  Future.wait([
+    repo.isDeviceRooted(),
+    appIntegrityGuard.firstReport.then((r) => r.untrustedEnvironment),
+  ]).then((risks) {
+    if (risks.contains(true)) {
       repo
           .hasAcceptedRootedDeviceRisk()
           .map((acceptedRisk) => !acceptedRisk)

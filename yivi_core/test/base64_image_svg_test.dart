@@ -129,4 +129,25 @@ void main() {
 
     expect(tester.widget<Image>(find.byType(Image)).fit, BoxFit.fitWidth);
   });
+
+  testWidgets("does not draw an SVG larger than maxSvgBytes", (tester) async {
+    final padding = " " * maxSvgBytes;
+    await pump(
+      tester,
+      Base64Image(base64: _svgBase64(padding), mimeType: "image/svg+xml"),
+    );
+
+    expect(find.byType(SvgPicture), findsNothing);
+    expect(find.byType(Image), findsNothing);
+  });
+
+  testWidgets("draws an SVG of up to maxSvgBytes", (tester) async {
+    final padding = " " * (maxSvgBytes - _svg.length);
+    await pump(
+      tester,
+      Base64Image(base64: _svgBase64(padding), mimeType: "image/svg+xml"),
+    );
+
+    expect(find.byType(SvgPicture), findsOneWidget);
+  });
 }
