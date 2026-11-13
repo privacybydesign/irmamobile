@@ -249,6 +249,13 @@ class YiviPalette {
 
   bool get isDark => brightness == Brightness.dark;
 
+  /// Fill of a red button that cannot be pressed yet: a neutral step
+  /// above the page, with [secondaryText] on it (4.3:1 light, 4.4:1 dark).
+  /// Solid, so it still covers the button it replaces while sheet pages
+  /// change.
+  Color get disabledFill =>
+      isDark ? const Color(0xFF3A3A3C) : const Color(0xFFD9E7F2);
+
   /// Text and icons on a [link] fill (a filter chip, a count badge): white
   /// on the dark blue (8.4:1); on the light blue of dark mode, where white
   /// is only 2:1, a deep navy (8.1:1).

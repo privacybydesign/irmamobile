@@ -37,6 +37,10 @@ class FancyPillButton extends StatelessWidget {
     borderRadius: YiviCorners.cardRadius,
   );
 
+  /// How long the red takes to come in (and go) when the button becomes
+  /// pressable (or stops being so).
+  static const enableFade = Duration(milliseconds: 200);
+
   final String label;
   final VoidCallback? onPressed;
   final PillSize size;
@@ -55,14 +59,18 @@ class FancyPillButton extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final enabled = onPressed != null;
     final bar = size == PillSize.bar;
-    final text = Text(
-      label,
-      textAlign: TextAlign.center,
-      maxLines: bar ? 1 : null,
-      overflow: bar ? TextOverflow.ellipsis : null,
+    final text = AnimatedDefaultTextStyle(
+      duration: enableFade,
+      curve: Curves.easeOut,
       style: palette
           .display(bar ? 15 : 16, weight: FontWeight.w700)
-          .copyWith(color: Colors.white),
+          .copyWith(color: enabled ? Colors.white : palette.secondaryText),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        maxLines: bar ? 1 : null,
+        overflow: bar ? TextOverflow.ellipsis : null,
+      ),
     );
     return Semantics(
       button: true,
@@ -71,33 +79,33 @@ class FancyPillButton extends StatelessWidget {
       excludeSemantics: true,
       child: PressScale(
         enabled: enabled,
-        // Greyed out under a veil of the page's colour rather than see-
-        // through: an opaque button covers the one it replaces while sheet
-        // pages change, instead of showing its label through its own.
-        child: DecoratedBox(
-          position: DecorationPosition.foreground,
-          decoration: ShapeDecoration(
-            shape: shape,
-            color: enabled
-                ? null
-                : palette.background.withValues(alpha: bar ? 0.6 : 0.5),
-          ),
-          child: ClipPath(
-            clipper: const ShapeBorderClipper(shape: shape),
+        // Not pressable yet: a plain neutral fill, without the red and its
+        // facets, so it reads as waiting rather than as a faded red button.
+        // Solid rather than see-through: it covers the button it replaces
+        // while sheet pages change. The red fades in when it can be pressed.
+        child: ClipPath(
+          clipper: const ShapeBorderClipper(shape: shape),
+          child: ColoredBox(
+            color: palette.disabledFill,
             child: Stack(
               children: [
                 Positioned.fill(
                   child: ExcludeSemantics(
-                    child: SvgPicture.asset(
-                      yiviAsset("ui/btn-bg.svg"),
-                      fit: BoxFit.fill,
+                    child: AnimatedOpacity(
+                      opacity: enabled ? 1 : 0,
+                      duration: enableFade,
+                      curve: Curves.easeOut,
+                      child: SvgPicture.asset(
+                        yiviAsset("ui/btn-bg.svg"),
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   ),
                 ),
                 Positioned.fill(
                   child: IgnorePointer(
-                    // Dark: flat, no line across the top.
-                    child: palette.isDark
+                    // Dark: flat, no line across the top. Disabled: none.
+                    child: palette.isDark || !enabled
                         ? null
                         : DecoratedBox(
                             decoration: BoxDecoration(
@@ -153,7 +161,7 @@ class FancyPillButton extends StatelessWidget {
 
 /// The primary action as a round button: [FancyPillButton]'s faceted red
 /// (`ui/round-btn-bg.svg`) and light top edge, with a white [icon], and
-/// greyed out under the same veil when [onPressed] is null. The QR button,
+/// on the same neutral fill when [onPressed] is null. The QR button,
 /// the PIN's submit arrow, the manual entry of the document camera.
 class FancyRoundButton extends StatelessWidget {
   final IconData icon;
@@ -195,24 +203,30 @@ class FancyRoundButton extends StatelessWidget {
             shadows: shadows,
           ),
           position: DecorationPosition.background,
-          child: DecoratedBox(
-            position: DecorationPosition.foreground,
-            decoration: ShapeDecoration(
-              shape: const CircleBorder(),
-              color: enabled ? null : palette.background.withValues(alpha: 0.5),
-            ),
-            child: ClipOval(
+          child: ClipOval(
+            child: ColoredBox(
+              color: palette.disabledFill,
               child: SizedBox.square(
                 dimension: size,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    SvgPicture.asset(
-                      yiviAsset("ui/round-btn-bg.svg"),
-                      fit: BoxFit.cover,
-                    ),
-                    const IgnorePointer(
-                      child: CustomPaint(painter: _RoundEdgePainter()),
+                    AnimatedOpacity(
+                      opacity: enabled ? 1 : 0,
+                      duration: FancyPillButton.enableFade,
+                      curve: Curves.easeOut,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          SvgPicture.asset(
+                            yiviAsset("ui/round-btn-bg.svg"),
+                            fit: BoxFit.cover,
+                          ),
+                          const IgnorePointer(
+                            child: CustomPaint(painter: _RoundEdgePainter()),
+                          ),
+                        ],
+                      ),
                     ),
                     Material(
                       type: MaterialType.transparency,
@@ -220,10 +234,17 @@ class FancyRoundButton extends StatelessWidget {
                         highlightColor: Colors.transparent,
                         customBorder: const CircleBorder(),
                         onTap: onPressed,
-                        child: Icon(
-                          icon,
-                          color: Colors.white,
-                          size: iconSize ?? size * 0.5,
+                        child: TweenAnimationBuilder<Color?>(
+                          tween: ColorTween(
+                            end: enabled ? Colors.white : palette.secondaryText,
+                          ),
+                          duration: FancyPillButton.enableFade,
+                          curve: Curves.easeOut,
+                          builder: (context, color, _) => Icon(
+                            icon,
+                            color: color,
+                            size: iconSize ?? size * 0.5,
+                          ),
                         ),
                       ),
                     ),

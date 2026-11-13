@@ -1,5 +1,7 @@
+import "package:flutter/rendering.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/glass/round_icon_button.dart";
 
@@ -150,10 +152,14 @@ void main() {
         "Primary",
         for (final style in PillStyle.values) style.name,
       ]) {
-        final text = tester.widget<Text>(find.text(label));
-        expect(text.style?.fontFamily, contains("Alexandria"), reason: label);
-        expect(text.style?.fontSize, 16, reason: label);
-        expect(text.style?.fontWeight, FontWeight.w700, reason: label);
+        // As drawn: the primary's style comes from an animated default.
+        final style = tester
+            .renderObject<RenderParagraph>(find.text(label))
+            .text
+            .style;
+        expect(style?.fontFamily, contains("Alexandria"), reason: label);
+        expect(style?.fontSize, 16, reason: label);
+        expect(style?.fontWeight, FontWeight.w700, reason: label);
       }
     });
 
@@ -170,28 +176,61 @@ void main() {
       expect(opacity.opacity, 0.5);
     });
 
-    testWidgets("a disabled fancy pill is veiled, not see-through", (
+    testWidgets("a disabled fancy pill is a solid neutral fill, no red", (
       tester,
     ) async {
       await _pump(
         tester,
         const FancyPillButton(label: "Next", onPressed: null),
       );
-      // Opaque: no Opacity around it, a veil in the page's colour on it.
+      await tester.pumpAndSettle();
+      final palette = YiviPalette.of(tester.element(find.text("Next")));
+      // Opaque: no Opacity around it, the neutral fill under it.
       expect(
         find.ancestor(of: find.text("Next"), matching: find.byType(Opacity)),
         findsNothing,
       );
-      final veil = tester
-          .widgetList<DecoratedBox>(
-            find.ancestor(
-              of: find.text("Next"),
-              matching: find.byType(DecoratedBox),
-            ),
-          )
-          .where((d) => d.position == DecorationPosition.foreground)
-          .single;
-      expect((veil.decoration as ShapeDecoration).color?.a, closeTo(0.5, 0.01));
+      expect(
+        tester
+            .widgetList<ColoredBox>(
+              find.ancestor(
+                of: find.text("Next"),
+                matching: find.byType(ColoredBox),
+              ),
+            )
+            .map((b) => b.color),
+        contains(palette.disabledFill),
+      );
+      // The red art is faded out, the label grey.
+      final red = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+      expect(red.opacity, 0);
+      expect(
+        tester
+            .renderObject<RenderParagraph>(find.text("Next"))
+            .text
+            .style
+            ?.color,
+        palette.secondaryText,
+      );
+    });
+
+    testWidgets("a fancy pill turns red when it can be pressed", (
+      tester,
+    ) async {
+      await _pump(tester, FancyPillButton(label: "Next", onPressed: () {}));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
+        1,
+      );
+      expect(
+        tester
+            .renderObject<RenderParagraph>(find.text("Next"))
+            .text
+            .style
+            ?.color,
+        Colors.white,
+      );
     });
   });
 
