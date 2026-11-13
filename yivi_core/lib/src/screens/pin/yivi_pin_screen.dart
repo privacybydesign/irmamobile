@@ -137,6 +137,11 @@ class YiviPinScreen extends StatefulWidget {
   /// A clock before [detail], for a block that counts down.
   final bool detailClock;
 
+  /// The PIN entered is being checked: the pad stays as it is (dots full,
+  /// keypad dimmed) and the line under the title says so, with a small
+  /// spinner, in place of [detail].
+  final bool busy;
+
   /// The PIN just entered was wrong: the dots ring red until the next digit.
   final bool pinError;
 
@@ -159,6 +164,7 @@ class YiviPinScreen extends StatefulWidget {
     this.detail,
     this.detailKind = PinDetailKind.info,
     this.detailClock = false,
+    this.busy = false,
     this.pinError = false,
     required this.maxPinSize,
     required this.onSubmit,
@@ -598,6 +604,12 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   /// The line under the title: the host's [YiviPinScreen.detail], or, while a
   /// PIN is chosen, the warning that it is possibly not secure.
   (String, PinDetailKind)? _detailLine(BuildContext context) {
+    if (widget.busy) {
+      return (
+        FlutterI18n.translate(context, "pin.checking"),
+        PinDetailKind.info,
+      );
+    }
     if (widget.checkSecurePin &&
         _state.pin.length >= shortPinSize &&
         !_state.goodEnough) {
@@ -642,7 +654,21 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         child: Text.rich(
           TextSpan(
             children: [
-              if (icon != null)
+              if (widget.busy)
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: SizedBox.square(
+                      dimension: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: color,
+                      ),
+                    ),
+                  ),
+                )
+              else if (icon != null)
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
                   child: Padding(

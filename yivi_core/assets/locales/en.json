@@ -648,6 +648,7 @@
   },
   "pin": {
     "subtitle": "Enter your PIN",
+    "checking": "Checking your PIN…",
     "unlock": "Unlock",
     "button_forgot": "I forgot my PIN",
     "biometric_button": "Unlock with biometrics",

@@ -275,9 +275,10 @@ class _PinScreenState extends ConsumerState<PinScreen>
 /// The PIN pad of the app's unlock ([pinUnlockProvider]), on the lock
 /// screen and in the lock screen's scanner sheet: the waiting request (if
 /// any) over it, the tries left or the block under the title, and a short
-/// PIN sent as soon as it is complete. While [busy] only a spinner shows;
-/// the pad comes back with an empty buffer when [resetNonce] changes (after
-/// a wrong PIN).
+/// PIN sent as soon as it is complete. While [busy] the pad stays (keypad
+/// dimmed) and the line under the title says the PIN is being checked; the
+/// pad comes back with an empty buffer when [resetNonce] changes (after a
+/// wrong PIN).
 class UnlockPinEntry extends ConsumerWidget {
   final WaitingRequest? waiting;
   final bool busy;
@@ -323,45 +324,39 @@ class UnlockPinEntry extends ConsumerWidget {
 
     void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        if (!busy)
-          KeyedSubtree(
-            key: ValueKey(resetNonce),
-            child: YiviPinScreen(
-              instruction: waiting != null
-                  ? context.tr(waitingLineKey(waiting))
-                  : blocked
-                  ? context.tr("pin.blocked_title")
-                  : context.tr("pin.subtitle"),
-              header: waiting == null
-                  ? null
-                  : WaitingRequestAnnouncement(request: waiting),
-              showMark: showMark,
-              // Under the announcement (the heading) a quiet line, the
-              // block well clear of the keypad.
-              instructionStyle: waiting == null
-                  ? PinInstructionStyle.heading
-                  : PinInstructionStyle.line,
-              upperGap: waiting == null ? 40 : 48,
-              centreUpper: centreUpper,
-              detail: attempts.line,
-              detailKind: attempts.detailKind,
-              detailClock: blocked,
-              pinError: attempts.pinError,
-              maxPinSize: maxPinSize,
-              submitLabel: "pin.unlock",
-              onSubmit: enabled ? submit : (_) {},
-              enabled: enabled,
-              onForgotPin: onForgotPin,
-              onBiometricUnlock: onBiometricUnlock,
-              biometricGlyph: biometricGlyph,
-              listener: submitWhenFull(maxPinSize, submit, enabled: enabled),
-            ),
-          ),
-        if (busy) const CircularProgressIndicator(),
-      ],
+    return KeyedSubtree(
+      key: ValueKey(resetNonce),
+      child: YiviPinScreen(
+        instruction: waiting != null
+            ? context.tr(waitingLineKey(waiting))
+            : blocked
+            ? context.tr("pin.blocked_title")
+            : context.tr("pin.subtitle"),
+        header: waiting == null
+            ? null
+            : WaitingRequestAnnouncement(request: waiting),
+        showMark: showMark,
+        // Under the announcement (the heading) a quiet line, the
+        // block well clear of the keypad.
+        instructionStyle: waiting == null
+            ? PinInstructionStyle.heading
+            : PinInstructionStyle.line,
+        upperGap: waiting == null ? 40 : 48,
+        centreUpper: centreUpper,
+        detail: attempts.line,
+        detailKind: attempts.detailKind,
+        detailClock: blocked,
+        busy: busy,
+        pinError: attempts.pinError,
+        maxPinSize: maxPinSize,
+        submitLabel: "pin.unlock",
+        onSubmit: enabled ? submit : (_) {},
+        enabled: enabled,
+        onForgotPin: onForgotPin,
+        onBiometricUnlock: onBiometricUnlock,
+        biometricGlyph: biometricGlyph,
+        listener: submitWhenFull(maxPinSize, submit, enabled: enabled),
+      ),
     );
   }
 }

@@ -651,6 +651,7 @@
   },
   "pin": {
     "subtitle": "Voer je pincode in",
+    "checking": "Pincode controleren…",
     "unlock": "Ontgrendelen",
     "button_forgot": "Pincode vergeten",
     "biometric_button": "Ontgrendelen met biometrie",

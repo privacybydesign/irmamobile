@@ -134,38 +134,28 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
       wrong: _wrong,
       left: widget.remainingAttempts,
     );
-    final pad = Stack(
-      alignment: Alignment.center,
-      children: [
-        // Hide the keypad/dots while the PIN is being verified — only the
-        // spinner shows. Comes back (with a fresh buffer) if the PIN was
-        // wrong.
-        if (!widget.submitting)
-          YiviPinScreen(
-            key: ValueKey(_resetNonce),
-            instruction: FlutterI18n.translate(
-              context,
-              blocked ? "pin.blocked_title" : "session_pin.subtitle",
-            ),
-            // A lock, not the logo: this PIN confirms a request.
-            lockIcon: true,
-            detail: attempts.line ?? widget.detail,
-            detailKind: attempts.detailKind,
-            detailClock: blocked,
-            pinError: attempts.pinError,
-            maxPinSize: widget.maxPinSize,
-            enabled: !widget.submitting && !blocked,
-            submitLabel: "session_pin.submit",
-            onSubmit: _submit,
-            onForgotPin: context.pushResetPinScreen,
-            listener: submitWhenFull(widget.maxPinSize, _submit),
-          ),
-        if (widget.submitting)
-          Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: const CircularProgressIndicator(),
-          ),
-      ],
+    // While the PIN is checked the pad stays (dots full, keypad dimmed) and
+    // the line under the title says so; after a wrong PIN it comes back with
+    // a fresh buffer.
+    final pad = YiviPinScreen(
+      key: ValueKey(_resetNonce),
+      instruction: FlutterI18n.translate(
+        context,
+        blocked ? "pin.blocked_title" : "session_pin.subtitle",
+      ),
+      // A lock, not the logo: this PIN confirms a request.
+      lockIcon: true,
+      detail: attempts.line ?? widget.detail,
+      detailKind: attempts.detailKind,
+      detailClock: blocked,
+      busy: widget.submitting,
+      pinError: attempts.pinError,
+      maxPinSize: widget.maxPinSize,
+      enabled: !widget.submitting && !blocked,
+      submitLabel: "session_pin.submit",
+      onSubmit: _submit,
+      onForgotPin: context.pushResetPinScreen,
+      listener: submitWhenFull(widget.maxPinSize, _submit),
     );
     if (widget.inSheet) return pad;
 

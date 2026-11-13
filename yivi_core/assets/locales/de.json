@@ -651,6 +651,7 @@
   },
   "pin": {
     "subtitle": "Geben Sie Ihre PIN ein",
+    "checking": "PIN wird geprüft…",
     "unlock": "Entsperren",
     "button_forgot": "PIN vergessen",
     "biometric_button": "Mit Biometrie entsperren",
