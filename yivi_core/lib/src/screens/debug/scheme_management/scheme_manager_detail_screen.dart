@@ -1,4 +1,3 @@
-import "package:collection/collection.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
@@ -212,17 +211,6 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         final schemeIsActive = enrollmentStatus.enrolledSchemeManagerIds
             .contains(schemeManager.id);
 
-        final appId = repo.credentials.values
-            .firstWhereOrNull(
-              (cred) =>
-                  cred.isKeyshareCredential &&
-                  cred.schemeManager.id == schemeManager.id,
-            )
-            ?.attributes
-            .firstOrNull
-            ?.value
-            .raw;
-
         Widget? bottomBar;
         if (schemeManager.keyshareServer.isNotEmpty) {
           if (schemeIsActive) {
@@ -295,11 +283,6 @@ class SchemeManagerDetailScreen extends StatelessWidget {
                           ? schemeManager.timestampServer
                           : "(none)",
                     ),
-                  ),
-
-                  ListTile(
-                    title: const Text("App ID"),
-                    subtitle: Text(appId ?? "(none)"),
                   ),
                 ],
               ),

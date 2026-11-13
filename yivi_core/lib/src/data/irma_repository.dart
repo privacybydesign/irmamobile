@@ -17,7 +17,6 @@ import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credential_events.dart";
-import "../models/credentials.dart";
 import "../models/delete_keyshare_tokens_event.dart";
 import "../models/email_code_pointer.dart";
 import "../models/enrollment_events.dart";
@@ -107,7 +106,6 @@ class IrmaRepository {
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
-  final _credentialsSubject = BehaviorSubject<Credentials>();
   final _schemalessCredentialsSubject =
       BehaviorSubject<schemaless.SchemalessCredentials>();
   final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
@@ -156,7 +154,6 @@ class IrmaRepository {
       _eventSubject.close(),
       _irmaConfigurationSubject.close(),
       _eudiConfigurationSubject.close(),
-      _credentialsSubject.close(),
       _schemalessCredentialsSubject.close(),
       _credentialStoreSubject.close(),
       _enrollmentStatusEventSubject.close(),
@@ -266,7 +263,6 @@ class IrmaRepository {
     } else if (event is NewSessionEvent) {
       _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {
-      _credentialsSubject.add(Credentials({}));
       _lockedSubject.add(false);
       _blockedSubject.add(null);
       preferences.clearAll();
@@ -379,14 +375,6 @@ class IrmaRepository {
   }
 
   // -- Credential instances
-  Credentials get credentials => _credentialsSubject.hasValue
-      ? _credentialsSubject.value
-      : Credentials({});
-
-  Stream<Credentials> getCredentials() {
-    return _credentialsSubject.stream;
-  }
-
   Stream<schemaless.SchemalessCredentials> getSchemalessCredentials() {
     return _schemalessCredentialsSubject.stream;
   }
