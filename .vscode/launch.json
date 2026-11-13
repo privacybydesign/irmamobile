@@ -32,24 +32,8 @@
 			]
 		},
 		{
-			"name": "Android prototypes",
-			"program": "yivi_app/lib/main_prototypes.dart",
-			"request": "launch",
-			"type": "dart",
-			"args": [
-				"--flavor",
-				"alpha"
-			]
-		},
-		{
 			"name": "IOS app",
 			"program": "yivi_app/lib/main.dart",
-			"request": "launch",
-			"type": "dart"
-		},
-		{
-			"name": "IOS prototypes",
-			"program": "yivi_app/lib/main_prototypes.dart",
 			"request": "launch",
 			"type": "dart"
 		}

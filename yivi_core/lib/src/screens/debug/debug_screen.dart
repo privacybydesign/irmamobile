@@ -1,11 +1,9 @@
-import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
 import "../../models/session.dart";
-import "../../prototypes/prototypes_screen.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_palette.dart";
@@ -180,19 +178,6 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
                     ),
                   ),
                 ),
-                // The screen gallery of main_prototypes.dart, in development
-                // builds only.
-                if (!kReleaseMode)
-                  _buildListTile(
-                    Icons.view_carousel_outlined,
-                    "Preview screens",
-                    key: const Key("debug_preview_screens"),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PrototypesScreen(),
-                      ),
-                    ),
-                  ),
               ],
             ),
             const SizedBox(height: 24),
