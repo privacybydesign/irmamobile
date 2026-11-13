@@ -722,14 +722,19 @@ class _ContactOrganisation extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: theme.mediumSpacing),
-        _YiviFallback(screen),
+        // Once there is a way to reach the organisation, that is the one
+        // way forward. Without one, the user is not left stuck.
+        if (website == null && email == null) ...[
+          SizedBox(height: theme.mediumSpacing),
+          _YiviFallback(screen),
+        ],
       ],
     );
   }
 }
 
-/// Always under an organisation: for when it is the app after all.
+/// For when it is the app after all, while no organisation to contact has
+/// been found.
 class _YiviFallback extends StatelessWidget {
   final NeedHelpContactScreen screen;
 

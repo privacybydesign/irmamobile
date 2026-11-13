@@ -113,6 +113,7 @@ final _contextOption = find.byKey(const Key("need_help_context_option"));
 final _notSolved = find.byKey(const Key("need_help_not_solved_button"));
 final _mailYivi = find.byKey(const Key("need_help_mail_yivi_button"));
 final _openWebsite = find.byKey(const Key("need_help_open_website_button"));
+final _yiviFallback = find.byKey(const Key("need_help_yivi_fallback_link"));
 
 void main() {
   testWidgets("lists the problems, with what the app knows first", (
@@ -194,11 +195,28 @@ void main() {
       findsOneWidget,
     );
     expect(_mailYivi, findsNothing);
-    // For when it is the app after all.
+    // The organisation is the one way forward.
+    expect(_yiviFallback, findsNothing);
+  });
+
+  testWidgets("an organisation without contact details still leaves Yivi", (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      NeedHelpContactScreen(
+        problem: HelpProblems.outcome,
+        organisation: SupportParty(party: _cisParty),
+      ),
+    );
+    expect(_openWebsite, findsNothing);
     expect(
-      find.byKey(const Key("need_help_yivi_fallback_link")),
+      find.text(
+        t("need_help.organisation.no_contact", {"org": "Stichting CIS"}),
+      ),
       findsOneWidget,
     );
+    expect(_yiviFallback, findsOneWidget);
   });
 
   testWidgets("an organisation with only an email gets a mail button", (
