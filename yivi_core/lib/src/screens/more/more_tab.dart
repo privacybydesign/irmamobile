@@ -11,6 +11,7 @@ import "../../widgets/lock_gate.dart";
 import "../../widgets/section_header.dart";
 import "../../widgets/yivi_themed_button.dart";
 import "../home/widgets/irma_nav_bar.dart";
+import "../need_help/need_help_screen.dart";
 import "widgets/tiles.dart";
 import "widgets/tiles_card.dart";
 import "widgets/version_button.dart";
@@ -84,9 +85,10 @@ class _MoreTabState extends State<MoreTab> {
                   onTap: context.goSettingsScreen,
                 ),
                 InternalLinkTile(
-                  labelTranslationKey: "more_tab.faq",
-                  iconData: Icons.help_outline_rounded,
-                  onTap: context.goHelpScreen,
+                  key: const Key("open_need_help_button"),
+                  labelTranslationKey: "more_tab.need_help",
+                  iconData: Icons.support_outlined,
+                  onTap: () => openNeedHelp(context),
                 ),
                 if (showDebugging)
                   InternalLinkTile(
@@ -104,10 +106,6 @@ class _MoreTabState extends State<MoreTab> {
                   labelTranslationKey: "more_tab.website",
                   iconData: Icons.info_outline_rounded,
                   urlLinkKey: "more_tab.irma_website_link",
-                ),
-                ContactLinkTile(
-                  labelTranslationKey: "more_tab.contact",
-                  iconData: Icons.mail_outline_rounded,
                 ),
               ],
             ),

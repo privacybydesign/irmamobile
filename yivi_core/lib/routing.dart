@@ -33,7 +33,6 @@ import "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 import "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
-import "src/screens/help/help_screen.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/issue_wizard/issue_wizard.dart";
 import "src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart";
@@ -134,7 +133,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          GoRoute(path: "help", builder: (context, state) => HelpScreen()),
           GoRoute(
             path: "add_data",
             builder: (context, state) => SchemalessAddDataScreen(),
