@@ -178,8 +178,14 @@ void main() {
             contactAddress: "https://nuts.nl",
             contactEmail: "",
           ),
-          // Yivi's own: support is Yivi's.
-          _issuer("pbdf", "sidn-pbdf", email: "support@yivi.app"),
+          // Yivi's own: listed, and leads to Yivi support.
+          Issuer(
+            id: "sidn-pbdf",
+            name: TranslatedValue({"nl": "Yivi", "en": "Yivi"}),
+            schemeManagerId: "pbdf",
+            contactAddress: "https://yivi.app",
+            contactEmail: "support@yivi.app",
+          ),
         ],
         requestors: {
           // One requestor, two hostnames.
@@ -210,7 +216,8 @@ void main() {
       "nl",
     );
 
-    expect(orgs.map((o) => o.name), ["Nuts", "Stichting CIS", "VGZ"]);
+    expect(orgs.map((o) => o.name), ["Nuts", "Stichting CIS", "VGZ", "Yivi"]);
+    expect(orgs.last.isYivi, isTrue);
     expect(
       orgs.firstWhere((o) => o.name == "Stichting CIS").website,
       Uri.parse("https://stichtingcis.nl/"),

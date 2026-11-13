@@ -72,7 +72,8 @@ class SupportParty {
   /// Every organisation in the scheme the user can be put through to, by
   /// name: verified requestors first, because those are who users meet in
   /// sessions, then issuers not already covered by a requestor. Demo
-  /// schemes and Yivi's own parties are left out.
+  /// schemes are left out. Yivi's own parties are in; they lead to Yivi
+  /// support.
   static List<SupportParty> directory(IrmaConfiguration config, String lang) {
     final demo = {
       for (final s in config.schemeManagers.values)
@@ -86,7 +87,7 @@ class SupportParty {
     final coveredIssuers = <String>{};
     void add(TrustedParty party) {
       final org = resolve(party, config);
-      if (org == null || org.isYivi) return;
+      if (org == null) return;
       byName.putIfAbsent(org.name.trim().toLowerCase(), () => org);
     }
 

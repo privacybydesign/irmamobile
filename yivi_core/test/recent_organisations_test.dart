@@ -162,15 +162,27 @@ void main() {
       expect(recent.single.unfinished, isFalse);
     });
 
-    test("leaves out Yivi's own parties and caps the list", () {
+    test("keeps Yivi's own parties, which lead to Yivi support", () {
+      // A QR code on email-issuer.yivi.app starts a session with Yivi.
       final recent = recentOrganisations(
         sessions: [
           RecentSessionParty(
-            party: _party("pbdf-requestors.pbdf", "Yivi"),
+            party: _party("pbdf-requestors.sidn-pbdf", "Yivi"),
             time: now,
             completed: false,
           ),
         ],
+        activity: const [],
+      );
+
+      expect(recent.single.organisation.name, "Yivi");
+      expect(recent.single.organisation.isYivi, isTrue);
+      expect(recent.single.unfinished, isTrue);
+    });
+
+    test("caps the list", () {
+      final recent = recentOrganisations(
+        sessions: const [],
         activity: [
           for (var i = 0; i < 8; i++)
             _disclosure(_party("org-$i"), now.subtract(Duration(days: i))),
@@ -179,7 +191,6 @@ void main() {
       );
 
       expect(recent, hasLength(5));
-      expect(recent.any((r) => r.organisation.isYivi), isFalse);
     });
   });
 }

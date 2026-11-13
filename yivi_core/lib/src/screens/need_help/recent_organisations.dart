@@ -16,7 +16,8 @@ class RecentOrganisation {
 
 /// The organisations the user most likely needs help with: those of recent
 /// sessions, finished or not, and of the activity log, most recent first.
-/// Yivi's own parties are left out; they go to Yivi support anyway.
+/// Yivi's own parties stay in, because the user recognises them: picking one
+/// leads to Yivi support.
 List<RecentOrganisation> recentOrganisations({
   required List<RecentSessionParty> sessions,
   required List<LogInfo> activity,
@@ -35,7 +36,7 @@ List<RecentOrganisation> recentOrganisations({
   for (final (party, _, unfinished) in candidates) {
     if (!seen.add(party.id)) continue;
     final org = SupportParty.resolve(party, config);
-    if (org == null || org.isYivi) continue;
+    if (org == null) continue;
     result.add(RecentOrganisation(org, unfinished: unfinished));
     if (result.length == max) break;
   }
