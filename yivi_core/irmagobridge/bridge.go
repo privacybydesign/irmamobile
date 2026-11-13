@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -118,8 +119,10 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		clientErr = errors.WrapPrefix(err, "Embedded certificates could not be loaded", 0)
 		return
 	}
-	irma.SetTLSClientConfig(&tls.Config{
+	tlsConfig := &tls.Config{
 		RootCAs: rootCAs,
+		// Go's default for clients, spelled out: nothing older than TLS 1.2 is spoken.
+		MinVersion: tls.VersionTLS12,
 		CipherSuites: []uint16{
 			// TLS 1.3 cipher suites are always accepted, so we only specify the secure cipher suites for <= TLS 1.2.
 			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
@@ -129,7 +132,9 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 		},
-	})
+	}
+	irma.SetTLSClientConfig(tlsConfig)
+	useTLSConfigForDefaultTransport(tlsConfig)
 
 	// Check for user data directory, and create version-specific directory
 	exists, err := pathExists(appDataPath)
@@ -181,6 +186,18 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	// the interval, and wakes the app itself through ClientHandler.
 	// CredentialsChanged whenever a status actually moved.
 	yiviClient.InitJobs(eudiCrlUpdateInterval, statusTokenListRefreshInterval)
+}
+
+// useTLSConfigForDefaultTransport gives Go's default HTTP transport the same TLS
+// configuration as the IRMA transport. irma.SetTLSClientConfig only reaches the
+// IRMA and keyshare traffic; the EUDI clients in irmago (OpenID4VCI, OpenID4VP,
+// status lists, did:web) use http clients without a transport of their own, which
+// fall back to http.DefaultTransport. Without this they would accept the weaker
+// TLS 1.2 cipher suites and miss the embedded root certificates.
+func useTLSConfigForDefaultTransport(config *tls.Config) {
+	if transport, ok := http.DefaultTransport.(*http.Transport); ok {
+		transport.TLSClientConfig = config.Clone()
+	}
 }
 
 func dispatchEvent(event any) {

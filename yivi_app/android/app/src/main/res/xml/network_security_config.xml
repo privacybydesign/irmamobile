@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app only talks over TLS, and only trusts the certificate authorities that ship
+     with Android: not the ones a user or a device administrator installed. Both are the
+     defaults for the Android versions the app supports; they are written down so they
+     do not depend on those defaults and so Flutter applies the cleartext rule to the
+     Dart network stack too. The Go bridge has its own TLS configuration, see
+     yivi_core/irmagobridge/bridge.go. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

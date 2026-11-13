@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
 - A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
 - Support for French language ([#806](https://github.com/privacybydesign/irmamobile/issues/806))
+- A link to the privacy policy on the terms screen of the enrollment, so it can be read before any data is processed
+- The moment the terms were accepted is stored next to the version that was accepted
 
 ### Changed
 - The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
@@ -23,10 +25,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On Android, other apps can no longer draw over Yivi to capture or redirect taps, for example on the PIN keypad or a consent screen (tapjacking). From Android 12 on, their overlay windows are hidden while Yivi is in the foreground; on every version, a tap that arrives while another window covers Yivi is ignored
 - An Android release build of the Yivi app no longer falls back to the debug key when no release key is given: the build fails instead. For local testing, debug signing can still be requested explicitly with `ORG_GRADLE_PROJECT_allowDebugSigning=true` (or `-PallowDebugSigning`). The F-Droid build is unchanged, because its build recipe builds without the release key
 - On Android 12 and later, the app's data is no longer copied when the user moves to a new phone with Android's device-to-device transfer. `allowBackup="false"` only turned off cloud backup there; explicit data extraction rules now exclude all app data from both
-### Security
 - On iOS, third-party keyboards are no longer used in the app; the system keyboard is shown instead, so no keyboard extension sees what is typed. The fields for a document's number, dates and driving licence MRZ, from which the chip's access keys are derived, also turn off suggestions, autocorrect and keyboard learning (Gboard's incognito mode on Android), and the driving licence MRZ field no longer offers credit card autofill
-### Security
 - The NFC error details no longer copy sensitive data to the clipboard. With "show sensitive data" ticked, the dialog shows the chip data and the MRZ-derived inputs for the chip's access keys, but the copy button is off, as sending to Yivi already was; without it, the button copies the logs without personal data, as before
+- Yivi looks at the environment it runs in, in release builds, when it starts, whenever it is reopened and every 30 seconds while it is open. These are checks on the device itself, which someone in control of the device can get around; they do not replace attestation of the app and the device by a backend
+  - With a debugger attached, or a dynamic instrumentation tool such as Frida loaded into the app, Yivi shows a screen that says so and stays closed until it is restarted
+  - On an emulator, inside an app-cloning container, or on a device with a hooking framework (Xposed, LSPosed, a tweak injector), the user gets the warning that a rooted or jailbroken device already gave, with its own explanation, and continues after accepting the risk
+- On iOS, Yivi covers itself while the screen is recorded, mirrored or shared over AirPlay. iOS cannot keep an app out of a recording the way Android does, so the app hides its content for as long as the capture lasts. A new setting, "Allow screen recording", switches this off, like "Enable screenshots" does on Android
+- On Android, the window is kept out of screenshots, recordings and the recents view from the moment it is created, instead of only after the app has started and read the user's preference
+- On Android 14 and later, the content of the app is only given to accessibility services that are an accessibility tool, such as TalkBack, Voice Access and Switch Access. This already followed from the tapjacking protection; it is now set explicitly
+- Yivi locks after five minutes without a touch while it is open, in addition to the existing lock after five minutes in the background
+- Error reporting (Sentry) is only started once the user opts in. Before, it was started without the opt-in with crash handling off, and then reported uncaught framework errors by itself. A report the user sends from an error screen still goes out without the opt-in, and only that report. No default personal data is attached to reports
+- The e-mail address and the phone number are no longer written to the device log when they are sent to the e-mail and SMS issuer, and the remaining log lines of the MRZ scanner and the iOS bridge are only written in debug builds
+- A return URL that a requestor gives a session is not opened when its scheme is `javascript`, `vbscript`, `data`, `blob`, `about`, `file`, `content`, `intent` or `android-app`. Web links, phone numbers and other apps' own schemes still work
+- The in-app browser only opens `https` pages, on Android enforced in the native code too. A cleartext `http` return URL with `inapp` opens in the user's own browser instead
+- A deep link is passed to the app as properly encoded JSON. It used to be pasted into a JSON string, so a link with a quote in it could add fields to the event or break it
+- The Android apps state their network security configuration: no cleartext traffic, and only the certificate authorities that ship with Android. Flutter applies the cleartext rule to the Dart network stack too
+- The TLS configuration of the Go bridge (the embedded root certificates and only AEAD cipher suites for TLS 1.2) also applies to the OpenID4VCI, OpenID4VP, status list and did:web traffic. Before, it only reached the IRMA and keyshare traffic
+- In the F-Droid app, the face capture WebView only navigates to `https` pages on the host of the capture page, and cannot read files or content providers
+- The storage key on Android is generated with the default `SecureRandom` instead of `getInstanceStrong()`, which is the same generator there but can block on some devices
 
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
@@ -38,6 +54,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The privacybydesign/pc-dart fork (pointycastle) is pinned to a commit instead of following `master`, in `yivi_core`, `yivi_app` and `yivi_fdroid`. The pin is the commit before the current `master`, which only added debug prints to `CMac.init`, so those prints are no longer in the app
 - The Go bridge is built with `-trimpath` and without the Go symbol table and DWARF debug information (`-ldflags "-s -w"`). The Android library no longer contains the build machine's file paths (1,940 before, 2 after, from gomobile's own build info) and is 25% smaller (arm64: 45 MB to 34 MB uncompressed). Go stack traces are unaffected
 - Enabled Private Vulnerability Reporting on repository and included SECURITY.md
+- Release builds made with fastlane obfuscate the Dart code (`--obfuscate --split-debug-info`). The symbols needed to read a stack trace of such a build are kept as `dart-symbols-*.zip`, uploaded by Delivery as artifacts of their own, apart from the app artifacts. A stack trace is made readable with `flutter symbolize`; Sentry shows addresses until the symbols are uploaded there
+- The names of the events that cross the bridge between Dart and Go are written out instead of taken from the Dart class names, which obfuscation changes. A test compares them with the events the Go bridge handles
+- The Android release build states `minifyEnabled` and `shrinkResources` (R8), which were the Flutter defaults
+- `ci_scripts/check_security_config.sh`, run in Status checks, fails when a security setting is undone: backup and cleartext rules in the manifests, certificate validation overrides, run-time code loading, a debuggable manifest, the obfuscation and Go build flags
+- Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 
 ## [8.4.0] - 2026-11-03
 ### Added
@@ -63,7 +84,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add integration tests for issuing and disclosing `vc+sd-jwt` and Open Badges credentials against the Veramo test issuer and verifier on staging (`integration_test/vcdm_test.dart`)
 - The debug log leaves out the images of attribute values (`base64_image`), as it already did for logos
 - Upgrade irmago to v1.5.0
-- Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 
 ## [8.3.3] - 2026-10-16
 ### Added

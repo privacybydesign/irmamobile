@@ -337,7 +337,8 @@
       "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
       "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
       "point_3": "Niemand kijkt mee, ook Yivi niet!",
-      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})"
+      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})",
+      "privacy_policy_markdown": "Lees in onze [privacyverklaring]({privacy_url}) hoe Yivi met je gegevens omgaat."
     },
     "error_reporting": {
       "accept": {
@@ -688,9 +689,14 @@
     "check_again": "Controleer opnieuw",
     "continue_anyway_debug": "Toch doorgaan (debugbuild)"
   },
+  "app_integrity_blocked": {
+    "title": "Yivi kan nu niet worden gebruikt",
+    "explanation": "Yivi heeft een hulpmiddel opgemerkt dat de app kan bekijken of aanpassen terwijl die draait, zoals een debugger. Om je gegevens te beschermen blijft Yivi gesloten zolang dat hulpmiddel actief is.\n\nSluit het hulpmiddel of start je telefoon opnieuw op, en open Yivi daarna opnieuw."
+  },
   "rooted_warning": {
     "title": "Apparaat niet veilig",
     "explanation": "Het besturingssysteem van je mobiel lijkt gewijzigd te zijn (root/jailbreak). Hierdoor kan de veiligheid van je gegevens niet worden gegarandeerd.",
+    "explanation_environment": "Yivi lijkt te draaien in een emulator, in een kopie van de app die door een andere app is gemaakt, of op een toestel met een hulpmiddel dat andere apps kan aanpassen. Hierdoor kan de veiligheid van je gegevens niet worden gegarandeerd.",
     "accept_risk": "Ik accepteer het risico"
   },
   "secure_pin": {
@@ -731,7 +737,9 @@
     "report_errors": "Foutmeldingen en app status delen",
     "report_errors_explanation": "Door deze informatie te delen help je ons de gebruikservaring te verbeteren.",
     "enable_screenshots": "Screenshots toestaan",
-    "enable_screenshots_explanation": "Als dit is ingeschakeld, wordt de app niet vervaagd in de app-switcher.",
+    "enable_screenshots_explanation": "Als dit is ingeschakeld, kunnen er screenshots en schermopnames van Yivi worden gemaakt, en is de app zichtbaar in de app-switcher.",
+    "enable_screen_recording": "Schermopname toestaan",
+    "enable_screen_recording_explanation": "Als dit is ingeschakeld, wordt Yivi niet verborgen terwijl je scherm wordt opgenomen of gedeeld, en niet vervaagd in de app-switcher.",
     "developer_mode": "Developer modus",
     "other": "Overig",
     "language": "Taal",

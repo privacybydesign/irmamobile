@@ -1,3 +1,4 @@
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
@@ -60,6 +61,21 @@ class AcceptTermsScreen extends StatelessWidget {
                         TermsCheckBox(
                           isAccepted: isAccepted,
                           onToggleAccepted: onToggleAccepted,
+                        ),
+
+                        // Before any data is processed: where to read what
+                        // happens with it.
+                        SizedBox(height: theme.smallSpacing),
+                        TranslatedText(
+                          "enrollment.terms_and_conditions.privacy_policy_markdown",
+                          key: const Key("enrollment_privacy_policy_link"),
+                          translationParams: {
+                            "privacy_url": FlutterI18n.translate(
+                              context,
+                              "more_tab.privacy_policy_link",
+                            ),
+                          },
+                          style: theme.textTheme.bodySmall,
                         ),
 
                         // If not in landscape mode, add some spacing

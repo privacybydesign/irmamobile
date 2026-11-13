@@ -188,21 +188,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
               buildExplanationText("settings.report_errors_explanation"),
-              if (Platform.isAndroid) ...[
-                spacerWidget,
-                TilesCard(
-                  children: [
-                    ToggleTile(
-                      key: const Key("screenshot_toggle"),
-                      labelTranslationKey: "settings.enable_screenshots",
-                      onChanged: repo.preferences.setScreenshotsEnabled,
-                      stream: repo.preferences.getScreenshotsEnabled(),
-                    ),
-                  ],
-                ),
-                buildExplanationText("settings.enable_screenshots_explanation"),
-                spacerWidget,
-              ],
+              // Android keeps the app out of screenshots and recordings; iOS can
+              // only cover the app while the screen is recorded or shared. The
+              // same preference switches both off, under a label that says what
+              // it does on the platform at hand.
+              spacerWidget,
+              TilesCard(
+                children: [
+                  ToggleTile(
+                    key: const Key("screenshot_toggle"),
+                    labelTranslationKey: Platform.isIOS
+                        ? "settings.enable_screen_recording"
+                        : "settings.enable_screenshots",
+                    onChanged: repo.preferences.setScreenshotsEnabled,
+                    stream: repo.preferences.getScreenshotsEnabled(),
+                  ),
+                ],
+              ),
+              buildExplanationText(
+                Platform.isIOS
+                    ? "settings.enable_screen_recording_explanation"
+                    : "settings.enable_screenshots_explanation",
+              ),
+              spacerWidget,
               if (showDeveloperModeToggle)
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),

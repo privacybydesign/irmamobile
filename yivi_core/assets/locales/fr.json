@@ -337,7 +337,8 @@
       "point_1": "Vous décidez des données que vous conservez et de celles que vous partagez.",
       "point_2": "Vos données restent uniquement sur votre téléphone, en sécurité. Nulle part ailleurs.",
       "point_3": "Personne ne peut voir vos données ni vos transactions, pas même Yivi !",
-      "accept_markdown": "Oui, j'accepte les [conditions générales]({terms_url})"
+      "accept_markdown": "Oui, j'accepte les [conditions générales]({terms_url})",
+      "privacy_policy_markdown": "Lisez dans notre [politique de confidentialité]({privacy_url}) comment Yivi traite vos données."
     },
     "error_reporting": {
       "accept": {
@@ -688,9 +689,14 @@
     "check_again": "Vérifier à nouveau",
     "continue_anyway_debug": "Continuer quand même (version de débogage)"
   },
+  "app_integrity_blocked": {
+    "title": "Yivi ne peut pas être utilisé pour le moment",
+    "explanation": "Yivi a détecté un outil capable d'inspecter ou de modifier l'appli pendant son exécution, par exemple un débogueur. Pour protéger vos données, Yivi reste fermé tant que cet outil est actif.\n\nFermez l'outil ou redémarrez votre téléphone, puis ouvrez de nouveau Yivi."
+  },
   "rooted_warning": {
     "title": "Appareil non sécurisé",
     "explanation": "Le système d'exploitation de votre appareil semble modifié (root/jailbreak). La sécurité de vos données ne peut donc pas être garantie.",
+    "explanation_environment": "Yivi semble fonctionner dans un émulateur, dans une copie de l'appli créée par une autre appli, ou sur un appareil doté d'un outil capable de modifier d'autres applis. La sécurité de vos données ne peut donc pas être garantie.",
     "accept_risk": "J'accepte le risque"
   },
   "secure_pin": {
@@ -731,7 +737,9 @@
     "report_errors": "Signalement des erreurs et de l'état de l'appli",
     "report_errors_explanation": "En activant le signalement des erreurs et de l'état de l'appli, vous nous aidez à améliorer l'expérience utilisateur.",
     "enable_screenshots": "Autoriser les captures d'écran",
-    "enable_screenshots_explanation": "Lorsque cette option est activée, l'appli ne sera pas floutée dans le sélecteur d'applications.",
+    "enable_screenshots_explanation": "Lorsque cette option est activée, des captures et des enregistrements d'écran de Yivi peuvent être réalisés, et l'appli est visible dans le sélecteur d'applications.",
+    "enable_screen_recording": "Autoriser l'enregistrement de l'écran",
+    "enable_screen_recording_explanation": "Lorsque cette option est activée, Yivi n'est pas masqué pendant que votre écran est enregistré ou partagé, et n'est pas flouté dans le sélecteur d'applications.",
     "developer_mode": "Mode développeur",
     "other": "Autres",
     "language": "Langue",

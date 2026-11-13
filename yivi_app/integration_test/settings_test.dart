@@ -1,4 +1,3 @@
-import "dart:io";
 
 import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -90,14 +89,12 @@ void main() {
         false,
         repo.preferences.getReportErrors(),
       );
-      if (Platform.isAndroid) {
-        await testToggle(
-          tester,
-          "screenshot_toggle",
-          true,
-          repo.preferences.getScreenshotsEnabled(),
-        );
-      }
+      await testToggle(
+        tester,
+        "screenshot_toggle",
+        true,
+        repo.preferences.getScreenshotsEnabled(),
+      );
 
       // Dev mode is enabled by default in the test binding
       // so the toggle should be visible.

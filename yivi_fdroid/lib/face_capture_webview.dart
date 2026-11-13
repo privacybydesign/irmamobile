@@ -27,6 +27,15 @@ import "face_liveness_message.dart";
 ///   message over the `YiviFace` channel;
 /// - `FaceCaptureMessage.aborted` on user back/cancel, a page-load failure or a
 ///   component error.
+/// Whether a navigation of the WebView to [requestUrl] stays on the capture
+/// page's own site: over https, on the host the capture page was loaded from.
+/// Anything else, such as a redirect to another site or a `file:` or `intent:`
+/// URL, is not followed.
+bool staysOnCapturePage(Uri captureUrl, String requestUrl) {
+  final uri = Uri.tryParse(requestUrl);
+  return uri != null && uri.isScheme("https") && uri.host == captureUrl.host;
+}
+
 class FaceCaptureWebView extends StatefulWidget {
   const FaceCaptureWebView({super.key, required this.captureUrl});
 
@@ -52,6 +61,13 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
       ..addJavaScriptChannel("YiviFace", onMessageReceived: _onChannelMessage)
       ..setNavigationDelegate(
         NavigationDelegate(
+          // The page has the camera and the YiviFace channel, so the WebView
+          // must not end up showing anything but the capture page.
+          onNavigationRequest: (request) =>
+              !request.isMainFrame ||
+                  staysOnCapturePage(widget.captureUrl, request.url)
+              ? NavigationDecision.navigate
+              : NavigationDecision.prevent,
           onPageFinished: (_) {
             if (mounted) setState(() => _loading = false);
           },
@@ -91,6 +107,10 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
       // `NotAllowedError: play() can only be initiated by a user gesture`,
       // leaving a live but invisible camera.
       unawaited(platform.setMediaPlaybackRequiresUserGesture(false));
+      // The capture page is a web page: it has no business reading the app's
+      // files or content providers through file:// and content:// URLs.
+      unawaited(platform.setAllowFileAccess(false));
+      unawaited(platform.setAllowContentAccess(false));
     }
 
     // Load only once the platform settings above are in place, so the page is

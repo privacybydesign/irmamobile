@@ -1,6 +1,5 @@
 import "dart:convert";
 
-import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 import "package:pinput/pinput.dart";
@@ -45,8 +44,6 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
     required String phoneNumber,
     required String language,
   }) async {
-    debugPrint("Sending sms for: $phoneNumber");
-
     // Solve an ALTCHA proof-of-work challenge before asking the issuer to send
     // an SMS. This taxes automated bulk requests with CPU. Issuers that do not
     // hand out a challenge (ALTCHA disabled, or an older issuer) return null

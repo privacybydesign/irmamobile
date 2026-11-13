@@ -53,7 +53,13 @@ public class IIABPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     public void onMethodCall(MethodCall call, Result result) {
         if ("open_browser".equals(call.method)) {
             try {
-                String url = call.<String>arguments();
+                Uri url = Uri.parse(call.<String>arguments());
+                // The in-app browser has no address bar the user checks, and the URL can
+                // come from a requestor: only open what a browser would treat as secure.
+                if (!"https".equalsIgnoreCase(url.getScheme())) {
+                    result.error("unsupported_scheme", "Only https URLs are opened in the in-app browser", null);
+                    return;
+                }
 
                 int toolbarColor = Color.parseColor("#FFFFFF");
 
@@ -71,7 +77,7 @@ public class IIABPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                         .setDefaultColorSchemeParams(defaultParams)
                         .build();
 
-                intent.launchUrl(mainActivity, Uri.parse(url));
+                intent.launchUrl(mainActivity, url);
             } catch (Exception e) {
                 result.error("failed to launchUrl", e.toString(), e);
                 return;

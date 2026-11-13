@@ -11,6 +11,7 @@ import "package:local_auth/local_auth.dart";
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/providers/app_integrity_provider.dart";
 import "package:yivi_core/src/providers/device_security_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
@@ -40,6 +41,7 @@ import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
 import "../util.dart";
+import "fake_app_integrity.dart";
 import "fake_device_security.dart";
 import "fake_local_auth.dart";
 import "fake_rooted_device_detector.dart";
@@ -90,6 +92,7 @@ Future<void> pumpYiviApp(
         deviceSecurityProvider.overrideWithValue(
           FakeDeviceSecurity(secure: isDeviceSecure),
         ),
+        appIntegrityProvider.overrideWithValue(const FakeAppIntegrity()),
         ocrProcessorProvider.overrideWithValue(GoogleMLKitOcrProcessor()),
         localAuthProvider.overrideWithValue(
           localAuth ?? FakeLocalAuthentication(available: false),

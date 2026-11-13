@@ -337,7 +337,8 @@
       "point_1": "Sie entscheiden, welche Daten Sie speichern und was Sie teilen.",
       "point_2": "Ihre Daten befinden sich nur auf Ihrem Telefon, sicher und geschützt. Nirgendwo sonst.",
       "point_3": "Niemand schaut zu, auch Yivi nicht!",
-      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})"
+      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
+      "privacy_policy_markdown": "Lesen Sie in unserer [Datenschutzerklärung]({privacy_url}), wie Yivi mit Ihren Daten umgeht."
     },
     "error_reporting": {
       "accept": {
@@ -688,9 +689,14 @@
     "check_again": "Erneut prüfen",
     "continue_anyway_debug": "Trotzdem fortfahren (Debug-Build)"
   },
+  "app_integrity_blocked": {
+    "title": "Yivi kann gerade nicht verwendet werden",
+    "explanation": "Yivi hat ein Werkzeug bemerkt, das die App während der Ausführung untersuchen oder verändern kann, zum Beispiel einen Debugger. Zum Schutz Ihrer Daten bleibt Yivi geschlossen, solange dieses Werkzeug aktiv ist.\n\nBeenden Sie das Werkzeug oder starten Sie Ihr Telefon neu und öffnen Sie Yivi danach erneut."
+  },
   "rooted_warning": {
     "title": "Gerät unsicher",
     "explanation": "Das Betriebssystem auf Ihrem Gerät scheint modifiziert zu sein (Rooted/Jailbreak). Aus diesem Grund kann die Sicherheit Ihrer Daten nicht garantiert werden.",
+    "explanation_environment": "Yivi scheint in einem Emulator zu laufen, in einer von einer anderen App erstellten Kopie der App, oder auf einem Gerät mit einem Werkzeug, das andere Apps verändern kann. Aus diesem Grund kann die Sicherheit Ihrer Daten nicht garantiert werden.",
     "accept_risk": "Ich akzeptiere das Risiko"
   },
   "secure_pin": {
@@ -731,7 +737,9 @@
     "report_errors": "Fehler- und App-Status-Berichterstattung",
     "report_errors_explanation": "Durch die Aktivierung der Fehler- und App-Status-Berichterstattung helfen Sie uns, die Benutzererfahrung zu verbessern.",
     "enable_screenshots": "Screenshots aktivieren",
-    "enable_screenshots_explanation": "Wenn aktiviert, wird die App im App-Umschalter nicht unscharf dargestellt.",
+    "enable_screenshots_explanation": "Wenn aktiviert, können Screenshots und Bildschirmaufnahmen von Yivi gemacht werden, und die App ist im App-Umschalter sichtbar.",
+    "enable_screen_recording": "Bildschirmaufnahme erlauben",
+    "enable_screen_recording_explanation": "Wenn aktiviert, wird Yivi nicht ausgeblendet, während Ihr Bildschirm aufgezeichnet oder geteilt wird, und im App-Umschalter nicht unscharf dargestellt.",
     "developer_mode": "Entwicklermodus",
     "other": "Sonstiges",
     "language": "Sprache",

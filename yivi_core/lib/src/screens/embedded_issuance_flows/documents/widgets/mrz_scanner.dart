@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:camera/camera.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
@@ -90,7 +91,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
         );
       }
     } catch (e) {
-      debugPrint(e.toString());
+      if (kDebugMode) debugPrint(e.toString());
     }
 
     _startLiveFeed();
@@ -126,7 +127,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     try {
       await _startLiveFeed();
     } catch (e) {
-      debugPrint("error while starting live feed: $e");
+      if (kDebugMode) debugPrint("error while starting live feed: $e");
     }
   }
 
@@ -247,7 +248,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
         await c?.stopImageStream();
       }
     } catch (e) {
-      debugPrint("failed to stop image stream: $e");
+      if (kDebugMode) debugPrint("failed to stop image stream: $e");
     }
     await c?.dispose();
   }
