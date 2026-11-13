@@ -712,6 +712,42 @@ void main() {
     expect(find.byKey(const Key("sheet_choose_other")), findsOneWidget);
   });
 
+  testWidgets("the issuer card on the details opens the issuer's page; back "
+      "returns to the details", (tester) async {
+    await _pump(
+      tester,
+      session: _session([
+        DisclosurePickOne(
+          optional: false,
+          ownedOptions: const [],
+          obtainableOptions: [_descriptor("idcard", "ID card")],
+        ),
+      ]),
+    );
+    await tester.tap(_share);
+    await tester.pumpAndSettle();
+    final issuer = find.byKey(const Key("add_data_details_issuer"));
+    expect(issuer, findsOneWidget);
+    await tester.tap(
+      find.descendant(
+        of: issuer,
+        matching: find.byKey(const Key("session_requestor_info")),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("details_issuer_page")), findsOneWidget);
+    expect(find.byKey(const Key("trust_sheet_head")), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel("Go back").last);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("details_issuer_page")), findsNothing);
+    expect(issuer.hitTestable(), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
+      findsOneWidget,
+    );
+  });
+
   group("optional data", () {
     testWidgets("a row opens its sheet: Share nothing first; a card picked "
         "there is shared, Share nothing leaves it out again", (tester) async {
@@ -3550,12 +3586,17 @@ void main() {
         find.byKey(const ValueKey(("issue_sheet_progress", 1, 3))),
         findsOneWidget,
       );
-      // The card and who gives it at the left, what you get at the right.
+      // The card at the left; who gives it, and what you get under that, at
+      // the right.
+      final card = tester.getRect(
+        find.byKey(const Key("add_data_details_intro")),
+      );
       final from = tester.getRect(
         find.byKey(const Key("add_data_details_issuer")),
       );
       final youGet = tester.getRect(find.byKey(const Key("add_data_you_get")));
-      expect(youGet.left, greaterThan(from.right));
+      expect(from.left, greaterThan(card.right));
+      expect(youGet.top, greaterThan(from.bottom));
     });
 
     testWidgets("who is this, and the technical details, in two columns", (

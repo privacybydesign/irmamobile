@@ -145,6 +145,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// details over those (2); 0: none.
   int _issuerDepth = 0;
 
+  /// The issuer's page over the card's details (step 1), from the ⓘ on its
+  /// issuer card.
+  bool _detailsIssuer = false;
+
   /// The island over the sheet ([IssueIsland]): why the card is added,
   /// during a request. Only opened from the pill in the bar.
   bool _island = false;
@@ -403,6 +407,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// None of the steps that prove the card is under way: no website opened,
   /// no e-mail, phone or document step.
   void _clearSteps() {
+    _detailsIssuer = false;
     _opened = false;
     _website = false;
     _contact = null;
@@ -613,6 +618,16 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// Back in the sheet: one step back, or from the details to the root page.
   void issueBack() {
+    // The issuer's page over the details: back to the details.
+    if (_detailsIssuer) {
+      final issuer = issueAdding?.issuer;
+      if (issuer != null && !_pageOut(_detailsLogoTo)) {
+        _closeDetailsIssuer(issuer);
+      } else {
+        setState(() => _detailsIssuer = false);
+      }
+      return;
+    }
     // The issuer's details over the permission: back to what is under them.
     if (_issuerDepth == 2) {
       setState(() => _issuerDepth = 1);
@@ -622,7 +637,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       final issuer = _lastOffer?.offeredCredentials?.firstOrNull?.issuer;
       // Swiped back, the page is out of the sheet already: no logo flies
       // back from there.
-      if (issuer != null && !_issuerPageOut) {
+      if (issuer != null && !_pageOut(_issuerLogoTo)) {
         _closeIssuerPage(issuer);
       } else {
         setState(() => _issuerDepth = 0);
@@ -801,6 +816,18 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         key: ValueKey(("add", adding.credentialId)),
         child: _buildDetails(adding, subject, total),
       ),
+      // The issuer's page, from the ⓘ on the details' issuer card.
+      if (_detailsIssuer)
+        KeyedSubtree(
+          key: ValueKey(("details_issuer", adding.credentialId)),
+          child: RequestorTrustSheet(
+            key: const Key("details_issuer_page"),
+            requestor: adding.issuer,
+            issuer: true,
+            logoKey: _detailsLogoTo,
+            onBack: () => _closeDetailsIssuer(adding.issuer),
+          ),
+        ),
       // Step 2 for a card from a website: where you go, and the way there.
       if (_website)
         KeyedSubtree(
@@ -884,9 +911,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     });
   }
 
-  /// The issuer's page is out of the sheet, to its right (swiped back).
-  bool get _issuerPageOut {
-    final logo = _issuerLogoTo.currentContext?.findRenderObject();
+  /// The issuer's page with the logo at [logoKey] is out of the sheet, to
+  /// its right (swiped back).
+  bool _pageOut(GlobalKey logoKey) {
+    final logo = logoKey.currentContext?.findRenderObject();
     final sheet = context.findRenderObject();
     if (logo is! RenderBox || sheet is! RenderBox) return true;
     if (!logo.hasSize || !sheet.hasSize) return true;
@@ -898,6 +926,30 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   void _closeIssuerPage(schemaless.TrustedParty issuer) {
     _flyIssuerLogo(issuer, from: _issuerLogoTo, to: _issuerLogoFrom);
     setState(() => _issuerDepth = 0);
+  }
+
+  /// The issuer's logo on the details' issuer card, and on the issuer's page
+  /// over the details: their own pair, as the details stay under the
+  /// question (which has the other pair).
+  final _detailsLogoFrom = GlobalKey(debugLabel: "details_issuer_logo_from");
+  final _detailsLogoTo = GlobalKey(debugLabel: "details_issuer_logo_to");
+
+  /// The issuer's page slides in over the details, its logo growing from
+  /// the issuer card's.
+  void _openDetailsIssuer(schemaless.TrustedParty issuer) {
+    YiviFlight.hide([_detailsLogoTo]);
+    setState(() => _detailsIssuer = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      YiviFlight.show([_detailsLogoTo]);
+      _flyIssuerLogo(issuer, from: _detailsLogoFrom, to: _detailsLogoTo);
+    });
+  }
+
+  /// Back to the details: the logo shrinks back into the issuer card's.
+  void _closeDetailsIssuer(schemaless.TrustedParty issuer) {
+    _flyIssuerLogo(issuer, from: _detailsLogoTo, to: _detailsLogoFrom);
+    setState(() => _detailsIssuer = false);
   }
 
   void _flyIssuerLogo(
@@ -1034,6 +1086,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       titleKey: _titleKey("details"),
       howIntro: howIntro,
       part: part,
+      onIssuer: () => _openDetailsIssuer(d.issuer),
+      issuerLogoKey: _detailsLogoFrom,
     );
     // A phone held sideways: the card, its name and the intro at the left,
     // what you get at the right; the way on is in the bar.

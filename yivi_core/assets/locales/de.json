@@ -239,7 +239,7 @@
         "how_email": "Du gibst deine E-Mail-Adresse ein. Yivi schickt dir einen Code, den du hier eintippst. Danach ist deine E-Mail-Adresse in deiner App.",
         "how_phone": "Du gibst deine Handynummer ein. Yivi schickt dir einen Code per SMS, den du hier eintippst. Danach ist deine Nummer in deiner App.",
         "how_document": "Du fotografierst dein Dokument und hältst es dann an dein Telefon. So liest Yivi den Chip.",
-        "from": "Von {issuer}"
+        "get_from": "Du erhältst dies von"
       },
       "nfc_unsupported": {
         "title": "NFC nicht unterstützt",

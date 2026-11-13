@@ -133,7 +133,10 @@ class _ShareBar extends StatelessWidget {
     final painter = TextPainter(
       text: TextSpan(
         text: label,
-        style: YiviPalette.of(context).display(16, weight: FontWeight.w700),
+        // Measured as the button's Text draws it: over the default style.
+        style: DefaultTextStyle.of(context).style.merge(
+          YiviPalette.of(context).display(16, weight: FontWeight.w700),
+        ),
       ),
       textDirection: Directionality.of(context),
       textScaler: MediaQuery.textScalerOf(context),
@@ -270,7 +273,12 @@ class _ShareProgress extends StatelessWidget {
               : constraints.maxWidth - _partsWidth(p!.total) - _gap;
           final oneLine =
               (TextPainter(
-                    text: TextSpan(text: line, style: style),
+                    // Measured as the Text draws it: over the inherited
+                    // default style.
+                    text: TextSpan(
+                      text: line,
+                      style: DefaultTextStyle.of(context).style.merge(style),
+                    ),
                     textDirection: Directionality.of(context),
                     textScaler: MediaQuery.textScalerOf(context),
                     maxLines: 1,

@@ -78,31 +78,40 @@ void main() {
     "Email domain name",
   ]);
 
-  testWidgets("the card large above its name, what you get as a card with "
-      "a row per field", (tester) async {
+  testWidgets("the card large above its name, who gives it as a card, what "
+      "you get as a row per field", (tester) async {
     await pump(tester, email, faq: _emailFaq);
-    // The hero: the card large, its name and "From {issuer}" centred under
-    // it.
-    final issuer = tester.getRect(
-      find.byKey(const Key("add_data_details_issuer")),
-    );
+    // The hero: the card large, its name centred under it.
     final card = tester.getRect(find.byType(CredentialTypeThumbnail).first);
     expect(card.width, 200);
     final name = tester.getRect(find.byKey(const Key("add_data_details_name")));
     expect(name.top, greaterThan(card.bottom));
-    expect(issuer.top, greaterThan(name.top));
     expect(name.center.dx, closeTo(card.center.dx, 2));
-    expect(find.text("Email address"), findsWidgets);
-    expect(find.text("From Yivi"), findsOneWidget);
-    expect(find.textContaining("Example card"), findsNothing);
+    // Who gives it: the issuer as a card under its own label, as the share
+    // screen shows who asks; no "From …" line under the name.
+    expect(find.text("YOU GET THIS FROM"), findsOneWidget);
+    final issuer = find.byKey(const Key("add_data_details_issuer"));
+    expect(
+      find.descendant(of: issuer, matching: find.text("Yivi")),
+      findsOneWidget,
+    );
+    expect(find.text("From Yivi"), findsNothing);
+    expect(tester.getRect(issuer).top, greaterThan(name.bottom));
+    // What you get: only the fields. The card is not repeated as a tile.
+    expect(find.byType(CredentialTypeThumbnail), findsOneWidget);
     expect(find.text("THIS GOES IN YOUR APP"), findsOneWidget);
     final list = find.byKey(const Key("add_data_checklist"));
+    expect(
+      tester.getRect(list).top,
+      greaterThan(tester.getRect(issuer).bottom),
+    );
     for (final field in ["Email address", "Email domain name"]) {
       expect(
         find.descendant(of: list, matching: find.text(field)),
         findsOneWidget,
       );
     }
+    expect(find.textContaining("Example card"), findsNothing);
     // The FAQ's own list repeats the attributes: left out.
     expect(
       find.textContaining("You will add the following data"),

@@ -239,7 +239,7 @@
         "how_email": "Je vult je e-mailadres in. Yivi stuurt je een code; die typ je hier in. Daarna staat je e-mailadres in je app.",
         "how_phone": "Je vult je mobiele nummer in. Yivi stuurt je een code per sms; die typ je hier in. Daarna staat je nummer in je app.",
         "how_document": "Je maakt een foto van je document en houdt het daarna tegen je telefoon. Zo leest Yivi de chip.",
-        "from": "Van {issuer}"
+        "get_from": "Je haalt dit op bij"
       },
       "nfc_unsupported": {
         "title": "NFC niet ondersteund",

@@ -9,13 +9,13 @@ import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../util/reveal_whole.dart";
 import "../../widgets/caps_label.dart";
-import "../../widgets/credential_card/card_tile.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/flight/yivi_flight.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/sheet_layout.dart";
 import "../../widgets/irma_markdown.dart";
 import "../../widgets/step_number_disc.dart";
+import "../session/widgets/requestor_card.dart";
 
 /// Which part of the details to show: all of it, or (in the two columns of a
 /// sheet held sideways, [SheetSplit]) the card with its name and the intro,
@@ -23,9 +23,10 @@ import "../../widgets/step_number_disc.dart";
 enum AddDataDetailsPart { all, card, rest }
 
 /// What a credential type is, for the sheet: upright the card large and
-/// centred, its name and "From {issuer}" under it (the page's heading; the
-/// sheet's bar stays empty), the intro, what comes in the app (the card as a
-/// tile: its picture, name and issuer, and its fields as a list), and the
+/// centred with its name under it (the page's heading; the sheet's bar stays
+/// empty), the intro, who you get it from (the issuer as a card, like the
+/// requestor on the share screen: its logo, name and who vouches for it, ⓘ
+/// to its page), what comes in the app (its fields as a list), and the
 /// answers to what it is for and how it is added, folded into one group.
 /// The first step of adding a card in a sheet ([IssueFlow]).
 class AddDataDetailsContent extends StatelessWidget {
@@ -45,6 +46,12 @@ class AddDataDetailsContent extends StatelessWidget {
   final String? howIntro;
   final AddDataDetailsPart part;
 
+  /// Opens the issuer's page (its ⓘ); null: the issuer card has no ⓘ.
+  final VoidCallback? onIssuer;
+
+  /// Where the issuer's logo is: it flies into the issuer's page and back.
+  final GlobalKey? issuerLogoKey;
+
   const AddDataDetailsContent({
     super.key,
     required this.credential,
@@ -53,6 +60,8 @@ class AddDataDetailsContent extends StatelessWidget {
     this.titleKey,
     this.howIntro,
     this.part = AddDataDetailsPart.all,
+    this.onIssuer,
+    this.issuerLogoKey,
   });
 
   @override
@@ -94,7 +103,7 @@ class AddDataDetailsContent extends StatelessWidget {
         children: [
           _picture(_heroWidth * 0.8),
           const SizedBox(height: 16),
-          ..._nameAndIssuer(context, TextAlign.start),
+          _name(context, TextAlign.start),
           const SizedBox(height: 12),
           introLine,
         ],
@@ -107,12 +116,22 @@ class AddDataDetailsContent extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(inset, 8, inset, 0),
           child: introLine,
         ),
-      // What comes in the app: the card as a tile, its fields under it. The
-      // FAQ's own list of them only when the type names none.
+      // Who you get it from, as the share screen shows who asks.
+      _SectionLabel(context.tr("data.add.details.get_from")),
+      KeyedSubtree(
+        key: const Key("add_data_details_issuer"),
+        child: RequestorCard.compact(
+          requestor: credential.issuer,
+          onInfo: onIssuer,
+          logoKey: issuerLogoKey,
+        ),
+      ),
+      // What comes in the app: its fields. The FAQ's own list of them only
+      // when the type names none.
       if (attributeNames.isNotEmpty || content.isNotEmpty) ...[
         _SectionLabel(context.tr("data.add.details.you_get")),
         if (attributeNames.isNotEmpty)
-          _YouGet(credential: credential, names: attributeNames)
+          _YouGet(names: attributeNames)
         else
           GlassGroup(
             key: const Key("add_data_you_get"),
@@ -162,8 +181,8 @@ class AddDataDetailsContent extends StatelessWidget {
     return FlightSpot.maybe(heroKey, picture);
   }
 
-  /// The top of the page upright: the card, the card's name as the page's
-  /// heading, and "From {issuer}".
+  /// The top of the page upright: the card and its name as the page's
+  /// heading.
   Widget _hero(BuildContext context) {
     return Column(
       key: const Key("add_data_details_hero"),
@@ -174,36 +193,26 @@ class AddDataDetailsContent extends StatelessWidget {
           child: _picture(_heroWidth),
         ),
         const SizedBox(height: 22),
-        ..._nameAndIssuer(context, TextAlign.center),
+        _name(context, TextAlign.center),
       ],
     );
   }
 
-  /// The card's name, as the page's heading, and "From {issuer}" under it.
-  List<Widget> _nameAndIssuer(BuildContext context, TextAlign align) {
+  /// The card's name, as the page's heading. Who gives it is the issuer
+  /// card further down.
+  Widget _name(BuildContext context, TextAlign align) {
     final palette = YiviPalette.of(context);
-    return [
-      Semantics(
-        header: true,
-        child: Text(
-          credential.name,
-          key: titleKey ?? const Key("add_data_details_name"),
-          textAlign: align,
-          style: palette
-              .display(24, weight: FontWeight.w700)
-              .copyWith(height: 30 / 24, color: palette.text),
-        ),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        context.tr("data.add.details.from", {"issuer": credential.issuer.name}),
-        key: const Key("add_data_details_issuer"),
+    return Semantics(
+      header: true,
+      child: Text(
+        credential.name,
+        key: titleKey ?? const Key("add_data_details_name"),
         textAlign: align,
         style: palette
-            .body(13)
-            .copyWith(height: 18 / 13, color: palette.secondaryText),
+            .display(24, weight: FontWeight.w700)
+            .copyWith(height: 30 / 24, color: palette.text),
       ),
-    ];
+    );
   }
 
   static const double _heroWidth = 200;
@@ -256,63 +265,51 @@ class _SectionLabel extends StatelessWidget {
       CapsLabel(text, padding: const EdgeInsets.fromLTRB(inset, 20, inset, 8));
 }
 
-/// What comes in the app: the card as a tile (its picture, name and
-/// issuer, as on the share screen), a line, and its fields as a list.
+/// What comes in the app: its fields as a list. The card itself is the
+/// page's picture above, so it is not repeated here.
 class _YouGet extends StatelessWidget {
-  final CredentialDescriptor credential;
   final List<String> names;
 
-  const _YouGet({required this.credential, required this.names});
+  const _YouGet({required this.names});
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return CardTile(
+    return GlassGroup(
       key: const Key("add_data_you_get"),
-      art: CredentialTypeThumbnail(
-        descriptor: credential,
-        width: CardTile.miniWidth,
-      ),
-      title: credential.name,
-      subtitle: credential.issuer.name,
-      body: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: palette.divider)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Column(
-              key: const Key("add_data_checklist"),
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final n in names)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: palette.link.withValues(alpha: 0.32),
-                          ),
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            key: const Key("add_data_checklist"),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final n in names)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: palette.link.withValues(alpha: 0.32),
                         ),
-                        Expanded(
-                          child: Text(
-                            n,
-                            style: palette
-                                .body(15)
-                                .copyWith(height: 21 / 15, color: palette.text),
-                          ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          n,
+                          style: palette
+                              .body(15)
+                              .copyWith(height: 21 / 15, color: palette.text),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ],
