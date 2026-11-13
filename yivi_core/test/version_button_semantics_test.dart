@@ -91,21 +91,21 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets("announces the app ID and version as one tappable node", (
-    tester,
-  ) async {
+  testWidgets("announces the version as one tappable node", (tester) async {
     final handle = tester.ensureSemantics();
     final repo = await repository(_RecordingBridge());
     addTearDown(repo.close);
     await pumpVersionButton(tester, repo: repo);
 
-    expect(find.bySemanticsLabel(RegExp(r"App ID")), findsOneWidget);
+    // No app ID is known yet (the keyshare credential is not in the wallet
+    // list), so the line is not shown at all.
+    expect(find.bySemanticsLabel(RegExp(r"App ID")), findsNothing);
     expect(find.bySemanticsLabel(RegExp(r"Version 8\.3\.3")), findsOneWidget);
 
-    // One merged node carries both texts and the tap action, so a screen
-    // reader reads them together and can activate the developer mode trigger.
+    // One node carries the text and the tap action, so a screen reader can
+    // activate the developer mode trigger.
     final node = tester.getSemantics(find.byType(InkWell));
-    expect(node.label, matches(RegExp(r"App ID[\s\S]*Version 8\.3\.3")));
+    expect(node.label, matches(RegExp(r"Version 8\.3\.3")));
     expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
 
     handle.dispose();
@@ -123,7 +123,7 @@ void main() {
     // Drive the semantics action itself, not a pointer tap: this is the path a
     // screen reader takes.
     for (var i = 0; i < developerModeTaps; i++) {
-      tester.semantics.tap(find.semantics.byLabel(RegExp(r"App ID")));
+      tester.semantics.tap(find.semantics.byLabel(RegExp(r"Version")));
       await tester.pump();
     }
 

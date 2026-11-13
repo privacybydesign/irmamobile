@@ -1,10 +1,8 @@
-import "package:collection/collection.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
 
 import "../../../../sentry_dsn.dart";
-import "../../../models/credentials.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/app_toast.dart";
@@ -74,28 +72,6 @@ class _VersionButtonState extends State<VersionButton> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    StreamBuilder<Credentials>(
-                      stream: repo.getCredentials(),
-                      builder: (context, credentials) {
-                        String? appId;
-                        if (credentials.hasData) {
-                          final keyShareCred = credentials.data?.values
-                              .firstWhereOrNull(
-                                (cred) =>
-                                    cred.isKeyshareCredential &&
-                                    cred.schemeManager.id ==
-                                        repo.defaultKeyshareScheme,
-                              );
-                          appId =
-                              keyShareCred?.attributes.firstOrNull?.value.raw;
-                        }
-                        return TranslatedText(
-                          "more_tab.app_id",
-                          style: textStyle,
-                          translationParams: {"id": appId ?? ""},
-                        );
-                      },
-                    ),
                     FutureBuilder<PackageInfo>(
                       future: PackageInfo.fromPlatform(),
                       builder:

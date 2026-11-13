@@ -1,12 +1,13 @@
 import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
-import "../../models/credential_events.dart";
 import "../../models/session.dart";
 import "../../prototypes/prototypes_screen.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/handle_pointer.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -21,14 +22,14 @@ import "util/snackbar.dart";
 import "widgets/card_motion_sliders.dart";
 import "widgets/local_backends_tile.dart";
 
-class DebugScreen extends StatefulWidget {
+class DebugScreen extends ConsumerStatefulWidget {
   const DebugScreen({super.key});
 
   @override
-  State<DebugScreen> createState() => _DebugScreenState();
+  ConsumerState<DebugScreen> createState() => _DebugScreenState();
 }
 
-class _DebugScreenState extends State<DebugScreen> {
+class _DebugScreenState extends ConsumerState<DebugScreen> {
   late final DebugHelper _debugHelper;
 
   Widget _buildListTile(
@@ -57,7 +58,6 @@ class _DebugScreenState extends State<DebugScreen> {
     });
   }
 
-  // FIXME: make this compatible with new credential system
   Future<void> _deleteAllDeletableCards(IrmaRepository repo) async {
     final confirmed = await showConfirmDialog(
       context,
@@ -68,14 +68,10 @@ class _DebugScreenState extends State<DebugScreen> {
 
     if (!confirmed) return;
 
-    final credentials = await repo.getCredentials().first;
-
-    for (final credential in credentials.values) {
-      if (credential.info.credentialType.disallowDelete) {
-        continue;
-      }
-
-      repo.bridgedDispatch(DeleteCredentialEvent(hashByFormat: {}));
+    // A card without instance ids cannot be deleted, as on its details.
+    for (final card in ref.read(walletCardsProvider)) {
+      if (card.credentialInstanceIds.isEmpty) continue;
+      repo.deleteCredential(card.credentialInstanceIds);
     }
 
     if (!mounted) return;
