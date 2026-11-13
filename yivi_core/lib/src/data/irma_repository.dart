@@ -12,7 +12,6 @@ import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
-import "../models/applifecycle_changed_event.dart";
 import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
@@ -115,9 +114,6 @@ class IrmaRepository {
 
   final _enrollmentStatusEventSubject =
       BehaviorSubject<EnrollmentStatusEvent>();
-  final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(
-    .undetermined,
-  );
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
@@ -126,8 +122,6 @@ class IrmaRepository {
   final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _credentialObtainState = BehaviorSubject<_CredentialObtainState>();
-  final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
-  final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
   // Flips true once native acknowledges the launch handshake (AppReadyAckEvent),
   // by which point any initial-URL pointer has already been queued. Seeded false
   // so the lock screen holds off its cold-start biometric auto-scan until the
@@ -166,7 +160,6 @@ class IrmaRepository {
       _schemalessCredentialsSubject.close(),
       _credentialStoreSubject.close(),
       _enrollmentStatusEventSubject.close(),
-      _enrollmentStatusSubject.close(),
       _enrollmentEventSubject.close(),
       _authenticationEventSubject.close(),
       _changePinEventSubject.close(),
@@ -175,8 +168,6 @@ class IrmaRepository {
       _pendingPointerSubject.close(),
       _preferencesSubject.close(),
       _credentialObtainState.close(),
-      _resumedWithURLSubject.close(),
-      _resumedFromBrowserSubject.close(),
       _startupUrlResolvedSubject.close(),
       _sessionRepository.close(),
       _fatalErrorSubject.close(),
@@ -260,7 +251,6 @@ class IrmaRepository {
         final pointer =
             await _emailCodePointer(event.url) ?? Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
-        _resumedWithURLSubject.add(true);
         closeInAppWebView();
       } on MissingPointer catch (e, stackTrace) {
         reportError(e, stackTrace);
@@ -277,14 +267,9 @@ class IrmaRepository {
       _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {
       _credentialsSubject.add(Credentials({}));
-      _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
       _lockedSubject.add(false);
       _blockedSubject.add(null);
       preferences.clearAll();
-    } else if (event is AppLifecycleChangedEvent) {
-      if (event.state == AppLifecycleState.paused) {
-        _resumedWithURLSubject.add(false);
-      }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
     }
@@ -391,12 +376,6 @@ class IrmaRepository {
 
   Stream<EudiConfiguration> getEudiConfiguration() {
     return _eudiConfigurationSubject.stream;
-  }
-
-  Stream<Map<String, Issuer>> getIssuers() {
-    return _irmaConfigurationSubject.stream.map<Map<String, Issuer>>(
-      (config) => config.issuers,
-    );
   }
 
   // -- Credential instances
@@ -743,22 +722,6 @@ class IrmaRepository {
     }
   }
 
-  // Returns a future whether the app was resumed by either
-  // 1) coming back from the browser, or
-  // 2) handling an incoming URL
-  Future<bool> appResumedAutomatically() {
-    return Rx.combineLatest2(
-      _resumedFromBrowserSubject.stream,
-      _resumedWithURLSubject.stream,
-      (bool a, bool b) => a || b,
-    ).first.then((result) {
-      _resumedFromBrowserSubject.add(
-        false,
-      ); // App is resumed, so we have to reset the value
-      return result;
-    });
-  }
-
   /// The e-mail code link in [url], or null when it is not one. Only a user
   /// who asked for a code gets such a link.
   Future<EmailCodePointer?> _emailCodePointer(String url) async =>
@@ -1008,7 +971,7 @@ class IrmaRepository {
     markInAppLaunched([credentialId]);
 
     if (_issuesViaUniversalLink(credentialId)) {
-      return openURLExternally(url, suppressQrScanner: true);
+      return openURLExternally(url);
     }
 
     return openURL(url);
@@ -1016,14 +979,13 @@ class IrmaRepository {
 
   Future<void> openURL(String url) async {
     if ((await getExternalBrowserURLs().first).contains(url)) {
-      return openURLExternally(url, suppressQrScanner: true);
+      return openURLExternally(url);
     } else {
       return openURLinAppBrowser(url);
     }
   }
 
   Future<void> openURLinAppBrowser(String url) async {
-    _resumedFromBrowserSubject.add(true);
     if (Platform.isAndroid) {
       await _iiabchannel.invokeMethod("open_browser", url);
     } else {
@@ -1037,13 +999,7 @@ class IrmaRepository {
     }
   }
 
-  Future<void> openURLExternally(
-    String url, {
-    bool suppressQrScanner = false,
-  }) async {
-    if (suppressQrScanner) {
-      _resumedFromBrowserSubject.add(true);
-    }
+  Future<void> openURLExternally(String url) async {
     // On iOS, open Safari rather than Safari view controller
     final uri = Uri.parse(url);
     final hasOpened = await launchUrl(uri, mode: .externalApplication);
@@ -1062,7 +1018,6 @@ class IrmaRepository {
   /// the auth session intercepts via `callbackUrlScheme`. The resulting URL
   /// is then handed off to [handleOpenID4VCIAuthCallback].
   Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async {
-    _resumedFromBrowserSubject.add(true);
     final String result;
     try {
       result = await FlutterWebAuth2.authenticate(

@@ -1,10 +1,4 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
-
-import "../models/translated_value.dart";
-
-String getTranslation(BuildContext context, TranslatedValue translations) =>
-    translations.translate(FlutterI18n.currentLocale(context)!.languageCode);
 
 /// The effective app language: the in-app language override (the
 /// preferred-language preference) when set, otherwise the device's system

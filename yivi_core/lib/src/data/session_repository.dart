@@ -164,11 +164,6 @@ class SessionRepository {
     return null;
   }
 
-  /// Returns the current [SessionState] for the given session ID, if available.
-  SessionState? getCurrentSessionState(int sessionId) {
-    return _states.value[sessionId];
-  }
-
   /// Returns the IDs of all sessions currently in the requestPermission state.
   List<int> getActiveSessionIds() {
     return _states.value.entries
