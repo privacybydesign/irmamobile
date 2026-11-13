@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On Android 12 and later, the app's data is no longer copied when the user moves to a new phone with Android's device-to-device transfer. `allowBackup="false"` only turned off cloud backup there; explicit data extraction rules now exclude all app data from both
 ### Security
 - On iOS, third-party keyboards are no longer used in the app; the system keyboard is shown instead, so no keyboard extension sees what is typed. The fields for a document's number, dates and driving licence MRZ, from which the chip's access keys are derived, also turn off suggestions, autocorrect and keyboard learning (Gboard's incognito mode on Android), and the driving licence MRZ field no longer offers credit card autofill
+### Security
+- The NFC error details no longer copy sensitive data to the clipboard. With "show sensitive data" ticked, the dialog shows the chip data and the MRZ-derived inputs for the chip's access keys, but the copy button is off, as sending to Yivi already was; without it, the button copies the logs without personal data, as before
 
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
