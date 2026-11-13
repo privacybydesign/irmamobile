@@ -376,7 +376,15 @@
       "blocked": "Votre appli Yivi a été bloquée à distance. Cela a été fait soit via MyYivi, soit parce que vous n'avez pas utilisé Yivi sur cet appareil depuis plus d'un an. Si vous souhaitez continuer à utiliser Yivi sur cet appareil, vous devrez tout recommencer.",
       "expired": "La session a expiré. Veuillez recommencer.",
       "pairing_rejected": "La session a été refusée. Veuillez recommencer.",
-      "no_internet": "Veuillez vérifier que votre appareil dispose d'une connexion internet fonctionnelle."
+      "no_internet": "Veuillez vérifier que votre appareil dispose d'une connexion internet fonctionnelle.",
+      "yivi": "Une erreur s'est produite dans Yivi",
+      "yivi_body": "Le problème vient de Yivi, pas de {org} ni de vous. Veuillez réessayer plus tard.",
+      "yivi_body_no_organisation": "Le problème vient de Yivi, pas de vous. Veuillez réessayer plus tard.",
+      "organisation": "Une erreur s'est produite chez {org}",
+      "organisation_unknown": "Une erreur s'est produite chez l'organisation",
+      "organisation_body": "Votre appli Yivi fonctionne correctement. Veuillez réessayer plus tard.",
+      "unknown_body": "Veuillez réessayer. Ça ne marche toujours pas ? Yivi cherchera si le problème vient de l'appli ou de {org}.",
+      "unknown_body_no_organisation": "Veuillez réessayer. Ça ne marche toujours pas ? Yivi cherchera ce qui ne va pas."
     }
   },
   "help": {
@@ -384,7 +392,6 @@
     "ask": "Poser une question",
     "contact": "support@yivi.app",
     "device": "Mobile",
-    "email": "Envoyer un e-mail",
     "faq": "Questions fréquentes",
     "login": "Connexion",
     "mail_error": "Désolé, nous ne pouvons pas ouvrir votre application de messagerie",
@@ -424,8 +431,8 @@
     "answer_10": "Le fournisseur des données détermine leur durée de validité. Vos données peuvent donc expirer. Vous recevrez alors un avertissement dans l'appli Yivi. La durée de validité de vos données dépend de leur type. Votre nom et votre date de naissance sont valables 5 ans. Votre adresse, un an seulement. Vous pouvez actualiser vos données à tout moment, par exemple en actualisant votre âge après votre 18e anniversaire. Vous pouvez ainsi prouver directement que vous avez plus de 18 ans. ",
     "question_11": "Yivi, vie privée et sécurité",
     "answer_11": "L'appli Yivi a été conçue pour que vous, et vous seul, puissiez voir et utiliser vos données personnelles. Vos données personnelles sont stockées uniquement sur votre téléphone et nulle part ailleurs. Nous ne stockons pas vos données dans le cloud.\n\nL'appli Yivi permet à un site web ou à un magasin de vérifier (par cryptographie) que les données que vous avez communiquées sont authentiques.\n\nL'appli Yivi communique vos données directement depuis votre téléphone au site web. Personne d'autre ne peut voir que vous vous identifiez. Pas même l'organisation derrière Yivi.\n\nEn utilisant Yivi, vous acceptez la [politique de confidentialité](https://www.yivi.app/en/privacy).",
-    "send": "Vous avez d'autres questions ? Envoyez-nous un e-mail. Il peut s'écouler quelques jours avant que vous receviez une réponse.",
-    "security_and_privacy": "Sécurité et confidentialité"
+    "security_and_privacy": "Sécurité et confidentialité",
+    "need_help_body": "Votre question n'y figure pas ? Dites-nous quel est votre problème. Nous vous aiderons, ou vous dirons qui peut le faire."
   },
   "home": {
     "nav_bar": {
@@ -567,7 +574,6 @@
     "settings": "Paramètres",
     "faq": "Questions fréquentes",
     "debugging": "Débogage",
-    "contact": "Nous contacter",
     "share": "Partager Yivi",
     "share_text": "Découvrez l'appli Yivi : https://yivi.app",
     "website": "Site web de Yivi",
@@ -585,6 +591,170 @@
     "app_id": "ID de l'appli {id}",
     "log_out": "Se déconnecter",
     "logged_out_toast": "Vous avez été déconnecté"
+  },
+  "need_help": {
+    "the_organisation": "l'organisation",
+    "start": {
+      "title": "Quel est votre problème ?",
+      "group_organisation": "Auprès d'une organisation",
+      "group_data": "Vos données",
+      "group_app": "L'appli Yivi"
+    },
+    "answer": {
+      "question": "Votre problème est-il résolu ?",
+      "solved": "Oui, c'est résolu",
+      "not_solved": "Non, je n'y arrive pas",
+      "error_code": "Code d'erreur : {code}"
+    },
+    "ask": {
+      "title": "Sur quoi porte votre question ?",
+      "organisation": "Une organisation ou un site web",
+      "organisation_subtitle": "Une demande, un résultat ou une connexion",
+      "app": "L'appli Yivi",
+      "app_subtitle": "L'appli elle-même, ou des données émises par Yivi"
+    },
+    "organisation": {
+      "title": "Vous obtiendrez de l'aide auprès de {org}",
+      "choose_title": "Quelle organisation ?",
+      "choose_body": "Choisissez l'organisation qui a demandé vos données. Elle peut consulter votre demande et vous aider. Yivi ne le peut pas.",
+      "choose_none": "Rendez-vous sur le site web de l'organisation et cherchez-y les coordonnées ou le service client.",
+      "recent": "Récent",
+      "quote_error_code": "Indiquez le code d'erreur {code} pour qu'ils sachent où chercher.",
+      "open_website": "Aller sur le site de {org}",
+      "send_email": "Envoyer un e-mail à {org}",
+      "or_email": "Ou écrivez à {email}",
+      "no_contact": "Cherchez les coordonnées sur le site de {org}.",
+      "app_not_working": "L'appli Yivi elle-même ne fonctionne pas ?"
+    },
+    "yivi": {
+      "title": "Le support Yivi vous aide",
+      "body": "Envoyez-nous un e-mail. Nous vous répondrons dès que possible.",
+      "included": "Ce que nous joignons",
+      "included_topic": "Objet : {topic}",
+      "included_device": "Version de l'appli et appareil",
+      "included_report": "Le rapport d'erreur",
+      "mail_button": "Écrire au support Yivi",
+      "mail_subject": "Besoin d'aide : {topic}",
+      "mail_prompt": "Décrivez ici votre question ou votre problème :",
+      "mail_topic": "Objet",
+      "mail_app_version": "Version de l'appli",
+      "mail_device": "Appareil",
+      "mail_error_report": "Rapport d'erreur"
+    },
+    "context": {
+      "activity_section": "À propos de cette activité",
+      "activity_disclosure": "Question sur votre demande auprès de {org}",
+      "activity_issuance": "Question sur vos données de {org}",
+      "activity_disclosure_note": "Yivi n'a fait que transmettre vos données. La suite, comme le résultat de votre demande, dépend de {org}.",
+      "error_section": "À propos de cette erreur",
+      "error_yivi": "Erreur dans l'appli Yivi",
+      "error_organisation": "Erreur chez {org}",
+      "error_unknown": "Une erreur s'est produite",
+      "error_unknown_subtitle": "Cause encore inconnue",
+      "error_expired": "La session a expiré",
+      "error_code": "Code d'erreur {code}"
+    },
+    "problems": {
+      "arrange": {
+        "title": "Je dois faire une démarche auprès d'une organisation",
+        "subtitle": "Par exemple demander vos années sans sinistre ou vous connecter",
+        "lead": "Cela se fait sur le site de {org}, pas dans Yivi. Yivi conserve vos données et les transmet quand vous l'acceptez.",
+        "step_1": "Allez sur le site de {org} et commencez-y votre demande.",
+        "step_2": "Choisissez Yivi sur le site. L'appli s'ouvre toute seule, ou vous scannez un code QR.",
+        "step_3": "Vérifiez quelles données sont demandées et acceptez de les partager.",
+        "step_4": "Votre demande est ensuite traitée par {org}, qui vous indiquera la suite.",
+        "note": "Il vous manque des données ? Pendant le partage, Yivi indique lesquelles ajouter, et comment.",
+        "handover": "Votre demande ne peut être consultée que par {org}, qui pourra vous aider. Yivi ne le peut pas."
+      },
+      "outcome": {
+        "title": "J'attends un résultat",
+        "subtitle": "Vous avez partagé vos données, mais n'avez pas de nouvelles",
+        "lead": "Le résultat vient de {org}, pas de Yivi. Yivi transmet seulement vos données et ne voit pas ce qui se passe ensuite.",
+        "step_1": "Consultez vos e-mails et le site de {org}. C'est là que le résultat apparaîtra.",
+        "step_2": "Vous voulez savoir ce que vous avez partagé et quand ? C'est dans Activité.",
+        "note": "Le délai dépend de {org}.",
+        "handover": "Votre demande ne peut être consultée que par {org}, qui pourra vous aider. Yivi ne le peut pas."
+      },
+      "add_data": {
+        "title": "Je n'arrive pas à ajouter des données",
+        "subtitle": "Adresse e-mail, numéro de téléphone, passeport ou carte d'identité",
+        "lead": "Ces données sont émises par Yivi. Voici ce qui aide généralement :",
+        "step_1": "Vérifiez que vous avez la dernière version de Yivi.",
+        "step_2": "Pas reçu d'e-mail ou de SMS ? Regardez dans vos spams et vérifiez l'adresse ou le numéro.",
+        "step_3": "Passeport ou carte d'identité : retirez la coque de votre téléphone et tenez-le immobile contre le document.",
+        "note": "Vous obtenez vos données auprès d'une autre organisation que Yivi ? C'est alors elle qui peut vous aider."
+      },
+      "data_wrong": {
+        "title": "Mes données sont incorrectes",
+        "subtitle": "Un nom, une adresse ou une autre donnée est faux ou obsolète",
+        "lead": "Yivi reprend vos données à la source et ne peut pas les modifier. Faites-les corriger à la source, puis obtenez-les à nouveau.",
+        "step_1": "Vos données personnelles et votre adresse viennent de votre commune. Faites-les corriger là-bas.",
+        "step_2": "Nouvelle adresse e-mail ou nouveau numéro ? Ajoutez-le dans Yivi.",
+        "step_3": "C'est corrigé ? Ouvrez les données dans Yivi et choisissez « Obtenir à nouveau ».",
+        "handover": "Corrigé à la source, mais toujours incorrect après l'avoir obtenu à nouveau ? Le support Yivi vous aidera alors."
+      },
+      "pin": {
+        "title": "Code PIN oublié ou appli bloquée",
+        "lead": "Personne ne connaît votre code PIN, pas même Yivi. Nous ne pouvons donc pas le réinitialiser pour vous.",
+        "step_1": "Choisissez « J'ai oublié mon code PIN » sur l'écran du code PIN.",
+        "step_2": "Recommencez : choisissez un nouveau code PIN et ajoutez à nouveau vos données.",
+        "step_3": "Votre appli est bloquée ? Réinstallez Yivi et recommencez."
+      },
+      "phone": {
+        "title": "Nouveau téléphone ou téléphone perdu",
+        "lead": "Vos données sont uniquement sur votre téléphone. Il n'y a ni sauvegarde ni cloud.",
+        "step_1": "Nouveau téléphone : installez Yivi et ajoutez à nouveau vos données.",
+        "step_2": "Téléphone perdu : sans votre code PIN, personne ne peut accéder à votre appli Yivi.",
+        "step_3": "Vous avez indiqué votre adresse e-mail ? Vous pouvez alors bloquer l'appli à distance via MyYivi."
+      },
+      "app_broken": {
+        "title": "L'appli ne fonctionne pas ou affiche une erreur",
+        "lead": "Voici ce qui aide souvent :",
+        "step_1": "Vérifiez votre connexion internet. Yivi ne fonctionne pas sans connexion.",
+        "step_2": "Vérifiez que vous avez la dernière version de Yivi.",
+        "step_3": "Fermez complètement l'appli et rouvrez-la.",
+        "note": "Vous avez reçu un message d'erreur ? Choisissez-y « Besoin d'aide ? », et nous joindrons le rapport d'erreur."
+      },
+      "other": {
+        "title": "Autre chose"
+      },
+      "data_from_organisation": {
+        "title": "Question sur vos données de {org}",
+        "lead": "Ces données viennent de {org}. Yivi se contente de les conserver et ne peut pas les modifier.",
+        "step_1": "Quelque chose est incorrect ? Faites-le corriger auprès de {org}.",
+        "step_2": "Ouvrez ensuite les données dans Yivi et choisissez « Obtenir à nouveau ».",
+        "handover": "Vos données ne peuvent être consultées et modifiées que par {org}. Yivi ne le peut pas."
+      },
+      "error_yivi": {
+        "title": "Erreur dans l'appli Yivi",
+        "lead": "Cette erreur vient de Yivi, pas de {org}.",
+        "step_1": "Vérifiez que vous avez la dernière version de Yivi.",
+        "step_2": "Réessayez dans quelques minutes depuis le site de {org}.",
+        "handover": "Yivi examine votre rapport d'erreur et vous aide."
+      },
+      "error_organisation": {
+        "title": "Erreur chez {org}",
+        "lead": "Le problème est survenu chez {org}, pas dans votre appli Yivi.",
+        "step_1": "Réessayez plus tard depuis le site de {org}.",
+        "step_2": "Ça ne marche toujours pas ? Contactez {org}.",
+        "handover": "Ce problème ne peut être résolu que par {org}. Yivi n'a pas accès à leurs systèmes."
+      },
+      "error_unknown": {
+        "title": "Une erreur s'est produite",
+        "lead": "Ce message d'erreur ne nous permet pas de savoir si le problème vient de l'appli ou de {org}. C'est pourquoi Yivi regarde d'abord.",
+        "step_1": "Vérifiez votre connexion internet.",
+        "step_2": "Vérifiez que vous avez la dernière version de Yivi.",
+        "step_3": "Réessayez depuis le site de {org}.",
+        "handover": "Yivi examine votre rapport d'erreur et cherche où le problème est survenu. S'il vient de {org}, nous vous le ferons savoir."
+      },
+      "error_expired": {
+        "title": "La session a expiré",
+        "lead": "Cela arrive si cela a pris du temps, ou si vous avez utilisé un ancien lien ou code QR.",
+        "step_1": "Retournez sur le site de {org}.",
+        "step_2": "Recommencez-y et terminez en une seule fois.",
+        "handover": "La session expire sans cesse ? Yivi cherchera ce qui ne va pas."
+      }
+    }
   },
   "pin": {
     "subtitle": "Saisissez votre code PIN",

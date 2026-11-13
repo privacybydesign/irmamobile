@@ -376,7 +376,15 @@
       "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook zijn dat je Yivi meer dan één jaar niet hebt gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
       "expired": "Sorry, de sessie is verlopen. Start de sessie opnieuw.",
       "pairing_rejected": "Sorry, de sessie is geweigerd. Start de sessie opnieuw.",
-      "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet."
+      "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet.",
+      "yivi": "Er ging iets mis in Yivi",
+      "yivi_body": "Dit ligt aan Yivi, niet aan {org} of aan jou. Probeer het later opnieuw.",
+      "yivi_body_no_organisation": "Dit ligt aan Yivi, niet aan jou. Probeer het later opnieuw.",
+      "organisation": "Het ging mis bij {org}",
+      "organisation_unknown": "Het ging mis bij de organisatie",
+      "organisation_body": "Je Yivi-app werkt goed. Probeer het later opnieuw.",
+      "unknown_body": "Probeer het opnieuw. Gaat het weer mis? Dan zoekt Yivi uit of het aan de app ligt of aan {org}.",
+      "unknown_body_no_organisation": "Probeer het opnieuw. Gaat het weer mis? Dan zoekt Yivi uit wat er aan de hand is."
     }
   },
   "help": {
@@ -384,7 +392,6 @@
     "ask": "Stel je vraag",
     "contact": "support@yivi.app",
     "device": "Mobiel",
-    "email": "Stuur een e-mail",
     "faq": "Veelgestelde vragen",
     "login": "Inloggen",
     "mail_error": "Sorry, het lukt niet om de e-mail app te openen",
@@ -424,8 +431,8 @@
     "answer_10": "Degene bij wie je de gegevens ophaalt, bepaalt de geldigheidsduur. Deze kan dus verlopen. Je krijgt dan een waarschuwing in de Yivi-app. Hoe lang je gegevens geldig zijn? Dat ligt aan het type gegevens. Naam en geboortedatum zijn 5 jaar geldig. Je adres maar één jaar. Verversen kan altijd, wanneer jij maar wil. Bijvoorbeeld door direct na je 18e verjaardag je leeftijd up-to-date te maken in de app. Dan kan je meteen laten zien dat je 18+ bent.",
     "question_11": "Yivi, privacy en veiligheid",
     "answer_11": "De Yivi-app is zo gemaakt dat jij en jij alleen je gegevens in de app kunt zien en gebruiken. Jouw gegevens staan alleen in de Yivi-app op je mobiel, en nergens anders (dus ook niet in de cloud).\nDe Yivi-app is zo gemaakt dat een website of winkel waar je jezelf bekendmaakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\nDe Yivi-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter Yivi kan niet meekijken.\nMet het gebruik van Yivi ga je akkoord met de [privacy policy](https://www.yivi.app/privacy).",
-    "send": "Heb je een andere vraag? Laat het ons weten via support@yivi.app. Wij beantwoorden je mail zo snel mogelijk.",
-    "security_and_privacy": "Beveiliging en privacy"
+    "security_and_privacy": "Beveiliging en privacy",
+    "need_help_body": "Staat je vraag er niet bij? Vertel ons waar je tegenaan loopt. We helpen je verder, of vertellen je wie dat kan."
   },
   "home": {
     "nav_bar": {
@@ -567,7 +574,6 @@
     "settings": "Instellingen",
     "faq": "Veelgestelde vragen",
     "debugging": "Debugging",
-    "contact": "Contact opnemen",
     "share": "Deel Yivi",
     "share_text": "Kijk eens naar de Yivi-app: https://yivi.app",
     "website": "Yivi-website",
@@ -585,6 +591,170 @@
     "app_id": "App-ID {id}",
     "log_out": "Uitloggen",
     "logged_out_toast": "Je bent uitgelogd"
+  },
+  "need_help": {
+    "the_organisation": "de organisatie",
+    "start": {
+      "title": "Waar loop je tegenaan?",
+      "group_organisation": "Bij een organisatie",
+      "group_data": "Je gegevens",
+      "group_app": "De Yivi-app"
+    },
+    "answer": {
+      "question": "Is je probleem opgelost?",
+      "solved": "Ja, opgelost",
+      "not_solved": "Nee, ik kom er niet uit",
+      "error_code": "Foutcode: {code}"
+    },
+    "ask": {
+      "title": "Waar gaat je vraag over?",
+      "organisation": "Een organisatie of website",
+      "organisation_subtitle": "Een aanvraag, een uitkomst of inloggen",
+      "app": "De Yivi-app",
+      "app_subtitle": "De app zelf, of gegevens die Yivi uitgeeft"
+    },
+    "organisation": {
+      "title": "{org} helpt je verder",
+      "choose_title": "Bij welke organisatie?",
+      "choose_body": "Kies de organisatie die om je gegevens vroeg. Zij kunnen je aanvraag inzien en helpen je verder. Yivi kan dat niet.",
+      "choose_none": "Ga naar de website van de organisatie en zoek daar naar contact of klantenservice.",
+      "recent": "Recent",
+      "quote_error_code": "Noem foutcode {code}, dan weten ze waar ze moeten kijken.",
+      "open_website": "Naar de website van {org}",
+      "send_email": "Mail {org}",
+      "or_email": "Of mail naar {email}",
+      "no_contact": "Zoek op de website van {org} naar contactgegevens.",
+      "app_not_working": "Werkt de Yivi-app zelf niet?"
+    },
+    "yivi": {
+      "title": "Yivi support helpt je verder",
+      "body": "Stuur ons een mail. We beantwoorden je mail zo snel mogelijk.",
+      "included": "Dit sturen we mee",
+      "included_topic": "Onderwerp: {topic}",
+      "included_device": "App-versie en toestel",
+      "included_report": "Het foutrapport",
+      "mail_button": "Mail Yivi support",
+      "mail_subject": "Hulp nodig: {topic}",
+      "mail_prompt": "Beschrijf hier je vraag of probleem:",
+      "mail_topic": "Onderwerp",
+      "mail_app_version": "App-versie",
+      "mail_device": "Toestel",
+      "mail_error_report": "Foutrapport"
+    },
+    "context": {
+      "activity_section": "Over deze activiteit",
+      "activity_disclosure": "Vraag over je aanvraag bij {org}",
+      "activity_issuance": "Vraag over je gegevens van {org}",
+      "activity_disclosure_note": "Yivi heeft alleen je gegevens doorgegeven. Wat er daarna gebeurt, zoals de uitkomst van je aanvraag, regelt {org}.",
+      "error_section": "Over deze foutmelding",
+      "error_yivi": "Foutmelding in de Yivi-app",
+      "error_organisation": "Foutmelding bij {org}",
+      "error_unknown": "Er ging iets mis",
+      "error_unknown_subtitle": "Oorzaak nog onbekend",
+      "error_expired": "De sessie is verlopen",
+      "error_code": "Foutcode {code}"
+    },
+    "problems": {
+      "arrange": {
+        "title": "Ik moet iets regelen bij een organisatie",
+        "subtitle": "Zoals schadevrije jaren opvragen of inloggen",
+        "lead": "Dat regel je op de website van {org}, niet in Yivi. Yivi bewaart je gegevens en geeft ze door als jij dat goedkeurt.",
+        "step_1": "Ga naar de website van {org} en start daar je aanvraag.",
+        "step_2": "Kies op de website voor Yivi. De app opent vanzelf, of je scant een QR-code.",
+        "step_3": "Kijk welke gegevens er gevraagd worden en keur het delen goed.",
+        "step_4": "Daarna verwerkt {org} je aanvraag en laat je weten hoe het verder gaat.",
+        "note": "Mis je gegevens? Yivi laat tijdens het delen zien welke je nog moet toevoegen, en hoe.",
+        "handover": "Alleen {org} kan je aanvraag inzien en je verder helpen. Yivi kan dat niet."
+      },
+      "outcome": {
+        "title": "Ik wacht op een uitkomst",
+        "subtitle": "Je deelde je gegevens, maar hoort niets",
+        "lead": "De uitkomst krijg je van {org}, niet van Yivi. Yivi geeft alleen je gegevens door en ziet niet wat er daarna gebeurt.",
+        "step_1": "Kijk in je mail en op de website van {org}. Daar komt de uitkomst.",
+        "step_2": "Wil je weten wat je wanneer deelde? Dat staat onder Activiteit.",
+        "note": "Hoe lang het duurt, bepaalt {org}.",
+        "handover": "Alleen {org} kan je aanvraag inzien en je verder helpen. Yivi kan dat niet."
+      },
+      "add_data": {
+        "title": "Gegevens toevoegen lukt niet",
+        "subtitle": "E-mailadres, telefoonnummer, paspoort of ID-kaart",
+        "lead": "Deze gegevens geeft Yivi zelf uit. Dit lost het meestal op:",
+        "step_1": "Zorg dat je de nieuwste versie van Yivi hebt.",
+        "step_2": "Geen mail of sms gekregen? Kijk in je spam en controleer het adres of nummer.",
+        "step_3": "Paspoort of ID-kaart: haal je telefoon uit de hoes en houd hem stil tegen het document.",
+        "note": "Haal je gegevens op bij een andere organisatie dan Yivi? Dan helpt die organisatie je."
+      },
+      "data_wrong": {
+        "title": "Mijn gegevens kloppen niet",
+        "subtitle": "Een naam, adres of ander gegeven is fout of oud",
+        "lead": "Yivi neemt je gegevens over van de bron en kan ze niet aanpassen. Pas ze aan bij de bron en haal ze daarna opnieuw op.",
+        "step_1": "Persoonsgegevens en adres komen van je gemeente. Laat ze daar aanpassen.",
+        "step_2": "Nieuw e-mailadres of telefoonnummer? Voeg het nieuwe toe in Yivi.",
+        "step_3": "Aangepast? Open de gegevens in Yivi en kies Opnieuw ophalen.",
+        "handover": "Aangepast bij de bron, maar klopt het na opnieuw ophalen nog steeds niet? Dan helpt Yivi je verder."
+      },
+      "pin": {
+        "title": "Pincode vergeten of app geblokkeerd",
+        "lead": "Niemand kent je pincode, ook Yivi niet. We kunnen hem dus niet voor je terugzetten.",
+        "step_1": "Kies op het pincodescherm ‘Pincode vergeten’.",
+        "step_2": "Begin opnieuw: kies een nieuwe pincode en voeg je gegevens opnieuw toe.",
+        "step_3": "Is je app geblokkeerd? Installeer Yivi opnieuw en begin opnieuw."
+      },
+      "phone": {
+        "title": "Nieuwe telefoon of telefoon kwijt",
+        "lead": "Je gegevens staan alleen op je telefoon. Er is geen back-up en geen cloud.",
+        "step_1": "Nieuwe telefoon: installeer Yivi en voeg je gegevens opnieuw toe.",
+        "step_2": "Telefoon kwijt: zonder je pincode kan niemand in je Yivi-app.",
+        "step_3": "Gaf je je e-mailadres op? Dan kun je de app op afstand blokkeren via Mijn Yivi."
+      },
+      "app_broken": {
+        "title": "De app werkt niet of geeft een foutmelding",
+        "lead": "Dit lost het vaak op:",
+        "step_1": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet.",
+        "step_2": "Zorg dat je de nieuwste versie van Yivi hebt.",
+        "step_3": "Sluit de app helemaal af en open hem opnieuw.",
+        "note": "Kreeg je een foutmelding? Kies daar ‘Hulp nodig?’, dan sturen we het foutrapport mee."
+      },
+      "other": {
+        "title": "Iets anders"
+      },
+      "data_from_organisation": {
+        "title": "Vraag over je gegevens van {org}",
+        "lead": "Deze gegevens komen van {org}. Yivi bewaart ze alleen en kan ze niet aanpassen.",
+        "step_1": "Klopt er iets niet? Laat het aanpassen bij {org}.",
+        "step_2": "Open daarna de gegevens in Yivi en kies Opnieuw ophalen.",
+        "handover": "Alleen {org} kan je gegevens inzien en aanpassen. Yivi kan dat niet."
+      },
+      "error_yivi": {
+        "title": "Foutmelding in de Yivi-app",
+        "lead": "Deze fout zit in Yivi zelf, niet bij {org}.",
+        "step_1": "Zorg dat je de nieuwste versie van Yivi hebt.",
+        "step_2": "Probeer het over een paar minuten opnieuw vanaf de website van {org}.",
+        "handover": "Yivi bekijkt je foutrapport en helpt je verder."
+      },
+      "error_organisation": {
+        "title": "Foutmelding bij {org}",
+        "lead": "Het ging mis bij {org}, niet in je Yivi-app.",
+        "step_1": "Probeer het later opnieuw vanaf de website van {org}.",
+        "step_2": "Lukt het weer niet? Neem contact op met {org}.",
+        "handover": "Alleen {org} kan dit oplossen. Yivi kan niet bij hun systemen."
+      },
+      "error_unknown": {
+        "title": "Er ging iets mis",
+        "lead": "Aan deze foutmelding zien we niet of het aan de app ligt of aan {org}. Daarom kijkt Yivi eerst.",
+        "step_1": "Controleer je internetverbinding.",
+        "step_2": "Zorg dat je de nieuwste versie van Yivi hebt.",
+        "step_3": "Probeer het opnieuw vanaf de website van {org}.",
+        "handover": "Yivi bekijkt je foutrapport en zoekt uit waar het misging. Ligt het bij {org}? Dan laten we je dat weten."
+      },
+      "error_expired": {
+        "title": "De sessie is verlopen",
+        "lead": "Dat gebeurt als je er lang over deed, of als je een oude link of QR-code gebruikte.",
+        "step_1": "Ga terug naar de website van {org}.",
+        "step_2": "Begin daar opnieuw en rond het in één keer af.",
+        "handover": "Verloopt de sessie steeds? Dan zoekt Yivi uit waar het misgaat."
+      }
+    }
   },
   "pin": {
     "subtitle": "Voer je pincode in",

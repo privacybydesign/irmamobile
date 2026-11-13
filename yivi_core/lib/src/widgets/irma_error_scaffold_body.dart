@@ -16,19 +16,31 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
   final String? details;
   final bool reportable;
 
+  /// Overrides the type's title and the report text, e.g. to say who caused
+  /// the error. Both take [translationParams].
+  final String? titleTranslationKey;
+  final String? bodyTranslationKey;
+  final Map<String, String>? translationParams;
+
   const IrmaErrorScaffoldBody({
     super.key,
     required this.type,
     this.details,
     this.reportable = false,
+    this.titleTranslationKey,
+    this.bodyTranslationKey,
+    this.translationParams,
   });
 
   @override
   Widget build(BuildContext context) {
     return IrmaInfoScaffoldBody(
       imagePath: yiviAsset("error/general_error_illustration.svg"),
-      titleTranslationKey: _translationKeys[type]!,
-      bodyTranslationKey: reportable == true ? "error.report" : null,
+      titleTranslationKey: titleTranslationKey ?? _translationKeys[type]!,
+      titleTranslationParams: translationParams,
+      bodyTranslationKey:
+          bodyTranslationKey ?? (reportable == true ? "error.report" : null),
+      bodyTranslationParams: translationParams,
       linkTranslationKey: details != null ? "error.button_show_error" : null,
       linkDialogText: details,
     );

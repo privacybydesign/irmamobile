@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
 - A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
 - Support for French language ([#806](https://github.com/privacybydesign/irmamobile/issues/806))
+- "Need help?" as the one way into support, from the More tab, the FAQ, an activity and a session error. The user picks their problem and first gets a short answer. Only when that doesn't help are they put through: to the organisation for its own requests, outcomes and data, using the website and email from the scheme or the requestor's hostname, and to Yivi support for the app and the data Yivi issues. The mail to Yivi support names the problem and includes the app version, the device and, after an error, the error report
 
 ### Changed
+- Session error screens say who caused the error when the error shows it: Yivi (keyshare, scheme, cryptography) or the organisation (`NEXT_SESSION`, `https`, `requiredAttributeMissing`). Errors that could come from either side never send the user to the organisation: Yivi support looks first. "Need help?" replaces "Send this message to Yivi"; the error report is sent when the help request ends at Yivi support
+- The More tab has "Need help?" under App management in place of "Contact us"; the FAQ moved to About Yivi
 - The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
 
 ### Removed

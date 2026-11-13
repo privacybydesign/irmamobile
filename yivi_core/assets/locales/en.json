@@ -376,7 +376,15 @@
       "blocked": "Your Yivi app has been remotely blocked. This has either been done via MyYivi or because you did not use Yivi on this device for more than one year. If you want to continue using Yivi on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
-      "no_internet": "Please make sure your device has a functional internet connection."
+      "no_internet": "Please make sure your device has a functional internet connection.",
+      "yivi": "Something went wrong in Yivi",
+      "yivi_body": "This is caused by Yivi, not by {org} or by you. Please try again later.",
+      "yivi_body_no_organisation": "This is caused by Yivi, not by you. Please try again later.",
+      "organisation": "Something went wrong at {org}",
+      "organisation_unknown": "Something went wrong at the organization",
+      "organisation_body": "Your Yivi app is working fine. Please try again later.",
+      "unknown_body": "Please try again. Still not working? Then Yivi will find out whether it's the app or {org}.",
+      "unknown_body_no_organisation": "Please try again. Still not working? Then Yivi will find out what's going on."
     }
   },
   "help": {
@@ -384,7 +392,6 @@
     "ask": "Ask a question",
     "contact": "support@yivi.app",
     "device": "Mobile",
-    "email": "Send an e-mail",
     "faq": "Frequently asked questions",
     "login": "Login",
     "mail_error": "Sorry, we can't open your e-mail app",
@@ -424,8 +431,8 @@
     "answer_10": "The supplier of the data can determine what the validity period of the data is. So your data can expire. You will get a warning in the Yivi app if this happens. How long your data remains valid depends on the type of data. Your name and birthdate are valid for 5 years. Your address is just one year. You can always refresh your data, whenever you want. For instance by refreshing your age after your 18th birthday. That way you can directly show that you're older than 18. ",
     "question_11": "Yivi, privacy and safety",
     "answer_11": "The Yivi app has been developed in such a way that you and only you can see and use your personal data. Your personal data is only stored on your phone and nowhere else. We don't store your data in the cloud.\n\nThe Yivi app enables a website or shop to (cryptographically) verify that the data you disclosed is genuine.\n\nThe Yivi app discloses your data directly from your phone to the website. No one else can see that you're identifying yourself. Not even the organization behind Yivi.\n\nWhen using Yivi, you agree with the [privacy policy](https://www.yivi.app/en/privacy).",
-    "send": "Do you have other/more questions? Send an e-mail. It may take a couple of days before you get a reply.",
-    "security_and_privacy": "Security and privacy"
+    "security_and_privacy": "Security and privacy",
+    "need_help_body": "Question not listed? Tell us what you're running into. We'll help you, or tell you who can."
   },
   "home": {
     "nav_bar": {
@@ -567,7 +574,6 @@
     "settings": "Settings",
     "faq": "Frequently asked questions",
     "debugging": "Debugging",
-    "contact": "Contact us",
     "share": "Share Yivi",
     "share_text": "Check out the Yivi app: https://yivi.app",
     "website": "Yivi website",
@@ -585,6 +591,170 @@
     "app_id": "App ID {id}",
     "log_out": "Log out",
     "logged_out_toast": "You have been logged out"
+  },
+  "need_help": {
+    "the_organisation": "the organization",
+    "start": {
+      "title": "What are you running into?",
+      "group_organisation": "With an organization",
+      "group_data": "Your data",
+      "group_app": "The Yivi app"
+    },
+    "answer": {
+      "question": "Did this solve your problem?",
+      "solved": "Yes, solved",
+      "not_solved": "No, I'm still stuck",
+      "error_code": "Error code: {code}"
+    },
+    "ask": {
+      "title": "What is your question about?",
+      "organisation": "An organization or website",
+      "organisation_subtitle": "A request, an outcome or logging in",
+      "app": "The Yivi app",
+      "app_subtitle": "The app itself, or data that Yivi issues"
+    },
+    "organisation": {
+      "title": "{org} can help you further",
+      "choose_title": "Which organization?",
+      "choose_body": "Choose the organization that asked for your data. They can look into your request and help you further. Yivi can't.",
+      "choose_none": "Go to the website of the organization and look for contact details or customer service there.",
+      "recent": "Recent",
+      "quote_error_code": "Mention error code {code}, so they know where to look.",
+      "open_website": "Go to the website of {org}",
+      "send_email": "Email {org}",
+      "or_email": "Or email {email}",
+      "no_contact": "Look for contact details on the website of {org}.",
+      "app_not_working": "Is the Yivi app itself not working?"
+    },
+    "yivi": {
+      "title": "Yivi support can help you further",
+      "body": "Send us an email. We will answer as soon as we can.",
+      "included": "What we send along",
+      "included_topic": "Subject: {topic}",
+      "included_device": "App version and device",
+      "included_report": "The error report",
+      "mail_button": "Email Yivi support",
+      "mail_subject": "Help needed: {topic}",
+      "mail_prompt": "Describe your question or problem here:",
+      "mail_topic": "Subject",
+      "mail_app_version": "App version",
+      "mail_device": "Device",
+      "mail_error_report": "Error report"
+    },
+    "context": {
+      "activity_section": "About this activity",
+      "activity_disclosure": "Question about your request at {org}",
+      "activity_issuance": "Question about your data from {org}",
+      "activity_disclosure_note": "Yivi only passed on your data. What happens next, such as the outcome of your request, is up to {org}.",
+      "error_section": "About this error",
+      "error_yivi": "Error in the Yivi app",
+      "error_organisation": "Error at {org}",
+      "error_unknown": "Something went wrong",
+      "error_unknown_subtitle": "Cause not yet known",
+      "error_expired": "The session has expired",
+      "error_code": "Error code {code}"
+    },
+    "problems": {
+      "arrange": {
+        "title": "I need to arrange something with an organization",
+        "subtitle": "Such as requesting your claim-free years or logging in",
+        "lead": "You arrange that on the website of {org}, not in Yivi. Yivi stores your data and passes it on when you approve.",
+        "step_1": "Go to the website of {org} and start your request there.",
+        "step_2": "Choose Yivi on the website. The app opens by itself, or you scan a QR code.",
+        "step_3": "Check which data is requested and approve sharing it.",
+        "step_4": "Your request is then handled by {org}, who will tell you what happens next.",
+        "note": "Missing data? While sharing, Yivi shows which data you still need to add, and how.",
+        "handover": "Only {org} can look into your request and help you further. Yivi can't."
+      },
+      "outcome": {
+        "title": "I'm waiting for an outcome",
+        "subtitle": "You shared your data, but haven't heard anything",
+        "lead": "The outcome comes from {org}, not from Yivi. Yivi only passes on your data and doesn't see what happens next.",
+        "step_1": "Check your email and the website of {org}. That is where the outcome will appear.",
+        "step_2": "Want to know what you shared and when? You can find that under Activity.",
+        "note": "How long it takes is up to {org}.",
+        "handover": "Only {org} can look into your request and help you further. Yivi can't."
+      },
+      "add_data": {
+        "title": "Adding data doesn't work",
+        "subtitle": "Email address, phone number, passport or ID card",
+        "lead": "Yivi issues this data itself. This usually fixes it:",
+        "step_1": "Make sure you have the latest version of Yivi.",
+        "step_2": "No email or text message? Check your spam folder and the address or number you entered.",
+        "step_3": "Passport or ID card: take your phone out of its case and hold it still against the document.",
+        "note": "Getting data from an organization other than Yivi? Then that organization can help you."
+      },
+      "data_wrong": {
+        "title": "My data is incorrect",
+        "subtitle": "A name, address or other detail is wrong or outdated",
+        "lead": "Yivi copies your data from the source and can't change it. Have it changed at the source, then obtain it again.",
+        "step_1": "Personal details and address come from your municipality. Have them changed there.",
+        "step_2": "New email address or phone number? Add the new one in Yivi.",
+        "step_3": "Changed? Open the data in Yivi and choose Reobtain.",
+        "handover": "Changed at the source, but still incorrect after obtaining it again? Then Yivi can help you further."
+      },
+      "pin": {
+        "title": "Forgot my PIN or the app is blocked",
+        "lead": "Nobody knows your PIN, not even Yivi. So we can't reset it for you.",
+        "step_1": "Choose “I forgot my PIN” on the PIN screen.",
+        "step_2": "Start over: choose a new PIN and add your data again.",
+        "step_3": "Is your app blocked? Reinstall Yivi and start over."
+      },
+      "phone": {
+        "title": "New phone or lost phone",
+        "lead": "Your data is only stored on your phone. There is no backup and no cloud.",
+        "step_1": "New phone: install Yivi and add your data again.",
+        "step_2": "Lost phone: without your PIN nobody can get into your Yivi app.",
+        "step_3": "Did you add your email address? Then you can block the app remotely via MyYivi."
+      },
+      "app_broken": {
+        "title": "The app doesn't work or shows an error",
+        "lead": "This often fixes it:",
+        "step_1": "Check your internet connection. Yivi doesn't work without one.",
+        "step_2": "Make sure you have the latest version of Yivi.",
+        "step_3": "Close the app completely and open it again.",
+        "note": "Did you get an error message? Choose “Need help?” there, and we'll send the error report along."
+      },
+      "other": {
+        "title": "Something else"
+      },
+      "data_from_organisation": {
+        "title": "Question about your data from {org}",
+        "lead": "This data comes from {org}. Yivi only stores it and can't change it.",
+        "step_1": "Something incorrect? Have it changed at {org}.",
+        "step_2": "Then open the data in Yivi and choose Reobtain.",
+        "handover": "Only {org} can look into and change your data. Yivi can't."
+      },
+      "error_yivi": {
+        "title": "Error in the Yivi app",
+        "lead": "This error is in Yivi itself, not at {org}.",
+        "step_1": "Make sure you have the latest version of Yivi.",
+        "step_2": "Try again in a few minutes from the website of {org}.",
+        "handover": "Yivi will look at your error report and help you further."
+      },
+      "error_organisation": {
+        "title": "Error at {org}",
+        "lead": "Something went wrong at {org}, not in your Yivi app.",
+        "step_1": "Try again later from the website of {org}.",
+        "step_2": "Still not working? Contact {org}.",
+        "handover": "This can only be solved by {org}. Yivi has no access to their systems."
+      },
+      "error_unknown": {
+        "title": "Something went wrong",
+        "lead": "From this error we can't tell whether the cause is the app or {org}. That's why Yivi looks first.",
+        "step_1": "Check your internet connection.",
+        "step_2": "Make sure you have the latest version of Yivi.",
+        "step_3": "Try again from the website of {org}.",
+        "handover": "Yivi will look at your error report and find out where it went wrong. If it turns out to be at {org}, we'll let you know."
+      },
+      "error_expired": {
+        "title": "The session has expired",
+        "lead": "That happens when it took a while, or when you used an old link or QR code.",
+        "step_1": "Go back to the website of {org}.",
+        "step_2": "Start again there and finish in one go.",
+        "handover": "Does the session keep expiring? Then Yivi will find out what goes wrong."
+      }
+    }
   },
   "pin": {
     "subtitle": "Enter your PIN",

@@ -8,6 +8,7 @@ import "../../widgets/irma_markdown.dart";
 import "../../widgets/link.dart";
 import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
+import "../need_help/need_help_screen.dart";
 import "widgets/help_item.dart";
 import "widgets/help_item_carousel.dart";
 
@@ -158,10 +159,17 @@ class _HelpScreenState extends State<HelpScreen> {
               SizedBox(height: theme.defaultSpacing),
               _buildHeader(theme, "help.ask"),
               SizedBox(height: theme.defaultSpacing),
-              TranslatedText("help.send", style: theme.textTheme.bodyMedium),
+              TranslatedText(
+                "help.need_help_body",
+                style: theme.textTheme.bodyMedium,
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-                child: const ContactLink(translationKey: "help.email"),
+                child: Link(
+                  key: const Key("faq_need_help_link"),
+                  label: "more_tab.need_help",
+                  onTap: () => openNeedHelp(context),
+                ),
               ),
             ],
           ),

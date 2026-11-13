@@ -4,7 +4,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/link.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -39,10 +38,10 @@ void main() {
       // Check screen text
       const texts = [
         "Settings",
-        "Frequently asked questions",
+        "Need help?",
         if (kDebugMode) "Debugging",
         "Yivi website",
-        "Contact us",
+        "Frequently asked questions",
         "Share Yivi",
         "Yivi's privacy policy",
       ];
@@ -180,14 +179,32 @@ void main() {
         findsOneWidget,
       );
 
-      // Check if the contact link is present
+      // Questions the FAQ doesn't answer go through "Need help?".
       await tester.scrollUntilVisible(
-        find.descendant(
-          of: find.byType(ContactLink),
-          matching: find.text("Send an e-mail"),
-        ),
+        find.byKey(const Key("faq_need_help_link")),
         75,
       );
+    });
+
+    testWidgets("need-help", (tester) async {
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+      await tester.tapAndSettle(find.text("More"));
+
+      final needHelp = find.text("Need help?");
+      await tester.scrollUntilVisible(needHelp, 30);
+      await tester.tapAndSettle(needHelp);
+      expect(find.text("What are you running into?"), findsOneWidget);
+
+      // An app problem: first the answer, then Yivi support.
+      final pinProblem = find.text("Forgot my PIN or the app is blocked");
+      await tester.scrollUntilVisible(pinProblem, 50);
+      await tester.tapAndSettle(pinProblem);
+      expect(find.text("Did this solve your problem?"), findsOneWidget);
+
+      final notSolved = find.byKey(const Key("need_help_not_solved_button"));
+      await tester.scrollUntilVisible(notSolved, 50);
+      await tester.tapAndSettle(notSolved);
+      expect(find.text("Yivi support can help you further"), findsOneWidget);
     });
   });
 }
