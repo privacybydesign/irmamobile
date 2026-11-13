@@ -174,13 +174,17 @@ void main() {
       await tester.pumpAndSettle();
       // The top of the first card is its strip; the next card covers the
       // rest of it.
-      final strip = tester.getTopLeft(tile(_delta)) + const Offset(150, 30);
-      await drag(tester, strip, const Offset(0, 2 * 64 + 10));
+      // The strip: how far the second card (alpha) sits below the first.
+      final stripHeight =
+          tester.getTopLeft(tile(_alpha)).dy -
+          tester.getTopLeft(tile(_delta)).dy;
+      final strip = tester.getTopLeft(tile(_delta)) + const Offset(150, 24);
+      await drag(tester, strip, Offset(0, 2 * stripHeight + 10));
       expect(order(tester), ["alpha", "Charlie", "Delta", "Bravo"]);
       // It landed in its new strip.
       expect(
         tester.getTopLeft(tile(_delta)).dy,
-        tester.getTopLeft(tile(_alpha)).dy + 2 * 64,
+        tester.getTopLeft(tile(_alpha)).dy + 2 * stripHeight,
       );
     });
 

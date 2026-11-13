@@ -252,14 +252,16 @@ class _YiviCard extends StatelessWidget {
           )
         else
           CustomPaint(painter: _FacetsPainter(colours)),
+        // The header as on the built-in cards: up in the top band, so it
+        // fits the strip that shows in the stack.
         Positioned(
           left: 18.5,
-          top: 16.5,
+          top: 10.5,
           child: _Logo(credential: credential, colour: colours.top),
         ),
         Positioned(
           left: 62,
-          top: 17,
+          top: 11,
           right: 20,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
