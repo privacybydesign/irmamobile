@@ -20,6 +20,14 @@ class HelpProblem {
   /// Shown above the contact options, to say why this party helps.
   final bool hasHandover;
 
+  /// With [HelpRoute.ask]: the problem asks who helps in its own words,
+  /// under `need_help.problems.<id>.ask`, instead of the general question.
+  final bool hasAsk;
+
+  /// A page where the user can solve it, linked from the answer. Its label
+  /// is `need_help.problems.<id>.link`.
+  final String? link;
+
   const HelpProblem({
     required this.id,
     required this.icon,
@@ -29,7 +37,12 @@ class HelpProblem {
     this.hasLead = true,
     this.hasNote = false,
     this.hasHandover = false,
+    this.hasAsk = false,
+    this.link,
   });
+
+  /// Whether there is a short answer to try before contact.
+  bool get hasAnswer => hasLead || steps > 0;
 
   String get _base => "need_help.problems.$id";
   String get titleKey => "$_base.title";
@@ -38,6 +51,14 @@ class HelpProblem {
   String stepKey(int index) => "$_base.step_${index + 1}";
   String get noteKey => "$_base.note";
   String get handoverKey => "$_base.handover";
+  String get linkKey => "$_base.link";
+
+  /// A key of the "who helps?" question: the problem's own or the general.
+  String askKey(String key) =>
+      hasAsk ? "$_base.ask.$key" : "need_help.ask.$key";
+
+  String get chooseOrganisationKey =>
+      hasAsk ? "$_base.ask.choose_body" : "need_help.organisation.choose_body";
 }
 
 abstract final class HelpProblems {
@@ -61,13 +82,16 @@ abstract final class HelpProblems {
     hasHandover: true,
   );
 
+  /// Mostly data Yivi issues itself, but other organisations issue data
+  /// too: the user says where they get it.
   static const addData = HelpProblem(
     id: "add_data",
     icon: Icons.add_circle_outline_rounded,
-    route: HelpRoute.yivi,
+    route: HelpRoute.ask,
     steps: 3,
     hasSubtitle: true,
     hasNote: true,
+    hasAsk: true,
   );
 
   static const dataWrong = HelpProblem(
@@ -91,6 +115,8 @@ abstract final class HelpProblems {
     icon: Icons.phone_iphone_rounded,
     route: HelpRoute.yivi,
     steps: 3,
+    // Where a lost phone's app is blocked.
+    link: "https://my.yivi.app",
   );
 
   static const appBroken = HelpProblem(

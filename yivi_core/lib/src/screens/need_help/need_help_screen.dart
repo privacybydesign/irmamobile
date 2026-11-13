@@ -28,7 +28,6 @@ import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
 import "../../widgets/yivi_themed_button.dart";
 import "../activity/history_repository.dart";
-import "../help/help_screen.dart";
 import "../more/widgets/tiles_card.dart";
 import "help_problem.dart";
 import "recent_organisations.dart";
@@ -92,7 +91,7 @@ class NeedHelpScreen extends StatelessWidget {
       final errorReport = known?.errorReport;
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => problem.route == HelpRoute.ask
+          builder: (_) => !problem.hasAnswer
               ? NeedHelpContactScreen(
                   problem: problem,
                   errorReport: errorReport,
@@ -148,23 +147,6 @@ class NeedHelpScreen extends StatelessWidget {
           ),
           SizedBox(height: theme.mediumSpacing),
         ],
-        // Questions about Yivi itself, not a problem: the FAQ.
-        const SectionHeader("help.about_irma"),
-        SizedBox(height: theme.smallSpacing),
-        TilesCard(
-          children: [
-            _HelpRow(
-              key: const Key("need_help_faq_option"),
-              icon: Icons.help_outline_rounded,
-              title: _tr(context, "more_tab.faq"),
-              subtitle: _tr(context, "need_help.start.faq_subtitle"),
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => HelpScreen())),
-            ),
-          ],
-        ),
-        SizedBox(height: theme.mediumSpacing),
         TilesCard(
           children: [
             _HelpRow(
@@ -222,6 +204,16 @@ class NeedHelpAnswerScreen extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
         ],
+        if (problem.link case final link?) ...[
+          _Inset(
+            Link(
+              key: const Key("need_help_answer_link"),
+              label: problem.linkKey,
+              onTap: () => _openExternally(context, Uri.parse(link)),
+            ),
+          ),
+          SizedBox(height: theme.defaultSpacing),
+        ],
         if (problem.hasNote) ...[
           _Inset(_Paragraph(tr(problem.noteKey))),
           SizedBox(height: theme.defaultSpacing),
@@ -272,6 +264,14 @@ class NeedHelpAnswerScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+Future<void> _openExternally(BuildContext context, Uri uri) async {
+  try {
+    await IrmaRepositoryProvider.of(context).openURLExternally(uri.toString());
+  } catch (e, stacktrace) {
+    reportError(e, stacktrace);
   }
 }
 
@@ -379,21 +379,22 @@ class _ContactAsk extends StatelessWidget {
       ),
     );
 
+    final problem = screen.problem;
     return _HelpScaffold(
-      titleKey: "need_help.ask.title",
+      titleKey: problem.askKey("title"),
       children: [
         TilesCard(
           children: [
             _HelpRow(
               icon: Icons.account_balance_outlined,
-              title: _tr(context, "need_help.ask.organisation"),
-              subtitle: _tr(context, "need_help.ask.organisation_subtitle"),
+              title: _tr(context, problem.askKey("organisation")),
+              subtitle: _tr(context, problem.askKey("organisation_subtitle")),
               onTap: () => go(HelpRoute.organisation),
             ),
             _HelpRow(
               icon: Icons.phone_iphone_rounded,
-              title: _tr(context, "need_help.ask.app"),
-              subtitle: _tr(context, "need_help.ask.app_subtitle"),
+              title: _tr(context, problem.askKey("app")),
+              subtitle: _tr(context, problem.askKey("app_subtitle")),
               onTap: () => go(HelpRoute.yivi),
             ),
           ],
@@ -414,7 +415,7 @@ class _ContactChooseOrganisation extends StatelessWidget {
     return _HelpScaffold(
       titleKey: "need_help.organisation.choose_title",
       children: [
-        _Inset(_Paragraph(_tr(context, "need_help.organisation.choose_body"))),
+        _Inset(_Paragraph(_tr(context, screen.problem.chooseOrganisationKey))),
         SizedBox(height: theme.mediumSpacing),
         _OrganisationChoices(
           onSelect: (org) => Navigator.of(context).push(
@@ -638,15 +639,7 @@ class _ContactOrganisation extends StatelessWidget {
     String tr(String key, [Map<String, String> params = const {}]) =>
         _tr(context, key, org: org, params: params);
 
-    Future<void> open(Uri uri) async {
-      try {
-        await IrmaRepositoryProvider.of(
-          context,
-        ).openURLExternally(uri.toString());
-      } catch (e, stacktrace) {
-        reportError(e, stacktrace);
-      }
-    }
+    Future<void> open(Uri uri) => _openExternally(context, uri);
 
     final website = org.website;
     final email = org.email;

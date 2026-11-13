@@ -125,69 +125,6 @@ void main() {
       await tester.waitFor(find.text("Enter your PIN").hitTestable());
     });
 
-    testWidgets("faq", (tester) async {
-      // Initialize the app for integration tests
-      await pumpAndUnlockApp(tester, irmaBinding.repository);
-
-      // Open menu
-      await tester.tapAndSettle(find.text("More"));
-
-      // The FAQ is part of "Need help?".
-      final needHelp = find.text("Need help?");
-      await tester.scrollUntilVisible(needHelp, 30);
-      await tester.tapAndSettle(needHelp);
-      final faqFinder = find.text("Frequently asked questions");
-      // In landscape mode on some devices the FAQ button is not visible so we scroll to it.
-      await tester.scrollUntilVisible(faqFinder, 100);
-      await tester.tapAndSettle(faqFinder);
-
-      // Expand all questions.
-      const questions = [
-        "What can I do with Yivi?",
-        "Why does Yivi exist?",
-        "Who is behind the Yivi app?",
-        "How to use Yivi for logging onto a mobile website?",
-        "How to use Yivi for logging onto a website on my computer?",
-        "What to do if I lose my mobile?",
-        "Can I install Yivi on multiple mobile devices?",
-        "Where is my Yivi data stored?",
-        "What makes Yivi privacy-friendly and secure?",
-        "Why does the data in the Yivi app have limited validity?",
-        "Yivi, privacy and safety",
-      ];
-      for (final question in questions) {
-        final questionFinder = find.text(question).hitTestable();
-        if (!tester.any(questionFinder)) {
-          await tester.scrollUntilVisible(questionFinder, 100);
-        }
-        // Unfold answer.
-        await tester.tapAndSettle(questionFinder);
-        // Fold answer again.
-        await tester.tapAndSettle(questionFinder);
-      }
-
-      // We select an item without markdown to make testing easier.
-      final questionFinder = find
-          .text("Why does the data in the Yivi app have limited validity?")
-          .hitTestable();
-      await tester.scrollUntilVisible(questionFinder, -50);
-      await tester.tapAndSettle(questionFinder);
-      expect(
-        find
-            .textContaining(
-              "That way you can directly show that you're older than 18.",
-            )
-            .hitTestable(),
-        findsOneWidget,
-      );
-
-      // Questions the FAQ doesn't answer: back to the problem list.
-      final chooseProblem = find.byKey(const Key("faq_need_help_link"));
-      await tester.scrollUntilVisible(chooseProblem, 75);
-      await tester.tapAndSettle(chooseProblem);
-      expect(find.text("What are you running into?"), findsOneWidget);
-    });
-
     testWidgets("need-help", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       await tester.tapAndSettle(find.text("More"));

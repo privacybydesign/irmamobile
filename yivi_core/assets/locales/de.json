@@ -389,51 +389,10 @@
   },
   "help": {
     "about_irma": "Über Yivi",
-    "ask": "Eine Frage stellen",
     "contact": "support@yivi.app",
-    "device": "Mobil",
-    "faq": "Häufig gestellte Fragen",
-    "login": "Anmeldung",
     "mail_error": "Entschuldigung, wir können Ihre E-Mail-App nicht öffnen",
     "mail_error_button": "OK",
-    "mail_error_title": "Entschuldigung",
-    "mail_subject": "Hilfe mit der Yivi-App",
-    "question_1": "Was kann ich mit Yivi machen?",
-    "answer_1_markdown": "Yivi ist eine sichere, datenschutzfreundliche und kostenlose mobile Anwendung. Yivi funktioniert als digitale Brieftasche, die mit persönlichen Daten gefüllt wird. Sie können sie verwenden, um sich bei Online-Diensten anzumelden oder Ihre Identität nachzuweisen, ohne unnötige Daten preiszugeben. Denn bei Yivi haben Sie immer die Wahl: Sie entscheiden, was Sie speichern, was Sie teilen und mit wem. Sie haben immer die Kontrolle. Sie haben die Kontrolle, immer.\n\nSie müssen sich keine Kontodaten und langen Passwörter merken. Nur Ihre Yivi-PIN. Und beim Teilen von Daten teilen Sie nur die Daten, die benötigt werden, nicht mehr. Sei es, um ein Paket online zu bestellen oder einen Termin bei Ihrem Arzt zu vereinbaren.\n\nMöchten Sie ein Ticket online bestellen? Mit Yivi können Sie einfach nachweisen, dass Sie älter als 18 sind. Mehr nicht. So schützen Sie Ihre Privatsphäre. Sie können auch Dokumente digital mit Yivi signieren, indem Sie Ihre persönlichen Attribute als Signatur verwenden. Sie können als Bürger, Arzt oder mit einer anderen Rolle signieren. Sehen Sie sich die aktuelle Übersicht der Organisationen an, die bereits mit Yivi arbeiten.",
-    "question_2": "Warum gibt es Yivi?",
-    "answer_2": "Menschen die Kontrolle über ihre Online-Daten zurückzugeben. Das ist die Mission von Yivi. Was speichern Sie? Was teilen Sie? Und mit wem? Yivi ermöglicht Ihnen, diese Wahl zu treffen. Mit unserer App können Sie entscheiden, was andere über Sie erfahren. Niemand schaut mit. Auch Yivi nicht. \n\nAlles wird sicher auf Ihrem Telefon gespeichert, verschlüsselt und hinter einer PIN. Es gibt keinen zentralen Datenspeicher oder Cloud-Speicher, der Ihre persönlichen Daten enthält. Telefon verloren? Keine Panik. Sperren Sie einfach Ihre Yivi-App aus der Ferne. Das verhindert, dass jemand Ihre Daten ohne Ihr Wissen verwendet.\n\nDer Verkauf Ihrer Daten ist und wird niemals unser Geschäftsmodell sein. Und trotzdem ist Yivi kostenlos nutzbar. Gibt es einen Haken? Nein, gibt es nicht! Nur die Organisationen, die Yivi nutzen, zahlen für die Dienste, damit Yivi für Sie kostenlos bleibt.\n",
-    "question_3": "Wer steht hinter der Yivi-App?",
-    "answer_3_markdown": "Die Privacy by Design Foundation ist die gemeinnützige Organisation hinter Yivi. Sie kennen diesen Namen vielleicht nicht, aber Sie haben wahrscheinlich von ihrer Vision profitiert, wenn Ihnen datenschutzorientierte digitale Identität wichtig ist. Die Stiftung widmet sich der Entwicklung sicherer, datenschutzschützender Technologien, die den Nutzern die Kontrolle über ihre Daten geben. Sie haben Yivi geschaffen, um jedem eine Möglichkeit zu geben, sich digital zu identifizieren – sicher und selektiv.\n\nCaesar Groep, mit jahrzehntelanger Erfahrung in IT-Innovation und Infrastruktur, sorgt dafür, dass Yivi reibungslos und sicher funktioniert. Vom Backend bis zur Benutzeroberfläche stellt Caesar Groep sicher, dass jede Interaktion mit Yivi nahtlos und vertrauenswürdig ist – jederzeit und überall.",
-    "question_4": "Wie verwende ich Yivi zum Anmelden auf einer mobilen Webseite?",
-    "answer_4": {
-      "step_1": "Öffnen Sie die Webseite auf Ihrem Mobilgerät und wählen Sie Anmeldung mit Yivi.",
-      "step_2": "Die Yivi-App startet automatisch.\nGeben Sie Ihre PIN ein.",
-      "step_3": "Stimmen Sie zu (oder nicht), Ihre persönlichen Daten weiterzugeben.",
-      "step_4": "Nach der Weitergabe sind Sie angemeldet.\nSie können jetzt die Webseite nutzen."
-    },
-    "question_5": "Wie verwende ich Yivi zum Anmelden auf einer Webseite auf meinem Computer?",
-    "answer_5": {
-      "step_1": "Öffnen Sie die Webseite auf Ihrem Computer und wählen Sie 'Mit Yivi anmelden'.",
-      "step_2": "Öffnen Sie die Yivi-App auf Ihrem Mobilgerät und geben Sie Ihre PIN ein.",
-      "step_3": "Starten Sie den QR-Code-Scanner in der Yivi-App. Scannen Sie den QR-Code auf dem Bildschirm Ihres Computers.",
-      "step_4": "Stimmen Sie zu (oder nicht), Ihre persönlichen Daten weiterzugeben.",
-      "step_5": "Nach der Weitergabe sind Sie angemeldet.\nSie können jetzt die Webseite nutzen."
-    },
-    "question_6": "Was tun, wenn ich mein Mobilgerät verliere?",
-    "answer_6_markdown": "Wenn Sie Ihr Telefon verlieren, kann niemand auf Ihre Yivi-App zugreifen, da sie mit Ihrer PIN gesichert ist. Möchten Sie die Sicherheit erhöhen? Fügen Sie während der Installation eine E-Mail-Adresse hinzu. Damit können Sie die Anwendung aus der Ferne sperren. So passiert nichts, wenn Sie Ihr Telefon verlieren.\n\nHaben Sie Ihre E-Mail-Adresse nicht hinzugefügt? Gehen Sie einfach zu MijnYivi, um sie hinzuzufügen.",
-    "question_7": "Kann ich Yivi auf mehreren Mobilgeräten installieren?",
-    "answer_7": "Ja, wir empfehlen es sogar! Laden Sie einfach die App auf mehreren Geräten herunter und laden Sie sie mit Ihren persönlichen Daten. Wenn Sie ein Gerät verlieren, haben Sie immer ein Backup.",
-    "question_8": "Wo werden meine Yivi-Daten gespeichert?",
-    "answer_8": "Alle in der Yivi-App gespeicherten Daten werden nur lokal gespeichert. Es gibt keinen zentralen Datenspeicher (oder Cloud-Speicher). Das bedeutet, dass Sie der Einzige sind, der auf Ihre Daten zugreifen kann. Sie haben die Kontrolle und erteilen die Erlaubnis, Ihre Daten mit Online-Organisationen zu teilen. Löschen Sie Ihre Daten aus der App? Dann sind sie auch wirklich weg. Sie haben die volle Kontrolle über Ihre Daten. Nur Sie entscheiden, was Sie teilen und mit wem.",
-    "question_9": "Was macht Yivi datenschutzfreundlich und sicher?",
-    "answer_9": "Menschen die Kontrolle über ihre digitalen Daten zurückzugeben. Dies ist die Mission von Yivi. Was speichern Sie? Was teilen Sie? Und mit wem? Yivi ermöglicht Ihnen, diese Wahl zu treffen. Mit unserer App können Sie entscheiden, was andere über Sie erfahren. Diese Daten werden von Ihrem Telefon direkt an die anfragende Partei geteilt. Niemand schaut mit. Nicht einmal Yivi.\n\nAlles wird sicher auf Ihrem Telefon gespeichert, verschlüsselt und hinter einer PIN. Es gibt keinen zentralen Datenspeicher oder Cloud-Speicher, der Ihre persönlichen Daten enthält. Telefon verloren? Keine Panik. Sperren Sie einfach Ihre Yivi-App aus der Ferne. Das verhindert, dass jemand Ihre Daten ohne Ihr Wissen verwendet.\n\nDie Daten, die in Yivi geladen werden, sind digital vom Anbieter der Daten signiert. Das beweist ihre Gültigkeit. Das bedeutet, dass die anfragende Partei immer sicher sein kann, dass die von Ihnen bereitgestellten Daten echt sind.",
-    "question_10": "Warum haben die Daten in der Yivi-App eine begrenzte Gültigkeit?",
-    "answer_10": "Der Anbieter der Daten kann bestimmen, wie lange die Gültigkeitsdauer der Daten ist. Ihre Daten können also ablaufen. Sie erhalten eine Warnung in der Yivi-App, wenn dies geschieht. Wie lange Ihre Daten gültig bleiben, hängt von der Art der Daten ab. Ihr Name und Ihr Geburtsdatum sind 5 Jahre gültig. Ihre Adresse nur ein Jahr. Sie können Ihre Daten jederzeit aktualisieren, wann immer Sie möchten. Zum Beispiel durch Aktualisierung Ihres Alters nach Ihrem 18. Geburtstag. So können Sie direkt zeigen, dass Sie älter als 18 sind.",
-    "question_11": "Yivi, Datenschutz und Sicherheit",
-    "answer_11": "Die Yivi-App wurde so entwickelt, dass Sie und nur Sie Ihre persönlichen Daten sehen und verwenden können. Ihre persönlichen Daten werden nur auf Ihrem Telefon gespeichert und nirgendwo sonst. Wir speichern Ihre Daten nicht in der Cloud.\n\nDie Yivi-App ermöglicht es einer Webseite oder einem Geschäft, (kryptographisch) zu verifizieren, dass die von Ihnen weitergegebenen Daten echt sind.\n\nDie Yivi-App gibt Ihre Daten direkt von Ihrem Telefon an die Webseite weiter. Niemand sonst kann sehen, dass Sie sich identifizieren. Nicht einmal die Organisation hinter Yivi.\n\nBei der Nutzung von Yivi stimmen Sie der [Datenschutzrichtlinie](https://www.yivi.app/en/privacy) zu.",
-    "security_and_privacy": "Sicherheit und Datenschutz",
-    "need_help_body": "Ihre Frage ist nicht dabei? Wählen Sie, wobei Sie Hilfe brauchen. Wir helfen Ihnen weiter oder sagen Ihnen, wer das kann.",
-    "choose_problem": "Problem auswählen"
+    "mail_error_title": "Entschuldigung"
   },
   "home": {
     "nav_bar": {
@@ -573,7 +532,6 @@
   "more_tab": {
     "app_management": "App-Verwaltung",
     "settings": "Einstellungen",
-    "faq": "Häufig gestellte Fragen",
     "debugging": "Fehlersuche",
     "share": "Yivi teilen",
     "share_text": "Schauen Sie sich die Yivi-App an: https://yivi.app",
@@ -599,8 +557,7 @@
       "title": "Wobei brauchen Sie Hilfe?",
       "group_organisation": "Bei einer Organisation",
       "group_data": "Ihre Daten",
-      "group_app": "Die Yivi-App",
-      "faq_subtitle": "Was Yivi ist, wie es funktioniert und wie es Ihre Privatsphäre schützt"
+      "group_app": "Die Yivi-App"
     },
     "answer": {
       "question": "Ist Ihr Problem gelöst?",
@@ -687,7 +644,15 @@
         "step_1": "Stellen Sie sicher, dass Sie die neueste Version von Yivi haben.",
         "step_2": "Keine E-Mail oder SMS erhalten? Schauen Sie im Spam-Ordner nach und prüfen Sie die Adresse oder Nummer.",
         "step_3": "Reisepass oder Personalausweis: Nehmen Sie Ihr Telefon aus der Hülle und halten Sie es ruhig an das Dokument.",
-        "note": "Holen Sie Ihre Daten bei einer anderen Organisation als Yivi? Dann hilft Ihnen diese Organisation."
+        "note": "Holen Sie Ihre Daten bei einer anderen Organisation als Yivi? Dann hilft Ihnen diese Organisation.",
+        "ask": {
+          "title": "Wo holen Sie die Daten ab?",
+          "organisation": "Bei einer anderen Organisation",
+          "organisation_subtitle": "Zum Beispiel bei Ihrer Gemeinde",
+          "app": "Bei Yivi",
+          "app_subtitle": "E-Mail-Adresse, Telefonnummer, Reisepass oder Personalausweis",
+          "choose_body": "Wählen Sie die Organisation, bei der Sie die Daten abholen. Dort kann man sehen, warum es nicht klappt, und Ihnen weiterhelfen. Yivi kann das nicht."
+        }
       },
       "data_wrong": {
         "title": "Meine Daten stimmen nicht",
@@ -710,7 +675,8 @@
         "lead": "Ihre Daten sind nur auf Ihrem Telefon gespeichert. Es gibt kein Backup und keine Cloud.",
         "step_1": "Neues Telefon: Installieren Sie Yivi und fügen Sie Ihre Daten erneut hinzu.",
         "step_2": "Telefon verloren: Ohne Ihre PIN kommt niemand in Ihre Yivi-App.",
-        "step_3": "Haben Sie Ihre E-Mail-Adresse angegeben? Dann können Sie die App über „Mijn Yivi“ aus der Ferne sperren."
+        "step_3": "Haben Sie Ihre E-Mail-Adresse angegeben? Dann können Sie die App über „Mijn Yivi“ aus der Ferne sperren.",
+        "link": "Zu „Mijn Yivi“"
       },
       "app_broken": {
         "title": "Die App funktioniert nicht oder zeigt eine Fehlermeldung",

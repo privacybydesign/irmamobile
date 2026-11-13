@@ -7,7 +7,6 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/screens/error/session_error_screen.dart";
-import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/need_help/help_problem.dart";
 import "package:yivi_core/src/screens/need_help/need_help_screen.dart";
 import "package:yivi_core/src/screens/need_help/support_party.dart";
@@ -280,18 +279,6 @@ void main() {
     expect(find.text(t("need_help.yivi.included_report")), findsNothing);
   });
 
-  testWidgets("the FAQ is part of Hulp nodig?, and leads back to it", (
-    tester,
-  ) async {
-    await _pump(tester, const NeedHelpScreen());
-    await _tap(tester, find.byKey(const Key("need_help_faq_option")));
-    expect(find.byType(HelpScreen), findsOneWidget);
-
-    await _tap(tester, find.byKey(const Key("faq_need_help_link")));
-    expect(find.byType(HelpScreen), findsNothing);
-    expect(find.text(t("need_help.start.title")), findsOneWidget);
-  });
-
   testWidgets("search finds any organisation by name or website", (
     tester,
   ) async {
@@ -344,6 +331,44 @@ void main() {
 
     await _tap(tester, find.text(t("need_help.ask.app")));
     expect(_mailYivi, findsOneWidget);
+  });
+
+  testWidgets("adding data: the answer first, then where the data comes from", (
+    tester,
+  ) async {
+    const problem = HelpProblems.addData;
+    await _pump(tester, const NeedHelpScreen());
+    await _tap(tester, find.text(t(problem.titleKey)));
+    expect(find.text(t(problem.leadKey)), findsOneWidget);
+
+    await _tap(tester, _notSolved);
+    expect(find.text(t(problem.askKey("title"))), findsOneWidget);
+    // Data from another organisation goes to that organisation.
+    expect(find.text(t(problem.askKey("organisation"))), findsOneWidget);
+    expect(
+      t(problem.chooseOrganisationKey),
+      isNot(t("need_help.organisation.choose_body")),
+    );
+
+    // Data Yivi issues goes to Yivi.
+    await _tap(tester, find.text(t(problem.askKey("app"))));
+    expect(_mailYivi, findsOneWidget);
+  });
+
+  testWidgets("a lost phone links to MyYivi", (tester) async {
+    await _pump(tester, const NeedHelpScreen());
+    await _tap(tester, find.text(t(HelpProblems.phone.titleKey)));
+
+    final link = find.byKey(const Key("need_help_answer_link"));
+    expect(link, findsOneWidget);
+    expect(
+      find.descendant(
+        of: link,
+        matching: find.text(t(HelpProblems.phone.linkKey)),
+      ),
+      findsOneWidget,
+    );
+    expect(HelpProblems.phone.link, "https://my.yivi.app");
   });
 
   group("session errors", () {
