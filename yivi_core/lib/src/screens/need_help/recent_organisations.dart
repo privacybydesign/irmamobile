@@ -34,7 +34,7 @@ List<RecentOrganisation> recentOrganisations({
   final seen = <String>{};
   final result = <RecentOrganisation>[];
   for (final (party, _, unfinished) in candidates) {
-    if (!seen.add(party.id)) continue;
+    if (!seen.add(SupportParty.keyOf(party))) continue;
     final org = SupportParty.resolve(party, config);
     if (org == null) continue;
     result.add(RecentOrganisation(org, unfinished: unfinished));

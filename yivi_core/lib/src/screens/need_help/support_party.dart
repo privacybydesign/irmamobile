@@ -37,6 +37,14 @@ class SupportParty {
 
   static const _yiviEmail = "support@yivi.app";
 
+  /// Yivi's own domains: a server on one of these is Yivi's, scheme or not.
+  static const _yiviDomains = {"yivi.app", "irma.app"};
+
+  /// Tells parties apart. A server that is not in the scheme has no id, only
+  /// its hostname as name.
+  static String keyOf(TrustedParty party) =>
+      party.id.isNotEmpty ? party.id : party.name;
+
   /// Looks up where [party] offers support. Returns null when the party is
   /// unknown, so callers fall back to asking the user.
   static SupportParty? resolve(TrustedParty? party, IrmaConfiguration? config) {
@@ -44,15 +52,20 @@ class SupportParty {
 
     final issuer = config?.issuers[party.id] ?? _pairedIssuer(party, config);
     final email = _usableEmail(issuer?.contactEmail);
+    final website =
+        _httpUri(party.url) ??
+        _httpUri(issuer?.contactAddress) ??
+        _siteOfRequestor(party, config) ??
+        _siteOfUnknownServer(party);
 
     return SupportParty(
       party: party,
-      website:
-          _httpUri(party.url) ??
-          _httpUri(issuer?.contactAddress) ??
-          _siteOfRequestor(party, config),
+      website: website,
       email: email,
-      isYivi: _yiviIds.contains(party.id) || email == _yiviEmail,
+      isYivi:
+          _yiviIds.contains(party.id) ||
+          email == _yiviEmail ||
+          _isYiviDomain(website?.host),
     );
   }
 
@@ -144,6 +157,20 @@ class SupportParty {
     if (hostnames == null || hostnames.isEmpty) return null;
     return siteOfHostname(hostnames.first);
   }
+
+  static final _hostname = RegExp(r"^[a-z0-9-]+(\.[a-z0-9-]+)+$");
+
+  /// A server that is not in the scheme is named after its hostname, e.g.
+  /// `is.demo.staging.yivi.app`. Verified names like "Ver.iD" are left alone.
+  static Uri? _siteOfUnknownServer(TrustedParty party) {
+    final name = party.name.trim().toLowerCase();
+    if (party.verified || !_hostname.hasMatch(name)) return null;
+    return siteOfHostname(name);
+  }
+
+  static bool _isYiviDomain(String? host) =>
+      host != null &&
+      _yiviDomains.any((d) => host == d || host.endsWith(".$d"));
 
   /// `inzage.stichtingcis.nl` → `https://stichtingcis.nl`. Requestor
   /// hostnames are often a subdomain for the Yivi integration; the site one

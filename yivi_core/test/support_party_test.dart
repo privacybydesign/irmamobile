@@ -223,4 +223,53 @@ void main() {
       Uri.parse("https://stichtingcis.nl/"),
     );
   });
+
+  group("a server that is not in the scheme", () {
+    // irmago names it after its hostname and gives it no id.
+    TrustedParty unknownServer(String hostname) => TrustedParty(
+      id: "",
+      name: hostname,
+      url: null,
+      parent: null,
+      verified: false,
+    );
+
+    test("gets the site behind its hostname", () {
+      final org = SupportParty.resolve(
+        unknownServer("login.example.com"),
+        _config(),
+      )!;
+      expect(org.website, Uri.https("example.com"));
+      expect(org.isYivi, isFalse);
+    });
+
+    test("is Yivi's when it runs on a Yivi domain", () {
+      // The email issuer's sessions run on this server.
+      final org = SupportParty.resolve(
+        unknownServer("is.demo.staging.yivi.app"),
+        _config(),
+      )!;
+      expect(org.website, Uri.https("yivi.app"));
+      expect(org.isYivi, isTrue);
+    });
+
+    test("verified names are not taken for hostnames", () {
+      final org = SupportParty.resolve(
+        _party("pbdf-requestors.ver-id", name: "Ver.iD"),
+        _config(),
+      )!;
+      expect(org.website, isNull);
+    });
+
+    test("is told apart by its hostname", () {
+      expect(
+        SupportParty.keyOf(unknownServer("a.example.com")),
+        isNot(SupportParty.keyOf(unknownServer("b.example.com"))),
+      );
+      expect(
+        SupportParty.keyOf(_party("pbdf-requestors.cis")),
+        "pbdf-requestors.cis",
+      );
+    });
+  });
 }

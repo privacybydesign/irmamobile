@@ -53,7 +53,12 @@ class RecentSessionParties {
     final seen = <String>{};
     return [
       for (final entry in _sessions.values.toList().reversed)
-        if (seen.add(entry.party.id)) entry,
+        if (seen.add(_keyOf(entry.party))) entry,
     ];
   }
+
+  /// A server that is not in the scheme has no id, only its hostname as
+  /// name.
+  static String _keyOf(TrustedParty party) =>
+      party.id.isNotEmpty ? party.id : party.name;
 }

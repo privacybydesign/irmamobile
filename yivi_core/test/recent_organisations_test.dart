@@ -77,6 +77,25 @@ void main() {
       expect(parties.recent.first.completed, isFalse);
     });
 
+    test("keeps servers that are not in the scheme apart", () {
+      // They have no id, only their hostname as name.
+      TrustedParty server(String host) => TrustedParty(
+        id: "",
+        name: host,
+        url: null,
+        parent: null,
+        verified: false,
+      );
+      final parties = RecentSessionParties();
+      parties.record(1, server("is.demo.staging.yivi.app"), completed: false);
+      parties.record(2, server("login.example.com"), completed: false);
+
+      expect(parties.recent.map((r) => r.party.name), [
+        "login.example.com",
+        "is.demo.staging.yivi.app",
+      ]);
+    });
+
     test("ignores parties without a name", () {
       final parties = RecentSessionParties();
       parties.record(1, _party("unknown", ""), completed: false);
