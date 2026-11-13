@@ -54,6 +54,7 @@ class SessionRepository {
       _inFlightSessionIds.add(
         Set<int>.from(_inFlightSessionIds.value)..add(event.sessionId),
       );
+      recentParties.start(event.sessionId, event.request.u);
     } else if (event is SessionUserInteractionEvent &&
         event.type != UserInteractionType.dismiss) {
       _markAwaitingInteraction(event.sessionId);

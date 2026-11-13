@@ -12,6 +12,8 @@ import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
+import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/screens/need_help/recent_organisations.dart";
 
 TrustedParty _party(String id, [String? name]) => TrustedParty(
@@ -102,6 +104,52 @@ void main() {
       expect(parties.recent, isEmpty);
     });
 
+    test("the server stands in until the requestor is known", () {
+      // An IRMA session learns its requestor only after pairing.
+      final parties = RecentSessionParties();
+      parties.start(1, "https://is.example.com/irma/session/abc");
+      parties.record(1, _party("", ""), completed: false);
+
+      expect(parties.recent.single.party.name, "is.example.com");
+      expect(parties.recent.single.party.verified, isFalse);
+      expect(parties.recent.single.completed, isFalse);
+
+      final cis = _party("pbdf-requestors.cis", "Stichting CIS");
+      parties.record(1, cis, completed: false);
+      expect(parties.recent.single.party.id, cis.id);
+
+      // A later state without a requestor does not forget it.
+      parties.record(1, _party("", ""), completed: false);
+      expect(parties.recent.single.party.id, cis.id);
+    });
+
+    test("finds the server behind a session pointer", () {
+      expect(
+        RecentSessionParties.serverHost(
+          "https://IS.Example.com/irma/session/abc",
+        ),
+        "is.example.com",
+      );
+      expect(
+        RecentSessionParties.serverHost(
+          "openid-credential-offer://?credential_offer_uri="
+          "${Uri.encodeComponent("https://issuer.example.com/offer/1")}",
+        ),
+        "issuer.example.com",
+      );
+      expect(
+        RecentSessionParties.serverHost(
+          "openid4vp://?client_id=x&request_uri="
+          "${Uri.encodeComponent("https://verifier.example.com/r/1")}",
+        ),
+        "verifier.example.com",
+      );
+      expect(
+        RecentSessionParties.serverHost('{"credential_issuer":"x"}'),
+        isNull,
+      );
+    });
+
     test("keeps only the latest sessions", () {
       final parties = RecentSessionParties();
       for (var i = 0; i < 30; i++) {
@@ -146,6 +194,45 @@ void main() {
         expect(recent.map((r) => r.completed), [true, false]);
       },
     );
+
+    test("the session repository remembers the server of a session the user "
+        "left at the pairing code", () async {
+      SharedPreferences.setMockInitialValues({});
+      final repo = IrmaRepository(
+        client: _SilentBridge(),
+        preferences: await IrmaPreferences.fromInstance(
+          mostRecentTermsUrlNl: "",
+          mostRecentTermsUrlEn: "",
+        ),
+      );
+      addTearDown(repo.close);
+      final events = StreamController<Event>();
+      final sessions = SessionRepository(
+        repo: repo,
+        eventStream: events.stream,
+      );
+      addTearDown(sessions.close);
+      addTearDown(events.close);
+
+      final unknown = _party("", "");
+      events.add(
+        NewSessionEvent(
+          sessionId: 1,
+          request: SessionPointer(
+            u: "https://is.example.com/irma/session/abc",
+            irmaqr: "issuing",
+            protocol: Protocol.irma,
+          ),
+        ),
+      );
+      events.add(_state(1, SessionStatus.showPairingCode, unknown));
+      events.add(_state(1, SessionStatus.dismissed, unknown));
+      await Future<void>.delayed(Duration.zero);
+
+      final recent = sessions.recentParties.recent;
+      expect(recent.single.party.name, "is.example.com");
+      expect(recent.single.completed, isFalse);
+    });
   });
 
   group("recentOrganisations", () {
