@@ -7,6 +7,7 @@ import "../models/schemaless/session_state.dart";
 import "../models/schemaless/session_user_interaction.dart";
 import "../models/session_events.dart";
 import "irma_repository.dart";
+import "recent_session_parties.dart";
 
 /// SessionRepository manages session states.
 ///
@@ -35,6 +36,10 @@ class SessionRepository {
   /// the lock screen can withhold biometric the instant a link starts a session,
   /// before Go replies (issue #654). See [hasInFlightSessionStream].
   final _inFlightSessionIds = BehaviorSubject<Set<int>>.seeded({});
+
+  /// Who recent sessions were with, finished or not. See
+  /// [RecentSessionParties].
+  final recentParties = RecentSessionParties();
 
   SessionRepository({required this.repo, required Stream<Event> eventStream}) {
     eventStream.listen(_handleEvent);
@@ -69,6 +74,12 @@ class SessionRepository {
         prevStates[state.id]?.status != SessionStatus.success) {
       repo.preferences.incrementReviewSuccessCount();
     }
+
+    recentParties.record(
+      state.id,
+      state.requestor,
+      completed: state.status == SessionStatus.success,
+    );
 
     final nextStates = Map<int, SessionState>.from(prevStates);
     nextStates[state.id] = state;

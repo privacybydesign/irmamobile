@@ -274,6 +274,51 @@ void main() {
     expect(find.text(t("need_help.start.title")), findsOneWidget);
   });
 
+  testWidgets("search finds any organisation by name or website", (
+    tester,
+  ) async {
+    SupportParty? selected;
+    final vgz = SupportParty(
+      party: TrustedParty(
+        id: "pbdf-requestors.vgz",
+        name: "VGZ",
+        url: null,
+        parent: null,
+        verified: true,
+      ),
+      website: Uri.https("vgz.nl"),
+    );
+    await _pump(
+      tester,
+      NeedHelpOrganisationSearchScreen(
+        organisations: [_org(), vgz],
+        onSelect: (org) => selected = org,
+      ),
+    );
+    // Without a query, everything is listed.
+    expect(find.text("Stichting CIS"), findsOneWidget);
+    expect(find.text("VGZ"), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key("search_bar")), "cis");
+    await tester.pumpAndSettle();
+    expect(find.text("Stichting CIS"), findsOneWidget);
+    expect(find.text("VGZ"), findsNothing);
+
+    await tester.enterText(find.byKey(const Key("search_bar")), "vgz.nl");
+    await tester.pumpAndSettle();
+    expect(find.text("VGZ"), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key("search_bar")), "onbekend");
+    await tester.pumpAndSettle();
+    expect(find.text("VGZ"), findsNothing);
+    expect(find.text(t("need_help.organisation.search_none")), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key("search_bar")), "vgz");
+    await tester.pumpAndSettle();
+    await _tap(tester, find.text("VGZ"));
+    expect(selected, vgz);
+  });
+
   testWidgets("something else: the user says what it is about", (tester) async {
     await _pump(tester, const NeedHelpScreen());
     await _tap(tester, find.text(t(HelpProblems.other.titleKey)));

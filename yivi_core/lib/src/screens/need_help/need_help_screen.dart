@@ -25,11 +25,13 @@ import "../../widgets/irma_divider.dart";
 import "../../widgets/link.dart";
 import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_search_bar.dart";
 import "../../widgets/yivi_themed_button.dart";
 import "../activity/history_repository.dart";
 import "../help/help_screen.dart";
 import "../more/widgets/tiles_card.dart";
 import "help_problem.dart";
+import "recent_organisations.dart";
 import "support_party.dart";
 import "yivi_support_mail.dart";
 
@@ -414,7 +416,7 @@ class _ContactChooseOrganisation extends StatelessWidget {
       children: [
         _Inset(_Paragraph(_tr(context, "need_help.organisation.choose_body"))),
         SizedBox(height: theme.mediumSpacing),
-        _RecentOrganisations(
+        _OrganisationChoices(
           onSelect: (org) => Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => NeedHelpContactScreen(
@@ -434,20 +436,18 @@ class _ContactChooseOrganisation extends StatelessWidget {
   }
 }
 
-/// The organisations from the latest activity: the one the user means is
-/// almost always among them.
-class _RecentOrganisations extends StatefulWidget {
+/// The organisations the user recently dealt with, including sessions they
+/// never finished, and always a search through all of them.
+class _OrganisationChoices extends StatefulWidget {
   final void Function(SupportParty organisation) onSelect;
 
-  const _RecentOrganisations({required this.onSelect});
+  const _OrganisationChoices({required this.onSelect});
 
   @override
-  State<_RecentOrganisations> createState() => _RecentOrganisationsState();
+  State<_OrganisationChoices> createState() => _OrganisationChoicesState();
 }
 
-class _RecentOrganisationsState extends State<_RecentOrganisations> {
-  static const _maxShown = 5;
-
+class _OrganisationChoicesState extends State<_OrganisationChoices> {
   HistoryRepository? _history;
 
   @override
@@ -467,58 +467,161 @@ class _RecentOrganisationsState extends State<_RecentOrganisations> {
     super.dispose();
   }
 
-  List<SupportParty> _organisations(
-    List<LogInfo> entries,
-    IrmaConfiguration? config,
-  ) {
-    final seen = <String>{};
-    final result = <SupportParty>[];
-    for (final entry in entries) {
-      final org = SupportParty.resolve(entry.requestor, config);
-      if (org == null || org.isYivi || !seen.add(org.party.id)) continue;
-      result.add(org);
-      if (result.length == _maxShown) break;
-    }
-    return result;
+  void _openSearch(IrmaConfiguration? config) {
+    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NeedHelpOrganisationSearchScreen(
+          organisations: config == null
+              ? const []
+              : SupportParty.directory(config, lang),
+          onSelect: widget.onSelect,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final config = SupportParty.configOf(IrmaRepositoryProvider.of(context));
+    final repo = IrmaRepositoryProvider.of(context);
+    final config = SupportParty.configOf(repo);
 
     return StreamBuilder<HistoryState>(
       stream: _history!.getHistoryState(),
       builder: (context, snapshot) {
-        final state = snapshot.data;
-        if (state == null || (state.loading && state.logEntries.isEmpty)) {
-          return const SizedBox.shrink();
-        }
-        final organisations = _organisations(state.logEntries, config);
-        if (organisations.isEmpty) {
-          return _Inset(
-            _Paragraph(_tr(context, "need_help.organisation.choose_none")),
-          );
-        }
+        // Sessions from memory show right away; the activity log joins
+        // once it has loaded.
+        final recent = recentOrganisations(
+          sessions: repo.recentSessionParties,
+          activity: snapshot.data?.logEntries ?? const [],
+          config: config,
+        );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SectionHeader("need_help.organisation.recent"),
-            SizedBox(height: theme.smallSpacing),
+            if (recent.isNotEmpty) ...[
+              const SectionHeader("need_help.organisation.recent"),
+              SizedBox(height: theme.smallSpacing),
+              TilesCard(
+                children: [
+                  for (final r in recent)
+                    _HelpRow(
+                      leading: _OrganisationAvatar(r.organisation, size: 32),
+                      title: r.organisation.name,
+                      subtitle: r.unfinished
+                          ? _tr(context, "need_help.organisation.unfinished")
+                          : r.organisation.website?.host,
+                      onTap: () => widget.onSelect(r.organisation),
+                    ),
+                ],
+              ),
+              SizedBox(height: theme.mediumSpacing),
+            ],
             TilesCard(
               children: [
-                for (final org in organisations)
-                  _HelpRow(
-                    leading: _OrganisationAvatar(org, size: 32),
-                    title: org.name,
-                    subtitle: org.website?.host,
-                    onTap: () => widget.onSelect(org),
+                _HelpRow(
+                  key: const Key("need_help_search_organisation"),
+                  icon: Icons.search_rounded,
+                  title: _tr(
+                    context,
+                    recent.isEmpty
+                        ? "need_help.organisation.search"
+                        : "need_help.organisation.search_other",
                   ),
+                  onTap: () => _openSearch(config),
+                ),
               ],
             ),
           ],
         );
       },
+    );
+  }
+}
+
+/// Search through every organisation in the scheme, for one the user has
+/// no recent session with.
+class NeedHelpOrganisationSearchScreen extends StatefulWidget {
+  final List<SupportParty> organisations;
+  final void Function(SupportParty organisation) onSelect;
+
+  const NeedHelpOrganisationSearchScreen({
+    super.key,
+    required this.organisations,
+    required this.onSelect,
+  });
+
+  @override
+  State<NeedHelpOrganisationSearchScreen> createState() =>
+      _NeedHelpOrganisationSearchScreenState();
+}
+
+class _NeedHelpOrganisationSearchScreenState
+    extends State<NeedHelpOrganisationSearchScreen> {
+  final _focusNode = FocusNode();
+  var _query = "";
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  List<SupportParty> get _matches {
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return widget.organisations;
+    return [
+      for (final org in widget.organisations)
+        if (org.name.toLowerCase().contains(query) ||
+            (org.website?.host.contains(query) ?? false))
+          org,
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final matches = _matches;
+    return Scaffold(
+      backgroundColor: theme.backgroundTertiary,
+      appBar: YiviSearchBar(
+        focusNode: _focusNode,
+        onCancel: () => Navigator.of(context).pop(),
+        onQueryChanged: (query) => setState(() => _query = query),
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.all(theme.defaultSpacing),
+          children: [
+            if (matches.isNotEmpty) ...[
+              TilesCard(
+                children: [
+                  for (final org in matches)
+                    _HelpRow(
+                      leading: _OrganisationAvatar(org, size: 32),
+                      title: org.name,
+                      subtitle: org.website?.host,
+                      onTap: () => widget.onSelect(org),
+                    ),
+                ],
+              ),
+              SizedBox(height: theme.defaultSpacing),
+            ],
+            _Inset(
+              _Paragraph(_tr(context, "need_help.organisation.search_none")),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

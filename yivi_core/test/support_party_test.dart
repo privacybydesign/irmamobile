@@ -24,9 +24,10 @@ Issuer _issuer(
 IrmaConfiguration _config({
   List<Issuer> issuers = const [],
   Map<String, RequestorInfo> requestors = const {},
+  Map<String, RequestorScheme> requestorSchemes = const {},
 }) => IrmaConfiguration(
   schemeManagers: const {},
-  requestorSchemes: const {},
+  requestorSchemes: requestorSchemes,
   requestors: requestors,
   issuers: {for (final i in issuers) i.fullId: i},
   credentialTypes: const {},
@@ -153,5 +154,66 @@ void main() {
     );
     expect(SupportParty.siteOfHostname("vgz.nl"), Uri.https("vgz.nl"));
     expect(SupportParty.siteOfHostname("localhost"), isNull);
+  });
+
+  test("directory: every organisation to search, once, by name", () {
+    RequestorInfo requestor(String id, String name, String host) =>
+        RequestorInfo(
+          id: id,
+          name: TranslatedValue({"nl": name, "en": name}),
+          hostnames: [host],
+          unverified: false,
+        );
+
+    final orgs = SupportParty.directory(
+      _config(
+        issuers: [
+          // Covered by its requestor below.
+          _issuer("pbdf", "cis", address: "https://stichtingcis.nl/"),
+          // No requestor: listed as an issuer.
+          Issuer(
+            id: "nuts",
+            name: TranslatedValue({"nl": "Nuts", "en": "Nuts"}),
+            schemeManagerId: "pbdf",
+            contactAddress: "https://nuts.nl",
+            contactEmail: "",
+          ),
+          // Yivi's own: support is Yivi's.
+          _issuer("pbdf", "sidn-pbdf", email: "support@yivi.app"),
+        ],
+        requestors: {
+          // One requestor, two hostnames.
+          "inzage.stichtingcis.nl": requestor(
+            "pbdf-requestors.cis",
+            "Stichting CIS",
+            "inzage.stichtingcis.nl",
+          ),
+          "yivi.stichtingcis.nl": requestor(
+            "pbdf-requestors.cis",
+            "Stichting CIS",
+            "yivi.stichtingcis.nl",
+          ),
+          "irma.vgz.nl": requestor("pbdf-requestors.vgz", "VGZ", "irma.vgz.nl"),
+          "demo.example.org": requestor(
+            "irma-demo-requestors.demo",
+            "Demo",
+            "demo.example.org",
+          ),
+        },
+        requestorSchemes: {
+          "irma-demo-requestors": RequestorScheme(
+            id: "irma-demo-requestors",
+            demo: true,
+          ),
+        },
+      ),
+      "nl",
+    );
+
+    expect(orgs.map((o) => o.name), ["Nuts", "Stichting CIS", "VGZ"]);
+    expect(
+      orgs.firstWhere((o) => o.name == "Stichting CIS").website,
+      Uri.parse("https://stichtingcis.nl/"),
+    );
   });
 }

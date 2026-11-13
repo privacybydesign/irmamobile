@@ -69,6 +69,61 @@ class SupportParty {
     }
   }
 
+  /// Every organisation in the scheme the user can be put through to, by
+  /// name: verified requestors first, because those are who users meet in
+  /// sessions, then issuers not already covered by a requestor. Demo
+  /// schemes and Yivi's own parties are left out.
+  static List<SupportParty> directory(IrmaConfiguration config, String lang) {
+    final demo = {
+      for (final s in config.schemeManagers.values)
+        if (s.demo) s.id,
+      for (final s in config.requestorSchemes.values)
+        if (s.demo) s.id,
+    };
+    bool inDemo(String id) => demo.contains(id.split(".").first);
+
+    final byName = <String, SupportParty>{};
+    final coveredIssuers = <String>{};
+    void add(TrustedParty party) {
+      final org = resolve(party, config);
+      if (org == null || org.isYivi) return;
+      byName.putIfAbsent(org.name.trim().toLowerCase(), () => org);
+    }
+
+    for (final requestor in config.requestors.values) {
+      final id = requestor.id;
+      if (id == null || inDemo(id)) continue;
+      final party = TrustedParty(
+        id: id,
+        name: requestor.name.translate(lang, fallback: ""),
+        url: null,
+        parent: null,
+        verified: !requestor.unverified,
+        imagePath: requestor.logoPath,
+      );
+      final paired = _pairedIssuer(party, config);
+      if (paired != null) coveredIssuers.add(paired.fullId);
+      add(party);
+    }
+    for (final issuer in config.issuers.values) {
+      if (inDemo(issuer.fullId) || coveredIssuers.contains(issuer.fullId)) {
+        continue;
+      }
+      add(
+        TrustedParty(
+          id: issuer.fullId,
+          name: issuer.name.translate(lang, fallback: ""),
+          url: null,
+          parent: null,
+          verified: true,
+        ),
+      );
+    }
+
+    return byName.values.toList()
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  }
+
   /// Requestors in a requestor scheme mostly mirror an issuer in the
   /// matching issuer scheme: `pbdf-requestors.cis` and `pbdf.cis`. That
   /// issuer has contact details the requestor scheme does not.
