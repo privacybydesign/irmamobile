@@ -20,7 +20,7 @@ import Flutter
     // user types: the MRZ fields (from which the passport chip's access keys are
     // derived), e-mail addresses, phone numbers and codes. The system keyboard is used
     // instead. The PIN is entered on an in-app keypad and was never typed on a keyboard.
-    func application(
+    override func application(
         _ application: UIApplication,
         shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier
     ) -> Bool {
