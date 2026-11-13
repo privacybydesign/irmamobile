@@ -609,7 +609,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   Widget _partyList(YiviPalette palette) {
     final parties = ref.watch(activityPartiesProvider).value ?? const [];
     final picked = _q.party;
-    final shown = _allParties ? parties : parties.take(5).toList();
+    final shown = [...(_allParties ? parties : parties.take(5))];
     if (picked != null && !shown.any((p) => p.key == picked.key)) {
       shown.add(picked);
     }

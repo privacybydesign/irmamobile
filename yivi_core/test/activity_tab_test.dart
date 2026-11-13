@@ -2,11 +2,14 @@ import "package:flutter_test/flutter_test.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/activity_query.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
+import "package:yivi_core/src/providers/activity_providers.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
+import "package:yivi_core/src/screens/activity/activity_filter_sheet.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab_top.dart";
@@ -441,6 +444,55 @@ void main() {
     await _settle(tester);
     expect(find.byKey(const Key("activity_suggestions")), findsNothing);
     expect(find.text("Shop 0"), findsOneWidget);
+  });
+
+  testWidgets("a picked party missing from the list is shown with all "
+      "parties, and the provider's list is left alone", (tester) async {
+    final parties = _parties(log);
+    final count = parties.length;
+    final missing = PartySummary(
+      key: "Elsewhere",
+      party: parties.first.party,
+      lastTime: parties.first.lastTime,
+      count: 1,
+      byType: const {},
+    );
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    await pumpHome(
+      tester,
+      repo: repo,
+      overrides: [
+        irmaRepositoryProvider.overrideWithValue(repo),
+        walletCardsProvider.overrideWithValue(const []),
+        activityPartiesProvider.overrideWith((ref) async => parties),
+      ],
+      home: Builder(
+        builder: (context) => TextButton(
+          key: const Key("open"),
+          onPressed: () =>
+              showActivityFilterSheet(context, ActivityQuery(party: missing)),
+          child: const Text("open"),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const Key("open")));
+    await tester.pump(const Duration(milliseconds: 500));
+    await _settle(tester);
+
+    await tester.ensureVisible(
+      find.byKey(const Key("activity_filter_all_parties")),
+    );
+    await tester.tap(find.byKey(const Key("activity_filter_all_parties")));
+    await _settle(tester);
+
+    expect(tester.takeException(), isNull);
+    expect(parties.length, count);
+    expect(
+      find.byKey(const Key("activity_filter_party_Elsewhere")),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
