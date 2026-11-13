@@ -41,7 +41,6 @@ void main() {
         "Need help?",
         if (kDebugMode) "Debugging",
         "Yivi website",
-        "Frequently asked questions",
         "Share Yivi",
         "Yivi's privacy policy",
       ];
@@ -133,7 +132,10 @@ void main() {
       // Open menu
       await tester.tapAndSettle(find.text("More"));
 
-      // Open help
+      // The FAQ is part of "Need help?".
+      final needHelp = find.text("Need help?");
+      await tester.scrollUntilVisible(needHelp, 30);
+      await tester.tapAndSettle(needHelp);
       final faqFinder = find.text("Frequently asked questions");
       // In landscape mode on some devices the FAQ button is not visible so we scroll to it.
       await tester.scrollUntilVisible(faqFinder, 100);
@@ -179,11 +181,11 @@ void main() {
         findsOneWidget,
       );
 
-      // Questions the FAQ doesn't answer go through "Need help?".
-      await tester.scrollUntilVisible(
-        find.byKey(const Key("faq_need_help_link")),
-        75,
-      );
+      // Questions the FAQ doesn't answer: back to the problem list.
+      final chooseProblem = find.byKey(const Key("faq_need_help_link"));
+      await tester.scrollUntilVisible(chooseProblem, 75);
+      await tester.tapAndSettle(chooseProblem);
+      expect(find.text("What are you running into?"), findsOneWidget);
     });
 
     testWidgets("need-help", (tester) async {

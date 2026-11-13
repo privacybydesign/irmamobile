@@ -27,6 +27,7 @@ import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_themed_button.dart";
 import "../activity/history_repository.dart";
+import "../help/help_screen.dart";
 import "../more/widgets/tiles_card.dart";
 import "help_problem.dart";
 import "support_party.dart";
@@ -145,6 +146,23 @@ class NeedHelpScreen extends StatelessWidget {
           ),
           SizedBox(height: theme.mediumSpacing),
         ],
+        // Questions about Yivi itself, not a problem: the FAQ.
+        const SectionHeader("help.about_irma"),
+        SizedBox(height: theme.smallSpacing),
+        TilesCard(
+          children: [
+            _HelpRow(
+              key: const Key("need_help_faq_option"),
+              icon: Icons.help_outline_rounded,
+              title: _tr(context, "more_tab.faq"),
+              subtitle: _tr(context, "need_help.start.faq_subtitle"),
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => HelpScreen())),
+            ),
+          ],
+        ),
+        SizedBox(height: theme.mediumSpacing),
         TilesCard(
           children: [
             _HelpRow(

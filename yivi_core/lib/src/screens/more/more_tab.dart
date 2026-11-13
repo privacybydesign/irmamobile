@@ -100,17 +100,12 @@ class _MoreTabState extends State<MoreTab> {
             ),
             spacerWidget,
             buildHeaderText("help.about_irma"),
-            TilesCard(
+            const TilesCard(
               children: [
-                const ExternalLinkTile(
+                ExternalLinkTile(
                   labelTranslationKey: "more_tab.website",
                   iconData: Icons.info_outline_rounded,
                   urlLinkKey: "more_tab.irma_website_link",
-                ),
-                InternalLinkTile(
-                  labelTranslationKey: "more_tab.faq",
-                  iconData: Icons.help_outline_rounded,
-                  onTap: context.goHelpScreen,
                 ),
               ],
             ),

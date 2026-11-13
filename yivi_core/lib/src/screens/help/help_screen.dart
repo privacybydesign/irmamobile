@@ -8,10 +8,11 @@ import "../../widgets/irma_markdown.dart";
 import "../../widgets/link.dart";
 import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
-import "../need_help/need_help_screen.dart";
 import "widgets/help_item.dart";
 import "widgets/help_item_carousel.dart";
 
+/// The FAQ. Opened from the "Hulp nodig?" start screen, which its footer
+/// returns to.
 class HelpScreen extends StatefulWidget {
   @override
   State<HelpScreen> createState() => _HelpScreenState();
@@ -167,8 +168,8 @@ class _HelpScreenState extends State<HelpScreen> {
                 padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
                 child: Link(
                   key: const Key("faq_need_help_link"),
-                  label: "more_tab.need_help",
-                  onTap: () => openNeedHelp(context),
+                  label: "help.choose_problem",
+                  onTap: () => Navigator.of(context).pop(),
                 ),
               ),
             ],

@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/screens/error/session_error_screen.dart";
+import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/need_help/help_problem.dart";
 import "package:yivi_core/src/screens/need_help/need_help_screen.dart";
 import "package:yivi_core/src/screens/need_help/support_party.dart";
@@ -259,6 +260,18 @@ void main() {
 
     expect(_mailYivi, findsOneWidget);
     expect(find.text(t("need_help.yivi.included_report")), findsNothing);
+  });
+
+  testWidgets("the FAQ is part of Hulp nodig?, and leads back to it", (
+    tester,
+  ) async {
+    await _pump(tester, const NeedHelpScreen());
+    await _tap(tester, find.byKey(const Key("need_help_faq_option")));
+    expect(find.byType(HelpScreen), findsOneWidget);
+
+    await _tap(tester, find.byKey(const Key("faq_need_help_link")));
+    expect(find.byType(HelpScreen), findsNothing);
+    expect(find.text(t("need_help.start.title")), findsOneWidget);
   });
 
   testWidgets("something else: the user says what it is about", (tester) async {

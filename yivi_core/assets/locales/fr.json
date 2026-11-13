@@ -432,7 +432,8 @@
     "question_11": "Yivi, vie privée et sécurité",
     "answer_11": "L'appli Yivi a été conçue pour que vous, et vous seul, puissiez voir et utiliser vos données personnelles. Vos données personnelles sont stockées uniquement sur votre téléphone et nulle part ailleurs. Nous ne stockons pas vos données dans le cloud.\n\nL'appli Yivi permet à un site web ou à un magasin de vérifier (par cryptographie) que les données que vous avez communiquées sont authentiques.\n\nL'appli Yivi communique vos données directement depuis votre téléphone au site web. Personne d'autre ne peut voir que vous vous identifiez. Pas même l'organisation derrière Yivi.\n\nEn utilisant Yivi, vous acceptez la [politique de confidentialité](https://www.yivi.app/en/privacy).",
     "security_and_privacy": "Sécurité et confidentialité",
-    "need_help_body": "Votre question n'y figure pas ? Dites-nous quel est votre problème. Nous vous aiderons, ou vous dirons qui peut le faire."
+    "need_help_body": "Votre question n'y figure pas ? Choisissez votre problème. Nous vous aiderons, ou vous dirons qui peut le faire.",
+    "choose_problem": "Choisir votre problème"
   },
   "home": {
     "nav_bar": {
@@ -598,7 +599,8 @@
       "title": "Quel est votre problème ?",
       "group_organisation": "Auprès d'une organisation",
       "group_data": "Vos données",
-      "group_app": "L'appli Yivi"
+      "group_app": "L'appli Yivi",
+      "faq_subtitle": "Ce qu'est Yivi, comment il fonctionne et comment il protège votre vie privée"
     },
     "answer": {
       "question": "Votre problème est-il résolu ?",
