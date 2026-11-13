@@ -163,7 +163,9 @@ class EmptyCardSpot extends StatelessWidget {
         for (final r in requirements)
           Text(
             r,
-            style: palette.body(12.5).copyWith(color: palette.secondaryText),
+            style: palette
+                .body(15)
+                .copyWith(height: 20 / 15, color: palette.secondaryText),
           ),
       ],
     );

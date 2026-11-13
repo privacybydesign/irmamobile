@@ -160,8 +160,8 @@ class IrmaThemeData {
         color: neutralExtraDark,
       ),
       titleLarge: TextStyle(
-        fontSize: 10,
-        height: 16 / 10,
+        fontSize: 12,
+        height: 16 / 12,
         fontWeight: FontWeight.w500,
         color: neutralExtraDark,
       ),

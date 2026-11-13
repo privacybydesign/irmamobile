@@ -159,9 +159,7 @@ class CardTileStrip extends StatelessWidget {
   /// The text in a strip.
   static TextStyle textStyle(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return palette
-        .body(13.5)
-        .copyWith(height: 19 / 13.5, color: palette.heading);
+    return palette.body(15).copyWith(height: 20 / 15, color: palette.heading);
   }
 
   @override

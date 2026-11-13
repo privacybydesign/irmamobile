@@ -147,11 +147,11 @@ class _ShareBar extends StatelessWidget {
             textAlign: TextAlign.center,
             style: risky
                 ? palette
-                      .body(13.5, weight: FontWeight.w600)
-                      .copyWith(height: 19 / 13.5, color: palette.errorText)
+                      .body(15, weight: FontWeight.w600)
+                      .copyWith(height: 20 / 15, color: palette.errorText)
                 : palette
-                      .body(13.5)
-                      .copyWith(height: 19 / 13.5, color: palette.heading),
+                      .body(15)
+                      .copyWith(height: 20 / 15, color: palette.heading),
           ),
         if (line case final l?)
           _ShareProgress(parts: parts, line: l, warn: warn),
@@ -200,45 +200,75 @@ class _ShareProgress extends StatelessWidget {
     required this.warn,
   });
 
+  static const _gap = 10.0;
+
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final p = parts;
+    final style = warn
+        ? palette
+              .body(15, weight: FontWeight.w600)
+              .copyWith(height: 20 / 15, color: palette.errorText)
+        : ProgressPartTrack.lineStyle(context);
+    final bars = p != null && p.total > 0
+        ? Row(
+            key: const Key("share_progress_parts"),
+            mainAxisSize: MainAxisSize.min,
+            spacing: 6,
+            children: [
+              for (var i = 0; i < p.total; i++)
+                _SharePart(filled: i < p.filled),
+            ],
+          )
+        : null;
     return Semantics(
       key: const Key("share_progress"),
       label: line,
       excludeSemantics: true,
       liveRegion: true,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 10,
-        children: [
-          if (p != null && p.total > 0)
-            Row(
-              key: const Key("share_progress_parts"),
-              mainAxisSize: MainAxisSize.min,
-              spacing: 6,
-              children: [
-                for (var i = 0; i < p.total; i++)
-                  _SharePart(filled: i < p.filled),
-              ],
-            ),
-          Flexible(
-            child: Text(
-              line,
-              key: const Key("share_progress_line"),
-              textAlign: p == null ? TextAlign.center : TextAlign.start,
-              style: warn
-                  ? palette
-                        .body(13.5, weight: FontWeight.w600)
-                        .copyWith(height: 19 / 13.5, color: palette.errorText)
-                  : ProgressPartTrack.lineStyle(context),
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // The line beside the parts while it fits on one line; under them,
+          // centred, when it would wrap there.
+          final besideWidth = bars == null
+              ? constraints.maxWidth
+              : constraints.maxWidth - _partsWidth(p!.total) - _gap;
+          final oneLine =
+              (TextPainter(
+                    text: TextSpan(text: line, style: style),
+                    textDirection: Directionality.of(context),
+                    textScaler: MediaQuery.textScalerOf(context),
+                    maxLines: 1,
+                  )..layout(maxWidth: besideWidth.clamp(0, double.infinity)))
+                  .didExceedMaxLines ==
+              false;
+          final text = Text(
+            line,
+            key: const Key("share_progress_line"),
+            textAlign: bars == null || !oneLine
+                ? TextAlign.center
+                : TextAlign.start,
+            style: style,
+          );
+          if (bars != null && !oneLine) {
+            return Column(spacing: 8, children: [bars, text]);
+          }
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: _gap,
+            children: [
+              ?bars,
+              Flexible(child: text),
+            ],
+          );
+        },
       ),
     );
   }
+
+  /// The width of [total] parts of 28 with 6 between them.
+  static double _partsWidth(int total) => total * 28.0 + (total - 1) * 6.0;
 }
 
 class _SharePart extends StatefulWidget {

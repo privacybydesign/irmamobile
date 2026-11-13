@@ -20,11 +20,8 @@ class ProgressPartTrack extends StatelessWidget {
   static TextStyle lineStyle(BuildContext context) {
     final palette = YiviPalette.of(context);
     return palette
-        .body(12)
-        .copyWith(
-          height: 16 / 12,
-          color: palette.secondaryText.withValues(alpha: 0.85),
-        );
+        .body(15)
+        .copyWith(height: 20 / 15, color: palette.secondaryText);
   }
 
   @override

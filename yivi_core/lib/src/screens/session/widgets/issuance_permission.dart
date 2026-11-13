@@ -654,8 +654,8 @@ class IssuanceRiskyReason extends StatelessWidget {
       key: const Key("issuance_risky_reason"),
       textAlign: textAlign,
       style: palette
-          .body(13.5, weight: FontWeight.w600)
-          .copyWith(color: palette.errorText, height: 19 / 13.5),
+          .body(15, weight: FontWeight.w600)
+          .copyWith(color: palette.errorText, height: 20 / 15),
     );
   }
 }

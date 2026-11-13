@@ -738,8 +738,8 @@ class ContactResendRow extends StatelessWidget {
               child: Text(
                 hint,
                 style: palette
-                    .body(13.5)
-                    .copyWith(color: palette.secondaryText),
+                    .body(15)
+                    .copyWith(height: 20 / 15, color: palette.secondaryText),
               ),
             ),
           ),
