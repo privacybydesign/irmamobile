@@ -1073,7 +1073,6 @@
     "title": "Fehlersuche",
     "issue_digid": "DigiD ausstellen",
     "random_issuance": "Zufällige Anmeldeinformationen ausstellen",
-    "custom_issue_wizard": "Ausstellungsassistenten starten",
     "start_session": "Sitzung starten",
     "session_helper": "Sitzungshelfer",
     "confirm_scheme_public_key_dialog_title": "Öffentlichen Schlüssel bestätigen",

@@ -6,14 +6,6 @@ part of 'session.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-IssueWizardPointer _$IssueWizardPointerFromJson(Map<String, dynamic> json) {
-  $checkKeys(json, requiredKeys: const ['wizard']);
-  return IssueWizardPointer(json['wizard'] as String);
-}
-
-Map<String, dynamic> _$IssueWizardPointerToJson(IssueWizardPointer instance) =>
-    <String, dynamic>{'wizard': instance.wizard};
-
 SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
   $checkKeys(json, requiredKeys: const ['u', 'irmaqr']);
   return SessionPointer(

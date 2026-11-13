@@ -1070,7 +1070,6 @@
     "title": "Debugging",
     "issue_digid": "Issue DigiD",
     "random_issuance": "Issue random credentials",
-    "custom_issue_wizard": "Start issue wizard",
     "start_session": "Start session",
     "session_helper": "Session helper",
     "confirm_scheme_public_key_dialog_title": "Confirm public key",

@@ -14,7 +14,7 @@ class MissingPointer implements Exception {
   MissingPointer({required this.details});
 
   String errorMessage() {
-    return "URI does not contain a session or wizard pointer: $details";
+    return "URI does not contain a session pointer: $details";
   }
 
   @override
@@ -25,7 +25,7 @@ class MissingPointer implements Exception {
 
 const universalLinkHosts = {"open.yivi.app", "open.staging.yivi.app"};
 
-/// Interface for all pointers referring to new sessions and issue wizards.
+/// Interface for all pointers referring to new sessions.
 abstract class Pointer {
   Future<void> validate({
     required IrmaRepository irmaRepository,
@@ -119,66 +119,9 @@ abstract class Pointer {
 
       json = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      final hasWizard = json.containsKey("wizard");
-      final hasURL = json.containsKey("u");
-      if (hasWizard && hasURL) {
-        return IssueWizardSessionPointer.fromJson(json);
-      } else if (hasWizard) {
-        return IssueWizardPointer.fromJson(json);
-      } else {
-        return SessionPointer.fromJson(json);
-      }
+      return SessionPointer.fromJson(json);
     } catch (e) {
       throw MissingPointer(details: e.toString());
-    }
-  }
-}
-
-/// A pointer that refers to an issue wizard only.
-@JsonSerializable(fieldRename: FieldRename.snake)
-class IssueWizardPointer implements Pointer {
-  @JsonKey(name: "wizard", required: true)
-  final String wizard;
-
-  IssueWizardPointer(this.wizard);
-
-  factory IssueWizardPointer.fromJson(Map<String, dynamic> json) =>
-      _$IssueWizardPointerFromJson(json);
-  Map<String, dynamic> toJson() => _$IssueWizardPointerToJson(this);
-
-  @override
-  Future<void> validate({
-    required IrmaRepository irmaRepository,
-    RequestorInfo? requestor,
-  }) async {
-    final scheme = wizard.contains(".") ? wizard.split(".").first : null;
-
-    final irmaConfiguration = await irmaRepository.getIrmaConfiguration().first;
-    if (!irmaConfiguration.issueWizards.containsKey(wizard) ||
-        !irmaConfiguration.requestorSchemes.containsKey(scheme)) {
-      throw ArgumentError.value(wizard, "wizard");
-    }
-
-    final demoScheme = irmaConfiguration.requestorSchemes[scheme]!.demo;
-    final developerMode = await irmaRepository.getDeveloperMode().first;
-    if (!developerMode && demoScheme) {
-      throw UnsupportedError(
-        "cannot start wizard from demo scheme: developer mode not enabled",
-      );
-    }
-
-    final wizardData = irmaConfiguration.issueWizards[wizard]!;
-    if (demoScheme || wizardData.allowOtherRequestors) {
-      return;
-    }
-
-    if (requestor == null) {
-      throw UnsupportedError("cannot start wizard: unknown requestor");
-    }
-    if (wizardData.id.split(".").getRange(0, 2).join(".") != requestor.id) {
-      throw UnsupportedError(
-        "cannot start wizard not belonging to session requestor",
-      );
     }
   }
 }
@@ -244,68 +187,6 @@ class SessionPointer implements Pointer {
     required IrmaRepository irmaRepository,
     RequestorInfo? requestor,
   }) async {}
-}
-
-/// A pointer that refers to an issue wizard being followed by an IRMA session.
-class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
-  final IssueWizardPointer _wizardPointer;
-  final SessionPointer _sessionPointer;
-
-  IssueWizardSessionPointer(this._wizardPointer, this._sessionPointer);
-
-  factory IssueWizardSessionPointer.fromJson(Map<String, dynamic> json) =>
-      IssueWizardSessionPointer(
-        IssueWizardPointer.fromJson(json),
-        SessionPointer.fromJson(json),
-      );
-
-  @override
-  bool get continueOnSecondDevice => _sessionPointer.continueOnSecondDevice;
-
-  @override
-  set continueOnSecondDevice(bool value) =>
-      _sessionPointer.continueOnSecondDevice = value;
-
-  @override
-  String get irmaqr => _sessionPointer.irmaqr;
-
-  @override
-  String get wizard => _wizardPointer.wizard;
-
-  @override
-  String get u => _sessionPointer.u;
-
-  @override
-  Protocol get protocol => _sessionPointer.protocol;
-
-  @override
-  String? get openid4vciRedirectUri => _sessionPointer.openid4vciRedirectUri;
-
-  @override
-  Map<String, dynamic> toJson() => {
-    ..._wizardPointer.toJson(),
-    ..._sessionPointer.toJson(),
-  };
-
-  @override
-  Future<void> validate({
-    required IrmaRepository irmaRepository,
-    RequestorInfo? requestor,
-  }) async {
-    await _wizardPointer.validate(
-      irmaRepository: irmaRepository,
-      requestor: requestor,
-    );
-    await _sessionPointer.validate(
-      irmaRepository: irmaRepository,
-      requestor: requestor,
-    );
-  }
-
-  @override
-  set protocol(Protocol protocol) {
-    _sessionPointer.protocol = protocol;
-  }
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)

@@ -19,7 +19,6 @@ import "external_browser_credtypes_test.dart" as external_browser_test;
 import "idle_lock_test.dart" as idle_lock_test;
 import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
-// import "issue_wizard_test.dart" as issue_wizard_test;
 import "login_test.dart" as login_test;
 import "mdoc_disclosure_sessions/mdoc_disclosure_sessions_test_all.dart"
     as mdoc_disclosure_sessions;
@@ -68,7 +67,6 @@ void main() {
   driving_licence_card_test.main();
   store_review_test.main();
   disclosure_session.main();
-  // issue_wizard_test.main();
   notifications_test.main();
   passport_test.main();
   driving_licence_test.main();

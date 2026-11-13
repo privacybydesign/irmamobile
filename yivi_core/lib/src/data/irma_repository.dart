@@ -921,8 +921,8 @@ class IrmaRepository {
   /// Unified entry point for "user tapped Get / Reobtain inside the app
   /// and we need to take them to the issuer to obtain a credential".
   ///
-  /// Called from add-data details, credential details (reobtain), the
-  /// credential card's reobtain button, and the issue wizard.
+  /// Called from add-data details, credential details (reobtain) and the
+  /// credential card's reobtain button.
   ///
   /// Behaviour:
   /// - For known embedded scheme credentials (pbdf/pbdf-staging passport,

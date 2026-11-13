@@ -39,9 +39,6 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) =>
         (k, e) =>
             MapEntry(k, AttributeType.fromJson(e as Map<String, dynamic>)),
       ),
-      issueWizards: (json['IssueWizards'] as Map<String, dynamic>).map(
-        (k, e) => MapEntry(k, IssueWizard.fromJson(e as Map<String, dynamic>)),
-      ),
       path: json['Path'] as String,
     );
 

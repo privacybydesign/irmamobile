@@ -42,15 +42,6 @@ final waitingRequestProvider = StreamProvider<WaitingRequest?>((ref) {
           ),
         ),
       );
-    case IssueWizardPointer():
-      return Stream.value(
-        const WaitingRequest(
-          preview: SessionPreview(
-            kind: SessionPreviewKind.issuance,
-            knowledge: SessionPreviewKnowledge.none,
-          ),
-        ),
-      );
     case _:
   }
   if (!ref.watch(hasInFlightSessionProvider)) return Stream.value(null);

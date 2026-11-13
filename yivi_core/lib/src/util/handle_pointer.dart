@@ -12,7 +12,6 @@ import "navigation.dart";
 
 /// Handles a scanned or opened [pointer]: the link in a verification e-mail
 /// opens the e-mail linking screens, a session pointer starts its session.
-/// Other pointers (an issue wizard's) are validated and then ignored.
 /// With [pushReplacement] the session or error screen replaces the current
 /// one. Returns the id of the session that was started, if any.
 Future<int?> handlePointer(
@@ -31,7 +30,7 @@ Future<int?> handlePointer(
     if (!context.mounted) {
       return null;
     }
-    final message = "error starting session or wizard: $e";
+    final message = "error starting session: $e";
     if (pushReplacement) {
       context.pushReplacementErrorScreen(message: message);
     } else {

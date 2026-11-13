@@ -10,30 +10,28 @@ void main() {
     final positiveTestCases = [
       'irma://qr/json/{"u":"$url","irmaqr":"$irmaQr"}',
       'https://irma.app/-pilot/session#{"u":"$url","irmaqr":"$irmaQr"}',
-      'irma://qr/json/{"wizard":"test"}',
-      'https://irma.app/-pilot/session#{"wizard":"test"}',
+      // A "wizard" key (the retired issue wizard) is ignored next to a session.
       'irma://qr/json/{"wizard":"test","u":"$url","irmaqr":"$irmaQr"}',
       'https://irma.app/-pilot/session#{"wizard":"test","u":"$url","irmaqr":"$irmaQr"}',
     ];
 
     for (final testCase in positiveTestCases) {
       final pointer = Pointer.fromString(testCase);
-      if (testCase.contains("wizard")) {
-        expect(pointer, isA<IssueWizardPointer>());
-        final wizardPointer = pointer as IssueWizardPointer;
-        expect(wizardPointer.wizard, "test");
-      } else {
-        expect(pointer, isNot(isA<IssueWizardPointer>()));
-      }
+      expect(pointer, isA<SessionPointer>());
+      final sessionPointer = pointer as SessionPointer;
+      expect(sessionPointer.u, url);
+      expect(sessionPointer.irmaqr, irmaQr);
+    }
 
-      if (testCase.contains("irmaqr")) {
-        expect(pointer, isA<SessionPointer>());
-        final sessionPointer = pointer as SessionPointer;
-        expect(sessionPointer.u, url);
-        expect(sessionPointer.irmaqr, irmaQr);
-      } else {
-        expect(pointer, isNot(isA<SessionPointer>()));
-      }
+    // An issue wizard on its own is no longer a pointer.
+    for (final testCase in [
+      'irma://qr/json/{"wizard":"test"}',
+      'https://irma.app/-pilot/session#{"wizard":"test"}',
+    ]) {
+      expect(
+        () => Pointer.fromString(testCase),
+        throwsA(const TypeMatcher<MissingPointer>()),
+      );
     }
 
     expect(

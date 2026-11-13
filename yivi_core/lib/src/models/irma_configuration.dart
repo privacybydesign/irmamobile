@@ -1,7 +1,6 @@
 import "package:json_annotation/json_annotation.dart";
 
 import "event.dart";
-import "issue_wizard.dart";
 import "session.dart";
 import "translated_value.dart";
 
@@ -27,7 +26,6 @@ class IrmaConfiguration {
     required this.issuers,
     required this.credentialTypes,
     required this.attributeTypes,
-    required this.issueWizards,
     required this.path,
   });
 
@@ -42,8 +40,6 @@ class IrmaConfiguration {
   final Map<String, CredentialType> credentialTypes;
 
   final Map<String, AttributeType> attributeTypes;
-
-  final Map<String, IssueWizard> issueWizards;
 
   final String path;
 
