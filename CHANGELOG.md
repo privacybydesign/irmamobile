@@ -59,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add integration tests for issuing and disclosing `vc+sd-jwt` and Open Badges credentials against the Veramo test issuer and verifier on staging (`integration_test/vcdm_test.dart`)
 - The debug log leaves out the images of attribute values (`base64_image`), as it already did for logos
 - Upgrade irmago to v1.5.0
+- Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 
 ## [8.3.3] - 2026-10-16
 ### Added
