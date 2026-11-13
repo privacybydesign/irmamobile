@@ -46,7 +46,9 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Generate CycloneDX SBOM
@@ -54,7 +56,7 @@ jobs:
         env:
           # Raises the GitHub API rate limit for the licence lookups.
           GITHUB_TOKEN: ${{ github.token }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: sbom
           path: ./build/sbom/yivi-app.cdx.json
@@ -173,7 +175,7 @@ jobs:
       - generate-sbom
     steps:
       - name: Download sbom artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: sbom
       - name: Download app-alpha-ios artifact
@@ -331,7 +333,7 @@ jobs:
       - generate-sbom
     steps:
       - name: Download sbom artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: sbom
       - name: Download app-beta-ios artifact
