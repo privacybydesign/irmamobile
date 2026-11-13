@@ -1,14 +1,9 @@
 part of "data_tab.dart";
 
-/// The cards overlap, each showing a strip of [_stripAtDesign] (at the
-/// card's design width; it grows with the card), and each casts a soft shade
-/// on the strip above it; the last one is shown in full. Hold a card to drag
-/// it to another place.
+/// The cards overlap, each showing a strip of [_stripHeight]; the last one is
+/// shown in full. Hold a card to drag it to another place.
 class _StackView extends ConsumerWidget {
-  /// The strip at [CredentialCardArt.designWidth]: a built-in card's header
-  /// (its icon square from 10.5 to 41.5, the main value on 41.5), with as
-  /// much colour under it as above.
-  static const double _stripAtDesign = 52;
+  static const double _stripHeight = 64;
 
   /// Between the card in the hand and the card below it.
   static const double _landingGap = 8;
@@ -38,19 +33,21 @@ class _StackView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cardHeight = width / CredentialCardArt.aspectRatio;
-    final strip = _stripAtDesign * width / CredentialCardArt.designWidth;
     final onMove = _reorder(ref);
     // What a card transition measures when one of them is tapped.
     StackCards.hashes = [for (final c in cards) c.hash];
     return DragToArrange(
       keys: [for (final c in cards) c.hash],
-      size: Size(width, (cards.length - 1) * strip + cardHeight),
+      size: Size(width, (cards.length - 1) * _stripHeight + cardHeight),
       slotWidth: width,
-      slot: (i) => Offset(0, i * strip),
-      indexAt: (at) => (at.dy / strip).round(),
+      slot: (i) => Offset(0, i * _stripHeight),
+      indexAt: (at) => (at.dy / _stripHeight).round(),
       // The cards below the one in the hand clear all of it (lifted), and a
       // little more, so it lands without dropping through them.
-      room: Offset(0, cardHeight * DragToArrange.lift - strip + _landingGap),
+      room: Offset(
+        0,
+        cardHeight * DragToArrange.lift - _stripHeight + _landingGap,
+      ),
       enabled: arrangeable,
       // The cards slide down when a received card joins the top.
       slide: _slideForFlight(),
@@ -85,21 +82,16 @@ class _StackView extends ConsumerWidget {
                         )
                       : null,
                   // Under the next card only its strip shows.
-                  revealHeight: i == cards.length - 1 ? null : strip,
+                  revealHeight: i == cards.length - 1 ? null : _stripHeight,
                   // Sinks or falls while a card opens; the open card
                   // itself is drawn by its details.
                   child: StackCardFollow(
                     index: i,
                     width: width,
-                    child: _StackShade(
-                      // The first card has no strip above it to shade.
-                      on: i > 0,
+                    child: CredentialCardArt(
+                      credential: c,
                       width: width,
-                      child: CredentialCardArt(
-                        credential: c,
-                        width: width,
-                        hintText: hintTexts[c.hash],
-                      ),
+                      hintText: hintTexts[c.hash],
                     ),
                   ),
                 ),
@@ -108,39 +100,6 @@ class _StackView extends ConsumerWidget {
           ),
         );
       },
-    );
-  }
-}
-
-/// The soft shade a card in the stack casts upward, on the bottom of the
-/// strip above it: it makes the strips read as a pile of cards rather than
-/// stripes. The cards themselves have no shadow (like printed cards).
-class _StackShade extends StatelessWidget {
-  final bool on;
-  final double width;
-  final Widget child;
-
-  const _StackShade({
-    required this.on,
-    required this.width,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (!on) return child;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: CredentialCardArt.radiusFor(width),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x33000000),
-            blurRadius: 9,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      child: child,
     );
   }
 }
