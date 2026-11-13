@@ -158,15 +158,23 @@ class SupportParty {
     return siteOfHostname(hostnames.first);
   }
 
-  static final _hostname = RegExp(r"^[a-z0-9-]+(\.[a-z0-9-]+)+$");
+  /// A domain name, not an IP address: its last label starts with a letter.
+  static final _hostname = RegExp(
+    r"^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z][a-z0-9-]*$",
+  );
+
+  /// Second levels many countries register domains under, as in `co.uk`,
+  /// `com.au` and `or.jp`. Not the whole public suffix list, but the
+  /// pattern behind most of it.
+  static const _countrySecondLevels = {
+    "ac", "co", "com", "edu", "go", "gob", "gov", //
+    "ltd", "ne", "net", "or", "org", "plc", "sch",
+  };
 
   /// A server that is not in the scheme is named after its hostname, e.g.
   /// `is.demo.staging.yivi.app`. Verified names like "Ver.iD" are left alone.
-  static Uri? _siteOfUnknownServer(TrustedParty party) {
-    final name = party.name.trim().toLowerCase();
-    if (party.verified || !_hostname.hasMatch(name)) return null;
-    return siteOfHostname(name);
-  }
+  static Uri? _siteOfUnknownServer(TrustedParty party) =>
+      party.verified ? null : siteOfHostname(party.name);
 
   static bool _isYiviDomain(String? host) =>
       host != null &&
@@ -175,16 +183,18 @@ class SupportParty {
   /// `inzage.stichtingcis.nl` → `https://stichtingcis.nl`. Requestor
   /// hostnames are often a subdomain for the Yivi integration; the site one
   /// level up is where people find the organisation's contact details.
+  /// `portal.example.co.uk` → `https://example.co.uk`. Null for anything
+  /// that is not a domain name, such as an IP address or `localhost`.
   static Uri? siteOfHostname(String hostname) {
-    final labels = hostname
-        .trim()
-        .toLowerCase()
-        .split(".")
-        .where((label) => label.isNotEmpty)
-        .toList();
-    if (labels.length < 2) return null;
-    final domain = labels.sublist(labels.length - 2).join(".");
-    return Uri.https(domain);
+    final host = hostname.trim().toLowerCase();
+    if (!_hostname.hasMatch(host)) return null;
+    final labels = host.split(".");
+    final underCountry =
+        labels.length > 2 &&
+        labels.last.length == 2 &&
+        _countrySecondLevels.contains(labels[labels.length - 2]);
+    final depth = underCountry ? 3 : 2;
+    return Uri.https(labels.sublist(labels.length - depth).join("."));
   }
 
   static Uri? _httpUri(String? raw) {

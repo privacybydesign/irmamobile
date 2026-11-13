@@ -97,28 +97,7 @@ class ActivityDetailsScreen extends StatelessWidget {
     final disclosed =
         logEntry.type == LogType.disclosure ||
         logEntry.type == LogType.signature;
-
-    final HelpContext? helpContext = switch (logEntry.type) {
-      _ when org == null => null,
-      LogType.disclosure || LogType.signature => HelpContext(
-        sectionKey: "need_help.context.activity_section",
-        labelKey: "need_help.context.activity_disclosure",
-        subtitle: when,
-        problem: HelpProblems.outcome,
-        organisation: org,
-      ),
-      LogType.issuance => HelpContext(
-        sectionKey: "need_help.context.activity_section",
-        labelKey: "need_help.context.activity_issuance",
-        subtitle: when,
-        // Yivi's own data (email, phone number) is Yivi's to fix.
-        problem: org.isYivi
-            ? HelpProblems.dataWrong
-            : HelpProblems.dataFromOrganisation,
-        organisation: org,
-      ),
-      LogType.removal => null,
-    };
+    final helpContext = activityHelpContext(logEntry.type, org, when);
 
     return [
       if (disclosed && org != null && !org.isYivi) ...[
@@ -148,3 +127,33 @@ class ActivityDetailsScreen extends StatelessWidget {
     ];
   }
 }
+
+/// The activity as the first option in "Hulp nodig?", or null when there is
+/// nothing about it to ask an organisation.
+HelpContext? activityHelpContext(
+  LogType type,
+  SupportParty? org,
+  String when,
+) => switch (type) {
+  _ when org == null => null,
+  // Yivi asked for the data itself: no outcome waits at an organisation.
+  LogType.disclosure || LogType.signature when org.isYivi => null,
+  LogType.disclosure || LogType.signature => HelpContext(
+    sectionKey: "need_help.context.activity_section",
+    labelKey: "need_help.context.activity_disclosure",
+    subtitle: when,
+    problem: HelpProblems.outcome,
+    organisation: org,
+  ),
+  LogType.issuance => HelpContext(
+    sectionKey: "need_help.context.activity_section",
+    labelKey: "need_help.context.activity_issuance",
+    subtitle: when,
+    // Yivi's own data (email, phone number) is Yivi's to fix.
+    problem: org.isYivi
+        ? HelpProblems.dataWrong
+        : HelpProblems.dataFromOrganisation,
+    organisation: org,
+  ),
+  LogType.removal => null,
+};

@@ -156,6 +156,24 @@ void main() {
     expect(SupportParty.siteOfHostname("localhost"), isNull);
   });
 
+  test("siteOfHostname keeps a country's second level", () {
+    expect(
+      SupportParty.siteOfHostname("portal.example.co.uk"),
+      Uri.https("example.co.uk"),
+    );
+    expect(
+      SupportParty.siteOfHostname("login.example.com.au"),
+      Uri.https("example.com.au"),
+    );
+    // A short Dutch domain is not a country's second level.
+    expect(SupportParty.siteOfHostname("inzage.cis.nl"), Uri.https("cis.nl"));
+  });
+
+  test("siteOfHostname takes no IP address for a site", () {
+    expect(SupportParty.siteOfHostname("192.168.1.10"), isNull);
+    expect(SupportParty.siteOfHostname("10.0.0.1"), isNull);
+  });
+
   test("directory: every organisation to search, once, by name", () {
     RequestorInfo requestor(String id, String name, String host) =>
         RequestorInfo(
@@ -240,6 +258,15 @@ void main() {
         _config(),
       )!;
       expect(org.website, Uri.https("example.com"));
+      expect(org.isYivi, isFalse);
+    });
+
+    test("on an IP address has no site", () {
+      final org = SupportParty.resolve(
+        unknownServer("192.168.1.10"),
+        _config(),
+      )!;
+      expect(org.website, isNull);
       expect(org.isYivi, isFalse);
     });
 
