@@ -98,7 +98,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       context: context,
       requestor: issuer,
       issuer: true,
-      logoHero: true,
+      logoHeroTag: requestorLogoHeroTag(issuer),
       technicalDetails: session == null
           ? null
           : issuanceTechnicalDetailsOf(session, _cards, context.tr),
@@ -125,7 +125,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
             count: count,
             onTrust: () => _openIssuer(issuer),
             cardKey: _issuerCardKey,
-            logoHero: true,
+            logoHeroTag: requestorLogoHeroTag(issuer),
           );
     final values = [
       const YouGetLabel(),
@@ -571,9 +571,9 @@ class IssuerHeading extends StatelessWidget {
   /// The issuer's card, to see when it goes under the bar.
   final GlobalKey? cardKey;
 
-  /// The logo is a hero into the trust sheet ([RequestorLogo.hero]), on the
+  /// The logo is a hero into the trust sheet ([RequestorLogo.heroTag]), on the
   /// permission as a screen of its own.
-  final bool logoHero;
+  final Object? logoHeroTag;
 
   const IssuerHeading({
     super.key,
@@ -583,7 +583,7 @@ class IssuerHeading extends StatelessWidget {
     this.titleKey,
     this.logoKey,
     this.cardKey,
-    this.logoHero = false,
+    this.logoHeroTag,
   });
 
   @override
@@ -615,7 +615,7 @@ class IssuerHeading extends StatelessWidget {
             requestor: issuer,
             onInfo: onTrust,
             logoKey: logoKey,
-            logoHero: logoHero,
+            logoHeroTag: logoHeroTag,
           ),
         ),
       ],

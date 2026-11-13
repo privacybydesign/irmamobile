@@ -81,6 +81,13 @@ class GlassSheetPage extends StatefulWidget {
   /// right after [titleWidget], instead of under the content.
   final bool bottomInBar;
 
+  /// A row that sticks under the bar, over the content, on the bar's band,
+  /// once the top of [underBarAfter] has scrolled under the bar (who gives
+  /// the card, once their card has gone up). It drops in without moving the
+  /// content.
+  final Widget? underBar;
+  final GlobalKey? underBarAfter;
+
   const GlassSheetPage({
     super.key,
     required this.title,
@@ -102,6 +109,8 @@ class GlassSheetPage extends StatefulWidget {
     this.titleAfterScroll,
     this.titleUnder,
     this.bottomInBar = false,
+    this.underBar,
+    this.underBarAfter,
   }) : split = split,
        padding = split ? EdgeInsets.zero : padding,
        scrolls = scrolls && !split,
@@ -123,11 +132,15 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
   /// Whether the page has scrolled past [GlassSheetPage.titleAfterScroll].
   final _past = ValueNotifier(false);
 
+  /// Whether [GlassSheetPage.underBar] shows.
+  final _underBarShown = ValueNotifier(false);
+
   @override
   void dispose() {
     _under.dispose();
     _slot.dispose();
     _past.dispose();
+    _underBarShown.dispose();
     super.dispose();
   }
 
@@ -138,13 +151,20 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     if (n.metrics.axis != Axis.vertical) return false;
     final heading = widget.titleUnder?.currentContext.laidOutBox;
     final bar = _barKey.currentContext.laidOutBox;
+    final after = widget.underBarAfter?.currentContext.laidOutBox;
+    if (after != null && bar != null) {
+      // The top of the name, 12 into the card, as the share screen's bar.
+      _underBarShown.value =
+          after.localToGlobal(const Offset(0, 12)).dy <
+          bar.localToGlobal(Offset(0, bar.size.height)).dy;
+    }
     if (heading != null && bar != null) {
       final bottom = heading.localToGlobal(Offset(0, heading.size.height)).dy;
       _past.value = bottom < bar.localToGlobal(Offset(0, bar.size.height)).dy;
       return false;
     }
-    final after = widget.titleAfterScroll;
-    if (after != null) _past.value = n.metrics.pixels > after;
+    final afterScroll = widget.titleAfterScroll;
+    if (afterScroll != null) _past.value = n.metrics.pixels > afterScroll;
     return false;
   }
 
@@ -247,9 +267,12 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       ),
     );
     // Taps on the bar stay on the bar, also where content is under it.
+    final underBar = widget.underBar;
     final bar = Listener(
       behavior: HitTestBehavior.opaque,
       child: Stack(
+        // The row under the bar hangs out of it.
+        clipBehavior: Clip.none,
         children: [
           // Clipped to the sheet's top corners itself: it is drawn outside
           // the sheet's rounded clip, and filled the corners square.
@@ -272,7 +295,20 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             key: _barKey,
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: head,
+            children: [
+              ...head,
+              if (underBar != null)
+                SizedBox(
+                  height: 0,
+                  child: OverflowBox(
+                    alignment: Alignment.topCenter,
+                    maxHeight: double.infinity,
+                    child: role == null
+                        ? _underBar(underBar)
+                        : role.slide(_underBar(underBar)),
+                  ),
+                ),
+            ],
           ),
         ],
       ),
@@ -288,6 +324,34 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     return report != null && widget.fit
         ? _FitPage(report: report, child: page)
         : page;
+  }
+
+  /// [GlassSheetPage.underBar] on the bar's band (the band as it is with
+  /// content under it), with the band's line under it instead of under the
+  /// bar: it covers that line.
+  Widget _underBar(Widget row) {
+    final palette = YiviPalette.of(context);
+    final line = 1 / MediaQuery.devicePixelRatioOf(context);
+    return CompactBarDropIn(
+      shown: _underBarShown,
+      bar: (t) => Opacity(
+        opacity: t,
+        child: Transform.translate(
+          offset: Offset(0, -line),
+          child: DecoratedBox(
+            key: const Key("glass_sheet_under_bar"),
+            decoration: BoxDecoration(
+              color: ScrollEdgeBand.fill(palette, base: palette.sheet),
+              border: Border(bottom: ScrollEdgeBand.lineSide(context)),
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, line + 4, 16, 10),
+              child: row,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// What scrolls, and the buttons under it: [GlassSheetPage.bottom] and

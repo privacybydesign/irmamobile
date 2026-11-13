@@ -32,8 +32,9 @@ void closeCardDetails(BuildContext context, CardTransition? transition) {
 
 /// The page of a detail route opened with the Wallet-style transition
 /// ([WalletDetailPage]): a background that fades in once the other content
-/// has moved away, pull down at the top to dismiss (the page follows the
-/// finger and shrinks a little), and a floating close button over a fade.
+/// has moved away, pull down at the top or swipe to the right to dismiss
+/// (the page follows the finger and shrinks a little), and a floating close
+/// button over a fade.
 ///
 /// The content itself flies in as heroes and fades up with [WalletReveal].
 class WalletDetailScaffold extends StatefulWidget {
@@ -75,12 +76,20 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   /// How far the page is pulled down at its top, to dismiss it.
   final _pull = ValueNotifier<double>(0);
 
-  /// Springs the pull back when it was not far enough to dismiss.
+  /// How far the page is swiped to the right, to dismiss it, as the back
+  /// swipe of a page. Sideways scrolling content under the finger (the
+  /// sibling cards) keeps its own drag.
+  final _swipe = ValueNotifier<double>(0);
+  bool _swiping = false;
+
+  /// Springs the pull and the swipe back when they were not far enough to
+  /// dismiss.
   late final _springBack = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 420),
   );
   double _springFrom = 0;
+  double _springFromSwipe = 0;
 
   /// As on iOS: only a drag that starts at the top can pull the page down.
   /// One that starts further down scrolls, and at the top it stretches
@@ -113,6 +122,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     _springBack.addListener(() {
       final t = Curves.easeOutBack.transform(_springBack.value);
       _pull.value = (_springFrom * (1 - t)).clamp(0, double.infinity);
+      _swipe.value = (_springFromSwipe * (1 - t)).clamp(0, double.infinity);
     });
   }
 
@@ -120,9 +130,48 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   /// by a finger, the page springs back up.
   void _onPhase() {
     if (widget.transition?.phase != TransitionPhase.open) return;
-    if (_pull.value <= 0) return;
+    if (_pull.value <= 0 && _swipe.value <= 0) return;
+    _springBack.stop();
     _springFrom = _pull.value;
+    _springFromSwipe = _swipe.value;
     _springBack.forward(from: 0);
+  }
+
+  void _onSwipeStart(DragStartDetails _) {
+    _swiping =
+        _pull.value == 0 &&
+        _routeAnimation?.status != AnimationStatus.reverse &&
+        (widget.transition?.phase ?? TransitionPhase.open) ==
+            TransitionPhase.open;
+    // A new drag takes over from a spring back.
+    if (_swiping) _springBack.stop();
+  }
+
+  void _onSwipeUpdate(DragUpdateDetails d) {
+    if (!_swiping) return;
+    // To the right only, the way back (mirrored right to left).
+    final dx = Directionality.of(context) == TextDirection.rtl
+        ? -d.delta.dx
+        : d.delta.dx;
+    _swipe.value = max(0, _swipe.value + dx);
+  }
+
+  void _onSwipeEnd(DragEndDetails d) {
+    if (!_swiping) return;
+    _swiping = false;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final velocity = (rtl ? -1 : 1) * d.velocity.pixelsPerSecond.dx;
+    final width = MediaQuery.sizeOf(context).width;
+    // As a page's back swipe: past a third of the way, or flicked.
+    if (velocity > 500 || (velocity >= -100 && _swipe.value > width / 3)) {
+      // The card goes back from where the page was swiped to.
+      _close();
+    } else {
+      _springFrom = _pull.value;
+      _springFromSwipe = _swipe.value;
+      _springBack.forward(from: 0);
+    }
   }
 
   void _onPullReleased(double velocity) {
@@ -181,6 +230,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     widget.transition?.phaseListenable.removeListener(_onPhase);
     _springBack.dispose();
     _pull.dispose();
+    _swipe.dispose();
     _routeAnimation?.removeStatusListener(_onRouteStatus);
     final key = widget.openKey;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -193,12 +243,11 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
 
   void _close() => closeCardDetails(context, widget.transition);
 
-  /// 0 at rest, 1 at twice the dismiss distance.
-  double get _pullProgress =>
-      (_pull.value / (2 * PullToDismissPhysics.dismissDistance)).clamp(
-        0.0,
-        1.0,
-      );
+  /// 0 at rest, 1 at twice the dismiss distance (or swiped all the way).
+  double get _pullProgress => max(
+    (_pull.value / (2 * PullToDismissPhysics.dismissDistance)).clamp(0.0, 1.0),
+    (_swipe.value / MediaQuery.sizeOf(context).width).clamp(0.0, 1.0),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -209,6 +258,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     final chrome = Listenable.merge([
       animation,
       _pull,
+      _swipe,
       transition?.phaseListenable,
     ]);
     // In a card transition the bar is there only while the card is open:
@@ -332,19 +382,32 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                   ),
                 ),
               ],
-              // The page follows the finger down, shrinking a little.
-              child: ValueListenableBuilder<double>(
-                valueListenable: _pull,
-                child: NotificationListener<ScrollStartNotification>(
-                  onNotification: _onScrollStart,
-                  child: widget.builder(context, _physics, animation),
-                ),
-                builder: (context, pull, child) => Transform.translate(
-                  offset: Offset(0, pull),
-                  child: Transform.scale(
-                    scale: 1 - _pullProgress * 0.06,
-                    alignment: Alignment.topCenter,
-                    child: child,
+              // The page follows the finger down or to the side, shrinking
+              // a little.
+              child: GestureDetector(
+                onHorizontalDragStart: _onSwipeStart,
+                onHorizontalDragUpdate: _onSwipeUpdate,
+                onHorizontalDragEnd: _onSwipeEnd,
+                onHorizontalDragCancel: () =>
+                    _onSwipeEnd(DragEndDetails(primaryVelocity: 0)),
+                child: AnimatedBuilder(
+                  animation: Listenable.merge([_pull, _swipe]),
+                  child: NotificationListener<ScrollStartNotification>(
+                    onNotification: _onScrollStart,
+                    child: widget.builder(context, _physics, animation),
+                  ),
+                  builder: (context, child) => Transform.translate(
+                    offset: Offset(
+                      Directionality.of(context) == TextDirection.rtl
+                          ? -_swipe.value
+                          : _swipe.value,
+                      _pull.value,
+                    ),
+                    child: Transform.scale(
+                      scale: 1 - _pullProgress * 0.06,
+                      alignment: Alignment.topCenter,
+                      child: child,
+                    ),
                   ),
                 ),
               ),

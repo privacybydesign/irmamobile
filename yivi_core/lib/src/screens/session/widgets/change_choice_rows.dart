@@ -84,8 +84,8 @@ class _ShareNothingCard extends StatelessWidget {
 /// size; it fades in (220 ms) when the card is put down in the sheet. No
 /// radio: the ring says which.
 ///
-/// A card that can't be used can't be picked: it has its chip and [fix]
-/// ("Add a new passport") under it.
+/// A card that can't be used can't be picked: it has its chip, and [fix]
+/// ("Add a new passport") at the end of its problem strip.
 class _OwnedCard extends StatelessWidget {
   final DisclosureBundle bundle;
   final bool selected;
@@ -106,8 +106,14 @@ class _OwnedCard extends StatelessWidget {
     if (problem) {
       return SharedCardTile(
         bundle: bundle,
-        fixLabel: fix?.label,
-        onFix: fix?.onTap,
+        // At the end of the problem strip, where "Wijzig keuze" is.
+        problemAction: fix == null
+            ? null
+            : SmallPill(
+                key: const Key("shared_card_fix"),
+                label: fix!.label,
+                onPressed: fix!.onTap,
+              ),
       );
     }
     return Semantics(

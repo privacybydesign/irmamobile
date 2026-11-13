@@ -733,6 +733,43 @@ void main() {
       expect(find.byKey(const Key("sheet_added_text")), findsOneWidget);
     });
 
+    testWidgets("scrolled, the issuer sticks in a row under the bar", (
+      tester,
+    ) async {
+      // Low enough that the offer scrolls.
+      final (_, nested) = await openWebsite(tester, size: const Size(390, 380));
+      comeBack(tester);
+      nested.add(issuance(SessionStatus.requestPermission));
+      await tester.pumpAndSettle();
+      final row = find.byKey(const Key("glass_sheet_under_bar"));
+      expect(row, findsNothing);
+
+      final heading = find.byKey(const Key("issuance_heading"));
+      final scrollable = find
+          .ancestor(of: heading, matching: find.byType(Scrollable))
+          .first;
+      final position = tester.state<ScrollableState>(scrollable).position;
+      expect(position.maxScrollExtent, greaterThan(0));
+      position.jumpTo(position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      expect(row, findsOneWidget);
+      expect(
+        find.descendant(
+          of: row,
+          matching: find.byKey(const Key("requestor_compact_bar")),
+        ),
+        findsOneWidget,
+      );
+      // It hangs under the bar, over the content: the heading stays where
+      // the scroll put it.
+      final bar = tester.getRect(find.byKey(const Key("glass_sheet_title")));
+      expect(tester.getRect(row).top, greaterThan(bar.bottom));
+
+      position.jumpTo(0);
+      await tester.pumpAndSettle();
+      expect(row, findsNothing);
+    });
+
     testWidgets("a swipe back on the issuer's details goes back to the "
         "offer, not the step before it", (tester) async {
       final (_, nested) = await openWebsite(tester);

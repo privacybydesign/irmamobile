@@ -23,6 +23,7 @@ import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/credential_card/faded_card_art.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_heading.dart";
 import "../../../widgets/press_scale.dart";

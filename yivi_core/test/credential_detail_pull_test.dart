@@ -91,6 +91,38 @@ void main() {
     expect(find.byType(CredentialDetailScreen), findsNothing);
   }, variant: _platforms);
 
+  testWidgets("swiping to the right dismisses the page", (tester) async {
+    await openDetail(tester);
+
+    await tester.drag(
+      find.byType(ListView),
+      const Offset(200, 0),
+      warnIfMissed: false,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CredentialDetailScreen), findsNothing);
+  }, variant: _platforms);
+
+  testWidgets("a short swipe springs back", (tester) async {
+    await openDetail(tester);
+    final list = find.byType(ListView);
+    final start = tester.getTopLeft(list);
+
+    final gesture = await tester.startGesture(tester.getCenter(list));
+    for (var i = 0; i < 4; i++) {
+      await gesture.moveBy(const Offset(20, 0));
+      await tester.pump();
+    }
+    // The page follows the finger.
+    expect(tester.getTopLeft(list).dx, greaterThan(start.dx + 40));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CredentialDetailScreen), findsOneWidget);
+    expect(tester.getTopLeft(list), start);
+  }, variant: _platforms);
+
   testWidgets("a drag that starts scrolled down only scrolls, past the top "
       "too", (tester) async {
     await openDetail(tester);

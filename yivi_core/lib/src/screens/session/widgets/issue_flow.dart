@@ -897,6 +897,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The issuer's logo on the question page, and on the issuer's page: it
   /// flies between them as the page slides in and out.
   final _issuerLogoFrom = GlobalKey(debugLabel: "issuer_logo_from");
+
+  /// The issuer's card on the permission: once it has gone up under the
+  /// bar, the issuer sticks in a row under the bar.
+  final _issuerCardKey = GlobalKey(debugLabel: "issuer_card");
   final _issuerLogoTo = GlobalKey(debugLabel: "issuer_logo_to");
 
   /// The issuer's page slides in over the question; its logo grows from the
@@ -1230,6 +1234,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             count: cards.length,
             titleKey: _titleKey("issuance"),
             logoKey: _issuerLogoFrom,
+            cardKey: _issuerCardKey,
             onTrust: () => _openIssuerPage(issuer),
           );
     final loading = _loading();
@@ -1242,12 +1247,24 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     ];
     final sideways = useSheetColumns(context);
     final page = GlassSheetPage(
-      // The issuer names the page; the question is its heading, and the
-      // bar shows the issuer once that has scrolled away.
-      title: issuer?.name ?? context.tr("issuance.title"),
+      // The question is the page's heading; the bar names the page once
+      // that has scrolled away. The issuer sticks under the bar once their
+      // card has (the "For" pill stays in the bar).
+      title: context.tr("issuance.title"),
       titleWidget: IssueRequestorPill.maybe(subject),
       titleWidgetCentred: true,
       titleUnder: _titleKey("issuance"),
+      underBar: issuer == null || sideways
+          ? null
+          : RequestorCompactBar(
+              requestor: issuer,
+              subtitle: cards.length > 1
+                  ? context.tr("issuance.bar_subtitle.many", {
+                      "count": "${cards.length}",
+                    })
+                  : context.tr("issuance.bar_subtitle.one"),
+            ),
+      underBarAfter: sideways ? null : _issuerCardKey,
       // Back declines this issuance: on the details again, to try again.
       onBack: issueBack,
       padding: const EdgeInsets.symmetric(horizontal: 16),

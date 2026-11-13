@@ -13,6 +13,7 @@ import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
+import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 
 import "helpers/credential_factory.dart";
 import "support/pump_translated.dart";
@@ -294,8 +295,11 @@ void main() {
             bundle: DisclosureBundle(
               credentials: [_instance("Address", revoked: true)],
             ),
-            fixLabel: "Add a new address",
-            onFix: () => fixed++,
+            problemAction: SmallPill(
+              key: const Key("shared_card_fix"),
+              label: "Add a new address",
+              onPressed: () => fixed++,
+            ),
           ),
         ),
       );
@@ -318,7 +322,6 @@ void main() {
             bundle: DisclosureBundle(
               credentials: [_instance("Address", revoked: true)],
             ),
-            problemStrip: true,
           ),
         ),
       );

@@ -393,7 +393,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     void openTrust() => showRequestorTrustSheet(
       context: context,
       requestor: session.requestor,
-      logoHero: true,
+      logoHeroTag: requestorLogoHeroTag(session.requestor),
       onDontShare: widget.onClose,
       technicalDetails: technicalDetailsOf(
         session,
@@ -444,7 +444,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       child: RequestorCard.compact(
         requestor: session.requestor,
         onInfo: openTrust,
-        logoHero: true,
+        logoHeroTag: requestorLogoHeroTag(session.requestor),
         logoKey: _logoKey,
       ),
     );
@@ -975,7 +975,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         bundle: bundle,
         landingKey: _landingKey(i),
         isNew: isNew,
-        problemStrip: true,
         problemAction: problemAction,
         footer: problem != null
             ? null

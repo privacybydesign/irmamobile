@@ -573,12 +573,15 @@ class _Details extends ConsumerWidget {
         RequestorCard.compact(
           key: const Key("credential_detail_issuer"),
           requestor: credential.issuer,
-          // No logo hero: the details can be on screen twice in a route
+          // The logo grows into the trust sheet and back. Its tag is this
+          // page's own: the details can be on screen twice in a route
           // (turning to the side pane).
+          logoHeroTag: (requestorLogoHeroTag(credential.issuer), context),
           onInfo: () => showRequestorTrustSheet(
             context: context,
             requestor: credential.issuer,
             issuer: true,
+            logoHeroTag: (requestorLogoHeroTag(credential.issuer), context),
           ),
         ),
         const SizedBox(height: 24),

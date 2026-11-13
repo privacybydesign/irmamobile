@@ -300,6 +300,7 @@ class _KeyFaceState extends State<_KeyFace>
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    final highlight = Theme.of(context).highlightColor;
     final content = Center(child: widget.child);
     return RepaintBoundary(
       child: AnimatedBuilder(
@@ -328,11 +329,12 @@ class _KeyFaceState extends State<_KeyFace>
                   DecoratedBox(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      // As in the design: a white light on light keys,
-                      // a faint one on dark keys.
-                      color: Colors.white.withValues(
-                        alpha: (palette.isDark ? 0.22 : 0.6) * t,
-                      ),
+                      // A faint white light on dark keys. A white light
+                      // can't show on a white key, so light keys go grey,
+                      // as a pressed row does (the theme's highlight).
+                      color: palette.isDark
+                          ? Colors.white.withValues(alpha: 0.22 * t)
+                          : highlight.withValues(alpha: highlight.a * t),
                     ),
                   ),
               ],

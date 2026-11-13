@@ -159,12 +159,18 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
         ref.watch(activityPartiesProvider).hasValue &&
         ref.watch(removedCardTypesProvider).hasValue;
     return GlassSheetPages(
-      onBack: () => setState(() => _pickingCard = false),
+      // The swipe and the system back, as the card page's back button.
+      onBack: () => setState(_leaveCardPage),
       pages: [
         _main(palette, total, ready),
         if (_pickingCard) _cardPage(palette),
       ],
     );
+  }
+
+  void _leaveCardPage() {
+    _pickingCard = false;
+    _cardSearch = "";
   }
 
   Widget _main(YiviPalette palette, int? total, bool ready) {
@@ -446,19 +452,14 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           c,
     ];
     final any = searching ? 0 : 1;
-    void leave() {
-      _pickingCard = false;
-      _cardSearch = "";
-    }
-
     void pick(ActivityCardRef? c) => setState(() {
-      leave();
+      _leaveCardPage();
       _set(_q.withCard(c));
     });
     return GlassSheetPage(
       key: const Key("activity_filter_cards"),
       title: _t("sheet.card"),
-      onBack: () => setState(leave),
+      onBack: () => setState(_leaveCardPage),
       slivers: [
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),

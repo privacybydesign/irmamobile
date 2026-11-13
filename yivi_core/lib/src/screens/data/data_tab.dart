@@ -255,6 +255,9 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
             // The + turns into the close button of a card that opens.
             trailingTurnsIntoClose: true,
             trailing: add,
+            // Rows and grid tiles fade where they are as a card opens over
+            // them (the stack has its own movement and doesn't come here).
+            othersDrop: false,
             child: content,
           );
 

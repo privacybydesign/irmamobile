@@ -57,6 +57,8 @@ class _HomeTabBarState extends State<HomeTabBar> {
       onChangeTab: widget.onChangeTab,
       labelSize: widget.docked ? 12 : 11,
       lineWidth: widget.docked ? 28 : 24,
+      // The lens is iOS's liquid glass; the docked bar takes plain taps.
+      lens: !widget.docked,
     );
     final row = Row(
       children: [
@@ -98,23 +100,28 @@ class _HomeTabBarState extends State<HomeTabBar> {
 /// The four tabs side by side, with the selected one's line on the bar's top
 /// edge, sliding to the tab picked.
 ///
-/// A finger on the tabs picks the tab it is on when it lets go, so it can
-/// slide to another one first. While it is down a lifted lens sits under it:
-/// the icon under the lens grows and turns rose, and past the first or last
-/// tab the lens stretches after the finger. The finger may leave the bar
-/// (up over the page, or over Scan): the tab under it, straight below, still
-/// counts, and over Scan that is the last tab.
+/// With the [lens] (the floating bar, iOS): a finger on the tabs picks the
+/// tab it is on when it lets go, so it can slide to another one first. While
+/// it is down a lifted lens sits under it: the icon under the lens grows and
+/// turns rose, and past the first or last tab the lens stretches after the
+/// finger. The finger may leave the bar (up over the page, or over Scan): the
+/// tab under it, straight below, still counts, and over Scan that is the last
+/// tab.
 class _TabRow extends StatefulWidget {
   final HomeTab selectedTab;
   final ValueChanged<HomeTab> onChangeTab;
   final double labelSize;
   final double lineWidth;
 
+  /// Whether a finger gets the lens. Without it each tab takes its own taps.
+  final bool lens;
+
   const _TabRow({
     required this.selectedTab,
     required this.onChangeTab,
     required this.labelSize,
     required this.lineWidth,
+    required this.lens,
   });
 
   @override
@@ -265,114 +272,116 @@ class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
         final tabWidth = _tabWidth;
         final place = _tabAt(index);
         final pressing = _pointer != null;
+        final row = AnimatedBuilder(
+          animation: Listenable.merge([_shownCurve, _x]),
+          builder: (context, _) {
+            final shown = _shownCurve.value;
+            final raw = _x.value;
+            final x = raw.clamp(tabWidth / 2, _width - tabWidth / 2);
+            final over = raw - x;
+            final stretch =
+                _maxStretch * (1 - 1 / (over.abs() * 0.55 / _maxStretch + 1));
+            final squash = 2 * stretch / _maxStretch;
+            final lensWidth = tabWidth + 6;
+            // While a finger is down the tab under the lens is the one
+            // marked; without motion, the one under the finger.
+            final marked = !pressing
+                ? index
+                : _tabAt(_reduceMotion ? _place : _placeAt(x.toDouble()));
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                if (shown > 0)
+                  Positioned(
+                    left: x - lensWidth / 2 - (over < 0 ? stretch : 0),
+                    top: -4 + squash,
+                    width: lensWidth + stretch,
+                    height: _height + 8 - 2 * squash,
+                    child: IgnorePointer(
+                      child: Opacity(
+                        opacity: shown,
+                        child: Transform.scale(
+                          scale: 0.88 + 0.12 * shown,
+                          child: DecoratedBox(
+                            decoration: ShapeDecoration(
+                              color: dark ? palette.raisedTint : palette.tint,
+                              shape: StadiumBorder(
+                                side: BorderSide(
+                                  color: dark
+                                      ? palette.handle
+                                      : palette.outline,
+                                ),
+                              ),
+                              shadows: [
+                                BoxShadow(
+                                  color: palette.glassShadow,
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 6),
+                                ),
+                                BoxShadow(
+                                  color: palette.glassShadow,
+                                  blurRadius: 3,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                Row(
+                  children: [
+                    for (final (i, (tab, labelKey, activeIcon, icon))
+                        in homeTabs.indexed)
+                      Expanded(
+                        child: _Tab(
+                          key: Key("nav_button_${tab.name}"),
+                          label: FlutterI18n.translate(context, labelKey),
+                          icon: i == marked ? activeIcon : icon,
+                          selected: tab == widget.selectedTab,
+                          marked: i == marked,
+                          showDot: tab == HomeTab.notifications,
+                          labelSize: widget.labelSize,
+                          // The icon under the lens grows with how near
+                          // the lens's middle is, so it moves with it.
+                          scale:
+                              1 +
+                              _grow *
+                                  shown *
+                                  max(
+                                    0.0,
+                                    1 -
+                                        (_middleOf(_tabAt(i)) - x).abs() /
+                                            tabWidth,
+                                  ),
+                          handlesTaps: !widget.lens,
+                          onTap: () => widget.onChangeTab(tab),
+                        ),
+                      ),
+                  ],
+                ),
+                AnimatedPositioned(
+                  duration: HomeNavigation._slide(context),
+                  curve: YiviMotion.ease,
+                  top: 0,
+                  left: tabWidth * place + (tabWidth - widget.lineWidth) / 2,
+                  width: widget.lineWidth,
+                  height: HomeNavigation.lineThickness,
+                  child: const _Line(edge: AxisDirection.up),
+                ),
+              ],
+            );
+          },
+        );
+        if (!widget.lens) return row;
         return Listener(
           behavior: HitTestBehavior.opaque,
           onPointerDown: _down,
           onPointerMove: _move,
           onPointerUp: _up,
           onPointerCancel: _lost,
-          child: AnimatedBuilder(
-            animation: Listenable.merge([_shownCurve, _x]),
-            builder: (context, _) {
-              final shown = _shownCurve.value;
-              final raw = _x.value;
-              final x = raw.clamp(tabWidth / 2, _width - tabWidth / 2);
-              final over = raw - x;
-              final stretch =
-                  _maxStretch * (1 - 1 / (over.abs() * 0.55 / _maxStretch + 1));
-              final squash = 2 * stretch / _maxStretch;
-              final lensWidth = tabWidth + 6;
-              // While a finger is down the tab under the lens is the one
-              // marked; without motion, the one under the finger.
-              final marked = !pressing
-                  ? index
-                  : _tabAt(_reduceMotion ? _place : _placeAt(x.toDouble()));
-              return Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  if (shown > 0)
-                    Positioned(
-                      left: x - lensWidth / 2 - (over < 0 ? stretch : 0),
-                      top: -4 + squash,
-                      width: lensWidth + stretch,
-                      height: _height + 8 - 2 * squash,
-                      child: IgnorePointer(
-                        child: Opacity(
-                          opacity: shown,
-                          child: Transform.scale(
-                            scale: 0.88 + 0.12 * shown,
-                            child: DecoratedBox(
-                              decoration: ShapeDecoration(
-                                color: dark ? palette.raisedTint : palette.tint,
-                                shape: StadiumBorder(
-                                  side: BorderSide(
-                                    color: dark
-                                        ? palette.handle
-                                        : palette.outline,
-                                  ),
-                                ),
-                                shadows: [
-                                  BoxShadow(
-                                    color: palette.glassShadow,
-                                    blurRadius: 18,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                  BoxShadow(
-                                    color: palette.glassShadow,
-                                    blurRadius: 3,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      for (final (i, (tab, labelKey, activeIcon, icon))
-                          in homeTabs.indexed)
-                        Expanded(
-                          child: _Tab(
-                            key: Key("nav_button_${tab.name}"),
-                            label: FlutterI18n.translate(context, labelKey),
-                            icon: i == marked ? activeIcon : icon,
-                            selected: tab == widget.selectedTab,
-                            marked: i == marked,
-                            showDot: tab == HomeTab.notifications,
-                            labelSize: widget.labelSize,
-                            // The icon under the lens grows with how near
-                            // the lens's middle is, so it moves with it.
-                            scale:
-                                1 +
-                                _grow *
-                                    shown *
-                                    max(
-                                      0.0,
-                                      1 -
-                                          (_middleOf(_tabAt(i)) - x).abs() /
-                                              tabWidth,
-                                    ),
-                            handlesTaps: false,
-                            onTap: () => widget.onChangeTab(tab),
-                          ),
-                        ),
-                    ],
-                  ),
-                  AnimatedPositioned(
-                    duration: HomeNavigation._slide(context),
-                    curve: YiviMotion.ease,
-                    top: 0,
-                    left: tabWidth * place + (tabWidth - widget.lineWidth) / 2,
-                    width: widget.lineWidth,
-                    height: HomeNavigation.lineThickness,
-                    child: const _Line(edge: AxisDirection.up),
-                  ),
-                ],
-              );
-            },
-          ),
+          child: row,
         );
       },
     );

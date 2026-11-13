@@ -12,6 +12,7 @@ import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/laid_out_box.dart";
+import "../compact_bar.dart";
 import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";

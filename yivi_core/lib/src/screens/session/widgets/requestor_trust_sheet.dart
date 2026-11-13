@@ -30,8 +30,8 @@ const _euTrustedList =
 /// [RequestorTrustSheet.issuer]). With [technicalDetails] the sheet ends with a row that opens
 /// them, as a subpage of the sheet.
 ///
-/// With [logoHero] the logo is a hero from the share screen's card
-/// ([RequestorLogo.hero]): it grows from the card into the sheet as the sheet
+/// With [logoHeroTag] the logo is a hero from the share screen's card
+/// ([RequestorLogo.heroTag]): it grows from the card into the sheet as the sheet
 /// comes up, and goes back into the card as it goes down, also following the
 /// hand when the sheet is dragged closed.
 Future<void> showRequestorTrustSheet({
@@ -40,7 +40,7 @@ Future<void> showRequestorTrustSheet({
   VoidCallback? onDontShare,
   List<TechGroup>? technicalDetails,
   bool issuer = false,
-  bool logoHero = false,
+  Object? logoHeroTag,
 }) => showGlassSheet<void>(
   context: context,
   motion: SheetMotion.share,
@@ -49,7 +49,7 @@ Future<void> showRequestorTrustSheet({
     onDontShare: onDontShare,
     technicalDetails: technicalDetails,
     issuer: issuer,
-    logoHero: logoHero,
+    logoHeroTag: logoHeroTag,
   ),
 );
 
@@ -60,14 +60,14 @@ class _TrustSheetPages extends StatefulWidget {
   final VoidCallback? onDontShare;
   final List<TechGroup>? technicalDetails;
   final bool issuer;
-  final bool logoHero;
+  final Object? logoHeroTag;
 
   const _TrustSheetPages({
     required this.requestor,
     this.onDontShare,
     this.technicalDetails,
     this.issuer = false,
-    this.logoHero = false,
+    this.logoHeroTag,
   });
 
   @override
@@ -88,7 +88,7 @@ class _TrustSheetPagesState extends State<_TrustSheetPages> {
           requestor: widget.requestor,
           onDontShare: widget.onDontShare,
           issuer: widget.issuer,
-          logoHero: widget.logoHero,
+          logoHeroTag: widget.logoHeroTag,
           onTechnicalDetails: groups == null
               ? null
               : () => setState(() => _tech = true),
@@ -130,7 +130,7 @@ class RequestorTrustSheet extends StatelessWidget {
   final GlobalKey? logoKey;
 
   /// The logo is a hero from the share screen's card.
-  final bool logoHero;
+  final Object? logoHeroTag;
 
   const RequestorTrustSheet({
     super.key,
@@ -140,7 +140,7 @@ class RequestorTrustSheet extends StatelessWidget {
     this.onBack,
     this.issuer = false,
     this.logoKey,
-    this.logoHero = false,
+    this.logoHeroTag,
   });
 
   @override
@@ -291,7 +291,7 @@ class RequestorTrustSheet extends StatelessWidget {
                 style: style,
                 size: 84,
                 flightKey: logoKey,
-                hero: logoHero,
+                heroTag: logoHeroTag,
               ),
             ),
             const SizedBox(height: 16),

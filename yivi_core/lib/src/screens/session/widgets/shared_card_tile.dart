@@ -7,7 +7,6 @@ import "../../../models/log_entry.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/schemaless_credentials_list_provider.dart";
-import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
@@ -15,7 +14,6 @@ import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/status_chip.dart";
 import "../models/disclosure_view_model.dart";
 
@@ -23,46 +21,36 @@ import "../models/disclosure_view_model.dart";
 /// cards that go together) as small card art, its name and issuer, and only
 /// the values that are shared.
 ///
-/// A card with a [CardProblem] gets
-/// its chip, its values greyed, and a calm line that says it can't be used
-/// any more; the fix is the share button's, not the card's. In the Change
-/// sheet [onFix] ("Add a new passport") sits under that line.
+/// A card with a [CardProblem] gets its chip, its values greyed, and a calm
+/// strip across the bottom that says it can't be used any more, with the way
+/// on ([problemAction]) at its end: on the share screen and in the Change
+/// sheet alike, where "Wijzig keuze" is on a card without a problem.
 class SharedCardTile extends ConsumerWidget {
   final DisclosureBundle bundle;
-  final String? fixLabel;
-  final VoidCallback? onFix;
 
   /// Marks the small card art as where a card added in the Change sheet
   /// lands (a [FlightSpot]).
   final GlobalKey? landingKey;
 
   /// A strip across the bottom: another choice, or that the cards go
-  /// together. Not shown on a card with a problem in [problemStrip] mode.
+  /// together. A card with a problem has its problem strip instead.
   final Widget? footer;
-
-  /// The share screen's way to show a problem: the note in a strip across
-  /// the bottom, in place of [footer]. Otherwise (the Change sheet) the note
-  /// and the fix are in the body.
-  final bool problemStrip;
 
   /// The card was added during this request: a green "New" chip.
   final bool isNew;
 
-  /// A button at the end of the problem strip ([problemStrip]): get the card
-  /// again, or change the choice.
+  /// A button at the end of the problem strip: get the card again, or change
+  /// the choice.
   final Widget? problemAction;
 
   const SharedCardTile({
     super.key,
     required this.bundle,
-    this.fixLabel,
-    this.onFix,
     this.landingKey,
     this.footer,
-    this.problemStrip = false,
     this.isNew = false,
     this.problemAction,
-  }) : assert((fixLabel == null) == (onFix == null));
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -95,10 +83,8 @@ class SharedCardTile extends ConsumerWidget {
           )
         : null;
 
-    // On the share screen a problem is a calm strip that says what is
-    // wrong; the share button does the fix.
-    final strip = problemStrip && problem != null;
-    final Widget? bottom = strip
+    // A problem is a calm strip that says what is wrong.
+    final Widget? bottom = problem != null
         ? CardTileStrip(
             key: const Key("shared_card_problem"),
             children: [
@@ -158,34 +144,6 @@ class SharedCardTile extends ConsumerWidget {
                 },
               ),
             ),
-        if (note != null && !strip)
-          Container(
-            key: const Key("shared_card_note"),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: ShapeDecoration(
-              // One step lighter than the card (the page colour in light).
-              color: palette.tint,
-              shape: const RoundedRectangleBorder(
-                borderRadius: YiviCorners.cardRadius,
-              ),
-            ),
-            child: Text(
-              note,
-              style: palette
-                  .body(13)
-                  .copyWith(height: 19 / 13, color: palette.heading),
-            ),
-          ),
-        if (onFix != null && !problemStrip)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: SmallPill(
-              key: const Key("shared_card_fix"),
-              label: fixLabel!,
-              tone: SmallPillTone.primary,
-              onPressed: onFix,
-            ),
-          ),
       ],
     );
   }

@@ -665,6 +665,52 @@ void main() {
     );
   });
 
+  testWidgets("swiping back from the cards page is its back button", (
+    tester,
+  ) async {
+    final passport = testCredential(
+      type: "pbdf.pbdf.passport",
+      hash: "passport",
+      name: "Passport",
+    );
+    await pump(tester, cards: [passport]);
+    await tester.tap(find.byKey(const Key("activity_filter_button")));
+    await tester.pump(const Duration(milliseconds: 500));
+    await _settle(tester);
+    Future<void> openCards() async {
+      await tester.ensureVisible(find.byKey(const Key("activity_filter_card")));
+      await tester.tap(find.byKey(const Key("activity_filter_card")));
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+      expect(find.byKey(const Key("activity_filter_cards")), findsOneWidget);
+    }
+
+    await openCards();
+    await tester.enterText(
+      find.byKey(const Key("activity_filter_card_search")),
+      "zzz",
+    );
+    await tester.pump();
+    expect(find.byKey(const Key("activity_filter_card_none")), findsOneWidget);
+
+    await tester.fling(
+      find.byKey(const Key("activity_filter_cards")),
+      const Offset(300, 0),
+      1000,
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+    await _settle(tester);
+    expect(find.byKey(const Key("activity_filter_cards")), findsNothing);
+
+    // The search went with the page: all cards again.
+    await openCards();
+    expect(find.byKey(const Key("activity_filter_card_none")), findsNothing);
+    expect(
+      find.byKey(const Key("activity_filter_card_passport")),
+      findsOneWidget,
+    );
+  });
+
   testWidgets("scrolling down loads the next page after the last", (
     tester,
   ) async {
