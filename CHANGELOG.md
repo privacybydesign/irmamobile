@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On Android, other apps can no longer draw over Yivi to capture or redirect taps, for example on the PIN keypad or a consent screen (tapjacking). From Android 12 on, their overlay windows are hidden while Yivi is in the foreground; on every version, a tap that arrives while another window covers Yivi is ignored
 - An Android release build of the Yivi app no longer falls back to the debug key when no release key is given: the build fails instead. For local testing, debug signing can still be requested explicitly with `ORG_GRADLE_PROJECT_allowDebugSigning=true` (or `-PallowDebugSigning`). The F-Droid build is unchanged, because its build recipe builds without the release key
 - On Android 12 and later, the app's data is no longer copied when the user moves to a new phone with Android's device-to-device transfer. `allowBackup="false"` only turned off cloud backup there; explicit data extraction rules now exclude all app data from both
+### Security
+- On iOS, third-party keyboards are no longer used in the app; the system keyboard is shown instead, so no keyboard extension sees what is typed. The fields for a document's number, dates and driving licence MRZ, from which the chip's access keys are derived, also turn off suggestions, autocorrect and keyboard learning (Gboard's incognito mode on Android), and the driving licence MRZ field no longer offers credit card autofill
 
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
