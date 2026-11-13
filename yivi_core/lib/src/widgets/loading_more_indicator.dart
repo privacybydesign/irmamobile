@@ -5,10 +5,10 @@ import "irma_divider.dart";
 import "loading_indicator.dart";
 import "translated_text.dart";
 
-class EndOfListIndicator extends StatelessWidget {
-  final bool isLoading;
-
-  const EndOfListIndicator({this.isLoading = false});
+/// Under a list while more of it loads: a spinner between two lines, and
+/// "Loading…". A list that has come to its end shows nothing: it just ends.
+class LoadingMoreIndicator extends StatelessWidget {
+  const LoadingMoreIndicator();
 
   @override
   Widget build(BuildContext context) {
@@ -18,26 +18,15 @@ class EndOfListIndicator extends StatelessWidget {
       child: IrmaDivider(color: theme.tertiary),
     );
 
-    final statusIndicatorWidget = Padding(
-      padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-      child: Container(
-        width: 24,
-        height: 24,
-        decoration: isLoading
-            ? null
-            : BoxDecoration(shape: BoxShape.circle, color: theme.success),
-        child: isLoading
-            ? LoadingIndicator()
-            : Icon(Icons.check, size: 18, color: theme.onPrimary),
-      ),
-    );
-
     return Column(
       children: [
         Row(
           children: [
             expandedDividerWidget,
-            statusIndicatorWidget,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+              child: SizedBox(width: 24, height: 24, child: LoadingIndicator()),
+            ),
             expandedDividerWidget,
           ],
         ),
@@ -45,7 +34,7 @@ class EndOfListIndicator extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: theme.hugeSpacing),
           child: TranslatedText(
-            isLoading ? "ui.loading" : "ui.end_of_list",
+            "ui.loading",
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium!.copyWith(
               color: theme.neutralExtraDark,

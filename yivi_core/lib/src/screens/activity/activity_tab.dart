@@ -19,12 +19,12 @@ import "../../util/after_frame.dart";
 import "../../widgets/corner_badge.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/empty_list_message.dart";
-import "../../widgets/end_of_list_indicator.dart";
 import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/loading_indicator.dart";
+import "../../widgets/loading_more_indicator.dart";
 import "../../widgets/scroll_edge.dart";
 import "../../widgets/tab_layout.dart";
 import "../../widgets/title_scroll_edge.dart";
@@ -795,12 +795,14 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                 ),
               ],
             ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 16, bottom: 16),
-              child: EndOfListIndicator(isLoading: moreLogsAvailable),
+          // While older activity loads; at the end the list just ends.
+          if (moreLogsAvailable)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(top: 16, bottom: 16),
+                child: LoadingMoreIndicator(),
+              ),
             ),
-          ),
         ],
         SliverToBoxAdapter(
           child: SizedBox(
