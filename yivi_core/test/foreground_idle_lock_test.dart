@@ -1,3 +1,6 @@
+import "dart:ui" show SemanticsAction, SemanticsActionEvent;
+
+import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -101,6 +104,57 @@ void main() {
       await wait(threshold * 2);
       expect(await repo.getLocked().first, isTrue);
       await tester.pumpWidget(const SizedBox.shrink());
+    });
+  });
+
+  testWidgets("a key press restarts the timer, for someone using a keyboard, "
+      "a D-pad or a switch", (tester) async {
+    await tester.runAsync(() async {
+      final repo = await pumpUnlockedApp(tester);
+
+      for (var i = 0; i < 3; i++) {
+        await wait(threshold * 0.5);
+        await simulateKeyDownEvent(LogicalKeyboardKey.tab);
+        await simulateKeyUpEvent(LogicalKeyboardKey.tab);
+      }
+      expect(await repo.getLocked().first, isFalse);
+
+      await wait(threshold * 2);
+      expect(await repo.getLocked().first, isTrue);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  });
+
+  testWidgets("an action of a screen reader restarts the timer, and still "
+      "reaches the framework", (tester) async {
+    await tester.runAsync(() async {
+      final dispatcher = tester.binding.platformDispatcher;
+      final received = <SemanticsActionEvent>[];
+      final original = dispatcher.onSemanticsActionEvent;
+      dispatcher.onSemanticsActionEvent = received.add;
+      addTearDown(() => dispatcher.onSemanticsActionEvent = original);
+
+      final repo = await pumpUnlockedApp(tester);
+
+      // What TalkBack or VoiceOver sends when the user activates a control.
+      const action = SemanticsActionEvent(
+        type: SemanticsAction.tap,
+        viewId: 0,
+        nodeId: 1,
+      );
+      for (var i = 0; i < 3; i++) {
+        await wait(threshold * 0.5);
+        dispatcher.onSemanticsActionEvent!(action);
+      }
+      expect(await repo.getLocked().first, isFalse);
+      expect(received, hasLength(3));
+
+      await wait(threshold * 2);
+      expect(await repo.getLocked().first, isTrue);
+
+      // Unmounting hands the dispatcher back as it was found.
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(dispatcher.onSemanticsActionEvent, received.add);
     });
   });
 
