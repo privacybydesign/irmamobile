@@ -9,6 +9,7 @@ import "../../data/irma_repository.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
@@ -219,7 +220,7 @@ class _SettingUp extends StatelessWidget {
               const SizedBox(height: 40),
               LoadingIndicator(),
               if (showText) ...[
-                const SizedBox(height: 24),
+                const SizedBox(height: YiviSpace.x24),
                 TranslatedText(
                   "enrollment.setting_up",
                   isHeader: true,

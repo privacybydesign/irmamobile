@@ -10,6 +10,7 @@ import "../../../providers/email_linking_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
@@ -263,7 +264,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         const ContactFieldLabel("email_issuance.enter_email.label"),
         if (inlineSend)
           Row(
-            spacing: 8,
+            spacing: YiviSpace.x8,
             children: [
               Expanded(child: _field()),
               SizedBox(width: 160, child: sendButton),
@@ -272,7 +273,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         else
           _field(),
         if (hasError) FieldError(context.tr("contact_sheet.not_sent_email")),
-        if (!inlineSend) ...[const SizedBox(height: 16), sendButton],
+        if (!inlineSend) ...[const SizedBox(height: YiviSpace.x16), sendButton],
       ];
     } else {
       final String? codeError = switch (_check) {
@@ -284,7 +285,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         _ => null,
       };
       stage = [
-        const SizedBox(height: 4),
+        const SizedBox(height: YiviSpace.x4),
         ContactSentTo(
           label: context.tr("contact_sheet.sent_to_email"),
           target: flow.email,
@@ -319,7 +320,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
           ),
           _Check.linked => Padding(
             key: const Key("enrollment_email_linked"),
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.only(top: YiviSpace.x12),
             child: Semantics(
               liveRegion: true,
               child: Text(
@@ -335,7 +336,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               FieldError(codeError!, align: TextAlign.center),
-              const SizedBox(height: 8),
+              const SizedBox(height: YiviSpace.x8),
               PillButton(
                 key: const Key("enrollment_email_try_again"),
                 label: context.tr("enrollment.email_step.try_again"),
@@ -379,7 +380,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
           textAlign: align,
         ),
         if (showLead) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: YiviSpace.x8),
           EnrollmentLead(
             code
                 ? "enrollment.email_step.code_body"

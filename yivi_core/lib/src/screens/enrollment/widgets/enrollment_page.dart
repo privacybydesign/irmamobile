@@ -3,6 +3,7 @@ import "dart:math";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/tablet.dart";
 import "../../../widgets/centred_max_width.dart";
@@ -231,7 +232,7 @@ class _UprightPhone extends StatelessWidget {
     // equal gaps put [about] in the middle of the room above [action]. No
     // intrinsic sizes, which a field with a LayoutBuilder cannot give.
     return FillScrollView(
-      padding: EdgeInsets.fromLTRB(16, top, 16, bottom),
+      padding: EdgeInsets.fromLTRB(YiviSpace.x16, top, YiviSpace.x16, bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,7 +241,7 @@ class _UprightPhone extends StatelessWidget {
           const SizedBox.shrink(),
           if (about != null)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: YiviSpace.x16),
               child: Center(child: about),
             ),
           action,

@@ -8,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
@@ -89,11 +90,11 @@ class _EnrollmentBiometricScreenState
         EnrollmentStepLabel(widget.stepLabel),
         const SizedBox(height: 6),
         EnrollmentTitle("enrollment.biometric.title_$kind", textAlign: align),
-        const SizedBox(height: 8),
+        const SizedBox(height: YiviSpace.x8),
         EnrollmentLead("enrollment.biometric.body", textAlign: align),
-        const SizedBox(height: 24),
+        const SizedBox(height: YiviSpace.x24),
         Row(
-          spacing: 8,
+          spacing: YiviSpace.x8,
           children: [
             Expanded(
               child: PillButton(

@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -61,7 +62,7 @@ class WelcomeScreen extends StatelessWidget {
           fit: BoxFit.scaleDown,
           child: WelcomeCardFan(width: cardWidth),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: YiviSpace.x16),
         const EnrollmentTitle(
           "enrollment.welcome.title",
           textAlign: TextAlign.center,
@@ -80,7 +81,7 @@ class WelcomeScreen extends StatelessWidget {
               _ValueRow(icon: icon, titleKey: title, textKey: text),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: YiviSpace.x8),
         const ErrorReportSwitch(),
       ],
     );
@@ -92,7 +93,7 @@ class WelcomeScreen extends StatelessWidget {
           onToggleAccepted: onToggleAccepted,
         ),
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: YiviSpace.x12),
       FancyPillButton(
         key: const Key("enrollment_next_button"),
         label: context.tr("enrollment.welcome.start"),
@@ -107,7 +108,10 @@ class WelcomeScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(top: 16, bottom: 12),
+                  padding: const EdgeInsets.only(
+                    top: YiviSpace.x16,
+                    bottom: YiviSpace.x12,
+                  ),
                   child: values,
                 ),
               ),
@@ -117,7 +121,11 @@ class WelcomeScreen extends StatelessWidget {
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
-            children: [values, const SizedBox(height: 16), ...bottom],
+            children: [
+              values,
+              const SizedBox(height: YiviSpace.x16),
+              ...bottom,
+            ],
           );
 
     return EnrollmentPage(about: about, action: action, fillAction: true);
@@ -141,9 +149,12 @@ class _ValueRow extends StatelessWidget {
     final tablet = enrollmentTablet(context);
     return MergeSemantics(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: YiviSpace.x16,
+          vertical: YiviSpace.x12,
+        ),
         child: Row(
-          spacing: 12,
+          spacing: YiviSpace.x12,
           children: [
             ExcludeSemantics(
               child: IconSquare(
@@ -199,7 +210,12 @@ class _CheckCard extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x4,
+          YiviSpace.x4,
+          YiviSpace.x16,
+          YiviSpace.x4,
+        ),
         child: child,
       ),
     );

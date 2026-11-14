@@ -4,6 +4,7 @@ import "package:flutter/gestures.dart";
 import "../../../../providers/irma_repository_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_sheet.dart";
 import "error_reporting_info_bottom_sheet.dart";
@@ -48,9 +49,14 @@ class _ErrorReportSwitchState extends State<ErrorReportSwitch> {
       builder: (context, snapshot) {
         final value = snapshot.data ?? false;
         return Padding(
-          padding: const EdgeInsets.fromLTRB(8, 4, 4, 4),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x8,
+            YiviSpace.x4,
+            YiviSpace.x4,
+            YiviSpace.x4,
+          ),
           child: Row(
-            spacing: 12,
+            spacing: YiviSpace.x12,
             children: [
               Expanded(
                 // One node for the sentence, with the sheet as its action
