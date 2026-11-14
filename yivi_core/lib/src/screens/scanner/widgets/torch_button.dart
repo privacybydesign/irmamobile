@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/press_scale.dart";
 
 /// The Flashlight button, in the middle of the panel under the camera: a grey
@@ -24,7 +24,7 @@ class TorchButton extends StatelessWidget {
         if (!torch.available) return const SizedBox.shrink();
         final on = torch.on;
         // One label, on or off: the fill says which (and the semantics).
-        final label = FlutterI18n.translate(context, "qr_scanner.torch");
+        final label = context.tr("qr_scanner.torch");
         return Semantics(
           key: const Key("qr_scanner_torch"),
           button: true,

@@ -2,13 +2,13 @@ import "dart:async";
 import "dart:math" as math;
 
 import "package:flutter/semantics.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/session.dart";
 import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/yivi_motion.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "qr_overlay.dart";
 import "scan_status.dart";
@@ -189,7 +189,7 @@ class QRScannerState extends State<QRScanner>
     } catch (e) {
       SemanticsService.sendAnnouncement(
         View.of(context),
-        FlutterI18n.translate(context, "qr_scanner.error.semantic"),
+        context.tr("qr_scanner.error.semantic"),
         TextDirection.ltr,
       );
       // The brackets shake once as the code is rejected, not again while
@@ -213,7 +213,7 @@ class QRScannerState extends State<QRScanner>
     // Signal success after a small timeout
     SemanticsService.sendAnnouncement(
       View.of(context),
-      FlutterI18n.translate(context, "qr_scanner.success.semantic"),
+      context.tr("qr_scanner.success.semantic"),
       TextDirection.ltr,
     );
     setState(() {

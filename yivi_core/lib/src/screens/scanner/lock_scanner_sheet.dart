@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,6 +6,7 @@ import "../../models/session.dart";
 import "../../providers/app_locked_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/waiting_request_provider.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../pin/pin_screen.dart" show UnlockPinEntry;
 import "../pin/providers/pin_unlock_provider.dart";
@@ -190,7 +190,7 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
 
     return GlassSheetPage(
       key: const Key("lock_scanner_unlock"),
-      title: FlutterI18n.translate(context, "waiting_request.unlock_title"),
+      title: context.tr("waiting_request.unlock_title"),
       onBack: busy ? null : widget.onBack,
       scrolls: false,
       childClearsBottom: true,

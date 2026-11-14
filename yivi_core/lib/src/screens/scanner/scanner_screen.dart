@@ -1,5 +1,4 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,6 +6,7 @@ import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -111,7 +111,7 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
   Widget build(BuildContext context) {
     // The sheet's own bar on top; the camera between it and the panel.
     return GlassSheetPage(
-      title: FlutterI18n.translate(context, "qr_scanner.title"),
+      title: context.tr("qr_scanner.title"),
       scrolls: false,
       childClearsBottom: true,
       child: LayoutBuilder(
@@ -170,14 +170,14 @@ class _NoCamera extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              FlutterI18n.translate(context, "qr_scanner.no_camera.title"),
+              context.tr("qr_scanner.no_camera.title"),
               textAlign: textAlign,
               style: palette.display(20).copyWith(color: palette.text),
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            FlutterI18n.translate(context, "qr_scanner.no_camera.message"),
+            context.tr("qr_scanner.no_camera.message"),
             textAlign: textAlign,
             style: palette
                 .body(14.5)
@@ -188,10 +188,7 @@ class _NoCamera extends StatelessWidget {
             width: 240,
             child: FancyPillButton(
               key: const Key("qr_scanner_open_settings"),
-              label: FlutterI18n.translate(
-                context,
-                "qr_scanner.no_camera.open_settings",
-              ),
+              label: context.tr("qr_scanner.no_camera.open_settings"),
               size: PillSize.regular,
               onPressed: onOpenSettings,
             ),

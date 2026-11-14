@@ -1,8 +1,8 @@
 import "package:flutter/cupertino.dart" show CupertinoIcons;
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 
 /// Where the scanner is: looking, read a Yivi QR code, or read another code.
 enum ScanState { scanning, found, error }
@@ -63,7 +63,7 @@ class ScanPill extends StatelessWidget {
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
-                    FlutterI18n.translate(context, key),
+                    context.tr(key),
                     textAlign: TextAlign.center,
                     style: palette
                         .body(14.5, weight: FontWeight.w600)
