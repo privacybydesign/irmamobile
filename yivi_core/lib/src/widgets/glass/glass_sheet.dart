@@ -3,7 +3,6 @@ import "dart:math" as math;
 import "package:flutter/foundation.dart";
 import "package:flutter/rendering.dart";
 import "package:flutter/scheduler.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
@@ -11,6 +10,7 @@ import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
+import "../../util/i18n.dart";
 import "../../util/laid_out_box.dart";
 import "../compact_bar.dart";
 import "../irma_app_bar.dart";
@@ -22,8 +22,8 @@ import "sheet_actions.dart";
 import "sheet_layout.dart";
 
 part "glass_sheet_header.dart";
-part "glass_sheet_pages.dart";
 part "glass_sheet_page.dart";
+part "glass_sheet_pages.dart";
 
 /// Shows [builder]'s content in the app's one sheet: a full-width sheet
 /// attached to the bottom of the screen, as tall as a native iOS sheet (its

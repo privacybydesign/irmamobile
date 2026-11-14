@@ -1,9 +1,9 @@
 import "dart:math";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
+import "../../../util/i18n.dart";
 
 /// Parses the CSS colours issuers put in their metadata: `#rgb`, `#rgba`,
 /// `#rrggbb`, `#rrggbbaa`, `rgb()`/`rgba()` and a few names. Returns null for
@@ -274,8 +274,8 @@ String? imageDataUri(AttributeValue? value) {
 String? localizedAttributeText(BuildContext context, AttributeValue? value) =>
     attributeText(
       value,
-      yes: FlutterI18n.translate(context, "credential.boolean_yes"),
-      no: FlutterI18n.translate(context, "credential.boolean_no"),
+      yes: context.tr("credential.boolean_yes"),
+      no: context.tr("credential.boolean_no"),
     );
 
 /// The plain-text form of an attribute value, or null when it has none that

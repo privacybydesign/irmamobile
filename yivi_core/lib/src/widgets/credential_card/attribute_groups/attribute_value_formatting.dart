@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
 import "../../../theme/theme.dart";
+import "../../../util/i18n.dart";
 import "../../base64_image.dart";
 import "../models/credential_card_layout.dart";
 
@@ -84,10 +85,7 @@ TextStyle attributeEyebrowStyle(BuildContext context) => TextStyle(
 
 String formatAttributeBool(BuildContext context, bool? value) {
   if (value == null) return "";
-  return FlutterI18n.translate(
-    context,
-    value ? "credential.boolean_yes" : "credential.boolean_no",
-  );
+  return context.tr(value ? "credential.boolean_yes" : "credential.boolean_no");
 }
 
 /// Formats any non-image attribute value as text, by type and display hint.

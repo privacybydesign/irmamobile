@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
 import "../../util/date_formatter.dart";
+import "../../util/i18n.dart";
 import "../irma_divider.dart";
 import "../translated_text.dart";
 import "models/card_expiry_date.dart";
@@ -84,7 +84,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final lang = context.lang;
 
     return Center(
       child: LayoutBuilder(

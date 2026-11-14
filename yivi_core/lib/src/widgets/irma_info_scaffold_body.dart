@@ -1,7 +1,7 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../util/i18n.dart";
 import "glass/glass_dialog.dart";
 import "status_body.dart";
 
@@ -24,10 +24,10 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StatusBody(
-      title: FlutterI18n.translate(context, titleTranslationKey),
+      title: context.tr(titleTranslationKey),
       message: bodyTranslationKey == null
           ? null
-          : FlutterI18n.translate(context, bodyTranslationKey!),
+          : context.tr(bodyTranslationKey!),
       icon: icon,
       tone: tone,
     );

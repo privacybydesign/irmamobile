@@ -170,8 +170,7 @@ class GlassSheetHeader extends StatelessWidget {
               ? shown(
                   _BarTextButton(
                     key: const Key("glass_sheet_text_back"),
-                    label: FlutterI18n.translate(
-                      context,
+                    label: context.tr(
                       onBack != null ? "ui.previous" : "ui.cancel",
                     ),
                     chevron: onBack != null,

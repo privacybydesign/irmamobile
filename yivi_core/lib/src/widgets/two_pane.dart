@@ -1,11 +1,11 @@
 import "dart:math" as math;
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
+import "../util/i18n.dart";
 
 /// The tablet layout of a tab, also on a phone held sideways: its list on
 /// the left and, on the right, a pane with the details of the picked item.
@@ -150,7 +150,7 @@ class PaneTitle extends StatelessWidget {
       child: Semantics(
         header: true,
         child: Text(
-          FlutterI18n.translate(context, translationKey),
+          context.tr(translationKey),
           style: palette.display(22, weight: FontWeight.w700),
         ),
       ),

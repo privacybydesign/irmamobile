@@ -1,7 +1,7 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../util/i18n.dart";
 import "glass/pill_buttons.dart";
 import "irma_bottom_bar_base.dart";
 
@@ -36,13 +36,13 @@ class IrmaBottomBar extends StatelessWidget {
             ? PillButton(
                 key: const Key("bottom_bar_primary"),
                 onPressed: onPrimaryPressed,
-                label: FlutterI18n.translate(context, primaryButtonLabel!),
+                label: context.tr(primaryButtonLabel!),
                 style: PillStyle.dangerFilled,
                 size: PillSize.large,
               )
             : FancyPillButton(
                 key: const Key("bottom_bar_primary"),
-                label: FlutterI18n.translate(context, primaryButtonLabel!),
+                label: context.tr(primaryButtonLabel!),
                 onPressed: onPrimaryPressed,
               ),
       ),
@@ -55,11 +55,7 @@ class IrmaBottomBar extends StatelessWidget {
       child: PillButton(
         key: const Key("bottom_bar_secondary"),
         onPressed: onSecondaryPressed,
-        label: FlutterI18n.translate(
-          context,
-          secondaryButtonLabel!,
-          translationParams: secondaryButtonParams,
-        ),
+        label: context.tr(secondaryButtonLabel!, secondaryButtonParams),
         style: PillStyle.text,
         size: PillSize.large,
       ),

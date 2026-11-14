@@ -141,11 +141,10 @@ int _itemNumber(_ItemNode item) {
     );
   }
   return (
-    text: FlutterI18n.translate(
-      context,
-      "credential.nested.item",
-      translationParams: {"label": listLabel, "number": "${_itemNumber(item)}"},
-    ),
+    text: context.tr("credential.nested.item", {
+      "label": listLabel,
+      "number": "${_itemNumber(item)}",
+    }),
     muted: true,
   );
 }

@@ -1,17 +1,15 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../providers/irma_repository_provider.dart";
+import "../util/i18n.dart";
 import "glass/glass_dialog.dart";
 import "glass/pill_buttons.dart";
 
 /// Opens a new e-mail to Yivi support, or explains in a dialog that no mail
 /// app could be opened.
 Future<void> openSupportMail(BuildContext context) async {
-  final String address = FlutterI18n.translate(context, "help.contact");
-  final String subject = Uri.encodeComponent(
-    FlutterI18n.translate(context, "help.mail_subject"),
-  );
+  final String address = context.tr("help.contact");
+  final String subject = Uri.encodeComponent(context.tr("help.mail_subject"));
   final mail = "mailto:$address?subject=$subject";
   try {
     await IrmaRepositoryProvider.of(context).openURLExternally(mail);
@@ -21,11 +19,11 @@ Future<void> openSupportMail(BuildContext context) async {
         context: context,
         builder: (BuildContext context) {
           return GlassDialog(
-            title: FlutterI18n.translate(context, "help.mail_error_title"),
-            message: FlutterI18n.translate(context, "help.mail_error"),
+            title: context.tr("help.mail_error_title"),
+            message: context.tr("help.mail_error"),
             actions: [
               FancyPillButton(
-                label: FlutterI18n.translate(context, "help.mail_error_button"),
+                label: context.tr("help.mail_error_button"),
                 size: PillSize.regular,
                 onPressed: () => Navigator.pop(context),
               ),
@@ -49,10 +47,7 @@ class Link extends StatelessWidget {
     return Semantics(
       link: true,
       key: const Key("irma_link"),
-      child: TextLink(
-        label: FlutterI18n.translate(context, label),
-        onPressed: onTap,
-      ),
+      child: TextLink(label: context.tr(label), onPressed: onTap),
     );
   }
 }

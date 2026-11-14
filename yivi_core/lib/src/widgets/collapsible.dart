@@ -1,11 +1,11 @@
 import "dart:io";
 
 import "package:flutter/semantics.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "../util/i18n.dart";
 import "../util/reveal_whole.dart";
 import "configurable_expansion_tile.dart";
 
@@ -50,8 +50,8 @@ class _CollapsibleState extends State<Collapsible> {
       SemanticsService.sendAnnouncement(
         View.of(context),
         _isExpanded
-            ? FlutterI18n.translate(context, "accessibility.expanded")
-            : FlutterI18n.translate(context, "accessibility.collapsed"),
+            ? context.tr("accessibility.expanded")
+            : context.tr("accessibility.collapsed"),
         Directionality.of(context),
       );
     }
@@ -73,11 +73,11 @@ class _CollapsibleState extends State<Collapsible> {
       header: Expanded(
         child: Semantics(
           hint: _isExpanded
-              ? FlutterI18n.translate(context, "accessibility.collapse_hint")
-              : FlutterI18n.translate(context, "accessibility.expand_hint"),
+              ? context.tr("accessibility.collapse_hint")
+              : context.tr("accessibility.expand_hint"),
           label: _isExpanded
-              ? FlutterI18n.translate(context, "accessibility.expanded")
-              : FlutterI18n.translate(context, "accessibility.collapsed"),
+              ? context.tr("accessibility.expanded")
+              : context.tr("accessibility.collapsed"),
           child: Padding(
             padding: EdgeInsets.only(
               top: theme.tinySpacing * 3,

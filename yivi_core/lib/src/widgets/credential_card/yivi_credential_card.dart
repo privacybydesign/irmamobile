@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,6 +6,7 @@ import "../../models/credential_store.dart";
 import "../../models/log_entry.dart";
 import "../../screens/add_data/add_data_sheet.dart";
 import "../../theme/theme.dart";
+import "../../util/i18n.dart";
 import "../base64_image.dart";
 import "../glass/pill_buttons.dart";
 import "../information_box.dart";
@@ -149,7 +149,7 @@ class YiviCredentialCard extends ConsumerWidget {
         : (status.credentialId ?? "");
     final displayIssuerName = issuerName.isNotEmpty
         ? issuerName
-        : FlutterI18n.translate(context, "ui.unknown");
+        : context.tr("ui.unknown");
 
     return IrmaCard(
       style: status.isExpired || status.revoked ? IrmaCardStyle.danger : style,
@@ -205,10 +205,7 @@ class YiviCredentialCard extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.only(top: theme.defaultSpacing),
               child: PillButton(
-                label: FlutterI18n.translate(
-                  context,
-                  "credential.options.reobtain",
-                ),
+                label: context.tr("credential.options.reobtain"),
                 style: PillStyle.neutral,
                 onPressed: () => obtainAgain(
                   context,
@@ -222,11 +219,9 @@ class YiviCredentialCard extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.only(top: theme.defaultSpacing),
               child: InformationBox(
-                message: FlutterI18n.translate(
-                  context,
-                  "credential.not_obtainable",
-                  translationParams: {"issuerName": displayIssuerName},
-                ),
+                message: context.tr("credential.not_obtainable", {
+                  "issuerName": displayIssuerName,
+                }),
               ),
             ),
         ],

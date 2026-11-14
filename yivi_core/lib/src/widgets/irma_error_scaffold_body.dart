@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
@@ -77,8 +76,7 @@ class _ErrorDetailsState extends State<ErrorDetails> {
         Center(
           child: TextLink(
             key: const Key("error_details_toggle"),
-            label: FlutterI18n.translate(
-              context,
+            label: context.tr(
               _open ? "error.button_hide_error" : "error.button_show_error",
             ),
             onPressed: () => setState(() => _open = !_open),
@@ -106,7 +104,7 @@ class _ErrorDetailsState extends State<ErrorDetails> {
                       Semantics(
                         header: true,
                         child: Text(
-                          FlutterI18n.translate(context, "error.details_title"),
+                          context.tr("error.details_title"),
                           style: palette.display(14),
                         ),
                       ),

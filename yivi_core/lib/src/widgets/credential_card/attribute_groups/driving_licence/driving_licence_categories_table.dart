@@ -1,14 +1,13 @@
 import "dart:math";
 
 import "package:flutter/rendering.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../../package_name.dart";
-
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_motion.dart";
+import "../../../../util/i18n.dart";
 import "../attribute_group.dart";
 import "../attribute_value_formatting.dart";
 import "driving_licence_categories_renderer.dart";
@@ -111,7 +110,7 @@ class _DrivingLicenceCategoriesTableState
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    String t(String key) => FlutterI18n.translate(context, "$_prefix.$key");
+    String t(String key) => context.tr("$_prefix.$key");
 
     return Column(
       mainAxisSize: .min,
@@ -164,7 +163,7 @@ class _DrivingLicenceCategoriesTableState
     final hidden = view.rows.where((r) => r.notHeld).length;
     final label = _expanded
         ? t("show_less")
-        : "+ ${FlutterI18n.plural(context, "$_prefix.not_held_count", hidden)}";
+        : "+ ${context.plural("$_prefix.not_held_count", hidden)}";
 
     return Semantics(
       button: true,

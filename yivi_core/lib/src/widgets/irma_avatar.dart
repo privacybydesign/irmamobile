@@ -1,9 +1,9 @@
 import "dart:io";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../util/i18n.dart";
 
 class IrmaAvatar extends StatelessWidget {
   final double size;
@@ -55,11 +55,9 @@ class IrmaAvatar extends StatelessWidget {
     return Semantics(
       excludeSemantics: image == null,
       label: image != null && logoSemanticsLabel != null
-          ? FlutterI18n.translate(
-              context,
-              "disclosure.logo_semantic",
-              translationParams: {"otherParty": logoSemanticsLabel!},
-            )
+          ? context.tr("disclosure.logo_semantic", {
+              "otherParty": logoSemanticsLabel!,
+            })
           : null,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size / 2),

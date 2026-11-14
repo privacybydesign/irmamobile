@@ -1,9 +1,9 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
+import "../util/i18n.dart";
 import "../util/signature_message_text.dart";
 import "flight/yivi_flight.dart";
 import "glass/glass_sheet.dart";
@@ -175,7 +175,7 @@ class _ReadAll extends StatelessWidget {
             spacing: 2,
             children: [
               Text(
-                FlutterI18n.translate(context, "signature.read_all"),
+                context.tr("signature.read_all"),
                 style: palette
                     .body(15, weight: FontWeight.w600)
                     .copyWith(color: palette.link),
@@ -244,14 +244,14 @@ Future<void> showSignedMessageSheet({
       },
       child: GlassSheetPage(
         key: const Key("message_sheet"),
-        title: FlutterI18n.translate(context, "share.message_label"),
+        title: context.tr("share.message_label"),
         titleUnder: titleKey,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SheetHeading(
-              title: FlutterI18n.translate(context, "share.message_label"),
+              title: context.tr("share.message_label"),
               lead: lead,
               titleKey: titleKey,
             ),

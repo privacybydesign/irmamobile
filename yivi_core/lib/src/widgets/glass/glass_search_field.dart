@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 
 /// The pill-shaped search field: in the Data and Activity tabs, the add-data
 /// and filter sheets and the country picker. You can type in it straight
@@ -128,7 +128,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final hint = FlutterI18n.translate(context, widget.hintKey);
+    final hint = context.tr(widget.hintKey);
     // The clear button is part of the field: tapping it keeps the keyboard.
     return TextFieldTapRegion(
       child: DecoratedBox(
@@ -168,10 +168,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Semantics(
                       button: true,
-                      label: FlutterI18n.translate(
-                        context,
-                        "wallet.clear_search",
-                      ),
+                      label: context.tr("wallet.clear_search"),
                       excludeSemantics: true,
                       child: InkResponse(
                         highlightColor: Colors.transparent,

@@ -1,6 +1,5 @@
 import "dart:io";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
@@ -113,7 +112,7 @@ class GlassDialog extends StatelessWidget {
         Semantics(
           // iOS reads the route name and the title twice; name it elsewhere.
           namesRoute: !Platform.isIOS,
-          label: FlutterI18n.translate(context, "accessibility.alert"),
+          label: context.tr("accessibility.alert"),
           child: Text(
             title,
             key: const Key("dialog_title"),
@@ -223,11 +222,7 @@ Future<bool> showConfirmDialog(
         return GlassDialog(
           icon: icon,
           title: context.tr(titleKey),
-          message: FlutterI18n.translate(
-            context,
-            messageKey,
-            translationParams: messageParams,
-          ),
+          message: context.tr(messageKey, messageParams),
           actions: [
             if (destructive)
               PillButton(

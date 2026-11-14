@@ -581,10 +581,8 @@ Future<void> showTitledGlassSheet({
   required Widget child,
 }) => showGlassSheet<void>(
   context: context,
-  builder: (context) => GlassSheetPage(
-    title: FlutterI18n.translate(context, titleKey),
-    child: child,
-  ),
+  builder: (context) =>
+      GlassSheetPage(title: context.tr(titleKey), child: child),
 );
 
 /// How many sheets are fully open: the band behind Android's buttons then

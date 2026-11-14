@@ -1,9 +1,9 @@
 import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/foundation.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../util/i18n.dart";
 import "glass/pill_buttons.dart";
 import "glass/round_icon_button.dart";
 import "route_fixed_bar.dart";
@@ -22,7 +22,7 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
     return PlainIconButton(
       icon: Icons.qr_code_scanner_rounded,
       iconSize: 28,
-      semanticsLabel: FlutterI18n.translate(context, "home.nav_bar.scan_qr"),
+      semanticsLabel: context.tr("home.nav_bar.scan_qr"),
       onPressed: onTap ?? () {},
     );
   }
@@ -38,7 +38,7 @@ class YiviBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RoundIconButton(
       key: const Key("irma_app_bar_leading"),
-      label: FlutterI18n.translate(context, "ui.go_back"),
+      label: context.tr("ui.go_back"),
       icon: CupertinoIcons.arrow_left,
       onTap: () {
         if (onTap == null) {

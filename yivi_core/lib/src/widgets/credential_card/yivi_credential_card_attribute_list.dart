@@ -2,13 +2,13 @@ import "dart:math";
 
 import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/credential.dart";
 import "../../providers/credential_field_search.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../base64_image.dart";
 import "../search_mark.dart";
 import "../status_chip.dart";
@@ -932,7 +932,7 @@ class _AgeContentState extends State<_AgeContent> {
       ),
       (null, null) => ("", <String, String>{}),
     };
-    return FlutterI18n.translate(context, key, translationParams: params);
+    return context.tr(key, params);
   }
 
   @override
@@ -1008,10 +1008,9 @@ class _AgeChip extends StatelessWidget {
     final textColor = entry.over ? _overText : theme.neutralExtraDark;
     return Semantics(
       excludeSemantics: true,
-      label: FlutterI18n.translate(
-        context,
+      label: context.tr(
         entry.over ? "credential.age.chip_yes" : "credential.age.chip_no",
-        translationParams: {"age": "${entry.age}"},
+        {"age": "${entry.age}"},
       ),
       child: Container(
         height: _height,
