@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -146,7 +147,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: YiviSpace.x24),
         const _AskAQuestion(),
       ],
     );
@@ -167,10 +168,10 @@ class _AskAQuestion extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
+            spacing: YiviSpace.x12,
             children: [
               Row(
-                spacing: 12,
+                spacing: YiviSpace.x12,
                 children: [
                   ExcludeSemantics(
                     child: IconSquare(

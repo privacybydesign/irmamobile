@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/floating_bar_placement.dart";
@@ -46,7 +47,7 @@ class ResetPinScreen extends StatelessWidget {
             .display(26, weight: FontWeight.w700)
             .copyWith(height: 36 / 26),
       ),
-      const SizedBox(height: 8),
+      const SizedBox(height: YiviSpace.x8),
       TranslatedText(
         "reset_pin.explanation",
         textAlign: align,
@@ -55,7 +56,7 @@ class ResetPinScreen extends StatelessWidget {
     ];
     final buttons = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 4,
+      spacing: YiviSpace.x4,
       children: [
         PillButton(
           key: const Key("reset_pin_reset"),
@@ -104,7 +105,12 @@ class ResetPinScreen extends StatelessWidget {
       children: [
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(32, 16, 32, 24),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x32,
+              YiviSpace.x16,
+              YiviSpace.x32,
+              YiviSpace.x24,
+            ),
             child: SafeArea(
               child: Column(
                 children: [
@@ -118,9 +124,9 @@ class ResetPinScreen extends StatelessWidget {
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(
-            16,
+            YiviSpace.x16,
             0,
-            16,
+            YiviSpace.x16,
             FloatingBarPlacement.buttonBottom(context),
           ),
           child: buttons,
@@ -139,7 +145,7 @@ class ResetPinScreen extends StatelessWidget {
     return CentredMaxWidth(
       maxWidth: 1000,
       child: Row(
-        spacing: 48,
+        spacing: YiviSpace.x48,
         children: [
           Expanded(child: Center(child: picture)),
           Expanded(
@@ -147,13 +153,17 @@ class ResetPinScreen extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(
                 0,
                 padding.top + 16,
-                16,
+                YiviSpace.x16,
                 FloatingBarPlacement.buttonBottom(context),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
-                children: [...texts, const SizedBox(height: 24), buttons],
+                children: [
+                  ...texts,
+                  const SizedBox(height: YiviSpace.x24),
+                  buttons,
+                ],
               ),
             ),
           ),

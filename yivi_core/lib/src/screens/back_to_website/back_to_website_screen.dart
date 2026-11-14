@@ -2,6 +2,7 @@ import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/step_number_disc.dart";
@@ -27,9 +28,12 @@ class BackToWebsiteScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         EnrollmentTitle("back_to_website.title", textAlign: align),
-        const SizedBox(height: 16),
+        const SizedBox(height: YiviSpace.x16),
         SurfaceCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.symmetric(
+            horizontal: YiviSpace.x16,
+            vertical: YiviSpace.x4,
+          ),
           child: Column(
             children: [
               const _Step(number: 1, textKey: "back_to_website.step_1"),
@@ -38,7 +42,7 @@ class BackToWebsiteScreen extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: YiviSpace.x12),
         TranslatedText(
           "back_to_website.hint",
           textAlign: align,
@@ -75,7 +79,7 @@ class _Step extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 12,
+        spacing: YiviSpace.x12,
         children: [
           StepNumberDisc(
             "$number",
@@ -85,7 +89,7 @@ class _Step extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 2),
+              padding: const EdgeInsets.only(top: YiviSpace.x2),
               child: TranslatedText(
                 textKey,
                 style: palette.body(15).copyWith(height: 21 / 15),
@@ -124,7 +128,7 @@ class _BrowserSketch extends StatelessWidget {
           child: SurfaceCard(
             width: 220,
             height: 226,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(YiviSpace.x12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -143,7 +147,7 @@ class _BrowserSketch extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 bar(96, 9, palette.divider),
-                const SizedBox(height: 8),
+                const SizedBox(height: YiviSpace.x8),
                 bar(140, 6, palette.divider),
                 const SizedBox(height: 5),
                 bar(110, 6, palette.divider),
@@ -167,7 +171,7 @@ class _BrowserSketch extends StatelessWidget {
                         .copyWith(color: Colors.white),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: YiviSpace.x8),
               ],
             ),
           ),

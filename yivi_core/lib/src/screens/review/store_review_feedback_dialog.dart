@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../sentry/sentry.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -82,7 +83,12 @@ class _StoreReviewFeedbackDialogState
             keyboardType: TextInputType.multiline,
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x4,
+              YiviSpace.x8,
+              YiviSpace.x4,
+              0,
+            ),
             child: Text(
               context.tr("review.feedback.privacy"),
               style: palette
