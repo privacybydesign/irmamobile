@@ -11,6 +11,7 @@ import "../../providers/pane_selection_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
@@ -370,7 +371,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
             _inset(
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 24),
+                  padding: const EdgeInsets.only(top: YiviSpace.x24),
                   child: Text(
                     context.tr("data.add.no_results", {
                       "query": _search.text.trim(),
@@ -392,15 +393,15 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                     if (title(group).isNotEmpty)
                       SliverToBoxAdapter(child: GlassTileHeader(title(group))),
                     SliverPadding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(bottom: YiviSpace.x12),
                       sliver: SliverList.builder(
                         itemCount: (items.length + 1) ~/ 2,
                         itemBuilder: (context, r) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.only(bottom: YiviSpace.x8),
                           child: IntrinsicHeight(
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
-                              spacing: 8,
+                              spacing: YiviSpace.x8,
                               children: [
                                 for (final i in [2 * r, 2 * r + 1])
                                   Expanded(
@@ -455,7 +456,12 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         // In the bar while searching, as the Data tab's: then not here.
         if (!_inBar)
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, _fieldGap),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x16,
+              0,
+              YiviSpace.x16,
+              _fieldGap,
+            ),
             sliver: SliverToBoxAdapter(
               child: HomeTabSearchField(
                 key: const Key("add_data_search"),
@@ -466,7 +472,12 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
           ),
         if (justAdded != null)
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x16,
+              0,
+              YiviSpace.x16,
+              YiviSpace.x16,
+            ),
             sliver: SliverToBoxAdapter(
               child: Semantics(
                 liveRegion: true,
@@ -474,7 +485,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                   key: const Key("add_data_added_note"),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
-                    vertical: 12,
+                    vertical: YiviSpace.x12,
                   ),
                   decoration: ShapeDecoration(
                     color: palette.successSurface,
@@ -483,7 +494,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                     ),
                   ),
                   child: Row(
-                    spacing: 8,
+                    spacing: YiviSpace.x8,
                     children: [
                       Icon(
                         Icons.check_rounded,
@@ -514,7 +525,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
 
   /// [sliver] 16 from the sides, as all but the list's bands.
   Widget _inset(Widget sliver) => SliverPadding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
+    padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
     sliver: sliver,
   );
 }

@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/credential_store.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../util/reveal_whole.dart";
@@ -101,9 +102,9 @@ class AddDataDetailsContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _picture(_heroWidth * 0.8),
-          const SizedBox(height: 16),
+          const SizedBox(height: YiviSpace.x16),
           _name(context, TextAlign.start),
-          const SizedBox(height: 12),
+          const SizedBox(height: YiviSpace.x12),
           introLine,
         ],
       );
@@ -112,7 +113,7 @@ class AddDataDetailsContent extends StatelessWidget {
     final rest = <Widget>[
       if (part == AddDataDetailsPart.all)
         Padding(
-          padding: EdgeInsets.fromLTRB(inset, 8, inset, 0),
+          padding: EdgeInsets.fromLTRB(inset, YiviSpace.x8, inset, 0),
           child: introLine,
         ),
       // Who you get it from, as the share screen shows who asks.
@@ -136,7 +137,7 @@ class AddDataDetailsContent extends StatelessWidget {
             key: const Key("add_data_you_get"),
             children: [
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(YiviSpace.x16),
                 child: _Markdown(content),
               ),
             ],
@@ -186,7 +187,7 @@ class AddDataDetailsContent extends StatelessWidget {
     return Column(
       key: const Key("add_data_details_hero"),
       children: [
-        const SizedBox(height: 4),
+        const SizedBox(height: YiviSpace.x4),
         Padding(
           padding: const EdgeInsets.only(top: 20),
           child: _picture(_heroWidth),
@@ -236,7 +237,7 @@ class AddDataDetailsContent extends StatelessWidget {
       question: context.tr("data.add.details.howto_question"),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 8,
+        spacing: YiviSpace.x8,
         children: [
           for (final p in before) _Markdown(p),
           for (final (n, s) in steps) _Step(number: n, text: s),
@@ -257,8 +258,10 @@ class _SectionLabel extends StatelessWidget {
   static const double inset = 10;
 
   @override
-  Widget build(BuildContext context) =>
-      CapsLabel(text, padding: const EdgeInsets.fromLTRB(inset, 20, inset, 8));
+  Widget build(BuildContext context) => CapsLabel(
+    text,
+    padding: const EdgeInsets.fromLTRB(inset, 20, inset, YiviSpace.x8),
+  );
 }
 
 /// What comes in the app: its fields as a list. The card itself is the
@@ -275,7 +278,10 @@ class _YouGet extends StatelessWidget {
       key: const Key("add_data_you_get"),
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: YiviSpace.x16,
+            vertical: YiviSpace.x8,
+          ),
           child: Column(
             key: const Key("add_data_checklist"),
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -353,9 +359,9 @@ class _FoldState extends State<_Fold> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 52),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 15, 14, 15),
+                padding: const EdgeInsets.fromLTRB(YiviSpace.x16, 15, 14, 15),
                 child: Row(
-                  spacing: 12,
+                  spacing: YiviSpace.x12,
                   children: [
                     Expanded(
                       child: Text(
@@ -386,7 +392,12 @@ class _FoldState extends State<_Fold> {
           alignment: Alignment.topCenter,
           child: _open
               ? Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                  padding: const EdgeInsets.fromLTRB(
+                    YiviSpace.x16,
+                    0,
+                    YiviSpace.x16,
+                    14,
+                  ),
                   child: widget.child,
                 )
               : const SizedBox(width: double.infinity),

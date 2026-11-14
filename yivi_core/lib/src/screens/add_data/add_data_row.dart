@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/credential_store.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
 
@@ -55,7 +56,12 @@ class AddDataRow extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 64),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              padding: const EdgeInsets.fromLTRB(
+                YiviSpace.x16,
+                10,
+                YiviSpace.x16,
+                10,
+              ),
               child: Row(
                 spacing: 14,
                 children: [
