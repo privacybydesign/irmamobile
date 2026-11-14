@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/press_scale.dart";
 import "../activity_entry.dart";
@@ -126,11 +126,7 @@ class _TagPill extends StatelessWidget {
     final leading = this.leading;
     return Semantics(
       button: true,
-      label: FlutterI18n.translate(
-        context,
-        semanticsKey,
-        translationParams: {"filter": label},
-      ),
+      label: context.tr(semanticsKey, {"filter": label}),
       excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,

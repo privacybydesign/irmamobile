@@ -1,5 +1,4 @@
 import "package:collection/collection.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
@@ -51,16 +50,16 @@ int activityDaysAgo(DateTime time) {
 /// "Today", "Yesterday", "6 days ago", "3 weeks ago" …
 String activityAgo(BuildContext context, DateTime time) {
   final days = activityDaysAgo(time);
-  if (days <= 0) return FlutterI18n.translate(context, "activity.ago.today");
-  if (days == 1) return FlutterI18n.translate(context, "activity.yesterday");
-  if (days < 7) return FlutterI18n.plural(context, "activity.ago.days", days);
+  if (days <= 0) return context.tr("activity.ago.today");
+  if (days == 1) return context.tr("activity.yesterday");
+  if (days < 7) return context.plural("activity.ago.days", days);
   if (days < 30) {
-    return FlutterI18n.plural(context, "activity.ago.weeks", days ~/ 7);
+    return context.plural("activity.ago.weeks", days ~/ 7);
   }
   if (days < 365) {
-    return FlutterI18n.plural(context, "activity.ago.months", days ~/ 30);
+    return context.plural("activity.ago.months", days ~/ 30);
   }
-  return FlutterI18n.plural(context, "activity.ago.years", days ~/ 365);
+  return context.plural("activity.ago.years", days ~/ 365);
 }
 
 /// The other party's logo, round as on the share screen ([PartyAvatar]).
@@ -150,7 +149,7 @@ class ActivityBarTitle extends StatelessWidget {
               ),
               Flexible(
                 child: Text(
-                  "${FlutterI18n.translate(context, kind.labelKey)} · $when",
+                  "${context.tr(kind.labelKey)} · $when",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: palette
@@ -198,14 +197,10 @@ class ActivityHeroHeader extends StatelessWidget {
     final ink = activityKindInk(palette, kind);
     final host = party.host;
     final website = party.verified
-        ? (host ?? FlutterI18n.translate(context, "missing_data.known_party"))
+        ? (host ?? context.tr("missing_data.known_party"))
         : host == null
-        ? FlutterI18n.translate(context, "activity.unknown_party")
-        : FlutterI18n.translate(
-            context,
-            "activity.not_checked",
-            translationParams: {"host": host},
-          );
+        ? context.tr("activity.unknown_party")
+        : context.tr("activity.not_checked", {"host": host});
 
     return KeyedSubtree(
       key: const Key("activity_hero"),
@@ -229,7 +224,7 @@ class ActivityHeroHeader extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    FlutterI18n.translate(context, kind.relationKey),
+                    context.tr(kind.relationKey),
                     style: palette
                         .body(14, weight: FontWeight.w600)
                         .copyWith(color: ink),
@@ -273,10 +268,7 @@ class ActivityHeroHeader extends StatelessWidget {
                               color: palette.successText,
                               semanticLabel: host == null
                                   ? null
-                                  : FlutterI18n.translate(
-                                      context,
-                                      "missing_data.known_party",
-                                    ),
+                                  : context.tr("missing_data.known_party"),
                             )
                           : Icon(
                               Icons.shield_outlined,
@@ -378,7 +370,7 @@ class ActivityCompactBar extends StatelessWidget {
       subtitle: TextSpan(
         children: [
           TextSpan(
-            text: FlutterI18n.translate(context, entry.kind.labelKey),
+            text: context.tr(entry.kind.labelKey),
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: activityKindInk(palette, entry.kind),
@@ -410,7 +402,7 @@ class ActivitySectionLabel extends StatelessWidget {
       child: Semantics(
         header: true,
         child: Text(
-          FlutterI18n.translate(context, role.titleKey),
+          context.tr(role.titleKey),
           style: palette.display(16).copyWith(color: palette.text),
         ),
       ),
@@ -432,11 +424,11 @@ class ActivityCredentialTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final chip = switch (card.role) {
       ActivityRole.received => StatusChip(
-        label: FlutterI18n.translate(context, "activity.chip_new"),
+        label: context.tr("activity.chip_new"),
         tone: DialogTone.success,
       ),
       ActivityRole.deleted => StatusChip(
-        label: FlutterI18n.translate(context, "activity.kind.deleted"),
+        label: context.tr("activity.kind.deleted"),
         tone: DialogTone.danger,
       ),
       _ => null,
@@ -484,7 +476,7 @@ class ActivitySignedMessage extends StatelessWidget {
           child: Semantics(
             header: true,
             child: Text(
-              FlutterI18n.translate(context, "activity.signed_message"),
+              context.tr("activity.signed_message"),
               style: palette.display(16),
             ),
           ),
@@ -544,11 +536,7 @@ class ActivityFootnote extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              FlutterI18n.translate(
-                context,
-                entry.kind.noteKey,
-                translationParams: {"name": entry.party.name},
-              ),
+              context.tr(entry.kind.noteKey, {"name": entry.party.name}),
               style: palette
                   .body(13)
                   .copyWith(height: 19 / 13, color: palette.secondaryText),
@@ -582,11 +570,7 @@ class ActivityAllWithParty extends ConsumerWidget {
       return other.name == party.name && other.host == party.host;
     });
     if (summary == null || summary.count < 2) return const SizedBox.shrink();
-    final label = FlutterI18n.translate(
-      context,
-      "activity.all_with_party",
-      translationParams: {"name": party.name},
-    );
+    final label = context.tr("activity.all_with_party", {"name": party.name});
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: SurfaceCard(

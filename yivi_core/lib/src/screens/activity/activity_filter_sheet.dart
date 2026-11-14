@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,6 +6,7 @@ import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
@@ -140,11 +140,8 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   /// Whether the option can still be picked. Unknown counts never fade.
   bool _fits(String key) => (_counts[key] ?? 1) > 0;
 
-  String _t(String key, [Map<String, String>? params]) => FlutterI18n.translate(
-    context,
-    "activity.query.$key",
-    translationParams: params,
-  );
+  String _t(String key, [Map<String, String>? params]) =>
+      context.tr("activity.query.$key", params);
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +181,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
             ? _t("sheet.title")
             : total == 0
             ? _t("sheet.no_results")
-            : FlutterI18n.plural(context, "activity.query.sheet.show", total),
+            : context.plural("activity.query.sheet.show", total),
         onTap: total == null || total > 0
             ? () => Navigator.of(context).pop(_q)
             : null,
@@ -277,7 +274,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
             final faded = !on && !_fits("kind:${kind.name}");
             return ActivityToggleTag(
               key: Key("activity_filter_kind_${kind.name}"),
-              label: FlutterI18n.translate(context, kind.labelKey),
+              label: context.tr(kind.labelKey),
               kind: kind,
               selected: on,
               faded: faded,
@@ -378,16 +375,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
       if (n == null) return "";
       return n == 0
           ? _t("sheet.not_fitting")
-          : FlutterI18n.plural(context, "activity.query.sheet.fits", n);
+          : context.plural("activity.query.sheet.fits", n);
     }
     final count = all ?? n;
     return count == null
         ? ""
-        : FlutterI18n.plural(
-            context,
-            "activity.query.sheet.in_activity",
-            count,
-          );
+        : context.plural("activity.query.sheet.in_activity", count);
   }
 
   /// The card asked about, or "Any card": one row that opens the cards on a
@@ -677,7 +670,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
                   final on = _q.period == p;
                   return ActivityToggleTag(
                     key: Key("activity_filter_period_${p.name}"),
-                    label: FlutterI18n.translate(context, p.labelKey),
+                    label: context.tr(p.labelKey),
                     selected: on,
                     faded: !on && !_fits("period:${p.name}"),
                     onTap: () {

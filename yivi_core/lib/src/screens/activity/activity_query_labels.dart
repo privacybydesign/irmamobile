@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,30 +6,22 @@ import "../../models/log_entry.dart";
 import "../../util/i18n.dart";
 import "activity_entry.dart";
 
-String _or(BuildContext context) =>
-    " ${FlutterI18n.translate(context, "activity.query.or")} ";
+String _or(BuildContext context) => " ${context.tr("activity.query.or")} ";
 
 /// "Shared or Signed".
 String activityKindsLabel(BuildContext context, Set<LogType> kinds) => [
   for (final kind in ActivityKind.ordered)
-    if (kinds.contains(kind.logType))
-      FlutterI18n.translate(context, kind.labelKey),
+    if (kinds.contains(kind.logType)) context.tr(kind.labelKey),
 ].join(_or(context));
 
 /// A field to filter on, with its group: "Adres › Straat", "Adres (alles)".
 String claimTokenLabel(BuildContext context, ClaimToken token) => token.isGroup
-    ? FlutterI18n.translate(
-        context,
-        "activity.query.group_all",
-        translationParams: {"group": token.label},
-      )
+    ? context.tr("activity.query.group_all", {"group": token.label})
     : token.label;
 
 /// A field under its group's heading: "Straat", or "Alles".
 String claimTokenShortLabel(BuildContext context, ClaimToken token) =>
-    token.isGroup
-    ? FlutterI18n.translate(context, "activity.kind.all")
-    : token.shortLabel;
+    token.isGroup ? context.tr("activity.kind.all") : token.shortLabel;
 
 /// A card with the fields asked about, as its tag and the filter sheet say
 /// it: "Demo Address › Street, Number" (which card each comes from), or the
@@ -48,7 +39,7 @@ String activityCardFieldsLabel(
 /// it is not this one.
 String activityPeriodLabel(BuildContext context, ActivityQuery query) {
   if (query.period != ActivityPeriod.custom) {
-    return FlutterI18n.translate(context, query.period.labelKey);
+    return context.tr(query.period.labelKey);
   }
   // The year only where it is needed: on the end when it is not this year,
   // on the start when it differs from the end's.
@@ -63,7 +54,7 @@ String activityPeriodLabel(BuildContext context, ActivityQuery query) {
 
 /// "7 results".
 String activityResults(BuildContext context, int count) =>
-    FlutterI18n.plural(context, "activity.query.results", count);
+    context.plural("activity.query.results", count);
 
 /// The whole question in one line, so it is clear what is asked:
 /// "Shared · Demo Personal data › BSN · Last 3 months — 4 results".
@@ -74,7 +65,7 @@ String activityQuerySentence(
 ) {
   final count = total == null ? "" : " — ${activityResults(context, total)}";
   if (query.isEmpty) {
-    return "${FlutterI18n.translate(context, "activity.query.everything")}$count";
+    return "${context.tr("activity.query.everything")}$count";
   }
   final card = query.card;
   return [

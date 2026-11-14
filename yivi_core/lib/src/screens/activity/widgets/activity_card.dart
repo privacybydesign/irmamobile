@@ -1,5 +1,4 @@
 import "package:collection/collection.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
@@ -90,15 +89,11 @@ class ActivityCard extends ConsumerWidget {
         : titles.join(", ");
 
     return Semantics(
-      label: FlutterI18n.translate(
-        context,
-        kind.semanticsKey,
-        translationParams: {
-          "otherParty": entry.party.name,
-          "issuerName": entry.party.name,
-          "date": timestamp,
-        },
-      ),
+      label: context.tr(kind.semanticsKey, {
+        "otherParty": entry.party.name,
+        "issuerName": entry.party.name,
+        "date": timestamp,
+      }),
       button: true,
       selected: selected,
       excludeSemantics: true,
@@ -174,10 +169,7 @@ class ActivityCard extends ConsumerWidget {
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: FlutterI18n.translate(
-                                    context,
-                                    kind.labelKey,
-                                  ),
+                                  text: context.tr(kind.labelKey),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     color: activityKindInk(palette, kind),
@@ -281,7 +273,7 @@ class ActivityCardThumbs extends StatelessWidget {
 String formatActivityTimestamp(BuildContext context, DateTime time) {
   final daysAgo = activityDaysAgo(time);
   if (daysAgo == 0) return activityTime(context, time);
-  if (daysAgo == 1) return FlutterI18n.translate(context, "activity.yesterday");
+  if (daysAgo == 1) return context.tr("activity.yesterday");
   final lang = context.lang;
   if (time.year == DateTime.now().year) {
     return DateFormat.MMMd(lang).format(time);

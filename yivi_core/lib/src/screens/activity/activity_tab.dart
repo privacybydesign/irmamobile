@@ -16,6 +16,7 @@ import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
+import "../../util/i18n.dart";
 import "../../widgets/corner_badge.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/empty_list_message.dart";
@@ -247,8 +248,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   Map<LogType, List<String>> _kindPhrases() => {
     for (final kind in ActivityKind.ordered)
       kind.logType: () {
-        final label = FlutterI18n.translate(context, kind.labelKey);
-        final relation = FlutterI18n.translate(context, kind.relationKey);
+        final label = context.tr(kind.labelKey);
+        final relation = context.tr(kind.relationKey);
         return [relation, "$label ${relation.split(" ").last}", label];
       }(),
   };
@@ -365,7 +366,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final kinds = [
       if (q.kinds.isEmpty)
         for (final kind in ActivityKind.ordered)
-          if (hit(FlutterI18n.translate(context, kind.labelKey)))
+          if (hit(context.tr(kind.labelKey)))
             _Suggestion(
               key: "kind:${kind.name}",
               leading: CornerBadge(
@@ -374,7 +375,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                 size: 20,
                 iconSize: 12,
               ),
-              title: FlutterI18n.translate(context, kind.labelKey),
+              title: context.tr(kind.labelKey),
               query: q.copyWith(kinds: {kind.logType}),
             ),
     ];
@@ -447,11 +448,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               size: 18,
               color: YiviPalette.of(context).link,
             ),
-            title: FlutterI18n.translate(
-              context,
-              "activity.query.suggest.value_for",
-              translationParams: {"text": words},
-            ),
+            title: context.tr("activity.query.suggest.value_for", {
+              "text": words,
+            }),
             query: _withValue(_asked, words),
           ),
         ],
@@ -636,11 +635,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       if (q.value.trim().isNotEmpty)
         ActivityFacetChip(
           key: const Key("activity_chip_value"),
-          label: FlutterI18n.translate(
-            context,
-            "activity.query.value_chip",
-            translationParams: {"text": quotedSearch(q.value)},
-          ),
+          label: context.tr("activity.query.value_chip", {
+            "text": quotedSearch(q.value),
+          }),
           onRemove: () => change(q.copyWith(value: "")),
         ),
     ];
@@ -683,7 +680,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
     final clear = TextLink(
       key: const Key("activity_clear_filters"),
-      label: FlutterI18n.translate(context, "activity.query.clear"),
+      label: context.tr("activity.query.clear"),
       onPressed: _clearAll,
     );
     final count = state.counts?.total ?? logEntries.length;
@@ -838,12 +835,10 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       key: const Key("activity_filter_button"),
       icon: CupertinoIcons.slider_horizontal_3,
       label: filterCount == 0
-          ? FlutterI18n.translate(context, "activity.query.filter")
-          : FlutterI18n.translate(
-              context,
-              "activity.query.filter_active",
-              translationParams: {"count": "$filterCount"},
-            ),
+          ? context.tr("activity.query.filter")
+          : context.tr("activity.query.filter_active", {
+              "count": "$filterCount",
+            }),
       count: filterCount,
       onTap: _openFilter,
     );
@@ -852,7 +847,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       // Blue, as a plain action next to a field.
       style: TextButton.styleFrom(foregroundColor: palette.link),
       onPressed: _endSearching,
-      child: Text(FlutterI18n.translate(context, "activity.query.cancel")),
+      child: Text(context.tr("activity.query.cancel")),
     );
     // Next to the field: Cancel while typing; after Enter the filter, as
     // Cancel makes room for it.
@@ -890,7 +885,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           title: const TabLargeTitle("home.nav_bar.activity"),
           field: HomeTabSearchField(
             key: const Key("activity_search_field"),
-            hint: FlutterI18n.translate(context, "activity.query.search_hint"),
+            hint: context.tr("activity.query.search_hint"),
             onTap: _startSearchingInBar,
           ),
         ),
@@ -931,7 +926,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         // The keyboard covers the tab; the list keeps clear of it itself.
         resizeToAvoidBottomInset: false,
         body: HomeTabTop(
-          title: FlutterI18n.translate(context, "home.nav_bar.activity"),
+          title: context.tr("home.nav_bar.activity"),
           searching: _searching,
           searchRow: Row(
             spacing: 4,
@@ -945,10 +940,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           below: below,
           belowHeight: belowHeight,
           searchButtonKey: const Key("activity_search_button"),
-          searchLabel: FlutterI18n.translate(
-            context,
-            "activity.query.search_hint",
-          ),
+          searchLabel: context.tr("activity.query.search_hint"),
           onSearch: _startSearchingInBar,
           trailing: filterButton,
           othersDrop: false,
@@ -1061,9 +1053,9 @@ String _dayTitle(BuildContext context, DateTime time, String locale) {
   final day = time.toLocal();
   switch (activityDaysAgo(day)) {
     case 0:
-      return FlutterI18n.translate(context, "activity.ago.today");
+      return context.tr("activity.ago.today");
     case 1:
-      return FlutterI18n.translate(context, "activity.yesterday");
+      return context.tr("activity.yesterday");
   }
   final pattern = day.year == DateTime.now().year
       ? "EEEE d MMMM"
