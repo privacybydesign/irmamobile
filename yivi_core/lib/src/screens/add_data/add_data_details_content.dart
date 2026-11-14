@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -234,10 +233,7 @@ class AddDataDetailsContent extends StatelessWidget {
     }
     return _Fold(
       key: const Key("add_data_howto"),
-      question: FlutterI18n.translate(
-        context,
-        "data.add.details.howto_question",
-      ),
+      question: context.tr("data.add.details.howto_question"),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 8,

@@ -1,9 +1,9 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/loading_indicator.dart";
 
@@ -24,7 +24,7 @@ class SplashScreen extends StatelessWidget {
     final logo = SvgPicture.asset(
       YiviPalette.of(context).logoAsset,
       width: 168,
-      semanticsLabel: FlutterI18n.translate(context, "accessibility.irma_logo"),
+      semanticsLabel: context.tr("accessibility.irma_logo"),
     );
 
     return Scaffold(
@@ -64,7 +64,7 @@ class SplashScreen extends StatelessWidget {
               right: 24,
               bottom: 48,
               child: Text(
-                FlutterI18n.translate(context, "more_tab.slogan"),
+                context.tr("more_tab.slogan"),
                 textAlign: TextAlign.center,
                 style: palette
                     .body(14)

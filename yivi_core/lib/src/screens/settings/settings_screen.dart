@@ -10,6 +10,7 @@ import "../../models/clear_all_data_event.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../util/email_linking.dart";
+import "../../util/i18n.dart";
 import "../../util/language.dart";
 import "../../util/navigation.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -96,8 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       final ok = await ref
                           .read(biometricServiceProvider)
                           .authenticate(
-                            localizedReason: FlutterI18n.translate(
-                              context,
+                            localizedReason: context.tr(
                               "pin.biometric_confirm_reason",
                             ),
                           );
@@ -156,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             return RadioTilesCard(
               // Rebuilt with the stored choice once it has loaded.
               key: ValueKey("appearance_select_${appearance.name}"),
-              header: FlutterI18n.translate(context, "settings.appearance"),
+              header: context.tr("settings.appearance"),
               options: [
                 for (final a in Appearance.values)
                   "settings.appearance_${a.name}",
@@ -169,7 +169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         Consumer(
           builder: (context, ref, _) => GlassGroup(
-            header: FlutterI18n.translate(context, "settings.other"),
+            header: context.tr("settings.other"),
             dividerIndent: 68,
             children: [
               if (ref.watch(emailLinkAvailableProvider))

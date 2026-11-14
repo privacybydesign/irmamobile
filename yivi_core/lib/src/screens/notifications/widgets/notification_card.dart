@@ -1,5 +1,4 @@
 import "package:collection/collection.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart" hide Notification;
@@ -8,6 +7,7 @@ import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -37,7 +37,7 @@ class NotificationCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final lang = context.lang;
 
     String title = "";
     String contentMessage = "";
@@ -47,30 +47,20 @@ class NotificationCard extends ConsumerWidget {
 
     final notification =
         this.notification; // To prevent the need for type casting.
-    final localizedTimeStamp = FlutterI18n.translate(
-      context,
-      "credential.date_at_time",
-      translationParams: {
-        "date": DateFormat.yMMMMd(lang).format(notification.timestamp),
-        "time": DateFormat.jm(lang).format(notification.timestamp),
-      },
-    );
+    final localizedTimeStamp = context.tr("credential.date_at_time", {
+      "date": DateFormat.yMMMMd(lang).format(notification.timestamp),
+      "time": DateFormat.jm(lang).format(notification.timestamp),
+    });
 
     if (notification is CredentialStatusNotification) {
       final content = notification.content as InternalTranslatedContent;
-      title = FlutterI18n.translate(
-        context,
-        content.titleTranslationKey,
-        translationParams: {"credentialName": notification.credentialName},
-      );
-      contentMessage = FlutterI18n.translate(
-        context,
-        content.messageTranslationKey,
-        translationParams: {
-          "credentialName": notification.credentialName,
-          "issuerName": notification.issuerName,
-        },
-      );
+      title = context.tr(content.titleTranslationKey, {
+        "credentialName": notification.credentialName,
+      });
+      contentMessage = context.tr(content.messageTranslationKey, {
+        "credentialName": notification.credentialName,
+        "issuerName": notification.issuerName,
+      });
       final (kindIcon, tone) = notification.type.look;
       icon = kindIcon;
       iconColor = ToneDisc.colors(palette, tone).$2;

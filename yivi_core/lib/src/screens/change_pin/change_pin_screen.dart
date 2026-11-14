@@ -1,10 +1,10 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
 import "../enrollment/choose_pin/choose_pin_screen.dart";
@@ -85,7 +85,7 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
   }
 
   void _onSuccessShowFloatingSnackbar() {
-    showAppToast(context, FlutterI18n.translate(context, "change_pin.toast"));
+    showAppToast(context, context.tr("change_pin.toast"));
   }
 
   void _handleResetPinSuccess() {

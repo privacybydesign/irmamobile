@@ -1,9 +1,9 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../app.dart";
 import "../../../data/irma_preferences.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../util/i18n.dart";
 import "../../../util/language.dart";
 import "../../more/widgets/tiles_radio.dart";
 
@@ -18,7 +18,7 @@ class ChangeLanguageRadio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final prefs = IrmaRepositoryProvider.of(context).preferences;
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final lang = context.lang;
 
     return RadioTilesCard(
       key: const Key("language_select"),

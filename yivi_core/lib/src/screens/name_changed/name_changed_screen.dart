@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/status_body.dart";
@@ -34,8 +34,8 @@ class NameChangedScreen extends StatelessWidget {
             semanticLabel: "Yivi",
           ),
         ),
-        title: FlutterI18n.translate(context, "name_changed.header"),
-        message: FlutterI18n.translate(context, "name_changed.explanation"),
+        title: context.tr("name_changed.header"),
+        message: context.tr("name_changed.explanation"),
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "action_feedback.ok",

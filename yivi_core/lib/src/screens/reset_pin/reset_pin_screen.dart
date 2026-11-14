@@ -1,10 +1,10 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -59,14 +59,14 @@ class ResetPinScreen extends StatelessWidget {
       children: [
         PillButton(
           key: const Key("reset_pin_reset"),
-          label: FlutterI18n.translate(context, "reset_pin.reset"),
+          label: context.tr("reset_pin.reset"),
           style: PillStyle.dangerFilled,
           size: PillSize.large,
           onPressed: () => showConfirmDeleteDialog(context),
         ),
         PillButton(
           key: const Key("reset_pin_cancel"),
-          label: FlutterI18n.translate(context, "ui.cancel"),
+          label: context.tr("ui.cancel"),
           style: PillStyle.text,
           size: PillSize.large,
           // `Navigator.of(context).pop` (not GoRouter's

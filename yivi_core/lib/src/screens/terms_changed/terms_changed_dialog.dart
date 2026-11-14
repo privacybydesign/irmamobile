@@ -1,6 +1,5 @@
 import "dart:async";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -87,7 +86,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
     // sits above the GoRouter scope.
     return GlassDialog(
       key: const Key("terms_changed_dialog"),
-      title: FlutterI18n.translate(context, "new_terms_and_conditions.title"),
+      title: context.tr("new_terms_and_conditions.title"),
       body: TranslatedText(
         "new_terms_and_conditions.explanation_markdown",
         translationParams: {"terms_url": termsUrl},
@@ -96,10 +95,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
         // The keys of the bottom bar this dialog used to have.
         FancyPillButton(
           key: const Key("bottom_bar_primary"),
-          label: FlutterI18n.translate(
-            context,
-            "new_terms_and_conditions.accept",
-          ),
+          label: context.tr("new_terms_and_conditions.accept"),
           size: PillSize.regular,
           onPressed: () async {
             await prefs.markLatestTermsAsAccepted(true);
@@ -108,10 +104,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
         ),
         PillButton(
           key: const Key("bottom_bar_secondary"),
-          label: FlutterI18n.translate(
-            context,
-            "new_terms_and_conditions.dismiss",
-          ),
+          label: context.tr("new_terms_and_conditions.dismiss"),
           style: PillStyle.text,
           size: PillSize.regular,
           onPressed: () => Navigator.of(context).pop(),

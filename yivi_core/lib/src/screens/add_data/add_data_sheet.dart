@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -213,14 +212,11 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
       context: context,
       builder: (context) => GlassDialog(
         icon: const ToneDisc(icon: Icons.nfc_rounded, tone: DialogTone.warning),
-        title: FlutterI18n.translate(context, "data.add.nfc_unsupported.title"),
-        message: FlutterI18n.translate(
-          context,
-          "data.add.nfc_unsupported.body",
-        ),
+        title: context.tr("data.add.nfc_unsupported.title"),
+        message: context.tr("data.add.nfc_unsupported.body"),
         actions: [
           FancyPillButton(
-            label: FlutterI18n.translate(context, "error.button_ok"),
+            label: context.tr("error.button_ok"),
             size: PillSize.regular,
             onPressed: () => Navigator.of(context).pop(),
           ),

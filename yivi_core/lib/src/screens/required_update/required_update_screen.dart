@@ -1,9 +1,9 @@
 import "dart:io";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:url_launcher/url_launcher.dart";
 
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
@@ -19,7 +19,7 @@ class RequiredUpdateScreen extends StatelessWidget {
       titleTranslationKey: "update.title",
       bodyTranslationKey: "update.explanation",
       bottomBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, "update.update_app"),
+        primaryButtonLabel: context.tr("update.update_app"),
         onPrimaryPressed: () {
           late String url;
           if (Platform.isAndroid) {

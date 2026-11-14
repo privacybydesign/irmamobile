@@ -1,8 +1,8 @@
 import "package:flutter/cupertino.dart" show CupertinoIcons;
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/step_number_disc.dart";
 import "../../widgets/surface_card.dart";
@@ -54,7 +54,7 @@ class BackToWebsiteScreen extends StatelessWidget {
       action: action,
       trailing: RoundIconButton(
         key: const Key("back_to_website_close"),
-        label: FlutterI18n.translate(context, "accessibility.close"),
+        label: context.tr("accessibility.close"),
         icon: CupertinoIcons.xmark,
         onTap: () => Navigator.of(context).pop(),
       ),

@@ -1,6 +1,6 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
@@ -19,10 +19,7 @@ class RootedWarningScreen extends StatelessWidget {
       bodyTranslationKey: "rooted_warning.explanation",
       bottomBar: IrmaBottomBar(
         key: const Key("warning_screen_accept_button"),
-        primaryButtonLabel: FlutterI18n.translate(
-          context,
-          "rooted_warning.accept_risk",
-        ),
+        primaryButtonLabel: context.tr("rooted_warning.accept_risk"),
         onPrimaryPressed: () => onAcceptRiskButtonPressed?.call(),
       ),
     );

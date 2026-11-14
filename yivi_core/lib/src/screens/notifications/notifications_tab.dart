@@ -1,6 +1,5 @@
 import "package:collection/collection.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart" hide Notification;
 
@@ -9,6 +8,7 @@ import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/irma_dismissible.dart";
@@ -138,7 +138,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
     return Scaffold(
       backgroundColor: palette.background,
       body: TitleScrollEdge(
-        title: FlutterI18n.translate(context, "notifications.title"),
+        title: context.tr("notifications.title"),
         largeTitleBottom: tabTitleBottom,
         child: BlocBuilder<NotificationsBloc, NotificationsState>(
           builder: (context, state) {
@@ -178,11 +178,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                                 ),
                                 if (unread > 0)
                                   Text(
-                                    FlutterI18n.translate(
-                                      context,
-                                      "notifications.new_count",
-                                      translationParams: {"count": "$unread"},
-                                    ),
+                                    context.tr("notifications.new_count", {
+                                      "count": "$unread",
+                                    }),
                                     style: palette
                                         .body(14)
                                         .copyWith(color: palette.heading),
