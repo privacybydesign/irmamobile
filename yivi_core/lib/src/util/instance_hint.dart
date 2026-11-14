@@ -1,7 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../models/schemaless/schemaless_events.dart" as schemaless;
+import "../models/credential.dart";
 import "../widgets/credential_card/card_art/builtin_card_templates.dart";
 import "../widgets/credential_card/card_art/card_art_support.dart";
 import "date_formatter.dart";
@@ -41,12 +41,12 @@ const _denyList = {
   "administrative_number",
 };
 
-bool _allowed(schemaless.Attribute a) {
+bool _allowed(Attribute a) {
   final value = a.value;
   if (value == null) return false;
-  if (value.type == schemaless.AttributeType.boolean ||
-      value.type == schemaless.AttributeType.image ||
-      value.type == schemaless.AttributeType.base64Image) {
+  if (value.type == AttributeType.boolean ||
+      value.type == AttributeType.image ||
+      value.type == AttributeType.base64Image) {
     return false;
   }
   if (attributeText(value) == null) return false;
@@ -68,10 +68,7 @@ bool _allowed(schemaless.Attribute a) {
 ///    differs between them; with one instance, the first allowed attribute.
 /// 5. Skip images, yes/no values, empty values and deny-listed identifiers.
 /// 6. Nothing left: the date it was added.
-InstanceHint instanceHintFor(
-  schemaless.Credential credential,
-  Iterable<schemaless.Credential> all,
-) {
+InstanceHint instanceHintFor(Credential credential, Iterable<Credential> all) {
   final allowed = credential.attributes.where(_allowed).toList();
 
   final hasTemplate = credential.display?.svgTemplates.isNotEmpty ?? false;
@@ -99,11 +96,11 @@ InstanceHint instanceHintFor(
     }
   } else {
     for (final a in allowed) {
-      final key = schemaless.Attribute.pathKey(a.claimPath);
+      final key = Attribute.pathKey(a.claimPath);
       final mine = attributeText(a.value);
       final differs = siblings.any((s) {
         final other = s.attributes.where(
-          (b) => schemaless.Attribute.pathKey(b.claimPath) == key,
+          (b) => Attribute.pathKey(b.claimPath) == key,
         );
         return other.isEmpty || attributeText(other.first.value) != mine;
       });
@@ -120,7 +117,7 @@ InstanceHint instanceHintFor(
 
 /// The main value at the top of [credential]'s built-in card, as the card
 /// shows it; null without one, or when none of it may be shown.
-String? _headerText(schemaless.Credential credential) {
+String? _headerText(Credential credential) {
   final text = builtinHeaderAttributes(credential)
       .where(_allowed)
       .map((a) => attributeText(a.value)!.trim())
@@ -146,7 +143,7 @@ String instanceHintText(BuildContext context, InstanceHint hint) {
 /// [instanceHintText] of each of [cards], by hash.
 Map<String, String> instanceHintTexts(
   BuildContext context,
-  Iterable<schemaless.Credential> cards,
+  Iterable<Credential> cards,
   Map<String, InstanceHint> hints,
 ) => {
   for (final c in cards)

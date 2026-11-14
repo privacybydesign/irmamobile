@@ -3,10 +3,10 @@ import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/schemaless/session_state.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
+import "package:yivi_core/src/models/session_state.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/screens/session/widgets/session_scaffold.dart";
 import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
@@ -18,7 +18,7 @@ import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "helpers/credential_factory.dart";
 import "support/pump_translated.dart";
 
-class _NoWallet extends SchemalessCredentialOrderController {
+class _NoWallet extends CredentialOrderController {
   @override
   Future<List<Credential>> build() async => const [];
 }
@@ -32,7 +32,7 @@ Future<void> _pump(WidgetTester tester, Widget home) async {
     tester,
     ProviderScope(
       overrides: [
-        schemalessCredentialOrderControllerProvider.overrideWith(_NoWallet.new),
+        credentialOrderControllerProvider.overrideWith(_NoWallet.new),
       ],
       child: IrmaTheme(
         builder: (_) => MaterialApp(

@@ -1,5 +1,5 @@
+import "credential.dart";
 import "event.dart";
-import "schemaless/schemaless_events.dart";
 import "session.dart";
 
 /// What a session will be, as far as its pointer says.

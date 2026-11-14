@@ -1,9 +1,9 @@
 import "dart:async";
 
 import "../../../data/irma_repository.dart";
-import "../../../models/schemaless/session_state.dart";
 import "../../../models/session.dart";
 import "../../../models/session_events.dart";
+import "../../../models/session_state.dart";
 import "../../session/models/disclosure_view_model.dart";
 
 /// A session the enrollment's e-mail step started for itself did not finish.

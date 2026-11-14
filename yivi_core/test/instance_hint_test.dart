@@ -1,24 +1,25 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/util/instance_hint.dart";
 
 import "helpers/credential_factory.dart";
 
-String? hintOf(Credential c, List<Credential> all) => switch (instanceHintFor(
-  c,
-  all,
-)) {
-  ValueHint(:final text) => text,
-  AddedHint() => "added",
-  NoHint() => null,
-};
+String? hintOf(Credential c, List<Credential> all) =>
+    switch (instanceHintFor(c, all)) {
+      ValueHint(:final text) => text,
+      AddedHint() => "added",
+      NoHint() => null,
+    };
 
 void main() {
   test("one email address shows the address", () {
     final email = testCredential(
       type: "pbdf.sidn-pbdf.email",
       hash: "a",
-      attributes: [stringAttr("email", "sanne@example.org"), stringAttr("domain", "example.org")],
+      attributes: [
+        stringAttr("email", "sanne@example.org"),
+        stringAttr("domain", "example.org"),
+      ],
     );
     expect(hintOf(email, [email]), "sanne@example.org");
   });
@@ -27,12 +28,18 @@ void main() {
     final a = testCredential(
       type: "pbdf.pbdf.iban",
       hash: "a",
-      attributes: [stringAttr("fullname", "S. de Vries"), stringAttr("iban", "NL91ABNA0417164300")],
+      attributes: [
+        stringAttr("fullname", "S. de Vries"),
+        stringAttr("iban", "NL91ABNA0417164300"),
+      ],
     );
     final b = testCredential(
       type: "pbdf.pbdf.iban",
       hash: "b",
-      attributes: [stringAttr("fullname", "S. de Vries"), stringAttr("iban", "NL20INGB0001234567")],
+      attributes: [
+        stringAttr("fullname", "S. de Vries"),
+        stringAttr("iban", "NL20INGB0001234567"),
+      ],
     );
     expect(hintOf(a, [a, b]), "NL91ABNA0417164300");
     expect(hintOf(b, [a, b]), "NL20INGB0001234567");
@@ -42,7 +49,10 @@ void main() {
     final iban = testCredential(
       type: "pbdf.pbdf.iban",
       hash: "a",
-      attributes: [stringAttr("fullname", "S. de Vries"), stringAttr("iban", "NL91")],
+      attributes: [
+        stringAttr("fullname", "S. de Vries"),
+        stringAttr("iban", "NL91"),
+      ],
     );
     final linkedin = testCredential(
       type: "pbdf.pbdf.linkedin",
@@ -56,52 +66,67 @@ void main() {
     final passport = testCredential(
       type: "pbdf.pbdf.passport",
       hash: "a",
-      attributes: [stringAttr("documentNumber", "NXC4R1P72"), stringAttr("firstName", "Sanne")],
+      attributes: [
+        stringAttr("documentNumber", "NXC4R1P72"),
+        stringAttr("firstName", "Sanne"),
+      ],
     );
     expect(hintOf(passport, [passport]), "Sanne");
   });
 
-  test("a built-in card shows the value at its top, not the first attribute", () {
-    final passport = testCredential(
-      type: "pbdf.pbdf.passport",
-      hash: "a",
-      attributes: [
-        stringAttr("documentType", "P"),
-        stringAttr("firstName", "Sanne"),
-        stringAttr("lastName", "de Vries"),
-      ],
-    );
-    expect(hintOf(passport, [passport]), "Sanne de Vries");
+  test(
+    "a built-in card shows the value at its top, not the first attribute",
+    () {
+      final passport = testCredential(
+        type: "pbdf.pbdf.passport",
+        hash: "a",
+        attributes: [
+          stringAttr("documentType", "P"),
+          stringAttr("firstName", "Sanne"),
+          stringAttr("lastName", "de Vries"),
+        ],
+      );
+      expect(hintOf(passport, [passport]), "Sanne de Vries");
 
-    final big = testCredential(
-      type: "pbdf.pbdf.big",
-      hash: "b",
-      attributes: [stringAttr("bignumber", "19012345601"), stringAttr("profession", "Arts")],
-    );
-    expect(hintOf(big, [big]), "Arts");
+      final big = testCredential(
+        type: "pbdf.pbdf.big",
+        hash: "b",
+        attributes: [
+          stringAttr("bignumber", "19012345601"),
+          stringAttr("profession", "Arts"),
+        ],
+      );
+      expect(hintOf(big, [big]), "Arts");
 
-    final address = testCredential(
-      type: "pbdf-staging.gemeente.address",
-      hash: "c",
-      attributes: [
-        stringAttr("zipcode", "1234 AB"),
-        stringAttr("street", "Meander"),
-        stringAttr("houseNumber", "501"),
-      ],
-    );
-    expect(hintOf(address, [address]), "Meander 501");
-  });
+      final address = testCredential(
+        type: "pbdf-staging.gemeente.address",
+        hash: "c",
+        attributes: [
+          stringAttr("zipcode", "1234 AB"),
+          stringAttr("street", "Meander"),
+          stringAttr("houseNumber", "501"),
+        ],
+      );
+      expect(hintOf(address, [address]), "Meander 501");
+    },
+  );
 
   test("two built-in cards with the same top value tell themselves apart", () {
     final a = testCredential(
       type: "pbdf.pbdf.passport",
       hash: "a",
-      attributes: [stringAttr("firstName", "Sanne"), stringAttr("dateOfExpiry", "2030-01-01")],
+      attributes: [
+        stringAttr("firstName", "Sanne"),
+        stringAttr("dateOfExpiry", "2030-01-01"),
+      ],
     );
     final b = testCredential(
       type: "pbdf.pbdf.passport",
       hash: "b",
-      attributes: [stringAttr("firstName", "Sanne"), stringAttr("dateOfExpiry", "2034-06-01")],
+      attributes: [
+        stringAttr("firstName", "Sanne"),
+        stringAttr("dateOfExpiry", "2034-06-01"),
+      ],
     );
     expect(hintOf(a, [a, b]), "2030-01-01");
     expect(hintOf(b, [a, b]), "2034-06-01");
@@ -121,7 +146,10 @@ void main() {
     final linkedin = testCredential(
       type: "pbdf.pbdf.linkedin",
       hash: "a",
-      attributes: [stringAttr("fullname", ""), stringAttr("email", "s@example.org")],
+      attributes: [
+        stringAttr("fullname", ""),
+        stringAttr("email", "s@example.org"),
+      ],
     );
     expect(hintOf(linkedin, [linkedin]), "s@example.org");
   });
@@ -134,7 +162,9 @@ void main() {
         stringAttr("name", "Sanne de Vries"),
         stringAttr("card_number", "2041", svgId: "card_no"),
       ],
-      display: CredentialDisplay(svgTemplates: [SvgCardTemplate(svg: "<svg/>")]),
+      display: CredentialDisplay(
+        svgTemplates: [SvgCardTemplate(svg: "<svg/>")],
+      ),
     );
     expect(hintOf(card, [card]), "2041");
   });

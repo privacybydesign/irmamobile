@@ -1,6 +1,6 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../models/schemaless/session_state.dart";
+import "../models/session_state.dart";
 import "session_state_provider.dart";
 
 class SessionUserChoices {

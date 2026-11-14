@@ -9,9 +9,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart" show CredentialFormat;
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
@@ -590,7 +589,7 @@ void main() {
   });
 
   group("G8 · permission for the document", () {
-    final issuer = schemaless.TrustedParty(
+    final issuer = TrustedParty(
       id: "pbdf.pbdf",
       name: "Stichting Privacy by Design",
       url: null,
@@ -598,27 +597,20 @@ void main() {
       verified: true,
     );
 
-    schemaless.Attribute text(String claim, String name, String value) =>
-        schemaless.Attribute(
-          claimPath: [claim],
-          displayName: name,
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.string,
-            string: value,
-          ),
-        );
-
-    schemaless.Attribute age(int years, _Over answer) => schemaless.Attribute(
-      claimPath: ["over$years"],
-      displayName: "Over $years",
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.string,
-        string: answer.name,
-      ),
+    Attribute text(String claim, String name, String value) => Attribute(
+      claimPath: [claim],
+      displayName: name,
+      value: AttributeValue(type: AttributeType.string, string: value),
     );
 
-    schemaless.Credential credential(String id) {
-      return schemaless.Credential(
+    Attribute age(int years, _Over answer) => Attribute(
+      claimPath: ["over$years"],
+      displayName: "Over $years",
+      value: AttributeValue(type: AttributeType.string, string: answer.name),
+    );
+
+    Credential credential(String id) {
+      return Credential(
         credentialId: id,
         hash: "hash-$id",
         name: "Paspoort",

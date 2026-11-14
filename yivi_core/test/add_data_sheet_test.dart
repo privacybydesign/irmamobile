@@ -10,22 +10,22 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/credential.dart";
+import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/models/protocol.dart";
-import "package:yivi_core/src/models/schemaless/credential_store.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/schemaless/session_state.dart";
-import "package:yivi_core/src/models/schemaless/session_user_interaction.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/models/session_state.dart";
+import "package:yivi_core/src/models/session_user_interaction.dart";
+import "package:yivi_core/src/providers/credential_store_provider.dart";
 import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/pane_selection_provider.dart";
 import "package:yivi_core/src/providers/resend_wait.dart";
-import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/providers/sms_issuance_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_row.dart";
 import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
@@ -99,7 +99,7 @@ final _store = [
   ),
 ];
 
-class _Wallet extends SchemalessCredentialOrderController {
+class _Wallet extends CredentialOrderController {
   final List<Credential> cards;
   _Wallet(this.cards);
 
@@ -191,9 +191,7 @@ Future<_Calls> _pump(
               ? Completer<bool>().future
               : Future.value(nfcAvailable),
         ),
-        schemalessCredentialOrderControllerProvider.overrideWith(
-          () => _Wallet(wallet),
-        ),
+        credentialOrderControllerProvider.overrideWith(() => _Wallet(wallet)),
         irmaRepositoryProvider.overrideWithValue(repo),
         for (final MapEntry(key: id, value: states) in nested.entries)
           sessionStateProvider(id).overrideWith((ref) => states),

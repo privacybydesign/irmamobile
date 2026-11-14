@@ -14,14 +14,13 @@ import "package:local_auth/local_auth.dart";
 import "package:material_ui/material_ui.dart" show Icons;
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_content.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
@@ -940,7 +939,7 @@ Future<void> evaluateCredentialCard(
 }
 
 /// The credential with [hash] in the wallet, as the detail screen shows it.
-schemaless.Credential _walletCredential(
+Credential _walletCredential(
   WidgetTester tester,
   Element context,
   String hash,
@@ -948,7 +947,7 @@ schemaless.Credential _walletCredential(
   final cards = ProviderScope.containerOf(
     context,
     listen: false,
-  ).read(schemalessCredentialOrderControllerProvider).value;
+  ).read(credentialOrderControllerProvider).value;
   final credential = cards?.firstWhereOrNull((c) => c.hash == hash);
   expect(credential, isNotNull, reason: "No card with hash $hash in wallet");
   return credential!;
@@ -1456,11 +1455,11 @@ List<String> walletCardCredentialIds(WidgetTester tester) =>
 
 /// The cards in the wallet (credential instances), in the user's order, as
 /// the data tab gets them.
-List<schemaless.Credential> walletCards(WidgetTester tester) =>
+List<Credential> walletCards(WidgetTester tester) =>
     ProviderScope.containerOf(
       tester.element(find.byType(App)),
       listen: false,
-    ).read(schemalessCredentialOrderControllerProvider).value ??
+    ).read(credentialOrderControllerProvider).value ??
     const [];
 
 /// Switches the data tab to [view] (stack is the default on phones). In the

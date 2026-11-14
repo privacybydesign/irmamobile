@@ -4,15 +4,15 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../../../data/irma_repository.dart";
+import "../../../models/credential.dart";
+import "../../../models/credential_store.dart";
 import "../../../models/requestor_trust.dart";
-import "../../../models/schemaless/credential_store.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../models/schemaless/session_state.dart";
+import "../../../models/session_state.dart";
+import "../../../providers/credential_store_provider.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/nested_issuance_host_provider.dart";
 import "../../../providers/preferences_provider.dart";
-import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_motion.dart";
@@ -95,14 +95,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// The way on from "Success" (in the bar, or at the bottom of a phone
   /// held upright), for the added [cards].
-  SheetAction issueSuccessAction(List<schemaless.Credential> cards);
+  SheetAction issueSuccessAction(List<Credential> cards);
 
   /// Another choice on "Success" ("Add more", "Later"), as a link under
   /// what is now in the app; none by default.
-  IssueSuccessLink? issueSuccessLink(List<schemaless.Credential> cards) => null;
+  IssueSuccessLink? issueSuccessLink(List<Credential> cards) => null;
 
   /// The text under "Success", for the added [cards].
-  String issueSuccessText(List<schemaless.Credential> cards);
+  String issueSuccessText(List<Credential> cards);
 
   /// Where a session the sheet can't show is pushed full screen: the
   /// sheet's own context, unless the sheet lives where the router isn't
@@ -209,7 +209,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// The cards of a finished issuance, kept for "Success" (the session state
   /// moves on once the request picks them up).
-  List<schemaless.Credential>? issueAdded;
+  List<Credential>? issueAdded;
 
   /// Where each of [issueAdded] is drawn on "Success", to fly from.
   List<GlobalKey> issueAddedKeys = const [];
@@ -905,7 +905,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// The issuer's page slides in over the question; its logo grows from the
   /// question's into its own (360 ms, with the slide).
-  void _openIssuerPage(schemaless.TrustedParty issuer) {
+  void _openIssuerPage(TrustedParty issuer) {
     YiviFlight.hide([_issuerLogoTo]);
     setState(() => _issuerDepth = 1);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -927,7 +927,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   }
 
   /// Back to the question: the logo shrinks back into the question's.
-  void _closeIssuerPage(schemaless.TrustedParty issuer) {
+  void _closeIssuerPage(TrustedParty issuer) {
     _flyIssuerLogo(issuer, from: _issuerLogoTo, to: _issuerLogoFrom);
     setState(() => _issuerDepth = 0);
   }
@@ -940,7 +940,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// The issuer's page slides in over the details, its logo growing from
   /// the issuer card's.
-  void _openDetailsIssuer(schemaless.TrustedParty issuer) {
+  void _openDetailsIssuer(TrustedParty issuer) {
     YiviFlight.hide([_detailsLogoTo]);
     setState(() => _detailsIssuer = true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -951,13 +951,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   }
 
   /// Back to the details: the logo shrinks back into the issuer card's.
-  void _closeDetailsIssuer(schemaless.TrustedParty issuer) {
+  void _closeDetailsIssuer(TrustedParty issuer) {
     _flyIssuerLogo(issuer, from: _detailsLogoTo, to: _detailsLogoFrom);
     setState(() => _detailsIssuer = false);
   }
 
   void _flyIssuerLogo(
-    schemaless.TrustedParty issuer, {
+    TrustedParty issuer, {
     required GlobalKey from,
     required GlobalKey to,
   }) {
@@ -1162,7 +1162,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (current != null) _lastOffer = current;
     final offer =
         current ?? (issueAdded != null || _granted ? _lastOffer : null);
-    final cards = offer?.offeredCredentials ?? const <schemaless.Credential>[];
+    final cards = offer?.offeredCredentials ?? const <Credential>[];
 
     // Inside a request, a card whose value is not what the request needs
     // does not count: trying again comes first, adding it anyway second.
@@ -1359,7 +1359,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   }
 
   Widget _buildSuccess(
-    List<schemaless.Credential> cards,
+    List<Credential> cards,
     IssueSheetSubject? subject,
     int total,
   ) {
@@ -1497,7 +1497,7 @@ mixin StandaloneIssueFlow<W extends ConsumerStatefulWidget> on IssueFlow<W> {
   String issueStopText() => context.tr("data.add.stop_text");
 
   @override
-  String issueSuccessText(List<schemaless.Credential> cards) => context.tr(
+  String issueSuccessText(List<Credential> cards) => context.tr(
     cards.length > 1
         ? "issuance.success_feedback.added_many"
         : "issuance.success_feedback.added_one",
@@ -1505,12 +1505,11 @@ mixin StandaloneIssueFlow<W extends ConsumerStatefulWidget> on IssueFlow<W> {
   );
 
   @override
-  SheetAction issueSuccessAction(List<schemaless.Credential> cards) =>
-      SheetAction(
-        key: const Key("sheet_done"),
-        label: context.tr("ui.done"),
-        onTap: issueDone,
-      );
+  SheetAction issueSuccessAction(List<Credential> cards) => SheetAction(
+    key: const Key("sheet_done"),
+    label: context.tr("ui.done"),
+    onTap: issueDone,
+  );
 }
 
 /// A choice on "Success" besides its way on, as a link

@@ -16,7 +16,9 @@ import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
+import "../models/credential.dart";
 import "../models/credential_events.dart";
+import "../models/credential_store.dart";
 import "../models/delete_keyshare_tokens_event.dart";
 import "../models/email_code_pointer.dart";
 import "../models/enrollment_events.dart";
@@ -28,13 +30,11 @@ import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/native_events.dart";
-import "../models/schemaless/credential_store.dart";
-import "../models/schemaless/schemaless_events.dart" as schemaless;
-import "../models/schemaless/session_state.dart";
-import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_preview.dart";
+import "../models/session_state.dart";
+import "../models/session_user_interaction.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/passport_issuer_provider.dart";
@@ -106,8 +106,7 @@ class IrmaRepository {
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
-  final _schemalessCredentialsSubject =
-      BehaviorSubject<schemaless.SchemalessCredentials>();
+  final _credentialsSubject = BehaviorSubject<WalletCredentials>();
   final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
 
   final _enrollmentStatusEventSubject =
@@ -154,7 +153,7 @@ class IrmaRepository {
       _eventSubject.close(),
       _irmaConfigurationSubject.close(),
       _eudiConfigurationSubject.close(),
-      _schemalessCredentialsSubject.close(),
+      _credentialsSubject.close(),
       _credentialStoreSubject.close(),
       _enrollmentStatusEventSubject.close(),
       _enrollmentEventSubject.close(),
@@ -186,7 +185,7 @@ class IrmaRepository {
     // credentials (an issuance or a removal) and with the language.
     if ((event is SessionStateEvent &&
             event.sessionState.status == SessionStatus.success) ||
-        event is schemaless.SchemalessCredentialsEvent) {
+        event is CredentialsEvent) {
       if (!_logsChangedSubject.isClosed) _logsChangedSubject.add(null);
     }
     if (event is SessionPreviewEvent) {
@@ -204,12 +203,12 @@ class IrmaRepository {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
-    } else if (event is schemaless.SchemalessCredentialsEvent) {
-      _schemalessCredentialsSubject.add((
+    } else if (event is CredentialsEvent) {
+      _credentialsSubject.add((
         credentials: event.credentials,
         problematic: event.problematic,
       ));
-    } else if (event is SchemalessCredentialStoreEvent) {
+    } else if (event is CredentialStoreEvent) {
       _credentialStoreSubject.add(event.credentials);
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
@@ -375,8 +374,8 @@ class IrmaRepository {
   }
 
   // -- Credential instances
-  Stream<schemaless.SchemalessCredentials> getSchemalessCredentials() {
-    return _schemalessCredentialsSubject.stream;
+  Stream<WalletCredentials> getCredentials() {
+    return _credentialsSubject.stream;
   }
 
   Stream<List<CredentialStoreItem>> getCredentialStoreItems() {
@@ -902,14 +901,14 @@ class IrmaRepository {
 
   /// Whether the issue URL of [credentialId] is a universal link, which the
   /// OS hands to a registered native app (UZI register, Belastingdienst).
-  // TODO: surface `isULIssueUrl` on the schemaless credential models
+  // TODO: surface `isULIssueUrl` on the credential models
   // (CredentialDescriptor / Credential) so we can drop the legacy
   // `_irmaConfigurationSubject` lookup here. Today there's no other
   // place that information lives on the wallet side. Affected
   // credentials (none overlap with the embedded flows):
   //   pbdf.minvws-cibg.pilot-2, pbdf.bzkpilot.personalData/.address,
   //   plus several irma-demo demo creds (digidproef.*, uzipoc-cibg.*).
-  // Schemaless credentials that aren't in legacy irmaConfiguration are
+  // Credentials that aren't in legacy irmaConfiguration are
   // treated as non-universal-link.
   bool _issuesViaUniversalLink(String credentialId) =>
       _irmaConfigurationSubject

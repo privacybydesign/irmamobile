@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../card_transition/card_transition.dart";
 import "wallet_transition.dart";
@@ -10,7 +10,7 @@ import "wallet_transition.dart";
 /// every size, so it stays sharp and keeps its corners. Cards in the stack
 /// do not fly as a hero: they move in place ([CardTransitions]).
 class CardHero extends StatelessWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
   final double width;
   final String? hintText;
 

@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart";
+import "../../../models/credential.dart";
 import "../../../models/session_preview.dart";
 import "../../../providers/waiting_request_provider.dart";
 import "../../../theme/yivi_edges.dart";

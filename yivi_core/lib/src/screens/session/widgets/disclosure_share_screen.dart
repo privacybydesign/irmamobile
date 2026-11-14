@@ -5,13 +5,13 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/credential.dart";
+import "../../../models/credential_store.dart";
 import "../../../models/requestor_trust.dart";
-import "../../../models/schemaless/credential_store.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../models/schemaless/session_state.dart";
-import "../../../models/schemaless/session_user_interaction.dart";
-import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../models/session_state.dart";
+import "../../../models/session_user_interaction.dart";
 import "../../../providers/session_user_choices_provider.dart";
+import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
@@ -838,7 +838,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     int i,
     DisclosurePickOne p,
     Map<int, int> selections, {
-    required List<schemaless.Credential> wallet,
+    required List<Credential> wallet,
   }) {
     final k = selectionOf(p, selections[i]);
     final empty = k < 0;

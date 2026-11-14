@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
 import "../../providers/pane_selection_provider.dart";
-import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../providers/wallet_cards_provider.dart";
 import "../../util/adaptive_layout.dart";
 import "../../widgets/pane_handoff.dart";
 import "../data/wallet/wallet_transition.dart";

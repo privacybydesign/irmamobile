@@ -1,11 +1,11 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/models/credential.dart";
+import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/models/log_entry.dart";
-import "package:yivi_core/src/models/schemaless/credential_store.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 
 void main() {
   test("parses an event with empty credentials and empty problematic", () {
-    final e = SchemalessCredentialsEvent.fromJson({
+    final e = CredentialsEvent.fromJson({
       "credentials": <dynamic>[],
       "problematic": <dynamic>[],
     });
@@ -14,12 +14,12 @@ void main() {
   });
 
   test("parses an event with the problematic key absent", () {
-    final e = SchemalessCredentialsEvent.fromJson({"credentials": <dynamic>[]});
+    final e = CredentialsEvent.fromJson({"credentials": <dynamic>[]});
     expect(e.problematic, isEmpty);
   });
 
   test("parses a problematic entry", () {
-    final e = SchemalessCredentialsEvent.fromJson({
+    final e = CredentialsEvent.fromJson({
       "credentials": <dynamic>[],
       "problematic": [
         {

@@ -1,6 +1,6 @@
+import "../../../models/credential.dart";
 import "../../../models/log_entry.dart" show CredentialFormat;
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../models/schemaless/session_state.dart";
+import "../../../models/session_state.dart";
 
 /// One line of the technical details: a label and its value. Identifiers
 /// are [mono]spaced.
@@ -54,7 +54,7 @@ List<TechGroup> technicalDetailsOf(
 /// asks), how they come (protocol, session) and each card's format.
 List<TechGroup> issuanceTechnicalDetailsOf(
   SessionState session,
-  List<schemaless.Credential> cards,
+  List<Credential> cards,
   Translate t,
 ) {
   final issuer = cards.firstOrNull?.issuer ?? session.requestor;
@@ -80,7 +80,7 @@ List<TechGroup> issuanceTechnicalDetailsOf(
 }
 
 /// Who a party is and where the trust in it comes from.
-List<TechRow> _partyRows(schemaless.TrustedParty party, Translate t) {
+List<TechRow> _partyRows(TrustedParty party, Translate t) {
   final evidence = party.evidence;
   final certificate = evidence?.certificate;
 

@@ -2,14 +2,14 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../models/schemaless/credential_store.dart";
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/credential.dart";
+import "../../models/credential_store.dart";
+import "../../providers/credential_store_provider.dart";
 import "../../providers/credentials_search.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/pane_selection_provider.dart";
-import "../../providers/schemaless_credential_store_provider.dart";
-import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
@@ -54,7 +54,7 @@ Future<void> obtainAgain(
   WidgetRef ref, {
   required String credentialId,
   required String? issueUrl,
-  schemaless.Credential? card,
+  Credential? card,
 }) async {
   if (issueUrl == null || issueUrl.isEmpty) {
     return ref
@@ -163,7 +163,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   void issueDone() => _done();
 
   @override
-  IssueSuccessLink issueSuccessLink(List<schemaless.Credential> cards) => (
+  IssueSuccessLink issueSuccessLink(List<Credential> cards) => (
     key: const Key("sheet_add_more"),
     label: context.tr("data.add.add_more"),
     onTap: _addMore,
@@ -172,7 +172,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   /// "Add more": the card is in the app already; back to the list, which
   /// says so.
   void _addMore() {
-    final cards = issueAdded ?? const <schemaless.Credential>[];
+    final cards = issueAdded ?? const <Credential>[];
     setState(() {
       _justAdded = cards.length == 1 ? cards.single.name : null;
       issueShowRoot();
@@ -183,7 +183,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   /// "Success" into the first slot. Where the data tab has a detail pane
   /// (tablet, landscape), the card opens in the pane instead.
   void _done() {
-    final cards = issueAdded ?? const <schemaless.Credential>[];
+    final cards = issueAdded ?? const <Credential>[];
     if (!widget.flyToDataTab) {
       // Opened over another page: the card is in the app, nothing flies.
     } else if (useHomePanes(context)) {

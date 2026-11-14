@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/models/activity_query.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 
 import "helpers/credential_factory.dart";
 

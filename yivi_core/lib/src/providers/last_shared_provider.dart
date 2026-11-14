@@ -4,8 +4,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../models/log_entry.dart";
 import "../screens/session/models/disclosure_view_model.dart";
 import "irma_repository_provider.dart";
-import "schemaless_credentials_list_provider.dart";
 import "session_state_provider.dart";
+import "wallet_cards_provider.dart";
 
 /// The disclosures (and signatures) of the card with [hash], newest first:
 /// who it was shared with, and when. The last 50 are enough to know.

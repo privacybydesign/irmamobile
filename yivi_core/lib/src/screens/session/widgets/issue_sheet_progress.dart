@@ -2,7 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart";
+import "../../../models/credential.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";

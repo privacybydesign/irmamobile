@@ -8,13 +8,13 @@ import "package:rxdart/rxdart.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/credential.dart";
+import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/log_entry.dart";
-import "package:yivi_core/src/models/schemaless/credential_store.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
+import "package:yivi_core/src/providers/credential_store_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
 final _issuer = TrustedParty(
@@ -71,10 +71,10 @@ CredentialStoreItem storeItem(String id, String name, String? category) =>
     );
 
 class _FakeRepository extends Fake implements IrmaRepository {
-  final subject = BehaviorSubject<SchemalessCredentials>();
+  final subject = BehaviorSubject<WalletCredentials>();
 
   @override
-  Stream<SchemalessCredentials> getSchemalessCredentials() => subject.stream;
+  Stream<WalletCredentials> getCredentials() => subject.stream;
 
   @override
   Stream<Event> getEvents() => const Stream.empty();

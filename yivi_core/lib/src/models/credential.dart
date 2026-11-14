@@ -1,12 +1,12 @@
 import "package:json_annotation/json_annotation.dart";
 
-import "../event.dart";
-import "../log_entry.dart";
+import "event.dart";
+import "log_entry.dart";
 
-part "schemaless_events.g.dart";
+part "credential.g.dart";
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
-class SchemalessCredentialsEvent extends Event {
+class CredentialsEvent extends Event {
   final List<Credential> credentials;
 
   /// Credentials the wallet has stored but cannot render (e.g. an IRMA
@@ -15,13 +15,10 @@ class SchemalessCredentialsEvent extends Event {
   /// to delete it.
   final List<ProblematicCredential> problematic;
 
-  SchemalessCredentialsEvent({
-    required this.credentials,
-    this.problematic = const [],
-  });
+  CredentialsEvent({required this.credentials, this.problematic = const []});
 
-  factory SchemalessCredentialsEvent.fromJson(Map<String, dynamic> json) =>
-      _$SchemalessCredentialsEventFromJson(json);
+  factory CredentialsEvent.fromJson(Map<String, dynamic> json) =>
+      _$CredentialsEventFromJson(json);
 }
 
 /// A credential the wallet stored but cannot load into a full [Credential].
@@ -52,8 +49,8 @@ class ProblematicCredential {
 
 /// The credentials the wallet holds, as one snapshot: the ones it can render and
 /// the ones it stored but cannot load ([ProblematicCredential]). Both come from
-/// a single [SchemalessCredentialsEvent], so they always travel together.
-typedef SchemalessCredentials = ({
+/// a single [CredentialsEvent], so they always travel together.
+typedef WalletCredentials = ({
   List<Credential> credentials,
   List<ProblematicCredential> problematic,
 });

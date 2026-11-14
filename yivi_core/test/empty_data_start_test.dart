@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
+import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/screens/data/empty_data_start.dart";
 import "package:yivi_core/src/screens/home/widgets/scan_tip.dart";
 

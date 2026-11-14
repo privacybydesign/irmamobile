@@ -1,4 +1,4 @@
-import "schemaless/schemaless_events.dart";
+import "credential.dart";
 
 /// How far a requestor is vouched for, as the session screens show it.
 ///

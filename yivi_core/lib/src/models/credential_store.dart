@@ -1,19 +1,19 @@
 import "package:json_annotation/json_annotation.dart";
 
-import "../event.dart";
-import "../log_entry.dart";
-import "schemaless_events.dart";
+import "credential.dart";
+import "event.dart";
+import "log_entry.dart";
 
 part "credential_store.g.dart";
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
-class SchemalessCredentialStoreEvent extends Event {
+class CredentialStoreEvent extends Event {
   final List<CredentialStoreItem> credentials;
 
-  SchemalessCredentialStoreEvent({required this.credentials});
+  CredentialStoreEvent({required this.credentials});
 
-  factory SchemalessCredentialStoreEvent.fromJson(Map<String, dynamic> json) =>
-      _$SchemalessCredentialStoreEventFromJson(json);
+  factory CredentialStoreEvent.fromJson(Map<String, dynamic> json) =>
+      _$CredentialStoreEventFromJson(json);
 }
 
 @JsonSerializable(fieldRename: .snake)

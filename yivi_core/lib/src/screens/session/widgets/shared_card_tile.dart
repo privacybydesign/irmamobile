@@ -3,10 +3,10 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/credential.dart";
 import "../../../models/log_entry.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../models/schemaless/session_state.dart";
-import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../models/session_state.dart";
+import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
@@ -196,12 +196,12 @@ class FadingTileOutline extends StatelessWidget {
 
 /// The card picture of [instance]: the wallet card with the same hash
 /// (which carries the issuer's design), or one built from the instance.
-schemaless.Credential sharedCardFor(
+Credential sharedCardFor(
   SelectableCredentialInstance instance,
-  List<schemaless.Credential> wallet,
+  List<Credential> wallet,
 ) =>
     wallet.firstWhereOrNull((c) => c.hash == instance.hash) ??
-    schemaless.Credential(
+    Credential(
       credentialId: instance.credentialId,
       hash: instance.hash,
       name: instance.name,

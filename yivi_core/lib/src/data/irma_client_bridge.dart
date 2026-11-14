@@ -6,6 +6,8 @@ import "package:flutter/services.dart";
 import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/client_preferences.dart";
+import "../models/credential.dart";
+import "../models/credential_store.dart";
 import "../models/enrollment_events.dart";
 import "../models/error_event.dart";
 import "../models/eudi_configuration.dart";
@@ -14,10 +16,8 @@ import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/native_events.dart";
-import "../models/schemaless/credential_store.dart";
-import "../models/schemaless/schemaless_events.dart" as schemaless;
-import "../models/schemaless/session_state.dart";
 import "../models/session_preview.dart";
+import "../models/session_state.dart";
 import "../sentry/sentry.dart";
 import "irma_bridge.dart";
 
@@ -30,10 +30,8 @@ class IrmaClientBridge extends IrmaBridge {
   static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
     IrmaConfigurationEvent: (j) => IrmaConfigurationEvent.fromJson(j),
     EudiConfigurationEvent: (j) => EudiConfigurationEvent.fromJson(j),
-    schemaless.SchemalessCredentialsEvent: (j) =>
-        schemaless.SchemalessCredentialsEvent.fromJson(j),
-    SchemalessCredentialStoreEvent: (j) =>
-        SchemalessCredentialStoreEvent.fromJson(j),
+    CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
+    CredentialStoreEvent: (j) => CredentialStoreEvent.fromJson(j),
     SessionStateEvent: (j) => SessionStateEvent.fromJson(j),
     SessionPreviewEvent: (j) => SessionPreviewEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
@@ -110,8 +108,8 @@ class IrmaClientBridge extends IrmaBridge {
         // of activity) and bloat the log, so only their name is printed.
         const nonPrinting = {
           "IrmaConfigurationEvent",
-          "SchemalessCredentialsEvent",
-          "SchemalessCredentialStoreEvent",
+          "CredentialsEvent",
+          "CredentialStoreEvent",
           "LogPageEvent",
           "PartiesEvent",
         };

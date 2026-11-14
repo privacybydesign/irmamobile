@@ -1,7 +1,7 @@
 import "package:collection/collection.dart";
 
+import "credential.dart";
 import "log_entry.dart";
-import "schemaless/schemaless_events.dart" as schemaless;
 
 /// When, in the Activity filter: a few spans back from today, or a range of
 /// the user's own.
@@ -68,7 +68,7 @@ List<Object?> _claimPattern(List<dynamic> path) => [
 
 /// The names of the groups of [attributes], from their header rows (an
 /// attribute without a value names the claims under it).
-Map<String, String> _groupNames(List<schemaless.Attribute> attributes) => {
+Map<String, String> _groupNames(List<Attribute> attributes) => {
   for (final a in attributes)
     if (a.value == null &&
         a.claimPath.length == 1 &&
@@ -82,7 +82,7 @@ String _groupName(Map<String, String> names, String group) =>
 
 /// What can be picked from a card with [attributes]: its loose fields and
 /// lists first, then each group with its "everything" token and its fields.
-List<ClaimTokenGroup> claimTokenGroups(List<schemaless.Attribute> attributes) {
+List<ClaimTokenGroup> claimTokenGroups(List<Attribute> attributes) {
   final names = _groupNames(attributes);
   final top = <ClaimToken>[];
   final groups = <String, List<ClaimToken>>{};
@@ -136,7 +136,7 @@ List<ClaimTokenGroup> claimTokenGroups(List<schemaless.Attribute> attributes) {
 
 /// What was shared of a card, each field under its group: "Voornamen,
 /// Adres (Straat, Huisnummer), Nationaliteiten".
-String describeShared(List<schemaless.Attribute> attributes) {
+String describeShared(List<Attribute> attributes) {
   final names = _groupNames(attributes);
   final out = <Object>[];
   final groups = <String, List<String>>{};
@@ -180,7 +180,7 @@ class ActivityCardRef {
   final String credentialId;
 
   /// What to draw it as, and its name.
-  final schemaless.Credential art;
+  final Credential art;
 
   const ActivityCardRef({
     this.hash,
@@ -188,7 +188,7 @@ class ActivityCardRef {
     required this.art,
   });
 
-  factory ActivityCardRef.of(schemaless.Credential card) => ActivityCardRef(
+  factory ActivityCardRef.of(Credential card) => ActivityCardRef(
     hash: card.hash,
     credentialId: card.credentialId,
     art: card,

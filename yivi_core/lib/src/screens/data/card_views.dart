@@ -14,7 +14,7 @@ class _StackView extends ConsumerWidget {
   /// How far it tilts to the right (clockwise), in radians: about 2°.
   static const double tilt = 0.035;
 
-  final List<schemaless.Credential> cards;
+  final List<Credential> cards;
   final Map<String, String> hintTexts;
   final double width;
   final bool arrangeable;
@@ -163,7 +163,7 @@ class _Nudge extends StatelessWidget {
 
 /// The card the detail pane shows: the [selected] one while it is among
 /// [cards], otherwise the first.
-String? _paneCardHash(String? selected, List<schemaless.Credential> cards) =>
+String? _paneCardHash(String? selected, List<Credential> cards) =>
     cards.any((c) => c.hash == selected) ? selected : cards.firstOrNull?.hash;
 
 /// A row a card: its picture, name, hint and issuer. Hold a row to drag it
@@ -171,7 +171,7 @@ String? _paneCardHash(String? selected, List<schemaless.Credential> cards) =>
 class _ListView extends ConsumerWidget {
   static const double gap = 8;
 
-  final List<schemaless.Credential> cards;
+  final List<Credential> cards;
   final Map<String, String> hintTexts;
   final double width;
   final bool arrangeable;
@@ -273,7 +273,7 @@ class _ListRow extends StatelessWidget {
   static const double picture = 88;
   static const double padding = 8;
 
-  final schemaless.Credential credential;
+  final Credential credential;
   final String? hintText;
 
   /// The thumbnail is where a received card lands.
@@ -394,7 +394,7 @@ class _ListRow extends StatelessWidget {
 class _GridView extends ConsumerWidget {
   static const double gap = 16;
 
-  final List<schemaless.Credential> cards;
+  final List<Credential> cards;
   final Map<String, String> hintTexts;
   final double width;
   final bool arrangeable;
@@ -517,7 +517,7 @@ class _GridView extends ConsumerWidget {
 /// Makes a card tappable and gives it one clear screen reader label:
 /// "{name}, {hint}, {issuer}".
 class _CardButton extends StatefulWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
   final String? hintText;
   final Widget child;
 
@@ -708,4 +708,4 @@ Widget _flightSlot({required bool first, String? hash, required Widget child}) {
 
 /// Moves a card in the user's order ([DragToArrange.onMove]).
 void Function(int from, int to) _reorder(WidgetRef ref) =>
-    ref.read(schemalessCredentialOrderControllerProvider.notifier).reorder;
+    ref.read(credentialOrderControllerProvider.notifier).reorder;

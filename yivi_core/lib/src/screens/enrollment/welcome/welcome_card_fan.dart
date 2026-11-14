@@ -4,7 +4,7 @@ import "dart:math";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -25,7 +25,7 @@ class WelcomeCardFan extends StatelessWidget {
       ExcludeSemantics(child: _Fan(width: width));
 }
 
-schemaless.Credential _card(
+Credential _card(
   BuildContext context, {
   required String id,
   required String titleKey,
@@ -35,11 +35,11 @@ schemaless.Credential _card(
 }) {
   String t(String key) =>
       FlutterI18n.translate(context, "enrollment.introduction.art.$key");
-  return schemaless.Credential(
+  return Credential(
     credentialId: id,
     hash: id,
     name: t(titleKey),
-    issuer: schemaless.TrustedParty(
+    issuer: TrustedParty(
       id: id,
       name: issuerKey == "yivi" ? "Yivi" : t(issuerKey),
       url: null,
@@ -54,14 +54,11 @@ schemaless.Credential _card(
     issueUrl: null,
     // 2 March 2024, the date on the canvas.
     issuanceDate: DateTime(2024, 3, 2).millisecondsSinceEpoch ~/ 1000,
-    display: schemaless.CredentialDisplay(
-      backgroundColor: background,
-      textColor: text,
-    ),
+    display: CredentialDisplay(backgroundColor: background, textColor: text),
   );
 }
 
-schemaless.Credential _personalData(BuildContext context) => _card(
+Credential _personalData(BuildContext context) => _card(
   context,
   id: "intro.personal",
   titleKey: "personal",
@@ -207,7 +204,7 @@ class _Fan extends StatelessWidget {
     ];
     final height = width / CredentialCardArt.aspectRatio;
     final unit = width / 180;
-    Widget art(schemaless.Credential credential, String hint) =>
+    Widget art(Credential credential, String hint) =>
         CredentialCardArt(credential: credential, hintText: hint, width: width);
 
     return SizedBox(

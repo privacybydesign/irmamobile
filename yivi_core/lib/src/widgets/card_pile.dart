@@ -2,7 +2,7 @@ import "dart:math" as math;
 
 import "package:material_ui/material_ui.dart";
 
-import "../models/schemaless/schemaless_events.dart";
+import "../models/credential.dart";
 import "credential_card/card_art/credential_card_art.dart";
 
 /// Several cards as a small, loose pile: each one slightly tilted and

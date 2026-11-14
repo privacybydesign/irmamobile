@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
@@ -13,7 +13,7 @@ import "../../../widgets/surface_card.dart";
 /// to add it ([IssuancePermission]), in one group: a row per attribute, the ages
 /// folded into one row, and the validity in two cells at the bottom.
 class DocumentIssuanceData extends StatelessWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
 
   const DocumentIssuanceData({super.key, required this.credential});
 

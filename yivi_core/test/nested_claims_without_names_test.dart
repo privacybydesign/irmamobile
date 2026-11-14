@@ -1,8 +1,7 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
@@ -35,15 +34,11 @@ Future<void> _pump(WidgetTester tester, Widget list) async {
   await tester.pumpAndSettle();
 }
 
-schemaless.Attribute _leaf(List<dynamic> path, String value) =>
-    schemaless.Attribute(
-      claimPath: ["credentialSubject", ...path],
-      displayName: null,
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.string,
-        string: value,
-      ),
-    );
+Attribute _leaf(List<dynamic> path, String value) => Attribute(
+  claimPath: ["credentialSubject", ...path],
+  displayName: null,
+  value: AttributeValue(type: AttributeType.string, string: value),
+);
 
 final _badge = [
   _leaf(["achievement", "ECTS"], "6"),
@@ -143,19 +138,16 @@ void main() {
     await _pump(
       tester,
       YiviCredentialCardAttributeList([
-        schemaless.Attribute(
+        Attribute(
           claimPath: const ["address", "street"],
           displayName: null,
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.string,
-            string: "Meander",
-          ),
+          value: AttributeValue(type: AttributeType.string, string: "Meander"),
         ),
-        schemaless.Attribute(
+        Attribute(
           claimPath: const ["birthdate"],
           displayName: null,
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.string,
+          value: AttributeValue(
+            type: AttributeType.string,
             string: "1990-01-01",
           ),
         ),
@@ -206,7 +198,7 @@ void main() {
     await _pump(
       tester,
       YiviCredentialCardAttributeList([
-        schemaless.Attribute(
+        Attribute(
           claimPath: const ["credentialSubject", "alignment"],
           displayName: "Koppelingen",
         ),
@@ -246,27 +238,24 @@ void main() {
     await _pump(
       tester,
       YiviCredentialCardAttributeList([
-        schemaless.Attribute(
+        Attribute(
           claimPath: const ["portrait"],
           displayName: "Photo",
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.base64Image,
+          value: AttributeValue(
+            type: AttributeType.base64Image,
             base64Image: png,
           ),
         ),
-        schemaless.Attribute(
+        Attribute(
           claimPath: const ["address", "street"],
           displayName: null,
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.string,
-            string: "Meander",
-          ),
+          value: AttributeValue(type: AttributeType.string, string: "Meander"),
         ),
-        schemaless.Attribute(
+        Attribute(
           claimPath: const ["birthdate"],
           displayName: null,
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.string,
+          value: AttributeValue(
+            type: AttributeType.string,
             string: "1990-01-01",
           ),
         ),
@@ -278,15 +267,11 @@ void main() {
   });
 
   group("mdoc namespaces", () {
-    schemaless.Attribute element(String namespace, String id, String value) =>
-        schemaless.Attribute(
-          claimPath: [namespace, id],
-          displayName: null,
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.string,
-            string: value,
-          ),
-        );
+    Attribute element(String namespace, String id, String value) => Attribute(
+      claimPath: [namespace, id],
+      displayName: null,
+      value: AttributeValue(type: AttributeType.string, string: value),
+    );
 
     // An mDL with the AAMVA extension: elements from two namespaces, which
     // the common-root rule alone would show under two namespace headings.
@@ -326,17 +311,14 @@ void main() {
         tester,
         YiviCredentialCardAttributeList([
           element("org.iso.18013.5.1", "family_name", "Jansen"),
-          schemaless.Attribute(
+          Attribute(
             claimPath: const [
               "org.iso.18013.5.1",
               "place_of_birth",
               "locality",
             ],
             displayName: null,
-            value: schemaless.AttributeValue(
-              type: schemaless.AttributeType.string,
-              string: "Arnhem",
-            ),
+            value: AttributeValue(type: AttributeType.string, string: "Arnhem"),
           ),
           element("org.iso.18013.5.1.aamva", "organ_donor", "1"),
         ], namespaced: true),

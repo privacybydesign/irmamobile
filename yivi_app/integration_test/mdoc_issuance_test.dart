@@ -544,7 +544,7 @@ Future<void> testDutchAppLanguageKeepsEnglishLabels(
 /// issuer name, and finds nothing for an unrelated query.
 ///
 /// The search indexes the credential name and the issuer name only
-/// (`schemaless_credentials_provider.dart`), not the claim labels, so a label
+/// (`credentials_provider.dart`), not the claim labels, so a label
 /// such as "Age Over 18" is deliberately not searched for.
 Future<void> testSearchFindsAvMdoc(
   WidgetTester tester,

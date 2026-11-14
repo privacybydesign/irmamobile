@@ -1,30 +1,23 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/driving_licence/driving_licence_categories_renderer.dart";
 
-schemaless.Attribute _str(String id, String? value) => schemaless.Attribute(
+Attribute _str(String id, String? value) => Attribute(
   claimPath: [id],
   displayName: id,
-  value: schemaless.AttributeValue(
-    type: schemaless.AttributeType.string,
-    string: value,
-  ),
+  value: AttributeValue(type: AttributeType.string, string: value),
 );
 
-schemaless.Attribute _bool(String id, bool? value) => schemaless.Attribute(
+Attribute _bool(String id, bool? value) => Attribute(
   claimPath: [id],
   displayName: id,
-  value: schemaless.AttributeValue(
-    type: schemaless.AttributeType.boolean,
-    boolValue: value,
-  ),
+  value: AttributeValue(type: AttributeType.boolean, boolValue: value),
 );
 
 /// All 48 category attributes as the issuer sends them, with [held] mapping a
 /// held code to its (issued, expires) dates.
-List<schemaless.Attribute> _all(Map<String, (String, String)> held) => [
+List<Attribute> _all(Map<String, (String, String)> held) => [
   for (final code in DrivingLicenceCategoriesRenderer.codes) ...[
     _bool("category$code", held.containsKey(code)),
     _str("category${code}DateOfIssue", held[code]?.$1),
@@ -33,7 +26,7 @@ List<schemaless.Attribute> _all(Map<String, (String, String)> held) => [
 ];
 
 /// The 48 attributes of a licence whose chip held no category data.
-List<schemaless.Attribute> _allEmpty() => [
+List<Attribute> _allEmpty() => [
   for (final code in DrivingLicenceCategoriesRenderer.codes) ...[
     _bool("category$code", null),
     _str("category${code}DateOfIssue", null),
@@ -44,8 +37,8 @@ List<schemaless.Attribute> _allEmpty() => [
 const _renderer = DrivingLicenceCategoriesRenderer();
 
 DrivingLicenceCategoriesView _view(
-  List<schemaless.Attribute> attrs, {
-  List<schemaless.Attribute>? compareTo,
+  List<Attribute> attrs, {
+  List<Attribute>? compareTo,
 }) {
   final group = _renderer.claim(attrs, compareTo: compareTo)!;
   return DrivingLicenceCategoriesRenderer.viewOf(

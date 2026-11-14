@@ -7,11 +7,11 @@ import "package:http/http.dart" as http;
 
 import "../models/email_code_pointer.dart";
 import "../models/session.dart";
+import "credentials_provider.dart";
 import "email_issuance_provider.dart";
 import "local_backends_provider.dart";
 import "preferences_provider.dart";
 import "provider_helpers.dart" as helpers;
-import "schemaless_credentials_provider.dart";
 
 /// How long "Ask me later" hides the banner.
 const emailBannerSnoozeDuration = Duration(days: 7);

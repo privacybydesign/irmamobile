@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/log_entry.dart";
-import "package:yivi_core/src/models/schemaless/session_state.dart";
+import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";

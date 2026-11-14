@@ -9,15 +9,15 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../routing.dart";
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/credential.dart";
 import "../../providers/credential_field_search.dart";
+import "../../providers/credentials_provider.dart";
 import "../../providers/credentials_search.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
-import "../../providers/schemaless_credentials_list_provider.dart";
-import "../../providers/schemaless_credentials_provider.dart";
 import "../../providers/search_query_provider.dart";
+import "../../providers/wallet_cards_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
@@ -411,8 +411,8 @@ class _Content extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
-    final snapshot = ref.watch(schemalessCredentialsProvider);
-    final ordered = ref.watch(schemalessCredentialOrderControllerProvider);
+    final snapshot = ref.watch(credentialsProvider);
+    final ordered = ref.watch(credentialOrderControllerProvider);
 
     return switch ((snapshot, ordered)) {
       (AsyncError(), _) || (_, AsyncError()) => Center(
@@ -469,8 +469,8 @@ class _Content extends ConsumerWidget {
 
 /// The cards, in the view the user picked.
 class _CardList extends ConsumerWidget {
-  final List<schemaless.Credential> cards;
-  final List<schemaless.ProblematicCredential> problematic;
+  final List<Credential> cards;
+  final List<ProblematicCredential> problematic;
   final String query;
 
   /// From a tap in the search field until Cancel: the cards are list rows,
@@ -502,11 +502,7 @@ class _CardList extends ConsumerWidget {
     );
   }
 
-  Widget _build(
-    BuildContext context,
-    WidgetRef ref,
-    List<schemaless.Credential> cards,
-  ) {
+  Widget _build(BuildContext context, WidgetRef ref, List<Credential> cards) {
     final palette = YiviPalette.of(context);
     final hints = ref.watch(instanceHintsProvider);
     final view = ref.watch(walletViewProvider) ?? WalletView.stack;
@@ -665,7 +661,7 @@ class _CardList extends ConsumerWidget {
   /// The cards [query] finds, best first, each with the fields it matched.
   static List<CardSearchResult> _search(
     BuildContext context,
-    List<schemaless.Credential> cards,
+    List<Credential> cards,
     Map<String, String> hintTexts,
     String query,
   ) {
@@ -693,7 +689,7 @@ class _CardList extends ConsumerWidget {
   /// and images are found by their label only.
   static List<SearchField> _searchFields(
     BuildContext context,
-    schemaless.Credential credential,
+    Credential credential,
   ) => [
     for (final a in credential.attributes)
       if (a.value case final value? when value.hasConcreteValue)
@@ -701,11 +697,8 @@ class _CardList extends ConsumerWidget {
           claimKey: claimPathKey(a.claimPath),
           label: a.effectiveDisplayName,
           value: switch (value.type) {
-            schemaless.AttributeType.string ||
-            schemaless.AttributeType.integer => formatAttributeValue(
-              context,
-              value,
-            ),
+            AttributeType.string ||
+            AttributeType.integer => formatAttributeValue(context, value),
             _ => null,
           },
         ),
@@ -718,7 +711,7 @@ class _CardList extends ConsumerWidget {
 /// that field.
 void openCard(
   BuildContext cardContext,
-  schemaless.Credential credential, {
+  Credential credential, {
   String? found,
 }) {
   final container = ProviderScope.containerOf(cardContext, listen: false);
@@ -758,7 +751,7 @@ void openCard(
 bool _openFromStack(
   BuildContext cardContext,
   CardTransitionsState transitions,
-  schemaless.Credential credential,
+  Credential credential,
   String? found,
 ) {
   final picked = StackCards.hashes.indexOf(credential.hash);
@@ -873,9 +866,7 @@ class _ViewMenu extends ConsumerWidget {
       case final WalletView v:
         ref.read(walletViewProvider.notifier).set(v);
       case final CardArrangement by:
-        final order = ref.read(
-          schemalessCredentialOrderControllerProvider.notifier,
-        );
+        final order = ref.read(credentialOrderControllerProvider.notifier);
         final before = order.arrange(by);
         HapticFeedback.mediumImpact();
         showAppToast(
@@ -991,13 +982,13 @@ class _NoResults extends StatelessWidget {
 }
 
 /// A card for a credential the wallet stored but cannot render (see
-/// [schemaless.ProblematicCredential]). Shown in a danger style with the failure
+/// [ProblematicCredential]). Shown in a danger style with the failure
 /// reason and a trashcan to remove a credential that would otherwise be stuck in
 /// storage — it has no detail screen to route to, so deletion is inline.
 class _ProblematicCredentialCard extends ConsumerWidget {
   const _ProblematicCredentialCard({required this.credential});
 
-  final schemaless.ProblematicCredential credential;
+  final ProblematicCredential credential;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -3,7 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "../../../theme/theme.dart";
 import "../../base64_image.dart";
 import "../models/credential_card_layout.dart";
@@ -92,39 +92,28 @@ String formatAttributeBool(BuildContext context, bool? value) {
 
 /// Formats any non-image attribute value as text, by type and display hint.
 /// Image values have no text form and come out as their raw string, if any.
-String formatAttributeValue(
-  BuildContext context,
-  schemaless.AttributeValue value,
-) => switch (value.type) {
-  schemaless.AttributeType.string => formatAttributeString(context, value),
-  schemaless.AttributeType.integer => value.intValue?.toString() ?? "",
-  schemaless.AttributeType.boolean => formatAttributeBool(
-    context,
-    value.boolValue,
-  ),
-  schemaless.AttributeType.image ||
-  schemaless.AttributeType.base64Image => value.string ?? "",
-};
+String formatAttributeValue(BuildContext context, AttributeValue value) =>
+    switch (value.type) {
+      AttributeType.string => formatAttributeString(context, value),
+      AttributeType.integer => value.intValue?.toString() ?? "",
+      AttributeType.boolean => formatAttributeBool(context, value.boolValue),
+      AttributeType.image || AttributeType.base64Image => value.string ?? "",
+    };
 
 /// Whether two values hold the same data, whatever their type. A boolean or
-/// integer keeps its data outside [schemaless.AttributeValue.string], so
+/// integer keeps its data outside [AttributeValue.string], so
 /// comparing strings alone would call every pair of them equal.
-bool attributeValuesEqual(
-  schemaless.AttributeValue? a,
-  schemaless.AttributeValue? b,
-) => _comparable(a) == _comparable(b);
+bool attributeValuesEqual(AttributeValue? a, AttributeValue? b) =>
+    _comparable(a) == _comparable(b);
 
-Object? _comparable(schemaless.AttributeValue? v) =>
+Object? _comparable(AttributeValue? v) =>
     v?.string ?? v?.boolValue ?? v?.intValue ?? v?.base64Image ?? v?.imagePath;
 
 /// Formats a string attribute value. A value with a "currency:<code>" display
 /// hint is shown as an amount in that currency for the app's locale (e.g.
 /// "€ 12,50"); anything else, including values from irmago versions that don't
 /// send display hints, is shown as the raw string.
-String formatAttributeString(
-  BuildContext context,
-  schemaless.AttributeValue value,
-) {
+String formatAttributeString(BuildContext context, AttributeValue value) {
   final raw = value.string ?? "";
   final hint = value.displayHint;
   if (hint == null || !hint.startsWith(_currencyHintPrefix)) return raw;
@@ -159,7 +148,7 @@ String? formatCurrencyAmount(String amount, String currency, String? locale) {
 /// Decodes an image attribute value, or returns null when it holds no usable
 /// image. Issuers sometimes fill an empty image attribute with a placeholder
 /// such as " "; decoding that throws during build and greys out the whole card.
-Uint8List? decodeAttributeImage(schemaless.AttributeValue? value) {
+Uint8List? decodeAttributeImage(AttributeValue? value) {
   final raw = value?.imagePath ?? value?.base64Image ?? "";
   final Uint8List bytes;
   try {

@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/credential.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
@@ -179,7 +179,7 @@ class CardTileStrip extends StatelessWidget {
 
 /// Several cards as small card art, overlapping a little.
 class CardTileMiniCards extends StatelessWidget {
-  final List<schemaless.Credential> cards;
+  final List<Credential> cards;
 
   const CardTileMiniCards({super.key, required this.cards});
 

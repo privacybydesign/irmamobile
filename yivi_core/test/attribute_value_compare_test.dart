@@ -1,7 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -13,17 +12,12 @@ Widget _wrap(Widget child) => IrmaTheme(
   builder: (_) => MaterialApp(home: Scaffold(body: child)),
 );
 
-schemaless.AttributeValue _bool(bool v) =>
-    schemaless.AttributeValue(type: .boolean, boolValue: v);
+AttributeValue _bool(bool v) => AttributeValue(type: .boolean, boolValue: v);
 
-schemaless.AttributeValue _int(int v) =>
-    schemaless.AttributeValue(type: .integer, intValue: v);
+AttributeValue _int(int v) => AttributeValue(type: .integer, intValue: v);
 
-schemaless.Attribute _age(int v) => schemaless.Attribute(
-  claimPath: ["age"],
-  displayName: "Age",
-  value: _int(v),
-);
+Attribute _age(int v) =>
+    Attribute(claimPath: ["age"], displayName: "Age", value: _int(v));
 
 void main() {
   group("attributeValuesEqual", () {
@@ -35,8 +29,8 @@ void main() {
     });
 
     test("compares strings", () {
-      final a = schemaless.AttributeValue(type: .string, string: "x");
-      final b = schemaless.AttributeValue(type: .string, string: "y");
+      final a = AttributeValue(type: .string, string: "x");
+      final b = AttributeValue(type: .string, string: "y");
       expect(attributeValuesEqual(a, a), isTrue);
       expect(attributeValuesEqual(a, b), isFalse);
     });
@@ -50,7 +44,7 @@ void main() {
   group("attribute list", () {
     Future<Color?> valueColor(
       WidgetTester tester,
-      List<schemaless.Attribute> compareTo,
+      List<Attribute> compareTo,
     ) async {
       await tester.pumpWidget(
         _wrap(YiviCredentialCardAttributeList([_age(3)], compareTo: compareTo)),

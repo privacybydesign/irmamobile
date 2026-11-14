@@ -6,9 +6,9 @@ import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/data/session_repository.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/event.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/schemaless/session_state.dart";
+import "package:yivi_core/src/models/session_state.dart";
 
 class _RecordingBridge extends IrmaBridge {
   @override

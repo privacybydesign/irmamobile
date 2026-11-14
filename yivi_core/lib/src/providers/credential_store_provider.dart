@@ -1,6 +1,6 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../models/schemaless/credential_store.dart";
+import "../models/credential_store.dart";
 import "irma_repository_provider.dart";
 
 final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((

@@ -1,10 +1,10 @@
 import "package:collection/collection.dart";
 
+import "../../../models/credential.dart";
+import "../../../models/credential_store.dart";
 import "../../../models/log_entry.dart";
-import "../../../models/schemaless/credential_store.dart";
-import "../../../models/schemaless/schemaless_events.dart";
-import "../../../models/schemaless/session_state.dart";
-import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../models/session_state.dart";
+import "../../../models/session_user_interaction.dart";
 import "../../../util/string.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 

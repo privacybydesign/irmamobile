@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/credential.dart";
 import "../../../models/requestor_trust.dart";
-import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";

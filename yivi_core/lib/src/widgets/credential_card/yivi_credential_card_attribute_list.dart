@@ -5,7 +5,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/credential.dart";
 import "../../providers/credential_field_search.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
@@ -32,8 +32,8 @@ enum AgeDisplay {
 }
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
-  final List<schemaless.Attribute> attributes;
-  final List<schemaless.Attribute>? compareTo;
+  final List<Attribute> attributes;
+  final List<Attribute>? compareTo;
 
   /// When true, each leaf/primarray row draws a 1px horizontal divider at
   /// its bottom (suppressed on the last row of any parent group).
@@ -182,8 +182,8 @@ class _ItemNode extends _Node {
 }
 
 class _RowNode extends _Node {
-  final schemaless.Attribute attribute;
-  final schemaless.AttributeValue? compareToValue;
+  final Attribute attribute;
+  final AttributeValue? compareToValue;
   final bool hasCompareTo;
   final bool mismatch;
   final bool match;
@@ -214,7 +214,7 @@ class _AgeNode extends _Node {
 class _PrimArrayNode extends _Node {
   final String label;
   final List<dynamic> path;
-  final List<schemaless.AttributeValue> values;
+  final List<AttributeValue> values;
   _PrimArrayNode({
     required this.label,
     required this.path,
@@ -227,20 +227,20 @@ class _AttributeGroupNode extends _Node {
   _AttributeGroupNode(this.group);
 }
 
-bool _isImage(schemaless.Attribute a) =>
-    a.value?.type == schemaless.AttributeType.image ||
-    a.value?.type == schemaless.AttributeType.base64Image;
+bool _isImage(Attribute a) =>
+    a.value?.type == AttributeType.image ||
+    a.value?.type == AttributeType.base64Image;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tree builder
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Label for an array or object the issuer gave no header: its own key made
-/// readable, as [schemaless.Attribute.effectiveDisplayName] does for a leaf.
+/// readable, as [Attribute.effectiveDisplayName] does for a leaf.
 /// Null when the path has no key, which leaves array items labelled "ITEM".
 String? _keyLabel(List<dynamic> arrayPath) {
   final key = arrayPath.lastWhereOrNull((s) => s is String) as String?;
-  return key == null ? null : schemaless.readableClaimKey(key);
+  return key == null ? null : readableClaimKey(key);
 }
 
 class _StackFrame {
@@ -252,7 +252,7 @@ class _StackFrame {
 class _PrimCollector {
   final String label;
   final List<dynamic> path;
-  final List<schemaless.AttributeValue> values;
+  final List<AttributeValue> values;
   final List<_Node> parent;
   _PrimCollector({
     required this.label,
@@ -265,21 +265,21 @@ class _PrimCollector {
 typedef _Found = ({String claimKey, GlobalKey? key, String query});
 
 _GroupNode _buildTree(
-  List<schemaless.Attribute> attrs, {
-  List<schemaless.Attribute>? compareTo,
+  List<Attribute> attrs, {
+  List<Attribute>? compareTo,
   Set<String> mismatched = const {},
   Set<String> matched = const {},
   _Found? found,
   bool namespaced = false,
 }) {
-  final headers = <String, schemaless.Attribute>{};
+  final headers = <String, Attribute>{};
   for (final e in attrs) {
     if (e.value == null) headers[claimPathKey(e.claimPath)] = e;
   }
 
   // The first value at each claim path of [compareTo].
-  final compareValues = <String, schemaless.AttributeValue?>{};
-  for (final c in compareTo ?? const <schemaless.Attribute>[]) {
+  final compareValues = <String, AttributeValue?>{};
+  for (final c in compareTo ?? const <Attribute>[]) {
     compareValues.putIfAbsent(claimPathKey(c.claimPath), () => c.value);
   }
 
@@ -502,7 +502,7 @@ List<_Node>? _childrenOf(_Node node) => switch (node) {
 
 final _ageClaim = RegExp(r"^over(\d+)$");
 
-_AgeEntry? _ageEntry(schemaless.Attribute attribute) {
+_AgeEntry? _ageEntry(Attribute attribute) {
   final claim = attribute.claimPath.lastOrNull;
   if (claim is! String) return null;
   final age = _ageClaim.firstMatch(claim)?.group(1);
@@ -510,8 +510,8 @@ _AgeEntry? _ageEntry(schemaless.Attribute attribute) {
 
   final value = attribute.value;
   final over = switch (value?.type) {
-    schemaless.AttributeType.boolean => value?.boolValue,
-    schemaless.AttributeType.string => switch (value?.string?.toLowerCase()) {
+    AttributeType.boolean => value?.boolValue,
+    AttributeType.string => switch (value?.string?.toLowerCase()) {
       "yes" || "true" => true,
       "no" || "false" => false,
       _ => null,
@@ -580,7 +580,7 @@ Object? _topSegment(_Node node) => switch (node) {
 void _insertGroups(
   List<_Node> children,
   List<_ClaimedGroup> groups,
-  List<schemaless.Attribute> original,
+  List<Attribute> original,
 ) {
   if (groups.isEmpty) return;
   final n = children.length;
@@ -744,7 +744,7 @@ class _LeafContent extends StatelessWidget {
 
   Color _valueColor(
     BuildContext context,
-    schemaless.AttributeValue? val,
+    AttributeValue? val,
     IrmaThemeData theme,
   ) {
     if (node.mismatch) return theme.error;

@@ -114,7 +114,7 @@ String _labelOf(_GroupNode g) =>
 _RowNode? _titleRow(_ItemNode item) {
   final first = item.children.firstOrNull;
   if (first is _RowNode &&
-      first.attribute.value?.type == schemaless.AttributeType.string) {
+      first.attribute.value?.type == AttributeType.string) {
     return first;
   }
   return null;

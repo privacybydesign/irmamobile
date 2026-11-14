@@ -10,9 +10,9 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
 
 class _FakeLinkApi implements KeyshareEmailLinkApi {
   int calls = 0;

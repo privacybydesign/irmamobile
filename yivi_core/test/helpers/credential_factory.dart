@@ -1,5 +1,5 @@
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 
 /// A string attribute for tests.
 Attribute stringAttr(String id, String? value, {String? svgId}) => Attribute(

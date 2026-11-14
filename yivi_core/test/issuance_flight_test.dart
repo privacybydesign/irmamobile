@@ -2,9 +2,9 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
+import "package:yivi_core/src/models/credential.dart";
+import "package:yivi_core/src/providers/credentials_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/wallet/issuance_flight.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
@@ -15,7 +15,7 @@ import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_a
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
 
-class _FixedOrder extends SchemalessCredentialOrderController {
+class _FixedOrder extends CredentialOrderController {
   _FixedOrder(this.items);
 
   final List<Credential> items;
@@ -64,10 +64,10 @@ void main() {
       tester,
       repo: repo,
       overrides: [
-        schemalessCredentialsProvider.overrideWith(
+        credentialsProvider.overrideWith(
           (ref) => Stream.value((credentials: wallet, problematic: [])),
         ),
-        schemalessCredentialOrderControllerProvider.overrideWith(
+        credentialOrderControllerProvider.overrideWith(
           () => _FixedOrder(wallet),
         ),
       ],
@@ -247,7 +247,7 @@ void main() {
       tester,
       repo: repo,
       overrides: [
-        schemalessCredentialOrderControllerProvider.overrideWith(
+        credentialOrderControllerProvider.overrideWith(
           () => _FixedOrder(const []),
         ),
       ],

@@ -7,11 +7,11 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/client_preferences.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/event.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
+import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/pane_selection_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
@@ -31,7 +31,7 @@ class _Bridge extends RecordingBridge {
   void send(Event event) => addEvent(event);
 }
 
-class _FixedOrder extends SchemalessCredentialOrderController {
+class _FixedOrder extends CredentialOrderController {
   _FixedOrder(this.items);
 
   final List<Credential> items;
@@ -122,10 +122,10 @@ void main() {
       repo: repo,
       initialLocation: "/home",
       overrides: [
-        schemalessCredentialsProvider.overrideWith(
+        credentialsProvider.overrideWith(
           (ref) => Stream.value((credentials: _wallet, problematic: [])),
         ),
-        schemalessCredentialOrderControllerProvider.overrideWith(
+        credentialOrderControllerProvider.overrideWith(
           () => _FixedOrder(_wallet),
         ),
       ],

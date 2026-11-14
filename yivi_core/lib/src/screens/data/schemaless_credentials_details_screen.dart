@@ -3,9 +3,9 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/credential.dart";
+import "../../providers/credentials_provider.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
 import "../../widgets/app_toast.dart";
 import "../../widgets/base64_image.dart";
@@ -42,7 +42,7 @@ class _CredentialsDetailsScreenState
     super.dispose();
   }
 
-  IrmaAppBar _buildAppBar(schemaless.Credential? credential) {
+  IrmaAppBar _buildAppBar(Credential? credential) {
     final theme = IrmaTheme.of(context);
     final name = credential?.name ?? "";
 
@@ -100,9 +100,7 @@ class _CredentialsDetailsScreenState
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final provider = schemalessCredentialsWithIdProvider(
-      widget.credentialTypeId,
-    );
+    final provider = credentialsWithIdProvider(widget.credentialTypeId);
     final credentials = ref.watch(provider);
 
     ref.listen(provider, (_, creds) {
@@ -129,7 +127,7 @@ class _CredentialsDetailsScreenState
     );
   }
 
-  SizedBox _buildCredentialsList(List<schemaless.Credential> credentials) {
+  SizedBox _buildCredentialsList(List<Credential> credentials) {
     final theme = IrmaTheme.of(context);
     return SizedBox(
       height: double.infinity,
@@ -175,7 +173,7 @@ class _CredentialsDetailsScreenState
 
   Future<void> _showCredentialOptionsBottomSheet(
     BuildContext context,
-    schemaless.Credential cred,
+    Credential cred,
   ) async {
     final isReobtainable = (cred.issueUrl ?? "").isNotEmpty;
 
@@ -204,7 +202,7 @@ class _CredentialsDetailsScreenState
 
   Future<void> _showConfirmDeleteDialog(
     BuildContext context,
-    schemaless.Credential credential,
+    Credential credential,
   ) async {
     final deleted = await confirmAndDeleteCredential(
       context,
@@ -219,10 +217,7 @@ class _CredentialsDetailsScreenState
     FlutterI18n.translate(context, "credential.options.delete_success"),
   );
 
-  void _reobtainCredential(
-    BuildContext context,
-    schemaless.Credential credential,
-  ) {
+  void _reobtainCredential(BuildContext context, Credential credential) {
     obtainAgain(
       context,
       ref,

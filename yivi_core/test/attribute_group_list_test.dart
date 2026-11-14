@@ -1,8 +1,7 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -28,22 +27,16 @@ Widget _wrap(Widget child) => IrmaTheme(
   ),
 );
 
-schemaless.Attribute _attr(String id) => schemaless.Attribute(
+Attribute _attr(String id) => Attribute(
   claimPath: [id],
   displayName: "label-$id",
-  value: schemaless.AttributeValue(
-    type: schemaless.AttributeType.string,
-    string: "value-$id",
-  ),
+  value: AttributeValue(type: AttributeType.string, string: "value-$id"),
 );
 
-schemaless.Attribute _photo() => schemaless.Attribute(
+Attribute _photo() => Attribute(
   claimPath: ["photo"],
   displayName: "label-photo",
-  value: schemaless.AttributeValue(
-    type: schemaless.AttributeType.base64Image,
-    base64Image: _png,
-  ),
+  value: AttributeValue(type: AttributeType.base64Image, base64Image: _png),
 );
 
 /// Claims the attributes with the given ids and draws them as one Text.
@@ -58,8 +51,8 @@ class _FakeRenderer implements AttributeGroupRenderer {
 
   @override
   AttributeGroup? claim(
-    List<schemaless.Attribute> available, {
-    List<schemaless.Attribute>? compareTo,
+    List<Attribute> available, {
+    List<Attribute>? compareTo,
   }) {
     seen.add([for (final a in available) a.claimPath.first as String]);
     final claimed = available
@@ -87,7 +80,7 @@ List<String> _order(WidgetTester tester, List<String> texts) {
 
 Future<void> _pump(
   WidgetTester tester,
-  List<schemaless.Attribute> attrs,
+  List<Attribute> attrs,
   List<AttributeGroupRenderer> renderers,
 ) async {
   await _pumpWithTranslations(
@@ -103,20 +96,13 @@ Future<void> _pumpWithTranslations(WidgetTester tester, Widget child) async {
 
 void main() {
   group("detail vs disclosure layout", () {
-    schemaless.Attribute attr(String id, {bool? flag, String? date}) =>
-        schemaless.Attribute(
-          claimPath: [id],
-          displayName: id,
-          value: flag != null
-              ? schemaless.AttributeValue(
-                  type: schemaless.AttributeType.boolean,
-                  boolValue: flag,
-                )
-              : schemaless.AttributeValue(
-                  type: schemaless.AttributeType.string,
-                  string: date,
-                ),
-        );
+    Attribute attr(String id, {bool? flag, String? date}) => Attribute(
+      claimPath: [id],
+      displayName: id,
+      value: flag != null
+          ? AttributeValue(type: AttributeType.boolean, boolValue: flag)
+          : AttributeValue(type: AttributeType.string, string: date),
+    );
     // A held credential as irmago sends it: no date attributes at all for
     // the category not held.
     final held = [
@@ -172,13 +158,10 @@ void main() {
   });
 
   group("section divider", () {
-    schemaless.Attribute flag(String code) => schemaless.Attribute(
+    Attribute flag(String code) => Attribute(
       claimPath: ["category$code"],
       displayName: "Category $code",
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.boolean,
-        boolValue: true,
-      ),
+      value: AttributeValue(type: AttributeType.boolean, boolValue: true),
     );
     const id = "pbdf-staging.pbdf.drivinglicence";
     final divider = find.byKey(const Key("driving_licence_categories_divider"));
@@ -353,13 +336,10 @@ void main() {
   testWidgets("driving licence categories render via the registry", (
     tester,
   ) async {
-    schemaless.Attribute flag(String code, bool held) => schemaless.Attribute(
+    Attribute flag(String code, bool held) => Attribute(
       claimPath: ["category$code"],
       displayName: "Category $code",
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.boolean,
-        boolValue: held,
-      ),
+      value: AttributeValue(type: AttributeType.boolean, boolValue: held),
     );
     await _pumpWithTranslations(
       tester,

@@ -1,8 +1,8 @@
 import "package:collection/collection.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../models/credential.dart";
 import "../../models/log_entry.dart";
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/yivi_palette.dart";
 import "../../util/string.dart";
 
@@ -99,7 +99,7 @@ enum ActivityRole {
 /// The other party of a log entry.
 class ActivityParty {
   final String name;
-  final schemaless.LogoImage? logo;
+  final LogoImage? logo;
 
   /// The logo as a file, when irmago has one on disk instead.
   final String? logoPath;
@@ -116,7 +116,7 @@ class ActivityParty {
     this.host,
   });
 
-  factory ActivityParty.of(schemaless.TrustedParty party) => ActivityParty(
+  factory ActivityParty.of(TrustedParty party) => ActivityParty(
     name: party.name.replaceBreakingHyphens(),
     logo: party.image,
     logoPath: party.imagePath,
@@ -140,7 +140,7 @@ class ActivityEntryCard {
 
   /// The card art: a wallet card of the same type (which has the issuer's
   /// colours), or one built from the log.
-  final schemaless.Credential art;
+  final Credential art;
 
   const ActivityEntryCard({
     required this.credential,
@@ -157,13 +157,12 @@ class ActivityEntryCard {
   Set<String> get unshared {
     if (!disclosure) return const {};
     final shared = {
-      for (final a in credential.attributes)
-        schemaless.Attribute.pathKey(a.claimPath),
+      for (final a in credential.attributes) Attribute.pathKey(a.claimPath),
     };
     return {
       for (final a in art.attributes)
-        if (!shared.contains(schemaless.Attribute.pathKey(a.claimPath)))
-          schemaless.Attribute.pathKey(a.claimPath),
+        if (!shared.contains(Attribute.pathKey(a.claimPath)))
+          Attribute.pathKey(a.claimPath),
     };
   }
 
@@ -171,15 +170,14 @@ class ActivityEntryCard {
   /// details: [art] with the values that went along as the log has them
   /// (the card in the app may hold others by now, or be another one of the
   /// type); the rest stays, for [unshared] to obscure.
-  schemaless.Credential get heroArt {
+  Credential get heroArt {
     if (!disclosure) return art;
     final logged = {
-      for (final a in credential.attributes)
-        schemaless.Attribute.pathKey(a.claimPath): a,
+      for (final a in credential.attributes) Attribute.pathKey(a.claimPath): a,
     };
     return art.withAttributes([
       for (final a in art.attributes)
-        logged[schemaless.Attribute.pathKey(a.claimPath)] ?? a,
+        logged[Attribute.pathKey(a.claimPath)] ?? a,
     ]);
   }
 }
@@ -219,7 +217,7 @@ class ActivityEntry {
 
   factory ActivityEntry.fromLog(
     LogInfo log, {
-    List<schemaless.Credential> wallet = const [],
+    List<Credential> wallet = const [],
   }) {
     ActivityEntryCard card(LogCredential c, ActivityRole role) =>
         ActivityEntryCard(credential: c, role: role, art: artFor(c, wallet));
@@ -285,7 +283,7 @@ class ActivityEntry {
   /// The party, or else the issuer of the first card (an issuance whose
   /// issuer is not in the log).
   static ActivityParty _partyOr(
-    schemaless.TrustedParty? party,
+    TrustedParty? party,
     List<LogCredential> credentials,
   ) {
     if (party != null && party.name.isNotEmpty) {
@@ -300,10 +298,7 @@ class ActivityEntry {
 
   /// What to draw a logged card as: the card in the wallet of the same type,
   /// else one made from what the log kept.
-  static schemaless.Credential artFor(
-    LogCredential credential,
-    List<schemaless.Credential> wallet,
-  ) =>
+  static Credential artFor(LogCredential credential, List<Credential> wallet) =>
       // The card itself when it is still in the app, else one of its type.
       wallet.firstWhereOrNull(
         (c) => credential.hash.isNotEmpty && c.hash == credential.hash,
@@ -311,7 +306,7 @@ class ActivityEntry {
       wallet.firstWhereOrNull(
         (c) => c.credentialId == credential.credentialId,
       ) ??
-      schemaless.Credential(
+      Credential(
         credentialId: credential.credentialId,
         hash: credential.credentialId,
         name: credential.name,

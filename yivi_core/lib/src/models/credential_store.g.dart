@@ -6,9 +6,9 @@ part of 'credential_store.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-SchemalessCredentialStoreEvent _$SchemalessCredentialStoreEventFromJson(
+CredentialStoreEvent _$CredentialStoreEventFromJson(
   Map<String, dynamic> json,
-) => SchemalessCredentialStoreEvent(
+) => CredentialStoreEvent(
   credentials: (json['credentials'] as List<dynamic>)
       .map((e) => CredentialStoreItem.fromJson(e as Map<String, dynamic>))
       .toList(),

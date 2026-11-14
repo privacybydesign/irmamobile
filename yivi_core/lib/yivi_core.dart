@@ -15,9 +15,9 @@ import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/providers/qr_scanner_factory_provider.dart";
 import "src/providers/regula_face_service_provider.dart";
-import "src/providers/schemaless_credentials_list_provider.dart";
 import "src/providers/sms_issuance_provider.dart";
 import "src/providers/store_review_provider.dart";
+import "src/providers/wallet_cards_provider.dart";
 import "src/screens/data/card_transition/choreography.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
@@ -160,7 +160,7 @@ class YiviApp extends ConsumerWidget {
 
     // Eagerly initialize the credential order controller so it starts
     // tracking credential changes before the data tab is first mounted.
-    ref.read(schemalessCredentialOrderControllerProvider);
+    ref.read(credentialOrderControllerProvider);
 
     return TransitionStyleProvider(
       child: IrmaRepositoryProvider(

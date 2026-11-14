@@ -1,8 +1,8 @@
 import "package:json_annotation/json_annotation.dart";
 
+import "credential.dart";
 import "event.dart";
 import "protocol.dart";
-import "schemaless/schemaless_events.dart";
 
 part "log_entry.g.dart";
 

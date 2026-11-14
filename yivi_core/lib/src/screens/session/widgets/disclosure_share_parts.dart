@@ -46,7 +46,7 @@ class _ChoiceStrip extends StatelessWidget {
 /// tile like the cards that are shared, with its name, who gives it and
 /// every value it holds.
 class _OfferedCard extends StatelessWidget {
-  final schemaless.Credential card;
+  final Credential card;
 
   const _OfferedCard({required this.card});
 

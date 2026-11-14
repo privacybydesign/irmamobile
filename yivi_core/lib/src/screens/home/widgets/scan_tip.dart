@@ -2,8 +2,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../providers/credentials_provider.dart";
 import "../../../providers/preferences_provider.dart";
-import "../../../providers/schemaless_credentials_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/glass/glass_surface.dart";

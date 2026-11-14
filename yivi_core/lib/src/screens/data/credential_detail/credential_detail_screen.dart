@@ -3,11 +3,11 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/credential.dart";
 import "../../../models/log_entry.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/irma_repository_provider.dart";
-import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/search_query_provider.dart";
+import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
@@ -268,8 +268,8 @@ class CredentialDetailPane extends ConsumerWidget {
 /// The card [hash] in the wallet, the cards of its type (itself among them)
 /// and their instance hints by hash; null when it is gone.
 ({
-  schemaless.Credential credential,
-  List<schemaless.Credential> siblings,
+  Credential credential,
+  List<Credential> siblings,
   Map<String, String> hintTexts,
 })?
 _watchCard(BuildContext context, WidgetRef ref, String hash) {
@@ -292,7 +292,7 @@ double _cardWidth(double room) => room.clamp(0.0, _maxWidth);
 
 /// The card's name and issuer, its name in [size].
 class _Title extends StatelessWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
   final double size;
 
   const _Title({required this.credential, required this.size});
@@ -322,7 +322,7 @@ class _Title extends StatelessWidget {
 /// The top of the detail pane on a phone held sideways: the card, 112
 /// wide, with its name and issuer beside it.
 class _CompactHeader extends StatelessWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
   final String hintText;
 
   const _CompactHeader({required this.credential, required this.hintText});
@@ -345,8 +345,8 @@ class _CompactHeader extends StatelessWidget {
 }
 
 class _Details extends ConsumerWidget {
-  final schemaless.Credential credential;
-  final List<schemaless.Credential> siblings;
+  final Credential credential;
+  final List<Credential> siblings;
   final Map<String, String> hintTexts;
   final ValueChanged<String> onSwitch;
   final VoidCallback onDeleted;
@@ -703,7 +703,7 @@ class _Details extends ConsumerWidget {
   }
 }
 
-String _formatLabel(schemaless.Credential c) {
+String _formatLabel(Credential c) {
   final formats = c.credentialInstanceIds.keys.toSet();
   return [
     if (formats.contains(CredentialFormat.idemix)) "Yivi (idemix)",
@@ -713,7 +713,7 @@ String _formatLabel(schemaless.Credential c) {
   ].join(", ");
 }
 
-String _sourceLabel(BuildContext context, schemaless.Credential c) {
+String _sourceLabel(BuildContext context, Credential c) {
   final display = c.display;
   final key = (display?.svgTemplates.isNotEmpty ?? false)
       ? "credential_card.source.issuer_design"

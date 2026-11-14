@@ -3,9 +3,9 @@ import "dart:math" as math;
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../models/schemaless/session_state.dart";
-import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../models/credential.dart";
+import "../../../models/session_state.dart";
+import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
@@ -38,7 +38,7 @@ import "shared_card_tile.dart";
 /// last.
 class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
   /// Who asked: their name in the words, their logo that takes the cards.
-  final schemaless.TrustedParty requestor;
+  final TrustedParty requestor;
   final Function(BuildContext) onDismiss;
   final bool isSignatureSession;
 
@@ -165,7 +165,7 @@ class DisclosureFeedbackScreenState
   }
 
   /// All the shared cards, as pictures.
-  List<schemaless.Credential> _cards() {
+  List<Credential> _cards() {
     final wallet = ref.read(walletCardsProvider);
     return [for (final i in widget.shared) sharedCardFor(i, wallet)];
   }
@@ -480,8 +480,8 @@ class _CheckPop extends StatelessWidget {
 /// left corner (up to three, the back one first). With reduce motion: the
 /// logo with the check and the small cards.
 class _Handover extends StatefulWidget {
-  final schemaless.TrustedParty requestor;
-  final List<schemaless.Credential> cards;
+  final TrustedParty requestor;
+  final List<Credential> cards;
   final List<GlobalKey> cardKeys;
 
   /// Where the logo is while it is up, for its flight in ([DoneFlight]).
@@ -845,7 +845,7 @@ class _HandoverState extends State<_Handover>
 class _Paper extends StatelessWidget {
   final String message;
   final GlobalKey paperKey;
-  final List<schemaless.Credential> cards;
+  final List<Credential> cards;
   final List<GlobalKey> cardKeys;
   final EdgeInsets padding;
   final bool arriving;

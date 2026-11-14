@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/schemaless/session_state.dart";
+import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/screens/session/models/disclosure_view_model.dart";
 
 // Which card a request starts on: the one last shared with this requestor,

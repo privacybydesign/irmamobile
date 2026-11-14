@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -151,7 +151,9 @@ Future<List<String>> getCardOrderOnDisk(
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
   final hashes = irmaBinding.repository.preferences.getCardOrder();
-  final idByHash = {for (final c in walletCards(tester)) c.hash: c.credentialId};
+  final idByHash = {
+    for (final c in walletCards(tester)) c.hash: c.credentialId,
+  };
   for (final hash in hashes) {
     expect(idByHash, contains(hash), reason: "stored hash not in wallet");
   }

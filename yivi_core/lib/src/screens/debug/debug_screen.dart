@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";

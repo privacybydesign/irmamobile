@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../models/schemaless/credential_store.dart";
+import "../../models/credential_store.dart";
 import "../../theme/yivi_palette.dart";
 import "../dashed_outline_painter.dart";
 import "card_tile.dart";

@@ -3,9 +3,9 @@ import "dart:collection";
 import "package:rxdart/rxdart.dart";
 
 import "../models/event.dart";
-import "../models/schemaless/session_state.dart";
-import "../models/schemaless/session_user_interaction.dart";
 import "../models/session_events.dart";
+import "../models/session_state.dart";
+import "../models/session_user_interaction.dart";
 import "irma_repository.dart";
 
 /// SessionRepository manages session states.

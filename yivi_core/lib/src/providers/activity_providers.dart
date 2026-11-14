@@ -8,7 +8,7 @@ import "../models/activity_query.dart";
 import "../models/log_entry.dart";
 import "../screens/activity/activity_entry.dart";
 import "irma_repository_provider.dart";
-import "schemaless_credentials_list_provider.dart";
+import "wallet_cards_provider.dart";
 
 /// How many entries the Activity tab asks for at a time.
 const activityPageSize = 20;

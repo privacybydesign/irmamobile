@@ -1,6 +1,6 @@
 import "package:json_annotation/json_annotation.dart";
 
-import "../session_events.dart";
+import "session_events.dart";
 
 part "session_user_interaction.g.dart";
 

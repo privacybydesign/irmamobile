@@ -3,7 +3,7 @@ import "dart:math";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 
 /// Parses the CSS colours issuers put in their metadata: `#rgb`, `#rgba`,
 /// `#rrggbb`, `#rrggbbaa`, `rgb()`/`rgba()` and a few names. Returns null for
@@ -152,14 +152,14 @@ YiviCardColours yiviCardColors(Color? tint, {Color? background}) {
 /// Picks the issuer template that suits the card best: landscape first (the
 /// card is landscape), then a colour scheme matching the app, then the
 /// contrast the platform asks for. Returns null when there is none.
-schemaless.SvgCardTemplate? pickSvgTemplate(
-  List<schemaless.SvgCardTemplate> templates, {
+SvgCardTemplate? pickSvgTemplate(
+  List<SvgCardTemplate> templates, {
   required Brightness brightness,
   required bool highContrast,
 }) {
   if (templates.isEmpty) return null;
   final scheme = brightness == Brightness.dark ? "dark" : "light";
-  int score(schemaless.SvgCardTemplate t) {
+  int score(SvgCardTemplate t) {
     var s = 0;
     if (t.orientation == "landscape") s += 8;
     if (t.orientation == "portrait") s -= 8;
@@ -251,13 +251,11 @@ String _escapeXml(String s) => s
 /// A `data:image/...;base64,` URI for a base64 image attribute, so an issuer
 /// template can show it through `<image href="{{svg_id}}">` (the only kind of
 /// link irmago's sanitiser lets through). Null for every other value.
-String? imageDataUri(schemaless.AttributeValue? value) {
+String? imageDataUri(AttributeValue? value) {
   if (value == null) return null;
   final data =
       value.base64Image ??
-      (value.type == schemaless.AttributeType.base64Image
-          ? value.string
-          : null);
+      (value.type == AttributeType.base64Image ? value.string : null);
   if (data == null || data.isEmpty) return null;
   final mime = data.startsWith("/9j/")
       ? "image/jpeg"
@@ -273,30 +271,23 @@ String? imageDataUri(schemaless.AttributeValue? value) {
 }
 
 /// [attributeText] with "Yes" and "No" in the app's language.
-String? localizedAttributeText(
-  BuildContext context,
-  schemaless.AttributeValue? value,
-) => attributeText(
-  value,
-  yes: FlutterI18n.translate(context, "credential.boolean_yes"),
-  no: FlutterI18n.translate(context, "credential.boolean_no"),
-);
+String? localizedAttributeText(BuildContext context, AttributeValue? value) =>
+    attributeText(
+      value,
+      yes: FlutterI18n.translate(context, "credential.boolean_yes"),
+      no: FlutterI18n.translate(context, "credential.boolean_no"),
+    );
 
 /// The plain-text form of an attribute value, or null when it has none that
 /// fits on a card (images, missing values).
-String? attributeText(
-  schemaless.AttributeValue? value, {
-  String? yes,
-  String? no,
-}) {
+String? attributeText(AttributeValue? value, {String? yes, String? no}) {
   if (value == null) return null;
   return switch (value.type) {
-    schemaless.AttributeType.string =>
+    AttributeType.string =>
       (value.string?.trim().isEmpty ?? true) ? null : value.string!.trim(),
-    schemaless.AttributeType.integer => value.intValue?.toString(),
-    schemaless.AttributeType.boolean =>
+    AttributeType.integer => value.intValue?.toString(),
+    AttributeType.boolean =>
       value.boolValue == null ? null : (value.boolValue! ? yes : no),
-    schemaless.AttributeType.image ||
-    schemaless.AttributeType.base64Image => null,
+    AttributeType.image || AttributeType.base64Image => null,
   };
 }

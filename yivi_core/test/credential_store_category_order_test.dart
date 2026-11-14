@@ -1,8 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/models/schemaless/credential_store.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
+import "package:yivi_core/src/models/credential.dart";
+import "package:yivi_core/src/models/credential_store.dart";
+import "package:yivi_core/src/providers/credential_store_provider.dart";
 
 CredentialStoreItem _item(String id, String name, String? category) =>
     CredentialStoreItem(

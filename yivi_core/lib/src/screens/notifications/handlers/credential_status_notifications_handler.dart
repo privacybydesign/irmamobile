@@ -2,7 +2,7 @@ import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 
 import "../../../data/irma_repository.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "../../../widgets/credential_card/models/card_expiry_date.dart";
 import "../models/credential_status_notification.dart";
 import "../models/credential_status_notification_record.dart";
@@ -15,12 +15,10 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
     IrmaRepository repo,
     List<CredentialStatusNotificationRecord> records,
   ) async {
-    final data = await repo.getSchemalessCredentials().first.timeout(
+    final data = await repo.getCredentials().first.timeout(
       const Duration(seconds: 5),
-      onTimeout: () => (
-        credentials: <schemaless.Credential>[],
-        problematic: <schemaless.ProblematicCredential>[],
-      ),
+      onTimeout: () =>
+          (credentials: <Credential>[], problematic: <ProblematicCredential>[]),
     );
 
     final List<Notification> notifications = [];
@@ -63,9 +61,7 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
     );
   }
 
-  CredentialStatusNotificationType? _getNotificationType(
-    schemaless.Credential cred,
-  ) {
+  CredentialStatusNotificationType? _getNotificationType(Credential cred) {
     if (cred.revoked) {
       return CredentialStatusNotificationType.revoked;
     }

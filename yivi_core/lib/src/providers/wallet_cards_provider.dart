@@ -4,9 +4,9 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/irma_preferences.dart";
 import "../models/clear_all_data_event.dart";
+import "../models/credential.dart";
 import "../models/credential_events.dart";
 import "../models/event.dart";
-import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../util/instance_hint.dart";
 import "irma_repository_provider.dart";
 import "preferences_provider.dart";
@@ -51,16 +51,14 @@ final credentialOrderRepoProvider = Provider<OrderRepo>(
 /// rebuild lazily (when next read). During issuance sessions no widget watches
 /// this controller, so Riverpod would never trigger the rebuild and the order
 /// would be stale. A direct stream subscription fires eagerly on every emission.
-final schemalessCredentialOrderControllerProvider =
-    AsyncNotifierProvider<
-      SchemalessCredentialOrderController,
-      List<schemaless.Credential>
-    >(SchemalessCredentialOrderController.new);
+final credentialOrderControllerProvider =
+    AsyncNotifierProvider<CredentialOrderController, List<Credential>>(
+      CredentialOrderController.new,
+    );
 
-class SchemalessCredentialOrderController
-    extends AsyncNotifier<List<schemaless.Credential>> {
+class CredentialOrderController extends AsyncNotifier<List<Credential>> {
   Timer? _debounce;
-  StreamSubscription<schemaless.SchemalessCredentials>? _subscription;
+  StreamSubscription<WalletCredentials>? _subscription;
   StreamSubscription<Event>? _deletes;
 
   /// The persisted order of instance hashes. Also holds the cards missing
@@ -70,7 +68,7 @@ class SchemalessCredentialOrderController
   List<String> _order = const [];
 
   @override
-  Future<List<schemaless.Credential>> build() async {
+  Future<List<Credential>> build() async {
     ref.keepAlive();
 
     final orderRepo = ref.read(credentialOrderRepoProvider);
@@ -81,7 +79,7 @@ class SchemalessCredentialOrderController
     _deletes?.cancel();
 
     // Seed from the current stream value.
-    final initial = await repo.getSchemalessCredentials().first;
+    final initial = await repo.getCredentials().first;
     _order = await orderRepo.loadOrder();
     if (_order.isEmpty) {
       _order = migrateTypeOrder(
@@ -95,10 +93,7 @@ class SchemalessCredentialOrderController
 
     // Subscribe for subsequent changes. skip(1) skips the BehaviorSubject
     // replay so we don't double-process the value we just seeded above.
-    _subscription = repo
-        .getSchemalessCredentials()
-        .skip(1)
-        .listen(_onCredentialsChanged);
+    _subscription = repo.getCredentials().skip(1).listen(_onCredentialsChanged);
     _deletes = repo.getEvents().listen(_onEvent);
 
     ref.onDispose(() {
@@ -110,7 +105,7 @@ class SchemalessCredentialOrderController
     return visible;
   }
 
-  void _onCredentialsChanged(schemaless.SchemalessCredentials data) {
+  void _onCredentialsChanged(WalletCredentials data) {
     final (:visible, :order) = reconcileCardOrder(data.credentials, _order);
     _order = order;
 
@@ -127,7 +122,7 @@ class SchemalessCredentialOrderController
     } else if (event is DeleteCredentialEvent) {
       final deleted = event.hashByFormat.values.toSet();
       final cards = {
-        for (final c in state.value ?? const <schemaless.Credential>[])
+        for (final c in state.value ?? const <Credential>[])
           if (c.credentialInstanceIds.values.any(deleted.contains)) c.hash,
       };
       _order = [
@@ -168,7 +163,7 @@ class SchemalessCredentialOrderController
     );
   }
 
-  void _applyOrder(List<schemaless.Credential> current) {
+  void _applyOrder(List<Credential> current) {
     state = AsyncData(current);
     // The shown cards take over the slots they had; missing ones keep theirs.
     final shown = {for (final c in current) c.hash};
@@ -193,7 +188,7 @@ class SchemalessCredentialOrderController
 /// they had: each card takes its type's old position, cards of the same type
 /// go oldest first, and types that were not in the old order go last.
 List<String> migrateTypeOrder(
-  List<schemaless.Credential> credentials,
+  List<Credential> credentials,
   List<String> typeOrder,
 ) {
   if (typeOrder.isEmpty) return const [];
@@ -214,8 +209,8 @@ List<String> migrateTypeOrder(
 /// on top, newest first. Hashes of cards missing from [external] stay in the
 /// order to save, so a card that is missing for a moment comes back in its
 /// place.
-({List<schemaless.Credential> visible, List<String> order}) reconcileCardOrder(
-  List<schemaless.Credential> external,
+({List<Credential> visible, List<String> order}) reconcileCardOrder(
+  List<Credential> external,
   List<String> storedOrder,
 ) {
   final byHash = {for (final it in external) it.hash: it};
@@ -237,14 +232,11 @@ List<String> migrateTypeOrder(
 }
 
 /// The ways to tidy the cards up (see
-/// [SchemalessCredentialOrderController.arrange]).
+/// [CredentialOrderController.arrange]).
 enum CardArrangement { name, newest, issuer }
 
 /// [cards] tidied up [by] a sort. Ties keep the order they had.
-List<schemaless.Credential> arrangeCards(
-  List<schemaless.Credential> cards,
-  CardArrangement by,
-) {
+List<Credential> arrangeCards(List<Credential> cards, CardArrangement by) {
   int text(String a, String b) => a.toLowerCase().compareTo(b.toLowerCase());
   final place = {for (final (i, c) in cards.indexed) c.hash: i};
   return [...cards]..sort((a, b) {
@@ -263,9 +255,8 @@ List<schemaless.Credential> arrangeCards(
 }
 
 /// The user's cards in their order; none while they load.
-final walletCardsProvider = Provider<List<schemaless.Credential>>(
-  (ref) =>
-      ref.watch(schemalessCredentialOrderControllerProvider).value ?? const [],
+final walletCardsProvider = Provider<List<Credential>>(
+  (ref) => ref.watch(credentialOrderControllerProvider).value ?? const [],
 );
 
 /// The types (credential ids) of the cards in the app.

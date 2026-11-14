@@ -1,8 +1,7 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
@@ -24,18 +23,14 @@ Widget _wrap(Widget child) => IrmaTheme(
 );
 
 /// A section header: an object or array with a display name.
-schemaless.Attribute _header(List<dynamic> path, String name) =>
-    schemaless.Attribute(claimPath: path, displayName: name);
+Attribute _header(List<dynamic> path, String name) =>
+    Attribute(claimPath: path, displayName: name);
 
-schemaless.Attribute _value(List<dynamic> path, String? name, String value) =>
-    schemaless.Attribute(
-      claimPath: path,
-      displayName: name,
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.string,
-        string: value,
-      ),
-    );
+Attribute _value(List<dynamic> path, String? name, String value) => Attribute(
+  claimPath: path,
+  displayName: name,
+  value: AttributeValue(type: AttributeType.string, string: value),
+);
 
 const _faculties = [
   (
@@ -55,7 +50,7 @@ const _faculties = [
 
 /// The university credential of the design, flattened the way irmago sends
 /// it: a header per named object or array, then its values.
-List<schemaless.Attribute> _university() => [
+List<Attribute> _university() => [
   _value(["name"], "Name", "Radboud University"),
   _value(["founded"], "Founded", "1923"),
   _header(["faculties"], "Faculties"),

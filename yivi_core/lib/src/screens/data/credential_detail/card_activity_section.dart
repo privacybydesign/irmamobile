@@ -5,8 +5,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/activity_query.dart";
+import "../../../models/credential.dart";
 import "../../../models/log_entry.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../providers/activity_providers.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
@@ -28,7 +28,7 @@ import "../../home/widgets/home_tab.dart";
 /// opens the entry as a page over the card; "See all" closes the card and
 /// opens the Activity tab, asking about this card.
 class CardActivitySection extends ConsumerWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
 
   const CardActivitySection({super.key, required this.credential});
 
@@ -116,7 +116,7 @@ class CardActivitySection extends ConsumerWidget {
 /// "See all (7)": closes the card and opens the Activity tab, asking about
 /// this card, where the question can be narrowed further.
 class _SeeAll extends ConsumerWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
   final int total;
 
   const _SeeAll({required this.credential, required this.total});

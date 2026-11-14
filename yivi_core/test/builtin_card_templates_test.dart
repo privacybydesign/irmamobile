@@ -5,7 +5,7 @@ import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_templates.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/card_art_support.dart";

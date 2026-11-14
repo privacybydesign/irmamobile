@@ -3,14 +3,14 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../data/irma_repository.dart";
-import "../../../models/schemaless/credential_store.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../models/schemaless/session_state.dart";
+import "../../../models/credential.dart";
+import "../../../models/credential_store.dart";
+import "../../../models/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/last_shared_provider.dart";
-import "../../../providers/schemaless_credentials_list_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
+import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
@@ -444,7 +444,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   SessionState? get issueRequest =>
       ref.read(sessionStateProvider(widget.sessionId)).value;
 
-  schemaless.TrustedParty? get _requestor => issueRequest?.requestor;
+  TrustedParty? get _requestor => issueRequest?.requestor;
 
   /// The request behind the sheet asks for a signature.
   bool get _signing => issueRequest?.type == SessionType.signature;
@@ -471,14 +471,14 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     }
   }
 
-  Map<String, String> _successParams(List<schemaless.Credential> cards) => {
+  Map<String, String> _successParams(List<Credential> cards) => {
     "name": cards.firstOrNull?.name ?? "",
     "count": "${cards.length}",
     "requestor": _requestor?.name ?? "",
   };
 
   @override
-  SheetAction issueSuccessAction(List<schemaless.Credential> cards) {
+  SheetAction issueSuccessAction(List<Credential> cards) {
     // A card of a set: on to the other one, which the request needs too.
     final next = _nextOfSet(cards);
     if (next != null) {
@@ -503,7 +503,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   }
 
   @override
-  IssueSuccessLink? issueSuccessLink(List<schemaless.Credential> cards) =>
+  IssueSuccessLink? issueSuccessLink(List<Credential> cards) =>
       _nextOfSet(cards) == null
       ? null
       : (
@@ -521,7 +521,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   }
 
   @override
-  String issueSuccessText(List<schemaless.Credential> cards) {
+  String issueSuccessText(List<Credential> cards) {
     // Added anyway, with a value the request doesn't take: it is in the app,
     // but doesn't count.
     final miss = issuanceMismatches(
@@ -578,7 +578,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   List<CredentialDescriptor>? _set;
 
   /// After adding [added], the card of the set still missing, if any.
-  CredentialDescriptor? _nextOfSet(List<schemaless.Credential> added) {
+  CredentialDescriptor? _nextOfSet(List<Credential> added) {
     final pickOne = _pickOne;
     if (pickOne == null || !_isTogether) return null;
     final inApp = {
@@ -653,7 +653,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// success page (turned as it lies there), carried and put down in the
   /// spot, 950 ms, while the sheet goes down a beat (180 ms) later.
   Future<void> _finish() async {
-    final cards = issueAdded ?? const <schemaless.Credential>[];
+    final cards = issueAdded ?? const <Credential>[];
     final landing = widget.landingKey;
     final i = cards.indexWhere(
       (c) => c.credentialId == issueAdding?.credentialId,

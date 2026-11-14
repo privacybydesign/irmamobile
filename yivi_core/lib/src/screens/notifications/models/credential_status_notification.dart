@@ -1,4 +1,4 @@
-import "../../../models/schemaless/schemaless_events.dart";
+import "../../../models/credential.dart";
 import "actions/credential_detail_navigation_action.dart";
 import "actions/notification_action.dart";
 import "credential_status_notification_record.dart";

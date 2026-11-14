@@ -1,5 +1,5 @@
 import "../../../../package_name.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "builtin_card_svgs.dart";
 
 /// Card templates Yivi ships for credentials whose issuer has no design of
@@ -21,7 +21,7 @@ import "builtin_card_svgs.dart";
 ///
 /// [attributeIds] are the credential's attribute ids, for a template that
 /// only fits one version of a credential type (see [_requires]).
-schemaless.SvgCardTemplate? builtinCardTemplate(
+SvgCardTemplate? builtinCardTemplate(
   String credentialId, {
   Iterable<String>? attributeIds,
 }) {
@@ -33,7 +33,7 @@ schemaless.SvgCardTemplate? builtinCardTemplate(
       !attributeIds.contains(required)) {
     return null;
   }
-  return schemaless.SvgCardTemplate(
+  return SvgCardTemplate(
     svg: _svgs.putIfAbsent(key, () => _svg(builtinCardSvgs[key]!)),
     orientation: "landscape",
   );
@@ -41,14 +41,13 @@ schemaless.SvgCardTemplate? builtinCardTemplate(
 
 /// [builtinCardTemplate] for [credential], by its id and the attributes it
 /// has.
-schemaless.SvgCardTemplate? builtinCardTemplateFor(
-  schemaless.Credential credential,
-) => builtinCardTemplate(
-  credential.credentialId,
-  attributeIds: credential.attributes
-      .where((a) => a.claimPath.isNotEmpty)
-      .map((a) => "${a.claimPath.last}"),
-);
+SvgCardTemplate? builtinCardTemplateFor(Credential credential) =>
+    builtinCardTemplate(
+      credential.credentialId,
+      attributeIds: credential.attributes
+          .where((a) => a.claimPath.isNotEmpty)
+          .map((a) => "${a.claimPath.last}"),
+    );
 
 /// The full SVG of each template, built on first use.
 final _svgs = <String, String>{};
@@ -189,7 +188,7 @@ const _aliases = {"phone_number": "mobilenumber"};
 
 /// The ids a template knows [a] by: its attribute id (the last step of its
 /// claim path) and its alias, if it has one. Empty without a claim path.
-Set<String> _templateIds(schemaless.Attribute a) {
+Set<String> _templateIds(Attribute a) {
   if (a.claimPath.isEmpty) return const {};
   final claim = "${a.claimPath.last}";
   return {claim, ?_aliases[claim]};
@@ -201,8 +200,8 @@ Set<String> _templateIds(schemaless.Attribute a) {
 /// the credential leaves empty. [text] turns an attribute into the text (or
 /// image URI) it shows.
 Map<String, String> builtinTemplateValues(
-  schemaless.Credential credential,
-  String Function(schemaless.Attribute attribute) text,
+  Credential credential,
+  String Function(Attribute attribute) text,
 ) {
   final values = {
     for (final id in builtinImageSlots) id: transparentPixel,
@@ -226,9 +225,7 @@ Map<String, String> builtinTemplateValues(
 /// value: the line under the credential's name at the top of the card
 /// (`{{firstName}} {{lastName}}`, `{{street}} {{houseNumber}}`), in the
 /// order the card shows them. Empty without a built-in card.
-List<schemaless.Attribute> builtinHeaderAttributes(
-  schemaless.Credential credential,
-) {
+List<Attribute> builtinHeaderAttributes(Credential credential) {
   final template = builtinCardTemplateFor(credential);
   if (template == null) return const [];
   final ids = _headerIds.putIfAbsent(

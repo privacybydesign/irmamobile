@@ -2,7 +2,7 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../package_name.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../base64_image.dart";
 import "builtin_card_svgs.dart";
@@ -29,7 +29,7 @@ class CredentialCardArt extends StatelessWidget {
   /// The corner radius at the design width.
   static const double cornerRadius = 13;
 
-  final schemaless.Credential credential;
+  final Credential credential;
 
   /// Text shown under the name on the Yivi card, usually the instance hint.
   final String? hintText;
@@ -38,7 +38,7 @@ class CredentialCardArt extends StatelessWidget {
   /// Shows the card washed out, e.g. in a notification about expired data.
   final bool greyedOut;
 
-  /// The values not to show ([schemaless.Attribute.pathKey]s): drawn as a
+  /// The values not to show ([Attribute.pathKey]s): drawn as a
   /// blurred-looking smear in their place, e.g. what was not shared in an
   /// activity entry.
   final Set<String> obscured;
@@ -126,7 +126,7 @@ class CredentialCardArt extends StatelessWidget {
   /// mode: a light line, so the card stands off the page and off the card it
   /// overlaps in the stack; on a light card a dark one, where a light line
   /// would vanish.
-  Color _hairline(BuildContext context, schemaless.SvgCardTemplate? template) {
+  Color _hairline(BuildContext context, SvgCardTemplate? template) {
     final top = _topColour(context, template);
     return top != null && top.computeLuminance() > 0.5
         ? const Color(0x33000000)
@@ -135,10 +135,7 @@ class CredentialCardArt extends StatelessWidget {
 
   /// The colour at the top of the card (see [svgTopColour]), or null when
   /// that is not known.
-  Color? _topColour(
-    BuildContext context,
-    schemaless.SvgCardTemplate? template,
-  ) {
+  Color? _topColour(BuildContext context, SvgCardTemplate? template) {
     if (template != null) return svgTopColour(template.svg);
     final display = credential.display;
     return parseCssColor(display?.backgroundColor) ??
@@ -147,7 +144,7 @@ class CredentialCardArt extends StatelessWidget {
 
   /// The SVG template the card is drawn from, and whether it is one of
   /// Yivi's own; null when it is the Yivi card.
-  (schemaless.SvgCardTemplate?, bool) _template(BuildContext context) {
+  (SvgCardTemplate?, bool) _template(BuildContext context) {
     final issuerTemplate = pickSvgTemplate(
       credential.display?.svgTemplates ?? const [],
       brightness: Theme.of(context).brightness,
@@ -158,21 +155,17 @@ class CredentialCardArt extends StatelessWidget {
     return (builtin, builtin != null);
   }
 
-  Widget _art(
-    BuildContext context,
-    schemaless.SvgCardTemplate? template,
-    bool builtin,
-  ) {
+  Widget _art(BuildContext context, SvgCardTemplate? template, bool builtin) {
     final yiviCard = _YiviCard(credential: credential, hintText: hintText);
     if (template == null) return yiviCard;
 
-    String text(schemaless.Attribute a) {
+    String text(Attribute a) {
       final shown =
           imageDataUri(a.value) ??
           localizedAttributeText(context, a.value) ??
           "";
       if (shown.isEmpty) return shown;
-      return obscured.contains(schemaless.Attribute.pathKey(a.claimPath))
+      return obscured.contains(Attribute.pathKey(a.claimPath))
           ? hiddenValueMark(shown)
           : shown;
     }
@@ -202,7 +195,7 @@ class CredentialCardArt extends StatelessWidget {
 /// mark at the bottom, on a deep gradient in the logo's
 /// hue with the Yivi facets down the right side (see [yiviCardColors]).
 class _YiviCard extends StatelessWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
   final String? hintText;
 
   const _YiviCard({required this.credential, this.hintText});
@@ -374,7 +367,7 @@ class _FacetsPainter extends CustomPainter {
 /// The issuer's logo, fitted whole into a white tile; the issuer's initial
 /// when there is no logo.
 class _Logo extends StatelessWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
 
   /// The card's colour, for the initial.
   final Color colour;

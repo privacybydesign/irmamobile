@@ -127,12 +127,12 @@ type eudiConfigurationEvent struct {
 	EudiConfiguration *WrappedEudiConfiguration `json:"eudi_configuration"`
 }
 
-type schemalessCredentialsEvent struct {
+type credentialsEvent struct {
 	Credentials []*clientmodels.Credential            `json:"credentials"`
 	Problematic []*clientmodels.ProblematicCredential `json:"problematic"`
 }
 
-type schemalessCredentialStoreEvent struct {
+type credentialStoreEvent struct {
 	Credentials []*clientmodels.CredentialStoreItem `json:"credentials"`
 }
 

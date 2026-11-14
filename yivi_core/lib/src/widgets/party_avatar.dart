@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../package_name.dart";
-import "../models/schemaless/schemaless_events.dart" show LogoImage;
+import "../models/credential.dart" show LogoImage;
 import "../theme/yivi_palette.dart";
 import "base64_image.dart";
 import "irma_avatar.dart";

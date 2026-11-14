@@ -1,11 +1,11 @@
 import "package:json_annotation/json_annotation.dart";
 
-import "../event.dart";
-import "../log_entry.dart";
-import "../return_url.dart";
-import "../session.dart";
+import "credential.dart";
 import "credential_store.dart";
-import "schemaless_events.dart";
+import "event.dart";
+import "log_entry.dart";
+import "return_url.dart";
+import "session.dart";
 
 part "session_state.g.dart";
 

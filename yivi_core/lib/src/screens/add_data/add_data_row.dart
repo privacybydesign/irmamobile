@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../models/schemaless/credential_store.dart";
+import "../../models/credential_store.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/i18n.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";

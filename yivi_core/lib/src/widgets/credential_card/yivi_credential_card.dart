@@ -2,9 +2,9 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../models/credential.dart";
+import "../../models/credential_store.dart";
 import "../../models/log_entry.dart";
-import "../../models/schemaless/credential_store.dart";
-import "../../models/schemaless/schemaless_events.dart";
 import "../../screens/add_data/add_data_sheet.dart";
 import "../../theme/theme.dart";
 import "../base64_image.dart";

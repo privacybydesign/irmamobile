@@ -8,20 +8,20 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/credential.dart";
+import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
-import "package:yivi_core/src/models/schemaless/credential_store.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/schemaless/session_state.dart";
-import "package:yivi_core/src/models/schemaless/session_user_interaction.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/models/session_state.dart";
+import "package:yivi_core/src/models/session_user_interaction.dart";
+import "package:yivi_core/src/providers/credential_store_provider.dart";
 import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/last_shared_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/passport_mrz_manual_entry_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
@@ -51,13 +51,13 @@ const _sessionId = 1;
 const _detailsPath = "/home/add_data/details";
 const _future = 4102444800;
 
-class _NoWallet extends SchemalessCredentialOrderController {
+class _NoWallet extends CredentialOrderController {
   @override
   Future<List<Credential>> build() async => const [];
 }
 
 /// An iDEAL card in the app with a BIC the request does not take.
-class _WrongBank extends SchemalessCredentialOrderController {
+class _WrongBank extends CredentialOrderController {
   @override
   Future<List<Credential>> build() async => [
     testCredential(
@@ -75,7 +75,7 @@ class _WrongBank extends SchemalessCredentialOrderController {
   ];
 }
 
-class _OneCard extends SchemalessCredentialOrderController {
+class _OneCard extends CredentialOrderController {
   @override
   Future<List<Credential>> build() async => [
     testCredential(type: "passport", hash: "hash-passport", name: "Passport"),
@@ -194,7 +194,7 @@ Future<_Calls> _pump(
   List<Override> overrides = const [],
   Size size = const Size(390, 844),
   FakeViewPadding? padding,
-  SchemalessCredentialOrderController Function() wallet = _NoWallet.new,
+  CredentialOrderController Function() wallet = _NoWallet.new,
 }) async {
   tester.view
     ..physicalSize = size
@@ -232,7 +232,7 @@ Future<_Calls> _pump(
         sessionStateProvider(
           _sessionId,
         ).overrideWith((ref) => sessions ?? Stream.value(session!)),
-        schemalessCredentialOrderControllerProvider.overrideWith(wallet),
+        credentialOrderControllerProvider.overrideWith(wallet),
         irmaRepositoryProvider.overrideWithValue(repo),
         groupedCredentialStoreProvider.overrideWith(
           (ref) => Stream.value(const []),

@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/activity_query.dart";
 import "../../models/log_entry.dart";
 import "../../providers/activity_providers.dart";
-import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../widgets/compact_bar.dart";

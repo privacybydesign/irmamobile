@@ -2,16 +2,16 @@ import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/widgets/pull_to_dismiss_physics.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
 
-class _FixedOrder extends SchemalessCredentialOrderController {
+class _FixedOrder extends CredentialOrderController {
   _FixedOrder(this.items);
   final List<Credential> items;
   @override
@@ -55,7 +55,7 @@ void main() {
       repo: repo,
       overrides: <Override>[
         irmaRepositoryProvider.overrideWithValue(repo),
-        schemalessCredentialOrderControllerProvider.overrideWith(
+        credentialOrderControllerProvider.overrideWith(
           () => _FixedOrder([_card]),
         ),
       ],

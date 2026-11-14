@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
+import "package:yivi_core/src/models/credential.dart";
 
 Attribute _attr({required List<dynamic> claimPath, String? displayName}) =>
     Attribute(claimPath: claimPath, displayName: displayName);

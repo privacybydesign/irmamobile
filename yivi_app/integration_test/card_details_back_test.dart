@@ -5,7 +5,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/native_events.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 
 import "data_search_test.dart" show pumpFilledAppOnDataPage;
 import "helpers/helpers.dart";

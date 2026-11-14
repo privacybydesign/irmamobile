@@ -14,19 +14,19 @@ import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/credential.dart";
+import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/models/protocol.dart";
-import "package:yivi_core/src/models/schemaless/credential_store.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/models/session_state.dart";
+import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/data/widgets/email_link_banner.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
@@ -918,7 +918,7 @@ void main() {
       linkingOffered = true;
       await pumpBanner(tester);
       repo.dispatch(
-        SchemalessCredentialStoreEvent(
+        CredentialStoreEvent(
           credentials: [
             CredentialStoreItem(
               credential: CredentialDescriptor(

@@ -2,7 +2,7 @@ import "dart:convert";
 
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 
 /// Where an attribute group appears among a credential's ordinary attribute
 /// rows. Image attributes stay below every group except an [EndPlacement] one.
@@ -47,7 +47,7 @@ class AfterPlacement extends AttributeGroupPlacement {
 class AttributeGroup {
   /// The attributes this group takes out of the ordinary list, identified by
   /// claim path. Must be a subset of what the renderer was offered.
-  final List<schemaless.Attribute> claimed;
+  final List<Attribute> claimed;
   final AttributeGroupPlacement placement;
   final WidgetBuilder build;
 
@@ -67,8 +67,8 @@ class AttributeGroup {
 abstract interface class AttributeGroupRenderer {
   /// Pure: decides which of [available] to claim. Returns null to claim none.
   AttributeGroup? claim(
-    List<schemaless.Attribute> available, {
-    List<schemaless.Attribute>? compareTo,
+    List<Attribute> available, {
+    List<Attribute>? compareTo,
   });
 }
 

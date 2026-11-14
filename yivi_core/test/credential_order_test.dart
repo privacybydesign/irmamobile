@@ -5,12 +5,12 @@ import "package:flutter_test/flutter_test.dart";
 import "package:rxdart/rxdart.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/clear_all_data_event.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_events.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/log_entry.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
-import "package:yivi_core/src/providers/schemaless_credentials_list_provider.dart";
+import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 
 final _issuer = TrustedParty(
   id: "issuer",
@@ -51,14 +51,14 @@ class _MemoryOrderRepo implements OrderRepo {
 }
 
 class _FakeRepository extends Fake implements IrmaRepository {
-  final cards = BehaviorSubject<SchemalessCredentials>();
+  final cards = BehaviorSubject<WalletCredentials>();
   final events = PublishSubject<Event>();
 
   void emit(List<Credential> cards) =>
       this.cards.add((credentials: cards, problematic: const []));
 
   @override
-  Stream<SchemalessCredentials> getSchemalessCredentials() => cards.stream;
+  Stream<WalletCredentials> getCredentials() => cards.stream;
 
   @override
   Stream<Event> getEvents() => events.stream;
@@ -115,9 +115,7 @@ void main() {
     Future<List<String>> shown() async {
       await pumpEventQueue();
       return _names(
-        await container.read(
-          schemalessCredentialOrderControllerProvider.future,
-        ),
+        await container.read(credentialOrderControllerProvider.future),
       );
     }
 
@@ -131,7 +129,7 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      container.listen(schemalessCredentialOrderControllerProvider, (_, _) {});
+      container.listen(credentialOrderControllerProvider, (_, _) {});
       await shown();
     }
 
@@ -173,9 +171,7 @@ void main() {
 
     test("dragging keeps the place of a missing card", () async {
       await start([_card("a"), _card("c")], ["a", "b", "c"]);
-      container
-          .read(schemalessCredentialOrderControllerProvider.notifier)
-          .reorder(1, 0);
+      container.read(credentialOrderControllerProvider.notifier).reorder(1, 0);
       expect(await shown(), ["c", "a"]);
       await settle();
       expect(orders.saved, ["c", "b", "a"]);

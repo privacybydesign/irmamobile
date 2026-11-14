@@ -3,9 +3,9 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "../../../providers/pane_selection_provider.dart";
-import "../../../providers/schemaless_credentials_list_provider.dart";
+import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
@@ -71,7 +71,7 @@ class IssuanceFlight {
   /// sheet, which closes over the data tab that is already on screen.
   static bool start(
     BuildContext context, {
-    required schemaless.Credential received,
+    required Credential received,
     required GlobalKey source,
     bool curtain = true,
   }) {
@@ -157,7 +157,7 @@ class IssuanceFlight {
   /// per card) now leads the data tab, if any; see [start].
   static bool startFirstOf(
     BuildContext context, {
-    required List<schemaless.Credential> received,
+    required List<Credential> received,
     required List<GlobalKey> sources,
     bool curtain = true,
   }) {
@@ -258,8 +258,8 @@ class IssuanceFlightHidden extends StatelessWidget {
 }
 
 /// Leaves the incoming card out of [cards] until it may join the list.
-List<schemaless.Credential> withoutIncomingCard(
-  List<schemaless.Credential> cards,
+List<Credential> withoutIncomingCard(
+  List<Credential> cards,
   IssuanceFlightState? flight,
 ) => flight == null || flight.inserted
     ? cards

@@ -5,7 +5,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart" hide Notification;
 
 import "../../providers/pane_selection_provider.dart";
-import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";

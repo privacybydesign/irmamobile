@@ -1,8 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/credential.dart";
 import "../../../models/requestor_trust.dart";
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../../models/schemaless/session_state.dart";
+import "../../../models/session_state.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
@@ -50,7 +50,7 @@ String issuanceAddLabel(BuildContext context, int count) => count > 1
 class IssuancePermission extends StatefulWidget {
   final VoidCallback onDismiss;
   final VoidCallback onGivePermission;
-  final List<schemaless.Credential> issuedCredentials;
+  final List<Credential> issuedCredentials;
 
   /// The request waiting underneath this issuance, if any.
   final SessionState? forRequest;
@@ -79,7 +79,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
   final _headingKey = GlobalKey(debugLabel: "issuance_heading");
   final _issuerCardKey = GlobalKey(debugLabel: "issuance_issuer_card");
 
-  List<schemaless.Credential> get _cards => widget.issuedCredentials;
+  List<Credential> get _cards => widget.issuedCredentials;
 
   IssuanceOffer get _offer => IssuanceOffer(
     cards: widget.issuedCredentials,
@@ -92,7 +92,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     super.dispose();
   }
 
-  void _openIssuer(schemaless.TrustedParty issuer) {
+  void _openIssuer(TrustedParty issuer) {
     final session = widget.session;
     showRequestorTrustSheet(
       context: context,
@@ -282,7 +282,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
 /// The permission screen lays them out full-screen; the Change sheet shows
 /// them as the last step of adding a card.
 class IssuanceOffer {
-  final List<schemaless.Credential> cards;
+  final List<Credential> cards;
 
   /// The request waiting underneath this issuance, if any.
   final SessionState? forRequest;
@@ -317,7 +317,7 @@ class IssuanceOffer {
   /// along ("Comes too"). One card that counts has none.
   (String, DialogTone)? _tagOf(
     BuildContext context,
-    schemaless.Credential card, {
+    Credential card, {
     required bool mismatched,
   }) {
     final request = forRequest;
@@ -336,7 +336,7 @@ class IssuanceOffer {
         : (context.tr("share.offer.tag_extra"), DialogTone.neutral);
   }
 
-  String? _validUntil(BuildContext context, schemaless.Credential card) {
+  String? _validUntil(BuildContext context, Credential card) {
     final expiry = card.expiryDate ?? 0;
     if (expiry <= 0) return null;
     final lang = context.lang;
@@ -353,7 +353,7 @@ class IssuanceOffer {
   /// value under it and a chip in its head when it matters ([_tagOf]).
   List<Widget> receives(BuildContext context) {
     final mismatches = issuanceMismatches(cards, _steps);
-    Set<String> mismatchedIn(schemaless.Credential card) => {
+    Set<String> mismatchedIn(Credential card) => {
       for (final m in mismatches)
         if (m.credentialId == card.credentialId) claimPathKey(m.claimPath),
     };
@@ -558,7 +558,7 @@ class _MismatchBox extends StatelessWidget {
 /// badge, its name, who vouches for it, and an ⓘ ([onTrust], the issuer's
 /// page).
 class IssuerHeading extends StatelessWidget {
-  final schemaless.TrustedParty issuer;
+  final TrustedParty issuer;
   final int count;
   final VoidCallback onTrust;
 
@@ -637,7 +637,7 @@ class YouGetLabel extends StatelessWidget {
 /// Why adding says "anyway": nobody vouches for [issuer]. In red above the
 /// button.
 class IssuanceRiskyReason extends StatelessWidget {
-  final schemaless.TrustedParty issuer;
+  final TrustedParty issuer;
   final TextAlign textAlign;
 
   const IssuanceRiskyReason({

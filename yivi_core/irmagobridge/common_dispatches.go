@@ -138,12 +138,12 @@ func dispatchConfigurationEvent() {
 	dispatchCredentialsEvent()
 }
 
-func dispatchSchemalessCredentialsEvent() {
+func dispatchCredentialsEvent() {
 	storeItems, err := yiviClient.GetCredentialStore()
 	if err != nil {
 		reportError(errors.Errorf("Failed to get credential store: %w", err), false)
 	}
-	dispatchEvent(&schemalessCredentialStoreEvent{
+	dispatchEvent(&credentialStoreEvent{
 		Credentials: storeItems,
 	})
 
@@ -154,14 +154,10 @@ func dispatchSchemalessCredentialsEvent() {
 	// Even when the read above failed for the EUDI half, `creds` still holds the
 	// IRMA credentials that did load, and `problematic` surfaces stored
 	// credentials the wallet cannot render so the app can show and delete them.
-	dispatchEvent(&schemalessCredentialsEvent{
+	dispatchEvent(&credentialsEvent{
 		Credentials: creds,
 		Problematic: problematic,
 	})
-}
-
-func dispatchCredentialsEvent() {
-	dispatchSchemalessCredentialsEvent()
 }
 
 func dispatchEnrollmentStatusEvent() {

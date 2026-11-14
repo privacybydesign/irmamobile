@@ -1,14 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'schemaless_events.dart';
+part of 'credential.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-SchemalessCredentialsEvent _$SchemalessCredentialsEventFromJson(
+CredentialsEvent _$CredentialsEventFromJson(
   Map<String, dynamic> json,
-) => SchemalessCredentialsEvent(
+) => CredentialsEvent(
   credentials: (json['credentials'] as List<dynamic>)
       .map((e) => Credential.fromJson(e as Map<String, dynamic>))
       .toList(),

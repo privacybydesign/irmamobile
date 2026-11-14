@@ -3,8 +3,7 @@ import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
@@ -26,23 +25,16 @@ double _contrast(Color a, Color b) {
 
 enum _Answer { yes, no }
 
-schemaless.Attribute _text(String claim, String name, String value) =>
-    schemaless.Attribute(
-      claimPath: [claim],
-      displayName: name,
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.string,
-        string: value,
-      ),
-    );
+Attribute _text(String claim, String name, String value) => Attribute(
+  claimPath: [claim],
+  displayName: name,
+  value: AttributeValue(type: AttributeType.string, string: value),
+);
 
-schemaless.Attribute _age(int age, _Answer answer) => schemaless.Attribute(
+Attribute _age(int age, _Answer answer) => Attribute(
   claimPath: ["over$age"],
   displayName: "Over $age",
-  value: schemaless.AttributeValue(
-    type: schemaless.AttributeType.string,
-    string: answer.name,
-  ),
+  value: AttributeValue(type: AttributeType.string, string: answer.name),
 );
 
 Widget _app(Widget child) => ProviderScope(
@@ -64,9 +56,9 @@ Widget _app(Widget child) => ProviderScope(
 
 Future<void> _pumpList(
   WidgetTester tester,
-  List<schemaless.Attribute> attributes, {
+  List<Attribute> attributes, {
   AgeDisplay ageDisplay = AgeDisplay.collapsed,
-  List<schemaless.Attribute>? compareTo,
+  List<Attribute>? compareTo,
 }) async {
   await pumpTranslated(
     tester,
@@ -114,15 +106,14 @@ void main() {
   });
 
   testWidgets("boolean values count the same as yes and no", (tester) async {
-    schemaless.Attribute boolAge(int age, _Answer answer) =>
-        schemaless.Attribute(
-          claimPath: ["over$age"],
-          displayName: "Over $age",
-          value: schemaless.AttributeValue(
-            type: schemaless.AttributeType.boolean,
-            boolValue: answer == .yes,
-          ),
-        );
+    Attribute boolAge(int age, _Answer answer) => Attribute(
+      claimPath: ["over$age"],
+      displayName: "Over $age",
+      value: AttributeValue(
+        type: AttributeType.boolean,
+        boolValue: answer == .yes,
+      ),
+    );
 
     await _pumpList(tester, [boolAge(18, .yes), boolAge(21, .no)]);
 

@@ -1,27 +1,26 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../models/schemaless/credential_store.dart";
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/credential.dart";
+import "../../models/credential_store.dart";
 import "../../theme/yivi_palette.dart";
 import "../corner_badge.dart";
 import "card_art/credential_card_art.dart";
 
 /// The card of [descriptor] as an example, drawn from the type alone: no
 /// values, no instances. What the user gets when they add it.
-schemaless.Credential exampleCredentialOf(CredentialDescriptor descriptor) =>
-    schemaless.Credential(
-      credentialId: descriptor.credentialId,
-      hash: descriptor.credentialId,
-      name: descriptor.name,
-      issuer: descriptor.issuer,
-      image: descriptor.image,
-      credentialInstanceIds: const {},
-      batchInstanceCountsRemaining: const {},
-      attributes: const [],
-      revoked: false,
-      revocationSupported: false,
-      issueUrl: descriptor.issueURL,
-    );
+Credential exampleCredentialOf(CredentialDescriptor descriptor) => Credential(
+  credentialId: descriptor.credentialId,
+  hash: descriptor.credentialId,
+  name: descriptor.name,
+  issuer: descriptor.issuer,
+  image: descriptor.image,
+  credentialInstanceIds: const {},
+  batchInstanceCountsRemaining: const {},
+  attributes: const [],
+  revoked: false,
+  revocationSupported: false,
+  issueUrl: descriptor.issueURL,
+);
 
 /// A credential type as a small card: its own card art, in place of the
 /// round logo. [owned] puts a green check on its corner (the user has one

@@ -2,7 +2,7 @@ import "dart:math" as math;
 
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/credential.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
@@ -27,7 +27,7 @@ class IssuanceSuccessScreen extends StatefulWidget {
   final Function(BuildContext) onDismiss;
 
   /// The credentials just added.
-  final List<schemaless.Credential> credentials;
+  final List<Credential> credentials;
 
   /// On "OK" a card flies into the data tab instead of the screen closing
   /// as usual. Off when the session returns somewhere else.
@@ -161,7 +161,7 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
 /// of adding a card in the Change sheet. [cardKeys] (one per card) mark
 /// where a card flies from afterwards.
 class IssuanceReceived extends StatelessWidget {
-  final List<schemaless.Credential> cards;
+  final List<Credential> cards;
   final List<GlobalKey> cardKeys;
 
   const IssuanceReceived({
@@ -203,7 +203,7 @@ class _Arrive extends StatelessWidget {
 
 /// The received card, settling into place with a green check badge.
 class _ReceivedCard extends StatelessWidget {
-  final schemaless.Credential credential;
+  final Credential credential;
   final GlobalKey cardKey;
 
   const _ReceivedCard(this.credential, {required this.cardKey});
@@ -246,7 +246,7 @@ class _ReceivedCard extends StatelessWidget {
 /// Several received cards as the pile from the permission screen, with one
 /// check on the front card's corner, where the single card has it.
 class _ReceivedPile extends StatelessWidget {
-  final List<schemaless.Credential> cards;
+  final List<Credential> cards;
   final List<GlobalKey> cardKeys;
 
   const _ReceivedPile(this.cards, {required this.cardKeys});

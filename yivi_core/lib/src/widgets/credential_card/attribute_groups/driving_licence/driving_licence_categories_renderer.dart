@@ -1,7 +1,7 @@
 import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 
-import "../../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../../models/credential.dart";
 import "../attribute_group.dart";
 import "../attribute_value_formatting.dart";
 import "driving_licence_categories_table.dart";
@@ -38,8 +38,8 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
 
   @override
   AttributeGroup? claim(
-    List<schemaless.Attribute> available, {
-    List<schemaless.Attribute>? compareTo,
+    List<Attribute> available, {
+    List<Attribute>? compareTo,
   }) {
     final claimed = available.where((a) => _match(a) != null).toList();
     if (claimed.isEmpty) return null;
@@ -55,8 +55,8 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
   /// What the table shows for the claimed category attributes.
   @visibleForTesting
   static DrivingLicenceCategoriesView viewOf(
-    List<schemaless.Attribute> claimed, {
-    List<schemaless.Attribute>? compareTo,
+    List<Attribute> claimed, {
+    List<Attribute>? compareTo,
   }) {
     final byCode = <String, _CategoryAttributes>{};
     for (final attribute in claimed) {
@@ -107,7 +107,7 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
     );
   }
 
-  static (String, _Field)? _match(schemaless.Attribute attribute) {
+  static (String, _Field)? _match(Attribute attribute) {
     final path = attribute.claimPath;
     if (path.length != 1 || path.first is! String) return null;
     final id = path.first as String;
@@ -124,7 +124,7 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
     return codes.contains(rest) ? (rest, field) : null;
   }
 
-  static bool? _bool(schemaless.AttributeValue? v) {
+  static bool? _bool(AttributeValue? v) {
     if (v == null) return null;
     if (v.boolValue != null) return v.boolValue;
     // irmago falls back to a string when a yesno value is neither yes nor no.
@@ -135,7 +135,7 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
     };
   }
 
-  static String? _string(schemaless.AttributeValue? v) {
+  static String? _string(AttributeValue? v) {
     final s = v?.string;
     return s == null || s.isEmpty ? null : s;
   }
@@ -143,8 +143,8 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
   /// When the card compares, an attribute absent from [compareTo] counts as a
   /// mismatch, like ordinary string rows.
   static AttributeComparison _compare(
-    schemaless.Attribute attribute,
-    List<schemaless.Attribute>? compareTo,
+    Attribute attribute,
+    List<Attribute>? compareTo,
   ) {
     if (compareTo == null) return AttributeComparison.none;
     final other = compareTo.firstWhereOrNull(
@@ -160,16 +160,16 @@ class DrivingLicenceCategoriesRenderer implements AttributeGroupRenderer {
 enum _Field { held, issued, expires }
 
 class _CategoryAttributes {
-  schemaless.Attribute? held;
-  schemaless.Attribute? issued;
-  schemaless.Attribute? expires;
+  Attribute? held;
+  Attribute? issued;
+  Attribute? expires;
 
   /// No value in any of them. The issuer issues every category attribute,
   /// empty ("") when there is nothing to say, so an empty string counts as
   /// no value just like a missing one.
   bool get isEmpty => [held, issued, expires].every((a) => _isBlank(a?.value));
 
-  static bool _isBlank(schemaless.AttributeValue? v) =>
+  static bool _isBlank(AttributeValue? v) =>
       v == null ||
       (v.boolValue == null && v.intValue == null && (v.string ?? "").isEmpty);
 }

@@ -3,8 +3,7 @@ import "dart:convert";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
@@ -20,16 +19,15 @@ Widget _wrap(Widget child) => IrmaTheme(
   builder: (_) => MaterialApp(home: Scaffold(body: child)),
 );
 
-schemaless.Attribute _photo(String base64Image, {String? mimeType}) =>
-    schemaless.Attribute(
-      claimPath: ["photo"],
-      displayName: "Pasfoto",
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.base64Image,
-        base64Image: base64Image,
-        mimeType: mimeType,
-      ),
-    );
+Attribute _photo(String base64Image, {String? mimeType}) => Attribute(
+  claimPath: ["photo"],
+  displayName: "Pasfoto",
+  value: AttributeValue(
+    type: AttributeType.base64Image,
+    base64Image: base64Image,
+    mimeType: mimeType,
+  ),
+);
 
 void main() {
   for (final (name, value) in [
@@ -109,14 +107,14 @@ void main() {
   });
 
   test("reads the MIME type irmago sends", () {
-    final value = schemaless.AttributeValue.fromJson({
+    final value = AttributeValue.fromJson({
       "type": "base64_image",
       "base64_image": _png,
       "mime_type": "image/png",
     });
     expect(value.mimeType, "image/png");
     expect(
-      schemaless.AttributeValue.fromJson({
+      AttributeValue.fromJson({
         "type": "base64_image",
         "base64_image": _png,
       }).mimeType,

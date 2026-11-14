@@ -1,8 +1,7 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart"
-    as schemaless;
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -18,16 +17,15 @@ Widget _wrap(Widget child) => IrmaTheme(
   builder: (_) => MaterialApp(home: Scaffold(body: child)),
 );
 
-schemaless.Attribute _amount(String value, {String? hint}) =>
-    schemaless.Attribute(
-      claimPath: ["balance"],
-      displayName: "Saldo",
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.string,
-        string: value,
-        displayHint: hint,
-      ),
-    );
+Attribute _amount(String value, {String? hint}) => Attribute(
+  claimPath: ["balance"],
+  displayName: "Saldo",
+  value: AttributeValue(
+    type: AttributeType.string,
+    string: value,
+    displayHint: hint,
+  ),
+);
 
 void main() {
   group("formatCurrencyAmount", () {
@@ -66,7 +64,7 @@ void main() {
 
   group("AttributeValue JSON", () {
     test("reads the display hint", () {
-      final v = schemaless.AttributeValue.fromJson({
+      final v = AttributeValue.fromJson({
         "type": "string",
         "string": "12.50",
         "display_hint": "currency:EUR",
@@ -76,10 +74,7 @@ void main() {
     });
 
     test("an irmago without display hints leaves it null", () {
-      final v = schemaless.AttributeValue.fromJson({
-        "type": "string",
-        "string": "12.50",
-      });
+      final v = AttributeValue.fromJson({"type": "string", "string": "12.50"});
       expect(v.displayHint, isNull);
     });
   });
@@ -131,14 +126,14 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           YiviCredentialCardAttributeList([
-            schemaless.Attribute(claimPath: ["balances"], displayName: "Saldi"),
+            Attribute(claimPath: ["balances"], displayName: "Saldi"),
             for (final (i, amount) in ["12.50", "3"].indexed)
-              schemaless.Attribute(
+              Attribute(
                 claimPath: ["balances", i],
                 // Unnamed array elements are drawn as one bullet list.
                 displayName: null,
-                value: schemaless.AttributeValue(
-                  type: schemaless.AttributeType.string,
+                value: AttributeValue(
+                  type: AttributeType.string,
                   string: amount,
                   displayHint: "currency:EUR",
                 ),

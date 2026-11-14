@@ -1,7 +1,7 @@
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/schemaless/credential_store.dart";
+import "../../../models/credential_store.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/count_badge.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
