@@ -2,6 +2,7 @@ import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 
 /// Where the scanner is: looking, read a Yivi QR code, or read another code.
@@ -55,12 +56,15 @@ class ScanPill extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 40),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: YiviSpace.x16,
+              vertical: 10,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(icon, size: 18, color: colour),
-                const SizedBox(width: 8),
+                const SizedBox(width: YiviSpace.x8),
                 Flexible(
                   child: Text(
                     context.tr(key),

@@ -5,6 +5,7 @@ import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
@@ -184,7 +185,7 @@ class _NoCamera extends StatelessWidget {
                 .body(14.5)
                 .copyWith(color: palette.secondaryText, height: 21 / 14.5),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: YiviSpace.x16),
           SizedBox(
             width: 240,
             child: FancyPillButton(
@@ -199,7 +200,7 @@ class _NoCamera extends StatelessWidget {
     );
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
+        padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x32),
         child: side
             ? Row(
                 mainAxisSize: MainAxisSize.min,

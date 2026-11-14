@@ -6,6 +6,7 @@ import "../../models/session.dart";
 import "../../providers/app_locked_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/waiting_request_provider.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../pin/pin_screen.dart" show UnlockPinEntry;
@@ -194,7 +195,7 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
       onBack: busy ? null : widget.onBack,
       scrolls: false,
       childClearsBottom: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       child: UnlockPinEntry(
         waiting: ref.watch(waitingRequestProvider).value,
         busy: busy,
