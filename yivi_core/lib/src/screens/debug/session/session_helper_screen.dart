@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -42,13 +43,18 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
     ),
     body: SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          YiviSpace.x8,
+          YiviSpace.x16,
+          YiviSpace.x16,
+        ),
         child: GlassGroup(
           children: [
             SizedBox(
               height: 480,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(YiviSpace.x12),
                 child: TextField(
                   controller: _controller,
                   keyboardType: TextInputType.multiline,

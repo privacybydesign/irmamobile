@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../data/card_transition/choreography.dart";
 
 /// Debug sliders for how a card opens from the stack (Wallet depth). Saved
@@ -51,12 +52,17 @@ class _CardMotionSlidersState extends State<CardMotionSliders> {
 
     final m = _m;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        YiviSpace.x12,
+        YiviSpace.x16,
+        YiviSpace.x8,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text("Card opening (Wallet)", style: palette.display(16)),
-          const SizedBox(height: 8),
+          const SizedBox(height: YiviSpace.x8),
           slider(
             key: const Key("debug_card_duration"),
             label: "Duration (s)",

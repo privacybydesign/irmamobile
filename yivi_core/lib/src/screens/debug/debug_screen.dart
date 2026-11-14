@@ -5,6 +5,7 @@ import "../../data/irma_repository.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -113,7 +114,14 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
       appBar: IrmaAppBar(titleTranslationKey: "debug.title"),
       body: BarInsetsBuilder(
         builder: (context, insets) => ListView(
-          padding: insets + const EdgeInsets.fromLTRB(16, 8, 16, 48),
+          padding:
+              insets +
+              const EdgeInsets.fromLTRB(
+                YiviSpace.x16,
+                YiviSpace.x8,
+                YiviSpace.x16,
+                YiviSpace.x48,
+              ),
           children: [
             GlassGroup(
               dividerIndent: 68,
@@ -131,7 +139,7 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
                 const LocalBackendsTile(),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: YiviSpace.x24),
             GlassGroup(
               dividerIndent: 68,
               children: [
@@ -166,9 +174,9 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: YiviSpace.x24),
             const GlassGroup(children: [CardMotionSliders()]),
-            const SizedBox(height: 24),
+            const SizedBox(height: YiviSpace.x24),
             GlassGroup(
               children: [
                 _buildListTile(
