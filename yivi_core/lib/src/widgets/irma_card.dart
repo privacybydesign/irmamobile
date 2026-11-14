@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../theme/theme.dart";
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_edges.dart";
+import "../theme/yivi_space.dart";
 
 enum IrmaCardStyle { normal, highlighted, danger }
 
@@ -65,7 +66,7 @@ class IrmaCard extends StatelessWidget {
             onTap: onTap,
             child: Container(
               // In this context the "margin" is set on the container padding.
-              padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
+              padding: margin ?? const EdgeInsets.all(YiviSpace.x16),
               child: child,
             ),
           ),

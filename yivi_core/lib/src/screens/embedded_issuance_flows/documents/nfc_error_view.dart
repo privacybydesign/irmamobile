@@ -36,10 +36,10 @@ class _TitleAndBody extends StatelessWidget {
       mainAxisSize: .min,
       children: [
         _OrientationAwareTranslatedText(titleKey, style: theme.bodyHeading),
-        SizedBox(height: theme.defaultSpacing),
+        const SizedBox(height: YiviSpace.x16),
         _OrientationAwareTranslatedText(bodyKey),
         if (trailing case final trailing?) ...[
-          SizedBox(height: theme.defaultSpacing),
+          const SizedBox(height: YiviSpace.x16),
           trailing,
         ],
       ],
@@ -62,7 +62,6 @@ class _NfcScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     // In a sheet held sideways: what went wrong and the button at the left,
     // the illustration on a card at the right.
     final footer = bottomNavigationBar;
@@ -102,7 +101,7 @@ class _NfcScaffold extends StatelessWidget {
                 mainAxisSize: .max,
                 children: [
                   Flexible(child: illustration),
-                  SizedBox(height: theme.largeSpacing),
+                  const SizedBox(height: YiviSpace.x32),
                   Flexible(child: instruction),
                 ],
               );
@@ -124,12 +123,9 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPortrait = MediaQuery.orientationOf(context) == .portrait;
-    final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: isPortrait
-          ? .symmetric(horizontal: theme.defaultSpacing)
-          : .zero,
+      padding: isPortrait ? const .symmetric(horizontal: YiviSpace.x16) : .zero,
       child: TranslatedText(
         translationKey,
         textAlign: isPortrait ? .center : .start,

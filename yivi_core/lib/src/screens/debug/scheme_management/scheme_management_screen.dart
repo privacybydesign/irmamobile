@@ -11,8 +11,8 @@ import "../../../models/irma_configuration.dart";
 import "../../../models/scheme_events.dart";
 import "../../../models/update_schemes_event.dart";
 import "../../../providers/irma_repository_provider.dart";
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/combine.dart";
 import "../../../util/i18n.dart";
@@ -169,7 +169,6 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
-    final theme = IrmaTheme.of(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -202,11 +201,11 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                 final irmaConfiguration = snapshot.data!.b;
 
                 return ListView(
-                  padding: EdgeInsets.fromLTRB(
-                    theme.defaultSpacing,
+                  padding: const EdgeInsets.fromLTRB(
+                    YiviSpace.x16,
                     0,
-                    theme.defaultSpacing,
-                    theme.defaultSpacing,
+                    YiviSpace.x16,
+                    YiviSpace.x16,
                   ),
                   children: [
                     GlassGroup(

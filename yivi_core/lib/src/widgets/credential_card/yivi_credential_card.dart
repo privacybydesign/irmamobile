@@ -6,6 +6,7 @@ import "../../models/credential_store.dart";
 import "../../models/log_entry.dart";
 import "../../screens/add_data/add_data_sheet.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../base64_image.dart";
 import "../glass/pill_buttons.dart";
@@ -169,9 +170,9 @@ class YiviCredentialCard extends ConsumerWidget {
           if (attributes.isNotEmpty) ...[
             IrmaDivider(
               color: status.isExpired ? theme.danger : null,
-              padding: EdgeInsets.only(
-                top: theme.defaultSpacing,
-                bottom: theme.smallSpacing,
+              padding: const EdgeInsets.only(
+                top: YiviSpace.x16,
+                bottom: YiviSpace.x8,
               ),
             ),
             YiviCredentialCardAttributeList(
@@ -189,8 +190,8 @@ class YiviCredentialCard extends ConsumerWidget {
                 if (attributes.isNotEmpty)
                   IrmaDivider(
                     color: status.isExpired ? theme.danger : null,
-                    padding: EdgeInsets.symmetric(
-                      vertical: theme.defaultSpacing,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: YiviSpace.x16,
                     ),
                   ),
                 YiviCredentialCardFooter(
@@ -203,7 +204,7 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
           if (status.showReobtain)
             Padding(
-              padding: EdgeInsets.only(top: theme.defaultSpacing),
+              padding: const EdgeInsets.only(top: YiviSpace.x16),
               child: PillButton(
                 label: context.tr("credential.options.reobtain"),
                 style: PillStyle.neutral,
@@ -217,7 +218,7 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
           if (status.showNotObtainable && !hideNotObtainable)
             Padding(
-              padding: EdgeInsets.only(top: theme.defaultSpacing),
+              padding: const EdgeInsets.only(top: YiviSpace.x16),
               child: InformationBox(
                 message: context.tr("credential.not_obtainable", {
                   "issuerName": displayIssuerName,

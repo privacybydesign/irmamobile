@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/floating_bar_placement.dart";
 import "../../../../widgets/glass/glass_sheet.dart";
@@ -62,7 +63,7 @@ class DocumentFlowButton extends StatelessWidget {
     // button itself one node with its role, label and enabled state.
     return MergeSemantics(
       child: ConstrainedBox(
-        constraints: BoxConstraints(
+        constraints: const BoxConstraints(
           minWidth: double.infinity,
           minHeight: height,
         ),
@@ -104,7 +105,6 @@ class DocumentFlowFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (DocumentStepInSheet.of(context)) return _sheetFooter(context);
-    final theme = IrmaTheme.of(context);
     final inset = MediaQuery.paddingOf(context);
 
     // On the page, as the other bottom bars: [DocumentFlowFooterStyle.raised]
@@ -127,15 +127,15 @@ class DocumentFlowFooter extends StatelessWidget {
       ),
       child: Padding(
         padding: .fromLTRB(
-          theme.defaultSpacing + inset.left,
-          theme.defaultSpacing,
-          theme.defaultSpacing + inset.right,
+          YiviSpace.x16 + inset.left,
+          YiviSpace.x16,
+          YiviSpace.x16 + inset.right,
           // Where every bottom bar ends its buttons (see buttonBottom).
           FloatingBarPlacement.buttonPadding(context, text: _endsWithText),
         ),
         child: Column(
           mainAxisSize: .min,
-          spacing: theme.tinySpacing,
+          spacing: YiviSpace.x4,
           children: buttons,
         ),
       ),

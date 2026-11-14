@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
-
+import "../theme/yivi_space.dart";
 import "loading_indicator.dart";
 import "translated_text.dart";
 
@@ -16,7 +16,7 @@ class IrmaProgress extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           LoadingIndicator(),
-          SizedBox(height: theme.defaultSpacing),
+          const SizedBox(height: YiviSpace.x16),
           TranslatedText(
             "ui.loading",
             style: theme.textTheme.displaySmall,

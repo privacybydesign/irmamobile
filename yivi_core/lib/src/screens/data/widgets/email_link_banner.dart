@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../providers/email_linking_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/email_linking.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -22,10 +23,10 @@ class EmailLinkBanner extends ConsumerWidget {
     final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        theme.defaultSpacing,
-        theme.defaultSpacing,
-        theme.defaultSpacing,
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        YiviSpace.x16,
+        YiviSpace.x16,
         0,
       ),
       child: IrmaCard(
@@ -33,22 +34,22 @@ class EmailLinkBanner extends ConsumerWidget {
         style: IrmaCardStyle.highlighted,
         margin: EdgeInsets.zero,
         child: Padding(
-          padding: EdgeInsets.only(
-            left: theme.defaultSpacing,
-            top: theme.smallSpacing,
-            bottom: theme.defaultSpacing,
+          padding: const EdgeInsets.only(
+            left: YiviSpace.x16,
+            top: YiviSpace.x8,
+            bottom: YiviSpace.x16,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(top: theme.smallSpacing),
+                padding: const EdgeInsets.only(top: YiviSpace.x8),
                 child: Icon(Icons.shield_outlined, color: theme.link, size: 28),
               ),
-              SizedBox(width: theme.defaultSpacing),
+              const SizedBox(width: YiviSpace.x16),
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.only(top: theme.smallSpacing),
+                  padding: const EdgeInsets.only(top: YiviSpace.x8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -62,7 +63,7 @@ class EmailLinkBanner extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      SizedBox(height: theme.tinySpacing),
+                      const SizedBox(height: YiviSpace.x4),
                       TranslatedText(
                         "email_linking.banner.body",
                         style: theme.textTheme.bodyMedium!.copyWith(
@@ -70,7 +71,7 @@ class EmailLinkBanner extends ConsumerWidget {
                           color: theme.neutralExtraDark,
                         ),
                       ),
-                      SizedBox(height: theme.smallSpacing),
+                      const SizedBox(height: YiviSpace.x8),
                       Link(
                         label: "email_linking.banner.link",
                         onTap: () => openEmailLinking(context, ref),
@@ -105,7 +106,7 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
     context: context,
     titleKey: "email_linking.later.title",
     child: Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: const EdgeInsets.all(YiviSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -114,7 +115,7 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
             context.tr("email_linking.later.body"),
             style: theme.textTheme.bodyMedium,
           ),
-          SizedBox(height: theme.mediumSpacing),
+          const SizedBox(height: YiviSpace.x24),
           FancyPillButton(
             key: const Key("email_link_later_remind"),
             label: context.tr("email_linking.later.remind_me"),
@@ -124,7 +125,7 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
               linking.snoozeBanner();
             },
           ),
-          SizedBox(height: theme.smallSpacing),
+          const SizedBox(height: YiviSpace.x8),
           PillButton(
             key: const Key("email_link_later_dismiss"),
             label: context.tr("email_linking.later.dismiss"),
@@ -134,7 +135,7 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
               linking.dismissBanner();
             },
           ),
-          SizedBox(height: theme.defaultSpacing),
+          const SizedBox(height: YiviSpace.x16),
         ],
       ),
     ),

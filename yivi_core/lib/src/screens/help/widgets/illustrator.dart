@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/yivi_progress_indicator.dart";
 
@@ -46,8 +46,6 @@ class _IllustratorState extends State<Illustrator>
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Semantics(
       excludeSemantics: true,
       container: true,
@@ -101,7 +99,7 @@ class _IllustratorState extends State<Illustrator>
               ),
             ),
           ),
-          SizedBox(height: theme.defaultSpacing),
+          const SizedBox(height: YiviSpace.x16),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             child: SizedBox(
@@ -114,7 +112,7 @@ class _IllustratorState extends State<Illustrator>
             ),
           ),
           if (widget.imageSet.length > 1) ...[
-            SizedBox(height: theme.defaultSpacing),
+            const SizedBox(height: YiviSpace.x16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -125,7 +123,7 @@ class _IllustratorState extends State<Illustrator>
               ],
             ),
           ],
-          SizedBox(height: theme.smallSpacing),
+          const SizedBox(height: YiviSpace.x8),
         ],
       ),
     );

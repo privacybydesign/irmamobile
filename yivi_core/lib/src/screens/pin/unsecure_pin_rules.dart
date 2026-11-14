@@ -4,8 +4,6 @@ part of "yivi_pin_screen.dart";
 /// PIN, each with whether it is met. A sheet in portrait, a full screen in
 /// landscape (where a sheet has too little height).
 void _showSecurePinRules(BuildContext context, EnterPinState state) {
-  final theme = IrmaTheme.of(context);
-
   // OrientationBuilder builds a widget tree that can depend on the parent
   // widget's orientation (distinct from the device orientation). In this
   // case, OrientationBuilder gives false results. Hence MediaQuery.
@@ -23,17 +21,17 @@ void _showSecurePinRules(BuildContext context, EnterPinState state) {
     context: context,
     titleKey: "secure_pin.title",
     child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: theme.screenPadding),
+          const SizedBox(height: YiviSpace.pageSide),
           Text(
             context.tr("secure_pin.subtitle"),
             style: YiviPalette.of(context).body(16),
           ),
-          SizedBox(height: theme.screenPadding),
+          const SizedBox(height: YiviSpace.pageSide),
           ..._listBuilder(context, state),
           const SizedBox(height: 32),
         ],

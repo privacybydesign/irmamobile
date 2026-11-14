@@ -11,8 +11,7 @@ class YiviPinScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final paddingSize = theme.screenPadding;
+    const paddingSize = YiviSpace.pageSide;
 
     return Scaffold(
       appBar: appBar,

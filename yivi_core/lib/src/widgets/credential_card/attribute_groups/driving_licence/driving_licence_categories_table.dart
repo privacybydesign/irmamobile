@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../package_name.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_motion.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../attribute_group.dart";
 import "../attribute_value_formatting.dart";
@@ -120,13 +121,13 @@ class _DrivingLicenceCategoriesTableState
         // are none (e.g. a disclosure of only categories), the card's own
         // divider under its header already does.
         if (!(AttributeGroupScope.maybeOf(context)?.isFirst ?? false)) ...[
-          SizedBox(height: theme.smallSpacing),
+          const SizedBox(height: YiviSpace.x8),
           Container(
             key: const Key("driving_licence_categories_divider"),
             height: 1,
             color: AttributeColors.of(context).divider,
           ),
-          SizedBox(height: theme.smallSpacing),
+          const SizedBox(height: YiviSpace.x8),
         ],
         Text(key: _titleKey, t("title"), style: attributeLabelStyle(context)),
         if (view.noInformation)
@@ -139,7 +140,7 @@ class _DrivingLicenceCategoriesTableState
           ),
         if (view.rows.isNotEmpty)
           Padding(
-            padding: EdgeInsets.only(top: theme.tinySpacing),
+            padding: const EdgeInsets.only(top: YiviSpace.x4),
             child: AnimatedSize(
               duration: _resizeDuration,
               curve: Curves.easeInOut,
@@ -177,7 +178,7 @@ class _DrivingLicenceCategoriesTableState
               top: BorderSide(color: AttributeColors.of(context).divider),
             ),
           ),
-          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+          padding: const EdgeInsets.symmetric(vertical: YiviSpace.x8),
           child: Row(
             children: [
               // In the link colour, so it reads as tappable.
@@ -230,7 +231,7 @@ class _DrivingLicenceCategoriesTableState
   ) {
     final codeWidth = _codeWidth(context, theme);
     final disclosure = _disclosure;
-    final cellPadding = EdgeInsets.symmetric(vertical: theme.tinySpacing);
+    const cellPadding = EdgeInsets.symmetric(vertical: YiviSpace.x4);
     final dateStyle = attributeValueStyle(
       context,
       AttributeColors.of(context).value,
@@ -259,7 +260,7 @@ class _DrivingLicenceCategoriesTableState
       // An empty held flag reads as not held, like elsewhere.
       final text = held == null ? "" : t(isHeld ? "held" : "not_held");
       return Padding(
-        padding: cellPadding.copyWith(right: theme.smallSpacing),
+        padding: cellPadding.copyWith(right: YiviSpace.x8),
         child: Text(
           text,
           style: dateStyle.copyWith(
@@ -311,7 +312,7 @@ class _DrivingLicenceCategoriesTableState
             decoration: divider,
             children: [
               Padding(
-                padding: cellPadding.copyWith(right: theme.mediumSpacing),
+                padding: cellPadding.copyWith(right: YiviSpace.x24),
                 child: _CategoryCell(row: row, codeWidth: codeWidth),
               ),
               if (showsStatus) status(row),
@@ -356,7 +357,7 @@ class _CategoryCell extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: theme.smallSpacing),
+        const SizedBox(width: YiviSpace.x8),
         SizedBox(
           width: codeWidth,
           child: Text(

@@ -4,6 +4,7 @@ import "package:package_info_plus/package_info_plus.dart";
 import "../../../../sentry_dsn.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/app_toast.dart";
 import "../../../widgets/translated_text.dart";
@@ -65,7 +66,7 @@ class _VersionButtonState extends State<VersionButton> {
             child: InkWell(
               onTap: onTap,
               child: Padding(
-                padding: EdgeInsets.only(left: theme.defaultSpacing),
+                padding: const EdgeInsets.only(left: YiviSpace.x16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

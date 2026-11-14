@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../widgets/glass/sheet_actions.dart";
 import "../../../../widgets/glass/sheet_layout.dart";
 import "../../../../widgets/irma_app_bar.dart";
@@ -79,7 +80,7 @@ class NfcStageScaffold extends StatelessWidget {
       child: SingleChildScrollView(
         padding: .symmetric(
           horizontal: 32,
-          vertical: isLandscape ? theme.defaultSpacing : 0,
+          vertical: isLandscape ? YiviSpace.x16 : 0,
         ),
         child: Column(
           mainAxisSize: .min,

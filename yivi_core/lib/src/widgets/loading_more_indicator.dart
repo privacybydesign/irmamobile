@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_space.dart";
 import "irma_divider.dart";
 import "loading_indicator.dart";
 import "translated_text.dart";
@@ -24,15 +25,15 @@ class LoadingMoreIndicator extends StatelessWidget {
           children: [
             expandedDividerWidget,
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+              padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
               child: SizedBox(width: 24, height: 24, child: LoadingIndicator()),
             ),
             expandedDividerWidget,
           ],
         ),
-        SizedBox(height: theme.smallSpacing),
+        const SizedBox(height: YiviSpace.x8),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.hugeSpacing),
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x64),
           child: TranslatedText(
             "ui.loading",
             textAlign: TextAlign.center,

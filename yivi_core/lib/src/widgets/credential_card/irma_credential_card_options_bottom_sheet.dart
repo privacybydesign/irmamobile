@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
+import "../../theme/yivi_space.dart";
 import "../irma_divider.dart";
 import "../translated_text.dart";
 
@@ -43,11 +44,11 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        theme.defaultSpacing,
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
         0,
-        theme.defaultSpacing,
-        theme.defaultSpacing,
+        YiviSpace.x16,
+        YiviSpace.x16,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

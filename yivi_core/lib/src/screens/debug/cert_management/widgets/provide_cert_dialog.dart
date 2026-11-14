@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../../models/eudi_configuration.dart";
-import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
@@ -20,7 +20,6 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
   Widget build(BuildContext context) {
     var certType = "issuer";
 
-    final theme = IrmaTheme.of(context);
     final navigator = Navigator.of(context);
 
     final translatedTitle = context.tr(
@@ -34,10 +33,10 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
       title: translatedTitle,
       message: translatedContent,
       body: Column(
-        spacing: theme.defaultSpacing,
+        spacing: YiviSpace.x16,
         children: [
           DropdownMenu(
-            dropdownMenuEntries: [
+            dropdownMenuEntries: const [
               DropdownMenuEntry(value: "issuer", label: "Issuer"),
               DropdownMenuEntry(value: "verifier", label: "Verifier"),
             ],

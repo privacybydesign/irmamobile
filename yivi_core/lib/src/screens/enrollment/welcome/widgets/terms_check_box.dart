@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/translated_text.dart";
 
@@ -77,7 +78,7 @@ class TermsCheckBox extends ConsumerWidget {
             ),
           ),
         ),
-        SizedBox(width: theme.smallSpacing),
+        const SizedBox(width: YiviSpace.x8),
         Flexible(child: acceptText),
       ],
     );

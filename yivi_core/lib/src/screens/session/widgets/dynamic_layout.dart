@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
 
 class DynamicLayout extends StatelessWidget {
@@ -19,7 +20,7 @@ class DynamicLayout extends StatelessWidget {
     for (var action in actions) {
       rowChildren.add(Expanded(child: action));
       if (action != actions.last) {
-        rowChildren.add(SizedBox(width: theme.smallSpacing));
+        rowChildren.add(const SizedBox(width: YiviSpace.x8));
       }
     }
     return Row(
@@ -36,13 +37,13 @@ class DynamicLayout extends StatelessWidget {
     final actions = this.actions;
 
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: const EdgeInsets.all(YiviSpace.x16),
       child: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(child: hero),
-            SizedBox(width: theme.smallSpacing),
+            const SizedBox(width: YiviSpace.x8),
             Expanded(
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -58,8 +59,8 @@ class DynamicLayout extends StatelessWidget {
                         Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
-                            padding: EdgeInsets.only(
-                              bottom: theme.defaultSpacing,
+                            padding: const EdgeInsets.only(
+                              bottom: YiviSpace.x16,
                             ),
                             child: _buildButtonsRow(theme, actions),
                           ),
@@ -90,13 +91,13 @@ class DynamicLayout extends StatelessWidget {
           children: [
             SingleChildScrollView(
               padding: EdgeInsets.all(
-                isSmallScreen ? theme.defaultSpacing : theme.largeSpacing,
+                isSmallScreen ? YiviSpace.x16 : YiviSpace.x32,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   hero,
-                  SizedBox(height: theme.mediumSpacing),
+                  const SizedBox(height: YiviSpace.x24),
                   Row(children: [Expanded(child: content)]),
                   if (actions != null) const SizedBox(height: 100),
                 ],

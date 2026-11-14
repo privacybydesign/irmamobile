@@ -6,8 +6,8 @@ import "../../../models/enrollment_events.dart";
 import "../../../models/irma_configuration.dart";
 import "../../../models/scheme_events.dart";
 import "../../../providers/irma_repository_provider.dart";
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/combine.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/active_indicator.dart";
@@ -159,7 +159,6 @@ class SchemeManagerDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
-    final theme = IrmaTheme.of(context);
 
     return StreamBuilder<
       CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>
@@ -216,7 +215,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
-            padding: EdgeInsets.all(theme.screenPadding),
+            padding: const EdgeInsets.all(YiviSpace.pageSide),
             child: SafeArea(
               child: GlassGroup(
                 children: [

@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "package:native_device_orientation/native_device_orientation.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/test_detection.dart";
 import "../../../../widgets/translated_text.dart";
 
@@ -112,7 +113,7 @@ class _HoldUprightPrompt extends StatelessWidget {
           child: Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(theme.defaultSpacing),
+                padding: const EdgeInsets.all(YiviSpace.x16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -125,7 +126,7 @@ class _HoldUprightPrompt extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: theme.largeSpacing),
+                    const SizedBox(height: YiviSpace.x32),
                     Semantics(
                       liveRegion: true,
                       child: TranslatedText(
@@ -135,7 +136,7 @@ class _HoldUprightPrompt extends StatelessWidget {
                         isHeader: true,
                       ),
                     ),
-                    SizedBox(height: theme.smallSpacing),
+                    const SizedBox(height: YiviSpace.x8),
                     TranslatedText(
                       "face_verification.hold_upright.body",
                       style: theme.textTheme.bodyLarge,

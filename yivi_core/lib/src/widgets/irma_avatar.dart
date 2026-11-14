@@ -3,6 +3,7 @@ import "dart:io";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
 
 class IrmaAvatar extends StatelessWidget {
@@ -72,7 +73,7 @@ class IrmaAvatar extends StatelessWidget {
               image ??
               Container(
                 height: size / 2,
-                padding: EdgeInsets.all(theme.smallSpacing),
+                padding: const EdgeInsets.all(YiviSpace.x8),
                 child: FittedBox(
                   fit: BoxFit.fitHeight,
                   child: Text(

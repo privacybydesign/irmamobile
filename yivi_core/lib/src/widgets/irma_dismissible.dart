@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_space.dart";
 import "translated_text.dart";
 
 class IrmaDismissible extends StatelessWidget {
@@ -31,7 +32,7 @@ class IrmaDismissible extends StatelessWidget {
         color: theme.error,
         borderRadius: borderRadius ?? theme.borderRadius,
       ),
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: const EdgeInsets.all(YiviSpace.x16),
       alignment: Alignment.centerRight,
       child: dismissedText,
     );

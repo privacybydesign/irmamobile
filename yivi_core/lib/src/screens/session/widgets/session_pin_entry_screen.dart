@@ -3,6 +3,7 @@ import "dart:async";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
@@ -124,7 +125,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final paddingSize = theme.screenPadding;
+    const paddingSize = YiviSpace.pageSide;
     final blockedLeft = _blockedLeft;
     final blocked = blockedLeft > Duration.zero;
     final attempts = PinAttempts.of(
@@ -170,7 +171,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         bottom: false,
         child: Container(
           alignment: Alignment.center,
-          margin: EdgeInsets.symmetric(horizontal: paddingSize),
+          margin: const EdgeInsets.symmetric(horizontal: paddingSize),
           child: pad,
         ),
       ),

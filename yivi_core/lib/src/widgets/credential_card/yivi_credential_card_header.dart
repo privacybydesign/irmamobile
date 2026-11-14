@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
+import "../../theme/yivi_space.dart";
 import "../irma_avatar.dart";
 import "../translated_text.dart";
 
@@ -77,7 +78,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (status != null) ...[status, SizedBox(height: theme.smallSpacing)],
+        if (status != null) ...[status, const SizedBox(height: YiviSpace.x8)],
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,7 +93,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: theme.smallSpacing + theme.tinySpacing),
+              const SizedBox(width: YiviSpace.x8 + YiviSpace.x4),
               Expanded(
                 child: Align(
                   alignment: Alignment.centerLeft,
@@ -112,7 +113,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                 ),
               ),
               if (trailing != null) ...[
-                SizedBox(width: theme.smallSpacing),
+                const SizedBox(width: YiviSpace.x8),
                 Align(alignment: Alignment.topCenter, child: trailing!),
               ],
             ],

@@ -6,9 +6,9 @@ import "package:pinput/pinput.dart";
 
 import "../../../../routing.dart";
 import "../../../models/session.dart";
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
@@ -111,7 +111,6 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final keyboardButton = widget.keyboardButton;
     final keyboardUp = keyboardButton != null && media.viewInsets.bottom > 0;
@@ -133,11 +132,11 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
             controller: _scrollController,
             child: SafeArea(
               child: Padding(
-                padding: .all(theme.defaultSpacing),
+                padding: const .all(YiviSpace.x16),
                 child: Column(
                   crossAxisAlignment: .stretch,
                   children: [
-                    SizedBox(height: theme.defaultSpacing),
+                    const SizedBox(height: YiviSpace.x16),
                     ...widget.before,
                     Container(key: _fieldPositionKey, child: widget.field),
                     ...widget.after,
@@ -152,8 +151,8 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
         floatingActionButton: keyboardUp
             ? Padding(
                 padding: .only(
-                  left: theme.defaultSpacing + media.padding.left,
-                  right: theme.defaultSpacing + media.padding.right,
+                  left: YiviSpace.x16 + media.padding.left,
+                  right: YiviSpace.x16 + media.padding.right,
                 ),
                 child: keyboardButton,
               )
@@ -496,13 +495,12 @@ class ContactWaitingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
       appBar: IrmaAppBar(titleTranslationKey: titleKey),
-      body: Padding(
-        padding: .all(theme.defaultSpacing),
+      body: const Padding(
+        padding: .all(YiviSpace.x16),
         child: Center(child: CircularProgressIndicator()),
       ),
       bottomNavigationBar: IrmaBottomBar(

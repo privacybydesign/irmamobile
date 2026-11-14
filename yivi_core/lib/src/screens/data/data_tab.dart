@@ -16,11 +16,11 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/search_query_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
-import "../../theme/theme.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
@@ -988,7 +988,6 @@ class _ProblematicCredentialCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
     final title = context.tr("data.problematic.title");
 
@@ -1022,7 +1021,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
                 ],
               ),
             ),
-            SizedBox(width: theme.smallSpacing),
+            const SizedBox(width: YiviSpace.x8),
             PlainIconButton(
               key: Key("${credential.credentialId ?? "problematic"}_delete"),
               icon: Icons.delete_outline_rounded,

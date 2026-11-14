@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/date_formatter.dart";
 import "../../util/i18n.dart";
 import "../irma_divider.dart";
@@ -39,7 +40,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
 
   Widget _validUntil(IrmaThemeData theme, String lang) {
     return Column(
-      spacing: theme.tinySpacing,
+      spacing: YiviSpace.x4,
       children: [
         TranslatedText("credential.valid_until", style: _labelStyle(theme)),
         (expiryDate == null || expiryDate?.dateTime == null)
@@ -60,7 +61,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
 
   Widget _sharable(IrmaThemeData theme) {
     return Column(
-      spacing: theme.tinySpacing,
+      spacing: YiviSpace.x4,
       children: [
         TranslatedText("credential.sharable", style: _labelStyle(theme)),
         if (instanceCount != null)
@@ -97,7 +98,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                 width: fortyFivePercent,
                 child: _validUntil(theme, lang),
               ),
-              IrmaDivider(vertical: true, height: 50),
+              const IrmaDivider(vertical: true, height: 50),
               SizedBox(width: fortyFivePercent, child: _sharable(theme)),
             ],
           );

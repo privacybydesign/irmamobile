@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -39,10 +39,9 @@ class ActionFeedback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
 
-    final graphic = hero ?? SuccessGraphic();
+    final graphic = hero ?? const SuccessGraphic();
     final title = TranslatedText(
       titleTranslationKey,
       style: palette.display(26, weight: FontWeight.w700),
@@ -99,7 +98,7 @@ class ActionFeedback extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             title,
-                            SizedBox(height: theme.tinySpacing),
+                            const SizedBox(height: YiviSpace.x4),
                             TranslatedText(
                               explanationTranslationKey,
                               translationParams: explanationTranslationParams,
@@ -130,7 +129,7 @@ class ActionFeedback extends StatelessWidget {
                   hero ?? SizedBox(height: 160, child: graphic),
                   const SizedBox(height: 32),
                   title,
-                  SizedBox(height: theme.tinySpacing),
+                  const SizedBox(height: YiviSpace.x4),
                   explanation,
                   const SizedBox(height: 32),
                   SizedBox(width: 360, child: button),
@@ -141,7 +140,7 @@ class ActionFeedback extends StatelessWidget {
                 content: Column(
                   children: [
                     title,
-                    SizedBox(height: theme.tinySpacing),
+                    const SizedBox(height: YiviSpace.x4),
                     explanation,
                   ],
                 ),

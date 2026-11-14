@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
+import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
 import "glass/pill_buttons.dart";
 import "irma_bottom_bar_base.dart";
@@ -31,7 +31,7 @@ class IrmaBottomBar extends StatelessWidget {
     return Expanded(
       child: Padding(
         // Nothing under it, so a bar of one button ends where every bar does.
-        padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing),
+        padding: const EdgeInsets.only(top: YiviSpace.x4),
         child: primaryDanger
             ? PillButton(
                 key: const Key("bottom_bar_primary"),
@@ -64,8 +64,6 @@ class IrmaBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     // Change layout according to limited height (i.e. landscape mode).
     final vertical = MediaQuery.sizeOf(context).height > 450;
     return IrmaBottomBarBase(
@@ -78,7 +76,7 @@ class IrmaBottomBar extends StatelessWidget {
                 if (primaryButtonLabel != null)
                   Row(children: [_buildPrimaryButton(context)]),
                 if (secondaryButtonLabel != null) ...[
-                  SizedBox(height: theme.smallSpacing),
+                  const SizedBox(height: YiviSpace.x8),
                   Row(children: [_buildSecondaryButton(context)]),
                 ],
               ],
@@ -88,7 +86,7 @@ class IrmaBottomBar extends StatelessWidget {
               children: [
                 if (secondaryButtonLabel != null) ...[
                   _buildSecondaryButton(context),
-                  SizedBox(width: theme.tinySpacing),
+                  const SizedBox(width: YiviSpace.x4),
                 ],
                 if (primaryButtonLabel != null) _buildPrimaryButton(context),
               ],

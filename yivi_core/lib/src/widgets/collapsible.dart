@@ -3,8 +3,8 @@ import "dart:io";
 import "package:flutter/semantics.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
 import "../util/reveal_whole.dart";
 import "configurable_expansion_tile.dart";
@@ -60,14 +60,12 @@ class _CollapsibleState extends State<Collapsible> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final palette = YiviPalette.of(context);
     return ConfigurableExpansionTile(
       initiallyExpanded: false,
       onExpansionChanged: _onExpansionChanged,
       animatedWidgetFollowingHeader: Padding(
-        padding: EdgeInsets.all(theme.tinySpacing),
+        padding: const EdgeInsets.all(YiviSpace.x4),
         child: Icon(Icons.expand_more, color: palette.secondaryText),
       ),
       header: Expanded(
@@ -79,11 +77,11 @@ class _CollapsibleState extends State<Collapsible> {
               ? context.tr("accessibility.expanded")
               : context.tr("accessibility.collapsed"),
           child: Padding(
-            padding: EdgeInsets.only(
-              top: theme.tinySpacing * 3,
-              bottom: theme.tinySpacing * 3,
-              left: theme.defaultSpacing,
-              right: theme.defaultSpacing,
+            padding: const EdgeInsets.only(
+              top: YiviSpace.x4 * 3,
+              bottom: YiviSpace.x4 * 3,
+              left: YiviSpace.x16,
+              right: YiviSpace.x16,
             ),
             child: Text(
               widget.header,
@@ -97,9 +95,9 @@ class _CollapsibleState extends State<Collapsible> {
       ),
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: theme.smallSpacing,
-            horizontal: theme.defaultSpacing,
+          padding: const EdgeInsets.symmetric(
+            vertical: YiviSpace.x8,
+            horizontal: YiviSpace.x16,
           ),
           child: ExcludeSemantics(
             excluding: !_isExpanded,

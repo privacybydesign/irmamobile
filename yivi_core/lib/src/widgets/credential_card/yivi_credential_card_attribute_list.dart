@@ -8,6 +8,7 @@ import "../../models/credential.dart";
 import "../../providers/credential_field_search.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../base64_image.dart";
 import "../search_mark.dart";
@@ -652,10 +653,7 @@ class _FlatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final pad = ctx.layout == .document
-        ? _documentRowPadding
-        : theme.tinySpacing;
+    final pad = ctx.layout == .document ? _documentRowPadding : YiviSpace.x4;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: pad),
       child: _RowContent(node: node, isFirst: isFirst, ctx: ctx),
@@ -960,14 +958,14 @@ class _AgeContentState extends State<_AgeContent> {
         ),
         if (_expanded) ...[
           Padding(
-            padding: .only(top: _AgeChip.gap),
+            padding: const .only(top: _AgeChip.gap),
             child: TranslatedText(
               "credential.age.over_label",
               style: attributeLabelStyle(context, layout: layout),
             ),
           ),
           Padding(
-            padding: .only(top: _AgeChip.gap / 3, bottom: _AgeChip.gap),
+            padding: const .only(top: _AgeChip.gap / 3, bottom: _AgeChip.gap),
             child: Wrap(
               spacing: _AgeChip.gap,
               runSpacing: _AgeChip.gap,
@@ -1014,9 +1012,7 @@ class _AgeChip extends StatelessWidget {
       ),
       child: Container(
         height: _height,
-        padding: .symmetric(
-          horizontal: theme.smallSpacing + theme.tinySpacing / 2,
-        ),
+        padding: const .symmetric(horizontal: YiviSpace.x8 + YiviSpace.x4 / 2),
         decoration: BoxDecoration(
           color: entry.over ? theme.successSurface : _notOverSurface,
           borderRadius: .circular(_height / 2),
@@ -1056,7 +1052,7 @@ class _AgeToggle extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: _minHeight),
           child: Row(
             mainAxisSize: .min,
-            spacing: theme.tinySpacing,
+            spacing: YiviSpace.x4,
             children: [
               TranslatedText(
                 expanded

@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "package:webview_flutter/webview_flutter.dart";
 import "package:webview_flutter_android/webview_flutter_android.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_space.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/loading_indicator.dart";
 import "package:yivi_core/src/widgets/translated_text.dart";
@@ -159,7 +160,7 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       LoadingIndicator(),
-                      SizedBox(height: theme.defaultSpacing),
+                      const SizedBox(height: YiviSpace.x16),
                       TranslatedText(
                         "face_verification.preparing",
                         style: theme.textTheme.bodyLarge,

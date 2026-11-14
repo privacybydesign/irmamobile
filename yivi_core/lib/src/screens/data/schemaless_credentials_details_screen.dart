@@ -6,6 +6,7 @@ import "../../models/credential.dart";
 import "../../providers/credentials_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/app_toast.dart";
 import "../../widgets/base64_image.dart";
@@ -53,11 +54,11 @@ class _CredentialsDetailsScreenState
     final titleContent = Row(
       mainAxisSize: .min,
       mainAxisAlignment: .center,
-      spacing: theme.smallSpacing,
+      spacing: YiviSpace.x8,
       children: [
         if (credential != null)
           Transform.translate(
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
             child: IrmaAvatar(
               logoImage: credential.image != null
                   ? Base64Image(
@@ -128,24 +129,23 @@ class _CredentialsDetailsScreenState
   }
 
   SizedBox _buildCredentialsList(List<Credential> credentials) {
-    final theme = IrmaTheme.of(context);
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: .symmetric(horizontal: theme.defaultSpacing),
+        padding: const .symmetric(horizontal: YiviSpace.x16),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              SizedBox(height: theme.defaultSpacing),
+              const SizedBox(height: YiviSpace.x16),
               ...credentials.map((cred) {
                 final isDeletable = cred.credentialInstanceIds.isNotEmpty;
                 final isReobtainable = (cred.issueUrl ?? "").isNotEmpty;
 
                 return Padding(
-                  padding: .only(bottom: theme.defaultSpacing),
+                  padding: const .only(bottom: YiviSpace.x16),
                   child: YiviCredentialCard.fromCredential(
                     credential: cred,
                     headerTrailing: isDeletable || isReobtainable
@@ -163,7 +163,7 @@ class _CredentialsDetailsScreenState
                   ),
                 );
               }),
-              SizedBox(height: theme.largeSpacing),
+              const SizedBox(height: YiviSpace.x32),
             ],
           ),
         ),

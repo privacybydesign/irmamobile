@@ -17,6 +17,7 @@ import "../../../providers/nfc_settings_provider.dart";
 import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
@@ -643,7 +644,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               ),
       ),
       illustration: Padding(
-        padding: .all(theme.defaultSpacing),
+        padding: const .all(YiviSpace.x16),
         child: SvgPicture.asset(yiviAsset(illustrationAsset)),
       ),
       bottomNavigationBar: _retryBar(context),

@@ -1,7 +1,7 @@
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "illustrator.dart";
 
@@ -19,7 +19,7 @@ class _HelpCarouselState extends State<HelpCarousel> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
+        const SizedBox(height: YiviSpace.x8),
         Illustrator(
           imageSet: [
             for (var item in widget.items)

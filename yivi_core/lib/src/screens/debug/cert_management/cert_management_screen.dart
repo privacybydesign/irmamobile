@@ -8,8 +8,8 @@ import "../../../models/certificate_events.dart";
 import "../../../models/error_event.dart";
 import "../../../models/eudi_configuration.dart";
 import "../../../providers/irma_repository_provider.dart";
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
@@ -103,7 +103,6 @@ class _CertificateManagementScreenState
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
-    final theme = IrmaTheme.of(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -128,11 +127,11 @@ class _CertificateManagementScreenState
             final configuration = snapshot.data!;
 
             return ListView(
-              padding: EdgeInsets.fromLTRB(
-                theme.defaultSpacing,
+              padding: const EdgeInsets.fromLTRB(
+                YiviSpace.x16,
                 0,
-                theme.defaultSpacing,
-                theme.defaultSpacing,
+                YiviSpace.x16,
+                YiviSpace.x16,
               ),
               children: [
                 GlassGroup(

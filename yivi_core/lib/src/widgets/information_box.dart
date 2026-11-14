@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_space.dart";
 
 class InformationBox extends StatelessWidget {
   final String message;
@@ -15,12 +16,12 @@ class InformationBox extends StatelessWidget {
         borderRadius: theme.borderRadius,
         border: Border.all(color: theme.neutralLight, width: 1),
       ),
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: const EdgeInsets.all(YiviSpace.x16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline, color: theme.primary),
-          SizedBox(width: theme.smallSpacing),
+          const SizedBox(width: YiviSpace.x8),
           Expanded(
             child: Text(
               message,

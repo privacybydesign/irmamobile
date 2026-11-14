@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "floating_bar_placement.dart";
 
 class IrmaBottomBarBase extends StatelessWidget {
@@ -18,7 +18,6 @@ class IrmaBottomBarBase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final padding = MediaQuery.paddingOf(context);
 
     // Floats over the page: the content scrolls underneath and fades out
@@ -26,7 +25,7 @@ class IrmaBottomBarBase extends StatelessWidget {
     // fixed band above the content, so a taller bar (a reason above the
     // button) is solid behind everything it shows.
     final palette = YiviPalette.of(context);
-    final fade = theme.defaultSpacing * 2;
+    const fade = YiviSpace.x16 * 2;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -42,14 +41,14 @@ class IrmaBottomBarBase extends StatelessWidget {
               ],
             ),
           ),
-          child: SizedBox(height: fade),
+          child: const SizedBox(height: fade),
         ),
         ColoredBox(
           color: palette.background,
           child: Padding(
             padding: .only(
-              left: theme.defaultSpacing + padding.left,
-              right: theme.defaultSpacing + padding.right,
+              left: YiviSpace.x16 + padding.left,
+              right: YiviSpace.x16 + padding.right,
               // The same place on every screen (see buttonBottom).
               bottom: FloatingBarPlacement.buttonPadding(
                 context,

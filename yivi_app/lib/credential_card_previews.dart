@@ -17,6 +17,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_space.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
@@ -137,7 +138,7 @@ Widget yiviCardPreviewWrapper(Widget child) {
             backgroundColor: theme.light,
             body: SafeArea(
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(theme.defaultSpacing),
+                padding: const EdgeInsets.all(YiviSpace.x16),
                 // Hold rendering until the yivi fonts are registered so the
                 // card doesn't briefly flash in the system font.
                 child: FutureBuilder<_FontLoadReport>(

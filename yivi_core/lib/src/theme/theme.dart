@@ -4,14 +4,6 @@ import "package:material_ui/material_ui.dart";
 import "page_transitions.dart";
 
 class IrmaThemeData {
-  static const double _spaceBase = 16.0;
-  final double tinySpacing = _spaceBase / 4; // 4
-  final double smallSpacing = _spaceBase / 2; // 8
-  final double defaultSpacing = _spaceBase; // 16
-  final double mediumSpacing = _spaceBase * 1.5; // 24
-  final double largeSpacing = _spaceBase * 2; // 32
-  final double hugeSpacing = _spaceBase * 4; // 64
-
   /// Light or dark. The colour fields below keep their names in both
   /// variants and mean the same role (`light` is the plain surface behind
   /// content, `dark` the plain text colour), so screens built on them follow
@@ -66,9 +58,6 @@ class IrmaThemeData {
 
   // Set in the constructor body, as they depend on each other.
 
-  // Spacing etc.
-  late final double screenPadding;
-
   // Main theme components
   late final TextTheme textTheme;
   late final ThemeData themeData;
@@ -118,9 +107,6 @@ class IrmaThemeData {
       surface: surfacePrimary,
       onSurface: dark,
     );
-
-    //Init spacing
-    screenPadding = defaultSpacing;
 
     //Init Text theme
     textTheme = TextTheme(
