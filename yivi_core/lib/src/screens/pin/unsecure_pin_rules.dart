@@ -33,7 +33,7 @@ void _showSecurePinRules(BuildContext context, EnterPinState state) {
           ),
           const SizedBox(height: YiviSpace.pageSide),
           ..._listBuilder(context, state),
-          const SizedBox(height: 32),
+          const SizedBox(height: YiviSpace.x32),
         ],
       ),
     ),

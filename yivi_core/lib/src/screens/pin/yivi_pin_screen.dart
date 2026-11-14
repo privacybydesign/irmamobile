@@ -379,7 +379,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         ),
       ] else if (header == null && widget.showMark) ...[
         _buildHeaderMark(context),
-        const SizedBox(height: 24),
+        const SizedBox(height: YiviSpace.x24),
       ],
       if (widget.stepLabel case final step?) ...[
         Text(
@@ -418,7 +418,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!headerApart) const SizedBox(height: 16),
+          if (!headerApart) const SizedBox(height: YiviSpace.x16),
           ..._upperPart(context, withHeader: !headerApart),
           SizedBox(height: widget.upperGap),
           _buildKeypad(),
@@ -439,7 +439,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
                   child: SizedBox(
                     width: _columnWidth,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.only(bottom: YiviSpace.x8),
                       child: header,
                     ),
                   ),
@@ -494,7 +494,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ..._upperPart(context),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: YiviSpace.x8),
                       _buildActionLinkSlot(),
                     ],
                   ),
@@ -505,7 +505,10 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         ),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: inset),
+            padding: EdgeInsets.symmetric(
+              horizontal: YiviSpace.x16,
+              vertical: inset,
+            ),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // A little room above and below the keys; never larger
@@ -641,7 +644,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         : null;
     return Padding(
       key: const Key("pin_screen_detail"),
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: YiviSpace.x4),
       child: Semantics(
         liveRegion: true,
         child: Text.rich(
@@ -651,7 +654,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.only(right: YiviSpace.x8),
                     child: SizedBox.square(
                       dimension: 14,
                       child: CircularProgressIndicator(
@@ -710,7 +713,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             GlassSurface(
               padding: const EdgeInsets.only(left: 20, right: 6),
               child: Row(
-                spacing: 4,
+                spacing: YiviSpace.x4,
                 children: [
                   Expanded(
                     child: Align(
@@ -759,7 +762,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
               width: side,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                spacing: 4,
+                spacing: YiviSpace.x4,
                 children: [
                   _buildListeningPinVisibilityButton(),
                   if (_shortNeedsArrow) _buildSubmitArrow(context),

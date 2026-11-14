@@ -13,10 +13,10 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
     final palette = YiviPalette.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: YiviSpace.x8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 12,
+        spacing: YiviSpace.x12,
         children: [
           ToneDisc(
             icon: followsRule ? Icons.check_rounded : Icons.close_rounded,

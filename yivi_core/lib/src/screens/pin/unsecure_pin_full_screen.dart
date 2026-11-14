@@ -10,13 +10,13 @@ class _UnsecurePinFullScreen extends StatelessWidget {
     return YiviPinScaffold(
       appBar: IrmaAppBar(titleTranslationKey: "secure_pin.title"),
       body: ListView(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(YiviSpace.x8),
         children: [
           Text(
             context.tr("secure_pin.subtitle"),
             style: palette.body(16, weight: FontWeight.w600),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: YiviSpace.x8),
           ..._listBuilder(context, state),
         ],
       ),
