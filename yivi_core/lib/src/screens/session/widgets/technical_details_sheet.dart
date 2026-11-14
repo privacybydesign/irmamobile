@@ -2,6 +2,7 @@ import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/app_toast.dart";
@@ -26,9 +27,12 @@ class TechnicalDetailsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     List<Widget> group(TechGroup g) => [
-      CapsLabel(g.title, padding: const EdgeInsets.fromLTRB(6, 18, 6, 8)),
+      CapsLabel(
+        g.title,
+        padding: const EdgeInsets.fromLTRB(6, 18, 6, YiviSpace.x8),
+      ),
       SurfaceCard(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -44,7 +48,12 @@ class TechnicalDetailsSheet extends StatelessWidget {
     return GlassSheetPage(
       title: context.tr("share.tech.title"),
       onBack: onBack,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        0,
+        YiviSpace.x16,
+        YiviSpace.x24,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -61,7 +70,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
             // A phone held sideways: the groups in two columns.
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 16,
+              spacing: YiviSpace.x16,
               children: [
                 for (final side in [0, 1])
                   Expanded(
@@ -120,7 +129,7 @@ class _Row extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 2,
+          spacing: YiviSpace.x2,
           children: [
             Text(
               row.label,

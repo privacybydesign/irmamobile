@@ -84,7 +84,7 @@ class ActionFeedback extends StatelessWidget {
                   insets.bottom,
                 ),
                 child: Row(
-                  spacing: 32,
+                  spacing: YiviSpace.x32,
                   children: [
                     Expanded(
                       child: Center(
@@ -127,11 +127,11 @@ class ActionFeedback extends StatelessWidget {
             ? SessionCentred(
                 children: [
                   hero ?? SizedBox(height: 160, child: graphic),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: YiviSpace.x32),
                   title,
                   const SizedBox(height: YiviSpace.x4),
                   explanation,
-                  const SizedBox(height: 32),
+                  const SizedBox(height: YiviSpace.x32),
                   SizedBox(width: 360, child: button),
                 ],
               )

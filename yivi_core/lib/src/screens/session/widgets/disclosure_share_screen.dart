@@ -13,6 +13,7 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
@@ -426,7 +427,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
           );
 
     final title = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
       child: Semantics(
         header: true,
         child: Text(
@@ -456,7 +457,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         _Spaced(
           12,
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
             child: Text(
               lead,
               key: const Key("share_lead"),

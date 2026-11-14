@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../package_name.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -117,10 +118,10 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
         ? null
         : SurfaceCard(
             key: const Key("sheet_website_steps"),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(YiviSpace.x16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 12,
+              spacing: YiviSpace.x12,
               children: [
                 for (final (n, key) in const [
                   "data.add.website.step_open",
@@ -158,7 +159,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
       ),
       bottom: widget.bottom,
       bottomInBar: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       split: sideways,
       child: sideways
           // A phone held sideways: the words at the left, the picture and
@@ -167,10 +168,12 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
               start: [heading, lead],
               end: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 12,
+                spacing: YiviSpace.x12,
                 children: [
                   SurfaceCard(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: YiviSpace.x24,
+                    ),
                     child: picture,
                   ),
                   ?steps,
@@ -179,20 +182,28 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
               ),
             )
           : Padding(
-              padding: const EdgeInsets.only(top: 24),
+              padding: const EdgeInsets.only(top: YiviSpace.x24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   picture,
                   const SizedBox(height: 28),
                   heading,
-                  const SizedBox(height: 8),
+                  const SizedBox(height: YiviSpace.x8),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: YiviSpace.x12,
+                    ),
                     child: lead,
                   ),
-                  if (steps != null) ...[const SizedBox(height: 24), steps],
-                  if (other != null) ...[const SizedBox(height: 16), other],
+                  if (steps != null) ...[
+                    const SizedBox(height: YiviSpace.x24),
+                    steps,
+                  ],
+                  if (other != null) ...[
+                    const SizedBox(height: YiviSpace.x16),
+                    other,
+                  ],
                 ],
               ),
             ),
@@ -212,7 +223,7 @@ class _NumberedStep extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 12,
+      spacing: YiviSpace.x12,
       children: [
         StepNumberDisc(
           "$n",

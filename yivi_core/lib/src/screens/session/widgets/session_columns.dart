@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/fill_scroll_view.dart";
@@ -99,7 +100,12 @@ class SessionCentred extends StatelessWidget {
     // them and only scrolls when it does not fit.
     final padding = BarInsets.of(
       context,
-      const EdgeInsets.fromLTRB(32, 24, 32, 32),
+      const EdgeInsets.fromLTRB(
+        YiviSpace.x32,
+        YiviSpace.x24,
+        YiviSpace.x32,
+        YiviSpace.x32,
+      ),
     );
     return FillScrollView(
       padding: padding,

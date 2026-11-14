@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/credential.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/compact_bar.dart";
@@ -252,7 +253,7 @@ class RequestorCard extends StatelessWidget {
         ? null
         : Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: 8,
+            spacing: YiviSpace.x8,
             children: [
               Flexible(
                 child: RequestorTrustPill(
@@ -277,7 +278,12 @@ class RequestorCard extends StatelessWidget {
       key: const Key("session_requestor_header"),
       decoration: decoration,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          20,
+          YiviSpace.x16,
+          YiviSpace.x16,
+        ),
         child: Column(
           children: [
             RequestorLogo(
@@ -287,7 +293,7 @@ class RequestorCard extends StatelessWidget {
               // The check of a vouched party is in the pill, once.
               showBadge: !style.trust.vouched,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: YiviSpace.x12),
             Text(
               requestor.name,
               key: const Key("session_requestor_name"),
@@ -296,7 +302,10 @@ class RequestorCard extends StatelessWidget {
                   .display(22, weight: FontWeight.w700)
                   .copyWith(height: 28 / 22, color: palette.text),
             ),
-            if (pillRow != null) ...[const SizedBox(height: 8), pillRow],
+            if (pillRow != null) ...[
+              const SizedBox(height: YiviSpace.x8),
+              pillRow,
+            ],
           ],
         ),
       ),
@@ -342,9 +351,14 @@ class RequestorCard extends StatelessWidget {
       key: const Key("session_requestor_header"),
       decoration: SurfaceCard.decoration(context),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+        padding: const EdgeInsets.fromLTRB(
+          14,
+          YiviSpace.x12,
+          YiviSpace.x12,
+          YiviSpace.x12,
+        ),
         child: Row(
-          spacing: 12,
+          spacing: YiviSpace.x12,
           children: [
             RequestorLogo(
               requestor: requestor,

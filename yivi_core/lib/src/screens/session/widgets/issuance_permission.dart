@@ -4,6 +4,7 @@ import "../../../models/credential.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../models/session_state.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
@@ -163,7 +164,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(child: SingleChildScrollView(child: heading)),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: YiviSpace.x16),
                     if (reason != null) ...[reason, const SizedBox(height: 10)],
                     button,
                   ],
@@ -172,7 +173,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
               content: SingleChildScrollView(
                 key: const Key("issuance_scroll_view"),
                 padding: EdgeInsets.fromLTRB(
-                  4,
+                  YiviSpace.x4,
                   sidewaysContentTop(context),
                   0,
                   56 + MediaQuery.paddingOf(context).bottom,
@@ -238,7 +239,14 @@ class _IssuancePermissionState extends State<IssuancePermission> {
           child: BarInsetsBuilder(
             builder: (context, insets) => SingleChildScrollView(
               key: const Key("issuance_scroll_view"),
-              padding: insets + const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              padding:
+                  insets +
+                  const EdgeInsets.fromLTRB(
+                    YiviSpace.x16,
+                    YiviSpace.x16,
+                    YiviSpace.x16,
+                    YiviSpace.x24,
+                  ),
               child: CentredMaxWidth(
                 maxWidth: 560,
                 child: Column(
@@ -424,7 +432,7 @@ class IssuanceLandscape extends StatelessWidget {
       panel: Padding(
         key: const Key("issuance_panel"),
         padding: EdgeInsets.fromLTRB(
-          16,
+          YiviSpace.x16,
           top,
           0,
           FloatingBarPlacement.buttonBottom(context),
@@ -438,20 +446,20 @@ class IssuanceLandscape extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 12,
+                    spacing: YiviSpace.x12,
                     children: overview,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: YiviSpace.x16),
             actions,
           ],
         ),
       ),
       content: SingleChildScrollView(
         key: const Key("issuance_scroll_view"),
-        padding: EdgeInsets.fromLTRB(0, top, 16, 16 + insets.bottom),
+        padding: EdgeInsets.fromLTRB(0, top, YiviSpace.x16, 16 + insets.bottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -468,9 +476,9 @@ class IssuanceLandscape extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: YiviSpace.x16),
             note,
-            const SizedBox(height: 12),
+            const SizedBox(height: YiviSpace.x12),
             ...receives,
           ],
         ),
@@ -502,7 +510,7 @@ class _MismatchBox extends StatelessWidget {
     final palette = YiviPalette.of(context);
     Widget row(String label, String value, {bool bad = false}) => Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 12,
+      spacing: YiviSpace.x12,
       children: [
         Expanded(
           child: Text(
@@ -527,7 +535,7 @@ class _MismatchBox extends StatelessWidget {
       ],
     );
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      padding: const EdgeInsets.fromLTRB(14, YiviSpace.x12, 14, YiviSpace.x12),
       decoration: ShapeDecoration(
         color: palette.errorSurface,
         shape: const RoundedRectangleBorder(
@@ -594,7 +602,7 @@ class IssuerHeading extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
           child: Semantics(
             header: true,
             child: Text(
@@ -630,7 +638,7 @@ class YouGetLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CapsLabel(
     context.tr("data.add.details.you_get"),
-    padding: const EdgeInsets.fromLTRB(6, 24, 6, 8),
+    padding: const EdgeInsets.fromLTRB(6, YiviSpace.x24, 6, YiviSpace.x8),
   );
 }
 

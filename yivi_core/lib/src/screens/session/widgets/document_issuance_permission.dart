@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
@@ -35,7 +36,12 @@ class DocumentIssuanceData extends StatelessWidget {
         children: [
           if (credential.attributes.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 2, 16, 4),
+              padding: const EdgeInsets.fromLTRB(
+                YiviSpace.x16,
+                YiviSpace.x2,
+                YiviSpace.x16,
+                YiviSpace.x4,
+              ),
               child: YiviCredentialCardAttributeList(
                 credential.attributes,
                 credentialId: credential.credentialId,
@@ -73,7 +79,10 @@ class _Validity extends StatelessWidget {
     };
 
     Widget cell(String label, String value, Color color) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: YiviSpace.x16,
+        vertical: YiviSpace.x12,
+      ),
       child: Column(
         crossAxisAlignment: .start,
         children: [

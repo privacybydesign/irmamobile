@@ -5,6 +5,7 @@ import "../../../models/credential_store.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
@@ -57,7 +58,7 @@ class _OpenID4VCIAuthCodePendingScreenState
 
     final content = <Widget>[
       Center(child: _BrowserHandOff(requestor: widget.requestor)),
-      const SizedBox(height: 32),
+      const SizedBox(height: YiviSpace.x32),
       Semantics(
         header: true,
         child: Text(
@@ -68,7 +69,7 @@ class _OpenID4VCIAuthCodePendingScreenState
               .copyWith(height: 32 / 24, color: palette.heading),
         ),
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: YiviSpace.x12),
       Text(
         context.tr("issuance.authorization_code.pending.body", {
           "issuer": issuerName,
@@ -77,11 +78,11 @@ class _OpenID4VCIAuthCodePendingScreenState
         textAlign: TextAlign.center,
         style: palette.body(16).copyWith(height: 24 / 16),
       ),
-      const SizedBox(height: 32),
+      const SizedBox(height: YiviSpace.x32),
       // What the issuer is going to give, as on the permission screen.
       ...widget.offeredCredentialTypes.map(
         (descriptor) => Padding(
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.only(bottom: YiviSpace.x16),
           child: YiviCredentialCard.fromDescriptor(
             descriptor: descriptor,
             hideNotObtainable: true,
@@ -104,7 +105,14 @@ class _OpenID4VCIAuthCodePendingScreenState
       scrollsUnderBars: true,
       body: BarInsetsBuilder(
         builder: (context, insets) => ListView(
-          padding: insets + const EdgeInsets.fromLTRB(32, 24, 32, 32),
+          padding:
+              insets +
+              const EdgeInsets.fromLTRB(
+                YiviSpace.x32,
+                YiviSpace.x24,
+                YiviSpace.x32,
+                YiviSpace.x32,
+              ),
           children: content,
         ),
       ),

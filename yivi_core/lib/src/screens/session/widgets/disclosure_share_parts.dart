@@ -175,7 +175,7 @@ class _ShareBar extends StatelessWidget {
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 8,
+      spacing: YiviSpace.x8,
       children: [
         if (reason case final r?)
           Text(
@@ -294,7 +294,7 @@ class _ShareProgress extends StatelessWidget {
             style: style,
           );
           if (bars != null && !oneLine) {
-            return Column(spacing: 8, children: [bars, text]);
+            return Column(spacing: YiviSpace.x8, children: [bars, text]);
           }
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -472,9 +472,16 @@ class _LandscapePanel extends StatelessWidget {
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [title, const SizedBox(height: 16), card],
+            children: [
+              title,
+              const SizedBox(height: YiviSpace.x16),
+              card,
+            ],
           ),
-          Padding(padding: const EdgeInsets.only(top: 16), child: action),
+          Padding(
+            padding: const EdgeInsets.only(top: YiviSpace.x16),
+            child: action,
+          ),
         ],
       ),
     );
@@ -522,7 +529,12 @@ class _SidewaysCardsState extends State<_SidewaysCards> {
               scrollKey: const Key("share_scroll_view"),
               physics: const AlwaysScrollableScrollPhysics(),
               // 4 at the left: room for a missing card's dashed outline.
-              padding: EdgeInsets.fromLTRB(4, widget.top, 0, 56 + media.bottom),
+              padding: EdgeInsets.fromLTRB(
+                YiviSpace.x4,
+                widget.top,
+                0,
+                56 + media.bottom,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: widget.children,

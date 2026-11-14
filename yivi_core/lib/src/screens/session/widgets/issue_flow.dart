@@ -16,6 +16,7 @@ import "../../../providers/session_state_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
@@ -1098,7 +1099,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             start: [part(AddDataDetailsPart.card)],
             end: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 12,
+              spacing: YiviSpace.x12,
               children: [part(AddDataDetailsPart.rest)],
             ),
           )
@@ -1116,7 +1117,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       titleWidgetCentred: true,
       titleUnder: _titleKey("details"),
       onBack: _direct ? null : _issueLeave,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       split: split != null,
       action: action,
       bottomInBar: true,
@@ -1125,7 +1126,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           split ??
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 16,
+            spacing: YiviSpace.x16,
             children: [part(AddDataDetailsPart.all)],
           ),
     );
@@ -1265,7 +1266,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       underBarAfter: sideways ? null : _issuerCardKey,
       // Back declines this issuance: on the details again, to try again.
       onBack: issueBack,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       action: action,
       // The progress in the bar sideways; the reason stays with the button.
       bottomInBar: !risky,
@@ -1281,7 +1282,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                   ? loading
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: 8,
+                      spacing: YiviSpace.x8,
                       children: cardsAndValues(content),
                     ),
             )
@@ -1370,7 +1371,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     final linkButton = linkText == null
         ? null
         : Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: YiviSpace.x8),
             // Under the words they go with: centred upright, at the start
             // of the column sideways.
             child: useSheetColumns(context)
@@ -1441,12 +1442,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       titleWidget: IssueRequestorPill.maybe(subject),
       titleWidgetCentred: true,
       titleUnder: _titleKey("done"),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       action: action,
       closable: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
+        spacing: YiviSpace.x16,
         children: [
           if (cards.isNotEmpty)
             Padding(padding: const EdgeInsets.only(top: 90), child: received),
@@ -1454,11 +1455,13 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             textAlign: TextAlign.center,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
+              spacing: YiviSpace.x16,
               children: [
                 Center(child: heading),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: YiviSpace.x24,
+                  ),
                   child: text,
                 ),
               ],
@@ -1557,7 +1560,7 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
       // link under the keypad sits as low as on the full-screen PIN.
       scrolls: false,
       childClearsBottom: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       child: SessionPinEntryScreen(
         key: const Key("sheet_pin"),
         inSheet: true,

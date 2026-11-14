@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -65,7 +66,10 @@ class CallInfoScreen extends StatelessWidget {
           shape: const RoundedRectangleBorder(
             borderRadius: YiviCorners.cardRadius,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(
+            horizontal: YiviSpace.x16,
+            vertical: 10,
+          ),
           child: Text(
             number,
             style: palette
@@ -104,7 +108,7 @@ class CallInfoScreen extends StatelessWidget {
                     if (i > 0) const SizedBox(height: 14),
                     part,
                   ],
-                  const SizedBox(height: 32),
+                  const SizedBox(height: YiviSpace.x32),
                   SizedBox(
                     width: 360,
                     child: FancyPillButton(
@@ -118,7 +122,14 @@ class CallInfoScreen extends StatelessWidget {
               )
             : BarInsetsBuilder(
                 builder: (context, insets) => SingleChildScrollView(
-                  padding: insets + const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                  padding:
+                      insets +
+                      const EdgeInsets.fromLTRB(
+                        YiviSpace.x24,
+                        YiviSpace.x32,
+                        YiviSpace.x24,
+                        YiviSpace.x24,
+                      ),
                   child: Column(spacing: 14, children: parts),
                 ),
               ),

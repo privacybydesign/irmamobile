@@ -4,6 +4,7 @@ import "../../../models/credential.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "requestor_card.dart";
@@ -207,7 +208,7 @@ class _IssueIslandState extends State<IssueIsland>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
-          spacing: 12,
+          spacing: YiviSpace.x12,
           children: [
             RequestorLogo(requestor: widget.requestor, style: style, size: 40),
             Expanded(
@@ -235,7 +236,7 @@ class _IssueIslandState extends State<IssueIsland>
           ],
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(2, 14, 2, 0),
+          padding: const EdgeInsets.fromLTRB(YiviSpace.x2, 14, YiviSpace.x2, 0),
           child: Text(
             context.tr(
               widget.signing
@@ -250,7 +251,7 @@ class _IssueIslandState extends State<IssueIsland>
         Align(
           alignment: AlignmentDirectional.centerEnd,
           child: Padding(
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.only(top: YiviSpace.x12),
             child: Semantics(
               button: true,
               child: GestureDetector(

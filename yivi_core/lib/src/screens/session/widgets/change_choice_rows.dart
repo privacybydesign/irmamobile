@@ -10,7 +10,7 @@ class _Intro extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
       child: Text(
         text,
         style: palette
@@ -165,9 +165,12 @@ class _AddToggle extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 6,
+            vertical: YiviSpace.x8,
+          ),
           child: Row(
-            spacing: 8,
+            spacing: YiviSpace.x8,
             children: [
               Icon(
                 Icons.add_circle_outline_rounded,
@@ -255,10 +258,10 @@ class _AddKindRow extends ConsumerWidget {
           scale: PressScale.card,
           child: Container(
             constraints: const BoxConstraints(minHeight: 65),
-            padding: const EdgeInsets.fromLTRB(16, 10, 14, 10),
+            padding: const EdgeInsets.fromLTRB(YiviSpace.x16, 10, 14, 10),
             decoration: SurfaceCard.decoration(context),
             child: Row(
-              spacing: 12,
+              spacing: YiviSpace.x12,
               children: [
                 FlightSpot(
                   flightKey: artKey,

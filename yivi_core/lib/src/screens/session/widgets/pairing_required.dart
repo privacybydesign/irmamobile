@@ -4,6 +4,7 @@ import "../../../models/credential.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -46,7 +47,12 @@ class PairingRequired extends StatelessWidget {
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x32,
+            YiviSpace.x24,
+            YiviSpace.x32,
+            YiviSpace.x32,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -72,7 +78,7 @@ class PairingRequired extends StatelessWidget {
                     side: edge,
                   ),
                 ),
-              const SizedBox(height: 24),
+              const SizedBox(height: YiviSpace.x24),
               if (who != null) ...[
                 Semantics(
                   header: true,
@@ -83,7 +89,7 @@ class PairingRequired extends StatelessWidget {
                     style: palette.display(23).copyWith(color: palette.text),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: YiviSpace.x12),
               ],
               Text(
                 instruction,
@@ -95,7 +101,7 @@ class PairingRequired extends StatelessWidget {
                       color: who == null ? null : palette.heading,
                     ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: YiviSpace.x32),
               // Read out as one code, character by character.
               Semantics(
                 label: pairingCode.split("").join(" "),
@@ -128,7 +134,7 @@ class PairingRequired extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: YiviSpace.x32),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 spacing: 10,

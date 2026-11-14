@@ -9,6 +9,7 @@ import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
@@ -344,7 +345,7 @@ class DisclosureFeedbackScreenState
                     if (button != null)
                       Padding(
                         padding: EdgeInsets.only(
-                          top: 12,
+                          top: YiviSpace.x12,
                           bottom: 21 + media.bottom,
                         ),
                         child: button,
@@ -365,7 +366,14 @@ class DisclosureFeedbackScreenState
         scrollsUnderBars: true,
         body: BarInsetsBuilder(
           builder: (context, insets) => ListView(
-            padding: insets + const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            padding:
+                insets +
+                const EdgeInsets.fromLTRB(
+                  YiviSpace.x16,
+                  0,
+                  YiviSpace.x16,
+                  YiviSpace.x24,
+                ),
             children: [
               Center(child: hero),
               SizedBox(height: _message != null ? 12 : 28),
@@ -981,7 +989,12 @@ class _NextBox extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Container(
       key: const Key("share_done_next"),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        14,
+        YiviSpace.x16,
+        YiviSpace.x16,
+      ),
       decoration: ShapeDecoration(
         color: palette.infoSurface,
         shape: const RoundedRectangleBorder(
@@ -990,7 +1003,7 @@ class _NextBox extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 4,
+        spacing: YiviSpace.x4,
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
@@ -998,7 +1011,12 @@ class _NextBox extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.fromLTRB(8, 3, 8, 3),
+                    padding: const EdgeInsets.fromLTRB(
+                      YiviSpace.x8,
+                      3,
+                      YiviSpace.x8,
+                      3,
+                    ),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
                         borderRadius: const BorderRadius.all(

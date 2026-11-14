@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:native_device_orientation/native_device_orientation.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
@@ -106,7 +107,12 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                   physics: isNativeLandscape
                       ? const NeverScrollableScrollPhysics()
                       : null,
-                  padding: const EdgeInsets.fromLTRB(32, 96, 32, 32),
+                  padding: const EdgeInsets.fromLTRB(
+                    YiviSpace.x32,
+                    96,
+                    YiviSpace.x32,
+                    YiviSpace.x32,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -120,7 +126,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                           tone: YiviTone.danger,
                           size: 120,
                         ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: YiviSpace.x32),
                       RotatedBox(
                         quarterTurns: quarterTurns,
                         child: SizedBox(
@@ -154,7 +160,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: YiviSpace.x12),
                                 Flexible(
                                   child: TranslatedText(
                                     "arrow_back.safari",

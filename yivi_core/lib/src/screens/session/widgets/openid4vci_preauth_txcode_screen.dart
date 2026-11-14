@@ -6,6 +6,7 @@ import "../../../models/credential_store.dart";
 import "../../../models/session_state.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -131,7 +132,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
           child: Semantics(
             header: true,
             child: Text(
@@ -143,7 +144,12 @@ class _OpenID4VCIPreAuthTxCodeScreenState
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x4,
+            YiviSpace.x8,
+            YiviSpace.x4,
+            0,
+          ),
           child: Text(
             _getTextReplacements(bodyTemplate, context),
             style: palette.body(16).copyWith(height: 24 / 16),
@@ -171,7 +177,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         key: const Key("sheet_openid4vci_tx_code"),
         title: context.tr("issuance.pre-authorized_code.tx_code_screen.title"),
         onBack: widget.onDismiss,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
         // A code of a known length is sent once it is complete.
         action: length != null
             ? null
@@ -182,7 +188,10 @@ class _OpenID4VCIPreAuthTxCodeScreenState
                     ? () => widget.onSubmit(_textController.text)
                     : null,
               ),
-        child: Padding(padding: const EdgeInsets.only(top: 16), child: form),
+        child: Padding(
+          padding: const EdgeInsets.only(top: YiviSpace.x16),
+          child: form,
+        ),
       );
     }
 
@@ -192,7 +201,12 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       bottomNavigationBar: _buildBottomBar(context, length),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x16,
+            YiviSpace.x16,
+            YiviSpace.x16,
+            YiviSpace.x32,
+          ),
           child: form,
         ),
       ),
@@ -240,7 +254,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
             fillColor: palette.surface,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 20,
-              vertical: 16,
+              vertical: YiviSpace.x16,
             ),
             enabledBorder: pillFieldBorder(
               codeInvalid ? palette.danger : palette.outline,

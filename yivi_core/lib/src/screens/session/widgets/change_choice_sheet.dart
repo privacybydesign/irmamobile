@@ -13,6 +13,7 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
@@ -762,7 +763,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final inApp = ref.watch(cardTypesInAppProvider);
     return GlassSheetPage(
       title: context.tr("share.sheet.together_title"),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       child: Column(
         key: const Key("sheet_together"),
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -782,7 +783,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
               padding: const EdgeInsets.symmetric(horizontal: 6),
             ),
             if (inApp.contains(d.credentialId)) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: YiviSpace.x8),
               CardTile(
                 key: Key("sheet_together_in_app_${d.credentialId}"),
                 art: CredentialTypeThumbnail(
@@ -893,7 +894,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     return GlassSheetPage(
       title: title,
       titleUnder: _chooseTitle,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        0,
+        YiviSpace.x16,
+        YiviSpace.x24,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -941,7 +947,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
               ),
           ]),
           if (addable.isNotEmpty) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: YiviSpace.x24),
             _AddToggle(
               key: const Key("sheet_more_toggle"),
               label: context.tr("share.sheet.add_other"),
@@ -1012,7 +1018,12 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       // A low sheet with only the kinds; it grows into the full sheet as
       // adding one comes in.
       fit: true,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        0,
+        YiviSpace.x16,
+        YiviSpace.x24,
+      ),
       child: Column(
         key: const Key("sheet_kinds"),
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1132,7 +1143,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         SizedBox(height: n == 0 ? first : gap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 16,
+          spacing: YiviSpace.x16,
           children: [
             Expanded(child: cards[n]),
             Expanded(

@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential_store.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/count_badge.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
@@ -130,14 +131,14 @@ class EmptyCardSpot extends StatelessWidget {
                         ? null
                         : Border(top: BorderSide(color: palette.divider)),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: YiviSpace.x4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(label, style: attributeLabelStyle(context)),
                       Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
+                        spacing: YiviSpace.x8,
+                        runSpacing: YiviSpace.x4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(

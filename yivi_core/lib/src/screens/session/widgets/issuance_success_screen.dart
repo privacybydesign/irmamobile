@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
@@ -120,7 +121,7 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
             receives: [
               CapsLabel(
                 context.tr("data.add.in_your_app"),
-                padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
+                padding: const EdgeInsets.fromLTRB(6, 0, 6, YiviSpace.x8),
               ),
               ...IssuanceOffer(cards: cards).receives(context),
             ],
@@ -218,7 +219,7 @@ class _ReceivedCard extends StatelessWidget {
             child: Transform.rotate(
               angle: -0.035,
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(YiviSpace.x16),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [

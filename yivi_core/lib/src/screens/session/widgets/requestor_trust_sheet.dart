@@ -5,6 +5,7 @@ import "../../../models/requestor_trust.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
@@ -279,7 +280,12 @@ class RequestorTrustSheet extends StatelessWidget {
         onBack: onBack,
         // No title in the bar; once something is under it, the hard edge.
         // Held sideways the columns scroll each on their own.
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          YiviSpace.x4,
+          YiviSpace.x16,
+          YiviSpace.x24,
+        ),
         split: sideways,
         child: _columns(
           context,
@@ -294,7 +300,7 @@ class RequestorTrustSheet extends StatelessWidget {
                 heroTag: logoHeroTag,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: YiviSpace.x16),
             Semantics(
               header: true,
               child: Text(
@@ -306,7 +312,7 @@ class RequestorTrustSheet extends StatelessWidget {
                     .copyWith(height: 30 / 22, color: palette.text),
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: YiviSpace.x4),
             Text(
               body,
               textAlign: TextAlign.center,
@@ -321,7 +327,10 @@ class RequestorTrustSheet extends StatelessWidget {
                 for (final f in facts) _FactRow(fact: f, style: style),
               ],
             ),
-            CapsLabel(doLabel, padding: const EdgeInsets.fromLTRB(6, 22, 6, 8)),
+            CapsLabel(
+              doLabel,
+              padding: const EdgeInsets.fromLTRB(6, 22, 6, YiviSpace.x8),
+            ),
             _Group(children: [for (final d in dos) _DoRow(item: d)]),
             // For the curious, last and out of the way.
             if (onTechnicalDetails case final open?) ...[
@@ -462,7 +471,10 @@ class _FactRow extends StatelessWidget {
       ),
     };
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: YiviSpace.x16,
+        vertical: YiviSpace.x12,
+      ),
       child: Row(
         spacing: 14,
         children: [
@@ -493,7 +505,10 @@ class _DoRow extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final tap = item.onTap;
     final row = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: YiviSpace.x16,
+        vertical: YiviSpace.x12,
+      ),
       child: Row(
         spacing: 14,
         children: [
