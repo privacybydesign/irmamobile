@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
@@ -70,7 +71,12 @@ class _MoreTabState extends ConsumerState<MoreTab> {
         : push();
 
     Widget buildHeaderText(String translationKey) => Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        YiviSpace.x16,
+        YiviSpace.x4,
+        YiviSpace.x8,
+      ),
       child: Semantics(
         header: true,
         child: TranslatedText(translationKey, style: palette.display(16)),
@@ -153,7 +159,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
               const TabLargeTitle("home.nav_bar.more"),
               ...appManagement,
               ...about,
-              const SizedBox(height: 32),
+              const SizedBox(height: YiviSpace.x32),
               PillButton(
                 key: const Key("log_out_button"),
                 style: PillStyle.neutral,
@@ -171,7 +177,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
                   widget.onChangeTab(HomeTab.data);
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: YiviSpace.x16),
               const Align(
                 alignment: Alignment.centerLeft,
                 child: VersionButton(),

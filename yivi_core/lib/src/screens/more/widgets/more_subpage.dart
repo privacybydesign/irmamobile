@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/two_pane.dart";
 
@@ -39,7 +40,12 @@ class MoreSubpage extends StatelessWidget {
       physics: physics,
       padding: embedded
           ? PaneTitle.pagePadding(context)
-          : EdgeInsets.fromLTRB(16, top, 16, 48),
+          : EdgeInsets.fromLTRB(
+              YiviSpace.x16,
+              top,
+              YiviSpace.x16,
+              YiviSpace.x48,
+            ),
       // Inside the scroll view, so the content starts below the floating
       // app bar and scrolls underneath it.
       child: SafeArea(

@@ -6,6 +6,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/icon_square.dart";
@@ -250,9 +251,14 @@ class Tile extends StatelessWidget {
     final row = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 60),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16 + indent, 12, 12, 12),
+        padding: EdgeInsets.fromLTRB(
+          16 + indent,
+          YiviSpace.x12,
+          YiviSpace.x12,
+          YiviSpace.x12,
+        ),
         child: Row(
-          spacing: 16,
+          spacing: YiviSpace.x16,
           children: [
             if (iconData != null)
               IconSquare(

@@ -2,6 +2,7 @@ import "package:collection/collection.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "tiles.dart";
 
@@ -58,7 +59,7 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
                 onTap: () => _onChangeOptions(i),
                 trailing: i == _selectedIndex
                     ? Icon(Icons.check_rounded, color: palette.primary)
-                    : const SizedBox(width: 24),
+                    : const SizedBox(width: YiviSpace.x24),
               ),
             ),
           )
