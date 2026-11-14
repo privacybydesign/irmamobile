@@ -337,7 +337,7 @@ class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
                       Expanded(
                         child: _Tab(
                           key: Key("nav_button_${tab.name}"),
-                          label: FlutterI18n.translate(context, labelKey),
+                          label: context.tr(labelKey),
                           icon: i == marked ? activeIcon : icon,
                           selected: tab == widget.selectedTab,
                           marked: i == marked,

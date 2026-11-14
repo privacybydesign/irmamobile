@@ -48,7 +48,7 @@ class HomeRail extends StatelessWidget {
                       height: tabHeight,
                       child: _Tab(
                         key: Key("nav_button_${tab.name}"),
-                        label: FlutterI18n.translate(context, labelKey),
+                        label: context.tr(labelKey),
                         icon: tab == selectedTab ? activeIcon : icon,
                         selected: tab == selectedTab,
                         showDot: tab == HomeTab.notifications,
@@ -141,7 +141,7 @@ class HomeSidebar extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 4),
             child: _SidebarItem(
               key: Key("nav_button_${tab.name}"),
-              label: FlutterI18n.translate(context, labelKey),
+              label: context.tr(labelKey),
               icon: tab == selectedTab ? activeIcon : icon,
               selected: tab == selectedTab,
               showUnread: tab == HomeTab.notifications,
@@ -151,7 +151,7 @@ class HomeSidebar extends StatelessWidget {
         const Spacer(),
         FancyPillButton(
           key: const Key("nav_button_scanner"),
-          label: FlutterI18n.translate(context, "home.nav_bar.scan_qr"),
+          label: context.tr("home.nav_bar.scan_qr"),
           leading: const Icon(
             Icons.qr_code_scanner_rounded,
             color: Colors.white,

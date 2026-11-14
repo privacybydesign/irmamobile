@@ -2,13 +2,13 @@ import "dart:math";
 
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/press_scale.dart";
@@ -16,8 +16,8 @@ import "../../notifications/bloc/notifications_bloc.dart";
 import "home_tab.dart";
 import "open_qr_scanner.dart";
 
-part "home_tab_bar.dart";
 part "home_rail.dart";
+part "home_tab_bar.dart";
 
 /// The home screen's navigation, one look on both platforms: the same tabs
 /// in the same order, the selected one marked by a short rose line on the
@@ -134,7 +134,7 @@ class HomeScanButton extends StatelessWidget {
     size: size,
     // As big in its circle as on the scan button before (42 in 72).
     iconSize: size * 0.58,
-    label: FlutterI18n.translate(context, "home.nav_bar.scan_qr"),
+    label: context.tr("home.nav_bar.scan_qr"),
     onPressed: () => openQrCodeScanner(context),
   );
 }

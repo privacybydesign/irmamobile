@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -6,6 +5,7 @@ import "../../../providers/credentials_provider.dart";
 import "../../../providers/preferences_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/translated_text.dart";
@@ -63,7 +63,7 @@ class ScanTip extends ConsumerWidget {
               const SizedBox(height: 8),
               SmallPill(
                 key: const Key("scan_tip_ok"),
-                label: FlutterI18n.translate(context, "scan_tip.ok"),
+                label: context.tr("scan_tip.ok"),
                 onPressed: () =>
                     ref.read(preferencesProvider).markScanTipShown(),
               ),
