@@ -1,6 +1,6 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../../util/i18n.dart";
 import "document_nr_input_field.dart";
 
 class DrivingLicenceMrzInputField extends StatelessWidget {
@@ -10,8 +10,7 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String t(String key) =>
-        FlutterI18n.translate(context, "driving_licence.manual.fields.$key");
+    String t(String key) => context.tr("driving_licence.manual.fields.$key");
     final label = t("mrz");
     return DocumentCodeField(
       fieldKey: const Key("driving_licence_mrz_input_field"),

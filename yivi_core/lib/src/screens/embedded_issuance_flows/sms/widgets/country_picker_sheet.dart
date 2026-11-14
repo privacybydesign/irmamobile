@@ -1,5 +1,4 @@
 import "package:flutter_i18n/flutter_i18n.dart";
-
 // ignore: implementation_imports
 import "package:intl_phone_number_input/src/models/country_model.dart";
 import "package:material_ui/material_ui.dart";
@@ -7,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../providers/credentials_search.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/adaptive_layout.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_group.dart";
 import "../../../../widgets/glass/glass_search_field.dart";
 import "../../../../widgets/glass/glass_sheet.dart";
@@ -104,8 +104,7 @@ class _CountryPickerState extends State<_CountryPicker> {
     return _byName;
   }
 
-  String _t(String key) =>
-      FlutterI18n.translate(context, "sms_issuance.enter_phone.$key");
+  String _t(String key) => context.tr("sms_issuance.enter_phone.$key");
 
   @override
   Widget build(BuildContext context) {

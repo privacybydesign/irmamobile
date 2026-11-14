@@ -1,10 +1,10 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
@@ -47,7 +47,7 @@ class DocumentInstructionScreen extends StatelessWidget {
       alignment: Alignment.center,
       child: Semantics(
         image: true,
-        label: FlutterI18n.translate(context, "$keys.image_alt"),
+        label: context.tr("$keys.image_alt"),
         child: DocumentInstructionIllustration(documentType: documentType),
       ),
     );

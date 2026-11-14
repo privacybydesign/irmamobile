@@ -1,7 +1,7 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
+import "../../../util/i18n.dart";
 import "document_translation_keys.dart";
 import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
@@ -99,8 +99,7 @@ class _PassportMrzManualEntryScreenState
   @override
   Widget build(BuildContext context) {
     final type = widget.documentType;
-    String t(String field) =>
-        FlutterI18n.translate(context, type.manualKey("fields.$field"));
+    String t(String field) => context.tr(type.manualKey("fields.$field"));
     return ManualEntryScaffold(
       appBarTitleKey: type.scanTitleKey,
       formKey: _manualEntryFormKey,

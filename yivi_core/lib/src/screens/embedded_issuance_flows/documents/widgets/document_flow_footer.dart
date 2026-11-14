@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/floating_bar_placement.dart";
 import "../../../../widgets/glass/glass_sheet.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
@@ -40,7 +40,7 @@ class DocumentFlowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = FlutterI18n.translate(context, labelKey);
+    final label = context.tr(labelKey);
     // The pills of the redesign: the faceted red one for the main action,
     // plain text pills for the others.
     final Widget button = switch (style) {
@@ -168,7 +168,7 @@ class DocumentFlowFooter extends StatelessWidget {
     final primary = flowButtons.where((b) => b.style == .primary).firstOrNull;
     final secondary = flowButtons.where((b) => b.style != .primary).firstOrNull;
     String? label(DocumentFlowButton? b) =>
-        b == null ? null : FlutterI18n.translate(context, b.labelKey);
+        b == null ? null : context.tr(b.labelKey);
     SheetAction? asAction(DocumentFlowButton? b) => b == null
         ? null
         : SheetAction(key: b.key, label: label(b)!, onTap: b.onPressed);

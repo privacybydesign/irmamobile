@@ -20,6 +20,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
+import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
 import "../../../widgets/done_check.dart";
@@ -115,7 +116,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   /// The document's name, for the `{document}` placeholder.
   String _documentName(BuildContext context) =>
-      FlutterI18n.translate(context, widget.mrz.documentType.nameKey);
+      context.tr(widget.mrz.documentType.nameKey);
 
   void _cancel() async {
     final userWantsCancel = await showConfirmDialog(
@@ -516,10 +517,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       _NfcStage.reading => (
         NfcProgressRing(
           progress: progressForState(state),
-          label: FlutterI18n.translate(
-            context,
-            widget.mrz.documentType.readingLabelKey,
-          ),
+          label: context.tr(widget.mrz.documentType.readingLabelKey),
         ),
         ("$keys.reading_title", "$keys.reading_body"),
         [if (!inSheet) cancelAction],
@@ -562,15 +560,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return Semantics(
       image: true,
       label: isPassport
-          ? FlutterI18n.translate(
-              context,
-              "document_flow.nfc.waiting_image_alt",
-            )
-          : FlutterI18n.translate(
-              context,
-              "document_flow.nfc.waiting_image_alt_card",
-              translationParams: {"document": _documentName(context)},
-            ),
+          ? context.tr("document_flow.nfc.waiting_image_alt")
+          : context.tr("document_flow.nfc.waiting_image_alt_card", {
+              "document": _documentName(context),
+            }),
       child: NfcPhoneOnDocument(
         document: NfcDocumentPicture.of(widget.mrz.documentType),
       ),
@@ -720,8 +713,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     return (state) {
       final params = {"document": _documentName(context)};
-      String translate(String key) =>
-          FlutterI18n.translate(context, key, translationParams: params);
+      String translate(String key) => context.tr(key, params);
 
       return switch (_stageFor(state)) {
         _NfcStage.waiting => translate("$keys.waiting_title"),
@@ -729,7 +721,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           "${translate("$keys.reading_title")} · "
               "${(progressForState(state) * 100).round()}%",
         _NfcStage.done => translate("$keys.done_title"),
-        _ => FlutterI18n.translate(context, _getTranslationKeyForState(state)),
+        _ => context.tr(_getTranslationKeyForState(state)),
       };
     };
   }

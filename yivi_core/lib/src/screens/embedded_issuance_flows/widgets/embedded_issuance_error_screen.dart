@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -34,7 +34,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
       body: StatusBody(
         icon: Icons.error_outline_rounded,
         tone: DialogTone.danger,
-        title: FlutterI18n.translate(context, contentTranslationKey),
+        title: context.tr(contentTranslationKey),
         footer: ErrorDetails(details: errorMessage),
       ),
       bottomNavigationBar: IrmaBottomBar(

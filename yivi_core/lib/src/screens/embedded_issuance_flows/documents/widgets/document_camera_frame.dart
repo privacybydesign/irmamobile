@@ -1,9 +1,9 @@
 import "dart:math" as math;
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/corner_brackets.dart";
 import "../document_step_in_sheet.dart";
 import "dark_glass.dart";
@@ -167,7 +167,7 @@ class _Hint extends StatelessWidget {
             Icon(icon, size: 20, color: found ? _found : Colors.white),
             Expanded(
               child: Text(
-                FlutterI18n.translate(context, key),
+                context.tr(key),
                 style: palette
                     .body(15, weight: FontWeight.w700)
                     .copyWith(height: 22 / 15, color: Colors.white),

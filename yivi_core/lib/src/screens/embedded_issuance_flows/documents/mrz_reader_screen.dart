@@ -1,6 +1,5 @@
 import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
@@ -10,6 +9,7 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -162,7 +162,7 @@ class _CameraScaffold extends StatelessWidget {
                     child: Semantics(
                       header: true,
                       child: Text(
-                        FlutterI18n.translate(context, title),
+                        context.tr(title),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: palette
@@ -186,7 +186,7 @@ class _CameraScaffold extends StatelessWidget {
                       key: const Key("irma_app_bar_leading"),
                       dark: true,
                       icon: CupertinoIcons.arrow_left,
-                      label: FlutterI18n.translate(context, "ui.go_back"),
+                      label: context.tr("ui.go_back"),
                       onTap: () => Navigator.of(context).maybePop(),
                     ),
                   ),
@@ -208,16 +208,13 @@ class _CameraScaffold extends StatelessWidget {
                   children: [
                     PillButton(
                       key: DocumentFlowButton.primaryKey,
-                      label: FlutterI18n.translate(context, manualLabel),
+                      label: context.tr(manualLabel),
                       onDark: true,
                       onPressed: onManual,
                     ),
                     PillButton(
                       key: DocumentFlowButton.secondaryKey,
-                      label: FlutterI18n.translate(
-                        context,
-                        "document_flow.cancel",
-                      ),
+                      label: context.tr("document_flow.cancel"),
                       style: PillStyle.text,
                       onDark: true,
                       onPressed: onCancel,
@@ -267,7 +264,7 @@ class _SheetCamera extends StatelessWidget {
         action: null,
         secondary: SheetAction(
           key: DocumentFlowButton.primaryKey,
-          label: FlutterI18n.translate(context, manualLabel),
+          label: context.tr(manualLabel),
           onTap: onManual,
         ),
         child: Padding(
@@ -293,14 +290,14 @@ class _SheetCamera extends StatelessWidget {
             child: Center(
               child: TextLink(
                 key: DocumentFlowButton.primaryKey,
-                label: FlutterI18n.translate(context, manualLabel),
+                label: context.tr(manualLabel),
                 onPressed: onManual,
               ),
             ),
           )
         : PillButton(
             key: DocumentFlowButton.primaryKey,
-            label: FlutterI18n.translate(context, manualLabel),
+            label: context.tr(manualLabel),
             onPressed: onManual,
           );
     // Held sideways: what to do and "Enter manually" at the left, the
@@ -378,10 +375,7 @@ class _DarkPermissionFallback extends StatelessWidget {
                   .copyWith(height: 24 / 16, color: const Color(0xD9FFFFFF)),
             ),
             TextLink(
-              label: FlutterI18n.translate(
-                context,
-                "mrz_camera_permissions.open_settings",
-              ),
+              label: context.tr("mrz_camera_permissions.open_settings"),
               color: Colors.white,
               onPressed: () async {
                 await openAppSettings();

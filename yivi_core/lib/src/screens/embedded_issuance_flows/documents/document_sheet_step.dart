@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
@@ -6,6 +5,7 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../models/mrz.dart";
 import "../../../providers/ocr_processor_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
@@ -281,7 +281,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
     return GlassSheetPage(
       // Left by dragging its header down: no close button.
       closable: false,
-      title: FlutterI18n.translate(context, _titleKey),
+      title: context.tr(_titleKey),
       onBack: _back,
       // Each screen has its heading in the page; the bar names it once
       // that has scrolled away.

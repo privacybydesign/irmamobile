@@ -1,5 +1,4 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -216,7 +215,7 @@ class ContactEnterPage extends StatelessWidget {
       ],
       field: field,
       keyboardButton: FancyPillButton(
-        label: FlutterI18n.translate(context, nextKey),
+        label: context.tr(nextKey),
         onPressed: onNext,
       ),
       bottomBar: IrmaBottomBar(
@@ -453,10 +452,7 @@ class ContactTextLink extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: 20),
-        child: TextLink(
-          label: label ?? FlutterI18n.translate(context, labelKey),
-          onPressed: onTap,
-        ),
+        child: TextLink(label: label ?? context.tr(labelKey), onPressed: onTap),
       ),
     );
   }
@@ -479,7 +475,7 @@ class ContactCodeError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FieldError(
-    _translated ? _text : FlutterI18n.translate(context, _text),
+    _translated ? _text : context.tr(_text),
     align: TextAlign.center,
   );
 }

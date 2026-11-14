@@ -2,7 +2,6 @@ import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:intl_phone_number_input/intl_phone_number_input.dart";
-
 // The package's field opens its own bottom sheet for the country, which
 // cannot be changed; its data, validation and formatting are used here
 // under the app's own field and sheet.
@@ -18,6 +17,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/pill_text_field.dart";
 import "../../../../widgets/press_scale.dart";
 import "country_picker_sheet.dart";
@@ -254,22 +254,15 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
       decoration:
           pillInputDecoration(
             context,
-            hint: FlutterI18n.translate(
-              context,
-              "sms_issuance.enter_phone.phone_hint",
-            ),
+            hint: context.tr("sms_issuance.enter_phone.phone_hint"),
           ).copyWith(
             contentPadding: const EdgeInsets.fromLTRB(4, 17, 20, 17),
             prefixIcon: _CountryButton(
               country: _country,
-              label: FlutterI18n.translate(
-                context,
-                "sms_issuance.enter_phone.country_button",
-                translationParams: {
-                  "country": countryName(_country, language),
-                  "code": _country.dialCode ?? "",
-                },
-              ),
+              label: context.tr("sms_issuance.enter_phone.country_button", {
+                "country": countryName(_country, language),
+                "code": _country.dialCode ?? "",
+              }),
               onTap: _pickCountry,
             ),
             prefixIconConstraints: const BoxConstraints(minHeight: 56),

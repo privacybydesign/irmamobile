@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -81,10 +80,7 @@ class EmailAddressEntryState extends ConsumerState<EmailAddressEntry> {
       child: TextFormField(
         decoration: pillInputDecoration(
           context,
-          hint: FlutterI18n.translate(
-            context,
-            "email_issuance.enter_email.email_hint",
-          ),
+          hint: context.tr("email_issuance.enter_email.email_hint"),
         ),
         controller: _textController,
         focusNode: widget.focusNode,

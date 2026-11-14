@@ -1,8 +1,8 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/i18n.dart";
 import "manual_entry_layout.dart";
 
 class DocumentNrInputField extends StatelessWidget {
@@ -24,10 +24,7 @@ class DocumentNrInputField extends StatelessWidget {
     fieldKey: const Key("document_nr_input_field"),
     controller: controller,
     label: labelText,
-    hint: FlutterI18n.translate(
-      context,
-      "document_flow.manual.document_nr_hint",
-    ),
+    hint: context.tr("document_flow.manual.document_nr_hint"),
     // ICAO-style: 6–9 alphanumeric characters (A–Z, 0–9)
     pattern: RegExp(r"^[A-Z0-9]{6,9}$"),
     requiredText: requiredText,
