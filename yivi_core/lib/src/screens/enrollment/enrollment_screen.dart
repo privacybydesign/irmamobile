@@ -109,7 +109,7 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
       // bar icons for the current brightness (Android 15+ keeps only those).
       value:
           Theme.of(context).appBarTheme.systemOverlayStyle ??
-          (Theme.of(context).brightness == Brightness.dark
+          (YiviPalette.of(context).isDark
               ? SystemUiOverlayStyle.light
               : SystemUiOverlayStyle.dark),
       child: BlocConsumer<EnrollmentBloc, EnrollmentState>(

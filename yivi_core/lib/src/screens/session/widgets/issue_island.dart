@@ -90,7 +90,7 @@ class _IssueIslandState extends State<IssueIsland>
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final dark = YiviPalette.of(context).isDark;
     // Darker than anything on the sheet in light mode; a raised dark grey in
     // dark mode, where black would vanish into the page.
     final fill = dark ? const Color(0xFF2C3036) : const Color(0xFF16191D);

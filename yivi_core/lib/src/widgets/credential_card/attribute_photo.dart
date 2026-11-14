@@ -314,7 +314,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
     );
 
     // The status bar of the page under it: nothing else sets it back.
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final dark = YiviPalette.of(context).isDark;
     final pageBar = SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,

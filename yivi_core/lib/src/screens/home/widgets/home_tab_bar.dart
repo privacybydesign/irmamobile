@@ -263,7 +263,7 @@ class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final dark = palette.brightness == Brightness.dark;
+    final dark = palette.isDark;
     final index = homeTabs.indexWhere((t) => t.$1 == widget.selectedTab);
     return LayoutBuilder(
       builder: (context, constraints) {

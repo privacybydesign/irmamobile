@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
 import "../../base64_image.dart";
 import "../models/credential_card_layout.dart";
@@ -32,7 +33,7 @@ class AttributeColors {
 
   static AttributeColors of(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    if (Theme.of(context).brightness == Brightness.dark) {
+    if (YiviPalette.of(context).isDark) {
       return const AttributeColors._(
         value: Color(0xFFF2F2F4),
         label: Color(0xFFB4B4BC),
