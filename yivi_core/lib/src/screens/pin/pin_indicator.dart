@@ -201,11 +201,10 @@ class _PinIndicator extends StatelessWidget {
       // the digits-entered label unreachable on its own.
       container: true,
       label: joinedPin.isEmpty
-          ? FlutterI18n.translate(context, "pin_accessibility.empty_pin_input")
+          ? context.tr("pin_accessibility.empty_pin_input")
           : isPinVisible
           ? joinedPin
-          : FlutterI18n.plural(
-              context,
+          : context.plural(
               "pin_accessibility.digits_entered",
               pinState.pin.length,
             ),

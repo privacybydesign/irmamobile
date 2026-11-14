@@ -1,5 +1,4 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -132,7 +131,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
   }
 
   Future<void> _biometricUnlock() async {
-    final reason = FlutterI18n.translate(context, "pin.biometric_reason");
+    final reason = context.tr("pin.biometric_reason");
     // On success the service flips appLocked locally (no keyshare), which
     // drops the lock overlay; sessions still require the PIN.
     _scanInProgress = true;

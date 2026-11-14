@@ -23,14 +23,13 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
             tone: followsRule ? DialogTone.success : DialogTone.danger,
             size: 24,
             iconSize: 16,
-            semanticLabel: FlutterI18n.translate(
-              context,
+            semanticLabel: context.tr(
               followsRule ? "credential.boolean_yes" : "credential.boolean_no",
             ),
           ),
           Expanded(
             child: Text(
-              FlutterI18n.translate(context, descriptionKey),
+              context.tr(descriptionKey),
               style: palette.body(15).copyWith(height: 22 / 15),
             ),
           ),

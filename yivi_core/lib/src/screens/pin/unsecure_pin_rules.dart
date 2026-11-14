@@ -30,7 +30,7 @@ void _showSecurePinRules(BuildContext context, EnterPinState state) {
         children: [
           SizedBox(height: theme.screenPadding),
           Text(
-            FlutterI18n.translate(context, "secure_pin.subtitle"),
+            context.tr("secure_pin.subtitle"),
             style: YiviPalette.of(context).body(16),
           ),
           SizedBox(height: theme.screenPadding),

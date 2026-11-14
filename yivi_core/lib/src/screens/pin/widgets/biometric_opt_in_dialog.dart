@@ -1,9 +1,9 @@
 import "dart:async";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../providers/biometric_provider.dart";
@@ -37,10 +37,7 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
     await ref
         .read(biometricServiceProvider)
         .confirmAndEnable(
-          localizedReason: FlutterI18n.translate(
-            context,
-            "pin.biometric_confirm_reason",
-          ),
+          localizedReason: context.tr("pin.biometric_confirm_reason"),
         );
     // Success or failure, the question is answered for now: close. On failure
     // `dismissed` stays unset, so the prompt can re-appear at the next lock.
@@ -56,18 +53,18 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
   Widget build(BuildContext context) {
     return GlassDialog(
       icon: const ToneDisc(icon: Icons.fingerprint, tone: DialogTone.info),
-      title: FlutterI18n.translate(context, "pin.biometric_prompt.title"),
-      message: FlutterI18n.translate(context, "pin.biometric_prompt.body"),
+      title: context.tr("pin.biometric_prompt.title"),
+      message: context.tr("pin.biometric_prompt.body"),
       actions: [
         FancyPillButton(
           key: const Key("biometric_enable"),
-          label: FlutterI18n.translate(context, "pin.biometric_prompt.enable"),
+          label: context.tr("pin.biometric_prompt.enable"),
           size: PillSize.regular,
           onPressed: _busy ? null : _enable,
         ),
         PillButton(
           key: const Key("biometric_not_now"),
-          label: FlutterI18n.translate(context, "pin.biometric_prompt.not_now"),
+          label: context.tr("pin.biometric_prompt.not_now"),
           style: PillStyle.text,
           size: PillSize.regular,
           onPressed: _busy ? null : _notNow,

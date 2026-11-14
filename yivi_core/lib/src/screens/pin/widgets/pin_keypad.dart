@@ -1,9 +1,9 @@
 import "package:flutter/gestures.dart";
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 
 /// The shared PIN number pad: digits 0-9 plus a backspace key.
 ///
@@ -186,7 +186,7 @@ class _PinKeypadState extends State<PinKeypad> {
           child: Semantics(
             key: const Key("pin_biometric_button"),
             button: true,
-            label: FlutterI18n.translate(context, "pin.biometric_button"),
+            label: context.tr("pin.biometric_button"),
             onTap: widget.onBiometricUnlock,
             child: _glyph(widget.biometricGlyph!, size: 34),
           ),
@@ -196,7 +196,7 @@ class _PinKeypadState extends State<PinKeypad> {
         key: _faces[_backspaceCell],
         child: Semantics(
           button: true,
-          label: FlutterI18n.translate(context, "pin_accessibility.backspace"),
+          label: context.tr("pin_accessibility.backspace"),
           onTap: widget.onBackspace,
           child: _glyph(Icon(Icons.backspace_outlined, color: palette.heading)),
         ),

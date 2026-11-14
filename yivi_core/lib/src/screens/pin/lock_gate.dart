@@ -1,5 +1,4 @@
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -7,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../routing.dart";
 import "../../providers/app_locked_provider.dart";
 import "../../util/after_frame.dart";
+import "../../util/i18n.dart";
 import "../../util/rebuild_when_safe.dart";
 import "../../widgets/app_toast.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -213,7 +213,7 @@ class _LogoutConfirmationState extends State<_LogoutConfirmation> {
       // At the top: the PIN screen's keypad and link fill the bottom.
       showAppToast(
         context,
-        FlutterI18n.translate(context, "more_tab.logged_out_toast"),
+        context.tr("more_tab.logged_out_toast"),
         atTop: true,
       );
     });

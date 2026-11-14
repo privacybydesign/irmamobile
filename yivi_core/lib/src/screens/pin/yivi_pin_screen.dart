@@ -4,7 +4,6 @@ import "dart:math";
 
 import "package:flutter/foundation.dart" show listEquals;
 import "package:flutter/gestures.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -14,6 +13,7 @@ import "../../theme/theme.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/haptics.dart";
+import "../../util/i18n.dart";
 import "../../util/scale.dart";
 import "../../util/tablet.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -593,10 +593,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       maintainState: true,
       child: Link(
         onTap: widget.onTogglePinSize ?? widget.onForgotPin ?? () {},
-        label: FlutterI18n.translate(
-          context,
-          isToggle ? _pinSizeToggleKey() : "pin.button_forgot",
-        ),
+        label: context.tr(isToggle ? _pinSizeToggleKey() : "pin.button_forgot"),
       ),
     );
   }
@@ -605,18 +602,12 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   /// PIN is chosen, the warning that it is possibly not secure.
   (String, PinDetailKind)? _detailLine(BuildContext context) {
     if (widget.busy) {
-      return (
-        FlutterI18n.translate(context, "pin.checking"),
-        PinDetailKind.info,
-      );
+      return (context.tr("pin.checking"), PinDetailKind.info);
     }
     if (widget.checkSecurePin &&
         _state.pin.length >= shortPinSize &&
         !_state.goodEnough) {
-      return (
-        FlutterI18n.translate(context, "secure_pin.inline"),
-        PinDetailKind.warning,
-      );
+      return (context.tr("secure_pin.inline"), PinDetailKind.warning);
     }
     final detail = widget.detail;
     if (detail == null || detail.isEmpty) return null;
@@ -680,7 +671,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
               if (kind == PinDetailKind.warning) ...[
                 const TextSpan(text: " "),
                 TextSpan(
-                  text: FlutterI18n.translate(context, "secure_pin.why"),
+                  text: context.tr("secure_pin.why"),
                   style: TextStyle(color: palette.link),
                   recognizer: _whyRecognizer,
                 ),
@@ -786,7 +777,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     icon: Icons.arrow_forward_rounded,
     size: 40,
     iconSize: 22,
-    label: FlutterI18n.translate(context, widget.submitLabel),
+    label: context.tr(widget.submitLabel),
     onPressed: _canSubmit ? _submit.haptic : null,
   );
 
@@ -843,7 +834,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
               icon,
               size: 20,
               color: YiviPalette.of(context).secondaryText,
-              semanticLabel: FlutterI18n.translate(context, semanticLabelKey),
+              semanticLabel: context.tr(semanticLabelKey),
             ),
           ),
         ),
@@ -861,8 +852,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         // heading with the PIN-dots entry state into a single announcement.
         container: true,
         child: Text(
-          widget.instruction ??
-              FlutterI18n.translate(context, widget.instructionKey!),
+          widget.instruction ?? context.tr(widget.instructionKey!),
           textAlign: TextAlign.center,
           // Under a header a size smaller, to stay on one line and leave the
           // header its room; as a line, quiet.
@@ -893,10 +883,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       return SvgPicture.asset(
         YiviPalette.of(context).logoAsset,
         height: 44,
-        semanticsLabel: FlutterI18n.translate(
-          context,
-          "accessibility.irma_logo",
-        ),
+        semanticsLabel: context.tr("accessibility.irma_logo"),
       );
     }
     final palette = YiviPalette.of(context);
@@ -923,17 +910,13 @@ String pinTryAgainIn(BuildContext context, Duration left) {
   final String time;
   if (left.inHours >= 1) {
     time = left.inDays >= 1
-        ? FlutterI18n.plural(context, "pin_common.day.time", left.inDays)
-        : FlutterI18n.plural(context, "pin_common.hour.time", left.inHours);
+        ? context.plural("pin_common.day.time", left.inDays)
+        : context.plural("pin_common.hour.time", left.inHours);
   } else {
     final seconds = left.inSeconds.remainder(60).toString().padLeft(2, "0");
     time = "${left.inMinutes}:$seconds";
   }
-  return FlutterI18n.translate(
-    context,
-    "pin.try_again_in",
-    translationParams: {"time": time},
-  );
+  return context.tr("pin.try_again_in", {"time": time});
 }
 
 /// What the line under the title says after a wrong PIN or during a block:
@@ -947,7 +930,7 @@ String? pinAttemptLine(
 }) {
   if (blockedFor.inSeconds > 0) return pinTryAgainIn(context, blockedFor);
   if (wrong && left != null && left > 0) {
-    return FlutterI18n.plural(context, "pin.wrong.attempts", left);
+    return context.plural("pin.wrong.attempts", left);
   }
   return null;
 }
