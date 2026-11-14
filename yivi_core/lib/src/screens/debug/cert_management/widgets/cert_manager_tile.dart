@@ -1,7 +1,7 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../models/eudi_configuration.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
 
 class CertManagerTile extends StatelessWidget {
@@ -20,10 +20,7 @@ class CertManagerTile extends StatelessWidget {
           ? PlainIconButton(
               icon: Icons.delete_outline_rounded,
               danger: true,
-              semanticsLabel: FlutterI18n.translate(
-                context,
-                "debug.cert_management.remove_cert",
-              ),
+              semanticsLabel: context.tr("debug.cert_management.remove_cert"),
               onPressed: onDelete,
             )
           : null,

@@ -1,7 +1,6 @@
 import "dart:async";
 import "dart:developer";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
 
@@ -11,6 +10,7 @@ import "../../../models/eudi_configuration.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -90,10 +90,7 @@ class _CertificateManagementScreenState
       RemoveCertificateEvent(type: type, thumbprint: cert.thumbprint),
     );
 
-    showSnackbar(
-      context,
-      FlutterI18n.translate(context, "debug.cert_management.removed"),
-    );
+    showSnackbar(context, context.tr("debug.cert_management.removed"));
   }
 
   @override
@@ -138,10 +135,7 @@ class _CertificateManagementScreenState
               ),
               children: [
                 GlassGroup(
-                  header: FlutterI18n.translate(
-                    context,
-                    "debug.cert_management.issuer_certs",
-                  ),
+                  header: context.tr("debug.cert_management.issuer_certs"),
                   children: [
                     for (final cert
                         in configuration.issuerCertificates ?? const <Cert>[])
@@ -153,10 +147,7 @@ class _CertificateManagementScreenState
                   ],
                 ),
                 GlassGroup(
-                  header: FlutterI18n.translate(
-                    context,
-                    "debug.cert_management.verifier_certs",
-                  ),
+                  header: context.tr("debug.cert_management.verifier_certs"),
                   children: [
                     for (final cert
                         in configuration.verifierCertificates ?? const <Cert>[])

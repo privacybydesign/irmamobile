@@ -2,7 +2,6 @@ import "dart:async";
 import "dart:convert";
 import "dart:io";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
 
@@ -15,6 +14,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/combine.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -124,18 +124,12 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
 
     if (mounted) {
-      showSnackbar(
-        context,
-        FlutterI18n.translate(context, "debug.scheme_management.success"),
-      );
+      showSnackbar(context, context.tr("debug.scheme_management.success"));
     }
   }
 
   Future<void> _onUpdateSchemes() async {
-    showSnackbar(
-      context,
-      FlutterI18n.translate(context, "debug.scheme_management.updating"),
-    );
+    showSnackbar(context, context.tr("debug.scheme_management.updating"));
 
     final repo = IrmaRepositoryProvider.of(context);
     repo.bridgedDispatch(UpdateSchemesEvent());
@@ -153,10 +147,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     if (mounted) {
       showSnackbar(
         context,
-        FlutterI18n.translate(
-          context,
-          "debug.scheme_management.update_success",
-        ),
+        context.tr("debug.scheme_management.update_success"),
       );
     }
   }
@@ -218,8 +209,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                   ),
                   children: [
                     GlassGroup(
-                      header: FlutterI18n.translate(
-                        context,
+                      header: context.tr(
                         "debug.scheme_management.issuer_schemes",
                       ),
                       children: [
@@ -237,8 +227,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                       ],
                     ),
                     GlassGroup(
-                      header: FlutterI18n.translate(
-                        context,
+                      header: context.tr(
                         "debug.scheme_management.requestor_schemes",
                       ),
                       children: [

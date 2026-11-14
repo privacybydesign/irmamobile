@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -6,6 +5,7 @@ import "../../data/irma_repository.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -71,10 +71,7 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
     }
 
     if (!mounted) return;
-    showSnackbar(
-      context,
-      FlutterI18n.translate(context, "debug.delete_credentials.success"),
-    );
+    showSnackbar(context, context.tr("debug.delete_credentials.success"));
   }
 
   void _onOpenSchemeManagement() async {

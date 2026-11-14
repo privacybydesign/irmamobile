@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/irma_configuration.dart";
@@ -6,6 +5,7 @@ import "../../../models/scheme_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -25,11 +25,9 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
     if (!context.mounted) return;
     showSnackbar(
       context,
-      FlutterI18n.translate(
-        context,
-        "debug.scheme_management.remove",
-        translationParams: {"scheme": requestorScheme.id},
-      ),
+      context.tr("debug.scheme_management.remove", {
+        "scheme": requestorScheme.id,
+      }),
     );
   }
 

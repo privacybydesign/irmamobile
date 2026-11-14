@@ -1,6 +1,6 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/pill_text_field.dart";
@@ -19,12 +19,10 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
   Widget build(BuildContext context) {
     final navigator = Navigator.of(context);
 
-    final translatedTitle = FlutterI18n.translate(
-      context,
+    final translatedTitle = context.tr(
       "debug.scheme_management.install_scheme_dialog.title",
     );
-    final translatedContent = FlutterI18n.translate(
-      context,
+    final translatedContent = context.tr(
       "debug.scheme_management.install_scheme_dialog.content",
     );
 
@@ -39,7 +37,7 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
       ),
       actions: [
         FancyPillButton(
-          label: FlutterI18n.translate(context, "ui.add"),
+          label: context.tr("ui.add"),
           size: PillSize.regular,
           onPressed: () => navigator.pop(controller.text),
         ),

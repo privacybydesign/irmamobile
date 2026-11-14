@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../models/eudi_configuration.dart";
 import "../../../../theme/theme.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
 
@@ -23,12 +23,10 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
     final theme = IrmaTheme.of(context);
     final navigator = Navigator.of(context);
 
-    final translatedTitle = FlutterI18n.translate(
-      context,
+    final translatedTitle = context.tr(
       "debug.cert_management.install_cert_dialog.title",
     );
-    final translatedContent = FlutterI18n.translate(
-      context,
+    final translatedContent = context.tr(
       "debug.cert_management.install_cert_dialog.content",
     );
 
@@ -64,7 +62,7 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
       ),
       actions: [
         FancyPillButton(
-          label: FlutterI18n.translate(context, "ui.add"),
+          label: context.tr("ui.add"),
           size: PillSize.regular,
           onPressed: () => navigator.pop(
             NewCertificate(type: certType, pemContent: controller.text),

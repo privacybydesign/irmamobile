@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
 
@@ -58,15 +57,10 @@ class SchemeManagerDetailScreen extends StatelessWidget {
 
     final pin = await _requestPin(
       context,
-      FlutterI18n.translate(
-        context,
-        "debug.scheme_management.verify_pin.title",
-      ),
-      FlutterI18n.translate(
-        context,
-        "debug.scheme_management.verify_pin.content",
-        translationParams: {"scheme": schemeManagerId},
-      ),
+      context.tr("debug.scheme_management.verify_pin.title"),
+      context.tr("debug.scheme_management.verify_pin.content", {
+        "scheme": schemeManagerId,
+      }),
     );
     if (pin == null) return;
 
@@ -88,18 +82,11 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       showSnackbar(
         context,
         event is AuthenticationFailedEvent
-            ? FlutterI18n.translate(
-                context,
-                "debug.scheme_management.verify_pin.failed",
-                translationParams: {
-                  "remainingAttempts": event.remainingAttempts.toString(),
-                  "blockedDuration": event.blockedDuration.toString(),
-                },
-              )
-            : FlutterI18n.translate(
-                context,
-                "debug.scheme_management.verify_pin.success",
-              ),
+            ? context.tr("debug.scheme_management.verify_pin.failed", {
+                "remainingAttempts": event.remainingAttempts.toString(),
+                "blockedDuration": event.blockedDuration.toString(),
+              })
+            : context.tr("debug.scheme_management.verify_pin.success"),
       );
     }
   }
@@ -109,15 +96,10 @@ class SchemeManagerDetailScreen extends StatelessWidget {
 
     final pin = await _requestPin(
       context,
-      FlutterI18n.translate(
-        context,
-        "debug.scheme_management.request_pin.title",
-      ),
-      FlutterI18n.translate(
-        context,
-        "debug.scheme_management.request_pin.content",
-        translationParams: {"scheme": schemeManagerId},
-      ),
+      context.tr("debug.scheme_management.request_pin.title"),
+      context.tr("debug.scheme_management.request_pin.content", {
+        "scheme": schemeManagerId,
+      }),
     );
     if (pin == null) return;
     if (!context.mounted) return;
@@ -125,11 +107,9 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     final navigator = Navigator.of(context);
     showSnackbar(
       context,
-      FlutterI18n.translate(
-        context,
-        "debug.scheme_management.activating",
-        translationParams: {"scheme": schemeManagerId},
-      ),
+      context.tr("debug.scheme_management.activating", {
+        "scheme": schemeManagerId,
+      }),
     );
 
     final repo = IrmaRepositoryProvider.of(context);
@@ -156,11 +136,9 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       if (!context.mounted) return;
       showSnackbar(
         context,
-        FlutterI18n.translate(
-          context,
-          "debug.scheme_management.activate_success",
-          translationParams: {"scheme": schemeManagerId},
-        ),
+        context.tr("debug.scheme_management.activate_success", {
+          "scheme": schemeManagerId,
+        }),
       );
     }
   }
@@ -174,11 +152,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     if (!context.mounted) return;
     showSnackbar(
       context,
-      FlutterI18n.translate(
-        context,
-        "debug.scheme_management.remove",
-        translationParams: {"scheme": schemeManagerId},
-      ),
+      context.tr("debug.scheme_management.remove", {"scheme": schemeManagerId}),
     );
   }
 
