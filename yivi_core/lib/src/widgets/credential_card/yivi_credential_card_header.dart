@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../irma_avatar.dart";
 import "../translated_text.dart";
@@ -9,7 +10,7 @@ TextStyle _issuerLabelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
   fontSize: 14,
   fontWeight: FontWeight.w400,
-  color: theme.neutralExtraDark,
+  color: YiviPalette.forBrightness(theme.brightness).heading,
   height: 1.4,
 );
 
@@ -17,7 +18,7 @@ TextStyle _credentialNameStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.primaryFontFamily,
   fontSize: 19,
   fontWeight: FontWeight.w600,
-  color: theme.dark,
+  color: YiviPalette.forBrightness(theme.brightness).text,
   height: 26 / 19,
 );
 
@@ -45,7 +46,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
       return TranslatedText(
         "credential.revoked",
         style: theme.themeData.textTheme.headlineMedium!.copyWith(
-          color: theme.error,
+          color: YiviPalette.forBrightness(theme.brightness).danger,
         ),
       );
     }
@@ -53,7 +54,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
       return TranslatedText(
         "credential.expired",
         style: theme.themeData.textTheme.headlineMedium!.copyWith(
-          color: theme.error,
+          color: YiviPalette.forBrightness(theme.brightness).danger,
         ),
       );
     }

@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/date_formatter.dart";
 import "../../util/i18n.dart";
@@ -24,14 +25,18 @@ class YiviCredentialCardFooter extends StatelessWidget {
 
   Color _getTextColorForExpireState(ExpireState state, IrmaThemeData theme) {
     return switch (state) {
-      ExpireState.notExpired => theme.dark,
+      ExpireState.notExpired => YiviPalette.forBrightness(
+        theme.brightness,
+      ).text,
       ExpireState.almostExpired => theme.warning,
-      ExpireState.expired => theme.error,
+      ExpireState.expired => YiviPalette.forBrightness(theme.brightness).danger,
     };
   }
 
-  TextStyle _labelStyle(IrmaThemeData theme) =>
-      TextStyle(fontSize: 14, color: theme.neutralExtraDark);
+  TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
+    fontSize: 14,
+    color: YiviPalette.forBrightness(theme.brightness).heading,
+  );
 
   TextStyle _valueStyle(IrmaThemeData theme, Color color) => theme
       .textTheme
@@ -46,7 +51,10 @@ class YiviCredentialCardFooter extends StatelessWidget {
         (expiryDate == null || expiryDate?.dateTime == null)
             ? TranslatedText(
                 "credential.indefinite_validity",
-                style: _valueStyle(theme, theme.dark),
+                style: _valueStyle(
+                  theme,
+                  YiviPalette.forBrightness(theme.brightness).text,
+                ),
               )
             : Text(
                 printableDate(expiryDate!.dateTime!, lang),
@@ -76,7 +84,10 @@ class YiviCredentialCardFooter extends StatelessWidget {
         else
           TranslatedText(
             "credential.sharable_unlimited",
-            style: _valueStyle(theme, theme.dark),
+            style: _valueStyle(
+              theme,
+              YiviPalette.forBrightness(theme.brightness).text,
+            ),
           ),
       ],
     );

@@ -2,7 +2,7 @@ import "dart:io";
 
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
 
@@ -42,8 +42,6 @@ class IrmaAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     Widget? image = logoImage;
     if (logoPath != null) {
       final logoFile = File(logoPath!);
@@ -64,8 +62,8 @@ class IrmaAvatar extends StatelessWidget {
         borderRadius: BorderRadius.circular(size / 2),
         child: Container(
           color: image == null
-              ? theme.neutralExtraLight
-              : logoBackground ?? theme.neutralExtraLight,
+              ? YiviPalette.of(context).divider
+              : logoBackground ?? YiviPalette.of(context).divider,
           height: size,
           width: size,
           padding: image == null ? null : EdgeInsets.all(logoPadding),
@@ -83,7 +81,7 @@ class IrmaAvatar extends StatelessWidget {
                       applyHeightToFirstAscent: false,
                     ),
                     style: TextStyle(
-                      color: theme.neutral,
+                      color: YiviPalette.of(context).faint,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

@@ -4,7 +4,6 @@ import "package:share_plus/share_plus.dart";
 
 import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/haptics.dart";
@@ -148,8 +147,6 @@ class ToggleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return StreamBuilder(
       stream: stream,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -182,7 +179,7 @@ class ToggleTile extends StatelessWidget {
             trailing: CupertinoSwitch(
               value: value,
               onChanged: toggle,
-              activeTrackColor: theme.primary,
+              activeTrackColor: YiviPalette.of(context).primary,
             ),
           ),
         );

@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../providers/email_linking_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/email_linking.dart";
 import "../../../util/i18n.dart";
@@ -44,7 +45,11 @@ class EmailLinkBanner extends ConsumerWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: YiviSpace.x8),
-                child: Icon(Icons.shield_outlined, color: theme.link, size: 28),
+                child: Icon(
+                  Icons.shield_outlined,
+                  color: YiviPalette.of(context).link,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: YiviSpace.x16),
               Expanded(
@@ -59,7 +64,7 @@ class EmailLinkBanner extends ConsumerWidget {
                           "email_linking.banner.title",
                           style: theme.textTheme.headlineMedium!.copyWith(
                             fontSize: 16,
-                            color: theme.dark,
+                            color: YiviPalette.of(context).text,
                           ),
                         ),
                       ),
@@ -68,7 +73,7 @@ class EmailLinkBanner extends ConsumerWidget {
                         "email_linking.banner.body",
                         style: theme.textTheme.bodyMedium!.copyWith(
                           fontSize: 14,
-                          color: theme.neutralExtraDark,
+                          color: YiviPalette.of(context).heading,
                         ),
                       ),
                       const SizedBox(height: YiviSpace.x8),

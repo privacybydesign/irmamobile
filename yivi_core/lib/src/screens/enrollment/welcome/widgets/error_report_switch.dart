@@ -2,7 +2,6 @@ import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter/gestures.dart";
 
 import "../../../../providers/irma_repository_provider.dart";
-import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
@@ -37,7 +36,6 @@ class _ErrorReportSwitchState extends State<ErrorReportSwitch> {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final theme = IrmaTheme.of(context);
     final preferences = IrmaRepositoryProvider.of(context).preferences;
     final shareErrors = context.tr(
       "enrollment.error_reporting.accept.share_errors",
@@ -90,7 +88,7 @@ class _ErrorReportSwitchState extends State<ErrorReportSwitch> {
                   child: CupertinoSwitch(
                     key: const Key("error_reporting_switch"),
                     value: value,
-                    activeTrackColor: theme.primary,
+                    activeTrackColor: palette.primary,
                     onChanged: preferences.setReportErrors,
                   ),
                 ),

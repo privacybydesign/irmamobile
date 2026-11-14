@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 
 class IrmaDivider extends StatelessWidget {
   final Color? color;
@@ -17,14 +17,12 @@ class IrmaDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Padding(
       padding: padding ?? EdgeInsets.zero,
       child: Container(
         height: vertical ? height : 1,
         width: vertical ? 1 : null,
-        color: color ?? theme.neutralExtraLight,
+        color: color ?? YiviPalette.of(context).divider,
       ),
     );
   }

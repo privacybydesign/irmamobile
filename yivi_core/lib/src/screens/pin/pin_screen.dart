@@ -8,7 +8,7 @@ import "../../providers/pending_pointer_provider.dart";
 import "../../providers/preferences_provider.dart";
 import "../../providers/startup_url_resolved_provider.dart";
 import "../../providers/waiting_request_provider.dart";
-import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
@@ -263,7 +263,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
             // Tinted as the keypad.
             ? BiometricGlyph(
                 type: biometricType,
-                color: IrmaTheme.of(context).secondary,
+                color: YiviPalette.of(context).heading,
               )
             : null,
       ),

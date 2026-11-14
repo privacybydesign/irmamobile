@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 
 class ActiveIndicator extends StatelessWidget {
   final bool isActive;
@@ -10,7 +11,7 @@ class ActiveIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final color = isActive ? theme.success : theme.primary;
+    final color = isActive ? theme.success : YiviPalette.of(context).primary;
 
     return Container(
       width: 8,

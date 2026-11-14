@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 import "../theme/yivi_space.dart";
 import "translated_text.dart";
 
@@ -29,7 +30,7 @@ class IrmaDismissible extends StatelessWidget {
 
     final background = Container(
       decoration: BoxDecoration(
-        color: theme.error,
+        color: YiviPalette.of(context).danger,
         borderRadius: borderRadius ?? theme.borderRadius,
       ),
       padding: const EdgeInsets.all(YiviSpace.x16),

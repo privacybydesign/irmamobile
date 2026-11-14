@@ -745,12 +745,12 @@ class _LeafContent extends StatelessWidget {
     AttributeValue? val,
     IrmaThemeData theme,
   ) {
-    if (node.mismatch) return theme.error;
+    if (node.mismatch) return YiviPalette.of(context).danger;
     if (node.match) return theme.success;
     if (!node.hasCompareTo) return AttributeColors.of(context).value;
     return attributeValuesEqual(val, node.compareToValue)
         ? theme.success
-        : theme.error;
+        : YiviPalette.of(context).danger;
   }
 
   Widget _buildValue(BuildContext context, IrmaThemeData theme) {
@@ -1003,10 +1003,9 @@ class _AgeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     // The board's neutralDark is 4.14:1 on _notOverSurface, below the 4.5:1 of
     // WCAG 1.4.3.
-    final textColor = entry.over ? _overText : theme.neutralExtraDark;
+    final textColor = entry.over ? _overText : YiviPalette.of(context).heading;
     return Semantics(
       excludeSemantics: true,
       label: context.tr(
@@ -1017,7 +1016,9 @@ class _AgeChip extends StatelessWidget {
         height: _height,
         padding: const .symmetric(horizontal: YiviSpace.x8 + YiviSpace.x4 / 2),
         decoration: BoxDecoration(
-          color: entry.over ? theme.successSurface : _notOverSurface,
+          color: entry.over
+              ? YiviPalette.of(context).successSurface
+              : _notOverSurface,
           borderRadius: .circular(_height / 2),
         ),
         // Centers in the fixed height without stretching to the row's width.
@@ -1045,7 +1046,6 @@ class _AgeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Semantics(
       button: true,
       expanded: expanded,
@@ -1061,9 +1061,10 @@ class _AgeToggle extends StatelessWidget {
                 expanded
                     ? "credential.age.hide_all"
                     : "credential.age.show_all",
-                style: attributeLabelStyle(
-                  context,
-                ).copyWith(fontWeight: FontWeight.w600, color: theme.link),
+                style: attributeLabelStyle(context).copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: YiviPalette.of(context).link,
+                ),
               ),
               ExcludeSemantics(
                 child: RotatedBox(
@@ -1071,7 +1072,9 @@ class _AgeToggle extends StatelessWidget {
                   child: SizedBox.square(
                     dimension: 16,
                     child: CustomPaint(
-                      painter: _ChevronPainter(color: theme.link),
+                      painter: _ChevronPainter(
+                        color: YiviPalette.of(context).link,
+                      ),
                     ),
                   ),
                 ),

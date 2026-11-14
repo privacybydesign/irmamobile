@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../irma_card.dart";
 import "../translated_text.dart";
 
@@ -14,7 +15,7 @@ class IrmaEmptyCredentialCard extends StatelessWidget {
         child: TranslatedText(
           "credential.no_data",
           style: theme.themeData.textTheme.headlineMedium!.copyWith(
-            color: theme.dark,
+            color: YiviPalette.of(context).text,
           ),
         ),
       ),

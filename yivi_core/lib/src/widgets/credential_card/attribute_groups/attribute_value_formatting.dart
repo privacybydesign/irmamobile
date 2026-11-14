@@ -43,11 +43,11 @@ class AttributeColors {
       );
     }
     return AttributeColors._(
-      value: theme.dark,
-      label: theme.neutralExtraDark,
+      value: YiviPalette.of(context).text,
+      label: YiviPalette.of(context).heading,
       eyebrow: theme.neutralDark,
-      muted: theme.neutral,
-      divider: theme.neutralExtraLight,
+      muted: YiviPalette.of(context).faint,
+      divider: YiviPalette.of(context).divider,
     );
   }
 }

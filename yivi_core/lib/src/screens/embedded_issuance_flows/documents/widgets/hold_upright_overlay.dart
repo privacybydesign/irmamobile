@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "package:native_device_orientation/native_device_orientation.dart";
 
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/test_detection.dart";
 import "../../../../widgets/translated_text.dart";
@@ -234,7 +235,10 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
             decoration: BoxDecoration(
               color: theme.light,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: theme.neutralExtraDark, width: 2.5),
+              border: Border.all(
+                color: YiviPalette.of(context).heading,
+                width: 2.5,
+              ),
             ),
             padding: const EdgeInsets.symmetric(
               vertical: YiviSpace.x8,
@@ -246,7 +250,7 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
                   width: 22,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: theme.neutralExtraDark,
+                    color: YiviPalette.of(context).heading,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

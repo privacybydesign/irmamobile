@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../../package_name.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_motion.dart";
+import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../attribute_group.dart";
@@ -187,13 +188,17 @@ class _DrivingLicenceCategoriesTableState
                   label,
                   style: attributeLabelStyle(
                     context,
-                  ).copyWith(color: theme.link),
+                  ).copyWith(color: YiviPalette.of(context).link),
                 ),
               ),
               AnimatedRotation(
                 turns: _expanded ? 0.5 : 0,
                 duration: YiviMotion.duration(context, _resizeDuration),
-                child: Icon(Icons.expand_more, size: 20, color: theme.link),
+                child: Icon(
+                  Icons.expand_more,
+                  size: 20,
+                  color: YiviPalette.of(context).link,
+                ),
               ),
             ],
           ),
@@ -421,5 +426,5 @@ Color _comparisonColor(
 ) => switch (comparison) {
   AttributeComparison.none => AttributeColors.of(context).value,
   AttributeComparison.match => theme.success,
-  AttributeComparison.mismatch => theme.error,
+  AttributeComparison.mismatch => YiviPalette.of(context).danger,
 };

@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../theme/theme.dart";
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_edges.dart";
+import "../theme/yivi_palette.dart";
 import "../theme/yivi_space.dart";
 
 enum IrmaCardStyle { normal, highlighted, danger }
@@ -42,7 +43,7 @@ class IrmaCard extends StatelessWidget {
       case IrmaCardStyle.highlighted:
         boxDecoration = BoxDecoration(
           borderRadius: radius,
-          border: Border.all(color: theme.tertiary, width: 1),
+          border: Border.all(color: YiviPalette.of(context).outline, width: 1),
           color: theme.surfaceSecondary,
         );
         break;

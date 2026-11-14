@@ -101,7 +101,7 @@ class _PinIndicator extends StatelessWidget {
     // Black (white in dark mode), like the keypad's digits.
     final palette = YiviPalette.of(context);
 
-    final textColor = isPinVisible ? theme.secondary : Colors.transparent;
+    final textColor = isPinVisible ? palette.heading : Colors.transparent;
 
     final isMaxPin5 = maxPinSize == shortPinSize;
     final pinSize = pinState.pin.length;

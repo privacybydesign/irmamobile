@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 
 class _YiviProgressIndicatorElement extends StatelessWidget {
   final bool isActive;
@@ -9,12 +9,13 @@ class _YiviProgressIndicatorElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     const double size = 8;
 
     return Container(
       decoration: BoxDecoration(
-        color: isActive ? theme.primary : theme.tertiary,
+        color: isActive
+            ? YiviPalette.of(context).primary
+            : YiviPalette.of(context).outline,
         borderRadius: BorderRadius.circular(20),
       ),
       height: size,

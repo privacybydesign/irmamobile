@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/translated_text.dart";
@@ -68,12 +69,15 @@ class TermsCheckBox extends ConsumerWidget {
             child: Checkbox(
               key: const Key("accept_terms_checkbox"),
               value: isAccepted,
-              activeColor: theme.primary,
+              activeColor: YiviPalette.of(context).primary,
               checkColor: theme.onPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              side: BorderSide(color: theme.tertiary, width: 2),
+              side: BorderSide(
+                color: YiviPalette.of(context).outline,
+                width: 2,
+              ),
               onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
             ),
           ),

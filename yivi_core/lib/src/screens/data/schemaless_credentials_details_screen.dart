@@ -7,6 +7,7 @@ import "../../providers/credentials_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_motion.dart";
+import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/app_toast.dart";
@@ -75,7 +76,9 @@ class _CredentialsDetailsScreenState
           ),
         Text(
           name,
-          style: theme.textTheme.displaySmall?.copyWith(color: theme.dark),
+          style: theme.textTheme.displaySmall?.copyWith(
+            color: YiviPalette.of(context).text,
+          ),
         ),
       ],
     );

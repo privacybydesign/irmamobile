@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
+import "../theme/yivi_palette.dart";
 import "../theme/yivi_space.dart";
 import "irma_divider.dart";
 import "loading_indicator.dart";
@@ -16,7 +17,7 @@ class LoadingMoreIndicator extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     final expandedDividerWidget = Expanded(
-      child: IrmaDivider(color: theme.tertiary),
+      child: IrmaDivider(color: YiviPalette.of(context).outline),
     );
 
     return Column(
@@ -38,7 +39,7 @@ class LoadingMoreIndicator extends StatelessWidget {
             "ui.loading",
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium!.copyWith(
-              color: theme.neutralExtraDark,
+              color: YiviPalette.of(context).heading,
               fontSize: 12,
               height: 18 / 12,
             ),

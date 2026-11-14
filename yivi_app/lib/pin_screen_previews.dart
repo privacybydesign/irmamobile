@@ -41,6 +41,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/package_name.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -231,7 +232,7 @@ Widget _faceIdGlyph() => Builder(
   builder: (context) => SvgPicture.asset(
     yiviAsset("ui/face_id.svg"),
     colorFilter: ColorFilter.mode(
-      IrmaTheme.of(context).secondary,
+      YiviPalette.of(context).heading,
       BlendMode.srcIn,
     ),
   ),
@@ -239,7 +240,7 @@ Widget _faceIdGlyph() => Builder(
 
 Widget _faceMaterialGlyph() => Builder(
   builder: (context) =>
-      Icon(Icons.face, color: IrmaTheme.of(context).secondary),
+      Icon(Icons.face, color: YiviPalette.of(context).heading),
 );
 
 @Preview(

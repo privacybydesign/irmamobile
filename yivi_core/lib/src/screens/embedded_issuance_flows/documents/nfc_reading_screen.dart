@@ -638,7 +638,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
                   "error.button_show_error",
                   style: theme.textTheme.bodyMedium?.copyWith(
                     decoration: .underline,
-                    color: theme.link,
+                    color: YiviPalette.of(context).link,
                   ),
                 ),
               ),
