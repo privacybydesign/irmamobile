@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/translated_text.dart";
@@ -20,7 +21,7 @@ class NoNotifications extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Padding(
       key: const Key("notifications_empty"),
-      padding: const EdgeInsets.fromLTRB(16, 40, 16, 0),
+      padding: const EdgeInsets.fromLTRB(YiviSpace.x16, 40, YiviSpace.x16, 0),
       child: Column(
         children: [
           const ExcludeSemantics(child: _Picture()),
@@ -136,14 +137,14 @@ class _Row extends StatelessWidget {
     return Container(
       width: _Picture._width,
       height: _Picture._row,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x12),
       decoration: BoxDecoration(
         color: palette.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.fromBorderSide(YiviEdges.block(context)),
       ),
       child: Row(
-        spacing: 12,
+        spacing: YiviSpace.x12,
         children: [
           ToneDisc(icon: icon, tone: tone, size: 30, iconSize: 17),
           Column(

@@ -7,6 +7,7 @@ import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
@@ -111,15 +112,15 @@ class NotificationCard extends ConsumerWidget {
           builder: (pictureContext) => InkWell(
             onTap: () => onTap(pictureContext),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(YiviSpace.x16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 16,
+                spacing: YiviSpace.x16,
                 children: [
                   ?(picture == null
                       ? null
                       : Padding(
-                          padding: const EdgeInsets.only(top: 4),
+                          padding: const EdgeInsets.only(top: YiviSpace.x4),
                           child: picture,
                         )),
                   Expanded(
@@ -132,9 +133,9 @@ class NotificationCard extends ConsumerWidget {
                               .body(12)
                               .copyWith(color: palette.heading),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: YiviSpace.x2),
                         Row(
-                          spacing: 4,
+                          spacing: YiviSpace.x4,
                           children: [
                             if (icon != null)
                               Icon(icon, size: 16, color: iconColor),
@@ -148,7 +149,7 @@ class NotificationCard extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: YiviSpace.x2),
                         Text(contentMessage, style: palette.body(14)),
                       ],
                     ),
@@ -157,7 +158,7 @@ class NotificationCard extends ConsumerWidget {
                     Container(
                       width: 10,
                       height: 10,
-                      margin: const EdgeInsets.only(top: 4),
+                      margin: const EdgeInsets.only(top: YiviSpace.x4),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: palette.primary,

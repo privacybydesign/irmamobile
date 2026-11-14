@@ -7,6 +7,7 @@ import "../../providers/pane_selection_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
@@ -166,7 +167,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.only(
+                              bottom: YiviSpace.x16,
+                            ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.baseline,
                               textBaseline: TextBaseline.alphabetic,
@@ -193,7 +196,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                           else ...[
                             for (final notification in notifications)
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.only(
+                                  bottom: YiviSpace.x8,
+                                ),
                                 child: IrmaDismissible(
                                   key: Key(notification.id),
                                   borderRadius: YiviCorners.cardRadius,
@@ -211,7 +216,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                                 ),
                               ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8),
+                              padding: const EdgeInsets.only(top: YiviSpace.x8),
                               child: TranslatedText(
                                 "notifications.swipe_hint",
                                 textAlign: TextAlign.center,
