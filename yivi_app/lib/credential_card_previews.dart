@@ -17,6 +17,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/theme/yivi_space.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
@@ -133,9 +134,8 @@ Widget yiviCardPreviewWrapper(Widget child) {
       supportedLocales: const [Locale("en", "US")],
       home: IrmaTheme(
         builder: (context) {
-          final theme = IrmaTheme.of(context);
           return Scaffold(
-            backgroundColor: theme.light,
+            backgroundColor: YiviPalette.of(context).surface,
             body: SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(YiviSpace.x16),

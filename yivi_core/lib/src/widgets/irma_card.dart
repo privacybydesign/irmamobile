@@ -29,6 +29,8 @@ class IrmaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    // By brightness only: the card keeps its colours on a sheet too.
+    final palette = YiviPalette.forBrightness(Theme.of(context).brightness);
     const radius = YiviCorners.cardRadius;
 
     final BoxDecoration boxDecoration;
@@ -37,14 +39,14 @@ class IrmaCard extends StatelessWidget {
         boxDecoration = BoxDecoration(
           borderRadius: radius,
           border: Border.fromBorderSide(YiviEdges.block(context)),
-          color: theme.light,
+          color: palette.surface,
         );
         break;
       case IrmaCardStyle.highlighted:
         boxDecoration = BoxDecoration(
           borderRadius: radius,
-          border: Border.all(color: YiviPalette.of(context).outline, width: 1),
-          color: theme.surfaceSecondary,
+          border: Border.all(color: palette.outline, width: 1),
+          color: palette.tint,
         );
         break;
       case IrmaCardStyle.danger:

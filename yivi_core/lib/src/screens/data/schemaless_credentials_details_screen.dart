@@ -104,7 +104,6 @@ class _CredentialsDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final provider = credentialsWithIdProvider(widget.credentialTypeId);
     final credentials = ref.watch(provider);
 
@@ -122,7 +121,7 @@ class _CredentialsDetailsScreenState
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: YiviPalette.of(context).background,
       appBar: _buildAppBar(credential),
       body: switch (credentials) {
         AsyncData(:final value) => _buildCredentialsList(value),

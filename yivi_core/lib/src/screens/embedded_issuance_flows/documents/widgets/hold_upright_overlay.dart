@@ -105,7 +105,7 @@ class _HoldUprightPrompt extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final motion = motionStill(context) ? _Motion.still : _Motion.animated;
     return Material(
-      color: theme.light,
+      color: YiviPalette.of(context).surface,
       child: SafeArea(
         child: RotatedBox(
           key: const Key("hold_upright_prompt"),
@@ -233,7 +233,7 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
             width: 62,
             height: 118,
             decoration: BoxDecoration(
-              color: theme.light,
+              color: YiviPalette.of(context).surface,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: YiviPalette.of(context).heading,

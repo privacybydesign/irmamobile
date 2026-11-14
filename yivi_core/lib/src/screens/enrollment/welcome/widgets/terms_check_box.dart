@@ -2,7 +2,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/preferences_provider.dart";
-import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
@@ -32,8 +31,6 @@ class TermsCheckBox extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
-
     final preferences = ref.watch(preferencesProvider);
 
     final termsUrl = (context.lang) == "nl"
@@ -70,7 +67,7 @@ class TermsCheckBox extends ConsumerWidget {
               key: const Key("accept_terms_checkbox"),
               value: isAccepted,
               activeColor: YiviPalette.of(context).primary,
-              checkColor: theme.onPrimary,
+              checkColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

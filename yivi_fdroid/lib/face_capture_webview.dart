@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "package:webview_flutter/webview_flutter.dart";
 import "package:webview_flutter_android/webview_flutter_android.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/theme/yivi_space.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/loading_indicator.dart";
@@ -141,7 +142,7 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
         if (!didPop) _resolve(const FaceCaptureMessage.aborted("cancelled"));
       },
       child: Scaffold(
-        backgroundColor: theme.light,
+        backgroundColor: YiviPalette.of(context).surface,
         appBar: IrmaAppBar(
           titleTranslationKey: "face_verification.title",
           leading: YiviBackButton(
@@ -154,7 +155,7 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
             WebViewWidget(controller: _controller),
             if (_loading)
               ColoredBox(
-                color: theme.light,
+                color: YiviPalette.of(context).surface,
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
