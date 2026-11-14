@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
+import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
 import "glass/glass_sheet.dart";
@@ -126,7 +127,7 @@ class _AdaptiveRoute<T> extends PageRoute<T>
   Duration get transitionDuration => _platformPush
       ? super.transitionDuration
       : _phone == PhoneTransition.rise && !_expanded
-      ? const Duration(milliseconds: 420)
+      ? YiviMotion.page
       : formSheetDuration;
 
   @override

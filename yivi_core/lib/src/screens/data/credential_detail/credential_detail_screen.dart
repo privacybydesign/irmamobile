@@ -7,6 +7,7 @@ import "../../../models/log_entry.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/search_query_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
@@ -750,7 +751,7 @@ class _FoundFieldState extends State<_FoundField> {
     Scrollable.ensureVisible(
       row,
       alignment: 0.3,
-      duration: still ? Duration.zero : const Duration(milliseconds: 420),
+      duration: still ? Duration.zero : YiviMotion.page,
       curve: Curves.easeOutCubic,
     );
   }

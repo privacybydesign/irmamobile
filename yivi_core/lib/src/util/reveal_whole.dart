@@ -1,5 +1,6 @@
 import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
+import "../theme/yivi_motion.dart";
 
 /// Scrolls the nearest vertical scroll view just so far that the widget at
 /// [context] is in view as a whole (an answer that was opened): down until
@@ -11,7 +12,7 @@ void revealWhole(
   BuildContext context, {
   double topInset = 0,
   bool atTop = false,
-  Duration duration = const Duration(milliseconds: 300),
+  Duration duration = YiviMotion.standard,
 }) {
   final box = context.findRenderObject();
   final scrollable = Scrollable.maybeOf(context, axis: Axis.vertical);

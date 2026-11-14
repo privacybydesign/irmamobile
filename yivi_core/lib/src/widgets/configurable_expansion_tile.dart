@@ -31,6 +31,7 @@
 library;
 
 import "package:material_ui/material_ui.dart";
+import "../theme/yivi_motion.dart";
 
 /// A configurable Expansion Tile edited from the flutter material implementation
 /// that allows for customization of most of the behaviour. Includes providing colours,
@@ -58,7 +59,7 @@ class ConfigurableExpansionTile extends StatefulWidget {
     this.borderColorEnd = Colors.transparent,
     this.topBorderOn = true,
     this.bottomBorderOn = true,
-    this.kExpand = const Duration(milliseconds: 200),
+    this.kExpand = YiviMotion.quick,
     this.headerBackgroundColorEnd,
     this.headerExpanded,
     this.headerAnimationTween,

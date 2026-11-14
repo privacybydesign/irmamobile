@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
@@ -312,7 +313,7 @@ class _Part extends StatefulWidget {
 class _PartState extends State<_Part> with SingleTickerProviderStateMixin {
   late final _fill = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 420),
+    duration: YiviMotion.page,
     value: _filled ? 1 : 0,
   );
 

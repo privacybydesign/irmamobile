@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/yivi_progress_indicator.dart";
@@ -101,7 +102,7 @@ class _IllustratorState extends State<Illustrator>
           ),
           const SizedBox(height: YiviSpace.x16),
           AnimatedSize(
-            duration: const Duration(milliseconds: 300),
+            duration: YiviMotion.standard,
             child: SizedBox(
               width: widget.width,
               child: Text(

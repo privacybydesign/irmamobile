@@ -7,6 +7,7 @@ import "package:pinput/pinput.dart";
 import "../../../../routing.dart";
 import "../../../models/session.dart";
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
@@ -92,7 +93,7 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
         Scrollable.ensureVisible(
           fieldContext,
           alignment: widget.fieldAlignment,
-          duration: const Duration(milliseconds: 300),
+          duration: YiviMotion.standard,
         );
       });
     } else {
@@ -102,7 +103,7 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
         }
         _scrollController.animateTo(
           0,
-          duration: const Duration(milliseconds: 300),
+          duration: YiviMotion.standard,
           curve: Curves.easeInOut,
         );
       });

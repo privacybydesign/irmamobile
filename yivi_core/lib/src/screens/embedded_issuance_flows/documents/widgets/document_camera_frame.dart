@@ -2,6 +2,7 @@ import "dart:math" as math;
 
 import "package:material_ui/material_ui.dart";
 
+import "../../../../theme/yivi_motion.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
@@ -121,7 +122,7 @@ class DocumentCameraFrame extends StatelessWidget {
               child: IgnorePointer(
                 child: TweenAnimationBuilder<Color?>(
                   tween: ColorTween(end: found ? _found : Colors.white),
-                  duration: const Duration(milliseconds: 300),
+                  duration: YiviMotion.standard,
                   builder: (context, color, _) => CustomPaint(
                     painter: _BracketsPainter(color ?? Colors.white),
                   ),

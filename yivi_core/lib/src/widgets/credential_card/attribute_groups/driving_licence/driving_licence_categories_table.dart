@@ -44,7 +44,7 @@ class _DrivingLicenceCategoriesTableState
   // Always starts collapsed.
   var _expanded = false;
 
-  static const _resizeDuration = Duration(milliseconds: 200);
+  static const _resizeDuration = YiviMotion.quick;
 
   final _titleKey = GlobalKey();
 

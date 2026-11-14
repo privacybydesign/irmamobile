@@ -188,7 +188,7 @@ class _AddToggle extends StatelessWidget {
               if (onTap != null)
                 AnimatedRotation(
                   turns: open ? 0.5 : 0,
-                  duration: const Duration(milliseconds: 200),
+                  duration: YiviMotion.quick,
                   child: Icon(
                     Icons.expand_more_rounded,
                     size: 22,

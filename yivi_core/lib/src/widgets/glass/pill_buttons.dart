@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../press_scale.dart";
@@ -40,7 +41,7 @@ class FancyPillButton extends StatelessWidget {
 
   /// How long the red takes to come in (and go) when the button becomes
   /// pressable (or stops being so).
-  static const enableFade = Duration(milliseconds: 200);
+  static const enableFade = YiviMotion.quick;
 
   final String label;
   final VoidCallback? onPressed;

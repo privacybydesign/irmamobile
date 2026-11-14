@@ -156,7 +156,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
       _slide
           .animateBack(
             0,
-            duration: toRoot ? const Duration(milliseconds: 300) : null,
+            duration: toRoot ? YiviMotion.standard : null,
             curve: toRoot ? YiviMotion.leave : YiviMotion.ease,
           )
           .whenCompleteOrCancel(() {

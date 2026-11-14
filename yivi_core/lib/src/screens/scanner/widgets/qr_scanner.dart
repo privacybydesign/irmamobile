@@ -241,7 +241,7 @@ class _ResultDisc extends StatelessWidget {
     return Center(
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0.4, end: 1),
-        duration: const Duration(milliseconds: 300),
+        duration: YiviMotion.standard,
         curve: YiviMotion.overshoot,
         builder: (context, scale, child) => Opacity(
           opacity: ((scale - 0.4) / 0.6).clamp(0.0, 1.0),

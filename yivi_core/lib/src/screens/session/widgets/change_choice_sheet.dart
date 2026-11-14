@@ -12,6 +12,7 @@ import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";

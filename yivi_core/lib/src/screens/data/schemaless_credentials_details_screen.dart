@@ -6,6 +6,7 @@ import "../../models/credential.dart";
 import "../../providers/credentials_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/app_toast.dart";
@@ -89,7 +90,7 @@ class _CredentialsDetailsScreenState
               _scrollController.position.pixels > _scrollUnderThreshold;
           return AnimatedOpacity(
             opacity: pastThreshold ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 200),
+            duration: YiviMotion.quick,
             child: child,
           );
         },

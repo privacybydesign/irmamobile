@@ -14,7 +14,7 @@ part of "glass_sheet.dart";
 /// here.
 class GlassSheetHeader extends StatelessWidget {
   static Duration _switch(BuildContext context) =>
-      YiviMotion.duration(context, const Duration(milliseconds: 200));
+      YiviMotion.duration(context, YiviMotion.quick);
 
   final String title;
 
