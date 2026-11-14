@@ -236,7 +236,10 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: theme.neutralExtraDark, width: 2.5),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+            padding: const EdgeInsets.symmetric(
+              vertical: YiviSpace.x8,
+              horizontal: 6,
+            ),
             child: Column(
               children: [
                 Container(

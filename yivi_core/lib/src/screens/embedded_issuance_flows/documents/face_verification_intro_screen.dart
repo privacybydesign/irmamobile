@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/surface_card.dart";
@@ -118,7 +119,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
                   style: palette.body(17).copyWith(height: 26 / 17),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: YiviSpace.x16),
               tipsGroup,
             ],
           ),
@@ -150,7 +151,7 @@ class _DocumentFlowTip extends StatelessWidget {
             : null,
       ),
       child: Row(
-        spacing: 12,
+        spacing: YiviSpace.x12,
         children: [
           ExcludeSemantics(
             child: Container(

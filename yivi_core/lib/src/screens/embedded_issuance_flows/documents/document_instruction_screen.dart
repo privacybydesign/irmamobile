@@ -3,6 +3,7 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/sheet_layout.dart";
@@ -79,7 +80,7 @@ class DocumentInstructionScreen extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 16),
+            padding: const EdgeInsets.only(top: YiviSpace.x16),
             child: DocumentTipBox(textKey: "$keys.tip"),
           ),
         ];
@@ -108,7 +109,7 @@ class DocumentInstructionScreen extends StatelessWidget {
           start: words(TextAlign.start, top: 0, size: 22).take(2).toList(),
           end: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
+            spacing: YiviSpace.x12,
             children: [
               Expanded(
                 child: Center(
@@ -133,7 +134,12 @@ class DocumentInstructionScreen extends StatelessWidget {
       titleKey: documentType.scanTitleKey,
       body: SingleChildScrollView(
         // 24 below the floating app bar and from the sides, as on the board.
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x24,
+          YiviSpace.x24,
+          YiviSpace.x24,
+          YiviSpace.x24,
+        ),
         child: SafeArea(
           child: landscape
               ? Row(
@@ -177,7 +183,10 @@ class DocumentTipBox extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: YiviSpace.x16,
+        vertical: YiviSpace.x12,
+      ),
       decoration: BoxDecoration(
         color: palette.outline,
         borderRadius: YiviCorners.cardRadius,

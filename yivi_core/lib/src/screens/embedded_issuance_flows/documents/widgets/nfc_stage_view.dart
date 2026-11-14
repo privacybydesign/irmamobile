@@ -117,7 +117,7 @@ class NfcStageScaffold extends StatelessWidget {
               liveRegion: true,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8,
+                spacing: YiviSpace.x8,
                 children: [
                   TranslatedText(
                     titleKey,

@@ -3,6 +3,7 @@ import "dart:math" as math;
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/corner_brackets.dart";
 import "../document_step_in_sheet.dart";
@@ -160,7 +161,10 @@ class _Hint extends StatelessWidget {
       liveRegion: true,
       child: DarkGlass(
         borderRadius: const BorderRadius.all(Radius.circular(20)),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: YiviSpace.x16,
+          vertical: YiviSpace.x12,
+        ),
         child: Row(
           spacing: 10,
           children: [

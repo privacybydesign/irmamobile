@@ -6,6 +6,7 @@ import "../../../models/session.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
@@ -327,8 +328,13 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     final sideways = useSheetColumns(context);
     return Padding(
       padding: sideways
-          ? const EdgeInsets.only(bottom: 4)
-          : const EdgeInsets.fromLTRB(4, 8, 4, 14),
+          ? const EdgeInsets.only(bottom: YiviSpace.x4)
+          : const EdgeInsets.fromLTRB(
+              YiviSpace.x4,
+              YiviSpace.x8,
+              YiviSpace.x4,
+              14,
+            ),
       child: Semantics(
         header: true,
         child: KeyedSubtree(
@@ -427,7 +433,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         [
           // The room the label above the boxes had: the heading says what
           // goes in them now.
-          if (!sideways) const SizedBox(height: 24),
+          if (!sideways) const SizedBox(height: YiviSpace.x24),
           ContactCodeField(
             showLabel: false,
             spread: true,
@@ -521,7 +527,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             : "sms_issuance.enter_phone.title",
       ),
       onBack: _back,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       split: landscape,
       action: action,
       // Two steps of their own: the address, then the code.
@@ -532,7 +538,10 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       bottom: IssueSheetProgress(step: code ? 3 : 2, total: widget.total),
       child: landscape
           ? body
-          : Padding(padding: const EdgeInsets.only(top: 8), child: body),
+          : Padding(
+              padding: const EdgeInsets.only(top: YiviSpace.x8),
+              child: body,
+            ),
     );
   }
 }

@@ -17,6 +17,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/pill_text_field.dart";
@@ -257,7 +258,7 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
             context,
             hint: context.tr("sms_issuance.enter_phone.phone_hint"),
           ).copyWith(
-            contentPadding: const EdgeInsets.fromLTRB(4, 17, 20, 17),
+            contentPadding: const EdgeInsets.fromLTRB(YiviSpace.x4, 17, 20, 17),
             prefixIcon: _CountryButton(
               country: _country,
               label: context.tr("sms_issuance.enter_phone.country_button", {
@@ -372,12 +373,15 @@ class _CountryButton extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 16, end: 12),
+            padding: const EdgeInsetsDirectional.only(
+              start: YiviSpace.x16,
+              end: YiviSpace.x12,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CountryFlag(country: country, width: 26),
-                const SizedBox(width: 8),
+                const SizedBox(width: YiviSpace.x8),
                 Text(
                   country.dialCode ?? "",
                   textDirection: TextDirection.ltr,
@@ -385,7 +389,7 @@ class _CountryButton extends StatelessWidget {
                       .body(17, weight: FontWeight.w600)
                       .copyWith(color: palette.text),
                 ),
-                const SizedBox(width: 2),
+                const SizedBox(width: YiviSpace.x2),
                 Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 20,

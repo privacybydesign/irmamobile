@@ -270,7 +270,7 @@ class ContactIntro extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: YiviSpace.x24),
         TranslatedText(
           headerKey,
           isHeader: true,
@@ -279,7 +279,7 @@ class ContactIntro extends StatelessWidget {
               .display(24, weight: FontWeight.w700)
               .copyWith(height: 32 / 24, color: palette.heading),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: YiviSpace.x8),
         TranslatedText(
           bodyKey,
           translationParams: bodyParams,
@@ -306,7 +306,12 @@ class ContactFieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       // Sideways it starts the right column, level with the explanation.
-      padding: EdgeInsets.fromLTRB(4, useSheetColumns(context) ? 2 : 28, 4, 8),
+      padding: EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        useSheetColumns(context) ? 2 : 28,
+        YiviSpace.x4,
+        YiviSpace.x8,
+      ),
       child: TranslatedText(
         labelKey,
         textAlign: textAlign,
@@ -633,9 +638,9 @@ class ContactSentTo extends StatelessWidget {
     );
     return SurfaceCard(
       key: const Key("contact_sheet_sent_to"),
-      padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
+      padding: const EdgeInsets.fromLTRB(10, 10, YiviSpace.x8, 10),
       child: Row(
-        spacing: 12,
+        spacing: YiviSpace.x12,
         children: [
           ExcludeSemantics(
             child: IconSquare(
@@ -720,7 +725,7 @@ class ContactResendRow extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final inline = useSheetColumns(context) && !SheetSplit.isIn(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 0, 0),
+      padding: const EdgeInsets.fromLTRB(YiviSpace.x4, YiviSpace.x8, 0, 0),
       child: Row(
         // Sideways, outside the split's narrow column, on one line: the link
         // right after the hint.

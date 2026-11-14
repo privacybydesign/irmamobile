@@ -8,6 +8,7 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
@@ -200,11 +201,11 @@ class _CameraScaffold extends StatelessWidget {
               width: sideways ? _sideWidth : null,
               child: DarkGlass(
                 borderRadius: YiviCorners.cardRadius,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(YiviSpace.x12),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 4,
+                  spacing: YiviSpace.x4,
                   children: [
                     PillButton(
                       key: DocumentFlowButton.primaryKey,
@@ -268,7 +269,12 @@ class _SheetCamera extends StatelessWidget {
           onTap: onManual,
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x16,
+            YiviSpace.x8,
+            YiviSpace.x16,
+            YiviSpace.x8,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -319,14 +325,14 @@ class _SheetCamera extends StatelessWidget {
     }
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
+        YiviSpace.x16,
+        YiviSpace.x8,
+        YiviSpace.x16,
         FloatingBarPlacement.buttonBottom(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 12,
+        spacing: YiviSpace.x12,
         children: [
           Expanded(child: card),
           manual,
@@ -350,14 +356,14 @@ class _DarkPermissionFallback extends StatelessWidget {
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
-          32,
+          YiviSpace.x32,
           padding.top + 84,
           beside > 0 ? beside : 32,
           padding.bottom + (beside > 0 ? 16 : 180),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          spacing: 12,
+          spacing: YiviSpace.x12,
           children: [
             TranslatedText(
               "mrz_camera_permissions.title",

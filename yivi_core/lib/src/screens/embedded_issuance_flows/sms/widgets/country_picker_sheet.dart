@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/credentials_search.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../util/adaptive_layout.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_group.dart";
@@ -150,7 +151,7 @@ class _CountryPickerState extends State<_CountryPicker> {
       slivers: [
         if (header != null) SliverToBoxAdapter(child: GlassTileHeader(header)),
         SliverPadding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: YiviSpace.x12),
           sliver: SliverGrid.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
@@ -185,17 +186,18 @@ class _CountryPickerState extends State<_CountryPicker> {
       title: _t("country_title"),
       // Sideways the search field is in the bar, next to the title.
       titleWidget: landscape ? search : null,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       slivers: [
         if (!landscape) SliverToBoxAdapter(child: search),
         if (query.isEmpty) ...[
-          if (landscape) const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          if (landscape)
+            const SliverToBoxAdapter(child: SizedBox(height: YiviSpace.x8)),
           group(_t("country_common"), common),
           group(_t("country_all"), byName),
         ] else if (found.isEmpty)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(top: 32),
+              padding: const EdgeInsets.only(top: YiviSpace.x32),
               child: Text(
                 _t("country_none"),
                 textAlign: TextAlign.center,
@@ -205,7 +207,7 @@ class _CountryPickerState extends State<_CountryPicker> {
           )
         else ...[
           // As far below the search field as a list under a header.
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          const SliverToBoxAdapter(child: SizedBox(height: YiviSpace.x16)),
           group(null, found),
         ],
       ],
@@ -249,9 +251,14 @@ class _CountryRow extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 52),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+            padding: const EdgeInsets.fromLTRB(
+              14,
+              YiviSpace.x8,
+              14,
+              YiviSpace.x8,
+            ),
             child: Row(
-              spacing: 12,
+              spacing: YiviSpace.x12,
               children: [
                 CountryFlag(country: country),
                 Expanded(

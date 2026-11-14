@@ -6,6 +6,7 @@ import "../../../../models/email_code_pointer.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../theme/yivi_tone.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
@@ -150,7 +151,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
             ),
           if (_codeFromLink)
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: YiviSpace.x12),
               child: Semantics(
                 liveRegion: true,
                 child: TranslatedText(

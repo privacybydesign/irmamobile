@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_space.dart";
 import "../../../../widgets/glass/sheet_layout.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/pill_text_field.dart";
@@ -68,7 +69,12 @@ class ManualEntryScaffold extends StatelessWidget {
                 child: Padding(
                   padding: split
                       ? EdgeInsets.zero
-                      : const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                      : const EdgeInsets.fromLTRB(
+                          YiviSpace.x16,
+                          YiviSpace.x16,
+                          YiviSpace.x16,
+                          YiviSpace.x24,
+                        ),
                   child: ManualEntryLayout(
                     actions: split
                         ? DocumentFlowFooter.sheetActions(
@@ -131,7 +137,12 @@ class ManualEntryLayout extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x4,
+            YiviSpace.x8,
+            YiviSpace.x4,
+            0,
+          ),
           child: TranslatedText(
             titleKey,
             isHeader: true,
@@ -141,7 +152,12 @@ class ManualEntryLayout extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x4,
+            YiviSpace.x8,
+            YiviSpace.x4,
+            0,
+          ),
           child: TranslatedText(
             explanationKey,
             style: palette.body(16).copyWith(height: 24 / 16),
@@ -149,15 +165,15 @@ class ManualEntryLayout extends StatelessWidget {
         ),
         SurfaceCard(
           margin: const EdgeInsets.only(top: 20),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(YiviSpace.x16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 16,
+            spacing: YiviSpace.x16,
             children: fields,
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.only(top: YiviSpace.x12),
           child: DocumentTipBox(textKey: tipKey),
         ),
       ],
@@ -171,16 +187,16 @@ class ManualEntryLayout extends StatelessWidget {
   Widget _split(BuildContext context, YiviPalette palette) {
     final keyboard = SheetSplit.keyboardUp(context);
     final card = SurfaceCard(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(YiviSpace.x12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 12,
+        spacing: YiviSpace.x12,
         children: fields.length == 3
             ? [
                 fields[0],
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 12,
+                  spacing: YiviSpace.x12,
                   children: [
                     Expanded(child: fields[1]),
                     Expanded(child: fields[2]),
@@ -224,7 +240,7 @@ class DocumentField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 0, 4, 6),
+          padding: const EdgeInsets.fromLTRB(YiviSpace.x4, 0, YiviSpace.x4, 6),
           child: Text(label, style: fieldLabelStyle(context)),
         ),
         field,
