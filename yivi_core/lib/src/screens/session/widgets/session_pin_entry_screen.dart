@@ -1,9 +1,9 @@
 import "dart:async";
 
-import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -71,7 +71,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     if (widget.blockedTimeSeconds != null &&
         _previousBlockedTimeSeconds == null) {
       _resetEntry();
-      HapticFeedback.heavyImpact();
+      Haptics.error();
       _blockedUntil = DateTime.now().add(
         Duration(seconds: widget.blockedTimeSeconds!),
       );
@@ -89,7 +89,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         widget.blockedTimeSeconds == null) {
       _resetEntry();
       _wrong = true;
-      HapticFeedback.heavyImpact();
+      Haptics.error();
     }
 
     _previousRemainingAttempts = widget.remainingAttempts;

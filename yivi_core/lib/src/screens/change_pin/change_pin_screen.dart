@@ -1,9 +1,9 @@
-import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
@@ -135,20 +135,20 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
     ref.listen<OldPinVerificationState>(verifyOldPinProvider, (_, state) {
       switch (state.validationState) {
         case ValidationState.valid:
-          HapticFeedback.mediumImpact();
+          Haptics.success();
           // old pin verified, proceed to new pin screen
           navigatorKey.currentState?.pushReplacementNamed(
             ChoosePinScreen.routeName,
           );
           break;
         case ValidationState.invalid:
-          HapticFeedback.heavyImpact();
+          Haptics.error();
           assert(state.attemptsRemaining != null);
           _handleBadPinAttempts(state.attemptsRemaining!, state.blockedUntil);
           navigatorKey.currentState?.pushNamed(EnterPin.routeName);
           break;
         case ValidationState.error:
-          HapticFeedback.heavyImpact();
+          Haptics.error();
           _handleException(state.error);
           break;
         case ValidationState.initial: // for completeness

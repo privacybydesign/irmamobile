@@ -778,7 +778,12 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     size: 40,
     iconSize: 22,
     label: context.tr(widget.submitLabel),
-    onPressed: _canSubmit ? _submit.haptic : null,
+    onPressed: _canSubmit
+        ? () {
+            Haptics.key();
+            _submit();
+          }
+        : null,
   );
 
   Widget _buildPinDots({Color? ring}) {
@@ -801,10 +806,11 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             visible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
             'pin_accessibility.${visible ? 'hide' : 'show'}_pin',
             () {
+              Haptics.key();
               pinVisibilityValue.value = !visible;
               _prefs?.setPinVisible(!visible);
               _jumpController.forward(from: 0);
-            }.haptic,
+            },
           ),
         );
       },

@@ -1,5 +1,4 @@
 import "package:cupertino_ui/cupertino_ui.dart";
-import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 import "package:share_plus/share_plus.dart";
 
@@ -7,6 +6,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/link.dart";
@@ -155,7 +155,7 @@ class ToggleTile extends StatelessWidget {
         final value = snapshot.hasData && snapshot.data!;
 
         void toggle(bool newValue) {
-          HapticFeedback.selectionClick();
+          Haptics.select();
           onChanged(newValue);
         }
 

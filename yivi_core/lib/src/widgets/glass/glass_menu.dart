@@ -1,10 +1,10 @@
 import "dart:math";
 
-import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/haptics.dart";
 import "glass_surface.dart";
 
 /// One choice in a [showGlassMenu].
@@ -42,7 +42,7 @@ Future<T?> showGlassMenu<T>(
 }) {
   final box = anchor.findRenderObject()! as RenderBox;
   final rect = box.localToGlobal(Offset.zero) & box.size;
-  HapticFeedback.selectionClick();
+  Haptics.select();
   return Navigator.of(anchor).push(
     _GlassMenuRoute<T>(
       anchor: rect,

@@ -1,6 +1,5 @@
 import "dart:io";
 
-import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -17,6 +16,7 @@ import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../util/after_frame.dart";
 import "../../util/email_linking.dart";
+import "../../util/haptics.dart";
 import "../../util/navigation.dart";
 import "../../util/string.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -197,7 +197,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
         // Show success screen
         if (session.status == .success) {
-          HapticFeedback.mediumImpact();
+          Haptics.success();
           return _buildSuccess(session);
         }
 
@@ -619,7 +619,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildError(SessionError error) {
-    HapticFeedback.heavyImpact();
+    Haptics.error();
     return SessionErrorScreen(error: error, onTapClose: _closeSession);
   }
 

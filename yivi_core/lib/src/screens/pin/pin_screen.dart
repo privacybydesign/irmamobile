@@ -1,4 +1,3 @@
-import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -11,6 +10,7 @@ import "../../providers/startup_url_resolved_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/after_frame.dart";
+import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -115,17 +115,17 @@ class _PinScreenState extends ConsumerState<PinScreen>
 
   void _handleStateChange(PinUnlockState state) {
     if (state.authenticated) {
-      HapticFeedback.mediumImpact();
+      Haptics.success();
       widget.onAuthenticated();
       return;
     }
     // A wrong PIN or a block is said on the screen itself (see build): the
     // entry is cleared, the dots ring red and the line says what happened.
     if (state.pinInvalid) {
-      HapticFeedback.heavyImpact();
+      Haptics.error();
       if (mounted) setState(() => _resetNonce++);
     } else if (state.error != null) {
-      HapticFeedback.heavyImpact();
+      Haptics.error();
       _goToSessionErrorScreen(state.error);
     }
   }

@@ -1,10 +1,10 @@
 import "dart:async";
 
 import "package:flutter/semantics.dart";
-import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
+import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/tab_layout.dart";
 
@@ -108,7 +108,7 @@ class _DragToArrangeState extends State<DragToArrange> {
   }
 
   void _start(int index, LongPressStartDetails details) {
-    HapticFeedback.mediumImpact();
+    Haptics.pickUp();
     setState(() {
       _dragged = widget.keys[index];
       _from = _to = index;
@@ -136,7 +136,7 @@ class _DragToArrangeState extends State<DragToArrange> {
   void _follow() {
     if (_dragged == null) return;
     final to = widget.indexAt(_handAt).clamp(0, widget.keys.length - 1);
-    if (to != _to) HapticFeedback.selectionClick();
+    if (to != _to) Haptics.select();
     setState(() => _to = to);
   }
 
@@ -173,7 +173,7 @@ class _DragToArrangeState extends State<DragToArrange> {
     _autoScroll?.cancel();
     final dragged = _dragged;
     if (dragged == null) return;
-    HapticFeedback.mediumImpact();
+    Haptics.drop();
     final (from, to) = (_from, _to);
     setState(() {
       _dragged = null;

@@ -1,4 +1,3 @@
-import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,6 +6,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/after_frame.dart";
+import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/glass/glass_sheet.dart";
@@ -96,7 +96,7 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
       pointer.continueOnSecondDevice = true;
     }
 
-    HapticFeedback.vibrate();
+    Haptics.scanned();
 
     if (widget.onScanned case final onScanned?) {
       onScanned(pointer);

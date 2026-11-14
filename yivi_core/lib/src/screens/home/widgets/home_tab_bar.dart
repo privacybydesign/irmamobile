@@ -235,7 +235,7 @@ class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
     final place = _placeAt(event.localPosition.dx);
     _aim(event.localPosition.dx);
     if (place == _place) return;
-    HapticFeedback.selectionClick();
+    Haptics.select();
     _moved = true;
     setState(() => _place = place);
   }

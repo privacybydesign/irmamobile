@@ -3,7 +3,6 @@ import "dart:math";
 import "package:collection/collection.dart";
 import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/semantics.dart";
-import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -24,6 +23,7 @@ import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
+import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/instance_hint.dart";
 import "../../util/navigation.dart";
@@ -864,7 +864,7 @@ class _ViewMenu extends ConsumerWidget {
       case final CardArrangement by:
         final order = ref.read(credentialOrderControllerProvider.notifier);
         final before = order.arrange(by);
-        HapticFeedback.mediumImpact();
+        Haptics.drop();
         showAppToast(
           context,
           context.tr("wallet.arrange.done_${by.name}"),

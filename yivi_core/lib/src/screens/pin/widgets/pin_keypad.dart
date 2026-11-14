@@ -1,8 +1,8 @@
 import "package:flutter/gestures.dart";
-import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
 
 /// The shared PIN number pad: digits 0-9 plus a backspace key.
@@ -107,7 +107,7 @@ class _PinKeypadState extends State<PinKeypad> {
     if (cell == _biometricCell && !_hasBiometric) return;
     _fingers[event.pointer] = cell;
     _faces[cell].currentState?.press();
-    HapticFeedback.lightImpact();
+    Haptics.key();
     final digit = _digitOf(cell);
     if (digit != null) widget.onDigitPressed(digit, event.pointer);
   }
