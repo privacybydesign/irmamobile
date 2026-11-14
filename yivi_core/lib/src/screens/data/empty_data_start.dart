@@ -9,7 +9,6 @@ import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
-import "../../util/tablet.dart";
 import "../../widgets/caps_label.dart";
 import "../../widgets/icon_square.dart";
 import "../../widgets/translated_text.dart";
@@ -53,7 +52,7 @@ class EmptyDataTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final tablet = context.isTabletDevice;
+    final tablet = isTabletWindow(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -128,7 +127,7 @@ class EmptyDataOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final tablet = context.isTabletDevice;
+    final tablet = isTabletWindow(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 10,

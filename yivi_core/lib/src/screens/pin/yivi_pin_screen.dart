@@ -14,10 +14,10 @@ import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
+import "../../util/adaptive_layout.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/scale.dart";
-import "../../util/tablet.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/glass_surface.dart";
@@ -355,7 +355,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
         builder: (context, orientation) {
           // Held upright a tablet has the centred column; held sideways
           // the keypad goes on the right, as on a phone held sideways.
-          if (context.isTabletDevice && orientation == Orientation.portrait) {
+          if (isTabletWindow(context) && orientation == Orientation.portrait) {
             return _bodyTablet(context);
           }
           if (Orientation.portrait == orientation) {

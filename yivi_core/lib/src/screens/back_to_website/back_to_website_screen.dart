@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
+import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/step_number_disc.dart";
@@ -20,7 +21,7 @@ class BackToWebsiteScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final sideways = enrollmentSideways(context);
-    final tablet = enrollmentTablet(context);
+    final tablet = isTabletWindow(context);
     final align = sideways ? TextAlign.start : TextAlign.center;
 
     final action = Column(
@@ -110,7 +111,7 @@ class _BrowserSketch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final scale = enrollmentTablet(context) ? 1.3 : 1.0;
+    final scale = isTabletWindow(context) ? 1.3 : 1.0;
     Widget bar(double width, double height, Color color) => Container(
       width: width,
       height: height,

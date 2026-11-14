@@ -4,6 +4,7 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -48,7 +49,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tablet = enrollmentTablet(context);
+    final tablet = isTabletWindow(context);
     final sideways = enrollmentSideways(context);
     // A phone held sideways: the values scroll, the terms and the button
     // stay at the bottom of the column.
@@ -146,7 +147,7 @@ class _ValueRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final tablet = enrollmentTablet(context);
+    final tablet = isTabletWindow(context);
     return MergeSemantics(
       child: Padding(
         padding: const EdgeInsets.symmetric(

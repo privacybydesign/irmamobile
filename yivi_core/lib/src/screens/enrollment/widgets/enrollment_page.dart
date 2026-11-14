@@ -5,17 +5,12 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../util/tablet.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/fill_scroll_view.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/press_scale.dart";
 import "../../../widgets/translated_text.dart";
-
-/// Whether an enrollment page uses the tablet sizes: bigger titles, cards
-/// and icon tile.
-bool enrollmentTablet(BuildContext context) => context.isTabletDevice;
 
 /// Whether an enrollment page lays out in two columns: whenever the screen
 /// is wider than high, on a phone and on a tablet.
@@ -62,7 +57,7 @@ class EnrollmentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final sideways = enrollmentSideways(context);
-    final tablet = enrollmentTablet(context);
+    final tablet = isTabletWindow(context);
     final hasBar = trailing != null;
     final barSpace = hasBar ? _topBarHeight + 8 : 0.0;
 
@@ -266,7 +261,7 @@ class EnrollmentStepLabel extends StatelessWidget {
           ? TextAlign.start
           : TextAlign.center,
       style: palette
-          .body(enrollmentTablet(context) ? 15 : 14)
+          .body(isTabletWindow(context) ? 15 : 14)
           .copyWith(color: palette.secondaryText),
     );
   }
@@ -282,7 +277,7 @@ class EnrollmentTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final tablet = enrollmentTablet(context);
+    final tablet = isTabletWindow(context);
     return TranslatedText(
       translationKey,
       isHeader: true,
@@ -304,7 +299,7 @@ class EnrollmentLead extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final tablet = enrollmentTablet(context);
+    final tablet = isTabletWindow(context);
     return TranslatedText(
       translationKey,
       textAlign: textAlign,

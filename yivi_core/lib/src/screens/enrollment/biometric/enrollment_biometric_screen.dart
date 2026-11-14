@@ -9,6 +9,7 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
@@ -58,7 +59,7 @@ class _EnrollmentBiometricScreenState
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final tablet = enrollmentTablet(context);
+    final tablet = isTabletWindow(context);
     final sideways = enrollmentSideways(context);
     final type = ref.watch(biometricTypeProvider).value;
     final kind = switch (type) {

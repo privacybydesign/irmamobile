@@ -12,6 +12,7 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -213,7 +214,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   Widget build(BuildContext context) {
     final flow = ref.watch(emailIssuanceProvider);
     final palette = YiviPalette.of(context);
-    final tablet = enrollmentTablet(context);
+    final tablet = isTabletWindow(context);
     final sideways = enrollmentSideways(context);
     final keyboard = MediaQuery.viewInsetsOf(context).bottom > 0;
     final code = flow.stage == EmailIssuanceStage.enteringVerificationCode;
