@@ -63,7 +63,7 @@ class _HomeTabBarState extends State<HomeTabBar> {
     final row = Row(
       children: [
         Expanded(child: tabs),
-        const SizedBox(width: 8),
+        const SizedBox(width: YiviSpace.x8),
         const HomeScanButton(),
       ],
     );
@@ -451,7 +451,7 @@ class _Tab extends StatelessWidget {
       scale: scale,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 2,
+        spacing: YiviSpace.x2,
         children: [
           TabIcon(icon: icon, color: color, showDot: showDot),
           Text(

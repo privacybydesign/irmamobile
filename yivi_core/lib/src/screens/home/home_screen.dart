@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/native_events.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/floating_bar_placement.dart";
@@ -316,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.fromLTRB(
               padding.left + 16,
               padding.top + 16,
-              16,
+              YiviSpace.x16,
               padding.bottom + 16,
             ),
             child: SizedBox(width: sidebarWidth, child: sidebar),

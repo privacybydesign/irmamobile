@@ -5,6 +5,7 @@ import "../../../providers/credentials_provider.dart";
 import "../../../providers/preferences_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -44,7 +45,12 @@ class ScanTip extends ConsumerWidget {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(YiviCorners.dialog)),
           ),
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          padding: const EdgeInsets.fromLTRB(
+            14,
+            YiviSpace.x12,
+            14,
+            YiviSpace.x12,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -55,12 +61,12 @@ class ScanTip extends ConsumerWidget {
                     .body(14.5, weight: FontWeight.w700)
                     .copyWith(color: palette.heading),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: YiviSpace.x2),
               TranslatedText(
                 rail ? "scan_tip.text_rail" : "scan_tip.text_bar",
                 style: palette.body(13).copyWith(color: palette.secondaryText),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: YiviSpace.x8),
               SmallPill(
                 key: const Key("scan_tip_ok"),
                 label: context.tr("scan_tip.ok"),

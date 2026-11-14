@@ -5,6 +5,7 @@ import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../widgets/glass/glass_search_field.dart";
 import "../../../widgets/glass/round_icon_button.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -391,7 +392,7 @@ class _Bar extends StatelessWidget {
               width: _side,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                spacing: 8,
+                spacing: YiviSpace.x8,
                 children: [
                   // Not there, for a finger or a screen reader, until it
                   // has mostly come in.
@@ -557,10 +558,10 @@ class HomeTabSearchField extends StatelessWidget {
         onTap: onTap,
         child: Container(
           height: height,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
           decoration: GlassSearchField.decoration(palette),
           child: Row(
-            spacing: 8,
+            spacing: YiviSpace.x8,
             children: [
               GlassSearchField.icon(palette),
               Expanded(

@@ -37,7 +37,7 @@ class HomeRail extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 8),
+          const SizedBox(height: YiviSpace.x8),
           Stack(
             clipBehavior: Clip.none,
             children: [
@@ -126,7 +126,12 @@ class HomeSidebar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x12,
+            0,
+            YiviSpace.x12,
+            YiviSpace.x24,
+          ),
           child: Align(
             alignment: Alignment.centerLeft,
             child: SvgPicture.asset(
@@ -138,7 +143,7 @@ class HomeSidebar extends StatelessWidget {
         ),
         for (final (tab, labelKey, activeIcon, icon) in homeTabs)
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: YiviSpace.x4),
             child: _SidebarItem(
               key: Key("nav_button_${tab.name}"),
               label: context.tr(labelKey),
@@ -165,7 +170,7 @@ class HomeSidebar extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(
           padding.left + 12,
           padding.top + 24,
-          12,
+          YiviSpace.x12,
           padding.bottom + 16,
         ),
         decoration: _docked(palette),
@@ -173,7 +178,12 @@ class HomeSidebar extends StatelessWidget {
       );
     }
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 24, 12, 16),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x12,
+        YiviSpace.x24,
+        YiviSpace.x12,
+        YiviSpace.x16,
+      ),
       decoration: _floating(
         palette,
         const RoundedRectangleBorder(
@@ -220,9 +230,11 @@ class _SidebarItem extends StatelessWidget {
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: YiviSpace.x12,
+                  ),
                   child: Row(
-                    spacing: 12,
+                    spacing: YiviSpace.x12,
                     children: [
                       icon.build(color, 24),
                       Expanded(
