@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -31,11 +31,7 @@ class CallInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    String t(String key) => FlutterI18n.translate(
-      context,
-      key,
-      translationParams: {"requestor": otherParty},
-    );
+    String t(String key) => context.tr(key, {"requestor": otherParty});
     final number = phoneNumber;
     // Tablets: one centred column, the button right under the text.
     final tablet = useSessionColumns(context);
@@ -111,11 +107,9 @@ class CallInfoScreen extends StatelessWidget {
                   SizedBox(
                     width: 360,
                     child: FancyPillButton(
-                      label: FlutterI18n.translate(
-                        context,
-                        "share.call.button",
-                        translationParams: {"requestor": otherParty},
-                      ),
+                      label: context.tr("share.call.button", {
+                        "requestor": otherParty,
+                      }),
                       onPressed: () => onContinue?.call(),
                     ),
                   ),

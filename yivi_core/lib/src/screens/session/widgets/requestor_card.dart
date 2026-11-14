@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
@@ -313,11 +312,10 @@ class RequestorCard extends StatelessWidget {
     }
     return Semantics(
       button: true,
-      label: FlutterI18n.translate(
-        context,
-        "share.trust.card_semantics",
-        translationParams: {"name": requestor.name, "status": status},
-      ),
+      label: context.tr("share.trust.card_semantics", {
+        "name": requestor.name,
+        "status": status,
+      }),
       excludeSemantics: true,
       child: PressScale(
         scale: PressScale.card,
@@ -394,11 +392,10 @@ class RequestorCard extends StatelessWidget {
             if (tap != null)
               Semantics(
                 button: true,
-                label: FlutterI18n.translate(
-                  context,
-                  "share.trust.card_semantics",
-                  translationParams: {"name": requestor.name, "status": status},
-                ),
+                label: context.tr("share.trust.card_semantics", {
+                  "name": requestor.name,
+                  "status": status,
+                }),
                 excludeSemantics: true,
                 child: PressScale(
                   child: GestureDetector(

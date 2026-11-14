@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential_store.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/count_badge.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
@@ -112,7 +112,7 @@ class EmptyCardSpot extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              strip ?? FlutterI18n.translate(context, "share.not_in_app_yet"),
+              strip ?? context.tr("share.not_in_app_yet"),
               style: CardTileStrip.textStyle(context),
             ),
           ),
@@ -147,10 +147,7 @@ class EmptyCardSpot extends StatelessWidget {
                           if (asked)
                             ValueTag(
                               key: const Key("value_tag_asked"),
-                              text: FlutterI18n.translate(
-                                context,
-                                "share.spot.asked",
-                              ),
+                              text: context.tr("share.spot.asked"),
                               tone: ValueTagTone.asked,
                             ),
                         ],

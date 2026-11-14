@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
@@ -1550,7 +1549,7 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
     return GlassSheetPage(
       // Left by dragging its header down: no close button.
       closable: false,
-      title: FlutterI18n.translate(context, "issuance.title"),
+      title: context.tr("issuance.title"),
       onBack: widget.onCancel,
       titleWidget: IssueRequestorPill.maybe(widget.subject),
       titleWidgetCentred: true,

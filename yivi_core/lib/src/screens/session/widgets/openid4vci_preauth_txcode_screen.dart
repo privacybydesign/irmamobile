@@ -1,5 +1,4 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -7,6 +6,7 @@ import "../../../models/credential_store.dart";
 import "../../../models/session_state.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -109,14 +109,12 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       }
     });
 
-    final headerTemplate = FlutterI18n.translate(
-      context,
+    final headerTemplate = context.tr(
       "issuance.pre-authorized_code.tx_code_screen.header",
     );
     final bodyTemplate =
         widget.transactionCodeParameters.description ??
-        FlutterI18n.translate(
-          context,
+        context.tr(
           widget.issuedCredentials.length > 1
               ? "issuance.pre-authorized_code.tx_code_screen.body_multiple"
               : "issuance.pre-authorized_code.tx_code_screen.body",
@@ -155,8 +153,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         _buildInput(context, length, codeInvalid),
         if (codeInvalid)
           FieldError(
-            FlutterI18n.plural(
-              context,
+            context.plural(
               "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
               remainingAttempts,
             ),
@@ -166,18 +163,14 @@ class _OpenID4VCIPreAuthTxCodeScreenState
     );
 
     if (widget.inSheet) {
-      final continueLabel = FlutterI18n.translate(
-        context,
+      final continueLabel = context.tr(
         "issuance.pre-authorized_code.tx_code_screen.continue",
       );
       return GlassSheetPage(
         // Left by dragging its header down: no close button.
         closable: false,
         key: const Key("sheet_openid4vci_tx_code"),
-        title: FlutterI18n.translate(
-          context,
-          "issuance.pre-authorized_code.tx_code_screen.title",
-        ),
+        title: context.tr("issuance.pre-authorized_code.tx_code_screen.title"),
         onBack: widget.onDismiss,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         // A code of a known length is sent once it is complete.
@@ -267,8 +260,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
   }
 
   Widget _buildBottomBar(BuildContext context, int? length) {
-    final cancelLabel = FlutterI18n.translate(
-      context,
+    final cancelLabel = context.tr(
       "issuance.pre-authorized_code.tx_code_screen.cancel",
     );
 
@@ -279,8 +271,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       );
     }
 
-    final continueLabel = FlutterI18n.translate(
-      context,
+    final continueLabel = context.tr(
       "issuance.pre-authorized_code.tx_code_screen.continue",
     );
     return IrmaBottomBar(

@@ -1,5 +1,4 @@
 import "package:flutter/foundation.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
@@ -32,12 +31,11 @@ class _ForRequest extends IssueSheetSubject {
   /// "For {requestor}", or "For {requestor} · card 1 of 2" in a set.
   String text(BuildContext context) {
     final set = ofSet;
-    return FlutterI18n.translate(
-      context,
+    return context.tr(
       set == null
           ? "share.sheet.for_requestor"
           : "share.sheet.for_requestor_set",
-      translationParams: {
+      {
         "requestor": requestor.name,
         if (set != null) "n": "${set.n}",
         if (set != null) "total": "${set.total}",

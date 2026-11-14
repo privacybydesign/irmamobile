@@ -1,10 +1,10 @@
 import "dart:async";
 
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
@@ -139,8 +139,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     // a fresh buffer.
     final pad = YiviPinScreen(
       key: ValueKey(_resetNonce),
-      instruction: FlutterI18n.translate(
-        context,
+      instruction: context.tr(
         blocked ? "pin.blocked_title" : "session_pin.subtitle",
       ),
       // A lock, not the logo: this PIN confirms a request.
@@ -187,9 +186,5 @@ String? sessionPinDetail(
   required String requestor,
 }) {
   if (requestor.isEmpty) return null;
-  return FlutterI18n.translate(
-    context,
-    "session_pin.detail.$kind",
-    translationParams: {"requestor": requestor},
-  );
+  return context.tr("session_pin.detail.$kind", {"requestor": requestor});
 }

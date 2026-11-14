@@ -1,9 +1,9 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/landscape_action_bar.dart";
@@ -55,11 +55,7 @@ class ActionFeedback extends StatelessWidget {
     );
     final button = FancyPillButton(
       key: const Key("ok_button"),
-      label: FlutterI18n.translate(
-        context,
-        buttonTranslationKey,
-        translationParams: buttonTranslationParams,
-      ),
+      label: context.tr(buttonTranslationKey, buttonTranslationParams),
       onPressed: onDismiss,
     );
 

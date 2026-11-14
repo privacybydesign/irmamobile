@@ -1,5 +1,4 @@
 import "package:collection/collection.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -9,6 +8,7 @@ import "../../../models/session_state.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -64,23 +64,21 @@ class SharedCardTile extends ConsumerWidget {
     final chip = problem != null
         ? StatusChip(
             key: const Key("shared_card_chip"),
-            label: FlutterI18n.translate(context, _problemKey(problem)),
+            label: context.tr(_problemKey(problem)),
             tone: DialogTone.danger,
           )
         : isNew
         ? StatusChip(
             key: const Key("shared_card_new"),
-            label: FlutterI18n.translate(context, "share.new_chip"),
+            label: context.tr("share.new_chip"),
             tone: DialogTone.success,
           )
         : null;
 
     final note = problem != null
-        ? FlutterI18n.translate(
-            context,
-            "share.problem.${_problemName(problem)}_note",
-            translationParams: {"issuer": cards.first.issuer.name},
-          )
+        ? context.tr("share.problem.${_problemName(problem)}_note", {
+            "issuer": cards.first.issuer.name,
+          })
         : null;
 
     // A problem is a calm strip that says what is wrong.
@@ -132,7 +130,7 @@ class SharedCardTile extends ConsumerWidget {
                 namespaced: c.format == CredentialFormat.msoMdoc,
                 disclosure: true,
                 showDividers: true,
-                matchedTag: FlutterI18n.translate(context, "share.match_tag"),
+                matchedTag: context.tr("share.match_tag"),
                 hideLabel: single,
                 // What the requestor asked for exactly, in green.
                 matched: {

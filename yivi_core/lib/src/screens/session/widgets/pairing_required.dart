@@ -1,10 +1,10 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "requestor_card.dart";
@@ -33,22 +33,15 @@ class PairingRequired extends StatelessWidget {
     // card that says it is unchecked.
     final who = (requestor?.name.trim().isNotEmpty ?? false) ? requestor : null;
     final instruction = who == null
-        ? FlutterI18n.translate(context, "session.pairing.instruction")
-        : FlutterI18n.translate(
-            context,
-            "session.pairing.explanation",
-            translationParams: {"requestor": who.name},
-          );
+        ? context.tr("session.pairing.instruction")
+        : context.tr("session.pairing.explanation", {"requestor": who.name});
     final edge = YiviEdges.block(context);
 
     return SessionScaffold(
       appBarTitle: "session.pairing.title",
       onDismiss: onDismiss,
       bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: FlutterI18n.translate(
-          context,
-          "session.navigation_bar.cancel",
-        ),
+        secondaryButtonLabel: context.tr("session.navigation_bar.cancel"),
         onSecondaryPressed: () => onDismiss(),
       ),
       body: Center(
@@ -84,7 +77,7 @@ class PairingRequired extends StatelessWidget {
                 Semantics(
                   header: true,
                   child: Text(
-                    FlutterI18n.translate(context, "session.pairing.heading"),
+                    context.tr("session.pairing.heading"),
                     key: const Key("pairing_heading"),
                     textAlign: TextAlign.center,
                     style: palette.display(23).copyWith(color: palette.text),
@@ -150,7 +143,7 @@ class PairingRequired extends StatelessWidget {
                   ),
                   Flexible(
                     child: Text(
-                      FlutterI18n.translate(context, "session.pairing.waiting"),
+                      context.tr("session.pairing.waiting"),
                       style: palette
                           .body(14)
                           .copyWith(color: palette.secondaryText),

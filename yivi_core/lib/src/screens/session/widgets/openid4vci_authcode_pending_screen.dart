@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
@@ -6,6 +5,7 @@ import "../../../models/credential_store.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/icon_square.dart";
@@ -51,8 +51,7 @@ class _OpenID4VCIAuthCodePendingScreenState
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final issuerName = widget.requestor.name;
-    final buttonLabel = FlutterI18n.translate(
-      context,
+    final buttonLabel = context.tr(
       "issuance.authorization_code.pending.open_browser",
     );
 
@@ -62,10 +61,7 @@ class _OpenID4VCIAuthCodePendingScreenState
       Semantics(
         header: true,
         child: Text(
-          FlutterI18n.translate(
-            context,
-            "issuance.authorization_code.pending.header",
-          ),
+          context.tr("issuance.authorization_code.pending.header"),
           textAlign: TextAlign.center,
           style: palette
               .display(24, weight: FontWeight.w700)
@@ -74,11 +70,10 @@ class _OpenID4VCIAuthCodePendingScreenState
       ),
       const SizedBox(height: 12),
       Text(
-        FlutterI18n.translate(
-          context,
-          "issuance.authorization_code.pending.body",
-          translationParams: {"issuer": issuerName, "button": buttonLabel},
-        ),
+        context.tr("issuance.authorization_code.pending.body", {
+          "issuer": issuerName,
+          "button": buttonLabel,
+        }),
         textAlign: TextAlign.center,
         style: palette.body(16).copyWith(height: 24 / 16),
       ),
@@ -101,8 +96,7 @@ class _OpenID4VCIAuthCodePendingScreenState
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,
         onPrimaryPressed: _launching ? null : _handleOpenBrowser,
-        secondaryButtonLabel: FlutterI18n.translate(
-          context,
+        secondaryButtonLabel: context.tr(
           "issuance.authorization_code.pending.cancel",
         ),
         onSecondaryPressed: widget.onDismiss,

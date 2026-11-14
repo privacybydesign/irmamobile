@@ -1,9 +1,9 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:native_device_orientation/native_device_orientation.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/done_check.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -135,8 +135,8 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                             key: const Key("arrow_back_semantics"),
                             liveRegion: true,
                             label:
-                                "${FlutterI18n.translate(context, infoText)}\n"
-                                "${FlutterI18n.translate(context, "arrow_back.safari")}",
+                                "${context.tr(infoText)}\n"
+                                "${context.tr("arrow_back.safari")}",
                             excludeSemantics: true,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,

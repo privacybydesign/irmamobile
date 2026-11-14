@@ -1,7 +1,6 @@
 import "dart:async";
 
 import "package:flutter/foundation.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -765,11 +764,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// "Share with a party Yivi doesn't know?": the safe answer is the big
   /// button.
   Future<bool> _confirmShareAnyway(String requestor) async {
-    String t(String key) => FlutterI18n.translate(
-      context,
-      key,
-      translationParams: {"requestor": requestor},
-    );
+    String t(String key) => context.tr(key, {"requestor": requestor});
     return await showDialog<bool>(
           context: context,
           builder: (dialogContext) => GlassDialog(
