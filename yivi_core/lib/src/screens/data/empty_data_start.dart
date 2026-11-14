@@ -1,12 +1,12 @@
 import "dart:math";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../util/tablet.dart";
 import "../../widgets/caps_label.dart";
@@ -98,10 +98,7 @@ class EmptyDataPane extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
                 child: Text(
-                  FlutterI18n.translate(
-                    context,
-                    "data_tab.start.get_started",
-                  ).toUpperCase(),
+                  context.tr("data_tab.start.get_started").toUpperCase(),
                   style: CapsLabel.style(palette),
                 ),
               ),

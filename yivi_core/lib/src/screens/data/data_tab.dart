@@ -4,7 +4,6 @@ import "package:collection/collection.dart";
 import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter/semantics.dart";
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -203,12 +202,12 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       key: const Key("data_search_cancel"),
       style: TextButton.styleFrom(foregroundColor: palette.link),
       onPressed: _stopSearching,
-      child: Text(FlutterI18n.translate(context, "wallet.search_cancel")),
+      child: Text(context.tr("wallet.search_cancel")),
     );
     final add = RoundIconButton(
       key: const Key("data_tab_add_data"),
       icon: CupertinoIcons.add,
-      label: FlutterI18n.translate(context, "wallet.add_data"),
+      label: context.tr("wallet.add_data"),
       onTap: () => showAddDataSheet(context),
     );
     final content = _Content(
@@ -236,7 +235,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
         // A phone held upright: the large title scrolls under a solid bar,
         // with "…" at its left and + at its right.
         : HomeTabTop(
-            title: FlutterI18n.translate(context, "home.nav_bar.data"),
+            title: context.tr("home.nav_bar.data"),
             searching: searching,
             searchRow: Row(
               spacing: 4,
@@ -246,10 +245,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
               ],
             ),
             searchButtonKey: const Key("data_search_button"),
-            searchLabel: FlutterI18n.translate(
-              context,
-              "wallet.search_placeholder",
-            ),
+            searchLabel: context.tr("wallet.search_placeholder"),
             onSearch: _startSearching,
             leading: const _ViewMenuButton(),
             // The + turns into the close button of a card that opens.
@@ -785,7 +781,7 @@ class _Header extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              FlutterI18n.plural(context, "wallet.count", count),
+              context.plural("wallet.count", count),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: palette.display(14).copyWith(color: palette.secondaryText),
@@ -994,7 +990,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final palette = YiviPalette.of(context);
-    final title = FlutterI18n.translate(context, "data.problematic.title");
+    final title = context.tr("data.problematic.title");
 
     return Material(
       color: palette.errorSurface,
@@ -1015,10 +1011,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    FlutterI18n.translate(
-                      context,
-                      "data.problematic.explanation",
-                    ),
+                    context.tr("data.problematic.explanation"),
                     style: palette.body(14).copyWith(color: palette.heading),
                   ),
                   const SizedBox(height: 4),
@@ -1034,10 +1027,7 @@ class _ProblematicCredentialCard extends ConsumerWidget {
               key: Key("${credential.credentialId ?? "problematic"}_delete"),
               icon: Icons.delete_outline_rounded,
               danger: true,
-              semanticsLabel: FlutterI18n.translate(
-                context,
-                "accessibility.remove",
-              ),
+              semanticsLabel: context.tr("accessibility.remove"),
               onPressed: () => _confirmDelete(context, ref),
             ),
           ],

@@ -1,10 +1,10 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../providers/email_linking_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/email_linking.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_card.dart";
@@ -111,16 +111,13 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            FlutterI18n.translate(context, "email_linking.later.body"),
+            context.tr("email_linking.later.body"),
             style: theme.textTheme.bodyMedium,
           ),
           SizedBox(height: theme.mediumSpacing),
           FancyPillButton(
             key: const Key("email_link_later_remind"),
-            label: FlutterI18n.translate(
-              context,
-              "email_linking.later.remind_me",
-            ),
+            label: context.tr("email_linking.later.remind_me"),
             size: PillSize.regular,
             onPressed: () {
               navigator.pop();
@@ -130,10 +127,7 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
           SizedBox(height: theme.smallSpacing),
           PillButton(
             key: const Key("email_link_later_dismiss"),
-            label: FlutterI18n.translate(
-              context,
-              "email_linking.later.dismiss",
-            ),
+            label: context.tr("email_linking.later.dismiss"),
             style: PillStyle.outlined,
             onPressed: () {
               navigator.pop();

@@ -1,5 +1,4 @@
 import "package:collection/collection.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -142,10 +141,7 @@ class _CredentialDetailScreenState
                   Center(
                     child: Semantics(
                       button: true,
-                      label: FlutterI18n.translate(
-                        context,
-                        "wallet.detail.back_to_cards",
-                      ),
+                      label: context.tr("wallet.detail.back_to_cards"),
                       child: GestureDetector(
                         onTap: _close,
                         // In a card transition the card is just drawn: it
@@ -404,10 +400,7 @@ class _Details extends ConsumerWidget {
       padding: EdgeInsets.fromLTRB(4, 24, 4, below),
       child: Semantics(
         header: true,
-        child: Text(
-          FlutterI18n.translate(context, key, translationParams: params),
-          style: palette.display(16),
-        ),
+        child: Text(context.tr(key, params), style: palette.display(16)),
       ),
     );
 
@@ -429,11 +422,7 @@ class _Details extends ConsumerWidget {
             if (foundLabel != null)
               StatusChip(
                 key: const Key("credential_detail_found"),
-                label: FlutterI18n.translate(
-                  context,
-                  "wallet.search.found",
-                  translationParams: {"label": foundLabel},
-                ),
+                label: context.tr("wallet.search.found", {"label": foundLabel}),
                 tone: DialogTone.info,
                 icon: Icons.search_rounded,
               ),
@@ -543,18 +532,13 @@ class _Details extends ConsumerWidget {
               spacing: 8,
               children: [
                 Text(
-                  FlutterI18n.translate(
-                    context,
-                    "credential.sharable_count",
-                    translationParams: {"count": "$sharable"},
-                  ),
+                  context.tr("credential.sharable_count", {
+                    "count": "$sharable",
+                  }),
                   style: palette.body(14, weight: FontWeight.w600),
                 ),
                 Text(
-                  FlutterI18n.translate(
-                    context,
-                    "wallet.detail.sharable_explanation",
-                  ),
+                  context.tr("wallet.detail.sharable_explanation"),
                   style: palette
                       .body(12)
                       .copyWith(color: palette.secondaryText),
@@ -585,17 +569,14 @@ class _Details extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 24),
+        _AboutRow(label: context.tr("wallet.detail.format"), value: format),
         _AboutRow(
-          label: FlutterI18n.translate(context, "wallet.detail.format"),
-          value: format,
-        ),
-        _AboutRow(
-          label: FlutterI18n.translate(context, "wallet.detail.card_design"),
+          label: context.tr("wallet.detail.card_design"),
           value: source,
         ),
         if (issued != null)
           _AboutRow(
-            label: FlutterI18n.translate(context, "wallet.detail.added"),
+            label: context.tr("wallet.detail.added"),
             value: printableDate(issued, lang),
           ),
         const SizedBox(height: 24),
@@ -603,10 +584,7 @@ class _Details extends ConsumerWidget {
           PillButton(
             key: const Key("credential_detail_reobtain"),
             style: PillStyle.neutral,
-            label: FlutterI18n.translate(
-              context,
-              "credential.options.reobtain",
-            ),
+            label: context.tr("credential.options.reobtain"),
             onPressed: () => obtainAgain(
               context,
               ref,
@@ -626,10 +604,7 @@ class _Details extends ConsumerWidget {
                 color: palette.danger,
                 size: 20,
               ),
-              label: FlutterI18n.translate(
-                context,
-                "credential.options.delete",
-              ),
+              label: context.tr("credential.options.delete"),
               onPressed: () => _confirmDelete(context, ref),
             ),
           ),
@@ -645,41 +620,35 @@ class _Details extends ConsumerWidget {
     final expiry = status.expiryDate?.dateTime;
     if (status.revoked) {
       return StatusChip(
-        label: FlutterI18n.translate(context, "credential.revoked"),
+        label: context.tr("credential.revoked"),
         tone: DialogTone.danger,
         icon: Icons.block,
       );
     }
     if (status.isExpired && expiry != null) {
       return StatusChip(
-        label: FlutterI18n.translate(
-          context,
-          "credential.expired_on",
-          translationParams: {"date": printableDate(expiry, lang)},
-        ),
+        label: context.tr("credential.expired_on", {
+          "date": printableDate(expiry, lang),
+        }),
         tone: DialogTone.danger,
         icon: Icons.warning_amber_rounded,
       );
     }
     if (status.hasWarning && expiry != null) {
       return StatusChip(
-        label: FlutterI18n.translate(
-          context,
-          "credential.expires_on",
-          translationParams: {"date": printableDate(expiry, lang)},
-        ),
+        label: context.tr("credential.expires_on", {
+          "date": printableDate(expiry, lang),
+        }),
         tone: DialogTone.warning,
         icon: Icons.schedule,
       );
     }
     return StatusChip(
       label: expiry == null
-          ? FlutterI18n.translate(context, "wallet.detail.valid_indefinitely")
-          : FlutterI18n.translate(
-              context,
-              "wallet.detail.valid_until",
-              translationParams: {"date": printableDate(expiry, lang)},
-            ),
+          ? context.tr("wallet.detail.valid_indefinitely")
+          : context.tr("wallet.detail.valid_until", {
+              "date": printableDate(expiry, lang),
+            }),
       tone: DialogTone.success,
       icon: Icons.check,
     );
@@ -688,10 +657,7 @@ class _Details extends ConsumerWidget {
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     // Shown on the Data tab, once this page has closed.
     final toast = appToastFor(context, overTabBar: true);
-    final message = FlutterI18n.translate(
-      context,
-      "credential.options.delete_success",
-    );
+    final message = context.tr("credential.options.delete_success");
     final deleted = await confirmAndDeleteCredential(
       context,
       IrmaRepositoryProvider.of(context),
@@ -720,7 +686,7 @@ String _sourceLabel(BuildContext context, Credential c) {
       : (display?.backgroundColor != null || display?.backgroundImage != null)
       ? "credential_card.source.issuer_colours"
       : "credential_card.source.yivi";
-  return FlutterI18n.translate(context, key);
+  return context.tr(key);
 }
 
 /// Brings the field a search found the card by into view: once its route

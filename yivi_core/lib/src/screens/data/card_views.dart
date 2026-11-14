@@ -638,18 +638,14 @@ class _MatchLine extends StatelessWidget {
   FieldHit get _hit => result.hits.first;
 
   String _more(BuildContext context) => result.hits.length > 1
-      ? " · ${FlutterI18n.translate(context, "wallet.search.more", translationParams: {"count": "${result.hits.length - 1}"})}"
+      ? " · ${context.tr("wallet.search.more", {"count": "${result.hits.length - 1}"})}"
       : "";
 
   /// What a screen reader says.
   String plainText(BuildContext context) {
     final f = _hit.field;
     final what = _hit.kind == FieldHitKind.label
-        ? FlutterI18n.translate(
-            context,
-            "wallet.search.contains",
-            translationParams: {"label": f.label},
-          )
+        ? context.tr("wallet.search.contains", {"label": f.label})
         : "${f.label}: ${f.value}";
     return what + _more(context);
   }
@@ -662,11 +658,9 @@ class _MatchLine extends StatelessWidget {
     if (_hit.kind == FieldHitKind.label) {
       // The label goes where {label} is in the sentence, marked.
       const slot = "\u0000";
-      final parts = FlutterI18n.translate(
-        context,
-        "wallet.search.contains",
-        translationParams: {"label": slot},
-      ).split(slot);
+      final parts = context
+          .tr("wallet.search.contains", {"label": slot})
+          .split(slot);
       what = TextSpan(
         children: [
           TextSpan(text: parts.first),

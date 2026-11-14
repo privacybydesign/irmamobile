@@ -1,6 +1,5 @@
 import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -44,20 +43,16 @@ class CardActivitySection extends ConsumerWidget {
     String summary() {
       final a = activity!;
       if (a.shares == 0) {
-        return FlutterI18n.translate(context, "wallet.detail.never_shared");
+        return context.tr("wallet.detail.never_shared");
       }
       final last = a.lastShared;
       return [
-        "${FlutterI18n.plural(context, "wallet.detail.shared_times", a.shares)} "
-            "${FlutterI18n.plural(context, "wallet.detail.with_parties", a.parties)}",
+        "${context.plural("wallet.detail.shared_times", a.shares)} "
+            "${context.plural("wallet.detail.with_parties", a.parties)}",
         if (last != null)
-          FlutterI18n.translate(
-            context,
-            "wallet.detail.last_time",
-            translationParams: {
-              "when": activityAgo(context, last.toLocal()).toLowerCase(),
-            },
-          ),
+          context.tr("wallet.detail.last_time", {
+            "when": activityAgo(context, last.toLocal()).toLowerCase(),
+          }),
       ].join(", ");
     }
 
@@ -96,10 +91,7 @@ class CardActivitySection extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    FlutterI18n.translate(
-                      context,
-                      "wallet.detail.activity_empty",
-                    ),
+                    context.tr("wallet.detail.activity_empty"),
                     style: palette
                         .body(13)
                         .copyWith(color: palette.secondaryText),
@@ -140,11 +132,7 @@ class _SeeAll extends ConsumerWidget {
         height: 48,
         child: Center(
           child: Text(
-            FlutterI18n.translate(
-              context,
-              "wallet.detail.see_all",
-              translationParams: {"count": "$total"},
-            ),
+            context.tr("wallet.detail.see_all", {"count": "$total"}),
             style: palette
                 .body(15)
                 .copyWith(fontWeight: FontWeight.w600, color: palette.link),
@@ -169,7 +157,7 @@ class _AddedRow extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              FlutterI18n.translate(context, "wallet.detail.added_to_yivi"),
+              context.tr("wallet.detail.added_to_yivi"),
               style: palette
                   .body(14)
                   .copyWith(fontWeight: FontWeight.w600, color: palette.text),
@@ -219,7 +207,7 @@ class _CardActivityEntryPage extends ConsumerWidget {
       },
       leading: RoundIconButton(
         key: const Key("card_activity_entry_back"),
-        label: FlutterI18n.translate(context, "wallet.detail.back_to_card"),
+        label: context.tr("wallet.detail.back_to_card"),
         onTap: navigator.pop,
         icon: CupertinoIcons.arrow_left,
       ),

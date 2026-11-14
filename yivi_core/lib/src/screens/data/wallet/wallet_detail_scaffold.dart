@@ -1,11 +1,11 @@
 import "dart:math";
 
 import "package:flutter/cupertino.dart" show CupertinoIcons;
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../util/after_frame.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/round_icon_button.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
@@ -480,7 +480,7 @@ class _PlusAsClose extends StatelessWidget {
         child: RoundIconButton(
           key: closeKey,
           icon: CupertinoIcons.add,
-          label: FlutterI18n.translate(context, "accessibility.close"),
+          label: context.tr("accessibility.close"),
           onTap: onTap,
           opacity: opacity,
         ),

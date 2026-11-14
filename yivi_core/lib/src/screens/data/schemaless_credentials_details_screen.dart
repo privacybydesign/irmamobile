@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -7,6 +6,7 @@ import "../../models/credential.dart";
 import "../../providers/credentials_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
+import "../../util/i18n.dart";
 import "../../widgets/app_toast.dart";
 import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
@@ -212,10 +212,8 @@ class _CredentialsDetailsScreenState
     if (deleted) _showDeletedSnackbar();
   }
 
-  void _showDeletedSnackbar() => showAppToast(
-    context,
-    FlutterI18n.translate(context, "credential.options.delete_success"),
-  );
+  void _showDeletedSnackbar() =>
+      showAppToast(context, context.tr("credential.options.delete_success"));
 
   void _reobtainCredential(BuildContext context, Credential credential) {
     obtainAgain(
