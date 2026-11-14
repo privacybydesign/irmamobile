@@ -1,8 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_tone.dart";
 import "../util/i18n.dart";
-import "glass/glass_dialog.dart";
 import "status_body.dart";
 
 class IrmaInfoScaffoldBody extends StatelessWidget {
@@ -11,14 +11,14 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
   final IconData? icon;
 
   /// Colours the disc behind [icon].
-  final DialogTone tone;
+  final YiviTone tone;
 
   const IrmaInfoScaffoldBody({
     super.key,
     required this.titleTranslationKey,
     required this.bodyTranslationKey,
     this.icon,
-    this.tone = DialogTone.neutral,
+    this.tone = YiviTone.neutral,
   });
 
   @override
@@ -39,7 +39,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
 class IrmaInfoScreen extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final IconData icon;
-  final DialogTone tone;
+  final YiviTone tone;
   final String titleTranslationKey;
   final String bodyTranslationKey;
   final Widget bottomBar;

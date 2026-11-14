@@ -4,6 +4,7 @@ import "../../../models/credential.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../models/session_state.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
@@ -17,7 +18,6 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/floating_bar_placement.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar_base.dart";
@@ -315,7 +315,7 @@ class IssuanceOffer {
   /// The chip of [card] inside a request: what doesn't count, and with
   /// several cards which one the request asks for ("Asked") and which comes
   /// along ("Comes too"). One card that counts has none.
-  (String, DialogTone)? _tagOf(
+  (String, YiviTone)? _tagOf(
     BuildContext context,
     Credential card, {
     required bool mismatched,
@@ -323,7 +323,7 @@ class IssuanceOffer {
     final request = forRequest;
     if (request == null) return null;
     if (mismatched) {
-      return (context.tr("share.offer.tag_not_counted"), DialogTone.danger);
+      return (context.tr("share.offer.tag_not_counted"), YiviTone.danger);
     }
     if (cards.length == 1) return null;
     final used = {
@@ -332,8 +332,8 @@ class IssuanceOffer {
           for (final d in b.credentials) d.credentialId,
     };
     return used.contains(card.credentialId)
-        ? (context.tr("share.spot.asked"), DialogTone.info)
-        : (context.tr("share.offer.tag_extra"), DialogTone.neutral);
+        ? (context.tr("share.spot.asked"), YiviTone.info)
+        : (context.tr("share.offer.tag_extra"), YiviTone.neutral);
   }
 
   String? _validUntil(BuildContext context, Credential card) {

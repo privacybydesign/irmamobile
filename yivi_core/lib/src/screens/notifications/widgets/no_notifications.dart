@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/translated_text.dart";
 import "../models/credential_status_notification.dart";
@@ -116,7 +117,7 @@ class _Picture extends StatelessWidget {
 /// One notification, drawn as a sketch: its icon and two grey lines.
 class _Row extends StatelessWidget {
   final IconData icon;
-  final DialogTone tone;
+  final YiviTone tone;
   final YiviPalette palette;
 
   const _Row({required this.icon, required this.tone, required this.palette});

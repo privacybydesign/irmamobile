@@ -3,9 +3,9 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
+import "../../../../theme/yivi_tone.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../widgets/contact_widgets.dart";
@@ -72,7 +72,7 @@ class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
         before: [
           ContactIntro(
             icon: Icons.smartphone_rounded,
-            tone: DialogTone.success,
+            tone: YiviTone.success,
             headerKey: "sms_issuance.verify_code.header",
             bodyKey: "sms_issuance.verify_code.body",
             bodyParams: {"phone": state.phoneNumber},

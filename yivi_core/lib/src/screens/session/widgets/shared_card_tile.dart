@@ -8,12 +8,12 @@ import "../../../models/session_state.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/status_chip.dart";
 import "../models/disclosure_view_model.dart";
 
@@ -65,13 +65,13 @@ class SharedCardTile extends ConsumerWidget {
         ? StatusChip(
             key: const Key("shared_card_chip"),
             label: context.tr(_problemKey(problem)),
-            tone: DialogTone.danger,
+            tone: YiviTone.danger,
           )
         : isNew
         ? StatusChip(
             key: const Key("shared_card_new"),
             label: context.tr("share.new_chip"),
-            tone: DialogTone.success,
+            tone: YiviTone.success,
           )
         : null;
 

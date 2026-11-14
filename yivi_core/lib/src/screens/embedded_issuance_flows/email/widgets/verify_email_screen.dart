@@ -6,9 +6,9 @@ import "../../../../models/email_code_pointer.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../theme/yivi_tone.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/resend_countdown.dart";
@@ -124,7 +124,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
         before: [
           ContactIntro(
             icon: Icons.mail_rounded,
-            tone: DialogTone.warning,
+            tone: YiviTone.warning,
             headerKey: _linking
                 ? "email_linking.verify_code.header"
                 : "email_issuance.verify_code.header",

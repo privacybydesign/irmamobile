@@ -2,9 +2,9 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
+import "../../../../theme/yivi_tone.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/glass_dialog.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 import "phone_number_entry.dart";
@@ -67,7 +67,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
       focusNode: _focusNode,
       fieldAlignment: 0.1,
       icon: Icons.smartphone_rounded,
-      tone: DialogTone.success,
+      tone: YiviTone.success,
       headerKey: "sms_issuance.enter_phone.header",
       bodyKey: "sms_issuance.enter_phone.body",
       labelKey: "sms_issuance.enter_phone.label",

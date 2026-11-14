@@ -20,7 +20,7 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
         children: [
           ToneDisc(
             icon: followsRule ? Icons.check_rounded : Icons.close_rounded,
-            tone: followsRule ? DialogTone.success : DialogTone.danger,
+            tone: followsRule ? YiviTone.success : YiviTone.danger,
             size: 24,
             iconSize: 16,
             semanticLabel: context.tr(

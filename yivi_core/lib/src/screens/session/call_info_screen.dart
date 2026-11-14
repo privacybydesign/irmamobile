@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_surface.dart";
@@ -38,7 +39,7 @@ class CallInfoScreen extends StatelessWidget {
     final parts = <Widget>[
       const ToneDisc(
         icon: Icons.phone_outlined,
-        tone: DialogTone.success,
+        tone: YiviTone.success,
         size: 84,
         iconSize: 40,
       ),

@@ -9,6 +9,7 @@ import "../../data/irma_preferences.dart";
 import "../../models/clear_all_data_event.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../theme/yivi_tone.dart";
 import "../../util/email_linking.dart";
 import "../../util/i18n.dart";
 import "../../util/language.dart";
@@ -214,7 +215,7 @@ Future<void> showConfirmDeleteDialog(BuildContext context) async {
     context,
     icon: const ToneDisc(
       icon: Icons.delete_outline_rounded,
-      tone: DialogTone.danger,
+      tone: YiviTone.danger,
     ),
     destructive: true,
     titleKey: "settings.confirm_delete_dialog.title",

@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -52,7 +53,7 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
   @override
   Widget build(BuildContext context) {
     return GlassDialog(
-      icon: const ToneDisc(icon: Icons.fingerprint, tone: DialogTone.info),
+      icon: const ToneDisc(icon: Icons.fingerprint, tone: YiviTone.info),
       title: context.tr("pin.biometric_prompt.title"),
       message: context.tr("pin.biometric_prompt.body"),
       actions: [

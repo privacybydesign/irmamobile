@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../package_name.dart";
+import "yivi_tone.dart";
 
 /// Colours and text styles of the redesign, in a light and a dark
 /// variant. New screens read these through [YiviPalette.of] so they follow the
@@ -266,6 +267,16 @@ class YiviPalette {
   String get logoAsset => yiviAsset(
     isDark ? "non-free/logo_no_margin_dark.svg" : "non-free/logo_no_margin.svg",
   );
+
+  /// Fill and strong colour of [tone]: a dialog's icon disc, a status
+  /// picture, a soft box.
+  (Color, Color) tone(YiviTone tone) => switch (tone) {
+    YiviTone.neutral => (infoSurface, heading),
+    YiviTone.info => (infoSurface, link),
+    YiviTone.success => (successSurface, successText),
+    YiviTone.warning => (warningSurface, warningText),
+    YiviTone.danger => (errorSurface, danger),
+  };
 
   /// The palette for [context]: its brightness, and the raised levels on a
   /// sheet ([YiviPaletteScope]).

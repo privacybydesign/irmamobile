@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
@@ -22,7 +22,7 @@ class TxCodeLockoutScreen extends StatelessWidget {
         leading: YiviBackButton(onTap: onTapClose),
       ),
       icon: Icons.lock_outline_rounded,
-      tone: DialogTone.danger,
+      tone: YiviTone.danger,
       titleTranslationKey: "issuance.pre-authorized_code.tx_code_lockout.title",
       bodyTranslationKey: "issuance.pre-authorized_code.tx_code_lockout.body",
       bottomBar: IrmaBottomBar(

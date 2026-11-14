@@ -10,9 +10,9 @@ import "../../../providers/email_linking_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/icon_square.dart";
@@ -232,7 +232,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     final inlineSend = compactPhone && sideways;
 
     final tileSize = tablet ? 96.0 : 88.0;
-    final (fill, ink) = ToneDisc.colors(palette, DialogTone.warning);
+    final (fill, ink) = palette.tone(YiviTone.warning);
     final about = compactPhone
         ? null
         : Center(

@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
-import "glass/glass_dialog.dart";
+import "../theme/yivi_tone.dart";
 
 /// A short fact as a chip, the one chip of the app: "by Yivi", "3 cards",
 /// "Valid until 31-08-2027", "New", "Expired", a count. 28 high and as
@@ -16,25 +16,26 @@ class StatusChip extends StatelessWidget {
   static const height = 28.0;
 
   final String label;
-  final DialogTone tone;
+  final YiviTone tone;
   final IconData? icon;
 
   const StatusChip({
     super.key,
     required this.label,
-    this.tone = DialogTone.neutral,
+    this.tone = YiviTone.neutral,
     this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
+    // Chips differ from the dialog disc in three tones: neutral is white
+    // with an outline, info is the light tint, danger has the error text.
     final (fill, ink) = switch (tone) {
-      DialogTone.neutral => (palette.surface, palette.heading),
-      DialogTone.info => (palette.tint, palette.link),
-      DialogTone.success => (palette.successSurface, palette.successText),
-      DialogTone.warning => (palette.warningSurface, palette.warningText),
-      DialogTone.danger => (palette.errorSurface, palette.errorText),
+      YiviTone.neutral => (palette.surface, palette.heading),
+      YiviTone.info => (palette.tint, palette.link),
+      YiviTone.danger => (palette.tone(tone).$1, palette.errorText),
+      _ => palette.tone(tone),
     };
     final style = palette
         .body(12, weight: FontWeight.w600)
@@ -51,7 +52,7 @@ class StatusChip extends StatelessWidget {
         color: fill,
         shape: RoundedRectangleBorder(
           borderRadius: YiviCorners.chipRadius,
-          side: tone == DialogTone.neutral
+          side: tone == YiviTone.neutral
               ? BorderSide(color: palette.outline)
               : BorderSide.none,
         ),

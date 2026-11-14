@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../../theme/yivi_tone.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
@@ -13,7 +14,7 @@ Future<void> showPinConfirmationFailedDialog(
   barrierDismissible: false,
   context: context,
   builder: (context) => GlassDialog(
-    icon: const ToneDisc(icon: Icons.pin_outlined, tone: DialogTone.danger),
+    icon: const ToneDisc(icon: Icons.pin_outlined, tone: YiviTone.danger),
     title: context.tr("confirm_pin.error.title"),
     message: context.tr("confirm_pin.error.body"),
     actions: [

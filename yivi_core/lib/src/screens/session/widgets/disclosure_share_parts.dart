@@ -400,7 +400,7 @@ class _MismatchTile extends StatelessWidget {
       subtitle: card.issuer.name,
       chip: StatusChip(
         label: context.tr("share.not_counted.chip"),
-        tone: DialogTone.danger,
+        tone: YiviTone.danger,
       ),
       body: [
         YiviCredentialCardAttributeList(

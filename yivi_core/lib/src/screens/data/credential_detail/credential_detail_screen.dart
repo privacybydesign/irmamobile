@@ -8,6 +8,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/search_query_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/date_formatter.dart";
@@ -21,7 +22,6 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/status_chip.dart";
@@ -423,7 +423,7 @@ class _Details extends ConsumerWidget {
               StatusChip(
                 key: const Key("credential_detail_found"),
                 label: context.tr("wallet.search.found", {"label": foundLabel}),
-                tone: DialogTone.info,
+                tone: YiviTone.info,
                 icon: Icons.search_rounded,
               ),
             _validityChip(context, status, lang),
@@ -621,7 +621,7 @@ class _Details extends ConsumerWidget {
     if (status.revoked) {
       return StatusChip(
         label: context.tr("credential.revoked"),
-        tone: DialogTone.danger,
+        tone: YiviTone.danger,
         icon: Icons.block,
       );
     }
@@ -630,7 +630,7 @@ class _Details extends ConsumerWidget {
         label: context.tr("credential.expired_on", {
           "date": printableDate(expiry, lang),
         }),
-        tone: DialogTone.danger,
+        tone: YiviTone.danger,
         icon: Icons.warning_amber_rounded,
       );
     }
@@ -639,7 +639,7 @@ class _Details extends ConsumerWidget {
         label: context.tr("credential.expires_on", {
           "date": printableDate(expiry, lang),
         }),
-        tone: DialogTone.warning,
+        tone: YiviTone.warning,
         icon: Icons.schedule,
       );
     }
@@ -649,7 +649,7 @@ class _Details extends ConsumerWidget {
           : context.tr("wallet.detail.valid_until", {
               "date": printableDate(expiry, lang),
             }),
-      tone: DialogTone.success,
+      tone: YiviTone.success,
       icon: Icons.check,
     );
   }

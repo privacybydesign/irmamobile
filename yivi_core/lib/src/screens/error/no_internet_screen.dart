@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
@@ -21,7 +21,7 @@ class NoInternetScreen extends StatelessWidget {
         leading: YiviBackButton(onTap: onTapClose),
       ),
       icon: Icons.wifi_off_rounded,
-      tone: DialogTone.info,
+      tone: YiviTone.info,
       titleTranslationKey: "error.no_internet_title",
       bodyTranslationKey: "error.types.no_internet",
       bottomBar: IrmaBottomBar(

@@ -3,8 +3,8 @@ import "package:material_ui/material_ui.dart";
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_edges.dart";
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_tone.dart";
 import "../util/i18n.dart";
-import "glass/glass_dialog.dart";
 import "glass/pill_buttons.dart";
 import "status_body.dart";
 
@@ -43,7 +43,7 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
 
     return StatusBody(
       icon: expired ? Icons.schedule_rounded : Icons.warning_rounded,
-      tone: expired ? DialogTone.warning : DialogTone.danger,
+      tone: expired ? YiviTone.warning : YiviTone.danger,
       title: context.tr(_titleKeys[type]!),
       message: context.tr(_messageKeys[type]!),
       note: reportable ? context.tr("error.report") : null,

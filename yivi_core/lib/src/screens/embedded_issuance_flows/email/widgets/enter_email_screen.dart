@@ -2,9 +2,9 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/email_issuance_provider.dart";
+import "../../../../theme/yivi_tone.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/glass_dialog.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 import "email_address_entry.dart";
@@ -73,7 +73,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       focusNode: _focusNode,
       fieldAlignment: 0.0,
       icon: Icons.mail_rounded,
-      tone: DialogTone.warning,
+      tone: YiviTone.warning,
       headerKey: linking
           ? "email_linking.enter_email.header"
           : "email_issuance.enter_email.header",

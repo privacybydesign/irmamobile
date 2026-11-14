@@ -4,7 +4,7 @@ import "package:pinput/pinput.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/widgets/contact_widgets.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/widgets/embedded_issuance_error_screen.dart";
-import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
+import "package:yivi_core/src/theme/yivi_tone.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 import "package:yivi_core/src/widgets/status_body.dart";
 
@@ -88,7 +88,7 @@ void main() {
           children: [
             const ContactIntro(
               icon: Icons.mail_rounded,
-              tone: DialogTone.warning,
+              tone: YiviTone.warning,
               headerKey: "email_issuance.verify_code.header",
               bodyKey: "email_issuance.verify_code.body",
               bodyParams: {"email": "jan@example.com"},

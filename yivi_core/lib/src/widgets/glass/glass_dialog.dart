@@ -4,19 +4,17 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_tone.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "glass_surface.dart";
 import "pill_buttons.dart";
 
-/// The colour of a dialog's icon disc, after what the dialog is about.
-enum DialogTone { neutral, info, success, warning, danger }
-
 /// The round disc with an icon at the top of a [GlassDialog] or a status
 /// screen: a soft fill with the icon in the matching strong colour.
 class ToneDisc extends StatelessWidget {
   final IconData icon;
-  final DialogTone tone;
+  final YiviTone tone;
   final double size;
 
   /// Null: half of [size].
@@ -28,25 +26,15 @@ class ToneDisc extends StatelessWidget {
   const ToneDisc({
     super.key,
     required this.icon,
-    this.tone = DialogTone.neutral,
+    this.tone = YiviTone.neutral,
     this.size = 56,
     this.iconSize,
     this.semanticLabel,
   });
 
-  /// Fill and icon colour of [tone].
-  static (Color, Color) colors(YiviPalette palette, DialogTone tone) =>
-      switch (tone) {
-        DialogTone.neutral => (palette.infoSurface, palette.heading),
-        DialogTone.info => (palette.infoSurface, palette.link),
-        DialogTone.success => (palette.successSurface, palette.successText),
-        DialogTone.warning => (palette.warningSurface, palette.warningText),
-        DialogTone.danger => (palette.errorSurface, palette.danger),
-      };
-
   @override
   Widget build(BuildContext context) {
-    final (fill, ink) = colors(YiviPalette.of(context), tone);
+    final (fill, ink) = YiviPalette.of(context).tone(tone);
     final disc = Container(
       width: size,
       height: size,

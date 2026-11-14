@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/clear_all_data_event.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
@@ -25,7 +25,7 @@ class BlockedScreen extends StatelessWidget {
           leading: null,
         ),
         icon: Icons.block_rounded,
-        tone: DialogTone.danger,
+        tone: YiviTone.danger,
         titleTranslationKey: "error.blocked_title",
         bodyTranslationKey: "error.types.blocked",
         bottomBar: IrmaBottomBar(

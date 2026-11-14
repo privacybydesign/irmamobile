@@ -7,6 +7,7 @@ import "../../../models/activity_query.dart";
 import "../../../models/log_entry.dart";
 import "../../../providers/activity_providers.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/compact_bar.dart";
@@ -15,7 +16,6 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/party_avatar.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
@@ -425,11 +425,11 @@ class ActivityCredentialTile extends StatelessWidget {
     final chip = switch (card.role) {
       ActivityRole.received => StatusChip(
         label: context.tr("activity.chip_new"),
-        tone: DialogTone.success,
+        tone: YiviTone.success,
       ),
       ActivityRole.deleted => StatusChip(
         label: context.tr("activity.kind.deleted"),
-        tone: DialogTone.danger,
+        tone: YiviTone.danger,
       ),
       _ => null,
     };

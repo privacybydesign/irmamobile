@@ -9,6 +9,7 @@ import "../../../models/session.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
@@ -174,7 +175,7 @@ class ContactEnterPage extends StatelessWidget {
   final FocusNode focusNode;
   final double fieldAlignment;
   final IconData icon;
-  final DialogTone tone;
+  final YiviTone tone;
   final String headerKey;
   final String bodyKey;
   final String labelKey;
@@ -236,7 +237,7 @@ class ContactIntro extends StatelessWidget {
 
   /// The colours of the tile: warning (amber) for e-mail, success (green)
   /// for a phone number, as their cards.
-  final DialogTone tone;
+  final YiviTone tone;
   final String headerKey;
   final String bodyKey;
   final Map<String, String> bodyParams;
@@ -253,7 +254,7 @@ class ContactIntro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final (fill, ink) = ToneDisc.colors(palette, tone);
+    final (fill, ink) = palette.tone(tone);
 
     return Column(
       crossAxisAlignment: .stretch,
@@ -629,9 +630,8 @@ class ContactSentTo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final (fill, ink) = ToneDisc.colors(
-      palette,
-      email ? DialogTone.warning : DialogTone.success,
+    final (fill, ink) = palette.tone(
+      email ? YiviTone.warning : YiviTone.success,
     );
     return SurfaceCard(
       key: const Key("contact_sheet_sent_to"),

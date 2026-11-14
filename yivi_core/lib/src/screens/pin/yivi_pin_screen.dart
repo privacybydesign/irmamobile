@@ -12,6 +12,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_tone.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/scale.dart";

@@ -2,8 +2,8 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_error_scaffold_body.dart";
@@ -33,7 +33,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
       appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
       body: StatusBody(
         icon: Icons.error_outline_rounded,
-        tone: DialogTone.danger,
+        tone: YiviTone.danger,
         title: context.tr(contentTranslationKey),
         footer: ErrorDetails(details: errorMessage),
       ),

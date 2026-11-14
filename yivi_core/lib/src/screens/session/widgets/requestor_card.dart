@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/credential.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/corner_badge.dart";
@@ -264,7 +265,7 @@ class RequestorCard extends StatelessWidget {
                 ToneDisc(
                   key: const Key("session_requestor_info"),
                   icon: Icons.info_outline_rounded,
-                  tone: risky ? DialogTone.danger : DialogTone.info,
+                  tone: risky ? YiviTone.danger : YiviTone.info,
                   size: 32,
                   iconSize: 18,
                 ),
@@ -409,8 +410,8 @@ class RequestorCard extends StatelessWidget {
                         child: ToneDisc(
                           icon: Icons.info_outline_rounded,
                           tone: style.trust.risky
-                              ? DialogTone.danger
-                              : DialogTone.info,
+                              ? YiviTone.danger
+                              : YiviTone.info,
                           size: 32,
                           iconSize: 18,
                         ),

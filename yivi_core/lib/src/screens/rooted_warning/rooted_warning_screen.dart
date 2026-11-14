@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
 
@@ -14,7 +14,7 @@ class RootedWarningScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return IrmaInfoScreen(
       icon: Icons.gpp_maybe_rounded,
-      tone: DialogTone.warning,
+      tone: YiviTone.warning,
       titleTranslationKey: "rooted_warning.title",
       bodyTranslationKey: "rooted_warning.explanation",
       bottomBar: IrmaBottomBar(

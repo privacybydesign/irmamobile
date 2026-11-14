@@ -11,6 +11,7 @@ import "../../providers/pane_selection_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_tone.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
@@ -211,7 +212,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
     showDialog<void>(
       context: context,
       builder: (context) => GlassDialog(
-        icon: const ToneDisc(icon: Icons.nfc_rounded, tone: DialogTone.warning),
+        icon: const ToneDisc(icon: Icons.nfc_rounded, tone: YiviTone.warning),
         title: context.tr("data.add.nfc_unsupported.title"),
         message: context.tr("data.add.nfc_unsupported.body"),
         actions: [

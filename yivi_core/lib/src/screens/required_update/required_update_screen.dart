@@ -3,8 +3,8 @@ import "dart:io";
 import "package:material_ui/material_ui.dart";
 import "package:url_launcher/url_launcher.dart";
 
+import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
 
@@ -15,7 +15,7 @@ class RequiredUpdateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return IrmaInfoScreen(
       icon: Icons.download_rounded,
-      tone: DialogTone.info,
+      tone: YiviTone.info,
       titleTranslationKey: "update.title",
       bodyTranslationKey: "update.explanation",
       bottomBar: IrmaBottomBar(

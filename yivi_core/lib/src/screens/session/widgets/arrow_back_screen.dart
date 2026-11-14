@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:native_device_orientation/native_device_orientation.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/done_check.dart";
@@ -116,7 +117,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                       else
                         const ToneDisc(
                           icon: Icons.close_rounded,
-                          tone: DialogTone.danger,
+                          tone: YiviTone.danger,
                           size: 120,
                         ),
                       const SizedBox(height: 32),

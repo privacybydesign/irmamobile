@@ -1,9 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_tone.dart";
 import "../util/test_detection.dart";
 import "centred_max_width.dart";
-import "glass/glass_dialog.dart";
 import "irma_app_bar.dart";
 
 /// The middle of a status screen (an error, a warning, "update required"):
@@ -19,7 +19,7 @@ class StatusBody extends StatelessWidget {
   /// Shown in the disc; [picture] replaces the icon.
   final IconData? icon;
   final Widget? picture;
-  final DialogTone tone;
+  final YiviTone tone;
 
   /// Overrides the disc colour that [tone] picks, e.g. white behind a logo.
   final Color? discColor;
@@ -34,7 +34,7 @@ class StatusBody extends StatelessWidget {
     this.note,
     this.icon,
     this.picture,
-    this.tone = DialogTone.neutral,
+    this.tone = YiviTone.neutral,
     this.discColor,
     this.footer,
   });
@@ -48,8 +48,7 @@ class StatusBody extends StatelessWidget {
             tone: tone,
             color: discColor,
             child:
-                picture ??
-                Icon(icon, size: 64, color: ToneDisc.colors(palette, tone).$2),
+                picture ?? Icon(icon, size: 64, color: palette.tone(tone).$2),
           )
         : null;
 
@@ -157,7 +156,7 @@ class StatusBody extends StatelessWidget {
 /// tests can wait for it); it stays still when the platform asks for less
 /// motion and during integration tests.
 class _Disc extends StatefulWidget {
-  final DialogTone tone;
+  final YiviTone tone;
   final Color? color;
   final Widget child;
 
@@ -196,9 +195,7 @@ class _DiscState extends State<_Disc> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final fill =
-        widget.color ??
-        ToneDisc.colors(YiviPalette.of(context), widget.tone).$1;
+    final fill = widget.color ?? YiviPalette.of(context).tone(widget.tone).$1;
     final still = motionStill(context);
     return SizedBox.square(
       dimension: _size,

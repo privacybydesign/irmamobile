@@ -13,6 +13,7 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
@@ -770,7 +771,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             cardKey: const Key("share_anyway_dialog"),
             icon: const ToneDisc(
               icon: Icons.warning_rounded,
-              tone: DialogTone.danger,
+              tone: YiviTone.danger,
             ),
             title: t("share.trust.confirm.title"),
             message: t("share.trust.confirm.text"),
