@@ -59,7 +59,12 @@ class _DayHeader extends SliverPersistentHeaderDelegate {
         border: under ? Border(bottom: ScrollEdgeBand.lineSide(context)) : null,
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          18,
+          YiviSpace.x16,
+          YiviSpace.x8,
+        ),
         child: Semantics(
           header: true,
           child: Text(

@@ -7,6 +7,7 @@ import "../../../models/activity_query.dart";
 import "../../../models/log_entry.dart";
 import "../../../providers/activity_providers.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/centred_max_width.dart";
@@ -91,7 +92,7 @@ class ActivityPartyLogo extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      padding: const EdgeInsets.all(2),
+      padding: const EdgeInsets.all(YiviSpace.x2),
       decoration: BoxDecoration(color: ring, shape: BoxShape.circle),
       child: avatar,
     );
@@ -139,7 +140,7 @@ class ActivityBarTitle extends StatelessWidget {
           const SizedBox(height: 1),
           Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: 4,
+            spacing: YiviSpace.x4,
             children: [
               CornerBadge(
                 icon: kind.icon,
@@ -205,7 +206,7 @@ class ActivityHeroHeader extends StatelessWidget {
     return KeyedSubtree(
       key: const Key("activity_hero"),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16, top, 16, 28),
+        padding: EdgeInsets.fromLTRB(YiviSpace.x16, top, YiviSpace.x16, 28),
         child: Column(
           children: [
             ActivityHeroPile(key: pictureKey, entry: entry),
@@ -232,7 +233,7 @@ class ActivityHeroHeader extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: YiviSpace.x2),
             Semantics(
               header: true,
               child: Text(
@@ -243,7 +244,7 @@ class ActivityHeroHeader extends StatelessWidget {
                     .copyWith(color: palette.text, height: 30 / 24),
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: YiviSpace.x4),
             // When, and whether Yivi knows the party, on one line (two when
             // it does not fit).
             Text.rich(
@@ -260,7 +261,9 @@ class ActivityHeroHeader extends StatelessWidget {
                   WidgetSpan(
                     alignment: PlaceholderAlignment.middle,
                     child: Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 4),
+                      padding: const EdgeInsetsDirectional.only(
+                        end: YiviSpace.x4,
+                      ),
                       child: party.verified
                           ? Icon(
                               Icons.verified_user_rounded,
@@ -398,7 +401,12 @@ class ActivitySectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 28, 4, 8),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        28,
+        YiviSpace.x4,
+        YiviSpace.x8,
+      ),
       child: Semantics(
         header: true,
         child: Text(
@@ -472,7 +480,12 @@ class ActivitySignedMessage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 28, 4, 8),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x4,
+            28,
+            YiviSpace.x4,
+            YiviSpace.x8,
+          ),
           child: Semantics(
             header: true,
             child: Text(
@@ -482,7 +495,12 @@ class ActivitySignedMessage extends StatelessWidget {
           ),
         ),
         SurfaceCard(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+          padding: const EdgeInsets.fromLTRB(
+            20,
+            YiviSpace.x16,
+            20,
+            YiviSpace.x16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -491,7 +509,7 @@ class ActivitySignedMessage extends StatelessWidget {
                 size: 32,
                 color: palette.outline,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: YiviSpace.x4),
               Text(
                 entry.message ?? "",
                 style: palette
@@ -519,13 +537,18 @@ class ActivityFootnote extends StatelessWidget {
     final palette = YiviPalette.of(context);
     if (entry.kind == ActivityKind.received) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 4, 0),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        YiviSpace.x16,
+        YiviSpace.x4,
+        0,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
+        spacing: YiviSpace.x8,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.only(top: YiviSpace.x2),
             child: Icon(
               entry.kind == ActivityKind.deleted
                   ? Icons.delete_outline_rounded
@@ -585,9 +608,9 @@ class ActivityAllWithParty extends ConsumerWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 52),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
                 child: Row(
-                  spacing: 12,
+                  spacing: YiviSpace.x12,
                   children: [
                     Icon(Icons.history_rounded, size: 20, color: palette.link),
                     Expanded(
@@ -654,7 +677,7 @@ class ActivityDetailBody extends StatelessWidget {
       children: [
         if (compactHeader)
           Padding(
-            padding: EdgeInsets.fromLTRB(16, top, 16, 0),
+            padding: EdgeInsets.fromLTRB(YiviSpace.x16, top, YiviSpace.x16, 0),
             child: ActivityCompactBar(
               key: const Key("activity_detail_compact_header"),
               entry: entry,
@@ -663,7 +686,7 @@ class ActivityDetailBody extends StatelessWidget {
         else
           ActivityHeroHeader(entry: entry, top: top, pictureKey: pictureKey),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
           child: CentredMaxWidth(
             maxWidth: maxWidth,
             child: Column(
@@ -672,7 +695,7 @@ class ActivityDetailBody extends StatelessWidget {
                 if (entry.message != null) ActivitySignedMessage(entry: entry),
                 if (sections.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 24),
+                    padding: const EdgeInsets.only(top: YiviSpace.x24),
                     // Nothing was disclosed: one empty data card.
                     child: IrmaEmptyCredentialCard(),
                   ),
@@ -682,7 +705,7 @@ class ActivityDetailBody extends StatelessWidget {
                   else
                     const SizedBox(height: 20),
                   for (final (i, card) in section.cards.indexed) ...[
-                    if (i > 0) const SizedBox(height: 12),
+                    if (i > 0) const SizedBox(height: YiviSpace.x12),
                     ActivityCredentialTile(card: card),
                   ],
                 ],

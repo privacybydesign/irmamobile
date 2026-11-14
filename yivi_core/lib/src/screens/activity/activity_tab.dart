@@ -14,6 +14,7 @@ import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
@@ -74,7 +75,7 @@ class _Suggestion {
 }
 
 /// The sides of a row of tags or suggestions that runs to the screen's edges.
-const _inset = EdgeInsets.symmetric(horizontal: 16);
+const _inset = EdgeInsets.symmetric(horizontal: YiviSpace.x16);
 
 /// The height of the row of suggestions under the field while searching.
 const double _suggestionRowHeight = 40;
@@ -539,7 +540,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       clipBehavior: padding == null ? Clip.none : Clip.hardEdge,
       padding: padding,
       itemCount: children.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 8),
+      separatorBuilder: (_, _) => const SizedBox(width: YiviSpace.x8),
       itemBuilder: (_, i) => Center(child: children[i]),
     ),
   );
@@ -571,7 +572,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           // The badge of each kind, as on the rows.
           leading: Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: 2,
+            spacing: YiviSpace.x2,
             children: [
               for (final kind in ActivityKind.ordered)
                 if (q.kinds.contains(kind.logType))
@@ -689,7 +690,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         : BorderSide(color: palette.divider);
     Widget padded(Widget child) => SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
         child: child,
       ),
     );
@@ -711,7 +712,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         if (header.isNotEmpty)
           padded(
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: YiviSpace.x8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: HomeTabTop.fieldGap,
@@ -796,7 +797,10 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           if (moreLogsAvailable)
             const SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.only(top: 16, bottom: 16),
+                padding: EdgeInsets.only(
+                  top: YiviSpace.x16,
+                  bottom: YiviSpace.x16,
+                ),
                 child: LoadingMoreIndicator(),
               ),
             ),
@@ -904,7 +908,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
                     children: [
                       if (chips.isNotEmpty) ...[
                         _tagRow(chips, padding: _inset),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: YiviSpace.x2),
                       ],
                       ?suggestionRow,
                     ],
@@ -929,7 +933,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           title: context.tr("home.nav_bar.activity"),
           searching: _searching,
           searchRow: Row(
-            spacing: 4,
+            spacing: YiviSpace.x4,
             children: [
               Expanded(child: _searchField(height: 44)),
               fieldAction,
@@ -976,7 +980,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
-          spacing: 8,
+          spacing: YiviSpace.x8,
           children: [
             Expanded(child: _searchField()),
             fieldAction,
@@ -984,11 +988,14 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
         ),
         if (rowChips.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: YiviSpace.x8),
             child: _tagRow(rowChips),
           ),
         if (suggestionRow != null)
-          Padding(padding: const EdgeInsets.only(top: 4), child: suggestionRow),
+          Padding(
+            padding: const EdgeInsets.only(top: YiviSpace.x4),
+            child: suggestionRow,
+          ),
       ],
     );
     final headerHeight =
@@ -1010,7 +1017,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
               header: [
                 if (chipsScroll && chips.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.only(bottom: YiviSpace.x4),
                     child: _tagRow(chips),
                   ),
               ],

@@ -8,6 +8,7 @@ import "../../../models/log_entry.dart";
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
@@ -106,10 +107,15 @@ class ActivityCard extends ConsumerWidget {
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 40, 12),
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  YiviSpace.x16,
+                  YiviSpace.x12,
+                  40,
+                  YiviSpace.x12,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 12,
+                  spacing: YiviSpace.x12,
                   children: [
                     ExcludeSemantics(
                       child: SizedBox.square(
@@ -140,12 +146,12 @@ class ActivityCard extends ConsumerWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 2,
+                        spacing: YiviSpace.x2,
                         children: [
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
-                            spacing: 8,
+                            spacing: YiviSpace.x8,
                             children: [
                               Expanded(
                                 child: Text(
@@ -187,7 +193,7 @@ class ActivityCard extends ConsumerWidget {
                           ),
                           if (entry.cards.isNotEmpty)
                             Padding(
-                              padding: const EdgeInsets.only(top: 4),
+                              padding: const EdgeInsets.only(top: YiviSpace.x4),
                               child: ActivityCardThumbs(entry: entry),
                             ),
                         ],
@@ -254,7 +260,7 @@ class ActivityCardThumbs extends StatelessWidget {
             ),
           if (cards.length > _max)
             Padding(
-              padding: const EdgeInsetsDirectional.only(start: 2),
+              padding: const EdgeInsetsDirectional.only(start: YiviSpace.x2),
               child: Text(
                 "+${cards.length - _max}",
                 style: palette

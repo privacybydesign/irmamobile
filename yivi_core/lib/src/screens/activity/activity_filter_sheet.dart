@@ -6,6 +6,7 @@ import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -175,7 +176,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     return GlassSheetPage(
       key: const Key("activity_filter_main"),
       title: _t("sheet.title"),
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        YiviSpace.x4,
+        YiviSpace.x16,
+        YiviSpace.x24,
+      ),
       action: SheetAction(
         key: const Key("activity_filter_apply"),
         label: total == null
@@ -242,7 +248,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   Widget _heading(String title, String? hint) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        22,
+        YiviSpace.x4,
+        YiviSpace.x8,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
@@ -264,8 +275,8 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   }
 
   Widget _kinds() => Wrap(
-    spacing: 8,
-    runSpacing: 8,
+    spacing: YiviSpace.x8,
+    runSpacing: YiviSpace.x8,
     children: [
       for (final kind in ActivityKind.ordered)
         Builder(
@@ -317,9 +328,14 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+              padding: const EdgeInsets.fromLTRB(
+                14,
+                YiviSpace.x8,
+                14,
+                YiviSpace.x8,
+              ),
               child: Row(
-                spacing: 12,
+                spacing: YiviSpace.x12,
                 children: [
                   leading,
                   Expanded(
@@ -456,7 +472,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
       onBack: () => setState(_leaveCardPage),
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x16,
+            YiviSpace.x4,
+            YiviSpace.x16,
+            YiviSpace.x12,
+          ),
           sliver: SliverToBoxAdapter(
             child: GlassSearchField(
               fieldKey: const Key("activity_filter_card_search"),
@@ -468,7 +489,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
         if (cards.isEmpty)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(YiviSpace.x24),
               child: Text(
                 _t("sheet.no_cards"),
                 key: const Key("activity_filter_card_none"),
@@ -479,7 +500,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           )
         else
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x16,
+              YiviSpace.x4,
+              YiviSpace.x16,
+              YiviSpace.x24,
+            ),
             sliver: SliverGlassGroup(
               dividerIndent: 14 + 46 + 12,
               itemCount: cards.length + any,
@@ -531,7 +557,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
       for (final g in groups) ...[
         if (g.title != null)
           Padding(
-            padding: const EdgeInsets.fromLTRB(4, 10, 4, 6),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x4,
+              10,
+              YiviSpace.x4,
+              6,
+            ),
             child: Text(
               g.title!,
               style: palette
@@ -543,8 +574,8 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
             ),
           ),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: YiviSpace.x8,
+          runSpacing: YiviSpace.x8,
           children: [
             for (final t in g.tokens)
               Builder(
@@ -662,8 +693,8 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: YiviSpace.x8,
+          runSpacing: YiviSpace.x8,
           children: [
             for (final p in ActivityPeriod.values)
               Builder(
@@ -711,9 +742,9 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
         ),
         // The range, only for a custom period.
         if (custom) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: YiviSpace.x12),
           Row(
-            spacing: 8,
+            spacing: YiviSpace.x8,
             children: [
               Expanded(
                 child: _dateBox(
@@ -735,7 +766,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           ),
           if (_q.rangeWrong)
             Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+              padding: const EdgeInsets.fromLTRB(
+                YiviSpace.x4,
+                YiviSpace.x8,
+                YiviSpace.x4,
+                0,
+              ),
               child: Semantics(
                 liveRegion: true,
                 child: Text(
@@ -783,7 +819,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
             if (picked != null) onPicked(picked);
           },
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x12,
+              YiviSpace.x8,
+              YiviSpace.x12,
+              10,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -796,7 +837,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
                         color: palette.secondaryText,
                       ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: YiviSpace.x2),
                 Text(
                   shown,
                   style: palette.body(15).copyWith(color: palette.text),
