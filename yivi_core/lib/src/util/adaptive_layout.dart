@@ -23,6 +23,12 @@ const double sidebarBreakpoint = 1300;
 bool useSidebar(BuildContext context) =>
     MediaQuery.sizeOf(context).width >= sidebarBreakpoint;
 
+/// Whether the window is wider than it is high (held sideways).
+bool isWiderThanHigh(BuildContext context) {
+  final size = MediaQuery.sizeOf(context);
+  return size.width > size.height;
+}
+
 bool isExpandedLayout(BuildContext context) =>
     MediaQuery.sizeOf(context).width >= expandedLayoutBreakpoint;
 

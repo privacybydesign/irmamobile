@@ -149,7 +149,7 @@ class _AdaptiveRoute<T> extends PageRoute<T>
 
     if (_page.mode == PresentationMode.full) {
       // Wider than high the screen has the room to lay itself out sideways.
-      if (size.width > size.height) return child;
+      if (isWiderThanHigh(context)) return child;
       final width = fullColumnWidth.clamp(0.0, safeWidth);
       return ColoredBox(
         color: palette.background,

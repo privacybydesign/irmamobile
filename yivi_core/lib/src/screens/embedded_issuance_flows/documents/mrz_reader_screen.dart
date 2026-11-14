@@ -135,8 +135,7 @@ class _CameraScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
-    final size = MediaQuery.sizeOf(context);
-    final sideways = size.width > size.height;
+    final sideways = isWiderThanHigh(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Light status bar icons over the dark camera.

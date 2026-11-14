@@ -3,6 +3,7 @@ import "dart:math";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../util/tablet.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/fill_scroll_view.dart";
@@ -17,10 +18,7 @@ bool enrollmentTablet(BuildContext context) => context.isTabletDevice;
 
 /// Whether an enrollment page lays out in two columns: whenever the screen
 /// is wider than high, on a phone and on a tablet.
-bool enrollmentSideways(BuildContext context) {
-  final size = MediaQuery.sizeOf(context);
-  return size.width > size.height;
-}
+bool enrollmentSideways(BuildContext context) => isWiderThanHigh(context);
 
 /// Most a tablet's upright column is wide.
 const double enrollmentColumnMaxWidth = 560;
