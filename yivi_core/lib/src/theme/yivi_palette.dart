@@ -291,6 +291,35 @@ class YiviPalette {
         color: heading,
       );
 
+  /// The title of a result or status screen.
+  TextStyle get titleResult => display(26, weight: FontWeight.w700);
+
+  /// What a step or permission screen asks.
+  TextStyle get titleStep =>
+      display(24, weight: FontWeight.w700).copyWith(height: 30 / 24);
+
+  /// A title where the layout is short on room: the PIN header, sideways,
+  /// a low sheet step.
+  TextStyle get titleCompact => display(22, weight: FontWeight.w700);
+
+  /// The header above a group of rows.
+  TextStyle get sectionHeader => display(16);
+
+  /// The title of a list row.
+  TextStyle get rowTitle => body(16);
+
+  /// Running text. (`text` is the colour.)
+  TextStyle get paragraph => body(15);
+
+  /// Secondary running text.
+  TextStyle get paragraphSmall => body(14);
+
+  /// The subtitle of a list row, a note.
+  TextStyle get rowSubtitle => body(13);
+
+  /// Tags, fine print.
+  TextStyle get caption => body(12);
+
   /// Open Sans, used for body text.
   TextStyle body(double size, {FontWeight weight = FontWeight.w400}) =>
       TextStyle(

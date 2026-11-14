@@ -19,6 +19,15 @@ class YiviMotion {
   /// Something leaving: a sheet going down, a panel folding away.
   static const leave = Cubic(0.4, 0, 0.6, 1);
 
+  /// A small change in place: a fade, a colour, a toggle.
+  static const quick = Duration(milliseconds: 200);
+
+  /// Something moving or resizing on the page.
+  static const standard = Duration(milliseconds: 300);
+
+  /// A page or sheet coming in or going.
+  static const page = Duration(milliseconds: 420);
+
   /// [duration], or none when the user asked for less motion.
   static Duration duration(BuildContext context, Duration duration) =>
       MediaQuery.disableAnimationsOf(context) ? Duration.zero : duration;
