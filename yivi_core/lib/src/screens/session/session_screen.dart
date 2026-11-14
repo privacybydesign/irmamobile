@@ -223,7 +223,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             blockedTimeSeconds: session.pinBlockedTimeSeconds,
             submitting: isAwaiting,
             maxPinSize: (ref.watch(longPinProvider).value ?? false) ? 16 : 5,
-            onPinEntered: (pin) => _submitPin(pin),
+            onPinEntered: _submitPin,
             onCancel: _dismissSession,
           ),
           .error =>
@@ -459,9 +459,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       }
       if (!_returnUrlSideEffectFired) {
         _returnUrlSideEffectFired = true;
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _goToReturnUrl(returnUrl),
-        );
+        afterFrame(() => _goToReturnUrl(returnUrl));
       }
       return _buildLoadingScreen(session);
     }

@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/email_code_pointer.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/email_linking_provider.dart";
+import "../../../util/after_frame.dart";
 import "../widgets/contact_widgets.dart";
 import "widgets/enter_email_screen.dart";
 import "widgets/verify_email_screen.dart";
@@ -25,7 +26,7 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    afterFrame(() {
       _showCodeScreenFor(ref.read(emailLinkingProvider).link);
     });
   }

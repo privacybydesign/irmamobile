@@ -5,6 +5,7 @@ import "../../data/irma_repository.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
@@ -47,7 +48,7 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
   initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    afterFrame(() async {
       final repo = IrmaRepositoryProvider.of(context);
       final config = await repo.getIrmaConfiguration().first;
       _debugHelper = DebugHelper(irmaConfig: config);

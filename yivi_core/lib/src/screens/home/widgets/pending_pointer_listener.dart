@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/session.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
 
 /// Picks up a queued session/URL pointer and starts the session — but only
@@ -36,7 +37,7 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    afterFrame(() {
       final repo = IrmaRepositoryProvider.of(context);
       _pointerSubscription = repo.getPendingPointer().listen((pointer) {
         _pointer = pointer;

@@ -10,6 +10,7 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";
@@ -116,7 +117,7 @@ class DisclosureFeedbackScreenState
       // The places are hidden from the first frame; the flight shows them
       // as each card lands.
       YiviFlight.hide([..._cardKeys, _paperKey, _logoKey]);
-      WidgetsBinding.instance.addPostFrameCallback((_) => _land());
+      afterFrame(_land);
     }
   }
 

@@ -17,6 +17,7 @@ import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/flight/yivi_flight.dart";
@@ -907,8 +908,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   void _openIssuerPage(TrustedParty issuer) {
     YiviFlight.hide([_issuerLogoTo]);
     setState(() => _issuerDepth = 1);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       YiviFlight.show([_issuerLogoTo]);
       _flyIssuerLogo(issuer, from: _issuerLogoFrom, to: _issuerLogoTo);
     });
@@ -942,8 +942,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   void _openDetailsIssuer(TrustedParty issuer) {
     YiviFlight.hide([_detailsLogoTo]);
     setState(() => _detailsIssuer = true);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       YiviFlight.show([_detailsLogoTo]);
       _flyIssuerLogo(issuer, from: _detailsLogoFrom, to: _detailsLogoTo);
     });

@@ -13,6 +13,7 @@ import "../../../models/update_schemes_event.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/combine.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -40,7 +41,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    afterFrame(() async {
       final repo = IrmaRepositoryProvider.of(context);
       _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
         _onErrorEvent,
@@ -61,7 +62,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       MaterialPageRoute(
         builder: (context) => ErrorScreen.fromEvent(
           error: event,
-          onTapClose: () => navigator.pop(),
+          onTapClose: navigator.pop,
           reportable: !errorReported,
         ),
       ),
@@ -180,7 +181,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
           PlainIconButton(
             icon: Icons.add,
             semanticsLabel: "Add",
-            onPressed: () => _onInstallScheme(),
+            onPressed: _onInstallScheme,
           ),
         ],
       ),
@@ -255,7 +256,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "debug.scheme_management.update",
-        onPrimaryPressed: () => _onUpdateSchemes(),
+        onPrimaryPressed: _onUpdateSchemes,
       ),
     );
   }

@@ -6,6 +6,7 @@ import "../../../models/credential_store.dart";
 import "../../../models/session_state.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_actions.dart";
@@ -48,9 +49,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-    });
+    afterFrame(_focusNode.requestFocus);
   }
 
   @override

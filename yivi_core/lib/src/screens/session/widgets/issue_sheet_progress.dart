@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/press_scale.dart";
@@ -126,8 +127,8 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
     final shown = _shown!;
     if (shown.value == widget.step) return;
     // After this frame: not while the pages build.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) shown.value = widget.step;
+    afterFrame(() {
+      shown.value = widget.step;
     });
     WidgetsBinding.instance.scheduleFrame();
   }

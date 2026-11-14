@@ -10,6 +10,7 @@ import "../../../models/eudi_configuration.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
@@ -34,7 +35,7 @@ class _CertificateManagementScreenState
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    afterFrame(() async {
       final repo = IrmaRepositoryProvider.of(context);
       _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
         _onErrorEvent,
@@ -55,7 +56,7 @@ class _CertificateManagementScreenState
       MaterialPageRoute(
         builder: (context) => ErrorScreen.fromEvent(
           error: event,
-          onTapClose: () => navigator.pop(),
+          onTapClose: navigator.pop,
           reportable: !errorReported,
         ),
       ),
@@ -113,7 +114,7 @@ class _CertificateManagementScreenState
           PlainIconButton(
             icon: Icons.add,
             semanticsLabel: "Add",
-            onPressed: () => _onInstallCertificate(),
+            onPressed: _onInstallCertificate,
           ),
         ],
       ),

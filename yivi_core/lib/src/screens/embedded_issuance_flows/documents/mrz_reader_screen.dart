@@ -9,6 +9,7 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/floating_bar_placement.dart";
@@ -63,7 +64,7 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
   }
 
   void _initCameraPermission() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    afterFrame(() async {
       if (TestContext.isRunningIntegrationTest(context)) {
         return;
       }

@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/enrollment_status.dart";
 import "../../models/error_event.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../util/after_frame.dart";
 import "../../util/navigation.dart";
 import "../error/error_screen.dart";
 import "../splash_screen/splash_screen.dart";
@@ -20,7 +21,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    afterFrame(() {
       final repo = IrmaRepositoryProvider.of(context);
 
       // when the phone is fast, the enrollment can already have changed before we added the listener

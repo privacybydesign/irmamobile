@@ -10,6 +10,7 @@ import "../../../theme/theme.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -81,7 +82,7 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
 
   void _handleFocusChange() {
     if (widget.focusNode.hasFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      afterFrame(() {
         final fieldContext = _fieldPositionKey.currentContext;
         if (fieldContext == null) {
           return;
@@ -94,7 +95,7 @@ class _ContactScrollPageState extends State<ContactScrollPage> {
         );
       });
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      afterFrame(() {
         if (!_scrollController.hasClients) {
           return;
         }

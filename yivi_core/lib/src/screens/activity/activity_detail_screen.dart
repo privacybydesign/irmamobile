@@ -7,6 +7,7 @@ import "../../providers/activity_providers.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/after_frame.dart";
 import "../../widgets/compact_bar.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/two_pane.dart";
@@ -76,9 +77,7 @@ class _ActivityDetailPageState extends ConsumerState<ActivityDetailPage> {
     super.initState();
     // Measured after the frame: during the scroll notification the name
     // still has the position of the previous frame.
-    _scroll.addListener(
-      () => WidgetsBinding.instance.addPostFrameCallback((_) => _checkName()),
-    );
+    _scroll.addListener(() => afterFrame(_checkName));
   }
 
   void _checkName() {
@@ -102,7 +101,7 @@ class _ActivityDetailPageState extends ConsumerState<ActivityDetailPage> {
     final entry = ActivityEntry.fromLog(widget.log, wallet: wallet);
     // The name can move (rotation, text size): check again after this
     // layout.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkName());
+    afterFrame(_checkName);
 
     return Scaffold(
       extendBodyBehindAppBar: true,

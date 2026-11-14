@@ -3,6 +3,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
+import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
@@ -24,9 +25,7 @@ class _VerifyPhoneScreenState extends ConsumerState<VerifyPhoneScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      codeFocus.requestFocus();
-    });
+    afterFrame(codeFocus.requestFocus);
   }
 
   @override

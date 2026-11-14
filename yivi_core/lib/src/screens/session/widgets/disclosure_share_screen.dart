@@ -14,6 +14,7 @@ import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/compact_bar.dart";
@@ -183,9 +184,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     _arrived.addAll(filled);
     // Nothing over the page (the card came in some other way): at once.
     if (_sheets == 0 && !YiviFlight.isFlying) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _land(fromSheet: false),
-      );
+      afterFrame(() => _land(fromSheet: false));
     }
   }
 
@@ -375,7 +374,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     // The header can change size (rotation, text size): check again after
     // this layout.
     if (!columns && !landscape) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _checkHeader());
+      afterFrame(_checkHeader);
     }
 
     final required = [

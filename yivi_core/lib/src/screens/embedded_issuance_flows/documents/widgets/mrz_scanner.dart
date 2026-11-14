@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../providers/ocr_processor_provider.dart";
+import "../../../../util/after_frame.dart";
 import "../../../../util/mrz_glare.dart";
 import "../../../../util/mrz_reading.dart";
 import "../../../../util/test_detection.dart";
@@ -49,7 +50,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
+    afterFrame(_sync);
   }
 
   @override

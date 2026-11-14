@@ -146,7 +146,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _autoStartScanning());
+    afterFrame(_autoStartScanning);
   }
 
   /// Starts the read without a tap on Android.
@@ -279,9 +279,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               setState(() => _preparingIssuance = false);
               // The reader was dropped while the loader showed. The new one
               // starts in Pending, which ref.listen does not report.
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) => _autoStartScanning(),
-              );
+              afterFrame(_autoStartScanning);
             }
             return;
           }

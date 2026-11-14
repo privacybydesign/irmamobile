@@ -6,6 +6,7 @@ import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/glass/glass_sheet.dart";
@@ -48,7 +49,7 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _check(ask: true));
+    afterFrame(() => _check(ask: true));
   }
 
   @override

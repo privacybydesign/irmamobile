@@ -14,6 +14,7 @@ import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
@@ -188,7 +189,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       // The tapped card is picked up and put down on its row here.
       final row = _currentRow;
       if (row != null) YiviFlight.hide([row]);
-      WidgetsBinding.instance.addPostFrameCallback((_) => _liftIn(from));
+      afterFrame(() => _liftIn(from));
     }
   }
 
@@ -409,8 +410,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// it has landed.
   void _rise(GlobalKey from, CredentialDescriptor d) {
     YiviFlight.hide([issueHeroKey]);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    afterFrame(() {
       YiviFlight.start(
         context,
         from: from,

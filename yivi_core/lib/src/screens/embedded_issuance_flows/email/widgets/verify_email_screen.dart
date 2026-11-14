@@ -6,6 +6,7 @@ import "../../../../models/email_code_pointer.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_dialog.dart";
 import "../../../../widgets/irma_app_bar.dart";
@@ -36,9 +37,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _applyLink();
-    });
+    afterFrame(_applyLink);
   }
 
   @override

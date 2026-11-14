@@ -17,6 +17,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/pill_text_field.dart";
 import "../../../../widgets/press_scale.dart";
@@ -127,7 +128,7 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
   void initState() {
     super.initState();
     _country = _countryOf("NL") ?? _countries.first;
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    afterFrame(() async {
       // The number typed before, when coming back from the code.
       final phone = ref.read(smsIssuanceProvider).phoneNumber;
       if (phone.isEmpty) return;

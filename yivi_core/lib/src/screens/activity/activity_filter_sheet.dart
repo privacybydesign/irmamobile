@@ -6,6 +6,7 @@ import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/glass/glass_group.dart";
@@ -66,7 +67,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _recount());
+    afterFrame(_recount);
   }
 
   @override

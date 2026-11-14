@@ -8,6 +8,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/centred_max_width.dart";
@@ -41,7 +42,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    afterFrame(() async {
       final repo = IrmaRepositoryProvider.of(context);
       _devModeSubscription = repo.getDeveloperMode().listen((event) {
         setState(() {
