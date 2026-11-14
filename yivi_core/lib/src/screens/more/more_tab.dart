@@ -1,7 +1,6 @@
 import "dart:async";
 
 import "package:flutter/semantics.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -9,6 +8,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -139,7 +139,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
     ];
 
     final list = TitleScrollEdge(
-      title: FlutterI18n.translate(context, "home.nav_bar.more"),
+      title: context.tr("home.nav_bar.more"),
       largeTitleBottom: tabTitleBottom,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -156,7 +156,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
               PillButton(
                 key: const Key("log_out_button"),
                 style: PillStyle.neutral,
-                label: FlutterI18n.translate(context, "more_tab.log_out"),
+                label: context.tr("more_tab.log_out"),
                 onPressed: () {
                   // Confirm the deliberate logout so the user understands they
                   // were logged out and the PIN screen is not asking for a PIN in

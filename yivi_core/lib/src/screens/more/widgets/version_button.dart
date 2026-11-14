@@ -1,10 +1,10 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
 
 import "../../../../sentry_dsn.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/app_toast.dart";
 import "../../../widgets/translated_text.dart";
 
@@ -39,11 +39,8 @@ class _VersionButtonState extends State<VersionButton> {
       fontWeight: FontWeight.w600,
     );
 
-    void showSnackbar(String translationKey) => showAppToast(
-      context,
-      FlutterI18n.translate(context, translationKey),
-      overTabBar: true,
-    );
+    void showSnackbar(String translationKey) =>
+        showAppToast(context, context.tr(translationKey), overTabBar: true);
 
     void onTap() async {
       _tapCounter++;

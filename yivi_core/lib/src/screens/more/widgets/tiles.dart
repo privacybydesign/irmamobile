@@ -1,6 +1,5 @@
 import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 import "package:share_plus/share_plus.dart";
 
@@ -8,6 +7,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/translated_text.dart";
@@ -53,7 +53,7 @@ class ShareLinkTile extends StatelessWidget {
         final RenderBox box = context.findRenderObject() as RenderBox;
         SharePlus.instance.share(
           ShareParams(
-            text: FlutterI18n.translate(context, shareTextKey),
+            text: context.tr(shareTextKey),
             sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
           ),
         );
@@ -81,9 +81,7 @@ class ExternalLinkTile extends StatelessWidget {
       labelTranslationKey: labelTranslationKey,
       onTap: () {
         try {
-          IrmaRepositoryProvider.of(
-            context,
-          ).openURL(FlutterI18n.translate(context, urlLinkKey));
+          IrmaRepositoryProvider.of(context).openURL(context.tr(urlLinkKey));
         } catch (e, stacktrace) {
           // TODO: consider whether we want error screen here
           reportError(e, stacktrace);
@@ -162,12 +160,10 @@ class ToggleTile extends StatelessWidget {
         }
 
         return Semantics(
-          value: FlutterI18n.translate(
-            context,
+          value: context.tr(
             value ? "switch.describe_state_on" : "switch.describe_state_off",
           ),
-          hint: FlutterI18n.translate(
-            context,
+          hint: context.tr(
             value ? "switch.hint_state_on" : "switch.hint_state_off",
           ),
           child: Tile(
