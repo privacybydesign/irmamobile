@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
+import "../../../util/i18n.dart";
 import "illustrator.dart";
 
 class HelpCarousel extends StatefulWidget {
@@ -35,8 +35,7 @@ class _HelpCarouselState extends State<HelpCarousel> {
               ),
           ],
           textSet: [
-            for (var item in widget.items)
-              FlutterI18n.translate(context, item.translationKey),
+            for (var item in widget.items) context.tr(item.translationKey),
           ],
           width: 300.0,
           height: 220.0,

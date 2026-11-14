@@ -1,6 +1,6 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../util/i18n.dart";
 import "../../../widgets/collapsible.dart";
 
 class HelpItem extends StatelessWidget {
@@ -10,8 +10,6 @@ class HelpItem extends StatelessWidget {
   const HelpItem({required this.headerTranslationKey, required this.body});
 
   @override
-  Widget build(BuildContext context) => Collapsible(
-    header: FlutterI18n.translate(context, headerTranslationKey),
-    content: body,
-  );
+  Widget build(BuildContext context) =>
+      Collapsible(header: context.tr(headerTranslationKey), content: body);
 }

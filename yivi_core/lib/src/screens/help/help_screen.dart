@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/icon_square.dart";
@@ -41,7 +41,7 @@ class _HelpScreenState extends State<HelpScreen> {
       controller: _controller,
       children: [
         GlassGroup(
-          header: FlutterI18n.translate(context, "help.about_irma"),
+          header: context.tr("help.about_irma"),
           children: [
             HelpItem(
               headerTranslationKey: "help.question_1",
@@ -49,9 +49,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             HelpItem(
               headerTranslationKey: "help.question_2",
-              body: IrmaMarkdown(
-                FlutterI18n.translate(context, "help.answer_2"),
-              ),
+              body: IrmaMarkdown(context.tr("help.answer_2")),
             ),
             HelpItem(
               headerTranslationKey: "help.question_3",
@@ -60,7 +58,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ],
         ),
         GlassGroup(
-          header: FlutterI18n.translate(context, "help.login"),
+          header: context.tr("help.login"),
           children: [
             HelpItem(
               headerTranslationKey: "help.question_4",
@@ -115,7 +113,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ],
         ),
         GlassGroup(
-          header: FlutterI18n.translate(context, "help.device"),
+          header: context.tr("help.device"),
           children: [
             HelpItem(
               headerTranslationKey: "help.question_6",
@@ -128,7 +126,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ],
         ),
         GlassGroup(
-          header: FlutterI18n.translate(context, "help.security_and_privacy"),
+          header: context.tr("help.security_and_privacy"),
           children: [
             HelpItem(
               headerTranslationKey: "help.question_8",
@@ -144,9 +142,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             HelpItem(
               headerTranslationKey: "help.question_11",
-              body: IrmaMarkdown(
-                FlutterI18n.translate(context, "help.answer_11"),
-              ),
+              body: IrmaMarkdown(context.tr("help.answer_11")),
             ),
           ],
         ),
@@ -203,7 +199,7 @@ class _AskAQuestion extends StatelessWidget {
               ),
               PillButton(
                 key: const Key("help_send_email"),
-                label: FlutterI18n.translate(context, "help.email"),
+                label: context.tr("help.email"),
                 onPressed: () => openSupportMail(context),
               ),
               TranslatedText(
