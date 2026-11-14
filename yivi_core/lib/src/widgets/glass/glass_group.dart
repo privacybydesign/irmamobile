@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 
 /// A rounded group of rows on a surface, with thin dividers between them,
 /// like the groups in Settings and More. Flat: its colour sets it off from
@@ -155,7 +156,7 @@ class _GroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.fromLTRB(inset, 24, inset, 8),
+    padding: EdgeInsets.fromLTRB(inset, YiviSpace.x24, inset, YiviSpace.x8),
     child: Semantics(
       header: true,
       child: Text(text, style: YiviPalette.of(context).display(16)),
@@ -188,7 +189,7 @@ class GlassTileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
+    padding: const EdgeInsets.fromLTRB(6, YiviSpace.x4, 6, YiviSpace.x8),
     child: Semantics(
       header: true,
       child: Text(text, style: YiviPalette.of(context).display(15)),

@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "centred_max_width.dart";
 import "glass/glass_surface.dart";
 import "press_scale.dart";
@@ -64,12 +65,15 @@ void Function(String message, {Key? key, ToastAction? action}) appToastFor(
       elevation: 0,
       backgroundColor: Colors.transparent,
       padding: EdgeInsets.zero,
-      margin: EdgeInsets.fromLTRB(24, 0, 24, bottom),
+      margin: EdgeInsets.fromLTRB(YiviSpace.x24, 0, YiviSpace.x24, bottom),
       content: CentredMaxWidth(
         maxWidth: 440,
         // What floats over the page, as the tab bar and the menus.
         child: GlassSurface(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: YiviSpace.x12,
+          ),
           child: _Message(
             message: message,
             action: action,
@@ -109,7 +113,7 @@ class _Message extends StatelessWidget {
     if (action == null) return text;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 16,
+      spacing: YiviSpace.x16,
       children: [
         Flexible(child: text),
         Semantics(

@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "../util/adaptive_layout.dart";
 import "../util/i18n.dart";
 
@@ -140,13 +141,18 @@ class PaneTitle extends StatelessWidget {
 
   /// The padding of a page in a pane.
   static EdgeInsets pagePadding(BuildContext context) =>
-      _clear(context, const EdgeInsets.fromLTRB(20, 20, 20, 24));
+      _clear(context, const EdgeInsets.fromLTRB(20, 20, 20, YiviSpace.x24));
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        0,
+        YiviSpace.x4,
+        YiviSpace.x12,
+      ),
       child: Semantics(
         header: true,
         child: Text(

@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/haptics.dart";
 import "glass_surface.dart";
 
@@ -216,7 +217,12 @@ class _Menu<T> extends StatelessWidget {
                 if (item.section case final section?) ...[
                   if (i > 0) gap,
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 2),
+                    padding: const EdgeInsets.fromLTRB(
+                      YiviSpace.x16,
+                      10,
+                      YiviSpace.x16,
+                      YiviSpace.x2,
+                    ),
                     child: Semantics(
                       header: true,
                       child: Text(
@@ -234,7 +240,12 @@ class _Menu<T> extends StatelessWidget {
               if (footnote != null) ...[
                 gap,
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                  padding: const EdgeInsets.fromLTRB(
+                    YiviSpace.x16,
+                    10,
+                    YiviSpace.x16,
+                    YiviSpace.x12,
+                  ),
                   child: Text(
                     footnote!,
                     style: palette
@@ -272,9 +283,12 @@ class _Row<T> extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 46),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: YiviSpace.x16,
+              vertical: 10,
+            ),
             child: Row(
-              spacing: 12,
+              spacing: YiviSpace.x12,
               children: [
                 if (item.checked case final checked?)
                   SizedBox(

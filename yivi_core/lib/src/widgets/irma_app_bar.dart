@@ -3,6 +3,7 @@ import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
 import "glass/pill_buttons.dart";
 import "glass/round_icon_button.dart";
@@ -245,7 +246,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
                 alignment: Alignment.centerRight,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  spacing: 8,
+                  spacing: YiviSpace.x8,
                   children: actions,
                 ),
               ),

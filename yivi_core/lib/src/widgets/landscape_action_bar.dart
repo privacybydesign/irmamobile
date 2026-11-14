@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_space.dart";
 import "floating_bar_placement.dart";
 
 /// The button at the bottom of a result screen on a phone held sideways:
@@ -18,7 +19,7 @@ class LandscapeActionBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16 + padding.left,
-        12,
+        YiviSpace.x12,
         16 + padding.right,
         FloatingBarPlacement.buttonBottom(context),
       ),

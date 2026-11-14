@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
@@ -94,7 +95,7 @@ class GlassDialog extends StatelessWidget {
       children: [
         if (icon != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: YiviSpace.x12),
             child: Center(child: icon),
           ),
         Semantics(
@@ -112,7 +113,7 @@ class GlassDialog extends StatelessWidget {
         ),
         if ((message ?? "").isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: YiviSpace.x8),
             child: Text(
               message!,
               key: const Key("dialog_message"),
@@ -121,10 +122,13 @@ class GlassDialog extends StatelessWidget {
             ),
           ),
         if (body != null)
-          Padding(padding: const EdgeInsets.only(top: 16), child: body),
+          Padding(
+            padding: const EdgeInsets.only(top: YiviSpace.x16),
+            child: body,
+          ),
         if (actions.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(top: 24),
+            padding: const EdgeInsets.only(top: YiviSpace.x24),
             child: landscape
                 ? Row(
                     spacing: 10,
@@ -134,7 +138,7 @@ class GlassDialog extends StatelessWidget {
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 4,
+                    spacing: YiviSpace.x4,
                     children: actions,
                   ),
           ),
@@ -149,7 +153,10 @@ class GlassDialog extends StatelessWidget {
             left: MediaQuery.paddingOf(context).left,
             right: MediaQuery.paddingOf(context).right,
           ) +
-          const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          const EdgeInsets.symmetric(
+            horizontal: YiviSpace.x32,
+            vertical: YiviSpace.x16,
+          ),
       duration: const Duration(milliseconds: 100),
       curve: Curves.decelerate,
       child: MediaQuery.removeViewInsets(
@@ -177,7 +184,7 @@ class GlassDialog extends StatelessWidget {
                     ),
                   ),
                   fill: palette.surface,
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(YiviSpace.x24),
                   child: SingleChildScrollView(child: content),
                 ),
               ),

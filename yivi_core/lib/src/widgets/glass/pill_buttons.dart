@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../press_scale.dart";
 
 /// The two heights of the pill buttons: [large] at the bottom of a full
@@ -140,7 +141,7 @@ class FancyPillButton extends StatelessWidget {
                           mainAxisSize: bar
                               ? MainAxisSize.min
                               : MainAxisSize.max,
-                          spacing: 8,
+                          spacing: YiviSpace.x8,
                           children: [
                             ?leading,
                             Flexible(child: text),
@@ -380,11 +381,14 @@ class PillButton extends StatelessWidget {
         minWidth: expand ? double.infinity : 0,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: YiviSpace.x8,
+        ),
         child: Row(
           mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 8,
+          spacing: YiviSpace.x8,
           children: [
             ?leading,
             Flexible(
@@ -465,7 +469,12 @@ class SmallPill extends StatelessWidget {
             widthFactor: 1,
             heightFactor: 1,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 4, 14, 4),
+              padding: const EdgeInsets.fromLTRB(
+                14,
+                YiviSpace.x4,
+                14,
+                YiviSpace.x4,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 spacing: 6,
@@ -528,7 +537,7 @@ class TextLink extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
                 child: Center(
                   widthFactor: 1,
                   heightFactor: 1,

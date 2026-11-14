@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
 import "../util/signature_message_text.dart";
 import "flight/yivi_flight.dart";
@@ -124,7 +125,7 @@ class SignedMessage extends StatelessWidget {
                     ),
                     if (cut && onReadAll != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: YiviSpace.x4),
                         child: _ReadAll(onTap: onReadAll!),
                       ),
                   ],
@@ -172,7 +173,7 @@ class _ReadAll extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 36),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: 2,
+            spacing: YiviSpace.x2,
             children: [
               Text(
                 context.tr("signature.read_all"),
@@ -246,7 +247,12 @@ Future<void> showSignedMessageSheet({
         key: const Key("message_sheet"),
         title: context.tr("share.message_label"),
         titleUnder: titleKey,
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          0,
+          YiviSpace.x16,
+          YiviSpace.x24,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -255,7 +261,7 @@ Future<void> showSignedMessageSheet({
               lead: lead,
               titleKey: titleKey,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: YiviSpace.x16),
             FlightSpot(
               flightKey: into,
               child: SignedMessage(message: message),

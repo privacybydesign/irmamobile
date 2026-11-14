@@ -286,11 +286,11 @@ class _FoldState extends State<_Fold> {
         ),
         if (open)
           Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: YiviSpace.x12),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 8,
+              spacing: YiviSpace.x8,
               children: list
                   ? [
                       for (final item in g.children.cast<_ItemNode>())
@@ -352,9 +352,9 @@ class _FoldHeader extends StatelessWidget {
       key: headingKey,
       constraints: BoxConstraints(minHeight: minHeight),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: YiviSpace.x8),
         child: Row(
-          spacing: 8,
+          spacing: YiviSpace.x8,
           children: [
             Expanded(
               child: Column(
@@ -455,7 +455,7 @@ class _ItemCardState extends State<_ItemCard> {
           ),
           if (open && body.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(bottom: 4),
+              padding: const EdgeInsets.only(bottom: YiviSpace.x4),
               child: _CardBody(nodes: body, ctx: ctx),
             ),
         ],
@@ -483,7 +483,7 @@ class _Card extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 4, 14, 8),
+        padding: const EdgeInsets.fromLTRB(14, YiviSpace.x4, 14, YiviSpace.x8),
         child: child,
       ),
     );
@@ -547,7 +547,7 @@ class _ListHeading extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Padding(
       key: _FoldHeader.headingKey,
-      padding: const EdgeInsets.only(top: 10, bottom: 2),
+      padding: const EdgeInsets.only(top: 10, bottom: YiviSpace.x2),
       child: Semantics(
         header: true,
         child: Row(
@@ -582,7 +582,7 @@ class _BlockName extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Container(
       key: _FoldHeader.headingKey,
-      margin: const EdgeInsets.only(top: 8),
+      margin: const EdgeInsets.only(top: YiviSpace.x8),
       padding: EdgeInsets.only(top: line ? 8 : 0),
       decoration: line
           ? BoxDecoration(

@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "translated_text.dart";
 
 /// The line a list shows when there is nothing in it, 32 below where the
@@ -14,7 +15,7 @@ class EmptyListMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 32),
+      padding: const EdgeInsets.only(top: YiviSpace.x32),
       child: TranslatedText(
         textKey,
         textAlign: TextAlign.center,

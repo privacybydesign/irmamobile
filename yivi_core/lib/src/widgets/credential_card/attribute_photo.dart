@@ -4,6 +4,7 @@ import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../glass/round_icon_button.dart";
 import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
@@ -399,7 +400,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                             16 + padding.left,
                             padding.top + IrmaAppBar.buttonTop,
                             16 + padding.right,
-                            24,
+                            YiviSpace.x24,
                           ),
                           // As high as the close button: the title in
                           // line with it.

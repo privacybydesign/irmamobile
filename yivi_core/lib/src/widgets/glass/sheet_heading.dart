@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 
 /// The big heading at the top of a sheet's page over the share screen
 /// (Welk kaartje deel je?, Het bericht, …), with the one grey line under it
@@ -22,11 +23,11 @@ class SheetHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 12),
+          const SizedBox(height: YiviSpace.x12),
           Semantics(
             header: true,
             child: Text(
@@ -38,7 +39,7 @@ class SheetHeading extends StatelessWidget {
             ),
           ),
           if (lead case final lead?) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: YiviSpace.x8),
             Text(
               lead,
               key: const Key("sheet_heading_lead"),

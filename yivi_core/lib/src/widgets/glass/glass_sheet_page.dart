@@ -345,7 +345,12 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
               border: Border(bottom: ScrollEdgeBand.lineSide(context)),
             ),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(16, line + 4, 16, 10),
+              padding: EdgeInsets.fromLTRB(
+                YiviSpace.x16,
+                line + 4,
+                YiviSpace.x16,
+                10,
+              ),
               child: row,
             ),
           ),

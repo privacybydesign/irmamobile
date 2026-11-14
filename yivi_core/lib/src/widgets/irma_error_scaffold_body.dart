@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_edges.dart";
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "../theme/yivi_tone.dart";
 import "../util/i18n.dart";
 import "glass/pill_buttons.dart";
@@ -90,8 +91,8 @@ class _ErrorDetailsState extends State<ErrorDetails> {
               ? const SizedBox(width: double.infinity)
               : Container(
                   key: const Key("error_details"),
-                  margin: const EdgeInsets.only(top: 12),
-                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(top: YiviSpace.x12),
+                  padding: const EdgeInsets.all(YiviSpace.x16),
                   decoration: BoxDecoration(
                     color: palette.surface,
                     borderRadius: YiviCorners.cardRadius,
@@ -99,7 +100,7 @@ class _ErrorDetailsState extends State<ErrorDetails> {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 8,
+                    spacing: YiviSpace.x8,
                     children: [
                       Semantics(
                         header: true,

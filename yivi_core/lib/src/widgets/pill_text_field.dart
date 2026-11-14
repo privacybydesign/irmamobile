@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 
 /// The label above a field, here and on the document and contact screens.
 TextStyle fieldLabelStyle(BuildContext context) {
@@ -78,7 +79,12 @@ class PillTextField extends StatelessWidget {
       children: [
         if (label != null)
           Padding(
-            padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x4,
+              0,
+              YiviSpace.x4,
+              YiviSpace.x8,
+            ),
             child: Text(label!, style: fieldLabelStyle(context)),
           ),
         Semantics(label: label, textField: true, child: field),
@@ -98,7 +104,12 @@ class FieldError extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 12, 4, 0),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        YiviSpace.x12,
+        YiviSpace.x4,
+        0,
+      ),
       child: Semantics(
         liveRegion: true,
         child: Row(
@@ -109,7 +120,7 @@ class FieldError extends StatelessWidget {
           spacing: 6,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 2),
+              padding: const EdgeInsets.only(top: YiviSpace.x2),
               child: Icon(
                 Icons.warning_rounded,
                 size: 16,

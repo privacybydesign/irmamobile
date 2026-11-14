@@ -771,8 +771,8 @@ class _LeafContent extends StatelessWidget {
         : null;
     if (found == null && tag != null) {
       return Wrap(
-        spacing: 8,
-        runSpacing: 4,
+        spacing: YiviSpace.x8,
+        runSpacing: YiviSpace.x4,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(text, style: style),
@@ -803,7 +803,7 @@ class _LeafContent extends StatelessWidget {
     final bytes = decodeAttributeImage(value);
     if (bytes == null) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: YiviSpace.x4),
       // An SVG (an Open Badge's picture) is drawn like a logo; only a bitmap
       // opens full screen.
       child: isSvgImage(bytes, mimeType: value?.mimeType)
@@ -890,7 +890,10 @@ class _FoundRow extends StatelessWidget {
             ),
           ),
         ),
-        Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: child),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: YiviSpace.x4),
+          child: child,
+        ),
       ],
     );
   }
@@ -1125,7 +1128,7 @@ class _PrimArrayContent extends StatelessWidget {
       children: [
         Text(node.label, style: attributeLabelStyle(context)),
         Padding(
-          padding: const EdgeInsets.only(top: 6, bottom: 4),
+          padding: const EdgeInsets.only(top: 6, bottom: YiviSpace.x4),
           child: Wrap(
             spacing: 6,
             runSpacing: 6,
@@ -1134,8 +1137,8 @@ class _PrimArrayContent extends StatelessWidget {
                 Container(
                   constraints: const BoxConstraints(minHeight: 30),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
+                    horizontal: YiviSpace.x12,
+                    vertical: YiviSpace.x4,
                   ),
                   decoration: ShapeDecoration(
                     color: palette.tint,

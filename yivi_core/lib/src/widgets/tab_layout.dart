@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_space.dart";
 import "../util/adaptive_layout.dart";
 import "irma_app_bar.dart";
 import "title_scroll_edge.dart";
@@ -28,9 +29,9 @@ const double tabTitleBottom = tabTitleTop + TabLargeTitle.height;
 EdgeInsets tabPagePadding(BuildContext context) {
   final padding = MediaQuery.paddingOf(context);
   return EdgeInsets.fromLTRB(
-    16,
+    YiviSpace.x16,
     padding.top + (usePhoneLandscape(context) ? 4 : tabTitleTop),
-    16,
+    YiviSpace.x16,
     padding.bottom + bottomBarSpace(context),
   );
 }

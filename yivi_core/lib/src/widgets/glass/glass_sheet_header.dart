@@ -205,7 +205,12 @@ class GlassSheetHeader extends StatelessWidget {
     return Padding(
       // A little room under the buttons, for the band once content scrolls
       // under the bar; less above them on a phone held sideways.
-      padding: EdgeInsets.fromLTRB(16, sideways ? 12 : 16, 16, 4),
+      padding: EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        sideways ? 12 : 16,
+        YiviSpace.x16,
+        YiviSpace.x4,
+      ),
       child: SizedBox(
         height: 44,
         child: CustomMultiChildLayout(
@@ -260,11 +265,16 @@ class GlassSheetHeader extends StatelessWidget {
         : null;
     final titleWidget = this.titleWidget;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        YiviSpace.x12,
+        YiviSpace.x16,
+        YiviSpace.x4,
+      ),
       child: SizedBox(
         height: 44,
         child: Row(
-          spacing: 12,
+          spacing: YiviSpace.x12,
           children: [
             ?start,
             if (titleWidget != null)
@@ -281,7 +291,7 @@ class GlassSheetHeader extends StatelessWidget {
             Flexible(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 4),
+                padding: const EdgeInsetsDirectional.only(start: YiviSpace.x4),
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
                   child: extra,
@@ -332,11 +342,16 @@ class GlassSheetHeader extends StatelessWidget {
     return Padding(
       // A little room under the buttons, for the band once content scrolls
       // under the bar.
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        YiviSpace.x12,
+        YiviSpace.x16,
+        YiviSpace.x4,
+      ),
       child: SizedBox(
         height: 44,
         child: Row(
-          spacing: 12,
+          spacing: YiviSpace.x12,
           children: [
             if (onBack case final onBack?) _backButton(onBack),
             heading,
@@ -463,7 +478,7 @@ class _BarTextButton extends StatelessWidget {
               Padding(
                 padding: EdgeInsetsDirectional.only(
                   start: chevron ? 0 : 4,
-                  end: 4,
+                  end: YiviSpace.x4,
                 ),
                 child: Text(
                   label,

@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "../theme/yivi_tone.dart";
 
 /// A short fact as a chip, the one chip of the app: "by Yivi", "3 cards",
@@ -46,7 +47,7 @@ class StatusChip extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: height),
       padding: EdgeInsetsDirectional.only(
         start: icon == null ? 12 : 8,
-        end: 12,
+        end: YiviSpace.x12,
       ),
       decoration: ShapeDecoration(
         color: fill,
@@ -67,7 +68,9 @@ class StatusChip extends StatelessWidget {
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
                   child: Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 4),
+                    padding: const EdgeInsetsDirectional.only(
+                      end: YiviSpace.x4,
+                    ),
                     child: Icon(icon, size: 14, color: ink),
                   ),
                 ),

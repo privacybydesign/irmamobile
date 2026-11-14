@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "../theme/yivi_tone.dart";
 import "../util/test_detection.dart";
 import "centred_max_width.dart";
@@ -62,7 +63,12 @@ class StatusBody extends StatelessWidget {
             constraints.maxWidth >= 560;
         final insets = BarInsets.of(
           context,
-          const EdgeInsets.fromLTRB(32, 24, 32, 32),
+          const EdgeInsets.fromLTRB(
+            YiviSpace.x32,
+            YiviSpace.x24,
+            YiviSpace.x32,
+            YiviSpace.x32,
+          ),
         );
         if (!sideways) {
           return Center(
@@ -76,7 +82,7 @@ class StatusBody extends StatelessWidget {
                   children: [
                     if (disc != null)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 32),
+                        padding: const EdgeInsets.only(bottom: YiviSpace.x32),
                         child: disc,
                       ),
                     ..._texts(palette, TextAlign.center),
@@ -91,7 +97,7 @@ class StatusBody extends StatelessWidget {
           child: CentredMaxWidth(
             maxWidth: 1000,
             child: Row(
-              spacing: 48,
+              spacing: YiviSpace.x48,
               children: [
                 Expanded(child: Center(child: disc)),
                 Expanded(
@@ -128,7 +134,7 @@ class StatusBody extends StatelessWidget {
     ),
     if ((message ?? "").isNotEmpty)
       Padding(
-        padding: const EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: YiviSpace.x12),
         child: Text(
           message!,
           textAlign: align,
@@ -137,7 +143,7 @@ class StatusBody extends StatelessWidget {
       ),
     if ((note ?? "").isNotEmpty)
       Padding(
-        padding: const EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: YiviSpace.x12),
         child: Text(
           note!,
           textAlign: align,
@@ -147,7 +153,10 @@ class StatusBody extends StatelessWidget {
         ),
       ),
     if (footer != null)
-      Padding(padding: const EdgeInsets.only(top: 24), child: footer),
+      Padding(
+        padding: const EdgeInsets.only(top: YiviSpace.x24),
+        child: footer,
+      ),
   ];
 }
 

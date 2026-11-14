@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 
 /// The pill-shaped search field: in the Data and Activity tabs, the add-data
@@ -140,9 +141,9 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
             height: widget.height,
             child: Row(
               children: [
-                const SizedBox(width: 16),
+                const SizedBox(width: YiviSpace.x16),
                 GlassSearchField.icon(palette),
-                const SizedBox(width: 8),
+                const SizedBox(width: YiviSpace.x8),
                 Expanded(
                   child: TextField(
                     key: widget.fieldKey,
@@ -165,7 +166,9 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                 ),
                 if (_hasText)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: YiviSpace.x8,
+                    ),
                     child: Semantics(
                       button: true,
                       label: context.tr("wallet.clear_search"),
@@ -191,7 +194,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                     ),
                   )
                 else
-                  const SizedBox(width: 16),
+                  const SizedBox(width: YiviSpace.x16),
               ],
             ),
           ),

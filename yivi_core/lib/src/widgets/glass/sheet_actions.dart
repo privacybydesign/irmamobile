@@ -1,6 +1,7 @@
 import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../landscape_action_bar.dart";
 import "glass_sheet.dart";
@@ -89,7 +90,7 @@ class SheetActionRow extends StatelessWidget {
       return SheetKeepsKeyboard(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          spacing: 12,
+          spacing: YiviSpace.x12,
           children: [
             if (secondaryButton != null)
               Flexible(
@@ -104,7 +105,7 @@ class SheetActionRow extends StatelessWidget {
     return SheetKeepsKeyboard(
       child: IntrinsicHeight(
         child: Row(
-          spacing: 8,
+          spacing: YiviSpace.x8,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (secondaryButton != null) Expanded(child: secondaryButton),

@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_palette.dart";
+import "../theme/yivi_space.dart";
 import "../util/laid_out_box.dart";
 import "scroll_edge.dart";
 
@@ -77,7 +78,7 @@ class CompactBar extends StatelessWidget {
       child: SizedBox(
         height: 44,
         child: Row(
-          spacing: 8,
+          spacing: YiviSpace.x8,
           children: [
             leading,
             Expanded(

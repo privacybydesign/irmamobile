@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../floating_bar_placement.dart";
 import "glass_sheet.dart";
@@ -113,7 +114,7 @@ class SheetSplit extends StatelessWidget {
         : sheetStack(pageBottom, own);
     return _InSplit(
       child: Padding(
-        padding: const EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: YiviSpace.x12),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(

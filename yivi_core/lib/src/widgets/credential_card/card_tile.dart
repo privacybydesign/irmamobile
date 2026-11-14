@@ -4,6 +4,7 @@ import "../../models/credential.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../dashed_outline_painter.dart";
 import "card_art/credential_card_art.dart";
 
@@ -87,13 +88,18 @@ class CardTile extends StatelessWidget {
         decoration: decoration,
         child: _withFooter(
           Padding(
-            padding: EdgeInsets.fromLTRB(16, 14, 16, footer == null ? 12 : 10),
+            padding: EdgeInsets.fromLTRB(
+              YiviSpace.x16,
+              14,
+              YiviSpace.x16,
+              footer == null ? 12 : 10,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 10,
               children: [
                 Row(
-                  spacing: 12,
+                  spacing: YiviSpace.x12,
                   children: [
                     ExcludeSemantics(child: art),
                     Expanded(
@@ -170,7 +176,12 @@ class CardTileStrip extends StatelessWidget {
         border: Border(top: BorderSide(color: line ?? palette.divider)),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          10,
+          YiviSpace.x16,
+          YiviSpace.x12,
+        ),
         child: Row(spacing: 10, children: children),
       ),
     );
