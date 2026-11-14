@@ -352,7 +352,7 @@ class _ListRow extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(padding),
           child: Row(
-            spacing: 16,
+            spacing: YiviSpace.x16,
             children: [
               _flightSlot(
                 first: flightTarget,
@@ -485,9 +485,11 @@ class _GridView extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: YiviSpace.x8),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: YiviSpace.x4,
+                    ),
                     child: Text(
                       c.name,
                       maxLines: 1,
@@ -496,7 +498,9 @@ class _GridView extends ConsumerWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: YiviSpace.x4,
+                    ),
                     child: Text(
                       hintTexts[c.hash] ?? "",
                       maxLines: 1,

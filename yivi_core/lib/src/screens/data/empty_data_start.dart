@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
@@ -30,12 +31,12 @@ class EmptyDataStart extends StatelessWidget {
           (constraints.maxWidth - mediumContentMaxWidth) / 2,
         );
         return SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(side, 48, side, bottom),
+          padding: EdgeInsets.fromLTRB(side, YiviSpace.x48, side, bottom),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const EmptyDataTitle(),
-              const SizedBox(height: 32),
+              const SizedBox(height: YiviSpace.x32),
               const EmptyDataOptions(rail: false),
             ],
           ),
@@ -96,7 +97,12 @@ class EmptyDataPane extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+                padding: const EdgeInsets.fromLTRB(
+                  YiviSpace.x4,
+                  0,
+                  YiviSpace.x4,
+                  YiviSpace.x8,
+                ),
                 child: Text(
                   context.tr("data_tab.start.get_started").toUpperCase(),
                   style: CapsLabel.style(palette),

@@ -4,6 +4,7 @@ import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/round_icon_button.dart";
@@ -323,7 +324,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                     builder: (context, _) => Row(
                       children: [
                         // A little in from the edge.
-                        const SizedBox(width: 12),
+                        const SizedBox(width: YiviSpace.x12),
                         Expanded(
                           child:
                               widget.barBuilder?.call(
@@ -332,7 +333,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                               ) ??
                               const SizedBox.shrink(),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: YiviSpace.x8),
                         Builder(
                           builder: (context) {
                             // Takes over from the bar's buttons below,

@@ -8,6 +8,7 @@ import "../../../models/credential.dart";
 import "../../../models/log_entry.dart";
 import "../../../providers/activity_providers.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
@@ -62,7 +63,12 @@ class CardActivitySection extends ConsumerWidget {
       children: [
         if (activity != null && entries.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x4,
+              0,
+              YiviSpace.x4,
+              10,
+            ),
             child: Text(
               summary(),
               key: const Key("card_activity_summary"),
@@ -89,7 +95,7 @@ class CardActivitySection extends ConsumerWidget {
                 _AddedRow(date: printableDate(issued, context.lang)),
               if (entries.isEmpty && issued == null)
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(YiviSpace.x16),
                   child: Text(
                     context.tr("wallet.detail.activity_empty"),
                     style: palette
@@ -152,7 +158,12 @@ class _AddedRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        YiviSpace.x12,
+        YiviSpace.x16,
+        YiviSpace.x12,
+      ),
       child: Row(
         children: [
           Expanded(

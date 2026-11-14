@@ -224,7 +224,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
             height: top + _topBarHeight + 8,
             top: top,
             row: Row(
-              spacing: 8,
+              spacing: YiviSpace.x8,
               children: [
                 Expanded(child: field),
                 if (searching) cancel else add,
@@ -238,7 +238,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
             title: context.tr("home.nav_bar.data"),
             searching: searching,
             searchRow: Row(
-              spacing: 4,
+              spacing: YiviSpace.x4,
               children: [
                 Expanded(child: field),
                 cancel,
@@ -413,7 +413,7 @@ class _Content extends ConsumerWidget {
     return switch ((snapshot, ordered)) {
       (AsyncError(), _) || (_, AsyncError()) => Center(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(YiviSpace.x16),
           child: TranslatedText(
             "error.title",
             textAlign: TextAlign.center,
@@ -440,7 +440,9 @@ class _Content extends ConsumerWidget {
                           ? const Align(
                               alignment: Alignment(0, -0.5),
                               child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: YiviSpace.x16,
+                                ),
                                 child: EmptyDataTitle(),
                               ),
                             )
@@ -565,7 +567,7 @@ class _CardList extends ConsumerWidget {
                   direction: PushAwayDirection.up,
                   child: CardTransitionFade(
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.only(bottom: YiviSpace.x8),
                       child: HomeTabHeader(
                         title: const TabLargeTitle("wallet.title"),
                         field: HomeTabSearchField(
@@ -583,7 +585,7 @@ class _CardList extends ConsumerWidget {
                 const PushAway(
                   direction: PushAwayDirection.up,
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.only(bottom: YiviSpace.x16),
                     child: EmailLinkBanner(),
                   ),
                 ),
@@ -603,7 +605,7 @@ class _CardList extends ConsumerWidget {
                 PushAway(
                   direction: PushAwayDirection.up,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(bottom: YiviSpace.x8),
                     child: _ProblematicCredentialCard(credential: pc),
                   ),
                 ),
@@ -893,10 +895,13 @@ class _ViewMenu extends ConsumerWidget {
         child: PressScale(
           // A finger's room around the 36 high pill.
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(vertical: YiviSpace.x4),
             child: Container(
               height: 36,
-              padding: const EdgeInsetsDirectional.only(start: 10, end: 8),
+              padding: const EdgeInsetsDirectional.only(
+                start: 10,
+                end: YiviSpace.x8,
+              ),
               decoration: ShapeDecoration(
                 color: palette.surface,
                 shape: RoundedRectangleBorder(
@@ -957,7 +962,7 @@ class _NoResults extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 32),
+      padding: const EdgeInsets.only(top: YiviSpace.x32),
       child: Column(
         children: [
           TranslatedText(
@@ -965,7 +970,7 @@ class _NoResults extends StatelessWidget {
             textAlign: TextAlign.center,
             style: palette.display(16),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: YiviSpace.x4),
           TranslatedText(
             "wallet.no_results.body",
             textAlign: TextAlign.center,
@@ -995,11 +1000,11 @@ class _ProblematicCredentialCard extends ConsumerWidget {
       color: palette.errorSurface,
       shape: const RoundedRectangleBorder(borderRadius: YiviCorners.cardRadius),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(YiviSpace.x16),
         child: Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: palette.danger, size: 28),
-            const SizedBox(width: 12),
+            const SizedBox(width: YiviSpace.x12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1008,12 +1013,12 @@ class _ProblematicCredentialCard extends ConsumerWidget {
                     title,
                     style: palette.display(16).copyWith(color: palette.text),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: YiviSpace.x4),
                   Text(
                     context.tr("data.problematic.explanation"),
                     style: palette.body(14).copyWith(color: palette.heading),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: YiviSpace.x4),
                   Text(
                     credential.reason,
                     style: palette.body(12).copyWith(color: palette.heading),

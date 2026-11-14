@@ -8,6 +8,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/search_query_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
@@ -132,9 +133,9 @@ class _CredentialDetailScreenState
                 // Pulling down at the top dismisses the page.
                 physics: physics,
                 padding: EdgeInsets.fromLTRB(
-                  16,
+                  YiviSpace.x16,
                   padding.top + IrmaAppBar.contentTop,
-                  16,
+                  YiviSpace.x16,
                   padding.bottom + 32,
                 ),
                 children: [
@@ -397,7 +398,12 @@ class _Details extends ConsumerWidget {
       Map<String, String>? params,
       double below = 8,
     }) => Padding(
-      padding: EdgeInsets.fromLTRB(4, 24, 4, below),
+      padding: EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        YiviSpace.x24,
+        YiviSpace.x4,
+        below,
+      ),
       child: Semantics(
         header: true,
         child: Text(context.tr(key, params), style: palette.display(16)),
@@ -408,16 +414,16 @@ class _Details extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (showTitle) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: YiviSpace.x24),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
             child: _Title(credential: credential, size: 24),
           ),
         ],
-        const SizedBox(height: 16),
+        const SizedBox(height: YiviSpace.x16),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: YiviSpace.x8,
+          runSpacing: YiviSpace.x8,
           children: [
             if (foundLabel != null)
               StatusChip(
@@ -446,7 +452,7 @@ class _Details extends ConsumerWidget {
                 controller: controller,
                 scrollDirection: Axis.horizontal,
                 itemCount: siblings.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: YiviSpace.x8),
                 itemBuilder: (context, i) {
                   final s = siblings[i];
                   final selected = s.hash == credential.hash;
@@ -483,7 +489,7 @@ class _Details extends ConsumerWidget {
                               hintText: hintTexts[s.hash],
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: YiviSpace.x4),
                           // Under the card itself, not its ring (3 apart and
                           // 2 wide).
                           Container(
@@ -508,7 +514,10 @@ class _Details extends ConsumerWidget {
         heading("wallet.detail.details"),
         SurfaceCard(
           clipBehavior: Clip.antiAlias,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.symmetric(
+            horizontal: YiviSpace.x16,
+            vertical: YiviSpace.x4,
+          ),
           child: _FoundField(
             found: foundLabel == null ? null : found,
             builder: (key) => YiviCredentialCardAttributeList(
@@ -526,10 +535,10 @@ class _Details extends ConsumerWidget {
           heading("credential.sharable"),
           SurfaceCard(
             clipBehavior: Clip.antiAlias,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(YiviSpace.x16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
+              spacing: YiviSpace.x8,
               children: [
                 Text(
                   context.tr("credential.sharable_count", {
@@ -568,7 +577,7 @@ class _Details extends ConsumerWidget {
             logoHeroTag: (requestorLogoHeroTag(credential.issuer), context),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: YiviSpace.x24),
         _AboutRow(label: context.tr("wallet.detail.format"), value: format),
         _AboutRow(
           label: context.tr("wallet.detail.card_design"),
@@ -579,7 +588,7 @@ class _Details extends ConsumerWidget {
             label: context.tr("wallet.detail.added"),
             value: printableDate(issued, lang),
           ),
-        const SizedBox(height: 24),
+        const SizedBox(height: YiviSpace.x24),
         if (canReobtain)
           PillButton(
             key: const Key("credential_detail_reobtain"),
@@ -595,7 +604,7 @@ class _Details extends ConsumerWidget {
           ),
         if (canDelete)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: YiviSpace.x8),
             child: PillButton(
               key: const Key("credential_detail_delete"),
               style: PillStyle.danger,
@@ -760,10 +769,13 @@ class _AboutRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: YiviSpace.x4,
+        vertical: YiviSpace.x4,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 16,
+        spacing: YiviSpace.x16,
         children: [
           Expanded(
             child: Text(
