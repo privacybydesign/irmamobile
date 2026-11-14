@@ -1,6 +1,6 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
@@ -25,11 +25,11 @@ class NoInternetScreen extends StatelessWidget {
       titleTranslationKey: "error.no_internet_title",
       bodyTranslationKey: "error.types.no_internet",
       bottomBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, "error.button_back"),
+        primaryButtonLabel: context.tr("error.button_back"),
         onPrimaryPressed: onTapClose,
         secondaryButtonLabel: onTapRetry == null
             ? null
-            : FlutterI18n.translate(context, "error.button_retry"),
+            : context.tr("error.button_retry"),
         onSecondaryPressed: onTapRetry,
       ),
     );

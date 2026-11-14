@@ -1,8 +1,8 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/clear_all_data_event.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
@@ -30,10 +30,7 @@ class BlockedScreen extends StatelessWidget {
         bodyTranslationKey: "error.types.blocked",
         bottomBar: IrmaBottomBar(
           primaryDanger: true,
-          primaryButtonLabel: FlutterI18n.translate(
-            context,
-            "error.button_reset",
-          ),
+          primaryButtonLabel: context.tr("error.button_reset"),
           onPrimaryPressed: () => IrmaRepositoryProvider.of(
             context,
           ).bridgedDispatch(ClearAllDataEvent()),

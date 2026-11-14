@@ -1,6 +1,6 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
@@ -26,7 +26,7 @@ class TxCodeLockoutScreen extends StatelessWidget {
       titleTranslationKey: "issuance.pre-authorized_code.tx_code_lockout.title",
       bodyTranslationKey: "issuance.pre-authorized_code.tx_code_lockout.body",
       bottomBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, "error.button_ok"),
+        primaryButtonLabel: context.tr("error.button_ok"),
         onPrimaryPressed: onTapClose,
       ),
     );

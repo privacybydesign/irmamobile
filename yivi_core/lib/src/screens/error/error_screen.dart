@@ -1,9 +1,9 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/error_event.dart";
 import "../../sentry/sentry.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_error_scaffold_body.dart";
@@ -88,12 +88,12 @@ class _ErrorScreenState extends State<ErrorScreen> {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: widget.onTapClose != null
-            ? FlutterI18n.translate(context, "error.button_ok")
+            ? context.tr("error.button_ok")
             : null,
         onPrimaryPressed: widget.onTapClose,
         // If the error has been reported, the secondary button should be disabled, but the label should remain visible.
         secondaryButtonLabel: widget.onReportError != null
-            ? FlutterI18n.translate(context, "error.button_send_to_irma")
+            ? context.tr("error.button_send_to_irma")
             : null,
         onSecondaryPressed: widget.onReportError != null && !_hasReported
             ? _onTapReport
