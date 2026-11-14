@@ -32,12 +32,20 @@ bool isWiderThanHigh(BuildContext context) {
 bool isExpandedLayout(BuildContext context) =>
     MediaQuery.sizeOf(context).width >= expandedLayoutBreakpoint;
 
+/// Short side from which a window is a tablet's: an 11-inch iPad, an
+/// unfolded phone held upright.
+const double tabletShortSide = 700;
+
+/// Whether the window's short side is a tablet's ([tabletShortSide]).
+bool isTabletWindow(BuildContext context) =>
+    MediaQuery.sizeOf(context).shortestSide >= tabletShortSide;
+
 /// Whether sheets are form sheets in the middle of the window, as on an
-/// iPad: on the tablet layouts, and on any window whose short side is a
-/// tablet's (an 11-inch iPad or an unfolded phone held upright, under the
-/// tablet breakpoint). Phones, upright or sideways, get the bottom sheet.
+/// iPad: on the tablet layouts, and on any tablet window
+/// ([isTabletWindow]), under the tablet breakpoint too. Phones, upright or
+/// sideways, get the bottom sheet.
 bool useFormSheet(BuildContext context) =>
-    isExpandedLayout(context) || MediaQuery.sizeOf(context).shortestSide >= 700;
+    isExpandedLayout(context) || isTabletWindow(context);
 
 /// A phone held sideways (or a narrow landscape split view): wider than
 /// high, but narrower than the tablet layouts. The share and issuance
