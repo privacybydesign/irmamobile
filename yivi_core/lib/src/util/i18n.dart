@@ -7,6 +7,9 @@ extension YiviI18n on BuildContext {
   String tr(String key, [Map<String, String>? params]) =>
       FlutterI18n.translate(this, key, translationParams: params);
 
+  /// The plural form of [key] for [count].
+  String plural(String key, int count) => FlutterI18n.plural(this, key, count);
+
   /// The code of the app's language, e.g. "nl".
   String get lang => FlutterI18n.currentLocale(this)?.languageCode ?? "en";
 }

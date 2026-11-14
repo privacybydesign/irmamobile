@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../models/credential.dart";
@@ -131,11 +130,9 @@ String? _headerText(Credential credential) {
 String instanceHintText(BuildContext context, InstanceHint hint) {
   return switch (hint) {
     ValueHint(:final text) => text,
-    AddedHint(:final date) => FlutterI18n.translate(
-      context,
-      "credential_card.added_on",
-      translationParams: {"date": _date(context, date)},
-    ),
+    AddedHint(:final date) => context.tr("credential_card.added_on", {
+      "date": _date(context, date),
+    }),
     NoHint() => "",
   };
 }
