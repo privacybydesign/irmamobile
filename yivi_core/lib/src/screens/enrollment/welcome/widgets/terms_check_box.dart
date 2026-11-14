@@ -1,4 +1,3 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -42,8 +41,7 @@ class TermsCheckBox extends ConsumerWidget {
     // No translationParams: the URL is only the link target and is stripped
     // out below, so keeping it out of the string means the label cannot depend
     // on what the URL contains.
-    final acceptLabel = FlutterI18n.translate(
-      context,
+    final acceptLabel = context.tr(
       "enrollment.terms_and_conditions.accept_markdown",
     );
 

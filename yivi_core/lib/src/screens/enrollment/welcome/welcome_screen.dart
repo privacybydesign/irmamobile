@@ -1,9 +1,9 @@
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
@@ -95,7 +95,7 @@ class WelcomeScreen extends StatelessWidget {
       const SizedBox(height: 12),
       FancyPillButton(
         key: const Key("enrollment_next_button"),
-        label: FlutterI18n.translate(context, "enrollment.welcome.start"),
+        label: context.tr("enrollment.welcome.start"),
         size: tablet ? PillSize.large : PillSize.regular,
         onPressed: isAccepted ? onContinue : null,
       ),

@@ -1,6 +1,5 @@
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:go_router/go_router.dart";
@@ -10,6 +9,7 @@ import "../../data/irma_repository.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_palette.dart";
+import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
@@ -30,7 +30,7 @@ class EnrollmentScreen extends StatelessWidget {
     final container = ProviderScope.containerOf(context, listen: false);
     return BlocProvider(
       create: (_) => EnrollmentBloc(
-        language: FlutterI18n.currentLocale(context)!.languageCode,
+        language: context.lang,
         repo: repo,
         // Once, only if a biometric is enrolled and the user hasn't chosen.
         biometricOffered: () async {
@@ -94,11 +94,8 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
     BuildContext context,
     EnrollmentStepNumber step, {
     String key = "enrollment.step",
-  }) => FlutterI18n.translate(
-    context,
-    key,
-    translationParams: {"current": "${step.number}", "total": "${step.total}"},
-  );
+  }) =>
+      context.tr(key, {"current": "${step.number}", "total": "${step.total}"});
 
   @override
   Widget build(BuildContext context) {

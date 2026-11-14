@@ -1,11 +1,11 @@
 import "dart:async";
 import "dart:math";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
 import "../../../theme/yivi_motion.dart";
+import "../../../util/i18n.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 
@@ -33,8 +33,7 @@ Credential _card(
   required String background,
   required String text,
 }) {
-  String t(String key) =>
-      FlutterI18n.translate(context, "enrollment.introduction.art.$key");
+  String t(String key) => context.tr("enrollment.introduction.art.$key");
   return Credential(
     credentialId: id,
     hash: id,

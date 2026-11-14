@@ -1,10 +1,10 @@
 import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter/gestures.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../../providers/irma_repository_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
+import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_sheet.dart";
 import "error_reporting_info_bottom_sheet.dart";
 
@@ -38,14 +38,10 @@ class _ErrorReportSwitchState extends State<ErrorReportSwitch> {
     final palette = YiviPalette.of(context);
     final theme = IrmaTheme.of(context);
     final preferences = IrmaRepositoryProvider.of(context).preferences;
-    final shareErrors = FlutterI18n.translate(
-      context,
+    final shareErrors = context.tr(
       "enrollment.error_reporting.accept.share_errors",
     );
-    final withYivi = FlutterI18n.translate(
-      context,
-      "enrollment.error_reporting.accept.with_yivi",
-    );
+    final withYivi = context.tr("enrollment.error_reporting.accept.with_yivi");
 
     return StreamBuilder<bool>(
       stream: preferences.getReportErrors(),

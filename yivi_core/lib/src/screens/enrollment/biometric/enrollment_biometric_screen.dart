@@ -1,7 +1,6 @@
 import "dart:async";
 import "dart:io";
 
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:local_auth/local_auth.dart";
 import "package:material_ui/material_ui.dart";
@@ -9,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../util/i18n.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
 import "../../pin/providers/biometric_provider.dart";
@@ -44,10 +44,7 @@ class _EnrollmentBiometricScreenState
     await ref
         .read(biometricServiceProvider)
         .confirmAndEnable(
-          localizedReason: FlutterI18n.translate(
-            context,
-            "pin.biometric_confirm_reason",
-          ),
+          localizedReason: context.tr("pin.biometric_confirm_reason"),
         );
     if (mounted) widget.onDone();
   }
@@ -101,10 +98,7 @@ class _EnrollmentBiometricScreenState
             Expanded(
               child: PillButton(
                 key: const Key("biometric_not_now"),
-                label: FlutterI18n.translate(
-                  context,
-                  "enrollment.biometric.not_now",
-                ),
+                label: context.tr("enrollment.biometric.not_now"),
                 style: PillStyle.text,
                 size: size,
                 onPressed: _busy ? null : _notNow,
@@ -113,10 +107,7 @@ class _EnrollmentBiometricScreenState
             Expanded(
               child: FancyPillButton(
                 key: const Key("biometric_enable"),
-                label: FlutterI18n.translate(
-                  context,
-                  "enrollment.biometric.use_$kind",
-                ),
+                label: context.tr("enrollment.biometric.use_$kind"),
                 size: size,
                 onPressed: _busy ? null : _use,
               ),
