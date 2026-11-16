@@ -15,8 +15,9 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
     /// is removed or its hierarchy is torn down.
     private static weak var blurView: UIVisualEffectView?
 
-    /// The cover shown while the screen is being recorded or mirrored, if it is up.
-    private static weak var captureCover: UIView?
+    /// The window of the cover shown while the screen is being recorded or
+    /// mirrored, if it is up. Held strongly: nothing else keeps a window alive.
+    private static var captureCoverWindow: UIWindow?
 
     /// How many in-app flows currently need the blur held back, see
     /// `suspendPrivacyScreen`. A count rather than a flag, so overlapping flows
@@ -64,23 +65,21 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
     /// Puts the cover up when the screen is captured and the privacy screen is on, and
     /// takes it down otherwise. Safe to call at any time and any number of times.
     private static func updateCaptureCover() {
-        let window = activeWindow()
-        let captured = window?.windowScene?.screen.isCaptured ?? false
-        guard enabled, captured, let window = window else {
-            captureCover?.removeFromSuperview()
-            captureCover = nil
+        let scene = activeScene()
+        guard enabled, let scene = scene, scene.screen.isCaptured else {
+            captureCoverWindow?.isHidden = true
+            captureCoverWindow = nil
             return
         }
-        if let cover = captureCover {
-            // Flutter can add views after the cover went up: keep it in front.
-            cover.superview?.bringSubviewToFront(cover)
+        if let window = captureCoverWindow, window.windowScene === scene {
             return
         }
+        captureCoverWindow?.isHidden = true
 
         // Opaque, unlike the blur used for the app switcher: a recording is something
         // an attacker can pause and enhance.
-        let cover = UIView(frame: window.bounds)
-        cover.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        let controller = UIViewController()
+        let cover: UIView = controller.view
         cover.backgroundColor = .systemBackground
 
         let label = UILabel()
@@ -98,19 +97,29 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
             label.trailingAnchor.constraint(equalTo: cover.layoutMarginsGuide.trailingAnchor, constant: -16),
         ])
 
-        window.addSubview(cover)
-        captureCover = cover
-        // The cover hides the app from VoiceOver too, so say why.
+        // A window of its own, above alerts: a subview of the app's window ends up
+        // behind whatever is presented natively on top of Flutter, such as the in-app
+        // browser or a share sheet. It is shown without being made key, so the app's
+        // window keeps the keyboard and its first responder.
+        let window = UIWindow(windowScene: scene)
+        window.windowLevel = UIWindow.Level(rawValue: UIWindow.Level.alert.rawValue + 1)
+        window.rootViewController = controller
+        // Keeps VoiceOver from reaching, reading and operating the app underneath.
+        window.accessibilityViewIsModal = true
+        cover.accessibilityViewIsModal = true
+        window.isHidden = false
+        captureCoverWindow = window
+        // So say why the app is gone.
         UIAccessibility.post(notification: .screenChanged, argument: label)
     }
 
-    /// The app's window. Looked up through the connected scenes: `keyWindow` is
-    /// deprecated and unreliable under the UIScene life cycle.
-    private static func activeWindow() -> UIWindow? {
-        let windows = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-        return windows.first { $0.isKeyWindow } ?? windows.first
+    /// The scene the app is shown in. Looked up through the connected scenes:
+    /// `keyWindow` is deprecated and unreliable under the UIScene life cycle.
+    private static func activeScene() -> UIWindowScene? {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        return scenes.first { $0.activationState == .foregroundActive }
+            ?? scenes.first { $0.windows.contains { $0.isKeyWindow } }
+            ?? scenes.first
     }
 
     /// Shown on the cover. Native code cannot reach the app's translations, so the
