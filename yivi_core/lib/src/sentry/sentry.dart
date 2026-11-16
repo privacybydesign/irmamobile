@@ -30,17 +30,6 @@ bool mayLeaveDevice() =>
 void setReportErrorsForTesting(bool value) =>
     _reportErrorsPreferenceValue = value;
 
-/// Runs [report] as a report the user asked for.
-@visibleForTesting
-Future<T> asUserInitiated<T>(Future<T> Function() report) async {
-  _userInitiatedReports++;
-  try {
-    return await report();
-  } finally {
-    _userInitiatedReports--;
-  }
-}
-
 Future<void> _startSentry({required bool reportErrors}) async {
   await SentryFlutter.init((options) async {
     // Build number is automatically set by Sentry via the 'dist' tag.
@@ -53,6 +42,11 @@ Future<void> _startSentry({required bool reportErrors}) async {
 
     // Enable app health check
     options.enableAutoSessionTracking = reportErrors;
+
+    // Native events do not pass beforeSend below, and on iOS these two are not
+    // tied to enableNativeCrashHandling.
+    options.enableAppHangTracking = reportErrors;
+    options.enableWatchdogTerminationTracking = reportErrors;
 
     // No IP address, user or device identifiers beyond what a crash report needs.
     options.sendDefaultPii = false;
@@ -68,7 +62,7 @@ Future<void> _startSentry({required bool reportErrors}) async {
 
 /// Sentry is only started once the user opts in to error reporting. Until then
 /// nothing is initialised, so nothing can be sent. A report the user asks for
-/// on an error screen starts it on demand, see [_ensureStartedForUserReport].
+/// on an error screen starts it for that report only, see [sendUserInitiated].
 Future<void> initSentry({required IrmaPreferences preferences}) async {
   if (dsn != "") {
     final completer = Completer();
@@ -83,11 +77,55 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
   }
 }
 
-/// Starts Sentry for a report the user asked for while not opted in. Native
-/// crash handling and session tracking stay off, and [mayLeaveDevice] drops
-/// everything except reports the user asks for.
-Future<void> _ensureStartedForUserReport() async {
-  if (!Sentry.isEnabled) await _startSentry(reportErrors: false);
+/// The parts of Sentry that [sendUserInitiated] starts and stops, so a test
+/// can stand in for them.
+@visibleForTesting
+class SentryLifecycle {
+  final bool Function() isEnabled;
+  final Future<void> Function() start;
+  final Future<void> Function() close;
+
+  const SentryLifecycle({
+    required this.isEnabled,
+    required this.start,
+    required this.close,
+  });
+}
+
+/// Native crash handling, session, app-hang and watchdog tracking stay off for
+/// a start without the opt-in.
+final _realSentry = SentryLifecycle(
+  isEnabled: () => Sentry.isEnabled,
+  start: () => _startSentry(reportErrors: false),
+  close: Sentry.close,
+);
+
+/// Sends a [report] the user asked for. Without the opt-in Sentry is started
+/// for this report only and closed again once it is sent: while it runs,
+/// [mayLeaveDevice] only filters what goes through Dart, and nothing should
+/// depend on that for longer than the report takes.
+@visibleForTesting
+Future<void> sendUserInitiated(
+  Future<void> Function() report, {
+  SentryLifecycle? sentry,
+}) async {
+  sentry ??= _realSentry;
+  // Counted from before the start, so a report that finishes while another is
+  // still starting does not close Sentry under it.
+  _userInitiatedReports++;
+  try {
+    if (!sentry.isEnabled()) await sentry.start();
+    await report();
+  } finally {
+    _userInitiatedReports--;
+    // The preference is read now, not before the report: the user may have
+    // opted in while it was being sent.
+    if (_userInitiatedReports == 0 &&
+        !_reportErrorsPreferenceValue &&
+        sentry.isEnabled()) {
+      await sentry.close();
+    }
+  }
 }
 
 /// Reports a message to Sentry at the info log level if the user gave permission
@@ -97,8 +135,7 @@ Future<void> reportFeedback(
 }) async {
   if (dsn != "") {
     if (userInitiated) {
-      await _ensureStartedForUserReport();
-      await asUserInitiated(() => Sentry.captureMessage(message));
+      await sendUserInitiated(() => Sentry.captureMessage(message));
     } else if (_reportErrorsPreferenceValue) {
       Sentry.captureMessage(message);
     }
@@ -132,8 +169,7 @@ Future<void> reportError(
   } else {
     // Send the Exception and Stacktrace to Sentry when enabled
     if (userInitiated) {
-      await _ensureStartedForUserReport();
-      await asUserInitiated(
+      await sendUserInitiated(
         () => Sentry.captureException(error, stackTrace: stackTrace),
       );
     } else if (_reportErrorsPreferenceValue) {
