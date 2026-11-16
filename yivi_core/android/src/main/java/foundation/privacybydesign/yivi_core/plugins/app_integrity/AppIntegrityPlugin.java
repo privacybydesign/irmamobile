@@ -100,7 +100,9 @@ public class AppIntegrityPlugin implements FlutterPlugin, MethodChannel.MethodCa
     }
 
     static Map<String, Boolean> check(Context context) {
-        String maps = readFile("/proc/self/maps").toLowerCase(Locale.ROOT);
+        String maps = withoutInstallDirectory(
+                readFile("/proc/self/maps"), context.getApplicationInfo().sourceDir, context.getPackageName()
+        ).toLowerCase(Locale.ROOT);
 
         Map<String, Boolean> report = new HashMap<>();
         report.put("debuggable", (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
@@ -204,6 +206,26 @@ public class AppIntegrityPlugin implements FlutterPlugin, MethodChannel.MethodCa
         return filesDir.matches("^/data/data/" + pkg + "/files$")
                 || filesDir.matches("^/data/user/\\d+/" + pkg + "/files$")
                 || filesDir.matches("^/mnt/expand/[^/]+/user/\\d+/" + pkg + "/files$");
+    }
+
+    /**
+     * The memory map without the directory Android installed the app in. That
+     * directory has random segments (/data/app/~~<random>==/<package>-<random>==),
+     * which could happen to spell one of the names searched for and would then
+     * flag the user on every launch until the next update.
+     *
+     * <p>Only the directory is taken out: what is inside it stays, so a library
+     * someone added to a repackaged app is still found. An app that does not run
+     * from where Android installs apps, as in a cloning container, keeps its
+     * whole path.
+     */
+    static String withoutInstallDirectory(String maps, String sourceDir, String packageName) {
+        if (sourceDir == null) return maps;
+        String installDir = new File(sourceDir).getParent();
+        if (installDir == null) return maps;
+        String location = "^(/data|/mnt/expand/[^/]+)/app/(~~[^/]+/)?" + Pattern.quote(packageName) + "-[^/]+$";
+        if (!installDir.matches(location)) return maps;
+        return maps.replace(installDir + "/", "");
     }
 
     private static boolean containsAny(String haystack, String[] needles) {

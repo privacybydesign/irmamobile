@@ -75,4 +75,52 @@ internal class AppIntegrityPluginTest {
         // The dots of the package name are not wildcards.
         assertFalse(AppIntegrityPlugin.isOwnDataDirectory("/data/user/0/orgXirmacardXcardemu/files", pkg))
     }
+
+    @Test
+    fun withoutInstallDirectory_dropsTheRandomSegmentsOfTheInstallPath() {
+        val pkg = "org.irmacard.cardemu"
+        // The random part happens to spell the name of an instrumentation tool.
+        val dir = "/data/app/~~xFRiDAq1==/$pkg-Zygisk0w=="
+        val maps = "7a0000-7b0000 r-xp 00000000 fd:05 123 $dir/lib/arm64/libapp.so\n" +
+            "7b0000-7c0000 r--p 00000000 fd:05 124 $dir/base.apk\n"
+
+        val stripped = AppIntegrityPlugin.withoutInstallDirectory(maps, "$dir/base.apk", pkg)
+
+        assertFalse(stripped.contains("FRiDA"))
+        assertFalse(stripped.contains("Zygisk"))
+        assertTrue(stripped.contains(" lib/arm64/libapp.so"))
+    }
+
+    @Test
+    fun withoutInstallDirectory_keepsWhatIsInsideTheInstallDirectory() {
+        val pkg = "org.irmacard.cardemu"
+        val dir = "/data/app/~~abc==/$pkg-def=="
+        // A gadget added to a repackaged app, and an agent injected from elsewhere.
+        val maps = "7a0000-7b0000 r-xp 00000000 fd:05 123 $dir/lib/arm64/libfrida-gadget.so\n" +
+            "7b0000-7c0000 r-xp 00000000 fd:05 125 /data/local/tmp/re.frida.server/frida-agent-64.so\n"
+
+        val stripped = AppIntegrityPlugin.withoutInstallDirectory(maps, "$dir/base.apk", pkg)
+
+        assertTrue(stripped.contains("libfrida-gadget.so"))
+        assertTrue(stripped.contains("/data/local/tmp/re.frida.server/frida-agent-64.so"))
+    }
+
+    @Test
+    fun withoutInstallDirectory_recognisesOlderAndAdoptableInstallPaths() {
+        val pkg = "org.irmacard.cardemu"
+        for (dir in listOf("/data/app/$pkg-xposedAb==", "/mnt/expand/6c3f0bba/app/~~xposed==/$pkg-1")) {
+            val maps = "7a0000-7b0000 r-xp 00000000 fd:05 123 $dir/base.apk\n"
+            assertFalse(AppIntegrityPlugin.withoutInstallDirectory(maps, "$dir/base.apk", pkg).contains("xposed"))
+        }
+    }
+
+    @Test
+    fun withoutInstallDirectory_keepsThePathOfAnAppThatRunsFromSomewhereElse() {
+        val pkg = "org.irmacard.cardemu"
+        val dir = "/data/user/0/com.lbe.parallel.intl/parallel_intl/0/$pkg"
+        val maps = "7a0000-7b0000 r-xp 00000000 fd:05 123 $dir/base.apk\n"
+
+        assertEquals(maps, AppIntegrityPlugin.withoutInstallDirectory(maps, "$dir/base.apk", pkg))
+        assertEquals(maps, AppIntegrityPlugin.withoutInstallDirectory(maps, null, pkg))
+    }
 }
