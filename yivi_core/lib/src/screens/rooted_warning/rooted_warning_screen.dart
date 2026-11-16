@@ -10,6 +10,7 @@ class RootedWarningScreen extends StatelessWidget {
   final String explanationTranslationKey;
 
   const RootedWarningScreen({
+    super.key,
     this.onAcceptRiskButtonPressed,
     this.explanationTranslationKey = "rooted_warning.explanation",
   });

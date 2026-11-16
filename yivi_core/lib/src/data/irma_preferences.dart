@@ -32,6 +32,10 @@ class IrmaPreferences {
          _acceptedRootedRiskKey,
          defaultValue: false,
        ),
+       _acceptedEnvironmentRisk = preferences.getBool(
+         _acceptedEnvironmentRiskKey,
+         defaultValue: false,
+       ),
        _biometricEnabled = preferences.getBool(
          _biometricEnabledKey,
          defaultValue: false,
@@ -122,6 +126,13 @@ class IrmaPreferences {
   static const String _acceptedRootedRiskKey =
       "preference.accepted_rooted_risk";
   final Preference<bool> _acceptedRootedRisk;
+
+  /// Kept apart from [_acceptedRootedRisk]: accepting the risk of a rooted or
+  /// jailbroken device says nothing about an emulator, a cloned app or a
+  /// hooking framework.
+  static const String _acceptedEnvironmentRiskKey =
+      "preference.accepted_environment_risk";
+  final Preference<bool> _acceptedEnvironmentRisk;
 
   /// Whether the user opted in to biometric app-unlock. Default off (opt-in).
   static const String _biometricEnabledKey = "preference.biometric_enabled";
@@ -234,6 +245,11 @@ class IrmaPreferences {
 
   Future<bool> setAcceptedRootedRisk(bool value) =>
       _acceptedRootedRisk.setValue(value);
+
+  Stream<bool> getAcceptedEnvironmentRisk() => _acceptedEnvironmentRisk;
+
+  Future<bool> setAcceptedEnvironmentRisk(bool value) =>
+      _acceptedEnvironmentRisk.setValue(value);
 
   Stream<bool> getBiometricEnabled() => _biometricEnabled;
 

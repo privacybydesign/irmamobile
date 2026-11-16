@@ -50,7 +50,6 @@ import "src/screens/pin/pin_screen.dart";
 import "src/screens/required_update/required_update_screen.dart";
 import "src/screens/reset_pin/reset_pin_screen.dart";
 import "src/screens/rooted_warning/repository.dart";
-import "src/screens/rooted_warning/rooted_device_detector.dart";
 import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/session/session_screen.dart";
 import "src/screens/session/unknown_session_screen.dart";
@@ -69,13 +68,23 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
     ref.read(deviceSecurityProvider),
   );
   final appIntegrityGuard = AppIntegrityGuard(ref.read(appIntegrityProvider));
-  // Filled in once the first integrity report is in, which is before the
-  // warning it belongs to can be shown.
-  IntegrityReport integrityReport = IntegrityReport.clean;
-  appIntegrityGuard.firstReport.then((report) => integrityReport = report);
+  // The warning that is due. The redirect only needs to know that there is
+  // one; the warning screen follows which one, so that accepting the first
+  // makes way for the second without leaving the route.
+  final pendingRisk = BehaviorSubject<DeviceRisk?>()
+    ..addStream(
+      pendingDeviceRisk(
+        preferences: repo.preferences,
+        rooted: rootedDeviceDetector.isDeviceRooted(),
+        untrustedEnvironment: appIntegrityGuard.firstReport.then(
+          (report) => report.untrustedEnvironment,
+        ),
+      ),
+    );
+  final risksToWarnAbout = pendingRisk.whereNotNull();
   final redirectionTriggers = RedirectionListenable(
     repo,
-    rootedDeviceDetector,
+    pendingRisk.map((risk) => risk != null),
     deviceLockRequirement,
     appIntegrityGuard,
   );
@@ -263,19 +272,19 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: "/rooted_warning",
         builder: (context, state) {
-          return RootedWarningScreen(
-            // An emulator or a cloned app is not a modified operating system,
-            // so it gets its own explanation.
-            explanationTranslationKey:
-                integrityReport.untrustedEnvironment &&
-                    !integrityReport.modifiedDevice
-                ? "rooted_warning.explanation_environment"
-                : "rooted_warning.explanation",
-            onAcceptRiskButtonPressed: () {
-              DetectRootedDeviceIrmaPrefsRepository(
-                preferences: repo.preferences,
-                detector: rootedDeviceDetector,
-              ).setHasAcceptedRootedDeviceRisk();
+          return StreamBuilder<DeviceRisk>(
+            stream: risksToWarnAbout,
+            initialData: pendingRisk.valueOrNull,
+            builder: (context, snapshot) {
+              final risk = snapshot.data ?? DeviceRisk.rooted;
+              // The button accepts the risk the screen explains, and only
+              // that one.
+              return RootedWarningScreen(
+                key: ValueKey(risk),
+                explanationTranslationKey: risk.explanationTranslationKey,
+                onAcceptRiskButtonPressed: () =>
+                    acceptDeviceRisk(repo.preferences, risk),
+              );
             },
           );
         },
@@ -852,19 +861,16 @@ class RouteNotFoundScreen extends StatelessWidget {
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
   late final Stream<RedirectionTriggers> _streamSubscription;
 
+  /// [warningStream] says whether a warning about the device or the
+  /// environment the app runs in is still to be shown.
   RedirectionListenable(
     IrmaRepository repo,
-    RootedDeviceDetector detector,
+    Stream<bool> warningStream,
     DeviceLockRequirement deviceLockRequirement,
     AppIntegrityGuard appIntegrityGuard,
   ) : super(RedirectionTriggers.withDefaults()) {
     final integrityBlockedStream = appIntegrityGuard.blocked;
     final deviceLockStream = deviceLockRequirement.lockRequired;
-    final warningStream = _displayDeviceIsRootedWarning(
-      repo,
-      detector,
-      appIntegrityGuard,
-    );
     final infoStream = repo
         .getVersionInformation()
         .map<VersionInformation?>((version) => version)
@@ -981,33 +987,4 @@ class RedirectionTriggers {
     versionInformation,
     enrollmentStatus,
   );
-}
-
-Stream<bool> _displayDeviceIsRootedWarning(
-  IrmaRepository irmaRepo,
-  RootedDeviceDetector detector,
-  AppIntegrityGuard appIntegrityGuard,
-) {
-  final repo = DetectRootedDeviceIrmaPrefsRepository(
-    preferences: irmaRepo.preferences,
-    detector: detector,
-  );
-  final streamController = StreamController<bool>();
-  // The same warning, accepted once, covers a rooted or jailbroken device and
-  // the other environments the app's protections cannot be relied on in: a
-  // hooking framework, an emulator, an app-cloning container.
-  Future.wait([
-    repo.isDeviceRooted(),
-    appIntegrityGuard.firstReport.then((r) => r.untrustedEnvironment),
-  ]).then((risks) {
-    if (risks.contains(true)) {
-      repo
-          .hasAcceptedRootedDeviceRisk()
-          .map((acceptedRisk) => !acceptedRisk)
-          .pipe(streamController);
-    } else {
-      streamController.add(false);
-    }
-  });
-  return streamController.stream;
 }

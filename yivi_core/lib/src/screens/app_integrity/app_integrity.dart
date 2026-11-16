@@ -61,10 +61,6 @@ class IntegrityReport {
   /// attack being visible. The user is warned and may continue, like on a
   /// rooted or jailbroken device.
   bool get untrustedEnvironment => hookingFramework || emulator || virtualized;
-
-  /// Whether the device itself is modified, as opposed to the app running in an
-  /// emulator or a container. Decides which explanation the warning shows.
-  bool get modifiedDevice => hookingFramework;
 }
 
 /// Looks at the environment the app runs in.
