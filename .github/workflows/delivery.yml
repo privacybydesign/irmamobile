@@ -51,8 +51,18 @@ jobs:
           persist-credentials: false
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
+      # The licence lookups go over the network. Both bundle jobs need this one,
+      # so a lookup that fails once is tried again before it stops a delivery.
       - name: Generate CycloneDX SBOM
-        run: ./generate_sbom.sh ./build/sbom/yivi-app.cdx.json
+        run: |
+          for attempt in 1 2 3; do
+            if ./generate_sbom.sh ./build/sbom/yivi-app.cdx.json; then
+              exit 0
+            fi
+            echo "::warning::Generating the SBOM failed (attempt $attempt of 3)"
+            sleep $((attempt * 20))
+          done
+          exit 1
         env:
           # Raises the GitHub API rate limit for the licence lookups.
           GITHUB_TOKEN: ${{ github.token }}
