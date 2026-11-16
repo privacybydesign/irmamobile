@@ -17,9 +17,14 @@ import "../providers/irma_repository_provider.dart";
 ///
 /// The foreground timer covers a phone that is put down unlocked with Yivi
 /// open: without it the wallet stays open for as long as the screen stays on.
-/// Any use of the app restarts it: a touch, a key press (a keyboard, a D-pad or
-/// a switch that types keys) and an action of a screen reader or another
-/// assistive technology, which activate controls without touching them.
+/// Any use of the app restarts it: a touch, scrolling with a mouse wheel or a
+/// trackpad, a key press (a keyboard, a D-pad or a switch that types keys),
+/// typing on the on-screen keyboard, and an action of a screen reader or
+/// another assistive technology, which activate controls without touching them.
+///
+/// Leaving the app does not restart it: the time that was left when the app
+/// went to the background is what is left when it comes back, so short trips
+/// to another app cannot postpone the lock for ever.
 ///
 /// Tracks `paused` and `resumed` lifecycle events. `inactive` and `hidden` are
 /// intentionally ignored: only a real backgrounding sets `_lastPausedAt`, so
@@ -46,6 +51,16 @@ class _IdleLockObserverState extends ConsumerState<IdleLockObserver>
   DateTime? _lastPausedAt;
   Timer? _foregroundIdleTimer;
 
+  /// When the running foreground timer was started, to know how much of it is
+  /// left when the app goes to the background.
+  DateTime _foregroundIdleSince = DateTime.now();
+
+  /// What was left of the foreground timer when the app went to the background.
+  Duration? _foregroundIdleLeftAtPause;
+
+  /// The controller of the text field that has the focus, if one has.
+  TextEditingController? _focusedTextController;
+
   /// The framework's handler for actions of assistive technologies, which
   /// [_onSemanticsAction] stands in front of while this widget is mounted.
   SemanticsActionEventCallback? _frameworkSemanticsActionHandler;
@@ -62,6 +77,9 @@ class _IdleLockObserverState extends ConsumerState<IdleLockObserver>
     final dispatcher = WidgetsBinding.instance.platformDispatcher;
     _frameworkSemanticsActionHandler = dispatcher.onSemanticsActionEvent;
     dispatcher.onSemanticsActionEvent = _onSemanticsAction;
+    // Typing on the on-screen keyboard arrives as an edit of the focused text
+    // field, not as key events, so the field that has the focus is watched.
+    FocusManager.instance.addListener(_onFocusChange);
     _restartForegroundIdleTimer();
   }
 
@@ -75,8 +93,20 @@ class _IdleLockObserverState extends ConsumerState<IdleLockObserver>
     if (dispatcher.onSemanticsActionEvent == _onSemanticsAction) {
       dispatcher.onSemanticsActionEvent = _frameworkSemanticsActionHandler;
     }
+    FocusManager.instance.removeListener(_onFocusChange);
+    _focusedTextController?.removeListener(_restartForegroundIdleTimer);
     _foregroundIdleTimer?.cancel();
     super.dispose();
+  }
+
+  void _onFocusChange() {
+    final controller = FocusManager.instance.primaryFocus?.context
+        ?.findAncestorWidgetOfExactType<EditableText>()
+        ?.controller;
+    if (controller == _focusedTextController) return;
+    _focusedTextController?.removeListener(_restartForegroundIdleTimer);
+    _focusedTextController = controller;
+    controller?.addListener(_restartForegroundIdleTimer);
   }
 
   /// Never handles the key: it only notes that the app is being used.
@@ -90,9 +120,17 @@ class _IdleLockObserverState extends ConsumerState<IdleLockObserver>
     _frameworkSemanticsActionHandler?.call(action);
   }
 
-  void _restartForegroundIdleTimer() {
+  void _restartForegroundIdleTimer() =>
+      _startForegroundIdleTimer(widget.foregroundIdleThreshold);
+
+  void _startForegroundIdleTimer(Duration left) {
     _foregroundIdleTimer?.cancel();
-    _foregroundIdleTimer = Timer(widget.foregroundIdleThreshold, () {
+    // Kept as if the timer had started a full threshold before it ends, so
+    // what is left can be worked out from it at any moment.
+    _foregroundIdleSince = DateTime.now().subtract(
+      widget.foregroundIdleThreshold - left,
+    );
+    _foregroundIdleTimer = Timer(left, () {
       // Start counting again right away: an unlock with biometrics does not
       // touch the app, so nothing else would restart the timer after it.
       _restartForegroundIdleTimer();
@@ -117,28 +155,47 @@ class _IdleLockObserverState extends ConsumerState<IdleLockObserver>
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.paused) {
-      _lastPausedAt = DateTime.now();
-      // In the background the paused timestamp takes over.
+      final now = DateTime.now();
+      // In the background the paused timestamp takes over. A second `paused`
+      // without a resume in between has no running timer to read.
+      if (_foregroundIdleTimer?.isActive ?? false) {
+        final left =
+            widget.foregroundIdleThreshold -
+            now.difference(_foregroundIdleSince);
+        _foregroundIdleLeftAtPause = left.isNegative ? Duration.zero : left;
+      }
+      _lastPausedAt = now;
       _foregroundIdleTimer?.cancel();
       return;
     }
     if (state != AppLifecycleState.resumed) return;
-    _restartForegroundIdleTimer();
 
+    // Without a pause the app was only briefly inactive and the timer kept
+    // running.
     final pausedAt = _lastPausedAt;
     _lastPausedAt = null;
     if (pausedAt == null) return;
-    if (DateTime.now().difference(pausedAt) <= widget.idleThreshold) return;
 
-    await _lock();
+    if (DateTime.now().difference(pausedAt) > widget.idleThreshold) {
+      _restartForegroundIdleTimer();
+      await _lock();
+      return;
+    }
+    // Coming back is not use of the app: go on with what was left.
+    _startForegroundIdleTimer(
+      _foregroundIdleLeftAtPause ?? widget.foregroundIdleThreshold,
+    );
   }
 
   @override
   Widget build(BuildContext context) => Listener(
     // Sees every pointer that goes down anywhere in the app, without taking
-    // part in the gesture arena.
+    // part in the gesture arena. A mouse wheel and a trackpad scroll without a
+    // pointer going down.
     behavior: HitTestBehavior.translucent,
     onPointerDown: (_) => _restartForegroundIdleTimer(),
+    onPointerSignal: (_) => _restartForegroundIdleTimer(),
+    onPointerPanZoomStart: (_) => _restartForegroundIdleTimer(),
     child: widget.child,
   );
 }

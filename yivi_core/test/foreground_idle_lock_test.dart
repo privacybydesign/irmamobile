@@ -1,5 +1,6 @@
 import "dart:ui" show SemanticsAction, SemanticsActionEvent;
 
+import "package:flutter/gestures.dart";
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -33,6 +34,7 @@ void main() {
   Future<IrmaRepository> pumpUnlockedApp(
     WidgetTester tester, {
     bool enrolled = true,
+    Widget child = const SizedBox.expand(),
   }) async {
     final bridge = _FakeBridge();
     SharedPreferences.setMockInitialValues({});
@@ -55,11 +57,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
-        child: const Directionality(
+        child: Directionality(
           textDirection: TextDirection.ltr,
           child: IdleLockObserver(
             foregroundIdleThreshold: threshold,
-            child: SizedBox.expand(),
+            child: child,
           ),
         ),
       ),
@@ -155,6 +157,101 @@ void main() {
       // Unmounting hands the dispatcher back as it was found.
       await tester.pumpWidget(const SizedBox.shrink());
       expect(dispatcher.onSemanticsActionEvent, received.add);
+    });
+  });
+
+  testWidgets("typing on the on-screen keyboard restarts the timer", (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      final controller = TextEditingController();
+      final focusNode = FocusNode();
+      addTearDown(controller.dispose);
+      addTearDown(focusNode.dispose);
+      final repo = await pumpUnlockedApp(
+        tester,
+        child: MediaQuery(
+          data: const MediaQueryData(),
+          child: EditableText(
+            controller: controller,
+            focusNode: focusNode,
+            autofocus: true,
+            style: const TextStyle(),
+            cursorColor: const Color(0xFF000000),
+            backgroundCursorColor: const Color(0xFF000000),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(focusNode.hasFocus, isTrue);
+
+      // What the on-screen keyboard sends: an edit, without any key event.
+      for (var i = 0; i < 3; i++) {
+        await wait(threshold * 0.5);
+        tester.testTextInput.updateEditingValue(
+          TextEditingValue(text: "a" * (i + 1)),
+        );
+      }
+      expect(controller.text, "aaa");
+      expect(await repo.getLocked().first, isFalse);
+
+      await wait(threshold * 2);
+      expect(await repo.getLocked().first, isTrue);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  });
+
+  testWidgets("scrolling with a mouse wheel or a trackpad restarts the "
+      "timer", (tester) async {
+    await tester.runAsync(() async {
+      final repo = await pumpUnlockedApp(tester);
+
+      for (var i = 0; i < 3; i++) {
+        await wait(threshold * 0.5);
+        tester.binding.handlePointerEvent(
+          const PointerScrollEvent(
+            position: Offset(50, 50),
+            scrollDelta: Offset(0, 20),
+          ),
+        );
+      }
+      expect(await repo.getLocked().first, isFalse);
+
+      await wait(threshold * 2);
+      expect(await repo.getLocked().first, isTrue);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  });
+
+  testWidgets("a short trip to another app does not restart the timer", (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      final repo = await pumpUnlockedApp(tester);
+
+      void leaveAndComeBack() {
+        for (final state in const [
+          AppLifecycleState.inactive,
+          AppLifecycleState.hidden,
+          AppLifecycleState.paused,
+          AppLifecycleState.hidden,
+          AppLifecycleState.inactive,
+          AppLifecycleState.resumed,
+        ]) {
+          tester.binding.handleAppLifecycleStateChanged(state);
+        }
+      }
+
+      // Left and reopened three times, each well within the threshold, over a
+      // period longer than the threshold, without ever using the app.
+      for (var i = 0; i < 3; i++) {
+        await wait(threshold * 0.5);
+        leaveAndComeBack();
+      }
+      await wait(threshold * 0.5);
+
+      expect(await repo.getLocked().first, isTrue);
+      await tester.pumpWidget(const SizedBox.shrink());
     });
   });
 
