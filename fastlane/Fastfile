@@ -322,6 +322,8 @@ end
 # A stack trace of that build only shows addresses; `flutter symbolize -i <trace>
 # -d <symbols file>` turns it back into function names, and needs the symbols of
 # exactly that build. They are not part of the app and must not be published with it.
+# The delivery workflow also uploads them to Sentry (.github/actions/upload-dart-symbols),
+# which then does this for the crash reports it receives.
 private_lane :archive_dart_symbols do |options|
   Dir.chdir("../yivi_app/#{DART_SYMBOLS_DIR}") do
     sh("zip -q -r ../../../fastlane/build/dart-symbols-#{options[:name]}.zip .")
