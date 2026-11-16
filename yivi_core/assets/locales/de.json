@@ -693,6 +693,9 @@
     "title": "Yivi kann gerade nicht verwendet werden",
     "explanation": "Yivi hat ein Werkzeug bemerkt, das die App während der Ausführung untersuchen oder verändern kann, zum Beispiel einen Debugger. Zum Schutz Ihrer Daten bleibt Yivi geschlossen, solange dieses Werkzeug aktiv ist.\n\nBeenden Sie das Werkzeug oder starten Sie Ihr Telefon neu und öffnen Sie Yivi danach erneut."
   },
+  "privacy_screen": {
+    "capture_cover": "Yivi ist ausgeblendet, solange Ihr Bildschirm aufgezeichnet oder geteilt wird."
+  },
   "rooted_warning": {
     "title": "Gerät unsicher",
     "explanation": "Das Betriebssystem auf Ihrem Gerät scheint modifiziert zu sein (Rooted/Jailbreak). Aus diesem Grund kann die Sicherheit Ihrer Daten nicht garantiert werden.",

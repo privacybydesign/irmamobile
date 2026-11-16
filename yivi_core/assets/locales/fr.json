@@ -693,6 +693,9 @@
     "title": "Yivi ne peut pas être utilisé pour le moment",
     "explanation": "Yivi a détecté un outil capable d'inspecter ou de modifier l'appli pendant son exécution, par exemple un débogueur. Pour protéger vos données, Yivi reste fermé tant que cet outil est actif.\n\nFermez l'outil ou redémarrez votre téléphone, puis ouvrez de nouveau Yivi."
   },
+  "privacy_screen": {
+    "capture_cover": "Yivi est masqué tant que votre écran est enregistré ou partagé."
+  },
   "rooted_warning": {
     "title": "Appareil non sécurisé",
     "explanation": "Le système d'exploitation de votre appareil semble modifié (root/jailbreak). La sécurité de vos données ne peut donc pas être garantie.",

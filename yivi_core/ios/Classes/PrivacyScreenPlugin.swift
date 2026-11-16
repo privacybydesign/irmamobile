@@ -19,6 +19,13 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
     /// mirrored, if it is up. Held strongly: nothing else keeps a window alive.
     private static var captureCoverWindow: UIWindow?
 
+    /// The label on the cover, to change its text while the cover is up.
+    private static weak var captureCoverLabel: UILabel?
+
+    /// The text for the cover in the language the app is set to, sent by the app
+    /// once its translations are loaded. Nil until then.
+    private static var captureCoverTextFromApp: String?
+
     /// How many in-app flows currently need the blur held back, see
     /// `suspendPrivacyScreen`. A count rather than a flag, so overlapping flows
     /// cannot un-suspend each other.
@@ -109,6 +116,7 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
         cover.accessibilityViewIsModal = true
         window.isHidden = false
         captureCoverWindow = window
+        captureCoverLabel = label
         // So say why the app is gone.
         UIAccessibility.post(notification: .screenChanged, argument: label)
     }
@@ -122,9 +130,14 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
             ?? scenes.first
     }
 
-    /// Shown on the cover. Native code cannot reach the app's translations, so the
-    /// few languages the app supports are spelled out here, picked by system language.
+    /// Shown on the cover: the text the app sent, which follows the language set in
+    /// the app. The cover can go up before the app has loaded its translations, so
+    /// until then the few languages the app supports are spelled out here, picked by
+    /// system language.
     private static func captureCoverText() -> String {
+        if let text = captureCoverTextFromApp {
+            return text
+        }
         let language = Locale.preferredLanguages.first?.prefix(2) ?? "en"
         switch language {
         case "nl":
@@ -199,6 +212,13 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
         case "disablePrivacyScreen":
             PrivacyScreenPlugin.enabled = false;
             PrivacyScreenPlugin.updateCaptureCover()
+            result(true)
+            break
+        case "setCaptureCoverText":
+            if let text = call.arguments as? String, !text.isEmpty {
+                PrivacyScreenPlugin.captureCoverTextFromApp = text
+                PrivacyScreenPlugin.captureCoverLabel?.text = text
+            }
             result(true)
             break
         // Hold back the blur for a flow that shows system UI on top of the app,

@@ -693,6 +693,9 @@
     "title": "Yivi kan nu niet worden gebruikt",
     "explanation": "Yivi heeft een hulpmiddel opgemerkt dat de app kan bekijken of aanpassen terwijl die draait, zoals een debugger. Om je gegevens te beschermen blijft Yivi gesloten zolang dat hulpmiddel actief is.\n\nSluit het hulpmiddel of start je telefoon opnieuw op, en open Yivi daarna opnieuw."
   },
+  "privacy_screen": {
+    "capture_cover": "Yivi is verborgen zolang je scherm wordt opgenomen of gedeeld."
+  },
   "rooted_warning": {
     "title": "Apparaat niet veilig",
     "explanation": "Het besturingssysteem van je mobiel lijkt gewijzigd te zijn (root/jailbreak). Hierdoor kan de veiligheid van je gegevens niet worden gegarandeerd.",
