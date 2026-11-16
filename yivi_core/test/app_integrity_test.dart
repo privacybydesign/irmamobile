@@ -158,8 +158,8 @@ void main() {
       guard.dispose();
     });
 
-    testWidgets("ignores every signal when the app itself is a debuggable "
-        "build", (tester) async {
+    testWidgets("keeps every signal of a release build that was repackaged as "
+        "debuggable", (tester) async {
       final guard = AppIntegrityGuard(
         _FakeAppIntegrity(
           const IntegrityReport(
@@ -168,6 +168,23 @@ void main() {
             emulator: true,
           ),
         ),
+        enforce: true,
+      );
+      await tester.pump();
+
+      expect(await _current(tester, guard.blocked), isTrue);
+      expect((await _firstReport(tester, guard)).untrustedEnvironment, isTrue);
+
+      // Not in a tear-down: the periodic recheck must be gone before the
+      // test body returns.
+      guard.dispose();
+    });
+
+    testWidgets("does not block a debuggable build for that alone", (
+      tester,
+    ) async {
+      final guard = AppIntegrityGuard(
+        _FakeAppIntegrity(const IntegrityReport(debuggable: true)),
         enforce: true,
       );
       await tester.pump();

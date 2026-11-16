@@ -7,8 +7,11 @@ import "package:rxdart/rxdart.dart";
 
 /// What the native side found out about the environment the app runs in.
 class IntegrityReport {
-  /// The app itself is a debug build, in which none of the signals below mean
-  /// anything: a developer attaches a debugger and runs on an emulator.
+  /// The app itself is debuggable. Reported for completeness and not acted on:
+  /// a developer's debug build is never checked (see [AppIntegrityGuard]), and
+  /// a release build that was repackaged as debuggable, the usual way to attach
+  /// a debugger or an instrumentation tool without root, must not get to switch
+  /// the signals below off with that one flag.
   final bool debuggable;
 
   /// A debugger is attached to the app.
@@ -123,12 +126,11 @@ class AppIntegrityGuard {
   Stream<bool> get blocked => _blocked.stream.distinct();
 
   /// The report of the first check, with every signal off when the guard does
-  /// not enforce or the app is a debug build.
+  /// not enforce.
   Future<IntegrityReport> get firstReport => _firstReport.future;
 
   Future<void> _check() async {
-    var report = await _integrity.check();
-    if (report.debuggable) report = IntegrityReport.clean;
+    final report = await _integrity.check();
     if (!_firstReport.isCompleted) _firstReport.complete(report);
     if (report.tampering && !_blocked.isClosed) _blocked.add(true);
   }
