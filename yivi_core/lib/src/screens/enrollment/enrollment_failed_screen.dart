@@ -1,9 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../theme/yivi_palette.dart";
+import "../../widgets/error_status_screen.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_error_scaffold_body.dart";
 
 class EnrollmentFailedScreen extends StatelessWidget {
   final VoidCallback onPrevious;
@@ -16,20 +15,16 @@ class EnrollmentFailedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      // The page colour, as on the other error screens.
-      backgroundColor: YiviPalette.of(context).background,
+    return ErrorStatusScreen(
       appBar: IrmaAppBar(
         titleTranslationKey: "ui.error",
         leading: YiviBackButton(onTap: onPrevious),
       ),
-      bottomNavigationBar: IrmaBottomBar(
+      actions: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",
         onPrimaryPressed: onRetryEnrollment,
       ),
-      body: const IrmaErrorScaffoldBody(type: ErrorType.general),
+      type: ErrorType.general,
     );
   }
 }

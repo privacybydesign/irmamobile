@@ -6,7 +6,7 @@ import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_info_scaffold_body.dart";
+import "../../widgets/status_screen.dart";
 
 class BlockedScreen extends StatelessWidget {
   const BlockedScreen({super.key});
@@ -19,19 +19,20 @@ class BlockedScreen extends StatelessWidget {
     // can no longer be used)
     return PopScope(
       canPop: false,
-      child: IrmaInfoScreen(
+      child: StatusScreen(
         appBar: IrmaAppBar(
           titleTranslationKey: "error.blocked_title",
           leading: null,
         ),
         icon: Icons.block_rounded,
         tone: YiviTone.danger,
-        titleTranslationKey: "error.blocked_title",
-        bodyTranslationKey: "error.types.blocked",
-        bottomBar: IrmaBottomBar(
+        title: context.tr("error.blocked_title"),
+        message: context.tr("error.types.blocked"),
+        actions: IrmaBottomBar(
           primaryDanger: true,
           primaryButtonLabel: context.tr("error.button_reset"),
-          onPrimaryPressed: () => repositoryOf(context).bridgedDispatch(ClearAllDataEvent()),
+          onPrimaryPressed: () =>
+              repositoryOf(context).bridgedDispatch(ClearAllDataEvent()),
         ),
       ),
     );

@@ -4,9 +4,9 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/error_status_screen.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_error_scaffold_body.dart";
 import "../../../widgets/status_body.dart";
 
 class EmbeddedIssuanceErrorScreen extends StatelessWidget {

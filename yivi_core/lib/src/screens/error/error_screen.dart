@@ -2,11 +2,10 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/error_event.dart";
 import "../../sentry/sentry.dart";
-import "../../theme/yivi_palette.dart";
 import "../../util/i18n.dart";
+import "../../widgets/error_status_screen.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_error_scaffold_body.dart";
 
 class ErrorScreen extends StatefulWidget {
   final VoidCallback? onTapClose;
@@ -71,22 +70,17 @@ class _ErrorScreenState extends State<ErrorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: YiviPalette.of(context).background,
+    return ErrorStatusScreen(
       appBar: IrmaAppBar(
         titleTranslationKey: "error.details_title",
         leading: widget.onTapClose != null
             ? YiviBackButton(onTap: widget.onTapClose)
             : null,
       ),
-      body: IrmaErrorScaffoldBody(
-        type: widget.type,
-        details: widget.details,
-        reportable: widget.reportable,
-      ),
-      bottomNavigationBar: IrmaBottomBar(
+      type: widget.type,
+      details: widget.details,
+      reportable: widget.reportable,
+      actions: IrmaBottomBar(
         primaryButtonLabel: widget.onTapClose != null
             ? context.tr("error.button_ok")
             : null,

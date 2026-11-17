@@ -2,172 +2,36 @@ import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
-import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
-import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../widgets/centred_max_width.dart";
-import "../../widgets/floating_bar_placement.dart";
-import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/translated_text.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/status_screen.dart";
 import "../settings/settings_screen.dart";
 
+/// Forgot your PIN: the only way on is to delete everything and start
+/// again.
 class ResetPinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final size = MediaQuery.sizeOf(context);
-    // Wider than high: the picture on the left, the text and the buttons on
-    // the right.
-    final sideways = size.width > size.height && size.width >= 560;
-    final small = size.height < 670;
-    final circle = small ? 150.0 : 200.0;
-
-    final picture = ExcludeSemantics(
-      child: Container(
-        width: circle,
-        height: circle,
-        padding: EdgeInsets.all(circle * 0.18),
-        decoration: BoxDecoration(
-          color: palette.surface,
-          shape: BoxShape.circle,
-          border: Border.fromBorderSide(YiviEdges.block(context)),
-        ),
+    return StatusScreen(
+      appBar: IrmaAppBar(titleTranslationKey: "reset_pin.title"),
+      discColor: YiviPalette.of(context).surface,
+      picture: Padding(
+        padding: const EdgeInsets.all(26),
         child: SvgPicture.asset(yiviAsset("reset/forgot_pin_illustration.svg")),
       ),
-    );
-    final align = sideways ? TextAlign.start : TextAlign.center;
-    final texts = [
-      TranslatedText(
-        "reset_pin.header",
-        isHeader: true,
-        textAlign: align,
-        style: palette
-            .display(26, weight: FontWeight.w700)
-            .copyWith(height: 36 / 26),
-      ),
-      const SizedBox(height: YiviSpace.x8),
-      TranslatedText(
-        "reset_pin.explanation",
-        textAlign: align,
-        style: palette.body(16).copyWith(height: 24 / 16),
-      ),
-    ];
-    final buttons = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: YiviSpace.x4,
-      children: [
-        PillButton(
-          key: const Key("reset_pin_reset"),
-          label: context.tr("reset_pin.reset"),
-          style: PillStyle.dangerFilled,
-          size: PillSize.large,
-          onPressed: () => showConfirmDeleteDialog(context),
-        ),
-        PillButton(
-          key: const Key("reset_pin_cancel"),
-          label: context.tr("ui.cancel"),
-          style: PillStyle.text,
-          size: PillSize.large,
-          // `Navigator.of(context).pop` (not GoRouter's
-          // `context.pop`) so this screen works whether it was
-          // pushed via the GoRouter `/reset_pin` route or onto the
-          // LockGate overlay's local Navigator.
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ],
-    );
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: palette.background,
-      appBar: IrmaAppBar(titleTranslationKey: "reset_pin.title"),
-      // Clear of the notch, the Dynamic Island or a side panel at the sides.
-      body: SafeArea(
-        top: false,
-        bottom: false,
-        child: sideways
-            ? _sideways(context, picture, texts, buttons)
-            : _upright(context, picture, texts, buttons, small),
-      ),
-    );
-  }
-
-  Widget _upright(
-    BuildContext context,
-    Widget picture,
-    List<Widget> texts,
-    Widget buttons,
-    bool small,
-  ) {
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              YiviSpace.x32,
-              YiviSpace.x16,
-              YiviSpace.x32,
-              YiviSpace.x24,
-            ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  picture,
-                  SizedBox(height: small ? 24 : 40),
-                  ...texts,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            YiviSpace.x16,
-            0,
-            YiviSpace.x16,
-            FloatingBarPlacement.buttonBottom(context),
-          ),
-          child: buttons,
-        ),
-      ],
-    );
-  }
-
-  Widget _sideways(
-    BuildContext context,
-    Widget picture,
-    List<Widget> texts,
-    Widget buttons,
-  ) {
-    final padding = MediaQuery.paddingOf(context);
-    return CentredMaxWidth(
-      maxWidth: 1000,
-      child: Row(
-        spacing: YiviSpace.x48,
-        children: [
-          Expanded(child: Center(child: picture)),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                0,
-                padding.top + 16,
-                YiviSpace.x16,
-                FloatingBarPlacement.buttonBottom(context),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ...texts,
-                  const SizedBox(height: YiviSpace.x24),
-                  buttons,
-                ],
-              ),
-            ),
-          ),
-        ],
+      title: context.tr("reset_pin.header"),
+      message: context.tr("reset_pin.explanation"),
+      actions: IrmaBottomBar(
+        primaryDanger: true,
+        primaryButtonLabel: "reset_pin.reset",
+        onPrimaryPressed: () => showConfirmDeleteDialog(context),
+        secondaryButtonLabel: "ui.cancel",
+        // `Navigator.of(context).pop` (not GoRouter's `context.pop`) so this
+        // screen works whether it was pushed via the GoRouter `/reset_pin`
+        // route or onto the LockGate overlay's local Navigator.
+        onSecondaryPressed: () => Navigator.of(context).pop(),
       ),
     );
   }

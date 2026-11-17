@@ -6,19 +6,19 @@ import "package:url_launcher/url_launcher.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
 import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_info_scaffold_body.dart";
+import "../../widgets/status_screen.dart";
 
 class RequiredUpdateScreen extends StatelessWidget {
   const RequiredUpdateScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return IrmaInfoScreen(
+    return StatusScreen(
       icon: Icons.download_rounded,
       tone: YiviTone.info,
-      titleTranslationKey: "update.title",
-      bodyTranslationKey: "update.explanation",
-      bottomBar: IrmaBottomBar(
+      title: context.tr("update.title"),
+      message: context.tr("update.explanation"),
+      actions: IrmaBottomBar(
         primaryButtonLabel: context.tr("update.update_app"),
         onPrimaryPressed: () {
           late String url;

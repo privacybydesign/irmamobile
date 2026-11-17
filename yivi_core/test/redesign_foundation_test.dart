@@ -8,8 +8,8 @@ import "package:yivi_core/src/widgets/app_toast.dart";
 import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
-import "package:yivi_core/src/widgets/irma_info_scaffold_body.dart";
 import "package:yivi_core/src/widgets/status_body.dart";
+import "package:yivi_core/src/widgets/status_screen.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
@@ -96,19 +96,17 @@ void main() {
     });
   });
 
-  group("IrmaInfoScaffoldBody", () {
+  group("StatusScreen", () {
     testWidgets("settles: the disc pulses a few times and rests", (
       tester,
     ) async {
       await pumpTranslated(
         tester,
         _app(
-          home: const Scaffold(
-            body: IrmaInfoScaffoldBody(
-              titleTranslationKey: "ui.confirm",
-              bodyTranslationKey: "ui.cancel",
-              icon: Icons.warning_amber_rounded,
-            ),
+          home: const StatusScreen(
+            title: "Confirm",
+            message: "Cancel",
+            icon: Icons.warning_amber_rounded,
           ),
         ),
       );

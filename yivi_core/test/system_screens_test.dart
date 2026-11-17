@@ -7,8 +7,8 @@ import "package:yivi_core/src/screens/error/blocked_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/pairing_required.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
+import "package:yivi_core/src/widgets/error_status_screen.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
-import "package:yivi_core/src/widgets/irma_error_scaffold_body.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
 import "support/onboarding_v2_harness.dart";

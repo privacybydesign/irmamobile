@@ -8,14 +8,14 @@ import "../theme/yivi_space.dart";
 import "../theme/yivi_tone.dart";
 import "../util/i18n.dart";
 import "glass/pill_buttons.dart";
-import "status_body.dart";
+import "status_screen.dart";
 
 enum ErrorType { general, expired, pairingRejected }
 
-/// The middle of an error screen: a red (or, for an expired session, amber)
-/// disc, a heading, what went wrong, a note asking to report it, and the
-/// technical details behind a link that opens them in place.
-class IrmaErrorScaffoldBody extends StatelessWidget {
+/// An error screen: a red (or, for an expired session, amber) disc, a
+/// heading, what went wrong, a note asking to report it, and the technical
+/// details behind a link that opens them in place.
+class ErrorStatusScreen extends StatelessWidget {
   static const _titleKeys = {
     ErrorType.general: "error.title",
     ErrorType.expired: "error.expired_title",
@@ -28,28 +28,33 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
     ErrorType.pairingRejected: "error.types.pairing_rejected",
   };
 
+  final PreferredSizeWidget? appBar;
   final ErrorType type;
   final String? details;
   final bool reportable;
+  final Widget? actions;
 
-  const IrmaErrorScaffoldBody({
+  const ErrorStatusScreen({
     super.key,
+    this.appBar,
     required this.type,
     this.details,
     this.reportable = false,
+    this.actions,
   });
 
   @override
   Widget build(BuildContext context) {
     final expired = type == ErrorType.expired;
-
-    return StatusBody(
+    return StatusScreen(
+      appBar: appBar,
       icon: expired ? Icons.schedule_rounded : Icons.warning_rounded,
       tone: expired ? YiviTone.warning : YiviTone.danger,
       title: context.tr(_titleKeys[type]!),
       message: context.tr(_messageKeys[type]!),
       note: reportable ? context.tr("error.report") : null,
       footer: details == null ? null : ErrorDetails(details: details!),
+      actions: actions,
     );
   }
 }
