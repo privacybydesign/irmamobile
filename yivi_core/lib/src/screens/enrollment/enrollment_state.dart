@@ -1,6 +1,6 @@
-part of "enrollment_bloc.dart";
+import "../../models/session.dart";
 
-abstract class EnrollmentState {}
+sealed class EnrollmentState {}
 
 /// The welcome page: what Yivi is, the error-report switch and the terms.
 class EnrollmentWelcome extends EnrollmentState {

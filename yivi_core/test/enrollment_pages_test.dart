@@ -16,6 +16,7 @@ import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/screens/back_to_website/back_to_website_screen.dart";
 import "package:yivi_core/src/screens/enrollment/biometric/enrollment_biometric_screen.dart";
 import "package:yivi_core/src/screens/enrollment/choose_pin/choose_pin_screen.dart";
+import "package:yivi_core/src/screens/enrollment/email/enrollment_email_link.dart";
 import "package:yivi_core/src/screens/enrollment/email/enrollment_email_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
@@ -255,7 +256,12 @@ void main() {
           child: EnrollmentEmailScreen(
             stepLabel: "Step 3 of 3 · optional",
             account: () => account.future,
-            pin: "12345",
+            link: EnrollmentEmailLink(
+              repo: repo,
+              pin: "12345",
+              api: link,
+              markLinked: () => repo.preferences.emailLinked.set(true),
+            ),
             onDone: () => done++,
             onAccountFailed: (_) {},
           ),
@@ -394,7 +400,12 @@ void main() {
               child: EnrollmentEmailScreen(
                 stepLabel: "Step 3 of 3 · optional",
                 account: () => account.future,
-                pin: "12345",
+                link: EnrollmentEmailLink(
+                  repo: repo,
+                  pin: "12345",
+                  api: link,
+                  markLinked: () => repo.preferences.emailLinked.set(true),
+                ),
                 onDone: () => done++,
                 onAccountFailed: (_) {},
               ),

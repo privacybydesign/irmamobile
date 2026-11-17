@@ -6,7 +6,6 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/email_code_pointer.dart";
 import "../../../models/session.dart";
 import "../../../providers/email_issuance_provider.dart";
-import "../../../providers/email_linking_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
@@ -39,8 +38,8 @@ class EnrollmentEmailScreen extends ConsumerStatefulWidget {
   /// once it is there, else the error. The code is only sent once it is.
   final Future<SessionError?> Function() account;
 
-  /// The PIN of this enrollment, for the two sessions.
-  final String pin;
+  /// Issues and links the address, with the PIN of this enrollment.
+  final EnrollmentEmailLink link;
 
   /// Skipped, or linked.
   final VoidCallback onDone;
@@ -52,7 +51,7 @@ class EnrollmentEmailScreen extends ConsumerStatefulWidget {
     super.key,
     required this.stepLabel,
     required this.account,
-    required this.pin,
+    required this.link,
     required this.onDone,
     required this.onAccountFailed,
   });
@@ -76,9 +75,6 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   var _waitingForAccount = false;
   var _sentAgain = false;
   var _check = _Check.idle;
-
-  /// The address is issued; only linking it in MijnYivi is left to retry.
-  var _issued = false;
 
   String get _language => context.lang;
 
@@ -162,17 +158,9 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   /// MijnYivi.
   Future<void> _link(SessionPointer? issuance) async {
     setState(() => _check = _Check.checking);
-    final repo = ref.read(irmaRepositoryProvider);
     try {
-      if (!_issued && issuance != null) {
-        await runOwnSession(repo, issuance, pin: widget.pin);
-        _issued = true;
-      }
-      final disclosure = await ref
-          .read(keyshareEmailLinkApiProvider)
-          .startSession();
-      await runOwnSession(repo, disclosure, pin: widget.pin);
-      await ref.read(emailLinkingProvider.notifier).markLinked();
+      // Owned by the enrollment: it finishes even if this page goes.
+      await widget.link.link(issuance);
     } catch (_) {
       if (mounted) setState(() => _check = _Check.failed);
       return;
@@ -187,7 +175,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   /// After a failed link: link again when the address was issued, else
   /// back to the code to get a new one.
   void _tryAgain() {
-    if (_issued) {
+    if (widget.link.issued) {
       _link(null);
       return;
     }

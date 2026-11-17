@@ -4,6 +4,7 @@ import "../../../data/irma_repository.dart";
 import "../../../models/session.dart";
 import "../../../models/session_events.dart";
 import "../../../models/session_state.dart";
+import "../../../providers/email_linking_provider.dart";
 import "../../session/models/disclosure_view_model.dart";
 
 /// A session the enrollment's e-mail step started for itself did not finish.
@@ -75,5 +76,40 @@ Future<void> runOwnSession(
     rethrow;
   } finally {
     await subscription.cancel();
+  }
+}
+
+/// Issues the e-mail address (once) and links it in MijnYivi, with the PIN of
+/// the enrollment. Made by the enrollment when the PIN is confirmed, with its
+/// dependencies taken then, so a link in progress finishes even if the page
+/// that started it goes.
+class EnrollmentEmailLink {
+  final IrmaRepository repo;
+  final String pin;
+  final KeyshareEmailLinkApi api;
+  final Future<void> Function() markLinked;
+
+  EnrollmentEmailLink({
+    required this.repo,
+    required this.pin,
+    required this.api,
+    required this.markLinked,
+  });
+
+  var _issued = false;
+
+  /// Whether the address is issued; only linking it is left to retry.
+  bool get issued => _issued;
+
+  /// Issues [issuance] unless that already worked, then links the address.
+  /// Throws on failure.
+  Future<void> link(SessionPointer? issuance) async {
+    if (!_issued && issuance != null) {
+      await runOwnSession(repo, issuance, pin: pin);
+      _issued = true;
+    }
+    final disclosure = await api.startSession();
+    await runOwnSession(repo, disclosure, pin: pin);
+    await markLinked();
   }
 }

@@ -1,68 +1,32 @@
 import "package:flutter/services.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../data/irma_repository.dart";
-import "../../providers/email_linking_provider.dart";
-import "../../providers/irma_repository_provider.dart";
+import "../../providers/preferences_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
-import "../pin/providers/biometric_provider.dart";
 import "biometric/enrollment_biometric_screen.dart";
-import "bloc/enrollment_bloc.dart";
 import "choose_pin/choose_pin_screen.dart";
 import "confirm_pin/confirm_pin_screen.dart";
 import "confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
 import "email/enrollment_email_screen.dart";
 import "enrollment_failed_screen.dart";
+import "enrollment_provider.dart";
+import "enrollment_state.dart";
 import "welcome/welcome_screen.dart";
 
-class EnrollmentScreen extends StatelessWidget {
+class EnrollmentScreen extends ConsumerStatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    final repo = repositoryOf(context);
-    final container = ProviderScope.containerOf(context, listen: false);
-    return BlocProvider(
-      create: (_) => EnrollmentBloc(
-        language: context.lang,
-        repo: repo,
-        // Once, only if a biometric is enrolled and the user hasn't chosen.
-        biometricOffered: () async {
-          final available = await container.read(
-            biometricAvailableProvider.future,
-          );
-          final enabled = await repo.preferences.biometricEnabled.stream.first;
-          final dismissed =
-              await repo.preferences.biometricPromptDismissed.stream.first;
-          return available && !enabled && !dismissed;
-        },
-        emailOffered: () => container.read(emailLinkingOfferedProvider),
-      ),
-      child: _ProvidedEnrollmentScreen(repo: repo),
-    );
-  }
+  ConsumerState<EnrollmentScreen> createState() => _EnrollmentScreenState();
 }
 
-class _ProvidedEnrollmentScreen extends StatefulWidget {
-  final IrmaRepository repo;
-
-  const _ProvidedEnrollmentScreen({required this.repo});
-
-  @override
-  State<_ProvidedEnrollmentScreen> createState() =>
-      _ProvidedEnrollmentScreenState();
-}
-
-class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
-  IrmaRepository get repo => widget.repo;
-
+class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
   /// The PIN chosen in the first step, for the confirm step to compare
   /// with. Kept here, not in build: anything that rebuilds the screen
   /// between the two steps (a theme change) would otherwise forget it.
@@ -73,7 +37,7 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
     super.initState();
     // The default for this value is intentionally
     // different for the fresh install and upgrade flows.
-    repo.preferences.longPin.set(false);
+    ref.read(preferencesProvider).longPin.set(false);
   }
 
   @override
@@ -84,7 +48,7 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
 
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
     // The empty Data tab points out the Scan button on the first visit.
-    await repo.preferences.scanTipPending.set(true);
+    await ref.read(preferencesProvider).scanTipPending.set(true);
     // LockGate handles displaying the PIN overlay if the app is still
     // locked after enrollment.
     if (context.mounted) context.goHomeScreen();
@@ -99,10 +63,11 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<EnrollmentBloc>();
-    void addEvent(EnrollmentBlocEvent event) => bloc.add(event);
-    void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());
-    void addOnNextPressed() => bloc.add(EnrollmentNextPressed());
+    final enrollment = ref.read(enrollmentProvider.notifier);
+    ref.listen(enrollmentProvider, (_, state) {
+      if (state is EnrollmentCompleted) _onEnrollmentCompleted(context);
+    });
+    final state = ref.watch(enrollmentProvider);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // AnnotatedRegion replaces the whole style; the theme's has readable
@@ -112,84 +77,56 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
           (YiviPalette.of(context).isDark
               ? SystemUiOverlayStyle.light
               : SystemUiOverlayStyle.dark),
-      child: BlocConsumer<EnrollmentBloc, EnrollmentState>(
-        listener: (BuildContext context, EnrollmentState state) {
-          if (state is EnrollmentCompleted) {
-            _onEnrollmentCompleted(context);
-          }
-        },
-        builder: (context, state) {
-          if (state is EnrollmentWelcome) {
-            return WelcomeScreen(
-              isAccepted: state.isAccepted,
-              onContinue: addOnNextPressed,
-              onToggleAccepted: (isAccepted) {
-                repo.preferences.acceptedLatestTerms.set(isAccepted);
-                addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted));
+      child: switch (state) {
+        EnrollmentWelcome(:final isAccepted) => WelcomeScreen(
+          isAccepted: isAccepted,
+          onContinue: () => enrollment.next(language: context.lang),
+          onToggleAccepted: (isAccepted) {
+            ref.read(preferencesProvider).acceptedLatestTerms.set(isAccepted);
+            enrollment.setTermsAccepted(isAccepted);
+          },
+        ),
+        EnrollmentChoosePin(:final step) => ChoosePinScreen(
+          stepLabel: step == null ? null : _step(context, step),
+          onPrevious: enrollment.back,
+          onChoosePin: enrollment.pinChosen,
+          newPinNotifier: _newPin,
+        ),
+        EnrollmentConfirmPin(:final step) => ConfirmPinScreen(
+          stepLabel: step == null ? null : _step(context, step),
+          newPinNotifier: _newPin,
+          onPrevious: enrollment.back,
+          submitConfirmationPin: enrollment.pinConfirmed,
+          onPinMismatch: () {
+            showPinConfirmationFailedDialog(
+              context,
+              onPressed: (context) {
+                enrollment.pinMismatch();
+                context.pop();
               },
             );
-          }
-          if (state is EnrollmentChoosePin) {
-            return ChoosePinScreen(
-              stepLabel: state.step == null
-                  ? null
-                  : _step(context, state.step!),
-              onPrevious: addOnPreviousPressed,
-              onChoosePin: (pin) => addEvent(EnrollmentPinChosen(pin)),
-              newPinNotifier: _newPin,
-            );
-          }
-          if (state is EnrollmentConfirmPin) {
-            return ConfirmPinScreen(
-              stepLabel: state.step == null
-                  ? null
-                  : _step(context, state.step!),
-              newPinNotifier: _newPin,
-              onPrevious: addOnPreviousPressed,
-              submitConfirmationPin: (pin) =>
-                  addEvent(EnrollmentPinConfirmed(pin)),
-              onPinMismatch: () {
-                showPinConfirmationFailedDialog(
-                  context,
-                  onPressed: (context) {
-                    addEvent(EnrollmentPinMismatch());
-                    context.pop();
-                  },
-                );
-              },
-            );
-          }
-          if (state is EnrollmentBiometric) {
-            return EnrollmentBiometricScreen(
-              stepLabel: _step(context, state.step),
-              onDone: () => addEvent(EnrollmentBiometricDone()),
-            );
-          }
-          if (state is EnrollmentEmail) {
-            return EnrollmentEmailScreen(
-              stepLabel: _step(
-                context,
-                state.step,
-                key: "enrollment.step_optional",
-              ),
-              account: () => bloc.account,
-              pin: bloc.pin!,
-              onDone: () => addEvent(EnrollmentEmailDone()),
-              onAccountFailed: (error) =>
-                  addEvent(EnrollmentAccountFailed(error)),
-            );
-          }
-          if (state is EnrollmentFailed) {
-            return EnrollmentFailedScreen(
-              onPrevious: addOnPreviousPressed,
-              onRetryEnrollment: () => addEvent(EnrollmentRetried()),
-            );
-          }
-          // Waiting for the account after the last step: the logo, a
-          // spinner and "Setting up your app".
-          return _SettingUp(showText: state is Enrolling);
-        },
-      ),
+          },
+        ),
+        EnrollmentBiometric(:final step) => EnrollmentBiometricScreen(
+          stepLabel: _step(context, step),
+          onDone: enrollment.biometricDone,
+        ),
+        EnrollmentEmail(:final step) => EnrollmentEmailScreen(
+          stepLabel: _step(context, step, key: "enrollment.step_optional"),
+          account: () => enrollment.account,
+          link: enrollment.emailLink!,
+          onDone: enrollment.emailDone,
+          onAccountFailed: enrollment.accountFailed,
+        ),
+        EnrollmentFailed() => EnrollmentFailedScreen(
+          onPrevious: enrollment.back,
+          onRetryEnrollment: enrollment.retry,
+        ),
+        // Waiting for the account after the last step: the logo, a
+        // spinner and "Setting up your app".
+        Enrolling() ||
+        EnrollmentCompleted() => _SettingUp(showText: state is Enrolling),
+      },
     );
   }
 }

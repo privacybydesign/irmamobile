@@ -1,14 +1,94 @@
 import "dart:async";
 
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/enrollment_events.dart";
 import "package:yivi_core/src/models/session.dart";
-import "package:yivi_core/src/screens/enrollment/bloc/enrollment_bloc.dart";
+import "package:yivi_core/src/providers/email_linking_provider.dart";
+import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/screens/enrollment/enrollment_provider.dart";
+import "package:yivi_core/src/screens/enrollment/enrollment_state.dart";
+import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 
 import "support/onboarding_v2_harness.dart";
 
 SessionError _error() => SessionError(errorType: "transport", info: "offline");
+
+// What the user does, as the steps of the enrollment report it.
+sealed class _Action {}
+
+class EnrollmentTermsUpdated extends _Action {
+  final bool isAccepted;
+  EnrollmentTermsUpdated({required this.isAccepted});
+}
+
+class EnrollmentNextPressed extends _Action {}
+
+class EnrollmentPreviousPressed extends _Action {}
+
+class EnrollmentPinChosen extends _Action {
+  final String pin;
+  EnrollmentPinChosen(this.pin);
+}
+
+class EnrollmentPinConfirmed extends _Action {
+  final String pin;
+  EnrollmentPinConfirmed(this.pin);
+}
+
+class EnrollmentPinMismatch extends _Action {}
+
+class EnrollmentBiometricDone extends _Action {}
+
+class EnrollmentEmailDone extends _Action {}
+
+class EnrollmentAccountFailed extends _Action {
+  final SessionError error;
+  EnrollmentAccountFailed(this.error);
+}
+
+class EnrollmentRetried extends _Action {}
+
+/// Drives the enrollment notifier: an action in, the states out.
+class _Enrollment {
+  _Enrollment(this._container) {
+    _sub = _container.listen(enrollmentProvider, (_, s) => _states.add(s));
+  }
+
+  final ProviderContainer _container;
+  late final ProviderSubscription<EnrollmentState> _sub;
+  final _states = StreamController<EnrollmentState>.broadcast();
+
+  EnrollmentNotifier get _n => _container.read(enrollmentProvider.notifier);
+
+  Stream<EnrollmentState> get stream => _states.stream;
+  EnrollmentState get state => _container.read(enrollmentProvider);
+  Future<SessionError?> get account => _n.account;
+  String? get pin => _n.emailLink?.pin;
+
+  void add(_Action action) => switch (action) {
+    EnrollmentTermsUpdated(:final isAccepted) => _n.setTermsAccepted(
+      isAccepted,
+    ),
+    EnrollmentNextPressed() => _n.next(language: "en"),
+    EnrollmentPreviousPressed() => _n.back(),
+    EnrollmentPinChosen(:final pin) => _n.pinChosen(pin),
+    EnrollmentPinConfirmed(:final pin) => _n.pinConfirmed(pin),
+    EnrollmentPinMismatch() => _n.pinMismatch(),
+    EnrollmentBiometricDone() => _n.biometricDone(),
+    EnrollmentEmailDone() => _n.emailDone(),
+    EnrollmentAccountFailed(:final error) => _n.accountFailed(error),
+    EnrollmentRetried() => _n.retry(),
+  };
+
+  Future<void> close() async {
+    _sub.close();
+    _container.dispose();
+    await _states.close();
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -41,25 +121,35 @@ void main() {
   });
   tearDown(() => repo.close());
 
-  EnrollmentBloc newBloc({bool biometric = true, bool email = true}) {
-    final bloc = EnrollmentBloc(
-      language: "en",
-      repo: repo,
-      biometricOffered: () async => biometric,
-      emailOffered: () => email,
+  _Enrollment newBloc({
+    bool biometric = true,
+    bool email = true,
+    Future<bool>? biometricCheck,
+  }) {
+    final bloc = _Enrollment(
+      ProviderContainer(
+        overrides: [
+          irmaRepositoryProvider.overrideWithValue(repo),
+          preferencesProvider.overrideWithValue(repo.preferences),
+          biometricAvailableProvider.overrideWith(
+            (ref) => biometricCheck ?? Future.value(biometric),
+          ),
+          emailLinkingOfferedProvider.overrideWithValue(email),
+        ],
+      ),
     );
     addTearDown(bloc.close);
     return bloc;
   }
 
-  Future<EnrollmentState> next(EnrollmentBloc bloc, EnrollmentBlocEvent e) {
+  Future<EnrollmentState> next(_Enrollment bloc, _Action e) {
     final state = bloc.stream.first;
     bloc.add(e);
     return state;
   }
 
   /// Through the welcome page and both PIN pages.
-  Future<EnrollmentState> toAfterPin(EnrollmentBloc bloc) async {
+  Future<EnrollmentState> toAfterPin(_Enrollment bloc) async {
     await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
     await next(bloc, EnrollmentNextPressed());
     await next(bloc, EnrollmentPinChosen("12345"));
@@ -229,13 +319,7 @@ void main() {
 
   test("a second Continue during the biometric check is ignored", () async {
     final check = Completer<bool>();
-    final bloc = EnrollmentBloc(
-      language: "en",
-      repo: repo,
-      biometricOffered: () => check.future,
-      emailOffered: () => true,
-    );
-    addTearDown(bloc.close);
+    final bloc = newBloc(biometricCheck: check.future);
     final states = <EnrollmentState>[];
     final sub = bloc.stream.listen(states.add);
     addTearDown(sub.cancel);
@@ -253,13 +337,7 @@ void main() {
     "terms toggled during the biometric check: still the PIN step",
     () async {
       final check = Completer<bool>();
-      final bloc = EnrollmentBloc(
-        language: "en",
-        repo: repo,
-        biometricOffered: () => check.future,
-        emailOffered: () => true,
-      );
-      addTearDown(bloc.close);
+      final bloc = newBloc(biometricCheck: check.future);
       await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
       bloc.add(EnrollmentNextPressed());
       bloc.add(EnrollmentTermsUpdated(isAccepted: false));
