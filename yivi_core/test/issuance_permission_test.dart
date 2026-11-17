@@ -385,6 +385,88 @@ void main() {
     expect(find.text("Doesn't count"), findsOneWidget);
   });
 
+  String buttonLabel(WidgetTester tester) => tester
+      .widgetList<Text>(
+        find.descendant(
+          of: find.byKey(const Key("bottom_bar_primary")),
+          matching: find.byType(Text),
+        ),
+      )
+      .map((t) => t.data)
+      .join();
+
+  testWidgets("a value the request cannot use: the note, and still only "
+      "Add", (tester) async {
+    final bank = _card("bank", attributes: [_value("bic", "BIC", "INGBNL2A")]);
+    await _pump(
+      tester,
+      IssuancePermission(
+        issuedCredentials: [bank],
+        forRequest: testSession(
+          steps: [
+            testStep([
+              [
+                _wanted(
+                  "bank",
+                  attributes: [
+                    Attribute(
+                      claimPath: ["bic"],
+                      displayName: "BIC",
+                      requestedValue: AttributeValue(
+                        type: AttributeType.string,
+                        string: "RABONL2U",
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ]),
+          ],
+        ),
+        onDismiss: () {},
+        onGivePermission: () {},
+      ),
+    );
+
+    expect(find.byKey(const Key("issuance_mismatch")), findsOneWidget);
+    expect(buttonLabel(tester), "Add");
+    expect(find.text("Try again"), findsNothing);
+    expect(find.text("Add anyway"), findsNothing);
+    expect(find.byKey(const Key("issuance_risky_reason")), findsNothing);
+  });
+
+  testWidgets("nobody vouches for the issuer: Add anyway, with the reason", (
+    tester,
+  ) async {
+    var granted = 0;
+    await _pump(
+      tester,
+      IssuancePermission(
+        issuedCredentials: [
+          Credential(
+            credentialId: "email",
+            hash: "hash-email",
+            name: "Card email",
+            issuer: testParty("Somebody", verified: false),
+            credentialInstanceIds: const {},
+            batchInstanceCountsRemaining: const {},
+            attributes: const [],
+            revoked: false,
+            revocationSupported: false,
+            issueUrl: null,
+          ),
+        ],
+        onDismiss: () {},
+        onGivePermission: () => granted++,
+      ),
+    );
+
+    expect(buttonLabel(tester), "Add anyway");
+    expect(find.byKey(const Key("issuance_risky_reason")), findsOneWidget);
+    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+    expect(granted, 1);
+  });
+
   testWidgets("a matching value needs no warning", (tester) async {
     await _pump(
       tester,

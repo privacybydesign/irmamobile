@@ -30,6 +30,8 @@ import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_row.dart";
 import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
+import "package:yivi_core/src/screens/error/session_error_screen.dart";
+import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_flow.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/handle_pointer.dart";
@@ -46,6 +48,7 @@ import "package:yivi_core/src/widgets/yivi_spinner.dart";
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
 import "support/pump_translated.dart";
+import "support/session_harness.dart";
 
 TrustedParty _party(String name) =>
     TrustedParty(id: name, name: name, url: null, parent: null, verified: true);
@@ -139,7 +142,7 @@ Future<_Calls> _pump(
   addTearDown(tester.view.reset);
   final calls = _Calls();
   final repo = (await tester.runAsync(
-    () async => IrmaRepository(
+    () async => RecordingRepository(
       client: calls.bridge,
       preferences: await freshPreferences(),
     ),
@@ -148,6 +151,13 @@ Future<_Calls> _pump(
   calls.repo = repo;
   final router = GoRouter(
     routes: [
+      // The session screen, stood in for.
+      GoRoute(
+        path: "/session",
+        builder: (_, state) => Scaffold(
+          body: Text("session ${state.uri.queryParameters["session_id"]}"),
+        ),
+      ),
       GoRoute(
         path: "/",
         builder: (context, _) => Scaffold(
@@ -999,6 +1009,178 @@ void main() {
       await tester.tap(find.byKey(const Key("sheet_stop_confirm")));
       await tester.pumpAndSettle();
       expect(_sheet, findsNothing);
+    });
+
+    group("OpenID4VCI in the sheet", () {
+      SessionState openId(
+        SessionStatus status, {
+        PreAuthorizationCodeTransactionCodeParameters? txCode,
+        int? attempts,
+        String? authUrl,
+      }) => SessionState(
+        id: _nestedId,
+        protocol: "openid4vci",
+        type: SessionType.issuance,
+        status: status,
+        requestor: _party("Your Municipality"),
+        offeredCredentialTypes: [_personal.credential],
+        transactionCodeParameters: txCode,
+        remainingTxCodeAttempts: attempts,
+        authorizationRequestUrl: authUrl,
+      );
+      final txCode = PreAuthorizationCodeTransactionCodeParameters(
+        inputMode: "numeric",
+        length: 4,
+      );
+
+      /// The session in the sheet, at [state].
+      Future<(_Calls, StreamController<SessionState>)> start(
+        WidgetTester tester,
+        SessionState state,
+      ) async {
+        final (calls, nested) = await openWebsite(tester);
+        comeBack(tester);
+        nested.add(state);
+        await _pumpFor(tester);
+        return (calls, nested);
+      }
+
+      Iterable<SessionUserInteractionEvent> ofType(
+        _Calls calls,
+        UserInteractionType type,
+      ) => calls.interactions.where(
+        (e) => e.sessionId == _nestedId && e.type == type,
+      );
+
+      testWidgets("without a transaction code: granted once, a spinner", (
+        tester,
+      ) async {
+        final (calls, nested) = await start(
+          tester,
+          openId(SessionStatus.requestPreAuthorizedCode),
+        );
+        expect(
+          ofType(calls, UserInteractionType.preAuthorizedCode),
+          hasLength(1),
+        );
+        expect(
+          ofType(
+            calls,
+            UserInteractionType.preAuthorizedCode,
+          ).single.payload?["transaction_code"],
+          isNull,
+        );
+        expect(find.byType(YiviSpinner), findsOneWidget);
+        // The same state again grants nothing more.
+        nested.add(openId(SessionStatus.requestPreAuthorizedCode));
+        await _pumpFor(tester);
+        expect(
+          ofType(calls, UserInteractionType.preAuthorizedCode),
+          hasLength(1),
+        );
+      });
+
+      testWidgets("with a transaction code: its page; Continue sends the "
+          "code; back declines", (tester) async {
+        final (calls, _) = await start(
+          tester,
+          openId(SessionStatus.requestPreAuthorizedCode, txCode: txCode),
+        );
+        expect(
+          find.byKey(const Key("sheet_openid4vci_tx_code")),
+          findsOneWidget,
+        );
+        expect(ofType(calls, UserInteractionType.preAuthorizedCode), isEmpty);
+        await tester.enterText(
+          find.byKey(const Key("openid4vci_tx_code_input_field")),
+          "1234",
+        );
+        await _pumpFor(tester);
+        final sent = ofType(calls, UserInteractionType.preAuthorizedCode);
+        expect(sent.last.payload?["transaction_code"], "1234");
+        expect(ofType(calls, UserInteractionType.dismiss), isEmpty);
+        await tester.tap(find.bySemanticsLabel("Go back").last);
+        await _pumpFor(tester);
+        expect(ofType(calls, UserInteractionType.dismiss), hasLength(1));
+      });
+
+      testWidgets("an authorization code: the website page with its host; "
+          "open logs in; back declines", (tester) async {
+        final (calls, _) = await start(
+          tester,
+          openId(
+            SessionStatus.requestAuthorizationCode,
+            authUrl: "https://login.issuer.example/authorize",
+          ),
+        );
+        expect(
+          find.byKey(const Key("sheet_openid4vci_authcode")),
+          findsOneWidget,
+        );
+        expect(find.text("login.issuer.example"), findsWidgets);
+        final repo = calls.repo as RecordingRepository;
+        await tester.tap(find.byKey(const Key("sheet_open_website")).last);
+        await _pumpFor(tester);
+        expect(repo.authorizations, ["https://login.issuer.example/authorize"]);
+        await tester.tap(find.bySemanticsLabel("Go back").last);
+        await _pumpFor(tester);
+        expect(ofType(calls, UserInteractionType.dismiss), hasLength(1));
+      });
+
+      testWidgets("an error: the error screen over the sheet; closed, the "
+          "sheet without the session", (tester) async {
+        final (_, nested) = await start(
+          tester,
+          openId(SessionStatus.requestPreAuthorizedCode, txCode: txCode),
+        );
+        nested.add(openId(SessionStatus.error));
+        await _pumpFor(tester);
+        expect(find.byType(SessionErrorScreen), findsOneWidget);
+        expect(find.byType(TxCodeLockoutScreen), findsNothing);
+        tester
+            .widget<SessionErrorScreen>(find.byType(SessionErrorScreen))
+            .onTapClose();
+        await _pumpFor(tester);
+        expect(find.byType(SessionErrorScreen), findsNothing);
+        expect(_sheet, findsOneWidget);
+        expect(find.byKey(const Key("sheet_openid4vci_tx_code")), findsNothing);
+        // Back on the website page, step 2.
+        expect(
+          find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets("the last transaction code wrong, then an error: the "
+          "error screen, not the lockout", (tester) async {
+        final (_, nested) = await start(
+          tester,
+          openId(SessionStatus.requestPreAuthorizedCode, txCode: txCode),
+        );
+        nested.add(
+          openId(
+            SessionStatus.requestPreAuthorizedCode,
+            txCode: txCode,
+            attempts: 1,
+          ),
+        );
+        await _pumpFor(tester);
+        nested.add(openId(SessionStatus.error));
+        await _pumpFor(tester);
+        expect(find.byType(SessionErrorScreen), findsOneWidget);
+        expect(find.byType(TxCodeLockoutScreen), findsNothing);
+      });
+
+      testWidgets("a pairing code: the session screen is pushed, the sheet "
+          "stays", (tester) async {
+        await start(tester, openId(SessionStatus.showPairingCode));
+        expect(find.text("session $_nestedId"), findsOneWidget);
+        // Under the session screen.
+        expect(
+          find.byKey(const Key("add_data_sheet"), skipOffstage: false),
+          findsOneWidget,
+        );
+      });
     });
 
     group("sideways", () {

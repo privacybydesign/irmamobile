@@ -1243,6 +1243,47 @@ void main() {
       ownedOptions: [_bundle(_instance("email", "Email address", "a@b.nl"))],
     );
 
+    for (final (name, issuer, text) in [
+      ("an issuer without a name", "", "Can't be added in Yivi."),
+      (
+        "a named issuer",
+        "RDW",
+        "Can't be added in Yivi. Get it from RDW first.",
+      ),
+    ]) {
+      testWidgets("a card that cannot be added in Yivi, $name: says so", (
+        tester,
+      ) async {
+        await _pump(
+          tester,
+          session: _session([
+            email,
+            DisclosurePickOne(
+              optional: false,
+              ownedOptions: const [],
+              obtainableOptions: [
+                CredentialDescriptor(
+                  credentialId: "licence",
+                  name: "Driving licence",
+                  issuer: _party(issuer),
+                  category: null,
+                  attributes: const [],
+                  issueURL: null,
+                ),
+              ],
+            ),
+          ]),
+        );
+        expect(
+          find.descendant(
+            of: find.byKey(const Key("share_spot_1")),
+            matching: find.text(text),
+          ),
+          findsOneWidget,
+        );
+      });
+    }
+
     testWidgets("is an empty spot; Share waits for it", (tester) async {
       final calls = await _pump(
         tester,
@@ -2298,6 +2339,181 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_flight_card")), findsNothing);
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
+    });
+
+    group("the offer in the sheet", () {
+      /// The sheet at the offer of [card], for a request that wants an ID
+      /// card with the number 123 (when [wantsNumber]).
+      Future<_Calls> offer(
+        WidgetTester tester,
+        Credential card, {
+        bool wantsNumber = true,
+      }) async {
+        final nested = StreamController<SessionState>();
+        addTearDown(() => unawaited(nested.close()));
+        final calls = await _pump(
+          tester,
+          session: SessionState(
+            id: _sessionId,
+            protocol: "irma",
+            type: SessionType.disclosure,
+            status: SessionStatus.requestPermission,
+            requestor: _party("Webshop Noord"),
+            disclosurePlan: DisclosurePlan(
+              disclosureChoicesOverview: [
+                DisclosurePickOne(
+                  optional: false,
+                  ownedOptions: [
+                    _bundle(_instance("passport", "Passport", "Jansen")),
+                  ],
+                  obtainableOptions: [_descriptor("idcard", "ID card")],
+                ),
+              ],
+              issueDuringDisclosure: IssueDuringDisclosure(
+                steps: [
+                  IssuanceStep(
+                    options: [
+                      IssuanceBundle(
+                        credentials: [
+                          _descriptor(
+                            "idcard",
+                            "ID card",
+                            attributes: [
+                              if (wantsNumber)
+                                Attribute(
+                                  claimPath: ["number"],
+                                  displayName: "Number",
+                                  requestedValue: AttributeValue(
+                                    type: AttributeType.string,
+                                    string: "123",
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          nested: {nestedId: nested.stream},
+        );
+        await tester.tap(find.byKey(const Key("share_change_0")));
+        await tester.pumpAndSettle();
+        await _openAdd(tester);
+        await tester.tap(find.byKey(const Key("sheet_add_idcard")));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("sheet_go_button")));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("sheet_open_website")));
+        await tester.pumpAndSettle();
+        comeBack(tester);
+        nested.add(
+          SessionState(
+            id: nestedId,
+            protocol: "irma",
+            type: SessionType.issuance,
+            status: SessionStatus.requestPermission,
+            requestor: card.issuer,
+            offeredCredentials: [card],
+          ),
+        );
+        await tester.pumpAndSettle();
+        return calls;
+      }
+
+      Credential idCardWith(
+        String number, {
+        bool singleton = false,
+        bool verified = true,
+      }) => Credential(
+        credentialId: "idcard",
+        hash: "issued-idcard",
+        name: "ID card",
+        issuer: TrustedParty(
+          id: "Issuer",
+          name: "Issuer",
+          url: null,
+          parent: null,
+          verified: verified,
+        ),
+        credentialInstanceIds: const {},
+        batchInstanceCountsRemaining: const {},
+        attributes: [
+          Attribute(
+            claimPath: ["number"],
+            displayName: "Number",
+            value: AttributeValue(type: AttributeType.string, string: number),
+          ),
+        ],
+        revoked: false,
+        revocationSupported: false,
+        issueUrl: null,
+        isSingleton: singleton,
+      );
+
+      String label(WidgetTester tester, Finder button) => tester
+          .widgetList<Text>(
+            find.descendant(of: button, matching: find.byType(Text)),
+          )
+          .map((t) => t.data)
+          .join();
+
+      testWidgets("a value that does not count: Try again first, Add "
+          "anyway as a link", (tester) async {
+        await offer(tester, idCardWith("999"));
+        expect(
+          label(tester, find.byKey(const Key("sheet_issue_retry"))),
+          "Try again",
+        );
+        expect(
+          label(tester, find.byKey(const Key("sheet_issue_add"))),
+          "Add anyway",
+        );
+        expect(find.byKey(const Key("issuance_risky_reason")), findsNothing);
+      });
+
+      testWidgets("one of a kind that does not count: Don't replace, "
+          "Replace anyway", (tester) async {
+        await offer(tester, idCardWith("999", singleton: true));
+        expect(
+          label(tester, find.byKey(const Key("sheet_issue_retry"))),
+          "Don't replace",
+        );
+        expect(
+          label(tester, find.byKey(const Key("sheet_issue_add"))),
+          "Replace anyway",
+        );
+      });
+
+      testWidgets("a value that counts: Add", (tester) async {
+        await offer(tester, idCardWith("123"));
+        expect(find.byKey(const Key("sheet_issue_retry")), findsNothing);
+        expect(label(tester, find.byKey(const Key("sheet_issue_add"))), "Add");
+      });
+
+      testWidgets("nobody vouches for the issuer: Add anyway, with the "
+          "reason", (tester) async {
+        await offer(tester, idCardWith("123", verified: false));
+        expect(find.byKey(const Key("sheet_issue_retry")), findsNothing);
+        expect(
+          label(tester, find.byKey(const Key("sheet_issue_add"))),
+          "Add anyway",
+        );
+        expect(find.byKey(const Key("issuance_risky_reason")), findsOneWidget);
+      });
+
+      testWidgets("nobody vouches, and it does not count: the mismatch "
+          "wins, no reason", (tester) async {
+        await offer(tester, idCardWith("999", verified: false));
+        expect(
+          label(tester, find.byKey(const Key("sheet_issue_retry"))),
+          "Try again",
+        );
+        expect(find.byKey(const Key("issuance_risky_reason")), findsNothing);
+      });
     });
 
     testWidgets("the PIN is a page in the sheet, with the lock", (
