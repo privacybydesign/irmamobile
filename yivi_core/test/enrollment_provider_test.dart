@@ -121,12 +121,12 @@ void main() {
   });
   tearDown(() => repo.close());
 
-  _Enrollment newBloc({
+  _Enrollment newEnrollment({
     bool biometric = true,
     bool email = true,
     Future<bool>? biometricCheck,
   }) {
-    final bloc = _Enrollment(
+    final enrollment = _Enrollment(
       ProviderContainer(
         overrides: [
           irmaRepositoryProvider.overrideWithValue(repo),
@@ -138,40 +138,40 @@ void main() {
         ],
       ),
     );
-    addTearDown(bloc.close);
-    return bloc;
+    addTearDown(enrollment.close);
+    return enrollment;
   }
 
-  Future<EnrollmentState> next(_Enrollment bloc, _Action e) {
-    final state = bloc.stream.first;
-    bloc.add(e);
+  Future<EnrollmentState> next(_Enrollment enrollment, _Action e) {
+    final state = enrollment.stream.first;
+    enrollment.add(e);
     return state;
   }
 
   /// Through the welcome page and both PIN pages.
-  Future<EnrollmentState> toAfterPin(_Enrollment bloc) async {
-    await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
-    await next(bloc, EnrollmentNextPressed());
-    await next(bloc, EnrollmentPinChosen("12345"));
-    return next(bloc, EnrollmentPinConfirmed("12345"));
+  Future<EnrollmentState> toAfterPin(_Enrollment enrollment) async {
+    await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
+    await next(enrollment, EnrollmentNextPressed());
+    await next(enrollment, EnrollmentPinChosen("12345"));
+    return next(enrollment, EnrollmentPinConfirmed("12345"));
   }
 
   int enrollments() => bridge.dispatched.whereType<EnrollEvent>().length;
 
   test("the steps are numbered: PIN, Face ID, e-mail", () async {
-    final bloc = newBloc();
-    await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
-    final pin = await next(bloc, EnrollmentNextPressed());
+    final enrollment = newEnrollment();
+    await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
+    final pin = await next(enrollment, EnrollmentNextPressed());
     expect(pin, isA<EnrollmentChoosePin>());
     expect((pin as EnrollmentChoosePin).step?.number, 1);
     expect(pin.step?.total, 3);
 
-    await next(bloc, EnrollmentPinChosen("12345"));
-    final bio = await next(bloc, EnrollmentPinConfirmed("12345"));
+    await next(enrollment, EnrollmentPinChosen("12345"));
+    final bio = await next(enrollment, EnrollmentPinConfirmed("12345"));
     expect(bio, isA<EnrollmentBiometric>());
     expect((bio as EnrollmentBiometric).step.number, 2);
 
-    final email = await next(bloc, EnrollmentBiometricDone());
+    final email = await next(enrollment, EnrollmentBiometricDone());
     expect(email, isA<EnrollmentEmail>());
     expect((email as EnrollmentEmail).step.number, 3);
     expect(email.step.total, 3);
@@ -179,20 +179,20 @@ void main() {
 
   test("the account is made as soon as the PIN is confirmed, without an "
       "address", () async {
-    final bloc = newBloc();
-    await toAfterPin(bloc);
+    final enrollment = newEnrollment();
+    await toAfterPin(enrollment);
 
     expect(enrollments(), 1);
     final enroll = bridge.dispatched.whereType<EnrollEvent>().single;
     expect(enroll.email, "");
     expect(enroll.pin, "12345");
-    expect(await bloc.account, isNull);
-    expect(bloc.pin, "12345");
+    expect(await enrollment.account, isNull);
+    expect(enrollment.pin, "12345");
   });
 
   test("without biometrics the e-mail step is step 2 of 2", () async {
-    final bloc = newBloc(biometric: false);
-    final email = await toAfterPin(bloc);
+    final enrollment = newEnrollment(biometric: false);
+    final email = await toAfterPin(enrollment);
 
     expect(email, isA<EnrollmentEmail>());
     expect((email as EnrollmentEmail).step.number, 2);
@@ -200,28 +200,28 @@ void main() {
   });
 
   test("without the e-mail step Face ID is the last step", () async {
-    final bloc = newBloc(email: false);
-    final bio = await toAfterPin(bloc);
+    final enrollment = newEnrollment(email: false);
+    final bio = await toAfterPin(enrollment);
     expect((bio as EnrollmentBiometric).step.total, 2);
 
-    bloc.add(EnrollmentBiometricDone());
+    enrollment.add(EnrollmentBiometricDone());
     await expectLater(
-      bloc.stream,
+      enrollment.stream,
       emitsInOrder([isA<Enrolling>(), isA<EnrollmentCompleted>()]),
     );
   });
 
   test("with neither, the PIN has no step number and the app is set up "
       "straight after", () async {
-    final bloc = newBloc(biometric: false, email: false);
-    await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
-    final pin = await next(bloc, EnrollmentNextPressed());
+    final enrollment = newEnrollment(biometric: false, email: false);
+    await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
+    final pin = await next(enrollment, EnrollmentNextPressed());
     expect((pin as EnrollmentChoosePin).step, isNull);
 
-    await next(bloc, EnrollmentPinChosen("12345"));
-    bloc.add(EnrollmentPinConfirmed("12345"));
+    await next(enrollment, EnrollmentPinChosen("12345"));
+    enrollment.add(EnrollmentPinConfirmed("12345"));
     await expectLater(
-      bloc.stream,
+      enrollment.stream,
       emitsInOrder([isA<Enrolling>(), isA<EnrollmentCompleted>()]),
     );
   });
@@ -230,33 +230,33 @@ void main() {
     "skipping the e-mail step completes once the account is there",
     () async {
       final hold = holdEnrollment = Completer<void>();
-      final bloc = newBloc(biometric: false);
-      await toAfterPin(bloc);
+      final enrollment = newEnrollment(biometric: false);
+      await toAfterPin(enrollment);
 
-      bloc.add(EnrollmentEmailDone());
+      enrollment.add(EnrollmentEmailDone());
       // Setting up shows while the account is still being made.
-      expect(await bloc.stream.first, isA<Enrolling>());
+      expect(await enrollment.stream.first, isA<Enrolling>());
       hold.complete();
-      expect(await bloc.stream.first, isA<EnrollmentCompleted>());
+      expect(await enrollment.stream.first, isA<EnrollmentCompleted>());
       expect(enrollments(), 1);
     },
   );
 
   test("a failed account at the end can be retried", () async {
     enrollWorks = false;
-    final bloc = newBloc(biometric: false);
-    await toAfterPin(bloc);
+    final enrollment = newEnrollment(biometric: false);
+    await toAfterPin(enrollment);
 
-    bloc.add(EnrollmentEmailDone());
+    enrollment.add(EnrollmentEmailDone());
     await expectLater(
-      bloc.stream,
+      enrollment.stream,
       emitsInOrder([isA<Enrolling>(), isA<EnrollmentFailed>()]),
     );
 
     enrollWorks = true;
-    bloc.add(EnrollmentRetried());
+    enrollment.add(EnrollmentRetried());
     await expectLater(
-      bloc.stream,
+      enrollment.stream,
       emitsInOrder([isA<Enrolling>(), isA<EnrollmentCompleted>()]),
     );
     expect(enrollments(), 2);
@@ -266,19 +266,19 @@ void main() {
     "a failed account from the e-mail step returns there after a retry",
     () async {
       enrollWorks = false;
-      final bloc = newBloc(biometric: false);
-      await toAfterPin(bloc);
-      final error = await bloc.account;
+      final enrollment = newEnrollment(biometric: false);
+      await toAfterPin(enrollment);
+      final error = await enrollment.account;
       expect(error, isNotNull);
 
       expect(
-        await next(bloc, EnrollmentAccountFailed(error!)),
+        await next(enrollment, EnrollmentAccountFailed(error!)),
         isA<EnrollmentFailed>(),
       );
       enrollWorks = true;
-      bloc.add(EnrollmentRetried());
+      enrollment.add(EnrollmentRetried());
       await expectLater(
-        bloc.stream,
+        enrollment.stream,
         emitsInOrder([isA<Enrolling>(), isA<EnrollmentEmail>()]),
       );
     },
@@ -286,18 +286,18 @@ void main() {
 
   test("back from a failure starts over at the PIN", () async {
     enrollWorks = false;
-    final bloc = newBloc(biometric: false, email: false);
-    await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
-    await next(bloc, EnrollmentNextPressed());
-    await next(bloc, EnrollmentPinChosen("12345"));
-    bloc.add(EnrollmentPinConfirmed("12345"));
+    final enrollment = newEnrollment(biometric: false, email: false);
+    await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
+    await next(enrollment, EnrollmentNextPressed());
+    await next(enrollment, EnrollmentPinChosen("12345"));
+    enrollment.add(EnrollmentPinConfirmed("12345"));
     await expectLater(
-      bloc.stream,
+      enrollment.stream,
       emitsInOrder([isA<Enrolling>(), isA<EnrollmentFailed>()]),
     );
 
     expect(
-      await next(bloc, EnrollmentPreviousPressed()),
+      await next(enrollment, EnrollmentPreviousPressed()),
       isA<EnrollmentChoosePin>(),
     );
   });
@@ -305,12 +305,12 @@ void main() {
   test(
     "a different second PIN chooses again, without making an account",
     () async {
-      final bloc = newBloc();
-      await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
-      await next(bloc, EnrollmentNextPressed());
-      await next(bloc, EnrollmentPinChosen("12345"));
+      final enrollment = newEnrollment();
+      await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
+      await next(enrollment, EnrollmentNextPressed());
+      await next(enrollment, EnrollmentPinChosen("12345"));
       // The confirm screen compares the PINs and reports the mismatch.
-      final again = await next(bloc, EnrollmentPinMismatch());
+      final again = await next(enrollment, EnrollmentPinMismatch());
 
       expect(again, isA<EnrollmentChoosePin>());
       expect(enrollments(), 0);
@@ -319,17 +319,17 @@ void main() {
 
   test("a second Continue during the biometric check is ignored", () async {
     final check = Completer<bool>();
-    final bloc = newBloc(biometricCheck: check.future);
+    final enrollment = newEnrollment(biometricCheck: check.future);
     final states = <EnrollmentState>[];
-    final sub = bloc.stream.listen(states.add);
+    final sub = enrollment.stream.listen(states.add);
     addTearDown(sub.cancel);
-    await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
-    bloc.add(EnrollmentNextPressed());
-    bloc.add(EnrollmentNextPressed());
+    await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
+    enrollment.add(EnrollmentNextPressed());
+    enrollment.add(EnrollmentNextPressed());
     await Future<void>.delayed(Duration.zero);
     check.complete(true);
     await Future<void>.delayed(const Duration(milliseconds: 50));
-    expect(bloc.state, isA<EnrollmentChoosePin>());
+    expect(enrollment.state, isA<EnrollmentChoosePin>());
     expect(states.whereType<EnrollmentChoosePin>().length, 1);
   });
 
@@ -337,14 +337,14 @@ void main() {
     "terms toggled during the biometric check: still the PIN step",
     () async {
       final check = Completer<bool>();
-      final bloc = newBloc(biometricCheck: check.future);
-      await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
-      bloc.add(EnrollmentNextPressed());
-      bloc.add(EnrollmentTermsUpdated(isAccepted: false));
+      final enrollment = newEnrollment(biometricCheck: check.future);
+      await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
+      enrollment.add(EnrollmentNextPressed());
+      enrollment.add(EnrollmentTermsUpdated(isAccepted: false));
       await Future<void>.delayed(Duration.zero);
       check.complete(true);
       await Future<void>.delayed(const Duration(milliseconds: 50));
-      expect(bloc.state, isA<EnrollmentChoosePin>());
+      expect(enrollment.state, isA<EnrollmentChoosePin>());
     },
   );
 }

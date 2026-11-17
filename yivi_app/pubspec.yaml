@@ -71,7 +71,6 @@ dev_dependencies:
 
   plugin_platform_interface: any
   url_launcher_platform_interface: any
-  flutter_bloc: any
 
 # yivi_core pulls altcha_lib, which wants pointycastle from pub.dev, but vcmrtd
 # wants it from the privacybydesign/pc-dart fork; pub cannot unify a hosted and

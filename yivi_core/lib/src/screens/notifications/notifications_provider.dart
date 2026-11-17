@@ -43,8 +43,8 @@ final class NotificationsLoaded extends NotificationsState {
 /// Loads the notifications from the cards in the app and the stored
 /// records, and keeps the read and dismissed flags.
 ///
-/// Loads and writes to the store run one at a time, in the order asked, as
-/// the bloc before it did. Marking read and dismissing change the list at
+/// Loads and writes to the store run one at a time, in the order asked.
+/// Marking read and dismissing change the list at
 /// once (no loading state, so no spinner and no blink of the unread dot);
 /// asked during a load, they are applied when the load is done.
 class NotificationsNotifier extends Notifier<NotificationsState> {

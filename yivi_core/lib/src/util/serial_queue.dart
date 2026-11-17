@@ -1,5 +1,6 @@
-/// Runs async work one job at a time, in the order it was added, as a bloc
-/// handles its events. A job that fails does not stop the ones after it.
+/// Runs async work one job at a time, in the order it was added, so a job
+/// always sees what the ones before it did. A job that fails does not stop
+/// the ones after it.
 class SerialQueue {
   Future<void> _last = Future<void>.value();
 

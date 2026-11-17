@@ -29,8 +29,8 @@ final enrollmentProvider =
 /// needs it. "Setting up" only shows when the account is not there yet
 /// after the last step.
 ///
-/// Every action runs after the ones before it, as a bloc's events did: a tap
-/// during the biometric check waits for it, and then finds the next page.
+/// Every action runs after the ones before it: a tap during the biometric
+/// check waits for it, and then finds the next page.
 class EnrollmentNotifier extends Notifier<EnrollmentState> {
   final _queue = SerialQueue();
   late IrmaRepository _repo;
