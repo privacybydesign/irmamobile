@@ -374,6 +374,7 @@ void main() {
     testWidgets("opens the linking screens when they are not open yet", (
       tester,
     ) async {
+      linkingOffered = true;
       await pumpApp(tester);
       final context = tester.element(find.text("home"));
 
@@ -398,6 +399,19 @@ void main() {
       await checkCode(tester);
 
       expect(issuerApi.verified, [(email: "jan@example.com", code: "XYZ789")]);
+    });
+
+    testWidgets("is dropped when linking is not offered", (tester) async {
+      await pumpApp(tester);
+      handlePointer(
+        tester.element(find.text("home")),
+        EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
+      );
+      await settle(tester);
+      await settle(tester);
+
+      expect(sheet, findsNothing);
+      expect(container.read(emailLinkingProvider).link, isNull);
     });
 
     testWidgets("is cleared from the queue once handled", (tester) async {
@@ -467,6 +481,7 @@ void main() {
     testWidgets("twice when the flow was closed still waits for a tap", (
       tester,
     ) async {
+      linkingOffered = true;
       await pumpApp(tester);
       final context = tester.element(find.text("home"));
 
@@ -502,6 +517,7 @@ void main() {
 
     testWidgets("without an address, opens the flow at the address when it "
         "was closed", (tester) async {
+      linkingOffered = true;
       await pumpApp(tester);
       final context = tester.element(find.text("home"));
 

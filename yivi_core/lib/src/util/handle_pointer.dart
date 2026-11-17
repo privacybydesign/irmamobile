@@ -71,6 +71,9 @@ void _showEmailLinkScreen(BuildContext context, EmailCodePointer link) {
     return;
   }
 
+  // Linking not offered, or an address linked already: nothing to link.
+  if (!linkingOpen && !container.read(emailLinkAvailableProvider)) return;
+
   container.read(emailLinkingProvider.notifier).receiveLink(link);
   if (!linkingOpen) {
     openEmailLinking(context);
