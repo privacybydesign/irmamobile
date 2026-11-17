@@ -1,14 +1,15 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../providers/irma_repository_provider.dart";
+import "../../../providers/preferences_provider.dart";
 import "../../../util/i18n.dart";
 import "../../more/widgets/tiles.dart";
 import "../../more/widgets/tiles_card.dart";
 
-class UseSystemLanguageToggle extends StatelessWidget {
+class UseSystemLanguageToggle extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    final prefs = IrmaRepositoryProvider.of(context).preferences;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final prefs = ref.read(preferencesProvider);
     final lang = context.lang;
 
     return TilesCard(
@@ -16,9 +17,7 @@ class UseSystemLanguageToggle extends StatelessWidget {
         ToggleTile(
           key: const Key("use_system_language_toggle"),
           labelTranslationKey: "settings.use_system_language",
-          stream: prefs.preferredLanguageCode.stream.map(
-            (languageCode) => languageCode.isEmpty,
-          ),
+          value: ref.watch(preferredLanguageCodeProvider).isEmpty,
           onChanged: (bool useSystemLanguage) =>
               prefs.preferredLanguageCode.set(useSystemLanguage ? "" : lang),
         ),

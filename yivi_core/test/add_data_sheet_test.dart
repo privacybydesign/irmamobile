@@ -201,27 +201,24 @@ Future<_Calls> _pump(
           (context, d, ref) async => calls.obtained.add(d.credentialId),
         ),
       ],
-      child: IrmaRepositoryProvider(
-        repository: repo,
-        child: IrmaTheme(
-          builder: (_) => MaterialApp.router(
-            routerConfig: router,
-            // As the app: a tap outside a text field puts the keyboard away.
-            builder: (context, child) => UnfocusOnTapOutside(
-              child: LegacyMaterialBridge(
-                child: child ?? const SizedBox.shrink(),
+      child: IrmaTheme(
+        builder: (_) => MaterialApp.router(
+          routerConfig: router,
+          // As the app: a tap outside a text field puts the keyboard away.
+          builder: (context, child) => UnfocusOnTapOutside(
+            child: LegacyMaterialBridge(
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ),
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: FileTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: const Locale("en", "US"),
               ),
             ),
-            localizationsDelegates: [
-              FlutterI18nDelegate(
-                translationLoader: FileTranslationLoader(
-                  basePath: "assets/locales",
-                  forcedLocale: const Locale("en", "US"),
-                ),
-              ),
-              ...GlobalMaterialLocalizations.delegates,
-            ],
-          ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
         ),
       ),
     ),

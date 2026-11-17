@@ -70,7 +70,7 @@ GoRoute _adaptive({
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
-  final repo = IrmaRepositoryProvider.of(buildContext);
+  final repo = ref.read(irmaRepositoryProvider);
   final rootedDeviceDetector = ref.read(rootedDeviceDetectorProvider);
   final redirectionTriggers = RedirectionListenable(repo, rootedDeviceDetector);
 

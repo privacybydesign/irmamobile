@@ -25,7 +25,12 @@ Future<int?> handlePointer(
   }
 
   try {
-    await pointer.validate(irmaRepository: IrmaRepositoryProvider.of(context));
+    await pointer.validate(
+      irmaRepository: ProviderScope.containerOf(
+        context,
+        listen: false,
+      ).read(irmaRepositoryProvider),
+    );
   } catch (e) {
     if (!context.mounted) {
       return null;
@@ -53,7 +58,7 @@ void _showEmailLinkScreen(BuildContext context, EmailCodePointer link) {
 
   // A link that stays queued is handled again after every unlock, and keeps
   // the biometric unlock disabled.
-  IrmaRepositoryProvider.of(context).setPendingPointer(null);
+  container.read(irmaRepositoryProvider).setPendingPointer(null);
 
   final linkingOpen = container.exists(linkingFlowOpenProvider);
   // Nothing takes the link in the flow that adds the e-mail credential, and
@@ -76,7 +81,10 @@ int _startSession(
   SessionPointer sessionPointer, {
   bool pushReplacement = false,
 }) {
-  final repo = IrmaRepositoryProvider.of(context);
+  final repo = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(irmaRepositoryProvider);
 
   final sessionId = repo.allocateSessionId();
   // Any session active at this moment is "underlying" — ours does not exist on

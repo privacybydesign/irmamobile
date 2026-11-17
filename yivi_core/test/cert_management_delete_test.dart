@@ -1,4 +1,5 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -9,6 +10,7 @@ import "package:yivi_core/src/models/certificate_events.dart";
 import "package:yivi_core/src/models/eudi_configuration.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/debug/cert_management/cert_management_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
@@ -43,8 +45,11 @@ void main() {
   }
 
   Future<void> pumpScreen(WidgetTester tester, IrmaRepository repo) async {
-    final widget = IrmaRepositoryProvider(
-      repository: repo,
+    final widget = ProviderScope(
+      overrides: [
+        irmaRepositoryProvider.overrideWithValue(repo),
+        preferencesProvider.overrideWithValue(repo.preferences),
+      ],
       child: IrmaTheme(
         builder: (_) => MaterialApp(
           localizationsDelegates: [

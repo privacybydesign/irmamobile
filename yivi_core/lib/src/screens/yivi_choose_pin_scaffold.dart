@@ -1,11 +1,12 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../providers/irma_repository_provider.dart";
+import "../providers/preferences_provider.dart";
 import "../util/i18n.dart";
 import "../widgets/irma_app_bar.dart";
 import "pin/yivi_pin_screen.dart";
 
-class YiviChoosePinScaffold extends StatelessWidget {
+class YiviChoosePinScaffold extends ConsumerWidget {
   final StringCallback submit;
   final VoidCallback onBack;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -27,22 +28,19 @@ class YiviChoosePinScaffold extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final prefs = IrmaRepositoryProvider.of(context).preferences;
-
+  Widget build(BuildContext context, WidgetRef ref) {
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
         titleString: "",
         leading: YiviBackButton(onTap: onBack),
       ),
-      body: StreamBuilder<bool>(
-        stream: prefs.longPin.stream,
-        builder: (context, snapshot) {
+      body: Builder(
+        builder: (context) {
           final toggleValue = ValueNotifier<bool>(
             newPinNotifier.value.isNotEmpty
                 ? newPinNotifier.value.length > shortPinSize
-                : (snapshot.data ?? false),
+                : ref.watch(longPinProvider),
           );
           return ValueListenableBuilder<bool>(
             valueListenable: toggleValue,

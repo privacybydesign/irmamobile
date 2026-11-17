@@ -42,23 +42,23 @@ void main() {
     final widget = ProviderScope(
       overrides: [
         preferencesProvider.overrideWithValue(prefs),
+        irmaRepositoryProvider.overrideWithValue(
+          IrmaRepository(client: _SilentBridge(), preferences: prefs),
+        ),
         emailLinkingOfferedProvider.overrideWithValue(linkingOffered),
       ],
-      child: IrmaRepositoryProvider(
-        repository: IrmaRepository(client: _SilentBridge(), preferences: prefs),
-        child: IrmaTheme(
-          builder: (_) => MaterialApp(
-            localizationsDelegates: [
-              FlutterI18nDelegate(
-                translationLoader: FileTranslationLoader(
-                  basePath: "assets/locales",
-                  forcedLocale: const Locale("en", "US"),
-                ),
+      child: IrmaTheme(
+        builder: (_) => MaterialApp(
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: FileTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: const Locale("en", "US"),
               ),
-              ...GlobalMaterialLocalizations.delegates,
-            ],
-            home: SettingsScreen(),
-          ),
+            ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
+          home: SettingsScreen(),
         ),
       ),
     );

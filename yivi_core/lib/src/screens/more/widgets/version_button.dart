@@ -33,7 +33,7 @@ class _VersionButtonState extends State<VersionButton> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
     final theme = IrmaTheme.of(context);
 
     final textStyle = theme.textTheme.titleLarge!.copyWith(

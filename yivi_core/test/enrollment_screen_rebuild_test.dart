@@ -4,7 +4,6 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/enrollment_events.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
-import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
@@ -58,7 +57,6 @@ void main() {
       repo: repo,
       initialLocation: "/enrollment",
       overrides: [
-        irmaRepositoryProvider.overrideWithValue(repo),
         biometricAvailableProvider.overrideWith((ref) async => false),
         emailLinkingOfferedProvider.overrideWithValue(false),
       ],

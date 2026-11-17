@@ -30,7 +30,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     String title,
     String instruction,
   ) async {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
     final navigator = Navigator.of(context);
 
     final hasLongPin = await repo.preferences.longPin.stream.first;
@@ -52,7 +52,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
   }
 
   Future<void> _verifyPin(BuildContext context, String schemeId) async {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
     final navigator = Navigator.of(context);
 
     final pin = await _requestPin(
@@ -112,7 +112,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       }),
     );
 
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
     repo.bridgedDispatch(
       EnrollEvent(
         email: "",
@@ -144,9 +144,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
   }
 
   void _onDeleteScheme(BuildContext context) {
-    IrmaRepositoryProvider.of(
-      context,
-    ).bridgedDispatch(RemoveSchemeEvent(schemeId: schemeManagerId));
+    repositoryOf(context).bridgedDispatch(RemoveSchemeEvent(schemeId: schemeManagerId));
     Navigator.of(context).pop();
 
     if (!context.mounted) return;
@@ -158,7 +156,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
 
     return StreamBuilder<
       CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>

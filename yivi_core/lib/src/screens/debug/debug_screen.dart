@@ -50,7 +50,7 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
     super.initState();
 
     afterFrame(() async {
-      final repo = IrmaRepositoryProvider.of(context);
+      final repo = repositoryOf(context);
       final config = await repo.getIrmaConfiguration().first;
       _debugHelper = DebugHelper(irmaConfig: config);
     });
@@ -106,7 +106,7 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,

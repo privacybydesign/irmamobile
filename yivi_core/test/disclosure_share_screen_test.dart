@@ -247,27 +247,22 @@ Future<_Calls> _pump(
           (context, d, ref) async => calls.obtained.add(d.credentialId),
         ),
       ],
-      // As in the app, the repository also as an inherited widget (which
-      // handlePointer reads).
-      child: IrmaRepositoryProvider(
-        repository: repo,
-        child: IrmaTheme(
-          builder: (_) => MaterialApp.router(
-            routerConfig: router,
-            // As the app does: the core Material that the code fields (pinput)
-            // look for.
-            builder: (context, child) =>
-                LegacyMaterialBridge(child: child ?? const SizedBox.shrink()),
-            localizationsDelegates: [
-              FlutterI18nDelegate(
-                translationLoader: FileTranslationLoader(
-                  basePath: "assets/locales",
-                  forcedLocale: const Locale("en", "US"),
-                ),
+      child: IrmaTheme(
+        builder: (_) => MaterialApp.router(
+          routerConfig: router,
+          // As the app does: the core Material that the code fields (pinput)
+          // look for.
+          builder: (context, child) =>
+              LegacyMaterialBridge(child: child ?? const SizedBox.shrink()),
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: FileTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: const Locale("en", "US"),
               ),
-              ...GlobalMaterialLocalizations.delegates,
-            ],
-          ),
+            ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
         ),
       ),
     ),

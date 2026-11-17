@@ -86,9 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 return;
               }
               if (tabState == .data) {
-                IrmaRepositoryProvider.of(
+                ProviderScope.containerOf(
                   context,
-                ).bridgedDispatch(AndroidSendToBackgroundEvent());
+                  listen: false,
+                ).read(irmaRepositoryProvider).bridgedDispatch(AndroidSendToBackgroundEvent());
               } else {
                 _changeTab(.data);
               }

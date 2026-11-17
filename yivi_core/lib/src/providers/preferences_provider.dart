@@ -67,3 +67,23 @@ final emailBannerSnoozedUntilProvider = prefProvider(
 
 /// The local backend host set in the debug menu; empty for the real ones.
 final localBackendHostProvider = prefProvider((p) => p.localBackendHost);
+
+/// The language the user picked; empty follows the system language.
+final preferredLanguageCodeProvider = prefProvider(
+  (p) => p.preferredLanguageCode,
+);
+
+/// Whether error reports are sent.
+final reportErrorsProvider = prefProvider((p) => p.reportErrors);
+
+/// Whether screenshots are allowed (Android).
+final screenshotsEnabledProvider = prefProvider((p) => p.screenshotsEnabled);
+
+/// Light, dark or the system's.
+final appearanceProvider = prefProvider((p) => p.appearance);
+
+/// The PIN-visible preference itself, for the PIN screen, which reads it
+/// once and writes it on a tap.
+final pinVisiblePrefProvider = Provider<Pref<bool>>(
+  (ref) => ref.watch(preferencesProvider).pinVisible,
+);

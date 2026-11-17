@@ -81,7 +81,7 @@ class ExternalLinkTile extends StatelessWidget {
       labelTranslationKey: labelTranslationKey,
       onTap: () {
         try {
-          IrmaRepositoryProvider.of(context).openURL(context.tr(urlLinkKey));
+          repositoryOf(context).openURL(context.tr(urlLinkKey));
         } catch (e, stacktrace) {
           // TODO: consider whether we want error screen here
           reportError(e, stacktrace);
@@ -126,7 +126,7 @@ class ToggleTile extends StatelessWidget {
   /// Grey text under the label that explains the setting.
   final String? subtitleTranslationKey;
   final void Function(bool) onChanged;
-  final Stream<bool> stream;
+  final bool value;
 
   /// Extra space at the start, for a setting that belongs to the one above.
   final double indent;
@@ -140,50 +140,43 @@ class ToggleTile extends StatelessWidget {
     required this.labelTranslationKey,
     this.subtitleTranslationKey,
     required this.onChanged,
-    required this.stream,
+    required this.value,
     this.indent = 0,
     this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: stream,
-      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-        final value = snapshot.hasData && snapshot.data!;
+    void toggle(bool newValue) {
+      Haptics.select();
+      onChanged(newValue);
+    }
 
-        void toggle(bool newValue) {
-          Haptics.select();
-          onChanged(newValue);
-        }
-
-        return Semantics(
-          value: context.tr(
-            value ? "switch.describe_state_on" : "switch.describe_state_off",
-          ),
-          hint: context.tr(
-            value ? "switch.hint_state_on" : "switch.hint_state_off",
-          ),
-          child: Tile(
-            isLink: false,
-            iconData: iconData,
-            labelTranslationKey: labelTranslationKey,
-            subtitleTranslationKey: subtitleTranslationKey,
-            indent: indent,
-            enabled: enabled,
-            // Tapping anywhere on the row toggles the switch.
-            onTap: () => toggle(!value),
-            // The switch handles its own taps/drags too: a disabled
-            // (onChanged: null) CupertinoSwitch swallows the gesture before it
-            // reaches the Tile's onTap, so it must stay interactive.
-            trailing: CupertinoSwitch(
-              value: value,
-              onChanged: toggle,
-              activeTrackColor: YiviPalette.of(context).primary,
-            ),
-          ),
-        );
-      },
+    return Semantics(
+      value: context.tr(
+        value ? "switch.describe_state_on" : "switch.describe_state_off",
+      ),
+      hint: context.tr(
+        value ? "switch.hint_state_on" : "switch.hint_state_off",
+      ),
+      child: Tile(
+        isLink: false,
+        iconData: iconData,
+        labelTranslationKey: labelTranslationKey,
+        subtitleTranslationKey: subtitleTranslationKey,
+        indent: indent,
+        enabled: enabled,
+        // Tapping anywhere on the row toggles the switch.
+        onTap: () => toggle(!value),
+        // The switch handles its own taps/drags too: a disabled
+        // (onChanged: null) CupertinoSwitch swallows the gesture before it
+        // reaches the Tile's onTap, so it must stay interactive.
+        trailing: CupertinoSwitch(
+          value: value,
+          onChanged: toggle,
+          activeTrackColor: YiviPalette.of(context).primary,
+        ),
+      ),
     );
   }
 }

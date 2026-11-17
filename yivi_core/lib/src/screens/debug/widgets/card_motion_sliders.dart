@@ -19,7 +19,7 @@ class _CardMotionSlidersState extends State<CardMotionSliders> {
 
   void _set(CardMotion m) {
     setState(() => CardMotion.current.value = m);
-    IrmaRepositoryProvider.of(context).preferences.cardMotion.set(m.encode());
+    repositoryOf(context).preferences.cardMotion.set(m.encode());
   }
 
   @override

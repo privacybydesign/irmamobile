@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_preferences.dart";
 import "../../models/clear_all_data_event.dart";
+import "../../providers/app_providers.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/preferences_provider.dart";
@@ -22,17 +23,17 @@ import "../more/widgets/tiles.dart";
 import "../more/widgets/tiles_radio.dart";
 import "../pin/providers/biometric_provider.dart";
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   /// Shown in the More tab's detail pane: no app bar, a title on the page.
   final bool embedded;
 
   const SettingsScreen({super.key, this.embedded = false});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool showDeveloperModeToggle = false;
 
   @override
@@ -45,9 +46,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (!mounted) {
         return;
       }
-      final inDeveloperMode = await IrmaRepositoryProvider.of(
-        context,
-      ).getDeveloperMode().first;
+      final inDeveloperMode = await ref
+          .read(irmaRepositoryProvider)
+          .getDeveloperMode()
+          .first;
 
       if (inDeveloperMode) {
         setState(() {
@@ -59,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = ref.read(irmaRepositoryProvider);
     final language = FlutterI18n.currentLocale(context)?.languageName() ?? "";
 
     return MoreSubpage(
@@ -106,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         await repo.preferences.biometricEnabled.set(true);
                       }
                     },
-                    stream: repo.preferences.biometricEnabled.stream,
+                    value: biometricEnabled,
                   ),
                   // Belongs to the one above: indented, and greyed out
                   // while biometric unlock is off (the pref is ignored
@@ -119,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     indent: 16,
                     enabled: biometricEnabled,
                     onChanged: repo.preferences.biometricImmediate.set,
-                    stream: repo.preferences.biometricImmediate.stream,
+                    value: ref.watch(biometricImmediateProvider),
                   ),
                 ],
                 ToggleTile(
@@ -127,7 +129,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   labelTranslationKey: "settings.report_errors",
                   subtitleTranslationKey: "settings.report_errors_explanation",
                   onChanged: repo.preferences.reportErrors.set,
-                  stream: repo.preferences.reportErrors.stream,
+                  value: ref.watch(reportErrorsProvider),
                 ),
                 if (Platform.isAndroid)
                   ToggleTile(
@@ -136,26 +138,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitleTranslationKey:
                         "settings.enable_screenshots_explanation",
                     onChanged: repo.preferences.screenshotsEnabled.set,
-                    stream: repo.preferences.screenshotsEnabled.stream,
+                    value: ref.watch(screenshotsEnabledProvider),
                   ),
                 if (showDeveloperModeToggle)
                   ToggleTile(
                     key: const Key("dev_mode_toggle"),
                     labelTranslationKey: "settings.developer_mode",
                     onChanged: repo.setDeveloperMode,
-                    stream: repo.getDeveloperMode(),
+                    value: ref.watch(developerModeProvider),
                   ),
               ],
             );
           },
         ),
         // Light, dark, or as the system: one choice, marked.
-        StreamBuilder<Appearance>(
-          stream: repo.preferences.appearance.stream,
-          builder: (context, snapshot) {
-            final appearance = snapshot.data ?? Appearance.system;
+        Builder(
+          builder: (context) {
+            final appearance = ref.watch(appearanceProvider);
             return RadioTilesCard(
-              // Rebuilt with the stored choice once it has loaded.
+              // Rebuilt with the stored choice when it changes.
               key: ValueKey("appearance_select_${appearance.name}"),
               header: context.tr("settings.appearance"),
               options: [
@@ -225,6 +226,9 @@ Future<void> showConfirmDeleteDialog(BuildContext context) async {
   );
 
   if (confirmed && context.mounted) {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(ClearAllDataEvent());
+    ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(irmaRepositoryProvider).bridgedDispatch(ClearAllDataEvent());
   }
 }

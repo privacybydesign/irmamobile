@@ -13,7 +13,6 @@ import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
 import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
-import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/back_to_website/back_to_website_screen.dart";
 import "package:yivi_core/src/screens/enrollment/biometric/enrollment_biometric_screen.dart";
 import "package:yivi_core/src/screens/enrollment/choose_pin/choose_pin_screen.dart";
@@ -248,7 +247,6 @@ void main() {
         tester,
         repo: repo,
         overrides: [
-          irmaRepositoryProvider.overrideWithValue(repo),
           emailIssuerApiProvider.overrideWithValue(issuer),
           keyshareEmailLinkApiProvider.overrideWithValue(link),
         ],
@@ -388,7 +386,6 @@ void main() {
       await pumpRoutes(
         tester,
         repo: repo,
-        overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
         initialLocation: "/",
         routes: [
           GoRoute(

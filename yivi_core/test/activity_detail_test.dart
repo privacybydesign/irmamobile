@@ -5,7 +5,6 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
-import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
@@ -113,7 +112,6 @@ void main() {
       tester,
       repo: repo,
       // The credential tiles look up the wallet for the card colours.
-      overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
       home: ActivityDetailsScreen(
         args: ActivityDetailsScreenArgs(logEntry: log),
       ),

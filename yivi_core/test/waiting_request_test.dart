@@ -8,7 +8,6 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_preview.dart";
-import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/waiting_request_provider.dart";
 import "package:yivi_core/src/screens/pin/widgets/waiting_request_announcement.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
@@ -67,12 +66,7 @@ void main() {
       : null;
 
   Future<void> pump(WidgetTester tester, Pointer? pointer) async {
-    await pumpHome(
-      tester,
-      repo: repo,
-      home: const _Waiting(),
-      overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
-    );
+    await pumpHome(tester, repo: repo, home: const _Waiting());
     repo.setPendingPointer(pointer);
     // irmago's answer comes back on the real event loop.
     for (var i = 0; i < 3; i++) {

@@ -2,6 +2,8 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/data/pref.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/screens/reset_pin/reset_pin_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
@@ -11,6 +13,7 @@ import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
 
 Widget _app(Widget home, {ThemeMode mode = ThemeMode.light}) => ProviderScope(
+  overrides: [pinVisiblePrefProvider.overrideWithValue(Pref.memory(false))],
   child: IrmaTheme(
     builder: (context) => MaterialApp(
       theme: IrmaTheme.variantsOf(context).data.themeData,

@@ -17,9 +17,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
   const RequestorSchemeDetailScreen({super.key, required this.requestorScheme});
 
   void _onDeleteScheme(BuildContext context) {
-    IrmaRepositoryProvider.of(
-      context,
-    ).bridgedDispatch(RemoveRequestorSchemeEvent(schemeId: requestorScheme.id));
+    repositoryOf(context).bridgedDispatch(RemoveRequestorSchemeEvent(schemeId: requestorScheme.id));
     Navigator.of(context).pop();
 
     if (!context.mounted) return;

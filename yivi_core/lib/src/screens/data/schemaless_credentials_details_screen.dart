@@ -209,7 +209,7 @@ class _CredentialsDetailsScreenState
   ) async {
     final deleted = await confirmAndDeleteCredential(
       context,
-      IrmaRepositoryProvider.of(context),
+      ref.read(irmaRepositoryProvider),
       credential.credentialInstanceIds,
     );
     if (deleted) _showDeletedSnackbar();

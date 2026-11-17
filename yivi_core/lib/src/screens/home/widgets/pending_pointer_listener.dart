@@ -38,7 +38,7 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
     super.initState();
 
     afterFrame(() {
-      final repo = IrmaRepositoryProvider.of(context);
+      final repo = repositoryOf(context);
       _pointerSubscription = repo.getPendingPointer().listen((pointer) {
         _pointer = pointer;
         _maybeHandle();

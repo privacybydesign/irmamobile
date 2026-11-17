@@ -35,9 +35,7 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
         PlainIconButton(
           icon: Icons.send_rounded,
           semanticsLabel: "Start session",
-          onPressed: () => IrmaRepositoryProvider.of(
-            context,
-          ).startTestSession(_controller.text),
+          onPressed: () => repositoryOf(context).startTestSession(_controller.text),
         ),
       ],
     ),

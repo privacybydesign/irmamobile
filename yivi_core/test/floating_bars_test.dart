@@ -1,11 +1,9 @@
-import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
-import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/error/no_internet_screen.dart";
@@ -66,7 +64,6 @@ void main() {
     await pumpHome(
       tester,
       repo: repo,
-      overrides: <Override>[irmaRepositoryProvider.overrideWithValue(repo)],
       home: LegacyMaterialBridge(child: screen),
     );
     await settle(tester);

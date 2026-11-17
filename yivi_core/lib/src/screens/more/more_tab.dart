@@ -1,15 +1,13 @@
-import "dart:async";
-
 import "package:flutter/semantics.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../providers/app_providers.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
-import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/centred_max_width.dart";
@@ -36,31 +34,9 @@ class MoreTab extends ConsumerStatefulWidget {
 }
 
 class _MoreTabState extends ConsumerState<MoreTab> {
-  StreamSubscription? _devModeSubscription;
-  bool showDebugging = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    afterFrame(() async {
-      final repo = IrmaRepositoryProvider.of(context);
-      _devModeSubscription = repo.getDeveloperMode().listen((event) {
-        setState(() {
-          showDebugging = event;
-        });
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _devModeSubscription?.cancel();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
+    final showDebugging = ref.watch(developerModeProvider);
     final palette = YiviPalette.of(context);
     // On a tablet and held sideways Instellingen and Veelgestelde vragen
     // open in a pane beside the list (Instellingen until another is picked).
@@ -173,7 +149,7 @@ class _MoreTabState extends ConsumerState<MoreTab> {
                   confirmLogoutOnNextLock = true;
                   // userInitiated: skip the "scan on launch" auto-biometric on
                   // the lock screen that follows an explicit logout.
-                  IrmaRepositoryProvider.of(context).lock(userInitiated: true);
+                  ref.read(irmaRepositoryProvider).lock(userInitiated: true);
                   widget.onChangeTab(HomeTab.data);
                 },
               ),

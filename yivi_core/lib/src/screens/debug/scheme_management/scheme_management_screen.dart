@@ -42,7 +42,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     super.initState();
 
     afterFrame(() async {
-      final repo = IrmaRepositoryProvider.of(context);
+      final repo = repositoryOf(context);
       _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
         _onErrorEvent,
       );
@@ -52,9 +52,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
-    final errorReported = await IrmaRepositoryProvider.of(
-      context,
-    ).preferences.reportErrors.stream.first;
+    final errorReported = await repositoryOf(context).preferences.reportErrors.stream.first;
 
     if (!mounted) return;
 
@@ -70,7 +68,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   }
 
   Future<void> _onInstallScheme() async {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
 
     final schemeUrl = await showDialog<String>(
       context: context,
@@ -132,7 +130,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   Future<void> _onUpdateSchemes() async {
     showSnackbar(context, context.tr("debug.scheme_management.updating"));
 
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
     repo.bridgedDispatch(UpdateSchemesEvent());
 
     try {
@@ -168,7 +166,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,

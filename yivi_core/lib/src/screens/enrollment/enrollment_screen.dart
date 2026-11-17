@@ -27,7 +27,7 @@ import "welcome/welcome_screen.dart";
 class EnrollmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
     final container = ProviderScope.containerOf(context, listen: false);
     return BlocProvider(
       create: (_) => EnrollmentBloc(

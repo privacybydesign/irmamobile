@@ -62,22 +62,20 @@ Widget _app({
   required Widget Function(List<LocalizationsDelegate<dynamic>>) builder,
 }) => ProviderScope(
   overrides: [
+    irmaRepositoryProvider.overrideWithValue(repo),
     preferencesProvider.overrideWithValue(repo.preferences),
     ...overrides,
   ],
-  child: IrmaRepositoryProvider(
-    repository: repo,
-    child: IrmaTheme(
-      builder: (_) => builder([
-        FlutterI18nDelegate(
-          translationLoader: FileTranslationLoader(
-            basePath: "assets/locales",
-            forcedLocale: locale,
-          ),
+  child: IrmaTheme(
+    builder: (_) => builder([
+      FlutterI18nDelegate(
+        translationLoader: FileTranslationLoader(
+          basePath: "assets/locales",
+          forcedLocale: locale,
         ),
-        ...GlobalMaterialLocalizations.delegates,
-      ]),
-    ),
+      ),
+      ...GlobalMaterialLocalizations.delegates,
+    ]),
   ),
 );
 

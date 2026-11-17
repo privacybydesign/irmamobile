@@ -200,22 +200,19 @@ void main() {
 
     final widget = UncontrolledProviderScope(
       container: container,
-      child: IrmaRepositoryProvider(
-        repository: repo,
-        child: IrmaTheme(
-          builder: (_) => MaterialApp.router(
-            localizationsDelegates: [
-              FlutterI18nDelegate(
-                translationLoader: FileTranslationLoader(
-                  basePath: "assets/locales",
-                  forcedLocale: const Locale("en", "US"),
-                ),
+      child: IrmaTheme(
+        builder: (_) => MaterialApp.router(
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: FileTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: const Locale("en", "US"),
               ),
-              ...GlobalMaterialLocalizations.delegates,
-            ],
-            builder: (context, child) => LegacyMaterialBridge(child: child!),
-            routerConfig: router,
-          ),
+            ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
+          builder: (context, child) => LegacyMaterialBridge(child: child!),
+          routerConfig: router,
         ),
       ),
     );

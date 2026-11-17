@@ -1,5 +1,6 @@
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
@@ -10,6 +11,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/client_preferences.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/more/widgets/version_button.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
@@ -62,8 +64,11 @@ void main() {
       buildSignature: "",
     );
 
-    final widget = IrmaRepositoryProvider(
-      repository: repo,
+    final widget = ProviderScope(
+      overrides: [
+        irmaRepositoryProvider.overrideWithValue(repo),
+        preferencesProvider.overrideWithValue(repo.preferences),
+      ],
       child: IrmaTheme(
         builder: (_) => MaterialApp(
           localizationsDelegates: [

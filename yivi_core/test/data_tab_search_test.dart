@@ -8,7 +8,6 @@ import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/providers/credentials_provider.dart";
-import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
@@ -439,7 +438,6 @@ void main() {
         tester,
         repo: repo,
         overrides: <Override>[
-          irmaRepositoryProvider.overrideWithValue(repo),
           credentialOrderControllerProvider.overrideWith(
             () => _FixedOrder([long]),
           ),

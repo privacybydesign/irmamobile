@@ -149,7 +149,7 @@ class RequestorTrustSheet extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final style = RequestorTrustStyle.of(context, requestor);
     final name = requestor.name;
-    void open(String url) => IrmaRepositoryProvider.of(context).openURL(url);
+    void open(String url) => repositoryOf(context).openURL(url);
     final sideways = useSheetColumns(context);
 
     final anchor = requestor.trustAnchor ?? "";

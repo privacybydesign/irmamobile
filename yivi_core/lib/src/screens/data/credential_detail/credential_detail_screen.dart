@@ -670,7 +670,7 @@ class _Details extends ConsumerWidget {
     final message = context.tr("credential.options.delete_success");
     final deleted = await confirmAndDeleteCredential(
       context,
-      IrmaRepositoryProvider.of(context),
+      ref.read(irmaRepositoryProvider),
       credential.credentialInstanceIds,
     );
     if (!deleted) return;

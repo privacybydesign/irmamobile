@@ -12,7 +12,7 @@ Future<void> openSupportMail(BuildContext context) async {
   final String subject = Uri.encodeComponent(context.tr("help.mail_subject"));
   final mail = "mailto:$address?subject=$subject";
   try {
-    await IrmaRepositoryProvider.of(context).openURLExternally(mail);
+    await repositoryOf(context).openURLExternally(mail);
   } catch (_) {
     if (context.mounted) {
       showDialog(

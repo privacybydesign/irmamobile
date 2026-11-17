@@ -35,10 +35,13 @@ import "package:flutter/widget_previews.dart";
 // ignore_for_file: depend_on_referenced_packages, implementation_imports
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_i18n/loaders/decoders/json_decode_strategy.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/package_name.dart";
+import "package:yivi_core/src/data/pref.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
@@ -88,22 +91,27 @@ final Future<void> _fontsReady = _loadYiviFonts();
 /// Wraps a preview in the theme + i18n + fonts stack the PIN screen needs, on a
 /// full-screen (non-scrolling) phone-portrait canvas. Must be public so the
 /// annotation can reference it.
-Widget pinPreviewWrapper(Widget child) => MaterialApp(
-  debugShowCheckedModeBanner: false,
-  localizationsDelegates: [
-    _buildI18nDelegate(),
-    ...GlobalMaterialLocalizations.delegates,
-  ],
-  supportedLocales: const [Locale("en", "US")],
-  home: IrmaTheme(
-    builder: (context) => MediaQuery(
-      // Force portrait so the screen takes the `_bodyPortrait` path.
-      data: const MediaQueryData(size: pinPreviewSize),
-      child: FutureBuilder<void>(
-        future: _fontsReady,
-        builder: (context, snap) => snap.connectionState == ConnectionState.done
-            ? child
-            : const SizedBox.shrink(),
+Widget pinPreviewWrapper(Widget child) => ProviderScope(
+  // The eye toggle's choice, kept in memory.
+  overrides: [pinVisiblePrefProvider.overrideWithValue(Pref.memory(false))],
+  child: MaterialApp(
+    debugShowCheckedModeBanner: false,
+    localizationsDelegates: [
+      _buildI18nDelegate(),
+      ...GlobalMaterialLocalizations.delegates,
+    ],
+    supportedLocales: const [Locale("en", "US")],
+    home: IrmaTheme(
+      builder: (context) => MediaQuery(
+        // Force portrait so the screen takes the `_bodyPortrait` path.
+        data: const MediaQueryData(size: pinPreviewSize),
+        child: FutureBuilder<void>(
+          future: _fontsReady,
+          builder: (context, snap) =>
+              snap.connectionState == ConnectionState.done
+              ? child
+              : const SizedBox.shrink(),
+        ),
       ),
     ),
   ),

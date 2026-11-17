@@ -7,7 +7,6 @@ import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/providers/activity_providers.dart";
-import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/card_activity_section.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
@@ -119,7 +118,6 @@ void main() {
       tester,
       repo: repo,
       overrides: <Override>[
-        irmaRepositoryProvider.overrideWithValue(repo),
         credentialOrderControllerProvider.overrideWith(
           () => _FixedOrder([_card]),
         ),
@@ -143,7 +141,6 @@ void main() {
       tester,
       repo: repo,
       overrides: <Override>[
-        irmaRepositoryProvider.overrideWithValue(repo),
         credentialOrderControllerProvider.overrideWith(
           () => _FixedOrder([_card]),
         ),

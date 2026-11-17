@@ -50,22 +50,22 @@ void main() {
     Locale locale = const Locale("en", "US"),
   }) async {
     final widget = ProviderScope(
-      overrides: [preferencesProvider.overrideWithValue(repo.preferences)],
-      child: IrmaRepositoryProvider(
-        repository: repo,
-        child: IrmaTheme(
-          builder: (_) => MaterialApp(
-            localizationsDelegates: [
-              FlutterI18nDelegate(
-                translationLoader: TestTranslationLoader(
-                  basePath: "assets/locales",
-                  forcedLocale: locale,
-                ),
+      overrides: [
+        irmaRepositoryProvider.overrideWithValue(repo),
+        preferencesProvider.overrideWithValue(repo.preferences),
+      ],
+      child: IrmaTheme(
+        builder: (_) => MaterialApp(
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: TestTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: locale,
               ),
-              ...GlobalMaterialLocalizations.delegates,
-            ],
-            home: const Scaffold(body: ErrorReportSwitch()),
-          ),
+            ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
+          home: const Scaffold(body: ErrorReportSwitch()),
         ),
       ),
     );

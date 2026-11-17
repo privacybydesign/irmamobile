@@ -31,9 +31,7 @@ class BlockedScreen extends StatelessWidget {
         bottomBar: IrmaBottomBar(
           primaryDanger: true,
           primaryButtonLabel: context.tr("error.button_reset"),
-          onPrimaryPressed: () => IrmaRepositoryProvider.of(
-            context,
-          ).bridgedDispatch(ClearAllDataEvent()),
+          onPrimaryPressed: () => repositoryOf(context).bridgedDispatch(ClearAllDataEvent()),
         ),
       ),
     );

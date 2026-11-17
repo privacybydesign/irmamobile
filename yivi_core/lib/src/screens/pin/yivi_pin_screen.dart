@@ -4,11 +4,12 @@ import "dart:math";
 
 import "package:flutter/foundation.dart" show listEquals;
 import "package:flutter/gestures.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../data/irma_preferences.dart";
-import "../../providers/irma_repository_provider.dart";
+import "../../data/pref.dart";
+import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
@@ -81,7 +82,7 @@ enum PinInstructionStyle { heading, line }
 /// A short PIN is five dots and submits itself (through the host's
 /// [listener]); a long PIN is one field whose arrow submits it. Both are the
 /// same height, so the keypad never moves.
-class YiviPinScreen extends StatefulWidget {
+class YiviPinScreen extends ConsumerStatefulWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
   final int maxPinSize;
   final StringCallback onSubmit;
@@ -187,16 +188,16 @@ class YiviPinScreen extends StatefulWidget {
        super(key: key);
 
   @override
-  State<YiviPinScreen> createState() => _YiviPinScreenState();
+  ConsumerState<YiviPinScreen> createState() => _YiviPinScreenState();
 }
 
-class _YiviPinScreenState extends State<YiviPinScreen>
+class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
     with SingleTickerProviderStateMixin {
   final pinVisibilityValue = ValueNotifier(false);
   EnterPinState _state = EnterPinState.empty();
 
   // Reveal-PIN toggle is persisted so it carries across every PIN screen.
-  IrmaPreferences? _prefs;
+  Pref<bool>? _pinVisible;
 
   // One-shot pop for the show/hide-pin button when tapped — same overshoot
   // curve and duration as the PIN dots ([_dotPop]).
@@ -220,15 +221,12 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // No repository in scope (e.g. widget previews) — keep the default toggle
-    // state and skip persistence; the eye toggle's write is already null-safe.
-    final prefs = IrmaRepositoryProvider.maybeOf(context)?.preferences;
     // Seed the toggle from the saved value the first time only — don't clobber
     // an in-session change on later dependency updates (e.g. theme change).
-    if (_prefs == null && prefs != null) {
-      pinVisibilityValue.value = prefs.pinVisible.value;
+    if (_pinVisible == null) {
+      _pinVisible = ref.read(pinVisiblePrefProvider);
+      pinVisibilityValue.value = _pinVisible!.value;
     }
-    _prefs = prefs;
   }
 
   @override
@@ -813,7 +811,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             () {
               Haptics.key();
               pinVisibilityValue.value = !visible;
-              _prefs?.pinVisible.set(!visible);
+              _pinVisible?.set(!visible);
               _jumpController.forward(from: 0);
             },
           ),

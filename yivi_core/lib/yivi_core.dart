@@ -163,38 +163,35 @@ class YiviApp extends ConsumerWidget {
     ref.read(credentialOrderControllerProvider);
 
     return TransitionStyleProvider(
-      child: IrmaRepositoryProvider(
-        repository: repository,
-        child: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (context) => notificationsBloc..add(Initialize()),
-            ),
-            BlocProvider(create: (context) => HomeTabState()),
-          ],
-          child: PreferredLocaleBuilder(
-            builder: (context, preferredLocale) {
-              Locale? appLocale;
-              if (preferredLocale != null) {
-                // The preferred locale is the locale that the user has selected in the settings
-                // If it's not null it will override the system/default locale
-                appLocale = preferredLocale;
-              } else {
-                // If there is a default locale prefer that one.
-                // This is mainly used for testing purposes
-                appLocale = defaultLanguage;
-              }
-
-              // If there is no preferred locale and no default locale,
-              // appLocale will be null and the system locale will be used
-
-              return App(
-                forcedLocale: appLocale,
-                notificationsBloc: notificationsBloc,
-                idleLockThreshold: idleLockThreshold,
-              );
-            },
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => notificationsBloc..add(Initialize()),
           ),
+          BlocProvider(create: (context) => HomeTabState()),
+        ],
+        child: PreferredLocaleBuilder(
+          builder: (context, preferredLocale) {
+            Locale? appLocale;
+            if (preferredLocale != null) {
+              // The preferred locale is the locale that the user has selected in the settings
+              // If it's not null it will override the system/default locale
+              appLocale = preferredLocale;
+            } else {
+              // If there is a default locale prefer that one.
+              // This is mainly used for testing purposes
+              appLocale = defaultLanguage;
+            }
+
+            // If there is no preferred locale and no default locale,
+            // appLocale will be null and the system locale will be used
+
+            return App(
+              forcedLocale: appLocale,
+              notificationsBloc: notificationsBloc,
+              idleLockThreshold: idleLockThreshold,
+            );
+          },
         ),
       ),
     );

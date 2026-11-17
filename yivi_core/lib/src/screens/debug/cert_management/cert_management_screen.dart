@@ -36,7 +36,7 @@ class _CertificateManagementScreenState
     super.initState();
 
     afterFrame(() async {
-      final repo = IrmaRepositoryProvider.of(context);
+      final repo = repositoryOf(context);
       _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
         _onErrorEvent,
       );
@@ -46,9 +46,7 @@ class _CertificateManagementScreenState
   Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
-    final errorReported = await IrmaRepositoryProvider.of(
-      context,
-    ).preferences.reportErrors.stream.first;
+    final errorReported = await repositoryOf(context).preferences.reportErrors.stream.first;
 
     if (!mounted) return;
 
@@ -64,7 +62,7 @@ class _CertificateManagementScreenState
   }
 
   Future<void> _onInstallCertificate() async {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
 
     final newCert = await showDialog<NewCertificate>(
       context: context,
@@ -87,7 +85,7 @@ class _CertificateManagementScreenState
       log("Tapped certificate with thumbprint $thumbprint");
 
   void _onRemoveCertificate(String type, Cert cert) {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(
+    repositoryOf(context).bridgedDispatch(
       RemoveCertificateEvent(type: type, thumbprint: cert.thumbprint),
     );
 
@@ -102,7 +100,7 @@ class _CertificateManagementScreenState
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = repositoryOf(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
