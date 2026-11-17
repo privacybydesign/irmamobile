@@ -1,5 +1,3 @@
-import "package:flutter/cupertino.dart" show CupertinoIcons;
-import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
@@ -20,7 +18,6 @@ import "../../scanner/util/camera_access.dart";
 import "document_instruction_screen.dart" show DocumentTipBox;
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
-import "widgets/dark_glass.dart";
 import "widgets/document_camera_frame.dart";
 import "widgets/document_flow_footer.dart";
 import "widgets/mrz_scanner.dart";
@@ -29,7 +26,6 @@ import "widgets/mrz_scanner.dart";
 class MrzReaderScreen extends ConsumerStatefulWidget {
   final void Function(MrzResult mrzResult) onSuccess;
   final VoidCallback onManualAdd;
-  final VoidCallback onCancel;
   final MrzParser mrzParser;
 
   /// The document: its scan title, "Enter manually" and its instruction
@@ -41,7 +37,6 @@ class MrzReaderScreen extends ConsumerStatefulWidget {
     required this.documentType,
     required this.onSuccess,
     required this.onManualAdd,
-    required this.onCancel,
     required this.mrzParser,
   });
 
@@ -71,144 +66,14 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
       },
     );
 
-    // In a sheet, as on the canvas: the picture in a rounded card under the
-    // sheet's bar, "Enter manually" under it, no Cancel.
-    if (DocumentStepInSheet.of(context)) {
-      return _SheetCamera(
-        titleKey: widget.documentType.scanTitleKey,
-        body: body,
-        manualLabel: widget.documentType.scanManualKey,
-        onManual: widget.onManualAdd,
-        instructionKey: widget.documentType.instructionKey,
-      );
-    }
-
-    // The picture fills the screen under a floating title and a dark glass
-    // panel with the buttons: at the bottom, or at the right held sideways.
-    return _CameraScaffold(
-      title: widget.documentType.scanTitleKey,
+    // As on the canvas: the picture in a rounded card under the sheet's
+    // bar, "Enter manually" under it, no Cancel.
+    return _SheetCamera(
+      titleKey: widget.documentType.scanTitleKey,
       body: body,
       manualLabel: widget.documentType.scanManualKey,
       onManual: widget.onManualAdd,
-      onCancel: widget.onCancel,
-    );
-  }
-}
-
-/// The camera screen: the camera behind everything, the title and a dark
-/// glass back button floating over it at the top, and the buttons on a dark
-/// glass panel at the bottom; held sideways, [_sideWidth] wide at the bottom
-/// right, with the window beside it ([CameraSidePanel]).
-class _CameraScaffold extends StatelessWidget {
-  final String title;
-  final Widget body;
-  final String manualLabel;
-  final VoidCallback onManual;
-  final VoidCallback onCancel;
-
-  const _CameraScaffold({
-    required this.title,
-    required this.body,
-    required this.manualLabel,
-    required this.onManual,
-    required this.onCancel,
-  });
-
-  static const _sideWidth = 220.0;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final padding = MediaQuery.paddingOf(context);
-    final sideways = isWiderThanHigh(context);
-
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Light status bar icons over the dark camera.
-      value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: cameraDark,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            CameraSidePanel(
-              width: sideways ? 16 + padding.right + _sideWidth + 16 : 0,
-              child: body,
-            ),
-            Positioned(
-              left: 16 + padding.left,
-              right: 16 + padding.right,
-              top: padding.top + 16,
-              height: 44,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 52),
-                    child: Semantics(
-                      header: true,
-                      child: Text(
-                        context.tr(title),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette.titleSmall.copyWith(
-                          color: Colors.white,
-                          shadows: const [
-                            Shadow(
-                              color: Color(0x73000000),
-                              blurRadius: 8,
-                              offset: Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: YiviIconButton(
-                      key: const Key("irma_app_bar_leading"),
-                      icon: CupertinoIcons.arrow_left,
-                      label: context.tr("ui.go_back"),
-                      onTap: () => Navigator.of(context).maybePop(),
-                      look: IconButtonLook.dark,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              left: sideways ? null : 16 + padding.left,
-              right: 16 + padding.right,
-              bottom: (sideways ? 16 : 24) + padding.bottom,
-              width: sideways ? _sideWidth : null,
-              child: DarkGlass(
-                borderRadius: YiviCorners.cardRadius,
-                padding: const EdgeInsets.all(YiviSpace.x12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: YiviSpace.x4,
-                  children: [
-                    PillButton(
-                      key: DocumentFlowButton.primaryKey,
-                      label: context.tr(manualLabel),
-                      onDark: true,
-                      onPressed: onManual,
-                    ),
-                    PillButton(
-                      key: DocumentFlowButton.secondaryKey,
-                      label: context.tr("document_flow.cancel"),
-                      style: PillStyle.text,
-                      onDark: true,
-                      onPressed: onCancel,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      instructionKey: widget.documentType.instructionKey,
     );
   }
 }
@@ -324,8 +189,8 @@ class _SheetCamera extends StatelessWidget {
   }
 }
 
-/// Without camera permission, on the dark camera screen: what to do, in
-/// white, between the title and the buttons.
+/// Without camera permission, on the dark camera card: what to do, in
+/// white.
 class _DarkPermissionFallback extends ConsumerWidget {
   const _DarkPermissionFallback();
 
@@ -333,15 +198,13 @@ class _DarkPermissionFallback extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
-    // Clear of the buttons: under it, or beside it held sideways.
-    final beside = CameraSidePanel.widthOf(context);
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           YiviSpace.x32,
           padding.top + 84,
-          beside > 0 ? beside : 32,
-          padding.bottom + (beside > 0 ? 16 : 180),
+          YiviSpace.x32,
+          padding.bottom + 180,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -11,11 +11,9 @@ import "widgets/manual_entry_layout.dart";
 class DrivingLicenceMrzManualEntryScreen extends StatefulWidget {
   /// Receives the parsed MRZ.
   final void Function(DrivingLicenceMrzResult result) onContinue;
-  final VoidCallback onCancel;
 
   const DrivingLicenceMrzManualEntryScreen({
     required this.onContinue,
-    required this.onCancel,
     super.key,
   });
 
@@ -57,14 +55,12 @@ class _DrivingLicenceMrzManualEntryScreenState
   @override
   Widget build(BuildContext context) {
     return ManualEntryScaffold(
-      appBarTitleKey: DocumentType.drivingLicence.scanTitleKey,
       formKey: _manualEntryFormKey,
       onChanged: _recomputeCanContinue,
       titleKey: "driving_licence.manual.title",
       explanationKey: "driving_licence.manual.explanation",
       tipKey: DocumentType.drivingLicence.manualTipKey,
       onContinue: _canContinue ? _onContinuePressed : null,
-      onCancel: widget.onCancel,
       fields: [DrivingLicenceMrzInputField(controller: _documentNrCtrl)],
     );
   }

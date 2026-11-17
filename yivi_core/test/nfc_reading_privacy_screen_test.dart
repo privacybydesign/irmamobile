@@ -13,6 +13,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
 import "helpers/test_translation_loader.dart";
+import "support/document_screen_host.dart";
 import "support/pump_translated.dart";
 
 final _mrz = ScannedPassportMrz(
@@ -91,7 +92,7 @@ Widget _testWidget(_RecordingReader reader) {
             ),
             ...GlobalMaterialLocalizations.delegates,
           ],
-          home: NfcReadingScreen(mrz: _mrz),
+          home: DocumentScreenHost(NfcReadingScreen(mrz: _mrz)),
         ),
       ),
     ),

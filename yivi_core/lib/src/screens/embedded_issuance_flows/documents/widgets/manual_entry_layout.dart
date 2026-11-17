@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
+import "../../../../util/adaptive_layout.dart";
 import "../../../../widgets/glass/sheet_layout.dart";
-import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/pill_text_field.dart";
 import "../../../../widgets/surface_card.dart";
 import "../../../../widgets/translated_text.dart";
@@ -11,12 +11,10 @@ import "../document_instruction_screen.dart";
 import "../document_step_in_sheet.dart";
 import "document_flow_footer.dart";
 
-/// A manual entry board: its [ManualEntryLayout] in a [Form] with
-/// Continue (enabled with [onContinue]) and Cancel, full-screen or as a
-/// step in a sheet (whose close button is then the way out). A tap outside
-/// the fields closes the keyboard.
+/// A manual entry board as a step in a sheet: its [ManualEntryLayout] in a
+/// [Form] with Continue (enabled with [onContinue]); the sheet's bar has the
+/// title, back and close. A tap outside the fields closes the keyboard.
 class ManualEntryScaffold extends StatelessWidget {
-  final String appBarTitleKey;
   final GlobalKey<FormState> formKey;
   final VoidCallback onChanged;
   final String titleKey;
@@ -24,11 +22,9 @@ class ManualEntryScaffold extends StatelessWidget {
   final String tipKey;
   final List<Widget> fields;
   final VoidCallback? onContinue;
-  final VoidCallback onCancel;
 
   const ManualEntryScaffold({
     super.key,
-    required this.appBarTitleKey,
     required this.formKey,
     required this.onChanged,
     required this.titleKey,
@@ -36,10 +32,9 @@ class ManualEntryScaffold extends StatelessWidget {
     required this.tipKey,
     required this.fields,
     required this.onContinue,
-    required this.onCancel,
   });
 
-  /// The buttons in a sheet: its close button is the way out.
+  /// The buttons: the sheet's close button is the way out.
   List<Widget> get _sheetButtons => [
     DocumentFlowButton(
       key: DocumentFlowButton.primaryKey,
@@ -50,12 +45,10 @@ class ManualEntryScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final split = documentStepSplit(context);
+    final split = useSheetColumns(context);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      // In a sheet its bar has the title, back and close.
       child: DocumentStepScaffold(
-        titleKey: appBarTitleKey,
         body: SizedBox(
           height: .infinity,
           child: documentScroll(
@@ -92,17 +85,8 @@ class ManualEntryScaffold extends StatelessWidget {
             ),
           ),
         ),
-        // In a sheet, the sheet's own buttons; its close button is the way out.
-        bottomBar: switch ((split, DocumentStepInSheet.of(context))) {
-          (true, _) => null,
-          (_, true) => DocumentFlowFooter(buttons: _sheetButtons),
-          _ => IrmaBottomBar(
-            primaryButtonLabel: "ui.continue",
-            onPrimaryPressed: onContinue,
-            secondaryButtonLabel: "ui.cancel",
-            onSecondaryPressed: onCancel,
-          ),
-        },
+        // Sideways the buttons are in the left column.
+        bottomBar: split ? null : DocumentFlowFooter(buttons: _sheetButtons),
       ),
     );
   }
@@ -126,13 +110,13 @@ class ManualEntryLayout extends StatelessWidget {
   final List<Widget> fields;
 
   /// The buttons, in the left column of a sheet held sideways
-  /// ([documentStepSplit]); elsewhere the screen's own bar has them.
+  /// ([useSheetColumns]); elsewhere the screen's own bar has them.
   final Widget? actions;
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    if (documentStepSplit(context)) return _split(context, palette);
+    if (useSheetColumns(context)) return _split(context, palette);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -270,18 +254,18 @@ InputDecoration documentFieldDecoration(
     fillColor: palette.surface,
     hintText: hint,
     hintStyle: palette
-        .body(documentStepSplit(context) ? 14 : 16)
+        .body(useSheetColumns(context) ? 14 : 16)
         .copyWith(color: palette.secondaryText),
     // In a sheet held sideways two fields share a row: a little tighter, so
     // "YYYY-MM-DD" fits.
     contentPadding: EdgeInsets.symmetric(
-      horizontal: documentStepSplit(context) ? 12 : 16,
+      horizontal: useSheetColumns(context) ? 12 : 16,
       vertical: 15,
     ),
     suffixIcon: suffixIcon,
     suffixIconConstraints: BoxConstraints(
       minHeight: 48,
-      minWidth: documentStepSplit(context) ? 40 : 48,
+      minWidth: useSheetColumns(context) ? 40 : 48,
     ),
     enabledBorder: border(palette.outline),
     focusedBorder: border(palette.link),

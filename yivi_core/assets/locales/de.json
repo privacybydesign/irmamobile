@@ -952,13 +952,7 @@
       "error_generic": "Beim Lesen des Führerscheins ist ein Fehler aufgetreten.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Führerschein-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
-      "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
-      "cancel_dialog": {
-        "title": "Führerschein-Lesung abbrechen?",
-        "explanation": "Sind Sie sicher, dass Sie das Lesen des Führerscheins abbrechen möchten?",
-        "confirm": "Ja",
-        "decline": "Nein"
-      }
+      "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen."
     }
   },
   "id_card": {
@@ -988,12 +982,6 @@
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Personalausweis-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
       "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
-      "cancel_dialog": {
-        "title": "Personalausweis-Lesung abbrechen?",
-        "explanation": "Sind Sie sicher, dass Sie das Lesen Ihres Personalausweises abbrechen möchten?",
-        "confirm": "Ja",
-        "decline": "Nein"
-      },
       "wrong_document": "Das ist ein Aufenthaltstitel",
       "wrong_document_tip": "Gehen Sie zurück und wählen Sie Aufenthaltstitel."
     }
@@ -1025,12 +1013,6 @@
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Aufenthaltstitel-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
       "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
-      "cancel_dialog": {
-        "title": "Lesen des Aufenthaltstitels abbrechen?",
-        "explanation": "Sind Sie sicher, dass Sie das Lesen Ihres Aufenthaltstitels abbrechen möchten?",
-        "confirm": "Ja",
-        "decline": "Nein"
-      },
       "wrong_document": "Das ist ein Personalausweis",
       "wrong_document_tip": "Gehen Sie zurück und wählen Sie Personalausweis."
     }
@@ -1061,13 +1043,7 @@
       "error_generic": "Beim Lesen des Reisepasses ist ein Fehler aufgetreten.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Reisepass-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
-      "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
-      "cancel_dialog": {
-        "title": "Reisepass-Lesung abbrechen?",
-        "explanation": "Sind Sie sicher, dass Sie das Lesen des Reisepasses abbrechen möchten?",
-        "confirm": "Ja",
-        "decline": "Nein"
-      }
+      "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen."
     }
   },
   "debug": {

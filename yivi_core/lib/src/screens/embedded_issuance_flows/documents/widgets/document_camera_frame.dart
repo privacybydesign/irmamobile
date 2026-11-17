@@ -7,7 +7,6 @@ import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/corner_brackets.dart";
-import "../document_step_in_sheet.dart";
 import "dark_glass.dart";
 
 /// Behind and around the document camera: the darkest stop of its frame.
@@ -43,60 +42,33 @@ class DocumentCameraFrame extends StatelessWidget {
   static const windowHeight = 252.0;
   static const _radius = 22.0;
 
-  /// Below the status bar: the floating title (16 + 44) and 16 more.
-  static const hintTop = 76.0;
+  /// The hint card's distance from the top of the camera's card.
+  static const hintTop = 16.0;
 
-  /// Where the window goes on a screen of [size] under a status bar of
-  /// [top]: the design's place on a phone (236 on the 844 high board, a
-  /// little above the middle), always below the hint card.
-  ///
-  /// Held sideways ([CameraSidePanel]) the buttons are in a panel at the
-  /// right: the window is as large as fits under the hint, in the middle
-  /// of the room [beside] it leaves, between the [inset]s of the screen.
-  static Rect windowFor(
-    Size size,
-    double top, {
-    double hint = hintTop,
-    double beside = 0,
-    EdgeInsets inset = EdgeInsets.zero,
-  }) {
+  /// Where the window goes on a camera card of [size] under a status bar of
+  /// [top]: the design's place on a phone (a little above the middle),
+  /// always below the hint card.
+  static Rect windowFor(Size size, double top) {
     var width = math.min(windowWidth, size.width - 48);
     var height = width * windowHeight / windowWidth;
-    if (beside > 0) {
-      final y = top + hint + 52;
-      final room = size.width - beside - inset.left;
-      height = math.min(height, size.height - y - 16 - inset.bottom);
-      width = math.min(height * windowWidth / windowHeight, room - 48);
-      height = width * windowHeight / windowWidth;
-      return Rect.fromLTWH(inset.left + (room - width) / 2, y, width, height);
-    }
     // A short card (the camera beside its explanation in a sheet held
     // sideways): right under the hint, as large as fits above the bottom.
     if (size.height < 360) {
-      final y = top + hint + 52;
+      final y = top + hintTop + 52;
       height = math.min(height, size.height - y - 16);
       width = height * windowWidth / windowHeight;
       return Rect.fromLTWH((size.width - width) / 2, y, width, height);
     }
-    final y = math.max(top + hint + 96, (size.height - height) / 2 - 60);
+    final y = math.max(top + hintTop + 96, (size.height - height) / 2 - 60);
     return Rect.fromLTWH((size.width - width) / 2, y, width, height);
   }
 
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
-    // In a sheet's card there is no floating title above the hint.
-    final hint = DocumentStepInSheet.of(context) ? 16.0 : hintTop;
-    final beside = CameraSidePanel.widthOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final window = windowFor(
-          constraints.biggest,
-          padding.top,
-          hint: hint,
-          beside: beside,
-          inset: padding,
-        );
+        final window = windowFor(constraints.biggest, padding.top);
         final rrect = RRect.fromRectAndRadius(
           window,
           const Radius.circular(_radius),
@@ -131,8 +103,8 @@ class DocumentCameraFrame extends StatelessWidget {
             ),
             Positioned(
               left: 16 + padding.left,
-              right: 16 + (beside > 0 ? beside : padding.right),
-              top: padding.top + hint,
+              right: 16 + padding.right,
+              top: padding.top + hintTop,
               child: _Hint(found: found, glare: glare),
             ),
           ],
@@ -231,20 +203,4 @@ class _BracketsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BracketsPainter old) => old.color != color;
-}
-
-/// Tells the camera frame that its buttons are in a panel at the right (the
-/// camera screen held sideways): the room that panel takes from the right
-/// edge of the screen, its gap included.
-class CameraSidePanel extends InheritedWidget {
-  final double width;
-
-  const CameraSidePanel({super.key, required this.width, required super.child});
-
-  /// The room taken at the right; 0 without a side panel.
-  static double widthOf(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<CameraSidePanel>()?.width ?? 0;
-
-  @override
-  bool updateShouldNotify(CameraSidePanel old) => old.width != width;
 }

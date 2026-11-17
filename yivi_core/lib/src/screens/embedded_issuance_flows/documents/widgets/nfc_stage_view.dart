@@ -5,9 +5,9 @@ import "package:material_ui/material_ui.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
+import "../../../../util/adaptive_layout.dart";
 import "../../../../widgets/glass/sheet_actions.dart";
 import "../../../../widgets/glass/sheet_layout.dart";
-import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/translated_text.dart";
 import "../document_step_in_sheet.dart";
 import "document_flow_footer.dart";
@@ -37,13 +37,11 @@ class NfcStageAction {
 /// but its button is hidden.
 class NfcStageScaffold extends StatelessWidget {
   const NfcStageScaffold({
-    required this.appBarTitleKey,
     required this.picture,
     required this.titleKey,
     required this.bodyKey,
     required this.textParams,
     required this.actions,
-    this.leading = const YiviBackButton(),
     super.key,
   });
 
@@ -54,15 +52,12 @@ class NfcStageScaffold extends StatelessWidget {
   static const double textTop = 24;
   static const double _pictureAreaShare = 0.44;
 
-  final String appBarTitleKey;
-
   /// Sets its own size; the area centers it.
   final Widget picture;
   final String titleKey;
   final String bodyKey;
   final Map<String, String> textParams;
   final List<NfcStageAction> actions;
-  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +100,7 @@ class NfcStageScaffold extends StatelessWidget {
 
     // In a sheet held sideways: what is going on and the button at the
     // left, the picture on a card at the right.
-    if (documentStepSplit(context)) {
+    if (useSheetColumns(context)) {
       final palette = YiviPalette.of(context);
       final bar = _ActionBar(actions: actions);
       return DocumentStepScaffold.split(
@@ -145,10 +140,8 @@ class NfcStageScaffold extends StatelessWidget {
       );
     }
 
-    // In a sheet its bar has the title, back and close.
+    // The sheet's bar has the title, back and close.
     return DocumentStepScaffold(
-      titleKey: appBarTitleKey,
-      leading: leading,
       body: SafeArea(
         child: isLandscape
             ? Row(
@@ -191,10 +184,10 @@ class _ActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      _shown(context, (b) => DocumentFlowFooter(style: .flat, buttons: b));
+      _shown(context, (b) => DocumentFlowFooter(buttons: b));
 
   /// [layout] around the buttons. Hidden rather than removed when there are
-  /// none (a Cancel keeps their room): a stage without an action keeps the
+  /// none (a button keeps their room): a stage without an action keeps the
   /// bar's height, so the area above it does not resize. Upright in a sheet
   /// the page's bottom bar does that itself.
   Widget _shown(BuildContext context, Widget Function(List<Widget>) layout) {

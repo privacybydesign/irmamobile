@@ -25,14 +25,12 @@ class PassportMrzManualEntryData {
 class PassportMrzManualEntryScreen extends StatefulWidget {
   /// Receives what was typed in the three fields.
   final void Function(PassportMrzManualEntryData data) onContinue;
-  final VoidCallback onCancel;
 
   /// A passport or a card in ID-card format: whose texts it shows.
   final DocumentType documentType;
 
   const PassportMrzManualEntryScreen({
     required this.onContinue,
-    required this.onCancel,
     required this.documentType,
     super.key,
   });
@@ -101,14 +99,12 @@ class _PassportMrzManualEntryScreenState
     final type = widget.documentType;
     String t(String field) => context.tr(type.manualKey("fields.$field"));
     return ManualEntryScaffold(
-      appBarTitleKey: type.scanTitleKey,
       formKey: _manualEntryFormKey,
       onChanged: _recomputeCanContinue,
       titleKey: type.manualKey("title"),
       explanationKey: type.manualKey("explanation"),
       tipKey: type.manualTipKey,
       onContinue: _canContinue ? _onContinuePressed : null,
-      onCancel: widget.onCancel,
       fields: [
         DocumentNrInputField(
           controller: _documentNrCtrl,

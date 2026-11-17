@@ -7,13 +7,11 @@ import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart" show CredentialFormat;
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_flow_footer.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_frame_illustration.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_pictures.dart";
@@ -23,8 +21,8 @@ import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/done_check.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
+import "support/document_screen_host.dart";
 import "support/pump_translated.dart";
 
 /// Whether the animations that loop on a timer run.
@@ -44,6 +42,8 @@ Future<void> _pump(
   Locale locale = const Locale("en", "US"),
   _Ticker ticker = .stopped,
 }) async {
+  // The document screens as the sheet shows them; the looping pictures
+  // (motion tests) on their own.
   tester.view
     ..physicalSize = _phone
     ..devicePixelRatio = 1;
@@ -60,7 +60,7 @@ Future<void> _pump(
         ),
         ...GlobalMaterialLocalizations.delegates,
       ],
-      home: home,
+      home: ticker == .running ? home : DocumentScreenHost(home),
     ),
   );
   // TestContext stops the animations that loop on a timer, so that
@@ -78,23 +78,6 @@ Finder _secondary() => find.byKey(const Key("bottom_bar_secondary"));
 TextStyle _styleOf(WidgetTester tester, String text) =>
     tester.widget<Text>(find.text(text)).style!;
 
-/// The footers: a 56 high main pill and text pills of the same height (one
-/// size per role), 4 apart, 16 on the sides. On this phone (no home indicator) the lowest
-/// button ends 8 from the bottom when it is a text pill, 16 when it is the
-/// main one (FloatingBarPlacement.buttonBottom).
-void _expectFooterButton(
-  WidgetTester tester,
-  Finder button, {
-  double? top,
-  double height = 56,
-}) {
-  final rect = tester.getRect(button);
-  expect(rect.height, height);
-  expect(rect.left, 16);
-  expect(rect.width, _phone.width - 32);
-  if (top != null) expect(rect.top, top);
-}
-
 void main() {
   group("G1 · how to hold the passport", () {
     Future<void> pumpScreen(WidgetTester tester) => _pump(
@@ -102,7 +85,6 @@ void main() {
       DocumentInstructionScreen(
         documentType: DocumentType.passport,
         onStart: () {},
-        onCancel: () {},
       ),
       locale: _dutch,
     );
@@ -116,8 +98,11 @@ void main() {
         find.byKey(const Key("document_instruction_picture")),
       );
       expect(picture.size, const Size(320, 256));
-      // 24 below the app bar, centred.
-      expect(picture.top, IrmaAppBar.toolbarHeight + 24);
+      // 24 below the top of the page, centred.
+      expect(
+        picture.top,
+        tester.getTopLeft(find.byType(DocumentInstructionScreen)).dy + 24,
+      );
       expect(picture.center.dx, _phone.width / 2);
       expect(
         tester
@@ -134,7 +119,6 @@ void main() {
     ) async {
       await pumpScreen(tester);
 
-      expect(find.text("Paspoort scannen"), findsOneWidget);
       expect(
         find.text(
           "Houd je paspoort voor de camera en zorg dat de hele pagina goed "
@@ -170,62 +154,6 @@ void main() {
         findsOneWidget,
       );
     });
-
-    testWidgets("Start and Annuleer both 56 high", (tester) async {
-      await pumpScreen(tester);
-
-      expect(find.text("Start"), findsOneWidget);
-      expect(find.text("Annuleer"), findsOneWidget);
-      _expectFooterButton(
-        tester,
-        _primary(),
-        top: _phone.height - 8 - 56 - 4 - 56,
-      );
-      _expectFooterButton(tester, _secondary());
-      expect(tester.getRect(_secondary()).bottom, _phone.height - 8);
-      expect(
-        tester.getRect(_secondary()).top - tester.getRect(_primary()).bottom,
-        4,
-      );
-    });
-  });
-
-  group("G2 · camera", () {
-    Future<void> pumpScreen(WidgetTester tester) => _pump(
-      tester,
-      MrzReaderScreen(
-        documentType: DocumentType.passport,
-        onSuccess: (_) {},
-        onManualAdd: () {},
-        onCancel: () {},
-        mrzParser: PassportMrzParser(),
-      ),
-      locale: _dutch,
-    );
-
-    testWidgets("the buttons on a dark glass panel, a glass back button", (
-      tester,
-    ) async {
-      await pumpScreen(tester);
-
-      expect(find.text("Voer handmatig in"), findsOneWidget);
-      expect(find.text("Annuleer"), findsOneWidget);
-      // The panel: 16 from the sides and 24 from the bottom, with 12 inside,
-      // the buttons 4 apart.
-      final manual = tester.getRect(_primary());
-      final cancel = tester.getRect(_secondary());
-      // On dark glass, both the regular pill height.
-      expect(manual.height, 52);
-      expect(cancel.height, 52);
-      expect(manual.left, 16 + 12);
-      expect(manual.width, _phone.width - 2 * (16 + 12));
-      expect(cancel.top - manual.bottom, 4);
-      expect(cancel.bottom, _phone.height - 24 - 12);
-      expect(
-        tester.getSize(find.byKey(const Key("irma_app_bar_leading"))),
-        const Size(44, 44),
-      );
-    });
   });
 
   group("G3 G4 G6 G9 · reading the document", () {
@@ -234,15 +162,12 @@ void main() {
       required String title,
       required String body,
       required List<NfcStageAction> actions,
-      Widget? leading = const YiviBackButton(),
     }) => NfcStageScaffold(
-      appBarTitleKey: "passport.nfc.title",
       picture: picture,
       titleKey: title,
       bodyKey: body,
       textParams: const {"document": "paspoort"},
       actions: actions,
-      leading: leading,
     );
 
     NfcStageAction cancel() => NfcStageAction.secondary(
@@ -266,14 +191,15 @@ void main() {
         locale: _dutch,
       );
 
-      expect(find.text("Lees paspoort"), findsOneWidget);
       expect(find.text("Leg je telefoon op je paspoort"), findsOneWidget);
       expect(find.text("Je paspoort mag dicht blijven."), findsOneWidget);
       expect(find.text("Annuleer"), findsOneWidget);
 
+      // 16 below the top of the page, across it.
+      final page = tester.getRect(find.byType(NfcStageScaffold));
       expect(
         tester.getRect(find.byKey(const Key("nfc_stage_picture"))),
-        Rect.fromLTWH(0, IrmaAppBar.toolbarHeight + 16, _phone.width, 360),
+        Rect.fromLTWH(page.left, page.top + 16, page.width, 360),
       );
       expect(
         tester.getSize(find.byType(NfcPhoneOnDocument)),
@@ -287,14 +213,14 @@ void main() {
       expect(title.color, _textColor);
       expect(
         tester.getTopLeft(find.text("Leg je telefoon op je paspoort")).dy,
-        IrmaAppBar.toolbarHeight + 16 + 360 + 24,
+        page.top + 16 + 360 + 24,
       );
       // 12 between the title and the line under it.
       expect(
         tester.getTopLeft(find.text("Je paspoort mag dicht blijven.")).dy,
         tester.getRect(find.text("Leg je telefoon op je paspoort")).bottom + 12,
       );
-      _expectFooterButton(tester, _secondary(), top: _phone.height - 8 - 56);
+      expect(_secondary(), findsOneWidget);
     });
 
     testWidgets("G4: a ring of 240 with the percentage at 44", (tester) async {
@@ -329,7 +255,7 @@ void main() {
       );
     });
 
-    testWidgets("G6: no back arrow, a 180 check, and the bar keeps its "
+    testWidgets("G6: a 180 check, and the bar keeps its "
         "height", (tester) async {
       await _pump(
         tester,
@@ -338,18 +264,16 @@ void main() {
           title: "document_flow.nfc.done_title",
           body: "document_flow.nfc.done_body",
           actions: const [],
-          leading: null,
         ),
         locale: _dutch,
       );
 
       expect(find.text("Je paspoort is gelezen"), findsOneWidget);
       expect(find.text("Je kunt je telefoon weer oppakken."), findsOneWidget);
-      expect(find.byKey(const Key("irma_app_bar_leading")), findsNothing);
       expect(tester.getSize(find.byType(DoneCheck)), const Size(180, 180));
-      // The empty footer keeps the room of one text pill (16 + 56 + 8), so
-      // the page does not jump when the stage changes.
-      expect(tester.getSize(find.byType(DocumentFlowFooter)).height, 80);
+      // No button: the page's bottom bar keeps its room itself.
+      expect(_primary(), findsNothing);
+      expect(_secondary(), findsNothing);
     });
 
     testWidgets("G9: NFC off, 220 picture, two buttons", (tester) async {
@@ -380,20 +304,8 @@ void main() {
         tester.getSize(find.byType(NfcOffIllustration)),
         const Size(220, 220),
       );
-      // 16 above, the two pills 4 apart, 8 under. The test font is wide, so
-      // the longer label wraps and its pill grows past 56.
-      expect(
-        tester.getSize(find.byType(DocumentFlowFooter)).height,
-        16 +
-            tester.getSize(_primary()).height +
-            4 +
-            tester.getSize(_secondary()).height +
-            8,
-      );
-      expect(
-        tester.getRect(_secondary()).top - tester.getRect(_primary()).bottom,
-        4,
-      );
+      expect(_primary(), findsOneWidget);
+      expect(_secondary(), findsOneWidget);
     });
 
     testWidgets("the picture area is the same height in every state", (
@@ -422,7 +334,7 @@ void main() {
     });
   });
 
-  group("footer buttons", () {
+  group("the buttons", () {
     testWidgets("a label that wraps at a large text size makes the button "
         "taller", (tester) async {
       await _pump(
@@ -433,13 +345,11 @@ void main() {
               context,
             ).copyWith(textScaler: const TextScaler.linear(2)),
             child: Scaffold(
-              bottomNavigationBar: DocumentFlowFooter(
-                buttons: [
-                  DocumentFlowButton(
-                    labelKey: "document_flow.nfc.open_settings",
-                    onPressed: () {},
-                  ),
-                ],
+              body: Center(
+                child: DocumentFlowButton(
+                  labelKey: "document_flow.nfc.open_settings",
+                  onPressed: () {},
+                ),
               ),
             ),
           ),
@@ -461,13 +371,11 @@ void main() {
       await _pump(
         tester,
         const Scaffold(
-          bottomNavigationBar: DocumentFlowFooter(
-            buttons: [
-              DocumentFlowButton(
-                labelKey: "document_flow.cancel",
-                onPressed: null,
-              ),
-            ],
+          body: Center(
+            child: DocumentFlowButton(
+              labelKey: "document_flow.cancel",
+              onPressed: null,
+            ),
           ),
         ),
       );
@@ -536,7 +444,7 @@ void main() {
   group("G7 · face check intro", () {
     Future<void> pumpIntro(WidgetTester tester) => _pump(
       tester,
-      FaceVerificationIntroScreen(onStart: () {}, onCancel: () {}),
+      FaceVerificationIntroScreen(onStart: () {}),
       locale: _dutch,
     );
 
@@ -545,7 +453,7 @@ void main() {
     ) async {
       await pumpIntro(tester);
 
-      expect(find.text("Gezichtsverificatie"), findsOneWidget);
+      expect(find.text("Korte gezichtscontrole"), findsOneWidget);
       const explanation =
           "We doen nu een korte gezichtscontrole om te bevestigen dat jij de "
           "persoon op het document bent.";
@@ -559,10 +467,13 @@ void main() {
         expect(find.text(tip), findsOneWidget);
       }
 
-      // The 200 face, centred in its 230 high card 16 below the app bar.
+      // The 200 face, centred in its 230 high card 16 below the heading.
       final picture = tester.getRect(find.byType(FaceFrameIllustration));
       expect(picture.size, const Size(200, 200));
-      expect(picture.top, IrmaAppBar.toolbarHeight + 16 + 15);
+      expect(
+        picture.top,
+        tester.getRect(find.text("Korte gezichtscontrole")).bottom + 16 + 15,
+      );
       expect(
         tester.getTopLeft(find.text(explanation)).dy,
         picture.bottom + 15 + 20,
@@ -570,7 +481,7 @@ void main() {
 
       expect(find.text("Start verificatie"), findsOneWidget);
       expect(_secondary(), findsNothing);
-      _expectFooterButton(tester, _primary(), top: _phone.height - 16 - 56);
+      expect(_primary(), findsOneWidget);
     });
 
     testWidgets("the tips are 12 + 12 apart with a line between, in a group", (

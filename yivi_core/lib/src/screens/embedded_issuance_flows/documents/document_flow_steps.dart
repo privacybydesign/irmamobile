@@ -3,6 +3,7 @@ import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../models/mrz.dart";
+import "document_flow.dart";
 import "document_instruction_screen.dart";
 import "driving_licence_mrz_manual_entry_screen.dart";
 import "mrz_reader_screen.dart";
@@ -11,26 +12,20 @@ import "passport_mrz_manual_entry_screen.dart";
 
 /// The steps of adding a document (passport, ID card, driving licence), each
 /// with its callbacks, as the sheet shows them (see `DocumentSheetStep`):
-/// without their own bar (`DocumentStepInSheet`).
+/// without a bar of their own.
 abstract final class DocumentFlowSteps {
   /// How to hold the document; [onStart] goes on to the camera or the
   /// manual entry.
   static Widget instruction(
     DocumentType type, {
     required VoidCallback onStart,
-    required VoidCallback onCancel,
-  }) => DocumentInstructionScreen(
-    documentType: type,
-    onStart: onStart,
-    onCancel: onCancel,
-  );
+  }) => DocumentInstructionScreen(documentType: type, onStart: onStart);
 
   /// The camera reading the MRZ; [onRead] gets what it read.
   static Widget reader(
     DocumentType type, {
     required ValueChanged<ScannedMrz> onRead,
     required VoidCallback onManual,
-    required VoidCallback onCancel,
   }) {
     final (
       MrzParser parser,
@@ -59,7 +54,6 @@ abstract final class DocumentFlowSteps {
       documentType: type,
       onSuccess: (r) => onRead(scanned(r)),
       onManualAdd: onManual,
-      onCancel: onCancel,
       mrzParser: parser,
     );
   }
@@ -68,17 +62,14 @@ abstract final class DocumentFlowSteps {
   static Widget manualEntry(
     DocumentType type, {
     required ValueChanged<ScannedMrz> onRead,
-    required VoidCallback onCancel,
   }) {
     if (type == .drivingLicence) {
       return DrivingLicenceMrzManualEntryScreen(
-        onCancel: onCancel,
         onContinue: (r) => onRead(ScannedDrivingLicenceMrz.fromMRZResult(r)),
       );
     }
     return PassportMrzManualEntryScreen(
       documentType: type,
-      onCancel: onCancel,
       onContinue: (data) => onRead(
         type == .passport
             ? ScannedPassportMrz.fromManualEntry(
@@ -96,7 +87,7 @@ abstract final class DocumentFlowSteps {
     );
   }
 
-  /// Reading the chip, then starting the issuance (`handlePointer`).
-  static Widget nfc(ScannedMrz mrz, {required VoidCallback onCancel}) =>
-      NfcReadingScreen(mrz: mrz, onCancel: onCancel);
+  /// Reading the chip, then adding it (`DocumentIssuance`).
+  static Widget nfc(ChipRead read) =>
+      NfcReadingScreen(mrz: read.mrz, attempt: read.attempt);
 }

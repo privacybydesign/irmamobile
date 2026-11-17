@@ -2,14 +2,12 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
-import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/floating_bar_placement.dart";
 import "../../../../widgets/glass/glass_sheet.dart";
 import "../../../../widgets/glass/pill_buttons.dart";
 import "../../../../widgets/glass/sheet_actions.dart";
 import "../../../../widgets/glass/sheet_layout.dart";
-import "../document_step_in_sheet.dart";
 
 /// Button look in the document flow screens: 56 high pills, 16 bold.
 enum DocumentFlowButtonStyle {
@@ -73,76 +71,18 @@ class DocumentFlowButton extends StatelessWidget {
   }
 }
 
-enum DocumentFlowFooterStyle {
-  /// Over the content, which fades out under it.
-  raised,
-
-  /// On the page colour, as on the NFC screens.
-  flat,
-}
-
-/// The bar of buttons at the bottom of a document flow screen. In a sheet
-/// ([DocumentStepInSheet]) it is the sheet's own: on a phone held upright a
-/// [SheetActionRow] where every sheet page has its buttons, so Start sits
-/// where "Add" did on the page before; elsewhere the way on goes in the
-/// sheet's bar ([SheetSlotAction]) and the other choice is a link.
+/// The buttons of a document flow screen, as the sheet's own: on a phone
+/// held upright a [SheetActionRow] where every sheet page has its buttons,
+/// so Start sits where "Add" did on the page before; elsewhere the way on
+/// goes in the sheet's bar ([SheetSlotAction]) and the other choice is a
+/// link.
 class DocumentFlowFooter extends StatelessWidget {
-  const DocumentFlowFooter({
-    required this.buttons,
-    this.style = DocumentFlowFooterStyle.raised,
-    super.key,
-  });
+  const DocumentFlowFooter({required this.buttons, super.key});
 
   final List<Widget> buttons;
-  final DocumentFlowFooterStyle style;
-
-  /// The lowest button is a plain text one, which sits lower.
-  bool get _endsWithText => switch (buttons.lastOrNull) {
-    DocumentFlowButton b => b.style != DocumentFlowButtonStyle.primary,
-    _ => false,
-  };
 
   @override
   Widget build(BuildContext context) {
-    if (DocumentStepInSheet.of(context)) return _sheetFooter(context);
-    final inset = MediaQuery.paddingOf(context);
-
-    // On the page, as the other bottom bars: [DocumentFlowFooterStyle.raised]
-    // lets the content fade out under it.
-    final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: style == .raised
-            ? LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  palette.background.withValues(alpha: 0),
-                  palette.background,
-                ],
-                stops: const [0, 0.35],
-              )
-            : null,
-        color: style == .raised ? null : palette.background,
-      ),
-      child: Padding(
-        padding: .fromLTRB(
-          YiviSpace.x16 + inset.left,
-          YiviSpace.x16,
-          YiviSpace.x16 + inset.right,
-          // Where every bottom bar ends its buttons (see buttonBottom).
-          FloatingBarPlacement.buttonPadding(context, text: _endsWithText),
-        ),
-        child: Column(
-          mainAxisSize: .min,
-          spacing: YiviSpace.x4,
-          children: buttons,
-        ),
-      ),
-    );
-  }
-
-  Widget _sheetFooter(BuildContext context) {
     final actions = sheetActions(context, buttons);
     // Upright, in the page's own bottom bar (it puts them there).
     if (SheetSlotAction.atBottom(context)) return actions;

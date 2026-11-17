@@ -7,12 +7,12 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
+import "support/document_screen_host.dart";
 import "support/pump_translated.dart";
 
 Widget _wrap({
   required DocumentType documentType,
   required VoidCallback onStart,
-  required VoidCallback onCancel,
   Locale locale = const Locale("en", "US"),
 }) {
   // TestContext disables the instruction animation's repeating ticker so
@@ -29,10 +29,11 @@ Widget _wrap({
           ),
           ...GlobalMaterialLocalizations.delegates,
         ],
-        home: DocumentInstructionScreen(
-          documentType: documentType,
-          onStart: onStart,
-          onCancel: onCancel,
+        home: DocumentScreenHost(
+          DocumentInstructionScreen(
+            documentType: documentType,
+            onStart: onStart,
+          ),
         ),
       ),
     ),
@@ -45,15 +46,10 @@ void main() {
   ) async {
     await pumpTranslated(
       tester,
-      _wrap(
-        documentType: DocumentType.passport,
-        onStart: () {},
-        onCancel: () {},
-      ),
+      _wrap(documentType: DocumentType.passport, onStart: () {}),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text("Scan passport"), findsOneWidget);
     expect(find.text("Open your passport on the photo page"), findsOneWidget);
     expect(find.textContaining("Then press Start to begin."), findsOneWidget);
     expect(find.textContaining("directly under a lamp"), findsOneWidget);
@@ -65,7 +61,6 @@ void main() {
       _wrap(
         documentType: DocumentType.passport,
         onStart: () {},
-        onCancel: () {},
         locale: const Locale("nl", "NL"),
       ),
     );
@@ -76,7 +71,6 @@ void main() {
       findsOneWidget,
     );
     expect(find.text("Start"), findsOneWidget);
-    expect(find.text("Annuleer"), findsOneWidget);
   });
 
   // The ID card has its machine readable lines on the back, the driving
@@ -92,7 +86,7 @@ void main() {
     testWidgets("$documentType: use the $side of the card", (tester) async {
       await pumpTranslated(
         tester,
-        _wrap(documentType: documentType, onStart: () {}, onCancel: () {}),
+        _wrap(documentType: documentType, onStart: () {}),
       );
       await tester.pumpAndSettle();
 
@@ -101,27 +95,18 @@ void main() {
     });
   }
 
-  testWidgets("Start and Cancel call their callbacks", (tester) async {
+  testWidgets("Start calls its callback; there is no Cancel", (tester) async {
     var started = 0;
-    var cancelled = 0;
     await pumpTranslated(
       tester,
-      _wrap(
-        documentType: DocumentType.passport,
-        onStart: () => started++,
-        onCancel: () => cancelled++,
-      ),
+      _wrap(documentType: DocumentType.passport, onStart: () => started++),
     );
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key("bottom_bar_primary")));
     await tester.pumpAndSettle();
     expect(started, 1);
-    expect(cancelled, 0);
-
-    await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
-    await tester.pumpAndSettle();
-    expect(cancelled, 1);
+    expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
   });
 
   testWidgets("the animation is hidden from assistive technology", (
@@ -129,11 +114,7 @@ void main() {
   ) async {
     await pumpTranslated(
       tester,
-      _wrap(
-        documentType: DocumentType.passport,
-        onStart: () {},
-        onCancel: () {},
-      ),
+      _wrap(documentType: DocumentType.passport, onStart: () {}),
     );
     await tester.pumpAndSettle();
 
@@ -161,10 +142,11 @@ void main() {
             ),
             ...GlobalMaterialLocalizations.delegates,
           ],
-          home: DocumentInstructionScreen(
-            documentType: DocumentType.passport,
-            onStart: () {},
-            onCancel: () {},
+          home: DocumentScreenHost(
+            DocumentInstructionScreen(
+              documentType: DocumentType.passport,
+              onStart: () {},
+            ),
           ),
         ),
       ),

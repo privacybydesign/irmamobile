@@ -10,7 +10,6 @@ import "../../../widgets/glass/sheet_actions.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "document_flow.dart";
 import "document_flow_steps.dart";
-import "document_step_in_sheet.dart";
 import "face_verification_intro_screen.dart";
 
 /// Adding a document in a sheet, as one page of it: the sheet's own bar
@@ -18,7 +17,7 @@ import "face_verification_intro_screen.dart";
 /// and the document's screens ([DocumentFlowSteps]: how to hold it, the
 /// camera or typing it in, the chip, the face check) change below them, in a
 /// navigator of their own built from the [DocumentFlow]. They show without
-/// their own bar or Cancel ([DocumentStepInSheet]). Back from the
+/// a bar or Cancel of their own. Back from the
 /// instruction is [onBack]; closing is the sheet's.
 ///
 /// The chip read starts the issuance through `handlePointer`, which hands it
@@ -119,24 +118,20 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
     InstructionStep() => DocumentFlowSteps.instruction(
       widget.type,
       onStart: _capture,
-      onCancel: _back,
     ),
     CaptureStep(manual: false) => DocumentFlowSteps.reader(
       widget.type,
       onRead: _flow.read,
       onManual: _flow.typeIn,
-      onCancel: _back,
     ),
     CaptureStep(manual: true) => DocumentFlowSteps.manualEntry(
       widget.type,
       onRead: _flow.read,
-      onCancel: _back,
     ),
-    ChipStep(:final read) || PreparingStep(:final read) =>
-      DocumentFlowSteps.nfc(read.mrz, onCancel: () {}),
+    ChipStep(:final read) ||
+    PreparingStep(:final read) => DocumentFlowSteps.nfc(read),
     FaceIntroStep() => FaceVerificationIntroScreen(
       onStart: () => _flow.answerFace(true),
-      onCancel: () => _flow.answerFace(false),
     ),
   };
 
@@ -184,25 +179,22 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
       child: MediaQuery.removePadding(
         context: context,
         removeTop: true,
-        child: DocumentStepInSheet(
-          flow: _flow,
-          child: NavigatorPopHandler(
-            onPopWithResult: (_) {
-              if (!GlassSheet.of(context).closing) _back();
-            },
-            child: Semantics(
-              container: true,
-              explicitChildNodes: true,
-              child: Navigator(
-                key: _navigator,
-                observers: [_observer],
-                pages: _pages(flow),
-                // A finished swipe took the screen away.
-                onDidRemovePage: (page) {
-                  _routes.remove(page.key);
-                  if (page.key case final key?) _flow.removePage(key);
-                },
-              ),
+        child: NavigatorPopHandler(
+          onPopWithResult: (_) {
+            if (!GlassSheet.of(context).closing) _back();
+          },
+          child: Semantics(
+            container: true,
+            explicitChildNodes: true,
+            child: Navigator(
+              key: _navigator,
+              observers: [_observer],
+              pages: _pages(flow),
+              // A finished swipe took the screen away.
+              onDidRemovePage: (page) {
+                _routes.remove(page.key);
+                if (page.key case final key?) _flow.removePage(key);
+              },
             ),
           ),
         ),

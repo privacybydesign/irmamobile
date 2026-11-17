@@ -18,10 +18,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/done_check.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/sheet_layout.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "document_flow.dart";
@@ -40,14 +37,8 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
 
   /// Which read of [mrz] this is: reading again starts a new one.
   final int attempt;
-  final VoidCallback? onCancel;
 
-  const NfcReadingScreen({
-    required this.mrz,
-    this.attempt = 0,
-    this.onCancel,
-    super.key,
-  });
+  const NfcReadingScreen({required this.mrz, this.attempt = 0, super.key});
 
   @override
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
@@ -87,21 +78,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// The document's name, for the `{document}` placeholder.
   String _documentName(BuildContext context) =>
       context.tr(widget.mrz.documentType.nameKey);
-
-  void _cancel() async {
-    final userWantsCancel = await showConfirmDialog(
-      context,
-      titleKey: _k("cancel_dialog.title"),
-      messageKey: _k("cancel_dialog.explanation"),
-      confirmKey: _k("cancel_dialog.confirm"),
-      cancelKey: _k("cancel_dialog.decline"),
-    );
-
-    if (userWantsCancel && mounted) {
-      ref.read(_issuance.notifier).cancel();
-      widget.onCancel?.call();
-    }
-  }
 
   @override
   void initState() {
@@ -174,7 +150,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     // In a sheet its bar says the data is being fetched while the loader
     // shows: once the face check over it is gone (the loader is switched on
     // under it). After the build: it rebuilds the sheet's bar.
-    final flow = DocumentStepInSheet.flowOf(context);
+    final flowProvider = documentFlowProvider(widget.mrz.documentType);
+    final flow = ref.exists(flowProvider)
+        ? ref.read(flowProvider.notifier)
+        : null;
     final shown =
         issuance is IssuancePreparing &&
         (ModalRoute.isCurrentOf(context) ?? true);
@@ -258,12 +237,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     _NfcStage stage,
     DocumentReaderState state,
   ) {
-    // In a sheet its close button is the way out: no Cancel here.
-    final inSheet = DocumentStepInSheet.of(context);
-    final cancelAction = NfcStageAction.secondary(
-      labelKey: "document_flow.cancel",
-      onPressed: _cancel,
-    );
     const keys = "document_flow.nfc";
     // On a tablet (an Android one: an iPad has no NFC) it says tablet.
     final device = useFormSheet(context) ? "_tablet" : "";
@@ -282,9 +255,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             NfcStageAction.primary(
               labelKey: "document_flow.start",
               onPressed: _startScanning,
-            )
-          else if (!inSheet)
-            cancelAction,
+            ),
         ],
       ),
       _NfcStage.reading => (
@@ -293,7 +264,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           label: context.tr(widget.mrz.documentType.readingLabelKey),
         ),
         ("$keys.reading_title", "$keys.reading_body"),
-        [if (!inSheet) cancelAction],
+        <NfcStageAction>[],
       ),
       _NfcStage.done => (
         const DoneCheck(),
@@ -309,16 +280,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               labelKey: "$keys.open_settings",
               onPressed: () => ref.read(nfcSettingsOpenerProvider).open(),
             ),
-          if (!inSheet) cancelAction,
         ],
       ),
     };
 
     return NfcStageScaffold(
-      appBarTitleKey: widget.mrz.documentType.nfcTitleKey,
       picture: picture,
-      // Nothing to go back to once the read is done.
-      leading: stage == _NfcStage.done ? null : const YiviBackButton(),
       titleKey: text.$1,
       bodyKey: text.$2,
       textParams: {"document": _documentName(context)},
@@ -347,9 +314,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// the canvas.
   Widget _buildPreparing(BuildContext context) {
     final palette = YiviPalette.of(context);
-    // In a sheet its bar has the title.
+    // The sheet's bar has the title.
     return DocumentStepScaffold(
-      titleKey: "face_verification.preparing_title",
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x48),
@@ -387,7 +353,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     final theme = IrmaTheme.of(context);
 
     return _NfcScaffold(
-      titleTranslationKey: widget.mrz.documentType.nfcTitleKey,
       instruction: _TitleAndBody(
         titleKey: uiState.stateKey,
         bodyKey: uiState.tipKey,
@@ -414,28 +379,20 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         padding: const .all(YiviSpace.x16),
         child: SvgPicture.asset(yiviAsset(illustrationAsset)),
       ),
-      bottomNavigationBar: _retryBar(context),
+      footer: _retryBar(context),
     );
   }
 
-  /// "Retry" and "Cancel"; in a sheet, only "Retry" in the sheet's own
-  /// buttons, as its close button is the way out.
-  Widget _retryBar(BuildContext context) => DocumentStepInSheet.of(context)
-      ? DocumentFlowFooter(
-          buttons: [
-            DocumentFlowButton(
-              key: DocumentFlowButton.primaryKey,
-              labelKey: "ui.retry",
-              onPressed: _retry,
-            ),
-          ],
-        )
-      : IrmaBottomBar(
-          primaryButtonLabel: "ui.retry",
-          onPrimaryPressed: _retry,
-          secondaryButtonLabel: "ui.cancel",
-          onSecondaryPressed: _cancel,
-        );
+  /// "Retry", in the sheet's own buttons: its close button is the way out.
+  DocumentFlowFooter _retryBar(BuildContext context) => DocumentFlowFooter(
+    buttons: [
+      DocumentFlowButton(
+        key: DocumentFlowButton.primaryKey,
+        labelKey: "ui.retry",
+        onPressed: _retry,
+      ),
+    ],
+  );
 
   _UiState passportReadingStateToUiState(DocumentReaderState state) {
     final stateKey = _getTranslationKeyForState(state);

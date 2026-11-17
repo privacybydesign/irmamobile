@@ -49,23 +49,20 @@ class _TitleAndBody extends StatelessWidget {
 
 class _NfcScaffold extends StatelessWidget {
   const _NfcScaffold({
-    required this.titleTranslationKey,
     required this.instruction,
     required this.illustration,
-    required this.bottomNavigationBar,
+    required this.footer,
   });
 
-  final String titleTranslationKey;
   final Widget instruction;
   final Widget illustration;
-  final Widget bottomNavigationBar;
+  final DocumentFlowFooter footer;
 
   @override
   Widget build(BuildContext context) {
     // In a sheet held sideways: what went wrong and the button at the left,
     // the illustration on a card at the right.
-    final footer = bottomNavigationBar;
-    if (documentStepSplit(context)) {
+    if (useSheetColumns(context)) {
       return DocumentStepScaffold.split(
         SheetSplit(
           endFills: true,
@@ -73,14 +70,11 @@ class _NfcScaffold extends StatelessWidget {
           end: SheetPictureCard(
             child: SizedBox(width: 280, height: 240, child: illustration),
           ),
-          actions: footer is DocumentFlowFooter
-              ? DocumentFlowFooter.sheetActions(context, footer.buttons)
-              : null,
+          actions: DocumentFlowFooter.sheetActions(context, footer.buttons),
         ),
       );
     }
     return DocumentStepScaffold(
-      titleKey: titleTranslationKey,
       body: SafeArea(
         child: Center(
           child: OrientationBuilder(
@@ -109,7 +103,7 @@ class _NfcScaffold extends StatelessWidget {
           ),
         ),
       ),
-      bottomBar: bottomNavigationBar,
+      bottomBar: footer,
     );
   }
 }

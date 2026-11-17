@@ -4,95 +4,39 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/sheet_layout.dart";
-import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
-import "document_flow.dart";
 
-/// Marks the document screens shown as a step in a sheet (`DocumentSheetStep`):
-/// they leave out their own app bar and Cancel (the sheet's bar has the
-/// title, back and close), and let the sheet's glass show behind them. The
-/// same screens on their full-screen routes have no marker and keep both.
-class DocumentStepInSheet extends InheritedWidget {
-  /// The flow of the sheet's step: the chip screen tells it when it shows
-  /// the loader after the face check, and asks it for the face check's
-  /// intro.
-  final DocumentFlow? flow;
-
-  const DocumentStepInSheet({super.key, this.flow, required super.child});
-
-  /// Whether the screen at [context] is a step in a sheet.
-  static bool of(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<DocumentStepInSheet>() != null;
-
-  /// See [flow]; null outside a sheet.
-  static DocumentFlow? flowOf(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<DocumentStepInSheet>()?.flow;
-
-  @override
-  bool updateShouldNotify(DocumentStepInSheet oldWidget) => false;
-}
-
-/// Whether the document screen at [context] is a step in a sheet on a phone
-/// held sideways: it then lays itself out in the sheet's two columns
-/// (`SheetSplit`), its buttons in the left one, without a bar.
-bool documentStepSplit(BuildContext context) =>
-    DocumentStepInSheet.of(context) && useSheetColumns(context);
-
-/// The page of a document screen. On its full-screen route: the page colour
-/// and an [IrmaAppBar] with [titleKey] (and [leading], a back button unless
-/// given), the [body] scrolling under it. As a step in a sheet: no bar of
-/// its own (the sheet's has the title, back and close) and the sheet's
-/// glass behind it. With [DocumentStepScaffold.split], the two columns of a
-/// sheet held sideways ([documentStepSplit]).
+/// The page of a document screen, a step of adding a document in a sheet:
+/// no bar of its own (the sheet's has the title, back and close) and the
+/// sheet's glass behind it; [bottomBar] under [body]. With
+/// [DocumentStepScaffold.split], the two columns of a sheet held sideways
+/// ([useSheetColumns]).
 class DocumentStepScaffold extends StatelessWidget {
-  final String? titleKey;
-  final Widget? leading;
   final Widget body;
   final Widget? bottomBar;
 
-  const DocumentStepScaffold({
-    super.key,
-    required String this.titleKey,
-    this.leading = const YiviBackButton(),
-    required this.body,
-    this.bottomBar,
-  });
+  const DocumentStepScaffold({super.key, required this.body, this.bottomBar});
 
-  /// In a sheet held sideways: the sheet's two columns, without a bar.
+  /// In a sheet held sideways: the sheet's two columns.
   const DocumentStepScaffold.split(SheetSplit split, {super.key})
-    : titleKey = null,
-      leading = null,
-      body = split,
+    : body = split,
       bottomBar = null;
 
   @override
-  Widget build(BuildContext context) {
-    final titleKey = this.titleKey;
-    if (titleKey == null) {
-      return Scaffold(backgroundColor: Colors.transparent, body: body);
-    }
-    final inSheet = DocumentStepInSheet.of(context);
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      backgroundColor: inSheet
-          ? Colors.transparent
-          : YiviPalette.of(context).background,
-      appBar: inSheet
-          ? null
-          : IrmaAppBar(titleTranslationKey: titleKey, leading: leading),
-      body: body,
-      bottomNavigationBar: bottomBar,
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+    extendBody: true,
+    backgroundColor: Colors.transparent,
+    body: body,
+    bottomNavigationBar: bottomBar,
+  );
 }
 
 /// [child] in a scroll view, as a document screen's body; as it is in a
 /// sheet held sideways, where it lays itself out in columns
-/// ([documentStepSplit]).
+/// ([useSheetColumns]).
 Widget documentScroll(BuildContext context, Widget child) =>
-    documentStepSplit(context)
+    useSheetColumns(context)
     ? child
     : SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -151,7 +95,7 @@ class DocumentSheetHeading extends StatelessWidget {
 }
 
 /// The heading of a document step in the left column of a sheet held
-/// sideways ([documentStepSplit]).
+/// sideways ([useSheetColumns]).
 TextStyle documentSplitHeadingStyle(YiviPalette palette) =>
     palette.titleSmall.copyWith(height: 28 / 20, color: palette.heading);
 

@@ -20,6 +20,7 @@ import "package:yivi_core/src/util/nfc_settings.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/done_check.dart";
 
+import "support/document_screen_host.dart";
 import "support/pump_translated.dart";
 
 final _mrz = ScannedPassportMrz(
@@ -210,7 +211,7 @@ void main() {
                 ),
                 ...GlobalMaterialLocalizations.delegates,
               ],
-              home: NfcReadingScreen(mrz: mrz ?? _mrz),
+              home: DocumentScreenHost(NfcReadingScreen(mrz: mrz ?? _mrz)),
             ),
           ),
         ),
@@ -223,7 +224,7 @@ void main() {
   Finder cancelButton() => find.byKey(const Key("bottom_bar_secondary"));
 
   group("before contact", () {
-    testWidgets("Android starts listening at once and offers Cancel only", (
+    testWidgets("Android starts listening at once, without a button", (
       tester,
     ) async {
       await pumpScreen(tester);
@@ -232,7 +233,7 @@ void main() {
       expect(find.text("Place your phone on your passport"), findsOneWidget);
       expect(find.text("Your passport can stay closed."), findsOneWidget);
       expect(primaryButton(), findsNothing);
-      expect(cancelButton(), findsOneWidget);
+      expect(cancelButton(), findsNothing);
     }, variant: _androidOnly);
 
     testWidgets("iOS waits for one tap on Start, which opens the NFC sheet", (
@@ -249,11 +250,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(reader.readCount, 1);
 
-      // The sheet is up: nothing left to start, so the button is Cancel.
+      // The sheet is up: nothing left to start, so no button.
       reader.emit(DocumentReaderConnecting());
       await tester.pumpAndSettle();
       expect(primaryButton(), findsNothing);
-      expect(cancelButton(), findsOneWidget);
+      expect(cancelButton(), findsNothing);
     }, variant: _iosOnly);
 
     testWidgets("the passport's picture says what it shows", (tester) async {
@@ -308,7 +309,7 @@ void main() {
       expect(find.text("Your passport is being read."), findsOneWidget);
       expect(find.byType(NfcProgressRing), findsOneWidget);
       expect(find.text(_percent(DocumentReaderAuthenticating())), findsOne);
-      expect(cancelButton(), findsOneWidget);
+      expect(cancelButton(), findsNothing);
 
       // Within a data group the ring follows the bytes read.
       final reading = DocumentReaderReadingDataGroup(
@@ -393,14 +394,11 @@ void main() {
     final picture = rectOf(const Key("nfc_stage_picture"));
     final text = rectOf(const Key("nfc_stage_text"));
     final screen = barRect();
-    // The Cancel button's place in the bar, for the states that have one.
-    final cancel = tester.getRect(cancelButton());
 
     reader.emit(DocumentReaderAuthenticating());
     await tester.pumpAndSettle();
     expect(rectOf(const Key("nfc_stage_picture")), picture);
     expect(rectOf(const Key("nfc_stage_text")), text);
-    expect(tester.getRect(cancelButton()), cancel);
     expect(
       titlePosition("Don't move").dy,
       tester.getTopLeft(find.byKey(const Key("nfc_stage_text"))).dy,
@@ -410,8 +408,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(rectOf(const Key("nfc_stage_picture")), picture);
     expect(rectOf(const Key("nfc_stage_text")), text);
-    // Hidden, not removed: the bar still takes its place.
-    expect(tester.getRect(cancelButton()), cancel);
     expect(barRect(), screen);
   }, variant: _androidOnly);
 
@@ -428,7 +424,7 @@ void main() {
   }, variant: _androidOnly);
 
   group("NFC off", () {
-    testWidgets("Android offers the NFC settings and Cancel", (tester) async {
+    testWidgets("Android offers the NFC settings", (tester) async {
       await pumpScreen(tester);
 
       reader.emit(DocumentReaderNfcUnavailable());
@@ -440,7 +436,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text("Open NFC settings"), findsOneWidget);
-      expect(cancelButton(), findsOneWidget);
+      expect(cancelButton(), findsNothing);
 
       await tester.tap(primaryButton());
       await tester.pumpAndSettle();
@@ -538,8 +534,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(NfcStageScaffold), findsNothing);
+    // Try again; the sheet's close is the way out.
     expect(primaryButton(), findsOneWidget);
-    expect(cancelButton(), findsOneWidget);
+    expect(cancelButton(), findsNothing);
   }, variant: _androidOnly);
 }
 

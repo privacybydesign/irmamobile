@@ -16,12 +16,11 @@ import "widgets/document_instruction_illustration.dart";
 import "widgets/document_scan_scene.dart";
 
 /// Shown before the MRZ camera: how to hold the document. [onStart] opens the
-/// camera, [onCancel] leaves the flow.
+/// camera; the sheet's bar has the title, back and close.
 class DocumentInstructionScreen extends StatelessWidget {
   const DocumentInstructionScreen({
     required this.documentType,
     required this.onStart,
-    required this.onCancel,
     super.key,
   });
 
@@ -30,14 +29,11 @@ class DocumentInstructionScreen extends StatelessWidget {
 
   final DocumentType documentType;
   final VoidCallback onStart;
-  final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final keys = documentType.instructionKey;
-    // In a sheet: its bar has the title, back and close; no Cancel here.
-    final inSheet = DocumentStepInSheet.of(context);
 
     // The picture on a white card.
     final picture = SurfaceCard(
@@ -90,17 +86,10 @@ class DocumentInstructionScreen extends StatelessWidget {
         labelKey: "document_flow.start",
         onPressed: onStart,
       ),
-      if (!inSheet)
-        DocumentFlowButton(
-          key: DocumentFlowButton.secondaryKey,
-          labelKey: "document_flow.cancel",
-          onPressed: onCancel,
-          style: .secondary,
-        ),
     ];
     // In a sheet held sideways, as on every step of the document flows: the
     // words and Start at the left, the picture at the right.
-    if (documentStepSplit(context)) {
+    if (useSheetColumns(context)) {
       return DocumentStepScaffold.split(
         SheetSplit(
           endFills: true,
@@ -126,12 +115,7 @@ class DocumentInstructionScreen extends StatelessWidget {
         ),
       );
     }
-    // A phone held sideways: the words at the left, the picture at the
-    // right.
-    final landscape = useSheetColumns(context);
-
     return DocumentStepScaffold(
-      titleKey: documentType.scanTitleKey,
       body: SingleChildScrollView(
         // 24 below the floating app bar and from the sides, as on the board.
         padding: const EdgeInsets.fromLTRB(
@@ -141,29 +125,10 @@ class DocumentInstructionScreen extends StatelessWidget {
           YiviSpace.x24,
         ),
         child: SafeArea(
-          child: landscape
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: YiviSpace.x32,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: words(TextAlign.start),
-                      ),
-                    ),
-                    // Smaller: the sheet has little height sideways.
-                    SizedBox(
-                      width: _pictureSize.width * 0.7,
-                      height: _pictureSize.height * 0.7,
-                      child: FittedBox(child: picture),
-                    ),
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: .center,
-                  children: [picture, ...words(TextAlign.center)],
-                ),
+          child: Column(
+            crossAxisAlignment: .center,
+            children: [picture, ...words(TextAlign.center)],
+          ),
         ),
       ),
       bottomBar: DocumentFlowFooter(buttons: buttons),

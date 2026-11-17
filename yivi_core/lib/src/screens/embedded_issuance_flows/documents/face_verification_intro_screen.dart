@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
+import "../../../util/adaptive_layout.dart";
 import "../../../widgets/glass/sheet_layout.dart";
-import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 import "document_step_in_sheet.dart";
@@ -15,17 +15,12 @@ import "widgets/face_frame_illustration.dart";
 /// onboarding (which is skipped) so the copy and theming are fully under our
 /// control and localised through the app's own i18n.
 ///
-/// Start invokes [onStart] and the back button [onCancel]. In the sheet it is
-/// a screen of `DocumentFlow`, which asks for it.
+/// Start invokes [onStart]; back in the sheet's bar is "not now". It is a
+/// screen of `DocumentFlow`, which asks for it.
 class FaceVerificationIntroScreen extends StatelessWidget {
   final VoidCallback onStart;
-  final VoidCallback onCancel;
 
-  const FaceVerificationIntroScreen({
-    required this.onStart,
-    required this.onCancel,
-    super.key,
-  });
+  const FaceVerificationIntroScreen({required this.onStart, super.key});
 
   /// The canvas's face check intro: the face on a white card, the
   /// explanation, the tips in a group, and one Start button.
@@ -56,7 +51,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
     );
     // In a sheet held sideways, as on every step of the document flows: the
     // explanation, the tips and Start at the left, the face at the right.
-    if (documentStepSplit(context)) {
+    if (useSheetColumns(context)) {
       return DocumentStepScaffold.split(
         SheetSplit(
           endFills: true,
@@ -75,10 +70,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
         ),
       );
     }
-    // In a sheet its bar has the title and back ("not now").
     return DocumentStepScaffold(
-      titleKey: "face_verification.title",
-      leading: YiviBackButton(onTap: onCancel),
       body: SingleChildScrollView(
         padding: const .fromLTRB(16, 16, 16, 32),
         // Inside the scroll view, so the content starts below the bars and
@@ -87,12 +79,11 @@ class FaceVerificationIntroScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: .stretch,
             children: [
-              // In a sheet the bar has no title: the page's heading.
-              if (DocumentStepInSheet.of(context))
-                const DocumentSheetHeading(
-                  "face_verification.intro.head",
-                  textKey: Key("face_intro_heading"),
-                ),
+              // The sheet's bar has no title upright: the page's heading.
+              const DocumentSheetHeading(
+                "face_verification.intro.head",
+                textKey: Key("face_intro_heading"),
+              ),
               const SurfaceCard(
                 height: 230,
                 alignment: Alignment.center,

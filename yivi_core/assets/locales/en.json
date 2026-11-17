@@ -949,13 +949,7 @@
       "error_generic": "An error has occurred while reading driving licence.",
       "timeout_waiting_for_tag": "Timeout while waiting for driving licence tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
-      "cancelled_by_user": "You cancelled the scanning process.",
-      "cancel_dialog": {
-        "title": "Cancel reading driving licence?",
-        "explanation": "Are you sure you want to cancel the driving licence readout?",
-        "confirm": "Yes",
-        "decline": "No"
-      }
+      "cancelled_by_user": "You cancelled the scanning process."
     }
   },
   "id_card": {
@@ -985,12 +979,6 @@
       "timeout_waiting_for_tag": "Timeout while waiting for ID-card tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
       "cancelled_by_user": "You cancelled the scanning process.",
-      "cancel_dialog": {
-        "title": "Cancel reading ID-card?",
-        "explanation": "Are you sure you want to cancel reading your ID-card?",
-        "confirm": "Yes",
-        "decline": "No"
-      },
       "wrong_document": "This is a residence permit",
       "wrong_document_tip": "Go back and choose Residence permit."
     }
@@ -1022,12 +1010,6 @@
       "timeout_waiting_for_tag": "Timeout while waiting for residence permit tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
       "cancelled_by_user": "You cancelled the scanning process.",
-      "cancel_dialog": {
-        "title": "Cancel reading residence permit?",
-        "explanation": "Are you sure you want to cancel reading your residence permit?",
-        "confirm": "Yes",
-        "decline": "No"
-      },
       "wrong_document": "This is an ID-card",
       "wrong_document_tip": "Go back and choose ID-card."
     }
@@ -1058,13 +1040,7 @@
       "error_generic": "An error has occurred while reading passport.",
       "timeout_waiting_for_tag": "Timeout while waiting for passport tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
-      "cancelled_by_user": "You cancelled the scanning process.",
-      "cancel_dialog": {
-        "title": "Cancel passport reading?",
-        "explanation": "Are you sure you want to cancel the passport reading?",
-        "confirm": "Yes",
-        "decline": "No"
-      }
+      "cancelled_by_user": "You cancelled the scanning process."
     }
   },
   "debug": {
