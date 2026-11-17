@@ -10,6 +10,7 @@ import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/entrance.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "qr_overlay.dart";
 import "scan_status.dart";
@@ -240,13 +241,13 @@ class _ResultDisc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0.4, end: 1),
+      child: Entrance(
         duration: YiviMotion.standard,
         curve: YiviMotion.overshoot,
-        builder: (context, scale, child) => Opacity(
-          opacity: ((scale - 0.4) / 0.6).clamp(0.0, 1.0),
-          child: Transform.scale(scale: scale, child: child),
+        // Grows from 0.4 and pops a little past full size.
+        builder: (context, t, child) => Opacity(
+          opacity: t.clamp(0.0, 1.0),
+          child: Transform.scale(scale: 0.4 + 0.6 * t, child: child),
         ),
         child: Container(
           width: 76,
