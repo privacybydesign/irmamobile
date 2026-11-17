@@ -520,36 +520,10 @@
   "email_issuance": {
     "enter_email": {
       "title": "Add email address",
-      "header": "Enter your email address",
-      "body": "We'll send you an email with a verification code. You'll need to enter this code in the next step.",
-      "error": "Something went wrong while sending the verification code.",
       "email_hint": "Enter your email address...",
-      "next_button": "Send email",
-      "back_button": "Cancel",
       "label": "Email address",
       "required": "Enter your email address",
       "invalid": "Enter a valid email address"
-    },
-    "verify_code": {
-      "title": "Verify email address",
-      "header": "We've sent you an email",
-      "body": "We've sent an email with a verification code to {email}.\n\nEnter the verification code from the email to continue.",
-      "back_button": "Cancel",
-      "no_email_received": "No email received?",
-      "error": "Something went wrong while verifying the verification code.",
-      "invalid_code_error": "Invalid code, try again...",
-      "back_dialog": {
-        "title": "Are you sure?",
-        "body": "Are you sure you want to go back?",
-        "confirm": "Go back",
-        "cancel": "Cancel"
-      },
-      "resend_dialog": {
-        "title": "Send new code",
-        "body": "We'll send you a new email with a new verification code.",
-        "confirm": "Send email",
-        "cancel": "Cancel"
-      }
     }
   },
   "email_linking": {
@@ -567,16 +541,10 @@
     "enter_email": {
       "title": "Link email address",
       "header": "Link your email address",
-      "body": "Then you can block your Yivi app if you lose your phone. We'll send you an email with a code to confirm it.",
-      "label": "Email address"
+      "body": "Then you can block your Yivi app if you lose your phone. We'll send you an email with a code to confirm it."
     },
     "verify_code": {
-      "title": "Link email address",
-      "header": "Enter the code",
       "body": "We've sent an email to {email}. On this phone, tap the link in the email, or enter the code here.",
-      "next_button": "Check code",
-      "resend_button": "Send email again",
-      "resend_button_in": "Send email again in {time}",
       "filled_from_link": "Code filled in from the link"
     },
     "done": {
@@ -600,27 +568,6 @@
       "country_none": "No country found",
       "country_button": "Country: {country}, {code}. Tap to change.",
       "label": "Phone number"
-    },
-    "verify_code": {
-      "title": "Verify phone number",
-      "header": "We've sent you an sms",
-      "body": "We've sent an sms with a verification code to {phone}.\n\nEnter the verification code from the sms to continue.",
-      "back_button": "Cancel",
-      "no_sms_received": "No sms received?",
-      "error": "Something went wrong while verifying the verification code.",
-      "invalid_code_error": "Invalid code, try again...",
-      "back_dialog": {
-        "title": "Are you sure?",
-        "body": "Are you sure you want to go back?",
-        "confirm": "Go back",
-        "cancel": "Cancel"
-      },
-      "resend_dialog": {
-        "title": "Send new code",
-        "body": "We'll send you a new sms with a new verification code.",
-        "confirm": "Send sms",
-        "cancel": "Cancel"
-      }
     }
   },
   "embedded_issuance": {

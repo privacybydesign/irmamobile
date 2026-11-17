@@ -523,36 +523,10 @@
   "email_issuance": {
     "enter_email": {
       "title": "E-mailadres toevoegen",
-      "header": "Voer je e-mailadres in",
-      "body": "Wij sturen je een e-mail met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
-      "error": "Er ging iets fout bij het versturen van de verificatiecode.",
       "email_hint": "Voer je e-mailadres in...",
-      "next_button": "E-mail versturen",
-      "back_button": "Annuleer",
       "label": "E-mailadres",
       "required": "Vul je e-mailadres in",
       "invalid": "Vul een geldig e-mailadres in"
-    },
-    "verify_code": {
-      "title": "E-mailadres verifiëren",
-      "header": "We hebben je een e-mail gestuurd",
-      "body": "We hebben een e-mail met een verificatiecode verstuurd naar {email}.\n\nVul hieronder de verificatiecode uit de e-mail in om verder te gaan.",
-      "error": "Er is iets misgegaan.",
-      "invalid_code_error": "Code onjuist, probeer het opnieuw...",
-      "no_email_received": "Code niet ontvangen?",
-      "back_button": "Annuleer",
-      "back_dialog": {
-        "title": "Weet je het zeker?",
-        "body": "Weet je zeker dat je terug wil gaan?",
-        "confirm": "Ga terug",
-        "cancel": "Annuleer"
-      },
-      "resend_dialog": {
-        "title": "E-mail opnieuw sturen",
-        "body": "We sturen je opnieuw een e-mail met een nieuwe code.",
-        "confirm": "Stuur opnieuw",
-        "cancel": "Annuleer"
-      }
     }
   },
   "email_linking": {
@@ -570,16 +544,10 @@
     "enter_email": {
       "title": "E-mailadres koppelen",
       "header": "Koppel je e-mailadres",
-      "body": "Dan kun je je Yivi-app blokkeren als je telefoon kwijtraakt. We sturen je een e-mail met een code om het te bevestigen.",
-      "label": "E-mailadres"
+      "body": "Dan kun je je Yivi-app blokkeren als je telefoon kwijtraakt. We sturen je een e-mail met een code om het te bevestigen."
     },
     "verify_code": {
-      "title": "E-mailadres koppelen",
-      "header": "Vul de code in",
       "body": "We hebben een e-mail gestuurd naar {email}. Tik op deze telefoon op de link in de e-mail, of vul de code hier in.",
-      "next_button": "Code controleren",
-      "resend_button": "E-mail opnieuw sturen",
-      "resend_button_in": "E-mail opnieuw sturen over {time}",
       "filled_from_link": "Code ingevuld vanuit de link"
     },
     "done": {
@@ -603,27 +571,6 @@
       "country_none": "Geen land gevonden",
       "country_button": "Land: {country}, {code}. Tik om te wijzigen.",
       "label": "Telefoonnummer"
-    },
-    "verify_code": {
-      "title": "Telefoonnummer verifiëren",
-      "header": "We hebben je een sms gestuurd",
-      "body": "We hebben een sms met een verificatiecode verstuurd naar {phone}.\n\nVul hieronder de verificatiecode uit de sms in om verder te gaan.",
-      "error": "Er is iets misgegaan.",
-      "invalid_code_error": "Code onjuist, probeer het opnieuw...",
-      "no_sms_received": "Code niet ontvangen?",
-      "back_button": "Annuleer",
-      "back_dialog": {
-        "title": "Weet je het zeker?",
-        "body": "Weet je zeker dat je terug wil gaan?",
-        "confirm": "Ga terug",
-        "cancel": "Annuleer"
-      },
-      "resend_dialog": {
-        "title": "Sms opnieuw sturen",
-        "body": "We sturen je opnieuw een sms met een nieuwe code.",
-        "confirm": "Stuur opnieuw",
-        "cancel": "Annuleer"
-      }
     }
   },
   "embedded_issuance": {

@@ -58,9 +58,7 @@ void main() {
               length: 6,
               invalid: true,
             ),
-            const ContactCodeError(
-              "email_issuance.verify_code.invalid_code_error",
-            ),
+            const ContactCodeError("contact_sheet.wrong_code"),
           ],
         ),
       ),
@@ -68,7 +66,10 @@ void main() {
     );
 
     expect(find.text("Verification code"), findsOneWidget);
-    expect(find.text("Invalid code, try again..."), findsOneWidget);
+    expect(
+      find.text("That code is not right. Check it, or send a new one."),
+      findsOneWidget,
+    );
 
     final pinput = tester.widget<Pinput>(find.byKey(const Key("code")));
     expect(pinput.forceErrorState, isTrue);

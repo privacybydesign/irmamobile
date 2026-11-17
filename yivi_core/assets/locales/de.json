@@ -523,36 +523,10 @@
   "email_issuance": {
     "enter_email": {
       "title": "E-Mail-Adresse hinzufügen",
-      "header": "Geben Sie Ihre E-Mail-Adresse ein",
-      "body": "Wir senden Ihnen eine E-Mail mit einem Bestätigungscode. Sie müssen diesen Code im nächsten Schritt eingeben.",
-      "error": "Beim Senden des Bestätigungscodes ist etwas schiefgelaufen.",
       "email_hint": "Geben Sie Ihre E-Mail-Adresse ein...",
-      "next_button": "E-Mail senden",
-      "back_button": "Abbrechen",
       "label": "E-Mail-Adresse",
       "required": "Geben Sie Ihre E-Mail-Adresse ein",
       "invalid": "Geben Sie eine gültige E-Mail-Adresse ein"
-    },
-    "verify_code": {
-      "title": "E-Mail-Adresse verifizieren",
-      "header": "Wir haben Ihnen eine E-Mail gesendet",
-      "body": "Wir haben eine E-Mail mit einem Bestätigungscode an {email} gesendet.\n\nGeben Sie den Bestätigungscode aus der E-Mail ein, um fortzufahren.",
-      "back_button": "Abbrechen",
-      "no_email_received": "Keine E-Mail erhalten?",
-      "error": "Beim Verifizieren des Bestätigungscodes ist etwas schiefgelaufen.",
-      "invalid_code_error": "Ungültiger Code, versuchen Sie es erneut...",
-      "back_dialog": {
-        "title": "Sind Sie sicher?",
-        "body": "Sind Sie sicher, dass Sie zurückgehen möchten?",
-        "confirm": "Zurück",
-        "cancel": "Abbrechen"
-      },
-      "resend_dialog": {
-        "title": "Neuen Code senden",
-        "body": "Wir senden Ihnen eine neue E-Mail mit einem neuen Bestätigungscode.",
-        "confirm": "E-Mail senden",
-        "cancel": "Abbrechen"
-      }
     }
   },
   "email_linking": {
@@ -570,16 +544,10 @@
     "enter_email": {
       "title": "E-Mail-Adresse verknüpfen",
       "header": "Verknüpfe deine E-Mail-Adresse",
-      "body": "Dann kannst du deine Yivi-App sperren, wenn dein Telefon verloren geht. Wir senden dir eine E-Mail mit einem Code zur Bestätigung.",
-      "label": "E-Mail-Adresse"
+      "body": "Dann kannst du deine Yivi-App sperren, wenn dein Telefon verloren geht. Wir senden dir eine E-Mail mit einem Code zur Bestätigung."
     },
     "verify_code": {
-      "title": "E-Mail-Adresse verknüpfen",
-      "header": "Code eingeben",
       "body": "Wir haben eine E-Mail an {email} gesendet. Tippe auf diesem Telefon auf den Link in der E-Mail oder gib den Code hier ein.",
-      "next_button": "Code prüfen",
-      "resend_button": "E-Mail erneut senden",
-      "resend_button_in": "E-Mail erneut senden in {time}",
       "filled_from_link": "Code aus dem Link eingetragen"
     },
     "done": {
@@ -603,27 +571,6 @@
       "country_none": "Kein Land gefunden",
       "country_button": "Land: {country}, {code}. Tippen zum Ändern.",
       "label": "Telefonnummer"
-    },
-    "verify_code": {
-      "title": "Telefonnummer verifizieren",
-      "header": "Wir haben Ihnen eine SMS gesendet",
-      "body": "Wir haben eine SMS mit einem Bestätigungscode an {phone} gesendet.\n\nGeben Sie den Bestätigungscode aus der SMS ein, um fortzufahren.",
-      "back_button": "Abbrechen",
-      "no_sms_received": "Keine SMS erhalten?",
-      "error": "Beim Verifizieren des Bestätigungscodes ist etwas schiefgelaufen.",
-      "invalid_code_error": "Ungültiger Code, versuchen Sie es erneut...",
-      "back_dialog": {
-        "title": "Sind Sie sicher?",
-        "body": "Sind Sie sicher, dass Sie zurückgehen möchten?",
-        "confirm": "Zurück",
-        "cancel": "Abbrechen"
-      },
-      "resend_dialog": {
-        "title": "Neuen Code senden",
-        "body": "Wir senden Ihnen eine neue SMS mit einem neuen Bestätigungscode.",
-        "confirm": "SMS senden",
-        "cancel": "Abbrechen"
-      }
     }
   },
   "embedded_issuance": {
