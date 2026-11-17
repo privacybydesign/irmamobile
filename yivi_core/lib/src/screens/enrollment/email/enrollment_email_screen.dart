@@ -13,6 +13,7 @@ import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
+import "../../../util/email_linking.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
@@ -88,6 +89,14 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     // The link in the e-mail, tapped while this step shows, fills in the
     // code here instead of opening the linking screens later.
     final repo = ref.read(irmaRepositoryProvider);
+    // The e-mail issuer of the keyshare scheme, from the credential store
+    // (which is there long before Send is tapped). Without it nothing is
+    // sent, rather than to a default issuer.
+    keyshareEmailType(repo).then((type) {
+      if (type != null && mounted) {
+        repo.prepareEmbeddedFlow(type.credentialId, type.issueURL, ref);
+      }
+    }, onError: (_) {});
     _links = repo.getPendingPointer().listen((pointer) {
       if (pointer is! EmailCodePointer) return;
       repo.setPendingPointer(null);

@@ -34,19 +34,27 @@ void main() {
     return container;
   }
 
-  String emailIssuerHost(ProviderContainer container) =>
-      (container.read(emailIssuerApiProvider) as EmailIssuerApi).host;
+  String? emailIssuerHost(ProviderContainer container) =>
+      switch (container.read(emailIssuerApiProvider)) {
+        final EmailIssuerApi api => api.host,
+        _ => null,
+      };
 
   String emailLinkUrl(ProviderContainer container) =>
       (container.read(keyshareEmailLinkApiProvider)
               as DefaultKeyshareEmailLinkApi)
           .url;
 
-  test("without a host the app uses the real backends", () async {
+  test("without a host the app uses the real backends: none until the "
+      "credential's issuer is set", () async {
     final container = await loadedContainer();
 
     expect(container.read(localBackendsProvider), isNull);
-    expect(emailIssuerHost(container), container.read(emailIssuerUrlProvider));
+    expect(emailIssuerHost(container), isNull);
+    container
+        .read(emailIssuerUrlProvider.notifier)
+        .set("https://email-issuer.yivi.app");
+    expect(emailIssuerHost(container), "https://email-issuer.yivi.app");
     expect(emailLinkUrl(container), isEmpty);
   });
 
