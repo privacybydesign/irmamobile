@@ -28,7 +28,9 @@ class YiviCredentialCardFooter extends StatelessWidget {
       ExpireState.notExpired => YiviPalette.forBrightness(
         theme.brightness,
       ).text,
-      ExpireState.almostExpired => theme.warning,
+      ExpireState.almostExpired => YiviPalette.forBrightness(
+        theme.brightness,
+      ).warningText,
       ExpireState.expired => YiviPalette.forBrightness(theme.brightness).danger,
     };
   }

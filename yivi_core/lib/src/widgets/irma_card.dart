@@ -1,6 +1,5 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_edges.dart";
 import "../theme/yivi_palette.dart";
@@ -28,7 +27,6 @@ class IrmaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     // By brightness only: the card keeps its colours on a sheet too.
     final palette = YiviPalette.forBrightness(Theme.of(context).brightness);
     const radius = YiviCorners.cardRadius;
@@ -52,8 +50,8 @@ class IrmaCard extends StatelessWidget {
       case IrmaCardStyle.danger:
         boxDecoration = BoxDecoration(
           borderRadius: radius,
-          border: Border.all(color: theme.danger, width: 1),
-          color: theme.surfaceTertiary,
+          border: Border.all(color: palette.errorOutline, width: 1),
+          color: palette.errorSurface,
         );
         break;
     }

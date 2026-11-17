@@ -32,7 +32,6 @@ class AttributeColors {
   });
 
   static AttributeColors of(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     if (YiviPalette.of(context).isDark) {
       return const AttributeColors._(
         value: Color(0xFFF2F2F4),
@@ -45,7 +44,7 @@ class AttributeColors {
     return AttributeColors._(
       value: YiviPalette.of(context).text,
       label: YiviPalette.of(context).heading,
-      eyebrow: theme.neutralDark,
+      eyebrow: YiviPalette.of(context).secondaryText,
       muted: YiviPalette.of(context).faint,
       divider: YiviPalette.of(context).divider,
     );

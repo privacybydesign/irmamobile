@@ -2,7 +2,7 @@ import "dart:async";
 
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
@@ -124,7 +124,6 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     const paddingSize = YiviSpace.pageSide;
     final blockedLeft = _blockedLeft;
     final blocked = blockedLeft > Duration.zero;
@@ -166,7 +165,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         leading: const SizedBox.shrink(),
         actions: [IrmaCloseButton(onTap: widget.onCancel)],
       ),
-      backgroundColor: theme.backgroundPrimary,
+      backgroundColor: YiviPalette.of(context).background,
       body: SafeArea(
         bottom: false,
         child: Container(

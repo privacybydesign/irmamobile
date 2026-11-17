@@ -746,10 +746,10 @@ class _LeafContent extends StatelessWidget {
     IrmaThemeData theme,
   ) {
     if (node.mismatch) return YiviPalette.of(context).danger;
-    if (node.match) return theme.success;
+    if (node.match) return YiviPalette.of(context).successText;
     if (!node.hasCompareTo) return AttributeColors.of(context).value;
     return attributeValuesEqual(val, node.compareToValue)
-        ? theme.success
+        ? YiviPalette.of(context).successText
         : YiviPalette.of(context).danger;
   }
 

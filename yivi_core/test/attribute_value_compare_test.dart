@@ -2,6 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
@@ -60,8 +61,8 @@ void main() {
 
     testWidgets("draws an equal integer as a match", (tester) async {
       final color = await valueColor(tester, [_age(3)]);
-      final theme = IrmaTheme.of(tester.element(find.text("3")));
-      expect(color, theme.success);
+      final palette = YiviPalette.of(tester.element(find.text("3")));
+      expect(color, palette.successText);
     });
   });
 }

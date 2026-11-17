@@ -221,7 +221,6 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return SizedBox.square(
       dimension: 140,
       child: Center(
@@ -255,7 +254,11 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
                   ),
                 ),
                 const SizedBox(height: 10),
-                Icon(Icons.person, size: 32, color: theme.neutralDark),
+                Icon(
+                  Icons.person,
+                  size: 32,
+                  color: YiviPalette.of(context).secondaryText,
+                ),
               ],
             ),
           ),

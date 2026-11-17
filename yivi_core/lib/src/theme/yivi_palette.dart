@@ -75,6 +75,10 @@ class YiviPalette {
   final Color errorSurface;
   final Color errorText;
 
+  /// Border and dividers of a card that is expired or revoked, a step
+  /// deeper than its [errorSurface] fill.
+  final Color errorOutline;
+
   /// Text and icons of destructive actions.
   final Color danger;
 
@@ -123,6 +127,7 @@ class YiviPalette {
     required this.warningText,
     required this.errorSurface,
     required this.errorText,
+    required this.errorOutline,
     required this.danger,
     required this.selectedTab,
     required this.glassShadow,
@@ -155,6 +160,7 @@ class YiviPalette {
     warningText: Color(0xFF7A4F00),
     errorSurface: Color(0xFFF5DBDB),
     errorText: Color(0xFF9E1414),
+    errorOutline: Color(0xFFEABEBE),
     danger: Color(0xFFBD1919),
     selectedTab: Color(0xFFBA3354),
     glassShadow: Color(0x1A000000),
@@ -187,6 +193,7 @@ class YiviPalette {
     warningText: Color(0xFFF2C46B),
     errorSurface: Color(0xFF3A1A1C),
     errorText: Color(0xFFFF9A9A),
+    errorOutline: Color(0xFF5A2A2E),
     danger: Color(0xFFFF7A7A),
     selectedTab: Color(0xFFFF2D55),
     glassShadow: Color(0x73000000),
@@ -241,6 +248,7 @@ class YiviPalette {
     warningText: warningText,
     errorSurface: errorSurface,
     errorText: errorText,
+    errorOutline: errorOutline,
     danger: danger,
     selectedTab: selectedTab,
     glassShadow: glassShadow,

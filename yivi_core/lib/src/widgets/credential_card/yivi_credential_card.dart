@@ -5,7 +5,7 @@ import "../../models/credential.dart";
 import "../../models/credential_store.dart";
 import "../../models/log_entry.dart";
 import "../../screens/add_data/add_data_sheet.dart";
-import "../../theme/theme.dart";
+import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../base64_image.dart";
@@ -144,7 +144,6 @@ class YiviCredentialCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
     final displayName = credentialName.isNotEmpty
         ? credentialName
         : (status.credentialId ?? "");
@@ -169,7 +168,9 @@ class YiviCredentialCard extends ConsumerWidget {
           ),
           if (attributes.isNotEmpty) ...[
             IrmaDivider(
-              color: status.isExpired ? theme.danger : null,
+              color: status.isExpired
+                  ? YiviPalette.of(context).errorOutline
+                  : null,
               padding: const EdgeInsets.only(
                 top: YiviSpace.x16,
                 bottom: YiviSpace.x8,
@@ -189,7 +190,9 @@ class YiviCredentialCard extends ConsumerWidget {
               children: [
                 if (attributes.isNotEmpty)
                   IrmaDivider(
-                    color: status.isExpired ? theme.danger : null,
+                    color: status.isExpired
+                        ? YiviPalette.of(context).errorOutline
+                        : null,
                     padding: const EdgeInsets.symmetric(
                       vertical: YiviSpace.x16,
                     ),

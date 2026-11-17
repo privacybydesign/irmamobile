@@ -425,6 +425,6 @@ Color _comparisonColor(
   AttributeComparison comparison,
 ) => switch (comparison) {
   AttributeComparison.none => AttributeColors.of(context).value,
-  AttributeComparison.match => theme.success,
+  AttributeComparison.match => YiviPalette.of(context).successText,
   AttributeComparison.mismatch => YiviPalette.of(context).danger,
 };

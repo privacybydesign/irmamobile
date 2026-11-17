@@ -11,6 +11,7 @@ import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/screens/session/widgets/session_scaffold.dart";
 import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/card_pile.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
@@ -273,14 +274,14 @@ void main() {
           ),
         ),
       );
-      final theme = IrmaTheme.of(tester.element(find.text("Arnhem")));
+      final palette = YiviPalette.of(tester.element(find.text("Arnhem")));
       expect(
         tester.widget<Text>(find.text("Arnhem")).style?.color,
-        theme.success,
+        palette.successText,
       );
       expect(
         tester.widget<Text>(find.text("Grote Markt 1")).style?.color,
-        isNot(theme.success),
+        isNot(palette.successText),
       );
     });
 

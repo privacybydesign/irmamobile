@@ -62,7 +62,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
       return TranslatedText(
         "credential.about_to_expire",
         style: theme.themeData.textTheme.headlineMedium!.copyWith(
-          color: theme.warning,
+          color: YiviPalette.forBrightness(theme.brightness).warningText,
         ),
       );
     }
