@@ -29,7 +29,7 @@ import "../../widgets/yivi_spinner.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
 import "widgets/pin_keypad.dart";
 
-part "bloc/enter_pin_state.dart";
+part "pin_quality.dart";
 part "pin_indicator.dart";
 part "secure_pin.dart";
 part "unsecure_pin_description_tile.dart";

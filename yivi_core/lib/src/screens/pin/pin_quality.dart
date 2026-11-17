@@ -1,4 +1,4 @@
-part of "../yivi_pin_screen.dart";
+part of "yivi_pin_screen.dart";
 
 typedef Pin = List<int>;
 typedef UnmodifiablePin = Iterable<int>;
