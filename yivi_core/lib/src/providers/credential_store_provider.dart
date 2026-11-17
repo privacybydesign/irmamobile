@@ -3,18 +3,14 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../models/credential_store.dart";
 import "irma_repository_provider.dart";
 
-final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
-  ref,
-) async* {
-  final repo = ref.watch(irmaRepositoryProvider);
-
-  // Credentials that require onboard NFC issuance (passport, ID card, driving
-  // licence) stay in the store on devices without NFC hardware (e.g. iPads).
-  // The add-data screen greys them out and explains, on tap, that the device
-  // cannot load them without NFC — see `AddDataSheet` and
-  // `nfcAvailableProvider`.
-  yield* repo.getCredentialStoreItems();
-});
+// Credentials that require onboard NFC issuance (passport, ID card, driving
+// licence) stay in the store on devices without NFC hardware (e.g. iPads).
+// The add-data screen greys them out and explains, on tap, that the device
+// cannot load them without NFC — see `AddDataSheet` and
+// `nfcAvailableProvider`.
+final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>(
+  (ref) => ref.watch(irmaRepositoryProvider).getCredentialStoreItems(),
+);
 
 /// Which environment a credential comes from, as the attribute index divides
 /// them (portal.yivi.app/attribute-index): production `pbdf`, staging

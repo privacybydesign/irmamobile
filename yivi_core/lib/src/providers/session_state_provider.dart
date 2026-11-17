@@ -2,6 +2,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/session_state.dart";
 import "irma_repository_provider.dart";
+import "stream_mirror.dart";
 
 final sessionStateProvider = StreamProvider.family<SessionState, int>((
   ref,
@@ -28,23 +29,10 @@ final underlyingDisclosureProvider = StreamProvider.family<SessionState?, int>(
 /// available synchronously on the first build of a remount — the underlying
 /// [BehaviorSubject] already knows the answer, but a [StreamProvider] would
 /// report `AsyncValue.loading()` for one frame and cause a spinner flicker.
-class SessionAwaitingInteractionNotifier extends Notifier<bool> {
-  final int sessionId;
-
-  SessionAwaitingInteractionNotifier(this.sessionId);
-
-  @override
-  bool build() {
-    final repo = ref.watch(irmaRepositoryProvider);
-    final sub = repo.isSessionAwaitingInteraction(sessionId).listen((v) {
-      state = v;
-    });
-    ref.onDispose(sub.cancel);
-    return repo.isSessionAwaitingInteractionNow(sessionId);
-  }
-}
-
 final sessionAwaitingInteractionProvider =
-    NotifierProvider.family<SessionAwaitingInteractionNotifier, bool, int>(
-      (sessionId) => SessionAwaitingInteractionNotifier(sessionId),
+    NotifierProvider.family<StreamMirror<bool>, bool, int>(
+      (sessionId) => StreamMirror(
+        (repo) => repo.isSessionAwaitingInteraction(sessionId),
+        (repo) => repo.isSessionAwaitingInteractionNow(sessionId),
+      ),
     );

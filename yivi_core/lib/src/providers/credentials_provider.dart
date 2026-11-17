@@ -3,13 +3,9 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../models/credential.dart";
 import "irma_repository_provider.dart";
 
-final credentialsProvider = StreamProvider<WalletCredentials>((ref) async* {
-  final repo = ref.watch(irmaRepositoryProvider);
-
-  await for (final data in repo.getCredentials()) {
-    yield data;
-  }
-});
+final credentialsProvider = StreamProvider<WalletCredentials>(
+  (ref) => ref.watch(irmaRepositoryProvider).getCredentials(),
+);
 
 /// Whether the data tab has anything to show: a credential, or one that cannot
 /// be rendered. The keyshare credential is never in the list, so this is false
