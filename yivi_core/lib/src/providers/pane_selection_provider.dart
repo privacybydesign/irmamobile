@@ -1,6 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/log_entry.dart";
+import "activity_providers.dart";
+import "wallet_cards_provider.dart";
 
 /// What the detail pane of a tablet layout shows. Null means nothing was
 /// picked yet; each tab then picks its own default.
@@ -49,3 +51,21 @@ final selectedMorePageProvider =
     NotifierProvider<PaneSelection<MorePage>, MorePage?>(
       PaneSelection<MorePage>.new,
     );
+
+/// The card the Data tab's detail pane shows: the picked one while it is
+/// in the app, else the first.
+final dataPaneCardProvider = Provider<String?>((ref) {
+  final cards = ref.watch(walletCardsProvider);
+  final selected = ref.watch(selectedCardProvider);
+  return cards.any((c) => c.hash == selected)
+      ? selected
+      : cards.firstOrNull?.hash;
+});
+
+/// The entry the Activity tab's detail pane shows: the picked one, else the
+/// newest loaded.
+final activityPaneEntryProvider = Provider<LogInfo?>(
+  (ref) =>
+      ref.watch(selectedActivityProvider) ??
+      ref.watch(activityLogProvider).entries.firstOrNull,
+);

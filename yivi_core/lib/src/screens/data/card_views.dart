@@ -161,8 +161,9 @@ class _Nudge extends StatelessWidget {
   }
 }
 
-/// The card the detail pane shows: the [selected] one while it is among
-/// [cards], otherwise the first.
+/// The card the list marks as open in the detail pane: the [selected] one
+/// while it is among the list's [cards] (the results, while searching),
+/// otherwise the first. The pane itself follows dataPaneCardProvider.
 String? _paneCardHash(String? selected, List<Credential> cards) =>
     cards.any((c) => c.hash == selected) ? selected : cards.firstOrNull?.hash;
 

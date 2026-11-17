@@ -276,3 +276,23 @@ List<ActivityCardRef> activityCardRefs(WidgetRef ref) => [
   for (final c in ref.read(walletCardsProvider)) ActivityCardRef.of(c),
   ...?ref.read(removedCardTypesProvider).value,
 ];
+
+/// The loaded entries by day here (local time), newest first.
+final activityDayGroupsProvider = Provider<List<List<LogInfo>>>((ref) {
+  final groups = <List<LogInfo>>[];
+  for (final entry in ref.watch(activityLogProvider).entries) {
+    final last = groups.lastOrNull;
+    if (last == null || !_sameDay(last.last.time, entry.time)) {
+      groups.add([entry]);
+    } else {
+      last.add(entry);
+    }
+  }
+  return groups;
+});
+
+/// Whether [a] and [b] are on the same day, here.
+bool _sameDay(DateTime a, DateTime b) {
+  final x = a.toLocal(), y = b.toLocal();
+  return x.year == y.year && x.month == y.month && x.day == y.day;
+}

@@ -267,8 +267,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   /// The tablet layout: the cards next to the details of the open card
   /// (the first card until the user picks one).
   Widget _withDetailPane(Widget list) {
-    final cards = ref.watch(walletCardsProvider);
-    final hash = _paneCardHash(ref.watch(selectedCardProvider), cards);
+    final hash = ref.watch(dataPaneCardProvider);
     return TwoPane(
       list: list,
       placeholder: const EmptyDataPane(),

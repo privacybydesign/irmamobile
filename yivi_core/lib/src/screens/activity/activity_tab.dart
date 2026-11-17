@@ -666,18 +666,12 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     // The entry in the detail pane: the picked one, or the newest.
-    final open = useHomePanes(context) ? _paneEntry(state) : null;
+    final open = useHomePanes(context)
+        ? ref.watch(activityPaneEntryProvider)
+        : null;
 
     // A header per day, then its rows.
-    final groups = <List<LogInfo>>[];
-    for (final entry in logEntries) {
-      final last = groups.lastOrNull;
-      if (last == null || !_sameDay(last.last.time, entry.time)) {
-        groups.add([entry]);
-      } else {
-        last.add(entry);
-      }
-    }
+    final groups = ref.watch(activityDayGroupsProvider);
 
     final clear = TextLink(
       key: const Key("activity_clear_filters"),
@@ -1026,18 +1020,15 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     return Scaffold(
       backgroundColor: palette.background,
       resizeToAvoidBottomInset: false,
-      body: _withDetailPane(list, state),
+      body: _withDetailPane(list),
     );
   }
 
   /// The entry in the detail pane: the picked one, or the newest.
-  LogInfo? _paneEntry(ActivityLogState state) =>
-      ref.watch(selectedActivityProvider) ?? state.entries.firstOrNull;
-
   /// The tablet layout: the activity next to the details of the picked
   /// entry (the newest until the user picks one).
-  Widget _withDetailPane(Widget list, ActivityLogState state) {
-    final entry = _paneEntry(state);
+  Widget _withDetailPane(Widget list) {
+    final entry = ref.watch(activityPaneEntryProvider);
     return TwoPane(
       list: list,
       detail: entry == null
@@ -1045,12 +1036,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           : ActivityDetailPane(key: ValueKey(logKey(entry)), logEntry: entry),
     );
   }
-}
-
-/// Whether [a] and [b] are on the same day, here.
-bool _sameDay(DateTime a, DateTime b) {
-  final x = a.toLocal(), y = b.toLocal();
-  return x.year == y.year && x.month == y.month && x.day == y.day;
 }
 
 /// The header of the day of [time]: "Today", "Yesterday", or the weekday
