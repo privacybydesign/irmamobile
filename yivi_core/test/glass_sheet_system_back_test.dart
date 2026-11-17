@@ -46,7 +46,7 @@ void _openTwoPages() {
         return GlassSheetPages(
           onBack: back,
           pages: [
-            const GlassSheetPage(
+            GlassSheetPage(
               key: ValueKey("one"),
               title: "First",
               child: Text("first page"),

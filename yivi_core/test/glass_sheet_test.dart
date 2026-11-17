@@ -413,7 +413,7 @@ void main() {
             asked++;
             return false;
           },
-          child: const GlassSheetPage(title: "Sheet", child: Text("body")),
+          child: GlassSheetPage(title: "Sheet", child: Text("body")),
         ),
       );
       await tester.pumpAndSettle();
@@ -455,7 +455,7 @@ void main() {
             return GlassSheetPages(
               onBack: () => setState(() => pages = 1),
               pages: [
-                const GlassSheetPage(
+                GlassSheetPage(
                   key: ValueKey("one"),
                   title: "First",
                   child: Text("first page"),
@@ -489,18 +489,18 @@ void main() {
             return GlassSheetPages(
               onBack: () {},
               pages: [
-                const GlassSheetPage(
+                GlassSheetPage(
                   key: ValueKey("one"),
                   title: "First",
                   child: Text("first page"),
                 ),
                 if (under)
-                  const GlassSheetPage(
+                  GlassSheetPage(
                     key: ValueKey("pin"),
                     title: "PIN",
                     child: Text("pin page"),
                   ),
-                const GlassSheetPage(
+                GlassSheetPage(
                   key: ValueKey("done"),
                   title: "Success",
                   child: Text("done page"),
@@ -646,7 +646,7 @@ void main() {
               onBack: () => setState(() => two = false),
               pages: [
                 // A field in the title's place, no back button.
-                const GlassSheetPage(
+                GlassSheetPage(
                   key: ValueKey("one"),
                   title: "First",
                   titleWidget: Text("field"),
@@ -768,7 +768,7 @@ void main() {
               return GlassSheetPages(
                 onBack: () => setState(() => two = false),
                 pages: [
-                  const GlassSheetPage(
+                  GlassSheetPage(
                     key: ValueKey("one"),
                     title: "First",
                     bottom: SizedBox(
@@ -1080,13 +1080,13 @@ void main() {
             return GlassSheetPages(
               onBack: () => setState(() => pages = 1),
               pages: [
-                const GlassSheetPage(
+                GlassSheetPage(
                   key: ValueKey("code"),
                   title: "Code",
                   child: TextField(key: Key("code_field"), autofocus: true),
                 ),
                 if (pages > 1)
-                  const GlassSheetPage(
+                  GlassSheetPage(
                     key: ValueKey("next"),
                     title: "Next",
                     child: Text("no fields here"),

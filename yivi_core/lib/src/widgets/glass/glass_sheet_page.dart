@@ -1,17 +1,96 @@
 part of "glass_sheet.dart";
 
-/// One page of a sheet: its [GlassSheetHeader], [child] in a
-/// [GlassSheetScrollView], and [bottom] (a button) pinned to the bottom of
-/// the sheet, as on a full screen.
+/// What the bar of a sheet page shows in its middle.
+@immutable
+class SheetTitle {
+  const SheetTitle(
+    this.text, {
+    this.widget,
+    this.centred = false,
+    this.reveal = const SheetTitleReveal.always(),
+  });
+
+  /// Names the page, also for screen readers.
+  final String text;
+
+  /// In the title's place: a tag, a search field (see
+  /// [GlassSheetHeader.titleWidget]).
+  final Widget? widget;
+
+  /// [widget] stays in the middle of the bar on a phone held sideways too
+  /// (a tag), instead of standing next to the title at the start.
+  final bool centred;
+  final SheetTitleReveal reveal;
+}
+
+/// When the bar's title shows.
+sealed class SheetTitleReveal {
+  const SheetTitleReveal();
+
+  const factory SheetTitleReveal.always() = _Always;
+
+  /// Once the page has scrolled [offset] far: its heading is in the page,
+  /// and the bar names the page once that is under it.
+  const factory SheetTitleReveal.afterScroll(double offset) = _AfterScroll;
+
+  /// Once all of the page's own big [heading] has scrolled up under the bar
+  /// (measured, so a heading that wraps is waited for).
+  const factory SheetTitleReveal.under(GlobalKey heading) = _Under;
+}
+
+final class _Always extends SheetTitleReveal {
+  const _Always();
+}
+
+final class _AfterScroll extends SheetTitleReveal {
+  const _AfterScroll(this.offset);
+  final double offset;
+}
+
+final class _Under extends SheetTitleReveal {
+  const _Under(this.heading);
+  final GlobalKey heading;
+}
+
+/// Where a sheet page's close button is: at the end of the bar, at its
+/// start (see [GlassSheetHeader.closeAtStart]), or none (a page left by
+/// dragging its header down, or by its way on).
+enum SheetClose { end, start, none }
+
+/// The ways out of a sheet page.
+@immutable
+class SheetExits {
+  const SheetExits({this.onBack, this.close = SheetClose.end});
+  final VoidCallback? onBack;
+  final SheetClose close;
+}
+
+/// A row that sticks under the bar, over the content, on the bar's band,
+/// once the top of [after] has scrolled under the bar (who gives the card,
+/// once their card has gone up). It drops in without moving the content.
+typedef SheetUnderBar = ({Widget row, GlobalKey after});
+
+/// How a page lays out its content.
+enum _PageBody {
+  /// Scrolls under the bar.
+  scroll,
+
+  /// Fills the page and keeps clear of the home indicator itself.
+  fill,
+
+  /// Lays itself out in the sheet's two columns ([SheetSplit]).
+  split,
+}
+
+/// One page of a sheet: its [GlassSheetHeader], its content, and [bottom]
+/// (a button) pinned to the bottom of the sheet, as on a full screen.
 ///
 /// The content scrolls on under the header; once it is under it, the header
 /// gets the hard scroll edge of iOS ([ScrollEdgeBand]).
 class GlassSheetPage extends StatefulWidget {
-  final String title;
-
-  /// In the title's place while not null (see [GlassSheetHeader.titleWidget]).
-  final Widget? titleWidget;
-  final VoidCallback? onBack;
+  final SheetTitle title;
+  final SheetExits exits;
+  final _PageBody _body;
   final Widget? child;
 
   /// Instead of [child]: slivers, built as they scroll into view, for a long
@@ -24,35 +103,12 @@ class GlassSheetPage extends StatefulWidget {
   /// the page can put theirs in its [SheetActionSlot] instead.
   final SheetAction? action;
 
-  /// False on a page that is left by dragging its header down (the pages
-  /// of adding a card) or by its way on ("Success"): no close button, no
-  /// "Cancel" in the bar.
-  final bool closable;
-
-  /// See [GlassSheetHeader.closeAtStart].
-  final bool closeAtStart;
-
   /// Around [child] in the scroll view; zero when [child] pads itself.
   final EdgeInsets padding;
 
-  /// False for a [child] that fills the page and fits itself to it (a PIN
-  /// pad) instead of scrolling.
-  final bool scrolls;
-
-  /// With [scrolls] false: [child] keeps clear of the home indicator itself
-  /// (screens with their own bottom bar), so the page adds no room for it.
-  final bool childClearsBottom;
-
-  // `split` (constructor only): [child] lays itself out in the sheet's two
-  // columns (a `SheetSplit`, on a phone held sideways). The page then adds
-  // no padding, does not scroll (each column scrolls on its own) and leaves
-  // the bottom to the columns, whatever [padding], [scrolls] and
-  // [childClearsBottom] say for upright.
-
-  /// With [scrolls] false, on a phone held upright: the bottom bar shows
-  /// the buttons the screens inside put in the page's [SheetActionSlot]
-  /// (the document steps), and stays put while they change; it keeps its
-  /// room while a screen has none.
+  /// On a phone held upright: the bottom bar shows the buttons the screens
+  /// inside put in the page's [SheetActionSlot] (the document steps), and
+  /// stays put while they change; it keeps its room while a screen has none.
   final bool slotBottom;
 
   /// The sheet is as high as this page's content, while it is the page on
@@ -60,66 +116,122 @@ class GlassSheetPage extends StatefulWidget {
   /// page without [fit] comes in over it, and goes back as that page goes.
   final bool fit;
 
-  /// [titleWidget] stays in the middle of the bar on a phone held sideways
-  /// too (a tag), instead of standing next to the title at the start.
-  final bool titleWidgetCentred;
-
-  /// The title shows only once the page has scrolled this far: its heading
-  /// is in the page, and the bar names the page once that is under it.
-  /// Null: the title always shows.
-  final double? titleAfterScroll;
-
-  /// The page's own big heading: the bar's title shows only once all of it
-  /// has scrolled up under the bar (measured, so a heading that wraps is
-  /// waited for). Null: see [titleAfterScroll].
-  final GlobalKey? titleUnder;
-
-  /// See the constructor's `split`.
-  final bool split;
-
   /// On a phone held sideways, [bottom] (the progress) goes into the bar,
-  /// right after [titleWidget], instead of under the content.
+  /// right after the title's widget, instead of under the content.
   final bool bottomInBar;
+  final SheetUnderBar? underBar;
 
-  /// A row that sticks under the bar, over the content, on the bar's band,
-  /// once the top of [underBarAfter] has scrolled under the bar (who gives
-  /// the card, once their card has gone up). It drops in without moving the
-  /// content.
-  final Widget? underBar;
-  final GlobalKey? underBarAfter;
-
-  const GlassSheetPage({
+  /// Content that scrolls under the bar: a [child] or [slivers].
+  const GlassSheetPage.scroll({
     super.key,
     required this.title,
-    this.titleWidget,
-    this.onBack,
+    this.exits = const SheetExits(),
+    this.child,
+    this.slivers,
+    this.padding = EdgeInsets.zero,
+    this.bottom,
+    this.action,
+    this.fit = false,
+    this.underBar,
+  }) : _body = _PageBody.scroll,
+       slotBottom = false,
+       bottomInBar = false,
+       assert((child == null) != (slivers == null), "child or slivers"),
+       assert(!fit || child != null, "a page that fits has a child");
+
+  /// A [child] that fills the page and keeps clear of the home indicator
+  /// itself (a PIN pad, a camera, screens with their own buttons).
+  const GlassSheetPage.fill({
+    super.key,
+    required this.title,
+    this.exits = const SheetExits(),
+    required Widget this.child,
+    this.padding = EdgeInsets.zero,
+    this.bottom,
+    this.action,
+    this.slotBottom = false,
+    this.bottomInBar = false,
+  }) : _body = _PageBody.fill,
+       slivers = null,
+       fit = false,
+       underBar = null;
+
+  /// A [child] that lays itself out in a [SheetSplit]: only where the sheet
+  /// has columns ([useSheetColumns]). No padding, no scroll of its own.
+  const GlassSheetPage.split({
+    super.key,
+    required this.title,
+    this.exits = const SheetExits(),
+    required Widget this.child,
+    this.bottom,
+    this.action,
+    this.bottomInBar = false,
+  }) : _body = _PageBody.split,
+       slivers = null,
+       padding = EdgeInsets.zero,
+       slotBottom = false,
+       fit = false,
+       underBar = null;
+
+  /// The old flags, until every page uses the constructors above.
+  GlassSheetPage({
+    super.key,
+    required String title,
+    Widget? titleWidget,
+    VoidCallback? onBack,
     this.child,
     this.slivers,
     this.bottom,
     this.action,
-    this.closable = true,
-    this.closeAtStart = false,
+    bool closable = true,
+    bool closeAtStart = false,
     EdgeInsets padding = EdgeInsets.zero,
     bool scrolls = true,
     bool childClearsBottom = false,
     bool split = false,
     this.slotBottom = false,
     this.fit = false,
-    this.titleWidgetCentred = false,
-    this.titleAfterScroll,
-    this.titleUnder,
+    bool titleWidgetCentred = false,
+    double? titleAfterScroll,
+    GlobalKey? titleUnder,
     this.bottomInBar = false,
-    this.underBar,
-    this.underBarAfter,
-  }) : split = split,
+    Widget? underBar,
+    GlobalKey? underBarAfter,
+  }) : title = SheetTitle(
+         title,
+         widget: titleWidget,
+         centred: titleWidgetCentred,
+         reveal: titleUnder != null
+             ? SheetTitleReveal.under(titleUnder)
+             : titleAfterScroll != null
+             ? SheetTitleReveal.afterScroll(titleAfterScroll)
+             : const SheetTitleReveal.always(),
+       ),
+       exits = SheetExits(
+         onBack: onBack,
+         close: !closable
+             ? SheetClose.none
+             : closeAtStart
+             ? SheetClose.start
+             : SheetClose.end,
+       ),
+       _body = split
+           ? _PageBody.split
+           : scrolls
+           ? _PageBody.scroll
+           : _PageBody.fill,
        padding = split ? EdgeInsets.zero : padding,
-       scrolls = scrolls && !split,
-       childClearsBottom = childClearsBottom || split,
+       underBar = underBar == null || underBarAfter == null
+           ? null
+           : (row: underBar, after: underBarAfter),
        assert((child == null) != (slivers == null), "child or slivers"),
        assert(
          (scrolls && !split) || child != null,
          "a page that fills itself has a child",
        );
+
+  bool get _scrolls => _body == _PageBody.scroll;
+  bool get _split => _body == _PageBody.split;
 
   @override
   State<GlassSheetPage> createState() => _GlassSheetPageState();
@@ -149,9 +261,12 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
 
   bool _onScroll(ScrollNotification n) {
     if (n.metrics.axis != Axis.vertical) return false;
-    final heading = widget.titleUnder?.currentContext.laidOutBox;
+    final heading = switch (widget.title.reveal) {
+      _Under(:final heading) => heading.currentContext.laidOutBox,
+      _ => null,
+    };
     final bar = _barKey.currentContext.laidOutBox;
-    final after = widget.underBarAfter?.currentContext.laidOutBox;
+    final after = widget.underBar?.after.currentContext.laidOutBox;
     if (after != null && bar != null) {
       // The top of the name, 12 into the card, as the share screen's bar.
       _underBarShown.value =
@@ -163,7 +278,10 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       _past.value = bottom < bar.localToGlobal(Offset(0, bar.size.height)).dy;
       return false;
     }
-    final afterScroll = widget.titleAfterScroll;
+    final afterScroll = switch (widget.title.reveal) {
+      _AfterScroll(:final offset) => offset,
+      _ => null,
+    };
     if (afterScroll != null) _past.value = n.metrics.pixels > afterScroll;
     return false;
   }
@@ -172,8 +290,8 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final role = _SheetPageRole.maybeOf(context);
-    final title = widget.title;
-    final onBack = widget.onBack;
+    final title = widget.title.text;
+    final onBack = widget.exits.onBack;
     final action = widget.action;
     final inBar = sheetActionInBar(context);
     final bottomUp =
@@ -182,13 +300,13 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         !_GlassSheetFloating.of(context);
     _slot.takesBottom =
         widget.slotBottom &&
-        !widget.scrolls &&
+        !widget._scrolls &&
         !inBar &&
         !useSheetColumns(context);
     role?.chrome[role.pageKey] = (
       back: onBack != null,
       action: inBar && (action != null || _slot.action != null),
-      title: widget.titleWidget?.key,
+      title: widget.title.widget?.key,
     );
     // While pages change, what only one of the two pages has fades; what
     // both have stays put (the top page's stands in for the other's).
@@ -210,7 +328,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     }
     // A title widget both pages have (same key) does not fade out and in:
     // the top page's stays, the one underneath is hidden under it.
-    final titleKey = widget.titleWidget?.key;
+    final titleKey = widget.title.widget?.key;
     final sharedTitle =
         moving && other != null && titleKey != null && other.title == titleKey;
     final head = <Widget>[
@@ -223,23 +341,21 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
           final slotted = action == null ? _slot.action : null;
           // Until the page has scrolled its heading away, nothing in the
           // title's place (the title still names the page).
-          final hideTitle =
-              (widget.titleAfterScroll != null || widget.titleUnder != null) &&
-              !_past.value;
+          final hideTitle = widget.title.reveal is! _Always && !_past.value;
           return GlassSheetHeader(
             title: title,
             titleWidget:
-                widget.titleWidget ??
+                widget.title.widget ??
                 (hideTitle ? const SizedBox.shrink() : null),
             titleWidgetCentred:
-                widget.titleWidgetCentred || widget.titleWidget == null,
+                widget.title.centred || widget.title.widget == null,
             onBack: onBack,
             action: inBar ? (action ?? slotted) : null,
             onAction: slotted == null
                 ? null
                 : () => _slot.action?.onTap?.call(),
-            closable: widget.closable,
-            closeAtStart: widget.closeAtStart,
+            closable: widget.exits.close != SheetClose.none,
+            closeAtStart: widget.exits.close == SheetClose.start,
             buttons: top,
             titleOpacity: sharedTitle
                 ? (top ? null : kAlwaysDismissedAnimation)
@@ -267,7 +383,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       ),
     );
     // Taps on the bar stay on the bar, also where content is under it.
-    final underBar = widget.underBar;
+    final underBar = widget.underBar?.row;
     final bar = Listener(
       behavior: HitTestBehavior.opaque,
       child: Stack(
@@ -389,7 +505,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     // left column, not in a bar across the sheet.
     // The document steps' screens lay themselves out in a split sideways
     // too ([slotBottom]).
-    if ((widget.split || widget.slotBottom) &&
+    if ((widget._split || widget.slotBottom) &&
         bottom != null &&
         useSheetColumns(context)) {
       return [
@@ -402,18 +518,9 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
       ];
     }
     return [
-      if (!widget.scrolls) ...[
+      if (!widget._scrolls) ...[
         Expanded(
-          child: Padding(
-            padding: widget.childClearsBottom || bottom != null
-                ? padding
-                : padding.add(
-                    EdgeInsets.only(
-                      bottom: MediaQuery.paddingOf(context).bottom,
-                    ),
-                  ),
-            child: child,
-          ),
+          child: Padding(padding: padding, child: child),
         ),
         if (bottom != null) SheetBottomBar(child: bottom),
       ] else if (bottom == null)
