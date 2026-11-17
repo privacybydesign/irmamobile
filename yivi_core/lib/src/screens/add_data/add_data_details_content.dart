@@ -14,7 +14,7 @@ import "../../widgets/flight/yivi_flight.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/sheet_layout.dart";
 import "../../widgets/irma_markdown.dart";
-import "../../widgets/step_number_disc.dart";
+import "../../widgets/numbered_step.dart";
 import "../session/widgets/requestor_card.dart";
 
 /// Which part of the details to show: all of it, or (in the two columns of a
@@ -221,13 +221,13 @@ class AddDataDetailsContent extends StatelessWidget {
   /// before and after them as paragraphs.
   Widget _howTo(BuildContext context, String text) {
     final before = <String>[], after = <String>[];
-    final steps = <(String, String)>[];
+    final steps = <(int, String)>[];
     final step = RegExp(r"^(\d+)\.\s*(.*)$");
     for (final line in text.split("\n").map((l) => l.trim())) {
       if (line.isEmpty) continue;
       final m = step.firstMatch(line);
       if (m != null) {
-        steps.add((m.group(1)!, m.group(2)!));
+        steps.add((int.parse(m.group(1)!), m.group(2)!));
       } else {
         (steps.isEmpty ? before : after).add(line);
       }
@@ -240,7 +240,8 @@ class AddDataDetailsContent extends StatelessWidget {
         spacing: YiviSpace.x8,
         children: [
           for (final p in before) _Markdown(p),
-          for (final (n, s) in steps) _Step(number: n, text: s),
+          for (final (n, s) in steps)
+            NumberedStep(number: n, compact: true, child: _Markdown(s)),
           for (final p in after) _Markdown(p),
         ],
       ),
@@ -409,33 +410,6 @@ class _FoldState extends State<_Fold> {
                 )
               : const SizedBox(width: double.infinity),
         ),
-      ],
-    );
-  }
-}
-
-/// One numbered step of "How does it work?".
-class _Step extends StatelessWidget {
-  final String number;
-  final String text;
-
-  const _Step({required this.number, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: YiviSpace.x12,
-      children: [
-        StepNumberDisc(
-          number,
-          size: 22,
-          style: palette
-              .body(12, weight: FontWeight.w700)
-              .copyWith(color: palette.link, height: 1),
-        ),
-        Expanded(child: _Markdown(text)),
       ],
     );
   }

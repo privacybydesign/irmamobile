@@ -9,7 +9,7 @@ import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_layout.dart";
-import "../../../widgets/step_number_disc.dart";
+import "../../../widgets/numbered_step.dart";
 import "../../../widgets/surface_card.dart";
 
 /// The step of adding a card that sends you to the issuer's website, as a
@@ -128,7 +128,10 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
                   "data.add.website.step_do",
                   "data.add.website.step_back",
                 ].indexed)
-                  _NumberedStep(n: n + 1, text: context.tr(key, params)),
+                  NumberedStep(
+                    number: n + 1,
+                    child: Text(context.tr(key, params)),
+                  ),
               ],
             ),
           );
@@ -207,42 +210,6 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
                 ],
               ),
             ),
-    );
-  }
-}
-
-/// One of the numbered steps of going to the website.
-class _NumberedStep extends StatelessWidget {
-  final int n;
-  final String text;
-
-  const _NumberedStep({required this.n, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: YiviSpace.x12,
-      children: [
-        StepNumberDisc(
-          "$n",
-          style: palette
-              .body(13, weight: FontWeight.w700)
-              .copyWith(color: palette.link, height: 1),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(top: YiviSpace.x4),
-            child: Text(
-              text,
-              style: palette
-                  .body(15)
-                  .copyWith(height: 21 / 15, color: palette.heading),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

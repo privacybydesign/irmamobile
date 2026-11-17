@@ -6,7 +6,7 @@ import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/step_number_disc.dart";
+import "../../widgets/numbered_step.dart";
 import "../../widgets/surface_card.dart";
 import "../../widgets/translated_text.dart";
 import "../enrollment/widgets/enrollment_page.dart";
@@ -37,9 +37,21 @@ class BackToWebsiteScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              const _Step(number: 1, textKey: "back_to_website.step_1"),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: YiviSpace.x12),
+                child: NumberedStep(
+                  number: 1,
+                  child: TranslatedText("back_to_website.step_1"),
+                ),
+              ),
               Divider(height: 1, color: palette.divider),
-              const _Step(number: 2, textKey: "back_to_website.step_2"),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: YiviSpace.x12),
+                child: NumberedStep(
+                  number: 2,
+                  child: TranslatedText("back_to_website.step_2"),
+                ),
+              ),
             ],
           ),
         ),
@@ -63,42 +75,6 @@ class BackToWebsiteScreen extends StatelessWidget {
         icon: CupertinoIcons.xmark,
         onTap: () => Navigator.of(context).pop(),
         look: IconButtonLook.bar,
-      ),
-    );
-  }
-}
-
-class _Step extends StatelessWidget {
-  final int number;
-  final String textKey;
-
-  const _Step({required this.number, required this.textKey});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: YiviSpace.x12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: YiviSpace.x12,
-        children: [
-          StepNumberDisc(
-            "$number",
-            style: palette
-                .display(13, weight: FontWeight.w700)
-                .copyWith(color: palette.link),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: YiviSpace.x2),
-              child: TranslatedText(
-                textKey,
-                style: palette.body(15).copyWith(height: 21 / 15),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
