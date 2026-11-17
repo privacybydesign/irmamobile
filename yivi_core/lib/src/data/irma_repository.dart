@@ -817,7 +817,8 @@ class IrmaRepository {
       case EmbeddedFlow.phone:
         context.pushSmsIssuanceScreen();
       case EmbeddedFlow.document:
-        context.pushDocumentInstructionScreen(documentTypeOf(credentialId)!);
+        // Added in the sheet (IssueFlow), which never comes here.
+        assert(false, "documents are added in the sheet");
     }
   }
 

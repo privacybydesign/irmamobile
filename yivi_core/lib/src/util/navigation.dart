@@ -1,21 +1,9 @@
 import "package:flutter/widgets.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
-import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../models/log_entry.dart";
-import "../models/mrz.dart";
 import "../providers/email_issuance_provider.dart";
-import "../providers/ocr_processor_provider.dart";
-
-/// The path segment of each document in the document routes
-/// (`/mrz/reader/id_card`, `/nfc/passport`, …).
-const documentPaths = {
-  DocumentType.passport: "passport",
-  DocumentType.identityCard: "id_card",
-  DocumentType.residencePermit: "residence_permit",
-  DocumentType.drivingLicence: "driving_licence",
-};
 
 extension RoutingHelpers on BuildContext {
   void pushErrorScreen({required String message}) {
@@ -135,150 +123,11 @@ extension RoutingHelpers on BuildContext {
     final uri = Uri(path: "/session", queryParameters: args.toQueryParams());
     push(uri.toString());
   }
-
-  void pushDocumentInstructionScreen(DocumentType documentType) {
-    final uri = Uri(path: "/mrz/instructions/${documentType.name}");
-    push(uri.toString());
-  }
-
-  /// Opens the MRZ camera, or manual entry when the build has no
-  /// [ocrProcessor].
-  void pushDocumentCapture(
-    DocumentType documentType, {
-    required OcrProcessor? ocrProcessor,
-  }) {
-    final screen = ocrProcessor != null ? "reader" : "manual_entry";
-    push("/mrz/$screen/${documentPaths[documentType]}");
-  }
-
-  void pushDocumentManualEntry(DocumentType documentType) {
-    push("/mrz/manual_entry/${documentPaths[documentType]}");
-  }
-
-  /// The chip reading of [documentType] with [queryParameters] (what the MRZ
-  /// says), unless it is already the current page.
-  void _pushNfcReadingScreen(
-    DocumentType documentType,
-    Map<String, String> queryParameters,
-  ) {
-    final uri = Uri(
-      path: "/nfc/${documentPaths[documentType]}",
-      queryParameters: queryParameters,
-    ).toString();
-
-    final current = GoRouter.of(this).state.uri.toString();
-
-    if (current != uri) {
-      push(uri);
-    }
-  }
-
-  /// Opens the chip reading for what the camera or the manual entry read.
-  void pushNfcReadingScreenFor(ScannedMrz mrz) {
-    final countryCode = mrz.countryCode.isEmpty ? null : mrz.countryCode;
-    switch (mrz) {
-      case ScannedPassportMrz(:final dateOfBirth, :final dateOfExpiry) ||
-          ScannedIdCardMrz(:final dateOfBirth, :final dateOfExpiry):
-        _pushNfcReadingScreen(
-          mrz.documentType,
-          PassportNfcReadingRouteParams(
-            documentNumber: mrz.documentNumber,
-            dateOfBirth: dateOfBirth,
-            dateOfExpiry: dateOfExpiry,
-            countryCode: countryCode,
-          ).toQueryParams(),
-        );
-      case ScannedDrivingLicenceMrz():
-        _pushNfcReadingScreen(
-          .drivingLicence,
-          DrivingLicenceNfcReadingRouteParams(
-            documentNumber: mrz.documentNumber,
-            version: mrz.version,
-            randomData: mrz.randomData,
-            configuration: mrz.configuration,
-            countryCode: mrz.countryCode,
-          ).toQueryParams(),
-        );
-    }
-  }
 }
 
 // =============================================================================================
 
-class DrivingLicenceNfcReadingRouteParams {
-  final String documentNumber;
-  final String countryCode;
-
-  final String version;
-  final String randomData;
-  final String configuration;
-
-  DrivingLicenceNfcReadingRouteParams({
-    required this.documentNumber,
-    required this.version,
-    required this.randomData,
-    required this.configuration,
-    required this.countryCode,
-  });
-
-  Map<String, String> toQueryParams() {
-    return {
-      "document_number": documentNumber,
-      "version": version,
-      "random_data": randomData,
-      "configuration": configuration,
-      "country_code": countryCode,
-    };
-  }
-
-  static DrivingLicenceNfcReadingRouteParams fromQueryParams(
-    Map<String, String> params,
-  ) {
-    return DrivingLicenceNfcReadingRouteParams(
-      documentNumber: params["document_number"]!,
-      countryCode: params["country_code"]!,
-      version: params["version"]!,
-      randomData: params["random_data"]!,
-      configuration: params["configuration"]!,
-    );
-  }
-}
-
 // =============================================================================================
-
-class PassportNfcReadingRouteParams {
-  final String documentNumber;
-  final DateTime dateOfBirth;
-  final DateTime dateOfExpiry;
-  final String? countryCode;
-
-  PassportNfcReadingRouteParams({
-    required this.documentNumber,
-    required this.dateOfBirth,
-    required this.dateOfExpiry,
-    this.countryCode,
-  });
-
-  Map<String, String> toQueryParams() {
-    return {
-      "document_number": documentNumber,
-      "date_of_birth": dateOfBirth.toIso8601String(),
-      "date_of_expiry": dateOfExpiry.toIso8601String(),
-      "country_code": ?countryCode,
-    };
-  }
-
-  static PassportNfcReadingRouteParams fromQueryParams(
-    Map<String, String> params,
-  ) {
-    return PassportNfcReadingRouteParams(
-      documentNumber: params["document_number"]!,
-      dateOfBirth: DateTime.parse(params["date_of_birth"]!),
-      dateOfExpiry: DateTime.parse(params["date_of_expiry"]!),
-      countryCode: params["country_code"],
-    );
-  }
-}
 
 // =============================================================================================
 

@@ -10,9 +10,8 @@ import "nfc_reading_screen.dart";
 import "passport_mrz_manual_entry_screen.dart";
 
 /// The steps of adding a document (passport, ID card, driving licence), each
-/// with its callbacks: the full-screen routes and the Change sheet show the
-/// same screens and only differ in where the next step goes. In a sheet they
-/// show without their own bar (see `DocumentStepInSheet`).
+/// with its callbacks, as the sheet shows them (see `DocumentSheetStep`):
+/// without their own bar (`DocumentStepInSheet`).
 abstract final class DocumentFlowSteps {
   /// How to hold the document; [onStart] goes on to the camera or the
   /// manual entry.

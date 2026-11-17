@@ -5,16 +5,13 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
-import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "src/data/irma_repository.dart";
 import "src/models/enrollment_status.dart";
 import "src/models/log_entry.dart";
-import "src/models/mrz.dart";
 import "src/models/version_information.dart";
 import "src/providers/email_issuance_provider.dart";
 import "src/providers/irma_repository_provider.dart";
-import "src/providers/ocr_processor_provider.dart";
 import "src/providers/pane_selection_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
@@ -24,7 +21,6 @@ import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/credential_detail/credential_detail_screen.dart";
 import "src/screens/data/wallet/wallet_transition.dart";
 import "src/screens/debug/debug_screen.dart";
-import "src/screens/embedded_issuance_flows/documents/document_flow_steps.dart";
 import "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 import "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
@@ -257,122 +253,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               state.extra as EmailIssuancePurpose? ??
               EmailIssuancePurpose.addCredential,
         ),
-      ),
-      GoRoute(
-        path: "/mrz",
-        builder: (context, state) => Container(),
-        routes: [
-          _adaptive(
-            mode: PresentationMode.sheet,
-            phone: PhoneTransition.rise,
-            path: "/instructions/:type",
-            builder: (context, state) {
-              final documentType = DocumentType.values.byName(
-                state.pathParameters["type"]!,
-              );
-              return DocumentFlowSteps.instruction(
-                documentType,
-                onCancel: context.pop,
-                onStart: () => context.pushDocumentCapture(
-                  documentType,
-                  ocrProcessor: ref.read(ocrProcessorProvider),
-                ),
-              );
-            },
-          ),
-          GoRoute(
-            path: "/manual_entry",
-            builder: (context, state) => Container(),
-            routes: [
-              for (final MapEntry(key: type, value: path)
-                  in documentPaths.entries)
-                _adaptive(
-                  mode: PresentationMode.sheet,
-                  phone: PhoneTransition.rise,
-                  path: "/$path",
-                  builder: (context, state) => DocumentFlowSteps.manualEntry(
-                    type,
-                    onCancel: context.pop,
-                    onRead: context.pushNfcReadingScreenFor,
-                  ),
-                ),
-            ],
-          ),
-          GoRoute(
-            path: "/reader",
-            builder: (context, state) => Container(),
-            routes: [
-              for (final MapEntry(key: type, value: path)
-                  in documentPaths.entries)
-                _adaptive(
-                  mode: PresentationMode.sheet,
-                  phone: PhoneTransition.rise,
-                  path: "/$path",
-                  builder: (context, state) => DocumentFlowSteps.reader(
-                    type,
-                    onRead: context.pushNfcReadingScreenFor,
-                    onManual: () => context.pushDocumentManualEntry(type),
-                    onCancel: context.pop,
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-      GoRoute(
-        path: "/nfc",
-        builder: (context, state) => Container(),
-        routes: [
-          _adaptive(
-            mode: PresentationMode.sheet,
-            phone: PhoneTransition.rise,
-            path: "/driving_licence",
-            builder: (context, state) {
-              final args = DrivingLicenceNfcReadingRouteParams.fromQueryParams(
-                state.uri.queryParameters,
-              );
-              return DocumentFlowSteps.nfc(
-                ScannedDrivingLicenceMrz(
-                  documentNumber: args.documentNumber,
-                  countryCode: args.countryCode,
-                  version: args.version,
-                  randomData: args.randomData,
-                  configuration: args.configuration,
-                ),
-                onCancel: context.goHomeScreen,
-              );
-            },
-          ),
-          for (final MapEntry(key: type, value: path) in documentPaths.entries)
-            if (type != .drivingLicence)
-              _adaptive(
-                mode: PresentationMode.sheet,
-                phone: PhoneTransition.rise,
-                path: "/$path",
-                builder: (context, state) {
-                  final args = PassportNfcReadingRouteParams.fromQueryParams(
-                    state.uri.queryParameters,
-                  );
-                  return DocumentFlowSteps.nfc(
-                    type == .passport
-                        ? ScannedPassportMrz(
-                            documentNumber: args.documentNumber,
-                            countryCode: args.countryCode ?? "",
-                            dateOfBirth: args.dateOfBirth,
-                            dateOfExpiry: args.dateOfExpiry,
-                          )
-                        : ScannedIdCardMrz(
-                            documentNumber: args.documentNumber,
-                            countryCode: args.countryCode ?? "",
-                            dateOfBirth: args.dateOfBirth,
-                            dateOfExpiry: args.dateOfExpiry,
-                            documentType: type,
-                          ),
-                    onCancel: context.goHomeScreen,
-                  );
-                },
-              ),
-        ],
       ),
     ],
     redirect: (context, state) {
