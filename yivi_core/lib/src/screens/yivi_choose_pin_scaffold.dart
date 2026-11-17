@@ -49,7 +49,6 @@ class YiviChoosePinScaffold extends ConsumerWidget {
               final instructionKey =
                   'choose_pin.instruction.${longPin ? 'long' : 'short'}';
               return YiviPinScreen(
-                scaffoldKey: _scaffoldKey,
                 lockIcon: true,
                 stepLabel: stepLabel,
                 instructionKey: instructionKey,

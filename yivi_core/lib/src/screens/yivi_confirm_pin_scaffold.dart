@@ -39,7 +39,6 @@ class YiviConfirmPinScaffold extends StatelessWidget {
         leading: YiviBackButton(onTap: onBack),
       ),
       body: YiviPinScreen(
-        scaffoldKey: _scaffoldKey,
         lockIcon: true,
         stepLabel: stepLabel,
         instructionKey: instructionKey,

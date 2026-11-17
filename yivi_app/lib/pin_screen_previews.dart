@@ -154,7 +154,6 @@ Widget _pin({
     key: scaffoldKey,
     appBar: IrmaAppBar(titleString: ""),
     body: YiviPinScreen(
-      scaffoldKey: scaffoldKey,
       instructionKey: instructionKey,
       maxPinSize: maxPinSize,
       onSubmit: (_) {},

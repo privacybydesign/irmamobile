@@ -56,7 +56,6 @@ void main() {
       return YiviPinScaffold(
         key: scaffoldKey,
         body: YiviPinScreen(
-          scaffoldKey: scaffoldKey,
           instructionKey: "choose_pin.header",
           maxPinSize: size,
           checkSecurePin: true,
