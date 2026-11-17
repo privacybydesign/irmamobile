@@ -2,9 +2,9 @@ import "package:flutter/cupertino.dart" show CupertinoIcons;
 import "package:material_ui/material_ui.dart";
 
 import "../util/i18n.dart";
-import "glass/round_icon_button.dart";
+import "glass/pill_buttons.dart";
 
-/// The round close button ([RoundIconButton]).
+/// The round close button ([YiviIconButton]).
 class IrmaCloseButton extends StatelessWidget {
   final Function()? onTap;
 
@@ -18,12 +18,13 @@ class IrmaCloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RoundIconButton(
+    return YiviIconButton(
       label: context.tr("accessibility.close"),
       onTap: onTap ?? Navigator.of(context).pop,
       opacity: opacity,
       iconColor: color,
       icon: CupertinoIcons.xmark,
+      look: IconButtonLook.bar,
     );
   }
 }

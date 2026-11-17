@@ -58,13 +58,11 @@ class _DateInputFieldState extends State<DateInputField> {
         decoration: documentFieldDecoration(
           context,
           hint: "YYYY-MM-DD",
-          suffixIcon: PlainIconButton(
+          suffixIcon: YiviIconButton(
             icon: Icons.calendar_today_rounded,
             iconSize: 20,
-            semanticsLabel: MaterialLocalizations.of(
-              context,
-            ).datePickerHelpText,
-            onPressed: () async {
+            label: MaterialLocalizations.of(context).datePickerHelpText,
+            onTap: () async {
               final now = DateTime.now();
               final pickedDate = await showDatePicker(
                 context: context,

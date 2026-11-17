@@ -6,7 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
-import "../glass/round_icon_button.dart";
+import "../glass/pill_buttons.dart";
 import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
@@ -406,7 +406,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                           // As high as the close button: the title in
                           // line with it.
                           child: SizedBox(
-                            height: RoundIconButton.size,
+                            height: YiviIconButton.size,
                             child: Row(
                               children: [
                                 Expanded(

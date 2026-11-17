@@ -17,11 +17,11 @@ class CertManagerTile extends StatelessWidget {
       title: Text(cert.subject),
       onTap: onTap,
       trailing: cert.deleteable && onDelete != null
-          ? PlainIconButton(
+          ? YiviIconButton(
               icon: Icons.delete_outline_rounded,
               danger: true,
-              semanticsLabel: context.tr("debug.cert_management.remove_cert"),
-              onPressed: onDelete,
+              label: context.tr("debug.cert_management.remove_cert"),
+              onTap: onDelete,
             )
           : null,
     );

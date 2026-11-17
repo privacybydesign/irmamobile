@@ -206,11 +206,11 @@ class SchemeManagerDetailScreen extends StatelessWidget {
           appBar: IrmaAppBar(
             titleString: schemeManager.id,
             actions: [
-              PlainIconButton(
+              YiviIconButton(
                 icon: Icons.delete_outline_rounded,
                 danger: true,
-                semanticsLabel: "Delete",
-                onPressed: () => _onDeleteScheme(context),
+                label: "Delete",
+                onTap: () => _onDeleteScheme(context),
               ),
             ],
           ),

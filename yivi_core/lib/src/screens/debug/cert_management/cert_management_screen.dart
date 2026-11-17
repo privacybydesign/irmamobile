@@ -110,10 +110,10 @@ class _CertificateManagementScreenState
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.cert_management.title",
         actions: [
-          PlainIconButton(
+          YiviIconButton(
             icon: Icons.add,
-            semanticsLabel: "Add",
-            onPressed: _onInstallCertificate,
+            label: "Add",
+            onTap: _onInstallCertificate,
           ),
         ],
       ),

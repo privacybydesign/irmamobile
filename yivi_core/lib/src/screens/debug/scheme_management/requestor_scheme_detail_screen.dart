@@ -17,7 +17,9 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
   const RequestorSchemeDetailScreen({super.key, required this.requestorScheme});
 
   void _onDeleteScheme(BuildContext context) {
-    repositoryOf(context).bridgedDispatch(RemoveRequestorSchemeEvent(schemeId: requestorScheme.id));
+    repositoryOf(
+      context,
+    ).bridgedDispatch(RemoveRequestorSchemeEvent(schemeId: requestorScheme.id));
     Navigator.of(context).pop();
 
     if (!context.mounted) return;
@@ -37,11 +39,11 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
       appBar: IrmaAppBar(
         titleString: requestorScheme.id,
         actions: [
-          PlainIconButton(
+          YiviIconButton(
             icon: Icons.delete_outline_rounded,
             danger: true,
-            semanticsLabel: "Delete",
-            onPressed: () => _onDeleteScheme(context),
+            label: "Delete",
+            onTap: () => _onDeleteScheme(context),
           ),
         ],
       ),

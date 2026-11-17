@@ -7,7 +7,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/round_icon_button.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/pull_to_dismiss_physics.dart";
@@ -450,7 +450,7 @@ class WalletReveal extends StatelessWidget {
 }
 
 /// The close button of a page opened from a bar with a + (the Data tab):
-/// that + turned 45° ([RoundIconButton.plusAsClose]), the same button the
+/// that + turned 45° ([YiviIconButton.plusAsClose]), the same button the
 /// bar's + has turned into, so taking over from it shows nothing; or, with
 /// [turn] less than 1, that + on its way (0 is the + as in the bar). With
 /// reduced motion the + does not turn: there it is the ✕.
@@ -477,13 +477,14 @@ class _PlusAsClose extends StatelessWidget {
     return Transform.rotate(
       angle: pi / 4 * turn,
       child: Transform.scale(
-        scale: 1 + (RoundIconButton.plusAsClose - 1) * turn,
-        child: RoundIconButton(
+        scale: 1 + (YiviIconButton.plusAsClose - 1) * turn,
+        child: YiviIconButton(
           key: closeKey,
           icon: CupertinoIcons.add,
           label: context.tr("accessibility.close"),
           onTap: onTap,
           opacity: opacity,
+          look: IconButtonLook.bar,
         ),
       ),
     );

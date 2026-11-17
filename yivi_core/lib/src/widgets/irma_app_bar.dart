@@ -6,7 +6,6 @@ import "../theme/yivi_palette.dart";
 import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
 import "glass/pill_buttons.dart";
-import "glass/round_icon_button.dart";
 import "route_fixed_bar.dart";
 import "scroll_edge.dart";
 import "title_scroll_edge.dart";
@@ -20,16 +19,16 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The bar puts it 16 from the edges, like the other buttons.
-    return PlainIconButton(
+    return YiviIconButton(
       icon: Icons.qr_code_scanner_rounded,
       iconSize: 28,
-      semanticsLabel: context.tr("home.nav_bar.scan_qr"),
-      onPressed: onTap ?? () {},
+      label: context.tr("home.nav_bar.scan_qr"),
+      onTap: onTap ?? () {},
     );
   }
 }
 
-/// The round back button ([RoundIconButton]) at the start of an app bar.
+/// The round back button ([YiviIconButton]) at the start of an app bar.
 class YiviBackButton extends StatelessWidget {
   final Function()? onTap;
 
@@ -37,7 +36,7 @@ class YiviBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RoundIconButton(
+    return YiviIconButton(
       key: const Key("irma_app_bar_leading"),
       label: context.tr("ui.go_back"),
       icon: CupertinoIcons.arrow_left,
@@ -48,12 +47,13 @@ class YiviBackButton extends StatelessWidget {
           onTap!();
         }
       },
+      look: IconButtonLook.bar,
     );
   }
 }
 
 /// The bar at the top of a screen: no bar of its own, but the title and
-/// round buttons ([RoundIconButton]) over the page, 16 from the edges, with
+/// round buttons ([YiviIconButton]) over the page, 16 from the edges, with
 /// a hard scroll edge behind them once content scrolls underneath (see
 /// [BarInsets] and `extendBodyBehindAppBar`).
 ///

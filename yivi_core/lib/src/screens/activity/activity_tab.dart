@@ -25,7 +25,6 @@ import "../../widgets/empty_list_message.dart";
 import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/loading_more_indicator.dart";
 import "../../widgets/scroll_edge.dart";
 import "../../widgets/tab_layout.dart";
@@ -836,7 +835,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     final rowChips = chipsScroll ? const <Widget>[] : chips;
 
     final filterCount = query.isEmpty ? 0 : query.facetCount;
-    final filterButton = RoundIconButton(
+    final filterButton = YiviIconButton(
       key: const Key("activity_filter_button"),
       icon: CupertinoIcons.slider_horizontal_3,
       label: filterCount == 0
@@ -846,6 +845,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
             }),
       count: filterCount,
       onTap: _openFilter,
+      look: IconButtonLook.bar,
     );
     final cancel = TextButton(
       key: const Key("activity_search_cancel"),

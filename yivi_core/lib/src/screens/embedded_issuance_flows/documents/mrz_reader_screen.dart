@@ -16,7 +16,6 @@ import "../../../util/test_detection.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/glass/round_icon_button.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/translated_text.dart";
@@ -181,12 +180,12 @@ class _CameraScaffold extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: RoundIconButton(
+                    child: YiviIconButton(
                       key: const Key("irma_app_bar_leading"),
-                      dark: true,
                       icon: CupertinoIcons.arrow_left,
                       label: context.tr("ui.go_back"),
                       onTap: () => Navigator.of(context).maybePop(),
+                      look: IconButtonLook.dark,
                     ),
                   ),
                 ],

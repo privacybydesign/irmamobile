@@ -3,7 +3,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
-import "package:yivi_core/src/widgets/glass/round_icon_button.dart";
 
 Future<void> _pump(
   WidgetTester tester,
@@ -281,12 +280,12 @@ void main() {
               label: "Send again",
               onPressed: () {},
             ),
-            PlainIconButton(
+            YiviIconButton(
               key: const Key("icon"),
               icon: Icons.delete_outline_rounded,
-              semanticsLabel: "Delete",
+              label: "Delete",
               danger: true,
-              onPressed: () {},
+              onTap: () {},
             ),
           ],
         ),
@@ -307,17 +306,18 @@ void main() {
   ) async {
     await _pump(
       tester,
-      RoundIconButton(
+      YiviIconButton(
         key: const Key("round"),
         icon: Icons.close,
         label: "Close",
         onTap: () {},
         opacity: 0.4,
+        look: IconButtonLook.bar,
       ),
     );
     expect(
       tester.getSize(find.byKey(const Key("round"))),
-      const Size(RoundIconButton.size, RoundIconButton.size),
+      const Size(YiviIconButton.size, YiviIconButton.size),
     );
     expect(find.byType(BackdropFilter), findsNothing);
     expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.4);

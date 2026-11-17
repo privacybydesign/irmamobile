@@ -32,10 +32,10 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
     appBar: IrmaAppBar(
       titleTranslationKey: "debug.session_helper",
       actions: [
-        PlainIconButton(
+        YiviIconButton(
           icon: Icons.send_rounded,
-          semanticsLabel: "Start session",
-          onPressed: () => repositoryOf(context).startTestSession(_controller.text),
+          label: "Start session",
+          onTap: () => repositoryOf(context).startTestSession(_controller.text),
         ),
       ],
     ),

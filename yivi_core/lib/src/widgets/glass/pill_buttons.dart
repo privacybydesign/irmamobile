@@ -8,6 +8,7 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
+import "../count_badge.dart";
 import "../press_scale.dart";
 
 /// The two heights of the pill buttons: [large] at the bottom of a full
@@ -508,52 +509,139 @@ class TextLink extends StatelessWidget {
   }
 }
 
-/// A bare icon in content: delete on a row, "more", favourite, copy, the ×
-/// that removes an optional card. Icon 22 in the heading colour (or red for
-/// [danger]); the touch target is 44.
-class PlainIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final String semanticsLabel;
-  final bool danger;
-  final double iconSize;
+/// How a [YiviIconButton] looks.
+enum IconButtonLook {
+  /// In a bar: a 28 icon in the text colour, bare on what is behind it, as
+  /// iOS's round bar buttons. With a count (filters on) a tinted disc and a
+  /// badge.
+  bar,
 
-  const PlainIconButton({
+  /// In content: delete on a row, "more", copy, the × that removes an
+  /// optional card. A 22 icon in the heading colour (red for danger).
+  content,
+
+  /// Over a camera picture or a photo: a dark disc with a white icon.
+  dark,
+}
+
+/// The app's icon button, 44 across, in three looks ([IconButtonLook]). It
+/// gives way a little under the finger.
+class YiviIconButton extends StatelessWidget {
+  static const double size = 44;
+
+  /// The icon's box in a bar. Callers pass CupertinoIcons there: thin
+  /// strokes, as SF Symbols.
+  static const double barIconSize = 28;
+
+  /// How much larger a + is drawn as it turns 45° into a close button: then
+  /// it is as large as the ✕ (measured: the ✕ is 29% larger than the +
+  /// turned, and a little bolder).
+  static const double plusAsClose = 1.29;
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final IconButtonLook look;
+
+  /// Red, for a destructive action ([IconButtonLook.content]).
+  final bool danger;
+
+  /// The icon's colour instead of the look's (white over a photo's band).
+  final Color? iconColor;
+
+  /// The icon's size instead of the look's.
+  final double? iconSize;
+
+  /// Fades the button with what it sits on (a page's chrome).
+  final double opacity;
+
+  /// How many filters are on; 0 for none, or a button that has none.
+  final int count;
+
+  const YiviIconButton({
     super.key,
     required this.icon,
-    required this.onPressed,
-    required this.semanticsLabel,
+    required this.label,
+    required this.onTap,
+    this.look = IconButtonLook.content,
     this.danger = false,
-    this.iconSize = 22,
+    this.iconColor,
+    this.iconSize,
+    this.opacity = 1,
+    this.count = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
-      enabled: onPressed != null,
-      label: semanticsLabel,
-      excludeSemantics: true,
-      child: PressScale(
-        enabled: onPressed != null,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            highlightColor: Colors.transparent,
-            onTap: onPressed,
-            customBorder: const CircleBorder(),
-            child: SizedBox.square(
-              dimension: 44,
-              child: Icon(
-                icon,
-                size: iconSize,
-                color: (danger ? palette.danger : palette.heading).withValues(
-                  alpha: onPressed == null ? 0.4 : 1,
-                ),
-              ),
+    final on = count > 0;
+    final a = opacity.clamp(0.0, 1.0);
+    final (Color fill, Color ink, BorderSide edge) = switch (look) {
+      IconButtonLook.dark => (
+        Colors.black.withValues(alpha: 0.5),
+        Colors.white,
+        BorderSide(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      _ when on => (
+        palette.primary.withValues(alpha: palette.isDark ? 0.22 : 0.12),
+        palette.selectedTab,
+        BorderSide.none,
+      ),
+      IconButtonLook.bar => (
+        Colors.transparent,
+        iconColor ?? palette.text,
+        BorderSide.none,
+      ),
+      IconButtonLook.content => (
+        Colors.transparent,
+        iconColor ?? (danger ? palette.danger : palette.heading),
+        BorderSide.none,
+      ),
+    };
+    final button = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: size,
+          height: size,
+          decoration: ShapeDecoration(
+            color: fill,
+            shape: CircleBorder(side: edge),
+          ),
+          child: Icon(
+            icon,
+            size:
+                iconSize ?? (look == IconButtonLook.content ? 22 : barIconSize),
+            color: ink,
+          ),
+        ),
+        if (on)
+          Positioned(
+            top: -4,
+            right: -4,
+            child: CountBadge(
+              count: count,
+              fill: palette.primary,
+              ink: Colors.white,
+              size: 20,
+              fontSize: 11.5,
+              ring: palette.background,
+              plus: false,
+              lineHeight: null,
             ),
           ),
+      ],
+    );
+    return IgnorePointer(
+      ignoring: a == 0,
+      child: Opacity(
+        opacity: a,
+        child: _Tap(
+          onTap: onTap,
+          label: label,
+          // In a bar the button stays as it is; in content it dims.
+          dimWhenDisabled: look == IconButtonLook.content,
+          child: button,
         ),
       ),
     );

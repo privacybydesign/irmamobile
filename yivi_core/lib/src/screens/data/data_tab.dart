@@ -36,7 +36,6 @@ import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/glass_menu.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/glass/round_icon_button.dart";
 import "../../widgets/press_scale.dart";
 import "../../widgets/search_mark.dart";
 import "../../widgets/tab_layout.dart";
@@ -205,11 +204,12 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       onPressed: _stopSearching,
       child: Text(context.tr("wallet.search_cancel")),
     );
-    final add = RoundIconButton(
+    final add = YiviIconButton(
       key: const Key("data_tab_add_data"),
       icon: CupertinoIcons.add,
       label: context.tr("wallet.add_data"),
       onTap: () => showAddDataSheet(context),
+      look: IconButtonLook.bar,
     );
     final content = _Content(
       query: _query,
@@ -945,12 +945,13 @@ class _ViewMenuButton extends ConsumerWidget {
     final count = ref.watch(walletCardsProvider).length;
     if (count == 0) return const SizedBox.shrink();
     final view = ref.watch(walletViewProvider) ?? WalletView.stack;
-    return RoundIconButton(
+    return YiviIconButton(
       key: const Key("wallet_arrange"),
       icon: CupertinoIcons.ellipsis,
       label: _ViewMenu._semanticsLabel(context, view),
       onTap: () =>
           _ViewMenu.open(context, ref, view: view, arrangeable: count > 1),
+      look: IconButtonLook.bar,
     );
   }
 }
@@ -1028,12 +1029,12 @@ class _ProblematicCredentialCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: YiviSpace.x8),
-            PlainIconButton(
+            YiviIconButton(
               key: Key("${credential.credentialId ?? "problematic"}_delete"),
               icon: Icons.delete_outline_rounded,
               danger: true,
-              semanticsLabel: context.tr("accessibility.remove"),
-              onPressed: () => _confirmDelete(context, ref),
+              label: context.tr("accessibility.remove"),
+              onTap: () => _confirmDelete(context, ref),
             ),
           ],
         ),

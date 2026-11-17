@@ -53,12 +53,10 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
                     ],
                   ),
                 ),
-              PlainIconButton(
+              YiviIconButton(
                 icon: Icons.copy,
-                semanticsLabel: MaterialLocalizations.of(
-                  context,
-                ).copyButtonLabel,
-                onPressed: () {
+                label: MaterialLocalizations.of(context).copyButtonLabel,
+                onTap: () {
                   Clipboard.setData(
                     ClipboardData(
                       text: _showSensitiveLogs

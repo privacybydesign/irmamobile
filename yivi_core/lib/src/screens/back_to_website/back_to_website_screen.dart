@@ -5,7 +5,7 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/round_icon_button.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/step_number_disc.dart";
 import "../../widgets/surface_card.dart";
 import "../../widgets/translated_text.dart";
@@ -57,11 +57,12 @@ class BackToWebsiteScreen extends StatelessWidget {
     return EnrollmentPage(
       about: const Center(child: _BrowserSketch()),
       action: action,
-      trailing: RoundIconButton(
+      trailing: YiviIconButton(
         key: const Key("back_to_website_close"),
         label: context.tr("accessibility.close"),
         icon: CupertinoIcons.xmark,
         onTap: () => Navigator.of(context).pop(),
+        look: IconButtonLook.bar,
       ),
     );
   }

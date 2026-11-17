@@ -177,10 +177,10 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.scheme_management.title",
         actions: [
-          PlainIconButton(
+          YiviIconButton(
             icon: Icons.add,
-            semanticsLabel: "Add",
-            onPressed: _onInstallScheme,
+            label: "Add",
+            onTap: _onInstallScheme,
           ),
         ],
       ),

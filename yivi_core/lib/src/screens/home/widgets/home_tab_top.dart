@@ -7,7 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../widgets/glass/glass_search_field.dart";
-import "../../../widgets/glass/round_icon_button.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/scroll_edge.dart";
 import "../../../widgets/tab_layout.dart";
@@ -323,7 +323,7 @@ class _Bar extends StatelessWidget {
 
   /// Two buttons and the gap between them on either side: the small title
   /// stays centred.
-  static const double _side = 2 * RoundIconButton.size + 8;
+  static const double _side = 2 * YiviIconButton.size + 8;
 
   @override
   Widget build(BuildContext context) {
@@ -404,11 +404,12 @@ class _Bar extends StatelessWidget {
                           opacity: search,
                           child: Transform.scale(
                             scale: 0.8 + 0.2 * search,
-                            child: RoundIconButton(
+                            child: YiviIconButton(
                               key: top.searchButtonKey,
                               icon: CupertinoIcons.search,
                               label: top.searchLabel,
                               onTap: top.onSearch,
+                              look: IconButtonLook.bar,
                             ),
                           ),
                         ),
@@ -434,7 +435,7 @@ class _Bar extends StatelessWidget {
                                 // As large as the ✕ it turns into.
                                 ? (open) =>
                                       1 +
-                                      (RoundIconButton.plusAsClose - 1) * open
+                                      (YiviIconButton.plusAsClose - 1) * open
                                 : null,
                             trailing,
                           )

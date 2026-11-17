@@ -11,7 +11,7 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/round_icon_button.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/surface_card.dart";
 import "../../activity/activity_detail_screen.dart";
@@ -214,11 +214,12 @@ class _CardActivityEntryPage extends ConsumerWidget {
         navigator.pop();
         if (!useHomePanes(context)) navigator.maybePop();
       },
-      leading: RoundIconButton(
+      leading: YiviIconButton(
         key: const Key("card_activity_entry_back"),
         label: context.tr("wallet.detail.back_to_card"),
         onTap: navigator.pop,
         icon: CupertinoIcons.arrow_left,
+        look: IconButtonLook.bar,
       ),
       actions: [
         IrmaCloseButton(
