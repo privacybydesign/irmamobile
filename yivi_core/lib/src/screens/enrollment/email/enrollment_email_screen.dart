@@ -19,6 +19,7 @@ import "../../../widgets/icon_square.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "../../embedded_issuance_flows/email/widgets/email_address_entry.dart";
+import "../../embedded_issuance_flows/widgets/contact_step_controller.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
 import "../widgets/enrollment_page.dart";
 import "enrollment_email_link.dart";
@@ -68,14 +69,15 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   static final _flow = contactIssuanceProvider(ContactFlow.linkEmail);
 
   final _emailFocus = FocusNode();
-  final _codeFocus = FocusNode();
-  final _codeController = TextEditingController();
+  late final _c = ContactStepController(() => ref.read(_flow.notifier))
+    ..addListener(() {
+      if (mounted) setState(() {});
+    });
   final _emailKey = GlobalKey<EmailAddressEntryState>();
   StreamSubscription<Pointer?>? _links;
 
   var _valid = false;
   var _waitingForAccount = false;
-  var _sentAgain = false;
   var _check = _Check.idle;
 
   String get _language => context.lang;
@@ -97,8 +99,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   void dispose() {
     _links?.cancel();
     _emailFocus.dispose();
-    _codeFocus.dispose();
-    _codeController.dispose();
+    _c.dispose();
     super.dispose();
   }
 
@@ -112,7 +113,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     if (email != null && email.toLowerCase() != flow.target.toLowerCase()) {
       return;
     }
-    _codeController.text = link.code;
+    _c.code.text = link.code;
     _verify(link.code);
   }
 
@@ -127,25 +128,20 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
       widget.onAccountFailed(error);
       return;
     }
-    _sentAgain = false;
-    await ref.read(_flow.notifier).send(email, language: _language);
+    await _c.send(email, _language);
     if (!mounted) return;
     if (ref.read(_flow).stage == ContactStage.code) {
-      _codeFocus.requestFocus();
+      _c.codeFocus.requestFocus();
     }
   }
 
   Future<void> _verify(String code) async {
     if (_check == _Check.checking) return;
     setState(() => _check = _Check.checking);
-    final issuance = await ref.read(_flow.notifier).verify(code.toUpperCase());
+    final issuance = await _c.verify(code);
     if (!mounted) return;
     if (issuance == null) {
-      // Not right: empty boxes, ready for another try; the error stays under
-      // them until the next character.
       setState(() => _check = _Check.idle);
-      _codeController.clear();
-      _codeFocus.requestFocus();
       return;
     }
     await _link(issuance);
@@ -181,16 +177,8 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   }
 
   void _change() {
-    _codeController.clear();
-    _sentAgain = false;
-    ref.read(_flow.notifier).backToAddress();
+    _c.change();
     afterFrame(() => _emailFocus.requestFocus());
-  }
-
-  void _sendAgain(String email) {
-    _codeController.clear();
-    setState(() => _sentAgain = true);
-    ref.read(_flow.notifier).send(email, language: _language);
   }
 
   @override
@@ -279,14 +267,12 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         ContactCodeField(
           fieldKey: const Key("email_verification_code_input_field"),
           labelKey: "contact_sheet.code_label_email",
-          controller: _codeController,
-          focusNode: _codeFocus,
+          controller: _c.code,
+          focusNode: _c.codeFocus,
           length: emailCodeLength,
           invalid: codeError != null,
           onChanged: (text) {
-            if (text.isNotEmpty && hasError) {
-              ref.read(_flow.notifier).clearError();
-            }
+            _c.codeTyped(text, hasError: hasError);
             setState(() {});
           },
           onCompleted: _verify,
@@ -331,11 +317,11 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
           _Check.idle => ContactResend.row(
             until: ref.read(_flow.notifier).resendAt(flow.target),
             hint: context.tr(
-              _sentAgain
+              _c.sentAgain
                   ? "contact_sheet.sent_again"
                   : "contact_sheet.hint_email",
             ),
-            onResend: () => _sendAgain(flow.target),
+            onResend: () => _c.sendAgain(flow.target, _language),
           ),
         },
       ];

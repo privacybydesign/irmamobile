@@ -15,6 +15,7 @@ import "../../../widgets/pill_text_field.dart";
 import "../../session/widgets/issue_sheet_progress.dart";
 import "../email/widgets/email_address_entry.dart";
 import "../sms/widgets/phone_number_entry.dart";
+import "contact_step_controller.dart";
 import "contact_widgets.dart";
 
 /// Steps 2 and 3 of adding an e-mail address or phone number in a sheet (the
@@ -76,16 +77,14 @@ class ContactSheetStep extends ConsumerStatefulWidget {
 
 class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   final _focusNode = FocusNode();
-  final _codeFocus = FocusNode();
-  final _codeController = TextEditingController();
+  late final _c = ContactStepController(() => _flow)
+    ..addListener(() {
+      if (mounted) setState(() {});
+    });
   final _emailKey = GlobalKey<EmailAddressEntryState>();
   final _phoneKey = GlobalKey<PhoneNumberEntryState>();
 
   var _valid = false;
-  var _verifying = false;
-
-  /// A new code was sent from the code stage.
-  var _sentAgain = false;
 
   bool get _email => widget.flow.kind == ContactKind.email;
 
@@ -104,7 +103,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     // The keyboard comes up at once: the field is what the page is for.
     afterFrame(() {
       if (widget.code) {
-        _codeFocus.requestFocus();
+        _c.codeFocus.requestFocus();
       } else if (_stateNow().stage == ContactStage.address) {
         _focusNode.requestFocus();
       }
@@ -114,8 +113,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   @override
   void dispose() {
     _focusNode.dispose();
-    _codeFocus.dispose();
-    _codeController.dispose();
+    _c.dispose();
     super.dispose();
   }
 
@@ -125,48 +123,23 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   ContactIssuanceState _stateNow() =>
       ref.read(contactIssuanceProvider(widget.flow));
 
-  void _send(String target) => _flow.send(target, language: _language);
-
   void _submitTarget() {
     final target = _email
         ? _emailKey.currentState?.submittable()
         : _phoneKey.currentState?.submittable();
     if (target == null) return;
-    _sentAgain = false;
-    _send(target);
+    _c.send(target, _language);
   }
 
   Future<void> _verify(String code) async {
-    if (_verifying) return;
-    setState(() => _verifying = true);
-    final session = await _flow.verify(code.toUpperCase());
-    if (!mounted) return;
-    setState(() => _verifying = false);
-    if (session == null) {
-      // Not right: empty boxes, ready for another try; the error stays
-      // under them until the next character.
-      _codeController.clear();
-      _codeFocus.requestFocus();
-      return;
-    }
+    final session = await _c.verify(code);
+    if (session == null || !mounted) return;
     await handlePointer(context, session);
   }
 
-  void _resetError() => _flow.clearError();
-
   /// Back on the address, filled in, to change it: the code page slides
   /// away (the address page under it focuses its field as it comes back).
-  void _change() {
-    _codeController.clear();
-    _sentAgain = false;
-    ContactSheetStep.backToAddress(ref, widget.flow);
-  }
-
-  void _sendAgain(String target) {
-    _codeController.clear();
-    setState(() => _sentAgain = true);
-    _send(target);
-  }
+  void _change() => _c.change();
 
   /// Back from the code is to the address; from the address it leaves the
   /// step for the details.
@@ -264,18 +237,20 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     final Widget body;
     final SheetAction action;
     if (code) {
-      final complete = _codeController.text.length == _flow.codeLength;
+      final complete = _c.code.text.length == _flow.codeLength;
       action = SheetAction(
         key: const Key("contact_sheet_verify"),
         label: context.tr("contact_sheet.check_code"),
-        busy: _verifying,
-        onTap: complete ? () => _verify(_codeController.text) : null,
+        busy: _c.verifying,
+        onTap: complete ? () => _verify(_c.code.text) : null,
       );
       final sideways = useSheetColumns(context);
       final resend = ContactResend.row(
         until: _flow.resendAt(state.target),
-        hint: _sentAgain ? context.tr("contact_sheet.sent_again") : _k("hint"),
-        onResend: () => _sendAgain(state.target),
+        hint: _c.sentAgain
+            ? context.tr("contact_sheet.sent_again")
+            : _k("hint"),
+        onResend: () => _c.sendAgain(state.target, _language),
       );
       body = _split(
         key: const Key("contact_sheet_code"),
@@ -310,17 +285,15 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
                   ? "email_verification_code_input_field"
                   : "sms_verification_code_input_field",
             ),
-            controller: _codeController,
-            focusNode: _codeFocus,
+            controller: _c.code,
+            focusNode: _c.codeFocus,
             length: _flow.codeLength,
             invalid: errorText != null,
             smsRetriever: _email ? null : ref.watch(smsRetrieverProvider),
             onChanged: (text) {
               // Typing again clears the error; emptying the boxes after a
               // failed check does not.
-              if (text.isNotEmpty && _stateNow().error != null) {
-                _resetError();
-              }
+              _c.codeTyped(text, hasError: _stateNow().error != null);
               setState(() {});
             },
             onCompleted: _verify,
