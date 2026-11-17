@@ -5,12 +5,11 @@ import "package:share_plus/share_plus.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_space.dart";
 import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/link.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/list_row.dart";
 
 class ContactLinkTile extends StatelessWidget {
   final IconData? iconData;
@@ -226,8 +225,8 @@ class Tile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final (Color squareFill, Color iconColor, Color labelColor) = danger
-        ? (palette.errorSurface, palette.danger, palette.danger)
+    final (Color squareFill, Color iconColor) = danger
+        ? (palette.errorSurface, palette.danger)
         // On the tinted row the icon square is white; in dark one step
         // lighter than the row.
         : (
@@ -235,85 +234,30 @@ class Tile extends StatelessWidget {
                 ? (palette.isDark ? palette.raisedTint : palette.surface)
                 : palette.tint,
             palette.heading,
-            palette.text,
           );
 
-    final row = ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 60),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16 + indent,
-          YiviSpace.x12,
-          YiviSpace.x12,
-          YiviSpace.x12,
-        ),
-        child: Row(
-          spacing: YiviSpace.x16,
-          children: [
-            if (iconData != null)
-              IconSquare(
-                icon: iconData,
-                fill: squareFill,
-                ink: iconColor,
-                iconSize: 22,
-              ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TranslatedText(
-                    labelTranslationKey,
-                    style: palette
-                        .body(
-                          16,
-                          weight: danger ? FontWeight.w600 : FontWeight.w400,
-                        )
-                        .copyWith(color: labelColor),
-                  ),
-                  if (subtitleTranslationKey != null)
-                    TranslatedText(
-                      subtitleTranslationKey!,
-                      style: palette
-                          .body(14)
-                          .copyWith(
-                            height: 20 / 14,
-                            color: palette.secondaryText,
-                          ),
-                    ),
-                ],
-              ),
+    return ListRow(
+      title: context.tr(labelTranslationKey),
+      subtitle: subtitleTranslationKey == null
+          ? null
+          : context.tr(subtitleTranslationKey!),
+      leading: iconData == null
+          ? null
+          : IconSquare(
+              icon: iconData!,
+              fill: squareFill,
+              ink: iconColor,
+              iconSize: 22,
             ),
-            if (value != null)
-              Text(
-                value!,
-                style: palette.body(14).copyWith(color: palette.secondaryText),
-              ),
-            trailing ??
-                (danger
-                    ? const SizedBox.shrink()
-                    : Icon(
-                        Icons.chevron_right,
-                        color: selected ? palette.link : palette.faint,
-                      )),
-          ],
-        ),
-      ),
-    );
-
-    return Semantics(
-      link: isLink,
-      enabled: enabled,
+      value: value,
+      trailingWidget: trailing,
+      onTap: onTap,
       selected: selected,
-      child: Material(
-        color: selected ? palette.tint : Colors.transparent,
-        child: IgnorePointer(
-          ignoring: !enabled,
-          child: Opacity(
-            opacity: enabled ? 1 : 0.5,
-            child: InkWell(onTap: onTap, child: row),
-          ),
-        ),
-      ),
+      danger: danger,
+      enabled: enabled,
+      link: isLink,
+      indent: indent,
+      subtitleMaxLines: 99,
     );
   }
 }
