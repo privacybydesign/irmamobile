@@ -11,7 +11,6 @@ import "package:material_ui/material_ui.dart";
 import "../../models/activity_query.dart";
 import "../../models/log_entry.dart";
 import "../../providers/activity_providers.dart";
-import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
@@ -35,9 +34,9 @@ import "../home/widgets/search_tab_scaffold.dart";
 import "activity_detail_screen.dart";
 import "activity_entry.dart";
 import "activity_filter_sheet.dart";
-import "activity_kind_words.dart";
 import "activity_options.dart";
 import "activity_query_labels.dart";
+import "activity_search_controller.dart";
 import "widgets/activity_card.dart";
 import "widgets/activity_detail_parts.dart";
 import "widgets/activity_query_chips.dart";
@@ -86,32 +85,10 @@ const double _liveCountHeight = 28;
 
 class _ActivityTabState extends ConsumerState<ActivityTab> {
   final _scrollController = ScrollController();
-  late final _field = SearchTabController(this, onFocus: _focused);
-
-  /// Whether a search is on. It starts when the field gets focus and ends
-  /// on Cancel, or once nothing is typed or tagged any more after Enter;
-  /// not when the field loses focus.
-  bool _searching = false;
-
-  /// Enter pressed: the field stays up in the bar with the typed words, the
-  /// keyboard and the suggestions go, and the filter takes Cancel's place.
-  /// Back in the field, it is typing again.
-  bool _submitted = false;
-  String _typed = "";
-
-  /// The question asked before searching: Cancel goes back to it.
-  ActivityQuery _before = ActivityQuery.empty;
-
-  /// The question being built while searching: the applied one at the
-  /// start, a tag more with each pick. The log shows what it finds with
-  /// the typed words.
-  ActivityQuery? _draft;
-  Timer? _liveDelay;
-
-  /// How many entries each suggestion would leave: those with none go.
-  final _counts = <String, int>{};
-  Timer? _countDelay;
-  late final _counter = ActivityOptionCounter(ref.read(irmaRepositoryProvider));
+  late final _field = SearchTabController(
+    this,
+    onFocus: () => _search.focused(ActivityWords.of(context)),
+  );
 
   @override
   void initState() {
@@ -119,182 +96,86 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _scrollController.addListener(_listenToScroll);
   }
 
-  /// A tap in the field: the search starts; after Enter, it is typing
-  /// again.
-  void _focused() {
-    if (!_searching) {
-      _startSearching();
-    } else if (_submitted) {
-      setState(() => _submitted = false);
-      _scheduleCounts();
-    }
-  }
-
   @override
   void dispose() {
-    _countDelay?.cancel();
-    _liveDelay?.cancel();
     _field.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
+  ActivitySearchController get _search =>
+      ref.read(activitySearchProvider.notifier);
+  ActivitySearch get _state => ref.read(activitySearchProvider);
+  bool get _searching => _state.searching;
+  bool get _typing => _state.typing;
+  String get _typed => _state.typed;
+  Map<String, int> get _counts => _state.counts;
   ActivityQuery get _query => ref.read(activityLogProvider).filter;
 
-  /// Searching and not yet past Enter: Cancel, the suggestions, the live
-  /// count.
-  bool get _typing => _searching && !_submitted;
-
   /// What the suggestions build on: the draft while searching.
-  ActivityQuery get _asked => _draft ?? _query;
-
-  void _ask(ActivityQuery query) {
-    ref.read(activityLogProvider.notifier).setFilter(query);
-    if (_scrollController.hasClients) _scrollController.jumpTo(0);
-  }
-
-  void _startSearching() {
-    setState(() {
-      _searching = true;
-      _submitted = false;
-      _before = _query;
-      _draft = _query;
-    });
-    _scheduleCounts();
-  }
+  ActivityQuery get _asked => _search.asked;
 
   /// The field under the large title, or the bar's search button: the
   /// search, with the field up in the bar and the keyboard up.
-  void _startSearchingInBar() => _field.startInBar(_startSearching);
-
-  /// Ends the search: the log keeps [keep], or (Cancel) goes back to the
-  /// question asked before.
-  void _endSearching({ActivityQuery? keep}) {
-    _liveDelay?.cancel();
-    _field.stop();
-    final before = _before;
-    setState(() {
-      _searching = false;
-      _submitted = false;
-      _typed = "";
-      _draft = null;
-    });
-    _ask(keep ?? before);
+  void _startSearchingInBar() {
+    final words = ActivityWords.of(context);
+    _field.startInBar(() => _search.start(words));
   }
 
-  /// The log shows what the draft and the typed words find, a moment
-  /// after typing stops (a tag at once).
-  void _showLive({bool now = false}) {
-    _liveDelay?.cancel();
-    void show() {
-      if (!mounted || !_searching) return;
-      _ask(_withTyped(_asked, _typed));
-    }
-
-    if (now) {
-      show();
-    } else {
-      _liveDelay = Timer(const Duration(milliseconds: 150), show);
-    }
-  }
+  /// Cancel: back to the question asked before.
+  void _endSearching() => _search.end();
 
   /// A suggestion: a tag more on the draft. The field empties and keeps the
   /// keyboard, to add another.
   void _pick(ActivityQuery query) {
     _field.field.clear();
-    setState(() {
-      _draft = query;
-      _typed = "";
-    });
+    _search.pick(query, ActivityWords.of(context));
     _field.focus.requestFocus();
-    _showLive(now: true);
-    _scheduleCounts();
   }
 
   /// A tag's cross while searching: the draft without it. The keyboard
-  /// stays if it was up. After Enter, with nothing left asked, the search
-  /// ends.
+  /// stays if it was up.
   void _changeDraft(ActivityQuery query) {
-    if (_submitted && query.isEmpty && _typed.trim().isEmpty) {
-      _endSearching(keep: ActivityQuery.empty);
-      return;
-    }
     final typing = _field.focus.hasFocus;
-    setState(() => _draft = query);
-    if (typing) _field.focus.requestFocus();
-    _showLive(now: true);
-    _scheduleCounts();
+    _search.changeDraft(query, ActivityWords.of(context));
+    if (typing && _searching) _field.focus.requestFocus();
   }
 
-  /// The draft with what is still typed as words to search.
-  ActivityQuery _withTyped(ActivityQuery q, String typed) {
-    // "gedeeld met" asks for shared entries; the rest is searched.
-    final (kinds, rest) = readKindWords(
-      typed,
-      ActivityWords.of(context).kindPhrases(),
-    );
-    if (kinds.isNotEmpty) q = q.copyWith(kinds: {...q.kinds, ...kinds});
-    final words = rest.trim();
-    if (words.isEmpty) return q;
-    final text = q.text.trim();
-    return q.copyWith(text: text.isEmpty ? words : "$text $words");
-  }
+  void _searchText(String text) =>
+      _search.submit(text, ActivityWords.of(context));
 
-  /// Enter: the log shows what the draft and the typed words find, and the
-  /// field stays with them; with nothing asked, the search ends.
-  void _searchText(String text) {
-    if (_asked.isEmpty && text.trim().isEmpty) {
-      _endSearching(keep: ActivityQuery.empty);
-      return;
-    }
-    _countDelay?.cancel();
-    setState(() {
-      _typed = text;
-      _submitted = true;
-    });
-    _field.focus.unfocus();
-    _showLive(now: true);
-  }
-
-  /// The field's clear button: after Enter, with no tags either, the search
-  /// ends; otherwise it is typing again.
+  /// The field's clear button: the search ends, or it is typing again.
   void _cleared() {
-    if (_submitted && _asked.isEmpty) {
-      _endSearching(keep: ActivityQuery.empty);
-    } else {
-      _field.focus.requestFocus();
-    }
+    if (!_search.cleared()) _field.focus.requestFocus();
   }
 
-  void _onTyped(String text) {
-    setState(() => _typed = text);
-    _showLive();
-    _scheduleCounts();
-  }
+  void _onTyped(String text) => _search.type(text, ActivityWords.of(context));
 
   Future<void> _openFilter() async {
     final next = await showActivityFilterSheet(context, _query);
     if (next == null || !mounted) return;
-    if (!_searching) return _ask(next);
-    // The typed words stay in the field, not in the draft.
-    final draft = next.copyWith(text: _asked.text);
-    if (draft.isEmpty && _typed.trim().isEmpty) {
-      return _endSearching(keep: ActivityQuery.empty);
-    }
-    setState(() => _draft = draft);
-    _showLive(now: true);
+    _search.applyFilter(next, ActivityWords.of(context));
   }
 
-  /// "Clear": nothing asked, and no search any more.
-  void _clearAll() => _searching
-      ? _endSearching(keep: ActivityQuery.empty)
-      : _ask(ActivityQuery.empty);
+  void _clearAll() => _search.clearAll();
 
   /// A row: its details. While searching the keyboard goes first, and
   /// stays down when coming back.
   void _open(LogInfo entry) {
     if (_searching) _field.focus.unfocus();
     openActivity(context, entry);
+  }
+
+  /// The field and the list follow the search: it ends, the field empties
+  /// and the keyboard goes; Enter, the keyboard goes; every question asked,
+  /// the log goes to the top.
+  void _follow(ActivitySearch? before, ActivitySearch now) {
+    if (before == null) return;
+    if (before.searching && !now.searching) _field.stop();
+    if (!before.submitted && now.submitted) _field.focus.unfocus();
+    if (before.asks != now.asks && _scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+    }
   }
 
   void _loadMoreLogs() => ref.read(activityLogProvider.notifier).loadMore();
@@ -407,26 +288,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     ];
   }
 
-  /// Counts what each suggestion would leave, a moment after typing stops.
-  void _scheduleCounts() {
-    _countDelay?.cancel();
-    _countDelay = Timer(const Duration(milliseconds: 150), () async {
-      if (!mounted || !_searching) return;
-      final all = _candidates(
-        ref.read(activityPartiesProvider).value ?? const [],
-      ).flattened;
-      final counts = await _counter.count({
-        for (final s in all) s.key: s.query,
-      });
-      if (counts == null || !mounted) return;
-      setState(() {
-        _counts
-          ..clear()
-          ..addAll(counts);
-      });
-    });
-  }
-
   /// The row of suggestions under the field (and the tags) while searching.
   Widget? _suggestionRow({bool inset = true}) {
     final suggestions = _suggestions();
@@ -489,7 +350,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// the applied question, or while searching the draft.
   List<Widget> _chips(ActivityQuery q) {
     final card = q.card;
-    final change = _searching ? _changeDraft : _ask;
+    final change = _searching ? _changeDraft : _search.ask;
     return [
       if (q.kinds.isNotEmpty)
         ActivityFacetChip(
@@ -740,6 +601,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(activitySearchProvider);
+    ref.listen(activitySearchProvider, _follow);
     final state = ref.watch(activityLogProvider);
     final query = state.filter;
     final chips = _chips(_searching ? _asked : query);
