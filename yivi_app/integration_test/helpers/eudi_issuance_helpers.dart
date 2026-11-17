@@ -9,7 +9,6 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dar
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/util/string.dart";
-import "package:yivi_core/src/widgets/credential_card/irma_empty_credential_card.dart";
 
 import "../disclosure_session/disclosure_helpers.dart";
 import "../irma_binding.dart";
@@ -354,7 +353,7 @@ Future<void> verifyMostRecentActivityLog(
 }
 
 /// Opens the most recent activity entry and asserts it represents an empty
-/// disclosure: an [IrmaEmptyCredentialCard] is shown, and the
+/// disclosure: the "no data" card is shown, and the
 /// [ActivityHeroHeader] contains [expectedRequestorName] (i.e. the log records *who* the
 /// transaction was with, even though no data was shared).
 Future<void> verifyEmptyDisclosureActivityLog(
@@ -369,7 +368,7 @@ Future<void> verifyEmptyDisclosureActivityLog(
     find.byType(ActivityCard, skipOffstage: false).first,
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.byType(IrmaEmptyCredentialCard), findsOneWidget);
+  expect(find.byKey(const Key("activity_no_data")), findsOneWidget);
 
   final requestorHeaderFinder = find.byType(ActivityHeroHeader);
   expect(requestorHeaderFinder, findsOneWidget);

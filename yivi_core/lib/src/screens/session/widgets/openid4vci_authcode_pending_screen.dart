@@ -8,7 +8,8 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
-import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/credential_card/card_tile.dart";
+import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_avatar.dart";
@@ -83,9 +84,13 @@ class _OpenID4VCIAuthCodePendingScreenState
       ...widget.offeredCredentialTypes.map(
         (descriptor) => Padding(
           padding: const EdgeInsets.only(bottom: YiviSpace.x16),
-          child: YiviCredentialCard.fromDescriptor(
-            descriptor: descriptor,
-            hideNotObtainable: true,
+          child: CardTile(
+            art: CredentialTypeThumbnail(
+              descriptor: descriptor,
+              width: CardTile.miniWidth,
+            ),
+            title: descriptor.name,
+            subtitle: descriptor.issuer.name,
           ),
         ),
       ),

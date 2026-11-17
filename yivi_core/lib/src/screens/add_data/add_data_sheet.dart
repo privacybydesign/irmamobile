@@ -5,7 +5,6 @@ import "../../models/credential.dart";
 import "../../models/credential_store.dart";
 import "../../providers/credential_store_provider.dart";
 import "../../providers/credentials_search.dart";
-import "../../providers/irma_repository_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
@@ -46,22 +45,12 @@ Future<void> showAddDataSheet(
 );
 
 /// "Get again" for a card in the app: the Add data sheet, straight on the
-/// details of its type ([credentialId]). The type is looked up in the
-/// credential store, or else described by the [card] itself. Without an
-/// issue URL there is nothing to add it from in the sheet, and the issuer is
-/// opened as before.
-Future<void> obtainAgain(
-  BuildContext context,
-  WidgetRef ref, {
-  required String credentialId,
-  required String? issueUrl,
-  Credential? card,
-}) async {
-  if (issueUrl == null || issueUrl.isEmpty) {
-    return ref
-        .read(irmaRepositoryProvider)
-        .openIssueURL(context, credentialId, issueUrl, ref);
-  }
+/// details of its type. The type is looked up in the credential store, or
+/// else described by the [card] itself. Only offered for a card with an
+/// issue URL.
+Future<void> obtainAgain(BuildContext context, {required Credential card}) async {
+  final issueUrl = card.issueUrl;
+  assert(issueUrl != null && issueUrl.isNotEmpty, "No issue URL to add from");
   // Listened to while waiting, so the store stays loaded until it is there.
   final subscription = ProviderScope.containerOf(
     context,
@@ -79,28 +68,21 @@ Future<void> obtainAgain(
   CredentialDescriptor? descriptor;
   for (final group in store ?? const <CredentialStoreCategory>[]) {
     for (final item in group.items) {
-      if (item.credential.credentialId == credentialId) {
+      if (item.credential.credentialId == card.credentialId) {
         descriptor = item.credential;
       }
     }
   }
-  descriptor ??= card == null
-      ? null
-      : CredentialDescriptor(
-          credentialId: credentialId,
-          name: card.name,
-          issuer: card.issuer,
-          category: null,
-          image: card.image,
-          attributes: const [],
-          issueURL: issueUrl,
-          isSingleton: card.isSingleton,
-        );
-  if (descriptor == null) {
-    return ref
-        .read(irmaRepositoryProvider)
-        .openIssueURL(context, credentialId, issueUrl, ref);
-  }
+  descriptor ??= CredentialDescriptor(
+    credentialId: card.credentialId,
+    name: card.name,
+    issuer: card.issuer,
+    category: null,
+    image: card.image,
+    attributes: const [],
+    issueURL: issueUrl,
+    isSingleton: card.isSingleton,
+  );
   return showAddDataSheet(context, addNew: descriptor, flyToDataTab: false);
 }
 

@@ -15,11 +15,11 @@ import "../../../widgets/compact_bar.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
-import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/party_avatar.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
+import "../../../widgets/translated_text.dart";
 import "../activity_entry.dart";
 
 /// The text colour of [kind] on a surface, in both themes.
@@ -701,8 +701,17 @@ class ActivityDetailBody extends StatelessWidget {
                 if (sections.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: YiviSpace.x24),
-                    // Nothing was disclosed: one empty data card.
-                    child: IrmaEmptyCredentialCard(),
+                    // Nothing was disclosed: one card that says so.
+                    child: SurfaceCard(
+                      key: const Key("activity_no_data"),
+                      padding: const EdgeInsets.all(YiviSpace.x16),
+                      child: Center(
+                        child: TranslatedText(
+                          "credential.no_data",
+                          style: YiviPalette.of(context).paragraph,
+                        ),
+                      ),
+                    ),
                   ),
                 for (final section in sections) ...[
                   if (sections.length > 1)

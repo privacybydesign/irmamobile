@@ -39,15 +39,9 @@ import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute
 import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_templates.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_header.dart";
 import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
-import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/irma_avatar.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
@@ -496,16 +490,11 @@ typedef AttrRow = (String label, Object value);
 typedef Block = List<AttrRow>;
 
 /// Finds the credential cards shown in a session or a log: the owned
-/// candidates of a disclosure ([SharedCardTile]), the credentials of an
-/// activity ([ActivityCredentialTile]) and the cards still drawn as a
-/// [YiviCredentialCard] (obtainable options in a choice). Tree order is kept,
-/// so `.at(i)` follows the screen order.
+/// candidates of a disclosure ([SharedCardTile]) and the credentials of an
+/// activity ([ActivityCredentialTile]). Tree order is kept, so `.at(i)` follows the screen order.
 Finder findCredentialCards({bool skipOffstage = true}) =>
     find.byWidgetPredicate(
-      (w) =>
-          w is YiviCredentialCard ||
-          w is SharedCardTile ||
-          w is ActivityCredentialTile,
+      (w) => w is SharedCardTile || w is ActivityCredentialTile,
       skipOffstage: skipOffstage,
     );
 
@@ -535,7 +524,6 @@ Finder findIssuanceCards({bool skipOffstage = false}) => find.descendant(
 Finder findCredentialDetail() => find.byType(CredentialDetailScreen);
 
 bool _isCardRoot(Widget w) =>
-    w is YiviCredentialCard ||
     w is SharedCardTile ||
     w is ActivityCredentialTile ||
     w is CredentialDetailScreen ||
@@ -557,7 +545,6 @@ Element _cardRoot(Finder finder) {
         of: finder,
         matching: find.byWidgetPredicate(
           (w) =>
-              w is YiviCredentialCard ||
               w is SharedCardTile ||
               w is ActivityCredentialTile ||
               w is CredentialDetailScreen,
@@ -625,24 +612,6 @@ Future<void> evaluateCredentialCard(
   final root = _cardRoot(credentialCardFinder);
   final rootFinder = find.byElementPredicate((e) => e == root);
   final widget = root.widget;
-
-  if (widget is YiviCredentialCard) {
-    return _evaluateYiviCredentialCard(
-      tester,
-      rootFinder,
-      credentialName: credentialName,
-      issuerName: issuerName,
-      instancesRemaining: instancesRemaining,
-      attributes: attributes,
-      attributesCompareTo: attributesCompareTo,
-      footerText: footerText,
-      style: style,
-      isRevoked: isRevoked,
-      isExpired: isExpired,
-      isExpiringSoon: isExpiringSoon,
-      expectReobtainButton: expectReobtainButton,
-    );
-  }
 
   if (footerText != null) {
     throw ArgumentError(
@@ -1017,160 +986,6 @@ void _evaluateAttributes(
       (textFinder.evaluate().first.widget as Text).style?.color,
       expectedTextColor,
     );
-  }
-}
-
-Future<void> _evaluateYiviCredentialCard(
-  WidgetTester tester,
-  Finder credentialCardFinder, {
-  String? credentialName,
-  String? issuerName,
-  int? instancesRemaining,
-  List<AttrRow>? attributes,
-  List<AttrRow>? attributesCompareTo,
-  String? footerText,
-  IrmaCardStyle? style,
-  bool? isRevoked,
-  bool? isExpired,
-  bool? isExpiringSoon,
-  bool? expectReobtainButton,
-}) async {
-  expect(
-    find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(YiviCredentialCard),
-      matchRoot: true,
-    ),
-    findsOneWidget,
-  );
-
-  if (instancesRemaining != null) {
-    final footer = find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(YiviCredentialCardFooter),
-    );
-    final instanceCountFinder = find.descendant(
-      of: footer,
-      matching: find.text("$instancesRemaining times left"),
-    );
-    expect(instanceCountFinder, findsOneWidget);
-  }
-
-  if (style != null) {
-    // the style is detemined definitively inside of the build function of the credential card
-    // so there is no way of knowing it for certain other than to look it up in the irma card
-    final irmaCardFinder = find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(IrmaCard),
-    );
-    expect((irmaCardFinder.evaluate().first.widget as IrmaCard).style, style);
-  }
-
-  final shouldCheckCardStatus =
-      isRevoked != null || isExpired != null || isExpiringSoon != null;
-  final shouldCheckHeaderInfo = credentialName != null || issuerName != null;
-
-  if (shouldCheckHeaderInfo || shouldCheckCardStatus) {
-    // Card should have a header
-    final cardHeaderFinder = find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(YiviCredentialCardHeader),
-    );
-    expect(cardHeaderFinder, findsOneWidget);
-
-    // Get the text from the header, excluding the avatar's fallback initials
-    // text (rendered when no logo image is available).
-    final avatarFinder = find.descendant(
-      of: cardHeaderFinder,
-      matching: find.byType(IrmaAvatar),
-    );
-    final avatarTexts = avatarFinder.evaluate().isEmpty
-        ? const <String>{}
-        : tester.getAllText(avatarFinder).toSet();
-    var cardHeaderText = tester
-        .getAllText(cardHeaderFinder)
-        .where((t) => !avatarTexts.contains(t));
-    final credentialStatusTexts = {
-      "revoked": "Revoked",
-      "expired": "Expired",
-      "expiring": "About to expire",
-    };
-
-    if (shouldCheckCardStatus &&
-        credentialStatusTexts.values.contains(cardHeaderText.first)) {
-      final credentialStatus = cardHeaderText.first;
-
-      if (isRevoked != null) {
-        expect(credentialStatus == credentialStatusTexts["revoked"], isRevoked);
-      }
-
-      if (isExpired != null) {
-        expect(credentialStatus == credentialStatusTexts["expired"], isExpired);
-      }
-
-      if (isExpiringSoon != null) {
-        expect(
-          credentialStatus == credentialStatusTexts["expiring"],
-          isExpiringSoon,
-        );
-      }
-    }
-
-    if (shouldCheckHeaderInfo) {
-      // Filter the status texts from the list, so we can test the rest.
-      cardHeaderText = cardHeaderText.whereNot(
-        (text) => credentialStatusTexts.values.contains(text),
-      );
-
-      // Compare the expected credential name
-      if (credentialName != null) {
-        expect(cardHeaderText.first, credentialName);
-      }
-
-      // Compare the issuer credential name
-      if (issuerName != null) {
-        expect(cardHeaderText.elementAt(1), issuerName);
-      }
-    }
-  }
-
-  if (attributes != null) {
-    final cardAttList = find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(YiviCredentialCardAttributeList),
-    );
-    _evaluateAttributes(tester, cardAttList, attributes, attributesCompareTo);
-  }
-
-  // Check the footer
-  if (footerText != null || shouldCheckCardStatus) {
-    final footerFinder = find.byType(YiviCredentialCardFooter);
-
-    if (shouldCheckCardStatus) {
-      final isReobtainable =
-          expectReobtainButton ??
-          ((isExpired ?? false) ||
-              (isRevoked ?? false) ||
-              (isExpiringSoon ?? false));
-
-      // Find reobtainable button
-      final reobtainButtonFinder = find.descendant(
-        of: find.byType(PillButton),
-        matching: find.text("Reobtain"),
-      );
-
-      expect(
-        reobtainButtonFinder,
-        isReobtainable ? findsOneWidget : findsNothing,
-      );
-    }
-
-    if (footerText != null) {
-      expect(
-        find.descendant(of: footerFinder, matching: find.text(footerText)),
-        findsOneWidget,
-      );
-    }
   }
 }
 

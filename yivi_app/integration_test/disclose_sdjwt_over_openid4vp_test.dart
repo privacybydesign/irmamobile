@@ -16,7 +16,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_read
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
 import "helpers/document_reading_helpers.dart";

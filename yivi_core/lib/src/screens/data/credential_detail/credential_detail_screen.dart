@@ -595,13 +595,7 @@ class _Details extends ConsumerWidget {
             key: const Key("credential_detail_reobtain"),
             style: PillStyle.neutral,
             label: context.tr("credential.options.reobtain"),
-            onPressed: () => obtainAgain(
-              context,
-              ref,
-              credentialId: credential.credentialId,
-              issueUrl: credential.issueUrl,
-              card: credential,
-            ),
+            onPressed: () => obtainAgain(context, card: credential),
           ),
         if (canDelete)
           Padding(

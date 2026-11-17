@@ -809,6 +809,7 @@
     "explanation": "Unter der Haube ist alles gleich geblieben, Sie können sich mit Ihrem alten PIN-Code anmelden."
   },
   "notifications": {
+    "card_gone": "Diese Daten sind nicht mehr in deiner App und nicht mehr in Yivi.",
     "title": "Mitteilungen",
     "empty": "Keine Mitteilungen",
     "empty_text": "Hier siehst du, wenn Daten in deiner App bald ablaufen, abgelaufen sind oder vom Aussteller widerrufen wurden. So kannst du sie rechtzeitig erneuern.",

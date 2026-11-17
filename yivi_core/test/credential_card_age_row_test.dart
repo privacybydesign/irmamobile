@@ -5,8 +5,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "support/pump_translated.dart";
@@ -256,15 +255,16 @@ void main() {
       await pumpTranslated(
         tester,
         _app(
-          YiviCredentialCard(
-            credentialName: "Personal data",
-            issuerName: "Issuer",
-            attributes: _mixedAges,
-            status: CredentialCardStatus(
-              revoked: false,
-              batchInstanceCountsRemaining: const {},
-            ),
-            hideFooter: true,
+          CardTile(
+            art: const SizedBox(width: CardTile.miniWidth),
+            title: "Personal data",
+            subtitle: "Issuer",
+            body: [
+              YiviCredentialCardAttributeList(
+                _mixedAges,
+                ageDisplay: AgeDisplay.collapsed,
+              ),
+            ],
           ),
         ),
       );

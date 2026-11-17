@@ -809,6 +809,7 @@
     "explanation": "Onder de motorkap is alles hetzelfde gebleven, je kunt gewoon inloggen met je oude PIN-code."
   },
   "notifications": {
+    "card_gone": "Deze gegevens staan niet meer in je app en ook niet in Yivi.",
     "title": "Notificaties",
     "empty": "Geen notificaties",
     "empty_text": "Hier zie je het als gegevens in je app bijna verlopen, verlopen zijn of door de uitgever zijn ingetrokken. Dan kun je ze op tijd vernieuwen.",

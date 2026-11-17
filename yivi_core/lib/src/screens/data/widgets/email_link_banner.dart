@@ -3,13 +3,13 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../providers/email_linking_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/email_linking.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/translated_text.dart";
@@ -30,10 +30,20 @@ class EmailLinkBanner extends ConsumerWidget {
         YiviSpace.x16,
         0,
       ),
-      child: IrmaCard(
+      child: DecoratedBox(
         key: const Key("email_link_banner"),
-        style: IrmaCardStyle.highlighted,
-        margin: EdgeInsets.zero,
+        // A tinted card with an outline, the same off a sheet and on it.
+        decoration: ShapeDecoration(
+          color: YiviPalette.forBrightness(Theme.of(context).brightness).tint,
+          shape: RoundedRectangleBorder(
+            borderRadius: YiviCorners.cardRadius,
+            side: BorderSide(
+              color: YiviPalette.forBrightness(
+                Theme.of(context).brightness,
+              ).outline,
+            ),
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.only(
             left: YiviSpace.x16,

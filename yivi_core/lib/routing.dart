@@ -22,7 +22,6 @@ import "src/screens/back_to_website/back_to_website_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/credential_detail/credential_detail_screen.dart";
-import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/data/wallet/wallet_transition.dart";
 import "src/screens/debug/debug_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/document_flow_steps.dart";
@@ -152,18 +151,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     found: state.uri.queryParameters["found"],
                   ),
                 ),
-              );
-            },
-          ),
-          _adaptive(
-            mode: PresentationMode.sheet,
-            path: "credentials_details",
-            builder: (context, state) {
-              final args = CredentialsDetailsRouteParams.fromQueryParams(
-                state.uri.queryParameters,
-              );
-              return SchemalessCredentialsDetailsScreen(
-                credentialTypeId: args.credentialTypeId,
               );
             },
           ),

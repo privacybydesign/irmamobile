@@ -3,6 +3,10 @@ import "package:collection/collection.dart";
 import "../../../models/log_entry.dart";
 import "card_expiry_date.dart";
 
+/// How the integration tests expect a card to look: plain, highlighted, or
+/// marked as a problem.
+enum IrmaCardStyle { normal, highlighted, danger }
+
 /// The expiry/validity state of a credential property (time-based or instance-based).
 enum ExpireState { notExpired, almostExpired, expired }
 

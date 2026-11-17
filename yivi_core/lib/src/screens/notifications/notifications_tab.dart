@@ -2,6 +2,7 @@ import "package:collection/collection.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart" hide Notification;
 
+import "../../providers/credential_store_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_corners.dart";
@@ -10,6 +11,7 @@ import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
+import "../../widgets/app_toast.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/irma_dismissible.dart";
 import "../../widgets/loading_indicator.dart";
@@ -17,6 +19,7 @@ import "../../widgets/tab_layout.dart";
 import "../../widgets/title_scroll_edge.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
+import "../add_data/add_data_sheet.dart";
 import "../data/credential_detail/credential_detail_screen.dart";
 import "../data/wallet/wallet_transition.dart";
 import "models/credential_status_notification.dart";
@@ -38,28 +41,54 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
     if (notification is! CredentialStatusNotification) return;
     ref.read(notificationsProvider.notifier).markRead(notification.id);
 
-    // Open the card itself when it is still in the wallet.
-    {
-      final cards = ref.read(walletCardsProvider);
-      final card = cards.firstWhereOrNull(
-        (c) => c.hash == notification.credentialHash,
-      );
-      if (card != null && useHomePanes(context)) {
-        ref.read(selectedNotificationCardProvider.notifier).select(card.hash);
-        ref.read(selectedNotificationProvider.notifier).select(notification.id);
-        return;
-      }
-      if (card != null) {
-        WalletTransition.begin(pictureContext, card.hash);
-        pictureContext.pushCredentialDetailScreen(card.hash);
-        return;
-      }
+    // The card itself when it is still in the wallet, else another card of
+    // its type, else Add data on the type.
+    final cards = ref.read(walletCardsProvider);
+    final card =
+        cards.firstWhereOrNull((c) => c.hash == notification.credentialHash) ??
+        cards.firstWhereOrNull(
+          (c) => c.credentialId == notification.credentialTypeId,
+        );
+    if (card != null && useHomePanes(context)) {
+      ref.read(selectedNotificationCardProvider.notifier).select(card.hash);
+      ref.read(selectedNotificationProvider.notifier).select(notification.id);
+      return;
     }
-    context.pushCredentialsDetailsScreen(
-      CredentialsDetailsRouteParams(
-        credentialTypeId: notification.credentialTypeId,
-      ),
+    if (card != null) {
+      WalletTransition.begin(pictureContext, card.hash);
+      pictureContext.pushCredentialDetailScreen(card.hash);
+      return;
+    }
+    _addAgain(notification.credentialTypeId);
+  }
+
+  /// No card of the type is left: Add data, on the type, when the store
+  /// still offers it; else a toast says so.
+  Future<void> _addAgain(String credentialTypeId) async {
+    final toast = appToastFor(context, overTabBar: true);
+    // Listened to while waiting, so the store stays loaded until it is there.
+    final subscription = ref.listenManual(
+      groupedCredentialStoreProvider,
+      (_, _) {},
     );
+    List<CredentialStoreCategory> store = const [];
+    try {
+      store = await ref.read(groupedCredentialStoreProvider.future);
+    } catch (_) {
+      // Without the store there is nothing to add it from.
+    } finally {
+      subscription.close();
+    }
+    if (!mounted) return;
+    final descriptor = store
+        .expand((group) => group.items)
+        .map((item) => item.credential)
+        .firstWhereOrNull((c) => c.credentialId == credentialTypeId);
+    if (descriptor == null) {
+      toast(context.tr("notifications.card_gone"));
+      return;
+    }
+    showAddDataSheet(context, addNew: descriptor, flyToDataTab: false);
   }
 
   /// The card the detail pane shows: the picked one, or that of the newest

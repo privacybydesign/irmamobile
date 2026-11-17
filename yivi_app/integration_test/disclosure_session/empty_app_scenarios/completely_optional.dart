@@ -4,7 +4,6 @@ import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/irma_empty_credential_card.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -93,5 +92,5 @@ Future<void> completelyOptionalTest(
   await tester.tapAndSettle(secondActivityCardFinder);
 
   // Expect the no data card
-  expect(find.byType(IrmaEmptyCredentialCard), findsOneWidget);
+  expect(find.byKey(const Key("activity_no_data")), findsOneWidget);
 }

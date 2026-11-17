@@ -126,14 +126,6 @@ extension RoutingHelpers on BuildContext {
     push(uri.toString());
   }
 
-  void pushCredentialsDetailsScreen(CredentialsDetailsRouteParams params) {
-    final uri = Uri(
-      path: "/home/credentials_details",
-      queryParameters: params.toQueryParams(),
-    );
-    push(uri.toString());
-  }
-
   void pushReplacementSessionScreen(SessionRouteParams args) {
     final uri = Uri(path: "/session", queryParameters: args.toQueryParams());
     pushReplacement(uri.toString());
@@ -208,26 +200,6 @@ extension RoutingHelpers on BuildContext {
           ).toQueryParams(),
         );
     }
-  }
-}
-
-// =============================================================================================
-
-class CredentialsDetailsRouteParams {
-  final String credentialTypeId;
-
-  CredentialsDetailsRouteParams({required this.credentialTypeId});
-
-  Map<String, String> toQueryParams() {
-    return {"credential_type_id": credentialTypeId};
-  }
-
-  static CredentialsDetailsRouteParams fromQueryParams(
-    Map<String, String> params,
-  ) {
-    return CredentialsDetailsRouteParams(
-      credentialTypeId: params["credential_type_id"]!,
-    );
   }
 }
 
