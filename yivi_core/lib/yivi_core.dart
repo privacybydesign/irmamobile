@@ -2,14 +2,12 @@ import "dart:async";
 
 import "package:flutter/foundation.dart" show LicenseRegistry;
 import "package:flutter/services.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
-import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
@@ -19,7 +17,6 @@ import "src/providers/sms_issuance_provider.dart";
 import "src/providers/store_review_provider.dart";
 import "src/providers/wallet_cards_provider.dart";
 import "src/screens/data/card_transition/choreography.dart";
-import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/sentry/sentry.dart";
 import "src/util/card_font_licenses.dart";
 import "src/util/navigation.dart";
@@ -154,43 +151,33 @@ class YiviApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repository = ref.watch(irmaRepositoryProvider);
-    final notificationsBloc = NotificationsBloc(repo: repository);
 
     // Eagerly initialize the credential order controller so it starts
     // tracking credential changes before the data tab is first mounted.
     ref.read(credentialOrderControllerProvider);
 
     return TransitionStyleProvider(
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => notificationsBloc..add(Initialize()),
-          ),
-        ],
-        child: PreferredLocaleBuilder(
-          builder: (context, preferredLocale) {
-            Locale? appLocale;
-            if (preferredLocale != null) {
-              // The preferred locale is the locale that the user has selected in the settings
-              // If it's not null it will override the system/default locale
-              appLocale = preferredLocale;
-            } else {
-              // If there is a default locale prefer that one.
-              // This is mainly used for testing purposes
-              appLocale = defaultLanguage;
-            }
+      child: PreferredLocaleBuilder(
+        builder: (context, preferredLocale) {
+          Locale? appLocale;
+          if (preferredLocale != null) {
+            // The preferred locale is the locale that the user has selected in the settings
+            // If it's not null it will override the system/default locale
+            appLocale = preferredLocale;
+          } else {
+            // If there is a default locale prefer that one.
+            // This is mainly used for testing purposes
+            appLocale = defaultLanguage;
+          }
 
-            // If there is no preferred locale and no default locale,
-            // appLocale will be null and the system locale will be used
+          // If there is no preferred locale and no default locale,
+          // appLocale will be null and the system locale will be used
 
-            return App(
-              forcedLocale: appLocale,
-              notificationsBloc: notificationsBloc,
-              idleLockThreshold: idleLockThreshold,
-            );
-          },
-        ),
+          return App(
+            forcedLocale: appLocale,
+            idleLockThreshold: idleLockThreshold,
+          );
+        },
       ),
     );
   }

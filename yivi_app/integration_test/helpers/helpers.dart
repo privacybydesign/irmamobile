@@ -6,7 +6,6 @@ import "package:collection/collection.dart";
 import "package:cupertino_ui/cupertino_ui.dart";
 
 // ignore: depend_on_referenced_packages
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -26,7 +25,7 @@ import "package:yivi_core/src/screens/add_data/add_data_details_content.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/loading/loading_screen.dart";
-import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
+import "package:yivi_core/src/screens/notifications/notifications_provider.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/pin/lock_gate.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
@@ -1536,12 +1535,12 @@ Future<void> deleteCredentialFromDetail(WidgetTester tester) async {
 }
 
 /// Whether the notifications tab button shows its unread dot. The dot has no
-/// key; it is drawn exactly when the notifications bloc has unread ones.
+/// key; it is drawn exactly when the notifications have unread ones.
 bool notificationsIndicatorShown(WidgetTester tester) {
-  final state = BlocProvider.of<NotificationsBloc>(
+  final state = ProviderScope.containerOf(
     tester.element(find.byKey(const Key("nav_button_notifications"))),
-  ).state;
-  return state is NotificationsLoaded && state.hasUnreadNotifications;
+  ).read(notificationsProvider);
+  return state is NotificationsLoaded && state.hasUnread;
 }
 
 Future<void> openAddCredentialDetailsScreen(

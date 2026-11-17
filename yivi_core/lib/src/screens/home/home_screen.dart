@@ -1,6 +1,5 @@
 import "dart:math";
 
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -18,7 +17,7 @@ import "../data/card_transition/card_transition_layer.dart";
 import "../data/data_tab.dart";
 import "../data/wallet/wallet_transition.dart";
 import "../more/more_tab.dart";
-import "../notifications/bloc/notifications_bloc.dart";
+import "../notifications/notifications_provider.dart";
 import "../notifications/notifications_tab.dart";
 import "widgets/home_navigation.dart";
 import "widgets/home_tab.dart";
@@ -56,7 +55,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // what it showed counts as read once another tab is picked.
     ref.listen(homeTabProvider, (previous, next) {
       if (previous == .notifications && next != .notifications) {
-        context.read<NotificationsBloc>().add(MarkAllNotificationsAsRead());
+        ref.read(notificationsProvider.notifier).markAllRead();
       }
     });
     final tabState = ref.watch(homeTabProvider);

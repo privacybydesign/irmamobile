@@ -1,10 +1,10 @@
 // ignore: depend_on_referenced_packages
-import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
+import "package:yivi_core/src/screens/notifications/notifications_provider.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
@@ -553,15 +553,13 @@ Future<void> testColdStartPersistsDismissedFlag(
   await tester.pumpAndSettle();
   expect(notificationCardFinder, findsNothing);
 
-  // Drive a fresh Initialize to exercise the same cold-start code path the
-  // bloc takes on real app launch: read serialized records from prefs, run
-  // each handler against the live credential store, derive runtime
-  // notifications, and yield NotificationsInitialized. The dismissed flag
-  // must survive the JSON round-trip.
-  final bloc = BlocProvider.of<NotificationsBloc>(
+  // Build the notifications afresh, the same cold-start path as a real app
+  // launch: read the stored records, run each handler against the live
+  // credential store, derive the notifications. The dismissed flag must
+  // survive the JSON round-trip.
+  ProviderScope.containerOf(
     tester.element(find.byType(NotificationsTab)),
-  );
-  bloc.add(Initialize());
+  ).invalidate(notificationsProvider);
   await tester.pumpAndSettle();
 
   expect(find.byType(NotificationCard), findsNothing);

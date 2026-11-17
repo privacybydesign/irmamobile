@@ -19,7 +19,7 @@ import "src/providers/irma_repository_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/data/card_transition/card_transition.dart";
 import "src/screens/home/widgets/system_navigation_bar.dart";
-import "src/screens/notifications/bloc/notifications_bloc.dart";
+import "src/screens/notifications/notifications_provider.dart";
 import "src/screens/pin/lock_gate.dart";
 import "src/screens/review/store_review_gate.dart";
 import "src/util/idle_lock_observer.dart";
@@ -33,15 +33,9 @@ const schemeUpdateIntervalHours = 3;
 
 class App extends ConsumerStatefulWidget {
   final Locale? forcedLocale;
-  final NotificationsBloc notificationsBloc;
   final Duration? idleLockThreshold;
 
-  const App({
-    super.key,
-    required this.notificationsBloc,
-    this.forcedLocale,
-    this.idleLockThreshold,
-  });
+  const App({super.key, this.forcedLocale, this.idleLockThreshold});
 
   @override
   ConsumerState<App> createState() => AppState();
@@ -161,7 +155,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     if (state == AppLifecycleState.resumed) {
       _handleUpdateSchemes();
-      widget.notificationsBloc.add(LoadNotifications());
+      ref.read(notificationsProvider.notifier).reload();
     }
   }
 

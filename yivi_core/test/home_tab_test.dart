@@ -1,7 +1,6 @@
 import "dart:convert";
 
 import "package:flutter/services.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -13,7 +12,6 @@ import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
 
 import "helpers/credential_factory.dart";
@@ -78,10 +76,6 @@ void main() {
       ..padding = const FakeViewPadding(top: 62, bottom: 34)
       ..viewPadding = const FakeViewPadding(top: 62, bottom: 34);
     addTearDown(tester.view.reset);
-    final notifications = NotificationsBloc(repo: repo)..add(Initialize());
-    addTearDown(() async {
-      await notifications.close();
-    });
     final router = await pumpRoutes(
       tester,
       repo: repo,
@@ -96,12 +90,7 @@ void main() {
       ],
       routes: [
         ShellRoute(
-          builder: (context, state, child) => MultiBlocProvider(
-            providers: [
-              BlocProvider<NotificationsBloc>.value(value: notifications),
-            ],
-            child: child,
-          ),
+          builder: (context, state, child) => child,
           routes: [
             GoRoute(path: "/home", builder: (context, state) => HomeScreen()),
           ],

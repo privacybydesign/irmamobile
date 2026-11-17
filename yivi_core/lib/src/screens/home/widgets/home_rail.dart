@@ -280,8 +280,9 @@ class _UnreadCount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return BlocBuilder<NotificationsBloc, NotificationsState>(
-      builder: (context, state) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final state = ref.watch(notificationsProvider);
         final unread = state is NotificationsLoaded ? state.unreadCount : 0;
         if (unread == 0) return const SizedBox.shrink();
         return Container(

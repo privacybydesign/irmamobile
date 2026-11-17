@@ -6,7 +6,11 @@ class HandlerResult {
   final List<Notification> notifications;
   final List<CredentialStatusNotificationRecord> updatedRecords;
 
-  HandlerResult({required this.notifications, required this.updatedRecords});
+  HandlerResult({
+    required List<Notification> notifications,
+    required List<CredentialStatusNotificationRecord> updatedRecords,
+  }) : notifications = List.unmodifiable(notifications),
+       updatedRecords = List.unmodifiable(updatedRecords);
 }
 
 abstract class NotificationHandler {

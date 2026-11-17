@@ -1,5 +1,4 @@
 import "package:collection/collection.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart" hide Notification;
 
@@ -20,10 +19,9 @@ import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../data/credential_detail/credential_detail_screen.dart";
 import "../data/wallet/wallet_transition.dart";
-import "bloc/notifications_bloc.dart";
-import "models/actions/credential_detail_navigation_action.dart";
 import "models/credential_status_notification.dart";
 import "models/notification.dart";
+import "notifications_provider.dart";
 import "widgets/no_notifications.dart";
 import "widgets/notification_card.dart";
 
@@ -33,24 +31,15 @@ class NotificationsTab extends ConsumerStatefulWidget {
 }
 
 class _NotificationsTabState extends ConsumerState<NotificationsTab> {
-  late NotificationsBloc _notificationsBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    _notificationsBloc = BlocProvider.of<NotificationsBloc>(context);
-  }
-
   void _onNotificationTap(
     Notification notification,
     BuildContext pictureContext,
   ) {
-    final action = notification.action;
-    if (action == null || action is! CredentialDetailNavigationAction) return;
-    _notificationsBloc.add(MarkNotificationAsRead(notification.id));
+    if (notification is! CredentialStatusNotification) return;
+    ref.read(notificationsProvider.notifier).markRead(notification.id);
 
     // Open the card itself when it is still in the wallet.
-    if (notification is CredentialStatusNotification) {
+    {
       final cards = ref.read(walletCardsProvider);
       final card = cards.firstWhereOrNull(
         (c) => c.hash == notification.credentialHash,
@@ -67,7 +56,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
       }
     }
     context.pushCredentialsDetailsScreen(
-      CredentialsDetailsRouteParams(credentialTypeId: action.credentialTypeId),
+      CredentialsDetailsRouteParams(
+        credentialTypeId: notification.credentialTypeId,
+      ),
     );
   }
 
@@ -124,11 +115,11 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
   }
 
   void _onNotificationDismiss(Notification notification) {
-    _notificationsBloc.add(SoftDeleteNotification(notification.id));
+    ref.read(notificationsProvider.notifier).dismiss(notification.id);
   }
 
   void _onRefresh() {
-    _notificationsBloc.add(LoadNotifications());
+    ref.read(notificationsProvider.notifier).reload();
   }
 
   @override
@@ -141,8 +132,9 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
       body: TitleScrollEdge(
         title: context.tr("notifications.title"),
         largeTitleBottom: tabTitleBottom,
-        child: BlocBuilder<NotificationsBloc, NotificationsState>(
-          builder: (context, state) {
+        child: Builder(
+          builder: (context) {
+            final state = ref.watch(notificationsProvider);
             if (state is NotificationsLoading) {
               return Center(child: LoadingIndicator());
             } else if (state is NotificationsLoaded) {

@@ -1,6 +1,6 @@
 import "dart:math";
 
-import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -13,7 +13,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/press_scale.dart";
-import "../../notifications/bloc/notifications_bloc.dart";
+import "../../notifications/notifications_provider.dart";
 import "home_tab.dart";
 import "open_qr_scanner.dart";
 
@@ -158,10 +158,10 @@ class TabIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!showDot) return icon.build(color, 26);
     final palette = YiviPalette.of(context);
-    return BlocBuilder<NotificationsBloc, NotificationsState>(
-      builder: (context, state) {
-        final unread =
-            state is NotificationsLoaded && state.hasUnreadNotifications;
+    return Consumer(
+      builder: (context, ref, _) {
+        final state = ref.watch(notificationsProvider);
+        final unread = state is NotificationsLoaded && state.hasUnread;
         return Stack(
           clipBehavior: Clip.none,
           children: [

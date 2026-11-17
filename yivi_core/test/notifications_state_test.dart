@@ -1,13 +1,15 @@
 import "dart:convert";
 
 import "package:flutter/services.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
+import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/notifications/models/credential_status_notification.dart";
 import "package:yivi_core/src/screens/notifications/models/notification.dart";
+import "package:yivi_core/src/screens/notifications/notifications_provider.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -16,52 +18,59 @@ import "support/onboarding_v2_harness.dart";
 /// reload, mark read, mark all read and dismiss. Only this class knows
 /// which state holder it drives.
 class _Driver {
-  final NotificationsBloc _bloc;
+  final ProviderContainer _container;
 
-  _Driver(IrmaRepository repo) : _bloc = NotificationsBloc(repo: repo);
+  _Driver(IrmaRepository repo)
+    : _container = ProviderContainer(
+        overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
+      ) {
+    _keepAlive = _container.listen(notificationsProvider, (_, s) {
+      if (s is NotificationsLoading) sawLoading = true;
+    });
+  }
 
-  Future<List<Notification>> load() =>
-      _until(() => _bloc.add(Initialize()), initial: true);
+  late final ProviderSubscription<NotificationsState> _keepAlive;
 
-  Future<List<Notification>> reload() =>
-      _until(() => _bloc.add(LoadNotifications()));
-
-  Future<List<Notification>> markRead(String id) =>
-      _until(() => _bloc.add(MarkNotificationAsRead(id)));
-
-  Future<List<Notification>> markAllRead() =>
-      _until(() => _bloc.add(MarkAllNotificationsAsRead()));
-
-  Future<List<Notification>> dismiss(String id) =>
-      _until(() => _bloc.add(SoftDeleteNotification(id)));
+  NotificationsNotifier get _notifier =>
+      _container.read(notificationsProvider.notifier);
+  NotificationsState get _state => _container.read(notificationsProvider);
 
   /// Whether the last action went through a loading state on its way.
   bool sawLoading = false;
 
-  int get unreadCount => (_bloc.state as NotificationsLoaded).unreadCount;
-  bool get hasUnread =>
-      (_bloc.state as NotificationsLoaded).hasUnreadNotifications;
+  Future<List<Notification>> load() => _until(() => _state);
 
-  /// Runs [act] and waits for the loaded list that follows it.
-  Future<List<Notification>> _until(
-    void Function() act, {
-    bool initial = false,
-  }) async {
+  Future<List<Notification>> reload() => _until(_notifier.reload);
+
+  Future<List<Notification>> markRead(String id) =>
+      _until(() => _notifier.markRead(id));
+
+  Future<List<Notification>> markAllRead() => _until(_notifier.markAllRead);
+
+  Future<List<Notification>> dismiss(String id) =>
+      _until(() => _notifier.dismiss(id));
+
+  int get unreadCount => (_state as NotificationsLoaded).unreadCount;
+  bool get hasUnread => (_state as NotificationsLoaded).hasUnread;
+
+  /// Runs [act] and waits until the list is loaded and every queued store
+  /// write is done.
+  Future<List<Notification>> _until(void Function() act) async {
     sawLoading = false;
-    final watch = _bloc.stream.listen((s) {
-      if (s is NotificationsLoading) sawLoading = true;
-    });
-    final next = _bloc.stream
-        .where((s) => s is NotificationsLoaded)
-        .cast<NotificationsLoaded>()
-        .first;
     act();
-    await next;
-    await watch.cancel();
-    return (await next).notifications;
+    for (var i = 0; i < 1000; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      if (_state is NotificationsLoaded) break;
+    }
+    // The writes queued after the change.
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    return (_state as NotificationsLoaded).notifications;
   }
 
-  Future<void> close() => _bloc.close();
+  Future<void> close() async {
+    _keepAlive.close();
+    _container.dispose();
+  }
 }
 
 Credential _card(
@@ -116,8 +125,11 @@ void main() {
     await repo.close();
   });
 
-  void cards(List<Credential> credentials) =>
-      bridge.deliver(CredentialsEvent(credentials: credentials));
+  /// The app's cards, as Go sends them; waits until the repository has them.
+  Future<void> cards(List<Credential> credentials) async {
+    bridge.deliver(CredentialsEvent(credentials: credentials));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+  }
 
   Future<List<Map<String, dynamic>>> stored() async {
     final raw = await prefs.serializedNotifications.stream.first;
@@ -129,7 +141,7 @@ void main() {
       (n as CredentialStatusNotification).type;
 
   test("a revoked, an expired and an expiring card: three unread", () async {
-    cards([
+    await cards([
       _card("a", revoked: true),
       _card("b", expires: _inDays(-1)),
       _card("c", expires: _inDays(3)),
@@ -148,7 +160,7 @@ void main() {
   });
 
   test("a stored record keeps its id, flags and time", () async {
-    cards([_card("a", revoked: true)]);
+    await cards([_card("a", revoked: true)]);
     final first = (await driver.load()).single;
     await driver.markRead(first.id);
     final again = (await driver.reload()).single;
@@ -158,18 +170,18 @@ void main() {
   });
 
   test("a record whose card is gone is dropped on reload", () async {
-    cards([_card("a", revoked: true), _card("b", revoked: true)]);
+    await cards([_card("a", revoked: true), _card("b", revoked: true)]);
     await driver.load();
-    cards([_card("a", revoked: true)]);
+    await cards([_card("a", revoked: true)]);
     final list = await driver.reload();
     expect(list.map((n) => n.id).length, 1);
     expect((await stored()).map((r) => r["credentialHash"]), ["a"]);
   });
 
   test("expiring soon, then expired: a new record, the old one gone", () async {
-    cards([_card("a", expires: _inDays(3))]);
+    await cards([_card("a", expires: _inDays(3))]);
     final soon = (await driver.load()).single;
-    cards([_card("a", expires: _inDays(-1))]);
+    await cards([_card("a", expires: _inDays(-1))]);
     final expired = (await driver.reload()).single;
     expect(typeOf(expired), CredentialStatusNotificationType.expired);
     expect(expired.id, isNot(soon.id));
@@ -177,7 +189,7 @@ void main() {
   });
 
   test("mark one read, mark all read, dismiss", () async {
-    cards([
+    await cards([
       _card("a", revoked: true),
       _card("b", revoked: true),
       _card("c", revoked: true),
@@ -202,7 +214,7 @@ void main() {
   });
 
   test("a dismissed notification stays hidden after a fresh load", () async {
-    cards([_card("a", revoked: true), _card("b", revoked: true)]);
+    await cards([_card("a", revoked: true), _card("b", revoked: true)]);
     final list = await driver.load();
     await driver.dismiss(list[0].id);
     await driver.close();
@@ -213,28 +225,22 @@ void main() {
 
   test("corrupt stored records: an empty start, the store cleared", () async {
     await prefs.serializedNotifications.set("{not json");
-    cards([_card("a", revoked: true)]);
+    await cards([_card("a", revoked: true)]);
     final list = await driver.load();
     expect(list.length, 1);
     expect((await stored()).length, 1);
   });
 
-  test(
-    "mark read, mark all read and dismiss do not show loading",
-    () async {
-      cards([_card("a", revoked: true), _card("b", revoked: true)]);
-      final list = await driver.load();
-      await driver.markRead(list[0].id);
-      expect(driver.sawLoading, isFalse, reason: "mark read");
-      await driver.markAllRead();
-      expect(driver.sawLoading, isFalse, reason: "mark all read");
-      await driver.dismiss(list[1].id);
-      expect(driver.sawLoading, isFalse, reason: "dismiss");
-    },
-    // Today every change goes through Loading, and the tab shows a spinner
-    // for it (review D3). The skip goes in step 5.7.
-    skip: true,
-  );
+  test("mark read, mark all read and dismiss do not show loading", () async {
+    await cards([_card("a", revoked: true), _card("b", revoked: true)]);
+    final list = await driver.load();
+    await driver.markRead(list[0].id);
+    expect(driver.sawLoading, isFalse, reason: "mark read");
+    await driver.markAllRead();
+    expect(driver.sawLoading, isFalse, reason: "mark all read");
+    await driver.dismiss(list[1].id);
+    expect(driver.sawLoading, isFalse, reason: "dismiss");
+  });
 
   test("credentials that never arrive: an empty list after 5 s", () async {
     final list = await driver.load();

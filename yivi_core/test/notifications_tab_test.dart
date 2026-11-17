@@ -1,9 +1,7 @@
 import "package:flutter/services.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/widgets/loading_indicator.dart";
@@ -51,13 +49,7 @@ void main() {
       bridge.deliver(
         CredentialsEvent(credentials: [_revoked("a"), _revoked("b")]),
       );
-      final bloc = NotificationsBloc(repo: repo)..add(Initialize());
-      addTearDown(bloc.close);
-      await pumpHome(
-        tester,
-        repo: repo,
-        home: BlocProvider.value(value: bloc, child: NotificationsTab()),
-      );
+      await pumpHome(tester, repo: repo, home: NotificationsTab());
       for (var i = 0; i < 20; i++) {
         await settle(tester);
         if (find.byType(NotificationCard).evaluate().length == 2) break;

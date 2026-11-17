@@ -1,5 +1,4 @@
 import "package:flutter/services.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -19,7 +18,6 @@ import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/home/pane_handoffs.dart";
 import "package:yivi_core/src/screens/home/widgets/home_navigation.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
-import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
@@ -69,7 +67,6 @@ void androidTest(String description, WidgetTesterCallback body) => testWidgets(
 
 void main() {
   late IrmaRepository repo;
-  late NotificationsBloc notifications;
 
   setUp(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -110,10 +107,6 @@ void main() {
     size(tester, view, insets);
     addTearDown(tester.view.reset);
     // In the test's zone, so their events run while the test pumps.
-    notifications = NotificationsBloc(repo: repo);
-    addTearDown(() async {
-      await notifications.close();
-    });
     final router = await pumpRoutes(
       tester,
       repo: repo,
@@ -128,12 +121,7 @@ void main() {
       ],
       routes: [
         ShellRoute(
-          builder: (context, state, child) => MultiBlocProvider(
-            providers: [
-              BlocProvider<NotificationsBloc>.value(value: notifications),
-            ],
-            child: child,
-          ),
+          builder: (context, state, child) => child,
           routes: [
             GoRoute(
               path: "/home",

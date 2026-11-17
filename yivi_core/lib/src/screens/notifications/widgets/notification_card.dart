@@ -16,7 +16,6 @@ import "../../../widgets/irma_avatar.dart";
 import "../../data/wallet/card_hero.dart";
 import "../models/credential_status_notification.dart";
 import "../models/notification.dart";
-import "../models/notification_translated_content.dart";
 
 class NotificationCard extends ConsumerWidget {
   final Notification notification;
@@ -54,11 +53,10 @@ class NotificationCard extends ConsumerWidget {
     });
 
     if (notification is CredentialStatusNotification) {
-      final content = notification.content as InternalTranslatedContent;
-      title = context.tr(content.titleTranslationKey, {
+      title = context.tr(notification.titleKey, {
         "credentialName": notification.credentialName,
       });
-      contentMessage = context.tr(content.messageTranslationKey, {
+      contentMessage = context.tr(notification.messageKey, {
         "credentialName": notification.credentialName,
         "issuerName": notification.issuerName,
       });

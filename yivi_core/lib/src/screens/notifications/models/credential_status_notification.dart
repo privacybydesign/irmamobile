@@ -1,44 +1,44 @@
 import "../../../models/credential.dart";
-import "actions/credential_detail_navigation_action.dart";
-import "actions/notification_action.dart";
 import "credential_status_notification_record.dart";
 import "notification.dart";
-import "notification_translated_content.dart";
 
 enum CredentialStatusNotificationType { revoked, expired, expiringSoon }
 
-/// Runtime-only notification rendered in the UI. Built fresh on every
-/// `LoadNotifications` from a live `Credential` plus its persisted
-/// `CredentialStatusNotificationRecord`.
+/// A card that was revoked, has expired or expires soon. Built fresh on every
+/// load from a live [Credential] plus its stored
+/// [CredentialStatusNotificationRecord].
 class CredentialStatusNotification extends Notification {
+  @override
+  final String id;
+  @override
+  final bool read;
+  @override
+  final bool softDeleted;
+  @override
+  final DateTime timestamp;
+
   final String credentialHash;
   final CredentialStatusNotificationType type;
+
+  /// The card's type, which a tap opens when the card itself is gone.
   final String credentialTypeId;
   final String credentialName;
   final String issuerName;
   final LogoImage? logoImage;
 
-  CredentialStatusNotification({
+  const CredentialStatusNotification({
+    required this.id,
+    required this.read,
+    required this.softDeleted,
+    required this.timestamp,
     required this.credentialHash,
     required this.type,
     required this.credentialTypeId,
     required this.credentialName,
     required this.issuerName,
-    required String id,
-    required bool read,
-    required bool softDeleted,
-    required DateTime timestamp,
     this.logoImage,
-  }) : super() {
-    this.id = id;
-    this.read = read;
-    this.softDeleted = softDeleted;
-    this.timestamp = timestamp;
-    content = _getTranslatedNotificationContent(type);
-  }
+  });
 
-  /// Builds a runtime notification from a persisted record plus the
-  /// denormalized display data sourced from the live credential.
   factory CredentialStatusNotification.fromRecord({
     required CredentialStatusNotificationRecord record,
     required String credentialTypeId,
@@ -46,43 +46,42 @@ class CredentialStatusNotification extends Notification {
     required String issuerName,
     LogoImage? logoImage,
   }) => CredentialStatusNotification(
+    id: record.id,
+    read: record.read,
+    softDeleted: record.softDeleted,
+    timestamp: record.timestamp,
     credentialHash: record.credentialHash,
     type: record.type,
     credentialTypeId: credentialTypeId,
     credentialName: credentialName,
     issuerName: issuerName,
     logoImage: logoImage,
-    id: record.id,
-    read: record.read,
-    softDeleted: record.softDeleted,
-    timestamp: record.timestamp,
   );
 
-  InternalTranslatedContent _getTranslatedNotificationContent(
-    CredentialStatusNotificationType type,
-  ) {
-    String typeTranslationKey;
-    switch (type) {
-      case CredentialStatusNotificationType.revoked:
-        typeTranslationKey = "revoked";
-        break;
-      case CredentialStatusNotificationType.expired:
-        typeTranslationKey = "expired";
-        break;
-      case CredentialStatusNotificationType.expiringSoon:
-        typeTranslationKey = "expiring_soon";
-        break;
-    }
+  @override
+  CredentialStatusNotification copyWith({bool? read, bool? softDeleted}) =>
+      CredentialStatusNotification(
+        id: id,
+        read: read ?? this.read,
+        softDeleted: softDeleted ?? this.softDeleted,
+        timestamp: timestamp,
+        credentialHash: credentialHash,
+        type: type,
+        credentialTypeId: credentialTypeId,
+        credentialName: credentialName,
+        issuerName: issuerName,
+        logoImage: logoImage,
+      );
 
-    return InternalTranslatedContent(
-      titleTranslationKey:
-          "notifications.credential_status.$typeTranslationKey.title",
-      messageTranslationKey:
-          "notifications.credential_status.$typeTranslationKey.message",
-    );
-  }
+  String get _typeKey => switch (type) {
+    CredentialStatusNotificationType.revoked => "revoked",
+    CredentialStatusNotificationType.expired => "expired",
+    CredentialStatusNotificationType.expiringSoon => "expiring_soon",
+  };
 
   @override
-  NotificationAction get action =>
-      CredentialDetailNavigationAction(credentialTypeId: credentialTypeId);
+  String get titleKey => "notifications.credential_status.$_typeKey.title";
+
+  @override
+  String get messageKey => "notifications.credential_status.$_typeKey.message";
 }
