@@ -189,10 +189,10 @@ class AddDataDetailsContent extends StatelessWidget {
       children: [
         const SizedBox(height: YiviSpace.x4),
         Padding(
-          padding: const EdgeInsets.only(top: 20),
+          padding: const EdgeInsets.only(top: YiviSpace.x24),
           child: _picture(_heroWidth),
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: YiviSpace.x24),
         _name(context, TextAlign.center),
       ],
     );
@@ -260,7 +260,12 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CapsLabel(
     text,
-    padding: const EdgeInsets.fromLTRB(inset, 20, inset, YiviSpace.x8),
+    padding: const EdgeInsets.fromLTRB(
+      inset,
+      YiviSpace.x24,
+      inset,
+      YiviSpace.x8,
+    ),
   );
 }
 
@@ -288,9 +293,9 @@ class _YouGet extends StatelessWidget {
             children: [
               for (final n in names)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  padding: const EdgeInsets.symmetric(vertical: YiviSpace.x8),
                   child: Row(
-                    spacing: 10,
+                    spacing: YiviSpace.x12,
                     children: [
                       Container(
                         width: 6,
@@ -359,7 +364,12 @@ class _FoldState extends State<_Fold> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 52),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(YiviSpace.x16, 15, 14, 15),
+                padding: const EdgeInsets.fromLTRB(
+                  YiviSpace.x16,
+                  YiviSpace.x16,
+                  YiviSpace.x16,
+                  YiviSpace.x16,
+                ),
                 child: Row(
                   spacing: YiviSpace.x12,
                   children: [
@@ -396,7 +406,7 @@ class _FoldState extends State<_Fold> {
                     YiviSpace.x16,
                     0,
                     YiviSpace.x16,
-                    14,
+                    YiviSpace.x16,
                   ),
                   child: widget.child,
                 )
@@ -419,7 +429,7 @@ class _Step extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 10,
+      spacing: YiviSpace.x12,
       children: [
         StepNumberDisc(
           number,

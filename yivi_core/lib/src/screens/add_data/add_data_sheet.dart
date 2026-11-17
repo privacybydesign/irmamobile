@@ -484,7 +484,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                 child: Container(
                   key: const Key("add_data_added_note"),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
+                    horizontal: YiviSpace.x16,
                     vertical: YiviSpace.x12,
                   ),
                   decoration: ShapeDecoration(

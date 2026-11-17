@@ -58,12 +58,12 @@ class AddDataRow extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
                 YiviSpace.x16,
-                10,
+                YiviSpace.x12,
                 YiviSpace.x16,
-                10,
+                YiviSpace.x12,
               ),
               child: Row(
-                spacing: 14,
+                spacing: YiviSpace.x16,
                 children: [
                   CredentialTypeThumbnail(
                     descriptor: credential,
