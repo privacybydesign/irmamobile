@@ -164,10 +164,10 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
               onTap: _open,
             ),
             bottom: widget.bottom,
-            bottomInBar:
-                true, // A phone held sideways: the words at the left, the picture and
-            // the steps at the right.
+            bottomInBar: true,
             child: sideways
+                // A phone held sideways: the words at the left, the picture and
+                // the steps at the right.
                 ? SheetSplit(
                     start: [heading, lead],
                     end: Column(
@@ -229,11 +229,10 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
               onTap: _open,
             ),
             bottom: widget.bottom,
-            padding: const EdgeInsets.symmetric(
-              horizontal: YiviSpace.x16,
-            ), // A phone held sideways: the words at the left, the picture and
-            // the steps at the right.
+            padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
             child: sideways
+                // A phone held sideways: the words at the left, the picture and
+                // the steps at the right.
                 ? SheetSplit(
                     start: [heading, lead],
                     end: Column(

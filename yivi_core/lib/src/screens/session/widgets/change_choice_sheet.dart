@@ -898,8 +898,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         0,
         YiviSpace.x16,
         YiviSpace.x24,
-      ), // Optional data: leaving it out is the first choice, the whole
-      // width also held sideways.
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -912,6 +911,8 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                     "requestor": requestor,
                   }),
           ),
+          // Optional data: leaving it out is the first choice, the whole
+          // width also held sideways.
           if (pickOne.optional) ...[
             const SizedBox(height: YiviSpace.x16),
             _ShareNothingCard(
@@ -1011,10 +1012,8 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         ? context.tr("share.sheet.optional_title")
         : context.tr("share.next.pick");
     return GlassSheetPage.scroll(
-      title: SheetTitle(
-        title,
-        reveal: SheetTitleReveal.under(_kindsTitle),
-      ), // A low sheet with only the kinds; it grows into the full sheet as
+      title: SheetTitle(title, reveal: SheetTitleReveal.under(_kindsTitle)),
+      // A low sheet with only the kinds; it grows into the full sheet as
       // adding one comes in.
       fit: true,
       padding: const EdgeInsets.fromLTRB(

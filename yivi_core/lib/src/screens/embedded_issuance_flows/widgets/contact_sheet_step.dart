@@ -526,7 +526,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               widget: IssueRequestorPill.maybe(widget.subject),
               centred: true,
               reveal: SheetTitleReveal.under(_headingKey),
-            ), // Left by dragging its header down: no close button.
+            ),
+            // Left by dragging its header down: no close button.
             exits: SheetExits(onBack: _back, close: SheetClose.none),
             action: action,
             bottomInBar: true,
@@ -549,7 +550,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               widget: IssueRequestorPill.maybe(widget.subject),
               centred: true,
               reveal: SheetTitleReveal.under(_headingKey),
-            ), // Left by dragging its header down: no close button.
+            ),
+            // Left by dragging its header down: no close button.
             exits: SheetExits(onBack: _back, close: SheetClose.none),
             padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
             action: action,

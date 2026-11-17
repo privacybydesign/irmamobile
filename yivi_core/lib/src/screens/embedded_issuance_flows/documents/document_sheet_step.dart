@@ -288,29 +288,28 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
         widget: IssueRequestorPill.maybe(widget.subject),
         centred: true,
         reveal: SheetTitleReveal.afterScroll(60),
-      ), // Left by dragging its header down: no close button.
-      exits: SheetExits(
-        onBack: _back,
-        close: SheetClose.none,
-      ), // Above the screens' buttons, staying put while they change (also on
+      ),
+      // Left by dragging its header down: no close button.
+      exits: SheetExits(onBack: _back, close: SheetClose.none),
+      // Above the screens' buttons, staying put while they change (also on
       // a screen without buttons, which keeps their room).
       bottomInBar: true,
       bottom: IssueSheetProgress(step: _screen.step, total: widget.total),
-      slotBottom:
-          true, // System back steps back in the flow first; closing the sheet
-      // leaves the screens as they are while it goes.
-      // A container of its own: its routes block the semantics of
-      // what was painted before them, which would otherwise include the
-      // sheet's bar (title, back, close) for screen readers.
+      slotBottom: true,
       child: MediaQuery.removePadding(
         context: context,
         removeTop: true,
         child: DocumentStepInSheet(
           preparing: _preparing,
+          // System back steps back in the flow first; closing the sheet
+          // leaves the screens as they are while it goes.
           child: NavigatorPopHandler(
             onPopWithResult: (_) {
               if (!GlassSheet.of(context).closing) _back();
             },
+            // A container of its own: its routes block the semantics of
+            // what was painted before them, which would otherwise include the
+            // sheet's bar (title, back, close) for screen readers.
             child: Semantics(
               container: true,
               explicitChildNodes: true,

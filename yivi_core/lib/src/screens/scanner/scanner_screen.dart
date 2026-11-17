@@ -113,10 +113,9 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
   Widget build(BuildContext context) {
     // The sheet's own bar on top; the camera between it and the panel.
     return GlassSheetPage.fill(
-      title: SheetTitle(
-        context.tr("qr_scanner.title"),
-      ), // Sideways: wider than high (a phone held sideways).
+      title: SheetTitle(context.tr("qr_scanner.title")),
       child: LayoutBuilder(
+        // Sideways: wider than high (a phone held sideways).
         builder: (context, constraints) =>
             _body(constraints.maxWidth > constraints.maxHeight),
       ),

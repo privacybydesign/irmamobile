@@ -197,9 +197,8 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
         ),
         feedback: state.feedback.copyWith(busy: busy),
         onSubmit: ref.read(pinUnlockProvider.notifier).unlock,
-        onForgotPin: () => Navigator.of(
-          context,
-        ).push(MaterialPageRoute<void>(builder: (_) => ResetPinScreen())),
+        onForgotPin: () => Navigator.of(context)
+            .push(MaterialPageRoute<void>(builder: (_) => ResetPinScreen())),
       ),
     );
   }

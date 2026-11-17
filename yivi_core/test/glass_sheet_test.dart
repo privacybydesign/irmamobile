@@ -996,15 +996,14 @@ void main() {
               pages: [
                 GlassSheetPage.scroll(
                   key: const ValueKey("list"),
-                  title: SheetTitle(
-                    "List",
-                  ), // Depends on where its page is, as the progress
-                  // bar does.
+                  title: SheetTitle("List"),
                   child: Column(
                     children: [
                       const _Counted(),
                       Builder(
                         builder: (context) {
+                          // Depends on where its page is, as the progress
+                          // bar does.
                           GlassSheetPages.maybeOf(context)?.isTop;
                           builds++;
                           return Column(

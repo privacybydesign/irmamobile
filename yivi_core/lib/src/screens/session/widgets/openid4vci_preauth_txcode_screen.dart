@@ -173,11 +173,11 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         key: const Key("sheet_openid4vci_tx_code"),
         title: SheetTitle(
           context.tr("issuance.pre-authorized_code.tx_code_screen.title"),
-        ), // Left by dragging its header down: no close button.
+        ),
+        // Left by dragging its header down: no close button.
         exits: SheetExits(onBack: widget.onDismiss, close: SheetClose.none),
-        padding: const EdgeInsets.symmetric(
-          horizontal: YiviSpace.x16,
-        ), // A code of a known length is sent once it is complete.
+        padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
+        // A code of a known length is sent once it is complete.
         action: length != null
             ? null
             : SheetAction(

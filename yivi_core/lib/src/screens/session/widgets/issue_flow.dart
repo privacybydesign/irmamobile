@@ -1112,7 +1112,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               widget: IssueRequestorPill.maybe(subject),
               centred: true,
               reveal: SheetTitleReveal.under(_titleKey("details")),
-            ), // The sheet's first page has no back: its close button is the way out,
+            ),
+            // The sheet's first page has no back: its close button is the way out,
             // where back is on the pages after it. Otherwise left by back or by
             // dragging its header down.
             exits: SheetExits(
@@ -1132,7 +1133,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               widget: IssueRequestorPill.maybe(subject),
               centred: true,
               reveal: SheetTitleReveal.under(_titleKey("details")),
-            ), // The sheet's first page has no back: its close button is the way out,
+            ),
+            // The sheet's first page has no back: its close button is the way out,
             // where back is on the pages after it. Otherwise left by back or by
             // dragging its header down.
             exits: SheetExits(
@@ -1273,15 +1275,16 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               widget: IssueRequestorPill.maybe(subject),
               centred: true,
               reveal: SheetTitleReveal.under(_titleKey("issuance")),
-            ), // Back declines this issuance: on the details again, to try again.
+            ),
+            // Back declines this issuance: on the details again, to try again.
             exits: SheetExits(onBack: issueBack),
-            action:
-                action, // The progress in the bar sideways; the reason stays with the button.
+            action: action,
+            // The progress in the bar sideways; the reason stays with the button.
             bottomInBar: !risky,
-            bottom:
-                bottom, // A phone held sideways: the issuer and the question at the left
-            // with the button under them; the cards at the right.
+            bottom: bottom,
             child: sideways
+                // A phone held sideways: the issuer and the question at the left
+                // with the button under them; the cards at the right.
                 ? SheetSplit(
                     key: content == null ? null : const Key("sheet_issuance"),
                     start: [?question],
@@ -1312,13 +1315,12 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               widget: IssueRequestorPill.maybe(subject),
               centred: true,
               reveal: SheetTitleReveal.under(_titleKey("issuance")),
-            ), // Back declines this issuance: on the details again, to try again.
+            ),
+            // Back declines this issuance: on the details again, to try again.
             exits: SheetExits(onBack: issueBack),
             padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
             action: action,
-            bottom:
-                bottom, // A phone held sideways: the issuer and the question at the left
-            // with the button under them; the cards at the right.
+            bottom: bottom,
             underBar: issuer == null || sideways
                 ? null
                 : (
@@ -1333,6 +1335,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                     after: _issuerCardKey,
                   ),
             child: sideways
+                // A phone held sideways: the issuer and the question at the left
+                // with the button under them; the cards at the right.
                 ? SheetSplit(
                     key: content == null ? null : const Key("sheet_issuance"),
                     start: [?question],
@@ -1382,9 +1386,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       if (parameters == null) {
         // Granted at once (see _onNested); the next state follows.
         return GlassSheetPage.scroll(
-          title: SheetTitle(
-            context.tr("issuance.title"),
-          ), // Left by dragging its header down: no close button.
+          title: SheetTitle(context.tr("issuance.title")),
+          // Left by dragging its header down: no close button.
           exits: SheetExits(
             onBack: () => _dismissNested(sessionId),
             close: SheetClose.none,
@@ -1618,7 +1621,8 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
         context.tr("issuance.title"),
         widget: IssueRequestorPill.maybe(widget.subject),
         centred: true,
-      ), // Left by dragging its header down: no close button.
+      ),
+      // Left by dragging its header down: no close button.
       exits: SheetExits(onBack: widget.onCancel, close: SheetClose.none),
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       child: SessionPinEntryScreen(

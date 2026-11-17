@@ -433,17 +433,19 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                 onChanged: (_) => setState(() {}),
               )
             : null,
-      ), // The close button at the top right on a phone held upright, as in
+      ),
+      // The close button at the top right on a phone held upright, as in
       // other sheets; on a tablet and a phone held sideways at the top left,
       // where the pages after this one keep the top right for the way on.
       exits: SheetExits(
         close: useFormSheet(context) || usePhoneLandscape(context)
             ? SheetClose.start
             : SheetClose.end,
-      ), // The list's bands run from edge to edge; the rest keeps 16 from it
+      ),
+      // The list's bands run from edge to edge; the rest keeps 16 from it
       // ([_inset]).
-      // In the bar while searching, as the Data tab's: then not here.
       slivers: [
+        // In the bar while searching, as the Data tab's: then not here.
         if (!_inBar)
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(

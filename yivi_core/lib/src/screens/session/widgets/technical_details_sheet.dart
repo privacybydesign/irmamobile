@@ -58,7 +58,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
         0,
         YiviSpace.x16,
         YiviSpace.x24,
-      ), // A phone held sideways: the groups in two columns.
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -72,6 +72,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
             ),
           ),
           if (useSheetColumns(context))
+            // A phone held sideways: the groups in two columns.
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: YiviSpace.x16,

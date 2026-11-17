@@ -279,13 +279,11 @@ class RequestorTrustSheet extends StatelessWidget {
       child: sideways
           ? GlassSheetPage.split(
               title: SheetTitle(""),
-              exits: SheetExits(
-                onBack: onBack,
-              ), // The card's logo flies in here.
-              // For the curious, last and out of the way.
+              exits: SheetExits(onBack: onBack),
               child: _columns(
                 context,
                 [
+                  // The card's logo flies in here.
                   Center(
                     child: RequestorLogo(
                       requestor: requestor,
@@ -330,6 +328,7 @@ class RequestorTrustSheet extends StatelessWidget {
                     ),
                   ),
                   _Group(children: [for (final d in dos) _DoRow(item: d)]),
+                  // For the curious, last and out of the way.
                   if (onTechnicalDetails case final open?) ...[
                     const SizedBox(height: YiviSpace.x24),
                     _Group(
@@ -351,20 +350,19 @@ class RequestorTrustSheet extends StatelessWidget {
             )
           : GlassSheetPage.scroll(
               title: SheetTitle(""),
-              exits: SheetExits(
-                onBack: onBack,
-              ), // No title in the bar; once something is under it, the hard edge.
+              exits: SheetExits(onBack: onBack),
+              // No title in the bar; once something is under it, the hard edge.
               // Held sideways the columns scroll each on their own.
               padding: const EdgeInsets.fromLTRB(
                 YiviSpace.x16,
                 YiviSpace.x4,
                 YiviSpace.x16,
                 YiviSpace.x24,
-              ), // The card's logo flies in here.
-              // For the curious, last and out of the way.
+              ),
               child: _columns(
                 context,
                 [
+                  // The card's logo flies in here.
                   Center(
                     child: RequestorLogo(
                       requestor: requestor,
@@ -409,6 +407,7 @@ class RequestorTrustSheet extends StatelessWidget {
                     ),
                   ),
                   _Group(children: [for (final d in dos) _DoRow(item: d)]),
+                  // For the curious, last and out of the way.
                   if (onTechnicalDetails case final open?) ...[
                     const SizedBox(height: YiviSpace.x24),
                     _Group(
