@@ -392,7 +392,7 @@ class _Details extends ConsumerWidget {
     // not rebuild per letter typed in the list's field.
     final foundQuery = foundLabel == null
         ? ""
-        : ref.watch(dataSearchQueryProvider);
+        : ref.watch(dataSearchProvider.select((s) => s.query));
     final sharable =
         credential.credentialInstanceIds.keys.any(
           (f) => f != CredentialFormat.idemix,

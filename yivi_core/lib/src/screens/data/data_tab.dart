@@ -10,7 +10,6 @@ import "../../../routing.dart";
 import "../../models/credential.dart";
 import "../../providers/credential_field_search.dart";
 import "../../providers/credentials_provider.dart";
-import "../../providers/credentials_search.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
@@ -27,8 +26,6 @@ import "../../util/i18n.dart";
 import "../../util/instance_hint.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
-import "../../widgets/credential_card/attribute_groups/attribute_group.dart";
-import "../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/floating_bar_placement.dart";
@@ -55,6 +52,7 @@ import "wallet/card_hero.dart";
 import "wallet/drag_to_arrange.dart";
 import "wallet/issuance_flight.dart";
 import "wallet/wallet_transition.dart";
+import "wallet_search.dart";
 import "widgets/email_link_banner.dart";
 
 part "card_views.dart";
@@ -68,11 +66,14 @@ class DataTab extends ConsumerStatefulWidget {
 }
 
 class _DataTabState extends ConsumerState<DataTab> with RouteAware {
-  /// The search outlives this State ([dataSearchQueryProvider]): the tab is
+  /// The search outlives this State ([dataSearchProvider]): the tab is
   /// built anew when a card opened from the results closes.
-  late String _query = ref.read(dataSearchQueryProvider);
+  late String _query = ref.read(dataSearchProvider).query;
   late final _search = TextEditingController(text: _query);
   final _focus = FocusNode();
+
+  /// What the search looks in, made again only when the cards change.
+  final _searchIndex = WalletSearchCache();
 
   @override
   void initState() {
@@ -81,7 +82,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
     // before anything is typed; Cancel ends it, losing focus does not.
     _focus.addListener(() {
       if (!_focus.hasFocus) return;
-      ref.read(dataSearchActiveProvider.notifier).set(true);
+      ref.read(dataSearchProvider.notifier).start();
     });
     // Built anew while a card opened from the search was open.
     _refocus();
@@ -105,8 +106,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   /// card is still open, and then it waits for [didPopNext].
   void _refocus() => afterFrame(() {
     if (!mounted || ModalRoute.of(context)?.isCurrent == false) return;
-    if (!ref.read(dataSearchRefocusProvider)) return;
-    ref.read(dataSearchRefocusProvider.notifier).set(false);
+    if (!ref.read(dataSearchProvider.notifier).takeRefocus()) return;
     _whenCardGone(_showKeyboard);
   });
 
@@ -146,13 +146,13 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
 
   void _onQuery(String q) {
     setState(() => _query = q);
-    ref.read(dataSearchQueryProvider.notifier).set(q);
+    ref.read(dataSearchProvider.notifier).type(q);
   }
 
   /// The field under the large title, or the bar's search button: search
   /// mode, with the field in the bar and the keyboard up.
   void _startSearching() {
-    ref.read(dataSearchActiveProvider.notifier).set(true);
+    ref.read(dataSearchProvider.notifier).start();
     afterFrame(() {
       if (mounted) _focus.requestFocus();
     });
@@ -161,8 +161,8 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   void _stopSearching() {
     _search.clear();
     _focus.unfocus();
-    _onQuery("");
-    ref.read(dataSearchActiveProvider.notifier).set(false);
+    setState(() => _query = "");
+    ref.read(dataSearchProvider.notifier).stop();
   }
 
   @override
@@ -179,7 +179,8 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
         ? top + _topBarHeight + 8
         : HomeTabTop.listTop(context);
     final searching =
-        ref.watch(dataSearchActiveProvider) || _query.trim().isNotEmpty;
+        ref.watch(dataSearchProvider.select((s) => s.active)) ||
+        _query.trim().isNotEmpty;
 
     // A card that opens in the detail pane (tapped, or picked among the
     // cards of its type in the pane) comes into view in the list: to the
@@ -211,6 +212,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       look: IconButtonLook.bar,
     );
     final content = _Content(
+      searchIndex: _searchIndex,
       query: _query,
       searching: searching,
       topInset: topInset,
@@ -395,6 +397,7 @@ void _scrollTowards(BuildContext context, String hash, {required double top}) {
 
 class _Content extends ConsumerWidget {
   final String query;
+  final WalletSearchCache searchIndex;
   final bool searching;
   final double topInset;
 
@@ -407,6 +410,7 @@ class _Content extends ConsumerWidget {
 
   const _Content({
     required this.query,
+    required this.searchIndex,
     required this.searching,
     required this.topInset,
     this.titleTop = 0,
@@ -461,6 +465,7 @@ class _Content extends ConsumerWidget {
                 ),
               )
             : _CardList(
+                searchIndex: searchIndex,
                 cards: cards,
                 problematic: snap.problematic,
                 query: query,
@@ -477,6 +482,9 @@ class _Content extends ConsumerWidget {
 /// The cards, in the view the user picked.
 class _CardList extends ConsumerWidget {
   final List<Credential> cards;
+
+  /// The tab's search index, kept across builds.
+  final WalletSearchCache searchIndex;
   final List<ProblematicCredential> problematic;
   final String query;
 
@@ -491,6 +499,7 @@ class _CardList extends ConsumerWidget {
 
   const _CardList({
     required this.cards,
+    required this.searchIndex,
     required this.problematic,
     required this.query,
     required this.searching,
@@ -521,7 +530,7 @@ class _CardList extends ConsumerWidget {
     // every card shows, as a row.
     final typed = query.trim().isNotEmpty;
     final results = typed
-        ? _search(context, cards, hintTexts, query)
+        ? searchIndex.indexFor(context, cards, hintTexts).search(query)
         : const <CardSearchResult>[];
     final byHash = {for (final c in cards) c.hash: c};
     final visible = typed ? [for (final r in results) byHash[r.hash]!] : cards;
@@ -664,52 +673,6 @@ class _CardList extends ConsumerWidget {
       },
     );
   }
-
-  /// The cards [query] finds, best first, each with the fields it matched.
-  static List<CardSearchResult> _search(
-    BuildContext context,
-    List<Credential> cards,
-    Map<String, String> hintTexts,
-    String query,
-  ) {
-    final entries = cards
-        .map(
-          (c) => SearchEntry(
-            hash: c.hash,
-            credentialType: normaliseForSearch(
-              "${c.name} ${hintTexts[c.hash]}",
-            ),
-            issuerName: normaliseForSearch(c.issuer.name),
-          ),
-        )
-        .toList();
-    return rankCards(
-      order: [for (final c in cards) c.hash],
-      byName: [for (final e in searchCredentials(entries, query)) e.hash],
-      fields: {for (final c in cards) c.hash: _searchFields(context, c)},
-      query: query,
-    );
-  }
-
-  /// The fields of [credential] the search looks in: every attribute with a
-  /// value, by its label and its value as the card shows it. Yes/no values
-  /// and images are found by their label only.
-  static List<SearchField> _searchFields(
-    BuildContext context,
-    Credential credential,
-  ) => [
-    for (final a in credential.attributes)
-      if (a.value case final value? when value.hasConcreteValue)
-        SearchField(
-          claimKey: claimPathKey(a.claimPath),
-          label: a.effectiveDisplayName,
-          value: switch (value.type) {
-            AttributeType.string ||
-            AttributeType.integer => formatAttributeValue(context, value),
-            _ => null,
-          },
-        ),
-  ];
 }
 
 /// Opens the detail view of [credential], starting the Wallet-style
@@ -734,11 +697,8 @@ void openCard(
   // Opened while typing in the search (the keyboard is still on its way
   // down): it comes back with the search when the card closes.
   container
-      .read(dataSearchRefocusProvider.notifier)
-      .set(
-        container.read(dataSearchActiveProvider) &&
-            View.of(cardContext).viewInsets.bottom > 0,
-      );
+      .read(dataSearchProvider.notifier)
+      .cardOpened(keyboardUp: View.of(cardContext).viewInsets.bottom > 0);
   // One card at a time: a tap while one opens or closes does nothing.
   final transitions = CardTransitionScope.maybeOf(cardContext);
   if (transitions != null && transitions.busy) return;
