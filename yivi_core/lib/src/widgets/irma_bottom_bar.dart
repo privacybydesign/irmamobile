@@ -1,10 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
-import "glass/pill_buttons.dart";
-import "irma_bottom_bar_base.dart";
+import "action_bar.dart";
 
+/// An [ActionBar] that translates its labels itself, for the screens that
+/// are still to be replaced. New code uses [ActionBar].
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
   final VoidCallback? onPrimaryPressed;
@@ -27,70 +27,20 @@ class IrmaBottomBar extends StatelessWidget {
     this.onSecondaryPressed,
   });
 
-  Widget _buildPrimaryButton(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        // Nothing under it, so a bar of one button ends where every bar does.
-        padding: const EdgeInsets.only(top: YiviSpace.x4),
-        child: primaryDanger
-            ? PillButton(
-                key: const Key("bottom_bar_primary"),
-                onPressed: onPrimaryPressed,
-                label: context.tr(primaryButtonLabel!),
-                style: PillStyle.dangerFilled,
-                size: PillSize.large,
-              )
-            : FancyPillButton(
-                key: const Key("bottom_bar_primary"),
-                label: context.tr(primaryButtonLabel!),
-                onPressed: onPrimaryPressed,
-              ),
-      ),
-    );
-  }
-
-  // A plain text pill, as every secondary action in the redesign.
-  Widget _buildSecondaryButton(BuildContext context) {
-    return Expanded(
-      child: PillButton(
-        key: const Key("bottom_bar_secondary"),
-        onPressed: onSecondaryPressed,
-        label: context.tr(secondaryButtonLabel!, secondaryButtonParams),
-        style: PillStyle.text,
-        size: PillSize.large,
-      ),
-    );
-  }
-
   @override
-  Widget build(BuildContext context) {
-    // Change layout according to limited height (i.e. landscape mode).
-    final vertical = MediaQuery.sizeOf(context).height > 450;
-    return IrmaBottomBarBase(
-      // "Cancel" under the main button sits low, as on iOS.
-      endsWithTextButton: vertical && secondaryButtonLabel != null,
-      child: vertical
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (primaryButtonLabel != null)
-                  Row(children: [_buildPrimaryButton(context)]),
-                if (secondaryButtonLabel != null) ...[
-                  const SizedBox(height: YiviSpace.x8),
-                  Row(children: [_buildSecondaryButton(context)]),
-                ],
-              ],
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (secondaryButtonLabel != null) ...[
-                  _buildSecondaryButton(context),
-                  const SizedBox(width: YiviSpace.x4),
-                ],
-                if (primaryButtonLabel != null) _buildPrimaryButton(context),
-              ],
-            ),
-    );
-  }
+  Widget build(BuildContext context) => ActionBar(
+    actions: [
+      if (primaryButtonLabel case final label?)
+        ActionBar.primary(
+          label: context.tr(label),
+          onTap: onPrimaryPressed,
+          danger: primaryDanger,
+        ),
+      if (secondaryButtonLabel case final label?)
+        ActionBar.secondary(
+          label: context.tr(label, secondaryButtonParams),
+          onTap: onSecondaryPressed,
+        ),
+    ],
+  );
 }
