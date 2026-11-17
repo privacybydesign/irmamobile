@@ -22,17 +22,16 @@ import "../../util/i18n.dart";
 import "../../widgets/corner_badge.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/empty_list_message.dart";
-import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/loading_more_indicator.dart";
 import "../../widgets/scroll_edge.dart";
 import "../../widgets/tab_layout.dart";
 import "../../widgets/title_scroll_edge.dart";
-import "../../widgets/two_pane.dart";
 import "../../widgets/yivi_spinner.dart";
 import "../home/widgets/home_tab_top.dart";
-import "../home/widgets/search_scroll_edge.dart";
+import "../home/widgets/search_tab_controller.dart";
+import "../home/widgets/search_tab_scaffold.dart";
 import "activity_detail_screen.dart";
 import "activity_entry.dart";
 import "activity_filter_sheet.dart";
@@ -86,8 +85,7 @@ const double _liveCountHeight = 28;
 
 class _ActivityTabState extends ConsumerState<ActivityTab> {
   final _scrollController = ScrollController();
-  final _search = TextEditingController();
-  final _focus = FocusNode();
+  late final _field = SearchTabController(this, onFocus: _focused);
 
   /// Whether a search is on. It starts when the field gets focus and ends
   /// on Cancel, or once nothing is typed or tagged any more after Enter;
@@ -118,23 +116,24 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   void initState() {
     super.initState();
     _scrollController.addListener(_listenToScroll);
-    _focus.addListener(() {
-      if (!_focus.hasFocus) return;
-      if (!_searching) {
-        _startSearching();
-      } else if (_submitted) {
-        setState(() => _submitted = false);
-        _scheduleCounts();
-      }
-    });
+  }
+
+  /// A tap in the field: the search starts; after Enter, it is typing
+  /// again.
+  void _focused() {
+    if (!_searching) {
+      _startSearching();
+    } else if (_submitted) {
+      setState(() => _submitted = false);
+      _scheduleCounts();
+    }
   }
 
   @override
   void dispose() {
     _countDelay?.cancel();
     _liveDelay?.cancel();
-    _search.dispose();
-    _focus.dispose();
+    _field.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -165,19 +164,13 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   /// The field under the large title, or the bar's search button: the
   /// search, with the field up in the bar and the keyboard up.
-  void _startSearchingInBar() {
-    _startSearching();
-    afterFrame(() {
-      if (mounted) _focus.requestFocus();
-    });
-  }
+  void _startSearchingInBar() => _field.startInBar(_startSearching);
 
   /// Ends the search: the log keeps [keep], or (Cancel) goes back to the
   /// question asked before.
   void _endSearching({ActivityQuery? keep}) {
     _liveDelay?.cancel();
-    _search.clear();
-    _focus.unfocus();
+    _field.stop();
     final before = _before;
     setState(() {
       _searching = false;
@@ -207,12 +200,12 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// A suggestion: a tag more on the draft. The field empties and keeps the
   /// keyboard, to add another.
   void _pick(ActivityQuery query) {
-    _search.clear();
+    _field.field.clear();
     setState(() {
       _draft = query;
       _typed = "";
     });
-    _focus.requestFocus();
+    _field.focus.requestFocus();
     _showLive(now: true);
     _scheduleCounts();
   }
@@ -225,9 +218,9 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       _endSearching(keep: ActivityQuery.empty);
       return;
     }
-    final typing = _focus.hasFocus;
+    final typing = _field.focus.hasFocus;
     setState(() => _draft = query);
-    if (typing) _focus.requestFocus();
+    if (typing) _field.focus.requestFocus();
     _showLive(now: true);
     _scheduleCounts();
   }
@@ -274,7 +267,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       _typed = text;
       _submitted = true;
     });
-    _focus.unfocus();
+    _field.focus.unfocus();
     _showLive(now: true);
   }
 
@@ -284,7 +277,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     if (_submitted && _asked.isEmpty) {
       _endSearching(keep: ActivityQuery.empty);
     } else {
-      _focus.requestFocus();
+      _field.focus.requestFocus();
     }
   }
 
@@ -315,7 +308,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// A row: its details. While searching the keyboard goes first, and
   /// stays down when coming back.
   void _open(LogInfo entry) {
-    if (_searching) _focus.unfocus();
+    if (_searching) _field.focus.unfocus();
     openActivity(context, entry);
   }
 
@@ -550,8 +543,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   Widget _searchField({double height = 48}) => GlassSearchField(
     fieldKey: const Key("activity_search_field"),
     hintKey: "activity.query.search_hint",
-    controller: _search,
-    focusNode: _focus,
+    controller: _field.field,
+    focusNode: _field.focus,
     onChanged: _onTyped,
     onSubmitted: _searchText,
     onCleared: _cleared,
@@ -815,9 +808,6 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final padding = MediaQuery.paddingOf(context);
-    final top = padding.top + FloatingBarPlacement.topGap(context);
     final state = ref.watch(activityLogProvider);
     final query = state.filter;
     final chips = _chips(_searching ? _asked : query);
@@ -876,109 +866,110 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     // A phone held upright: the large title, the field and the tags at the
     // top of the log, scrolling under a solid bar with the filter at its
     // right, as on the Data tab.
-    if (!panes) {
-      final header = <Widget>[
-        HomeTabHeader(
-          title: const TabLargeTitle("home.nav_bar.activity"),
-          field: HomeTabSearchField(
-            key: const Key("activity_search_field"),
-            hint: context.tr("activity.query.search_hint"),
-            onTap: _startSearchingInBar,
-          ),
+    final header = <Widget>[
+      HomeTabHeader(
+        title: const TabLargeTitle("home.nav_bar.activity"),
+        field: HomeTabSearchField(
+          key: const Key("activity_search_field"),
+          hint: context.tr("activity.query.search_hint"),
+          onTap: _startSearchingInBar,
         ),
-        if (chips.isNotEmpty) _tagRow(chips),
-      ];
-      // Under the bar while searching: the tags, then the suggestions.
-      final belowHeight = _searching
-          ? (chips.isEmpty ? 0.0 : activityChipHeight + 2) +
-                (suggestionRow == null ? 0.0 : _suggestionRowHeight)
-          : activityChipHeight;
-      final below = _searching
-          ? (belowHeight == 0
-                ? null
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (chips.isNotEmpty) ...[
-                        _tagRow(chips, padding: _inset),
-                        const SizedBox(height: YiviSpace.x2),
-                      ],
-                      ?suggestionRow,
+      ),
+      if (chips.isNotEmpty) _tagRow(chips),
+    ];
+    // Under the bar while searching: the tags, then the suggestions.
+    final belowHeight = _searching
+        ? (chips.isEmpty ? 0.0 : activityChipHeight + 2) +
+              (suggestionRow == null ? 0.0 : _suggestionRowHeight)
+        : activityChipHeight;
+    final below = _searching
+        ? (belowHeight == 0
+              ? null
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (chips.isNotEmpty) ...[
+                      _tagRow(chips, padding: _inset),
+                      const SizedBox(height: YiviSpace.x2),
                     ],
-                  ))
-          : chips.isEmpty
-          ? null
-          : _tagRow(chips, padding: _inset);
+                    ?suggestionRow,
+                  ],
+                ))
+        : chips.isEmpty
+        ? null
+        : _tagRow(chips, padding: _inset);
+
+    // Next to a pane: the field (and Cancel or the filter) in a row over
+    // the log, the tags and while searching the suggestions under it.
+    final extrasHeight =
+        (rowChips.isEmpty ? 0.0 : activityChipHeight + 8) +
+        (suggestionRow == null ? 0.0 : _suggestionRowHeight + 4);
+    final paneListTop = SearchTabScaffold.edge(context, extras: extrasHeight);
+
+    final Widget log;
+    if (!state.loaded) {
+      log = Center(child: YiviSpinner());
+    } else if (panes) {
+      log = _buildLogEntries(
+        context,
+        state,
+        paneListTop + 4,
+        pinTop: paneListTop,
+        header: [
+          if (chipsScroll && chips.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: YiviSpace.x4),
+              child: _tagRow(chips),
+            ),
+        ],
+      );
+    } else if (_searching) {
       final listTop = HomeTabTop.listTop(
         context,
         below: below == null ? 0 : belowHeight,
       );
       // The days stick right under the band, and continue it.
-      final searchPinTop = HomeTabTop.bandBottom(
+      log = _buildLogEntries(
         context,
-        below: below == null ? 0 : belowHeight,
-      );
-      return Scaffold(
-        backgroundColor: palette.background,
-        // The keyboard covers the tab; the list keeps clear of it itself.
-        resizeToAvoidBottomInset: false,
-        body: HomeTabTop(
-          title: context.tr("home.nav_bar.activity"),
-          searching: _searching,
-          searchRow: Row(
-            spacing: YiviSpace.x4,
-            children: [
-              Expanded(child: _searchField(height: 44)),
-              fieldAction,
-            ],
-          ),
-          // The tags pin under the bar as they scroll up to it; while
-          // searching the tags and the suggestions are there at once.
-          below: below,
-          belowHeight: belowHeight,
-          searchButtonKey: const Key("activity_search_button"),
-          searchLabel: context.tr("activity.query.search_hint"),
-          onSearch: _startSearchingInBar,
-          trailing: filterButton,
-          othersDrop: false,
-          child: !state.loaded
-              ? Center(child: YiviSpinner())
-              : _searching
-              ? _buildLogEntries(
-                  context,
-                  state,
-                  listTop,
-                  pinTop: searchPinTop,
-                  joinBar: true,
-                )
-              : _buildLogEntries(
-                  context,
-                  state,
-                  HomeTabTop.titleTop(context),
-                  // Under the bar, and under the tags once they pin there.
-                  pinTop: HomeTabTop.bandBottom(
-                    context,
-                    below: chips.isEmpty ? 0 : activityChipHeight,
-                  ),
-                  header: header,
-                  joinBar: true,
-                ),
+        state,
+        listTop,
+        pinTop: HomeTabTop.bandBottom(
+          context,
+          below: below == null ? 0 : belowHeight,
         ),
+        joinBar: true,
+      );
+    } else {
+      log = _buildLogEntries(
+        context,
+        state,
+        HomeTabTop.titleTop(context),
+        // Under the bar, and under the tags once they pin there.
+        pinTop: HomeTabTop.bandBottom(
+          context,
+          below: chips.isEmpty ? 0 : activityChipHeight,
+        ),
+        header: header,
+        joinBar: true,
       );
     }
 
-    // The field (and Cancel or the filter), the tags, and while searching
-    // the suggestions.
-    final row = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          spacing: YiviSpace.x8,
-          children: [
-            Expanded(child: _searchField()),
-            fieldAction,
-          ],
-        ),
+    final entry = panes ? ref.watch(activityPaneEntryProvider) : null;
+    return SearchTabScaffold(
+      searching: _searching,
+      title: context.tr("home.nav_bar.activity"),
+      searchLabel: context.tr("activity.query.search_hint"),
+      searchButtonKey: const Key("activity_search_button"),
+      onStartSearch: _startSearchingInBar,
+      field: (height) => _searchField(height: height),
+      barAction: fieldAction,
+      rowAction: fieldAction,
+      trailing: filterButton,
+      // The tags pin under the bar as they scroll up to it; while
+      // searching the tags and the suggestions are there at once.
+      below: below,
+      belowHeight: belowHeight,
+      rowExtras: [
         if (rowChips.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: YiviSpace.x8),
@@ -990,47 +981,8 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
             child: suggestionRow,
           ),
       ],
-    );
-    final headerHeight =
-        60.0 +
-        (rowChips.isEmpty ? 0 : activityChipHeight + 8) +
-        (suggestionRow == null ? 0 : _suggestionRowHeight + 4);
-    final listTop = top + headerHeight;
-    final list = SearchScrollEdge(
-      height: listTop - 4,
-      top: top,
-      row: row,
-      child: !state.loaded
-          ? Center(child: YiviSpinner())
-          : _buildLogEntries(
-              context,
-              state,
-              listTop,
-              pinTop: listTop - 4,
-              header: [
-                if (chipsScroll && chips.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: YiviSpace.x4),
-                    child: _tagRow(chips),
-                  ),
-              ],
-            ),
-    );
-
-    return Scaffold(
-      backgroundColor: palette.background,
-      resizeToAvoidBottomInset: false,
-      body: _withDetailPane(list),
-    );
-  }
-
-  /// The entry in the detail pane: the picked one, or the newest.
-  /// The tablet layout: the activity next to the details of the picked
-  /// entry (the newest until the user picks one).
-  Widget _withDetailPane(Widget list) {
-    final entry = ref.watch(activityPaneEntryProvider);
-    return TwoPane(
-      list: list,
+      rowExtrasHeight: extrasHeight,
+      list: log,
       detail: entry == null
           ? null
           : ActivityDetailPane(key: ValueKey(logKey(entry)), logEntry: entry),
