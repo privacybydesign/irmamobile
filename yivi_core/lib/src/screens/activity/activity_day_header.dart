@@ -39,7 +39,7 @@ class _DayHeader extends SliverPersistentHeaderDelegate {
     this.joinsBar = false,
   });
 
-  double get _height => 18 + textScaler.scale(24) + 8;
+  double get _height => YiviSpace.x16 + textScaler.scale(24) + YiviSpace.x8;
 
   @override
   double get maxExtent => _height;
@@ -61,7 +61,7 @@ class _DayHeader extends SliverPersistentHeaderDelegate {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           YiviSpace.x16,
-          18,
+          YiviSpace.x16,
           YiviSpace.x16,
           YiviSpace.x8,
         ),

@@ -218,7 +218,12 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   }
 
   Widget _readback(YiviPalette palette) => Container(
-    padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+    padding: const EdgeInsets.fromLTRB(
+      YiviSpace.x16,
+      YiviSpace.x12,
+      YiviSpace.x8,
+      YiviSpace.x12,
+    ),
     decoration: BoxDecoration(
       color: palette.tint,
       borderRadius: YiviCorners.cardRadius,
@@ -250,7 +255,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         YiviSpace.x4,
-        22,
+        YiviSpace.x24,
         YiviSpace.x4,
         YiviSpace.x8,
       ),
@@ -329,9 +334,9 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
             constraints: const BoxConstraints(minHeight: 56),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
-                14,
+                YiviSpace.x16,
                 YiviSpace.x8,
-                14,
+                YiviSpace.x16,
                 YiviSpace.x8,
               ),
               child: Row(
@@ -559,9 +564,9 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           Padding(
             padding: const EdgeInsets.fromLTRB(
               YiviSpace.x4,
-              10,
+              YiviSpace.x12,
               YiviSpace.x4,
-              6,
+              YiviSpace.x8,
             ),
             child: Text(
               g.title!,
@@ -823,7 +828,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
               YiviSpace.x12,
               YiviSpace.x8,
               YiviSpace.x12,
-              10,
+              YiviSpace.x12,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

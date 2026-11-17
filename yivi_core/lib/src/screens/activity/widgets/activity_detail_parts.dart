@@ -122,7 +122,7 @@ class ActivityBarTitle extends StatelessWidget {
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: 6,
+            spacing: YiviSpace.x8,
             children: [
               ActivityPartyLogo(party: party, size: 20),
               Flexible(
@@ -206,14 +206,19 @@ class ActivityHeroHeader extends StatelessWidget {
     return KeyedSubtree(
       key: const Key("activity_hero"),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(YiviSpace.x16, top, YiviSpace.x16, 28),
+        padding: EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          top,
+          YiviSpace.x16,
+          YiviSpace.x32,
+        ),
         child: Column(
           children: [
             ActivityHeroPile(key: pictureKey, entry: entry),
-            const SizedBox(height: 22),
+            const SizedBox(height: YiviSpace.x24),
             Row(
               mainAxisSize: MainAxisSize.min,
-              spacing: 6,
+              spacing: YiviSpace.x8,
               children: [
                 ExcludeSemantics(
                   child: CornerBadge(
@@ -403,7 +408,7 @@ class ActivitySectionLabel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         YiviSpace.x4,
-        28,
+        YiviSpace.x32,
         YiviSpace.x4,
         YiviSpace.x8,
       ),
@@ -482,7 +487,7 @@ class ActivitySignedMessage extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(
             YiviSpace.x4,
-            28,
+            YiviSpace.x32,
             YiviSpace.x4,
             YiviSpace.x8,
           ),
@@ -496,9 +501,9 @@ class ActivitySignedMessage extends StatelessWidget {
         ),
         SurfaceCard(
           padding: const EdgeInsets.fromLTRB(
-            20,
             YiviSpace.x16,
-            20,
+            YiviSpace.x16,
+            YiviSpace.x16,
             YiviSpace.x16,
           ),
           child: Column(
@@ -595,7 +600,7 @@ class ActivityAllWithParty extends ConsumerWidget {
     if (summary == null || summary.count < 2) return const SizedBox.shrink();
     final label = context.tr("activity.all_with_party", {"name": party.name});
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: YiviSpace.x24),
       child: SurfaceCard(
         clipBehavior: Clip.antiAlias,
         child: Semantics(
@@ -703,7 +708,7 @@ class ActivityDetailBody extends StatelessWidget {
                   if (sections.length > 1)
                     ActivitySectionLabel(role: section.role)
                   else
-                    const SizedBox(height: 20),
+                    const SizedBox(height: YiviSpace.x24),
                   for (final (i, card) in section.cards.indexed) ...[
                     if (i > 0) const SizedBox(height: YiviSpace.x12),
                     ActivityCredentialTile(card: card),
