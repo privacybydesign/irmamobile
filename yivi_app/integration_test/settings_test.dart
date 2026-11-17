@@ -88,14 +88,14 @@ void main() {
         tester,
         "report_toggle",
         false,
-        repo.preferences.getReportErrors(),
+        repo.preferences.reportErrors.stream,
       );
       if (Platform.isAndroid) {
         await testToggle(
           tester,
           "screenshot_toggle",
           true,
-          repo.preferences.getScreenshotsEnabled(),
+          repo.preferences.screenshotsEnabled.stream,
         );
       }
 

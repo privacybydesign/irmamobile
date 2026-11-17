@@ -15,7 +15,7 @@ class PreferredLocaleBuilder extends StatelessWidget {
     final prefs = IrmaRepositoryProvider.of(context).preferences;
 
     return StreamBuilder(
-      stream: prefs.getPreferredLanguageCode(),
+      stream: prefs.preferredLanguageCode.stream,
       builder: (context, AsyncSnapshot<String?> snapshot) {
         if (!snapshot.hasData) return Container();
         final preferredLanguageCode = snapshot.data!;

@@ -85,7 +85,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(service.requestReviewCalls, 1);
-    expect(prefs.getReviewDoneNow(), isTrue);
+    expect(prefs.reviewDone.value, isTrue);
     // Dialog closed.
     expect(find.byKey(const Key("review_gate_positive")), findsNothing);
   });
@@ -105,7 +105,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(service.requestReviewCalls, 0);
-    expect(prefs.getReviewDoneNow(), isTrue);
+    expect(prefs.reviewDone.value, isTrue);
     // Routed to the private feedback box, not the store.
     expect(find.byKey(const Key("review_feedback_input")), findsOneWidget);
   });

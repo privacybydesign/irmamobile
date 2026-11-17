@@ -97,7 +97,7 @@ void main() {
     testWidgets("shows once after the enrollment, until Got it", (
       tester,
     ) async {
-      await tester.runAsync(() => repo.preferences.markScanTipPending());
+      await tester.runAsync(() => repo.preferences.scanTipPending.set(true));
       await pumpTip(tester);
 
       expect(find.text("Scan QR codes here"), findsOneWidget);
@@ -114,7 +114,7 @@ void main() {
     });
 
     testWidgets("is not there once there is data", (tester) async {
-      await tester.runAsync(() => repo.preferences.markScanTipPending());
+      await tester.runAsync(() => repo.preferences.scanTipPending.set(true));
       await pumpTip(tester, hasData: true);
       expect(find.text("no tip"), findsOneWidget);
     });

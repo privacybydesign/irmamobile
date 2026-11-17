@@ -37,20 +37,20 @@ void main() {
 
     test("follows the system by default", () async {
       final prefs = await prefsWith();
-      expect(await prefs.getAppearance().first, Appearance.system);
+      expect(await prefs.appearance.stream.first, Appearance.system);
     });
 
     test("stays dark for users of the old dark mode preview", () async {
       final prefs = await prefsWith(preview: true);
-      expect(await prefs.getAppearance().first, Appearance.dark);
+      expect(await prefs.appearance.stream.first, Appearance.dark);
     });
 
     test("a chosen appearance wins over the old preview", () async {
       final prefs = await prefsWith(preview: true, appearance: "light");
-      expect(await prefs.getAppearance().first, Appearance.light);
+      expect(await prefs.appearance.stream.first, Appearance.light);
 
-      await prefs.setAppearance(Appearance.system);
-      expect(await prefs.getAppearance().first, Appearance.system);
+      await prefs.appearance.set(Appearance.system);
+      expect(await prefs.appearance.stream.first, Appearance.system);
     });
   });
 
@@ -96,7 +96,7 @@ void main() {
       await tester.pumpAndSettle();
       // The preference stream runs on the real clock.
       final stored = await tester.runAsync(
-        () => repo.preferences.getAppearance().first,
+        () => repo.preferences.appearance.stream.first,
       );
       expect(stored, Appearance.dark);
     });

@@ -25,7 +25,7 @@ class AppLanguage with WidgetsBindingObserver {
   /// The language right now, as a bare language code ("nl"), without waiting
   /// for [changes] to emit.
   String get current => effectiveAppLanguage(
-    preferredLanguageCode: _preferences.preferredLanguageCode,
+    preferredLanguageCode: _preferences.preferredLanguageCode.value,
     systemLocale: _systemLocale.value,
   );
 
@@ -35,7 +35,7 @@ class AppLanguage with WidgetsBindingObserver {
   /// `skip(1)` drops the seed itself — so a listener sees changes only,
   /// whichever source emits first.
   late final Stream<String> changes = Rx.combineLatest2(
-    _preferences.getPreferredLanguageCode(),
+    _preferences.preferredLanguageCode.stream,
     _systemLocale.stream,
     (String preferred, Locale systemLocale) => effectiveAppLanguage(
       preferredLanguageCode: preferred,

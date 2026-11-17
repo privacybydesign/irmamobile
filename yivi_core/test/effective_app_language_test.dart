@@ -83,7 +83,7 @@ void main() {
         final sub = repo.logsChanged.listen((_) => logsChanged++);
         addTearDown(sub.cancel);
         bridge.dispatched.clear();
-        await prefs.setPreferredLanguageCode(target);
+        await prefs.preferredLanguageCode.set(target);
         await pumpEventQueue();
 
         final setLocale = bridge.dispatched
@@ -106,12 +106,12 @@ void main() {
             .locale;
         final target = initial == "nl" ? "de" : "nl";
 
-        await prefs.setPreferredLanguageCode(target);
+        await prefs.preferredLanguageCode.set(target);
         await pumpEventQueue();
         bridge.dispatched.clear();
 
         // Setting the override to the same value again is a no-op switch.
-        await prefs.setPreferredLanguageCode(target);
+        await prefs.preferredLanguageCode.set(target);
         await pumpEventQueue();
         expect(bridge.dispatched.whereType<SetLocaleEvent>(), isEmpty);
       },
@@ -124,7 +124,7 @@ void main() {
         // StreamingSharedPreferences.instance is a cached singleton, so an
         // override set by an earlier test survives setMockInitialValues.
         // Be explicit: this case is about following the device language.
-        await prefs.setPreferredLanguageCode("");
+        await prefs.preferredLanguageCode.set("");
         await pumpEventQueue();
         bridge.dispatched.clear();
 

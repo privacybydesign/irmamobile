@@ -51,7 +51,7 @@ void main() {
   });
 
   test("with a host the e-mail calls go to its fixed ports", () async {
-    await prefs.setLocalBackendHost("localhost");
+    await prefs.localBackendHost.set("localhost");
     final container = await loadedContainer();
 
     expect(emailIssuerHost(container), "http://localhost:8080");
@@ -59,7 +59,7 @@ void main() {
   });
 
   test("the scheme's issuer url does not override a local host", () async {
-    await prefs.setLocalBackendHost("192.168.1.20");
+    await prefs.localBackendHost.set("192.168.1.20");
     final container = await loadedContainer();
 
     container
@@ -70,7 +70,7 @@ void main() {
   });
 
   test("a blank host counts as off", () async {
-    await prefs.setLocalBackendHost("  ");
+    await prefs.localBackendHost.set("  ");
     final container = await loadedContainer();
 
     expect(container.read(localBackendsProvider), isNull);

@@ -83,7 +83,7 @@ void main() {
 
   testWidgets("language: the options as a group with a tick", (tester) async {
     phone(tester);
-    await repo.preferences.setPreferredLanguageCode("en");
+    await repo.preferences.preferredLanguageCode.set("en");
     await pumpHome(tester, repo: repo, home: ChangeLanguageScreen());
     await settle(tester);
     await tester.pumpAndSettle();

@@ -89,7 +89,7 @@ Future<IrmaPreferences> freshPrefs({List<String> order = const []}) async {
     mostRecentTermsUrlEn: "",
   );
   await prefs.clearAll();
-  await prefs.setCredentialOrder(order);
+  await prefs.credentialOrder.set(order);
   return prefs;
 }
 

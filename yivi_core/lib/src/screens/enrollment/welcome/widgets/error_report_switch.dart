@@ -43,7 +43,7 @@ class _ErrorReportSwitchState extends State<ErrorReportSwitch> {
     final withYivi = context.tr("enrollment.error_reporting.accept.with_yivi");
 
     return StreamBuilder<bool>(
-      stream: preferences.getReportErrors(),
+      stream: preferences.reportErrors.stream,
       builder: (context, snapshot) {
         final value = snapshot.data ?? false;
         return Padding(
@@ -89,7 +89,7 @@ class _ErrorReportSwitchState extends State<ErrorReportSwitch> {
                     key: const Key("error_reporting_switch"),
                     value: value,
                     activeTrackColor: palette.primary,
-                    onChanged: preferences.setReportErrors,
+                    onChanged: preferences.reportErrors.set,
                   ),
                 ),
               ),

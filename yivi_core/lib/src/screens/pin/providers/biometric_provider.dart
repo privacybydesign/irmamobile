@@ -47,18 +47,18 @@ final biometricTypeProvider = FutureProvider<BiometricType?>((ref) async {
 
 /// Whether the user opted in to biometric unlock (pref-backed, default off).
 final biometricEnabledProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).getBiometricEnabled(),
+  (ref) => ref.watch(preferencesProvider).biometricEnabled.stream,
 );
 
 /// Whether the biometric scan fires automatically when the lock screen appears
 /// (pref-backed, default on). Only matters while [biometricEnabledProvider].
 final biometricImmediateProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).getBiometricImmediate(),
+  (ref) => ref.watch(preferencesProvider).biometricImmediate.stream,
 );
 
 /// Whether the one-time opt-in prompt has already been answered/dismissed.
 final biometricPromptDismissedProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).getBiometricPromptDismissed(),
+  (ref) => ref.watch(preferencesProvider).biometricPromptDismissed.stream,
 );
 
 /// Biometric actions. A successful prompt only flips the local `appLocked`
@@ -137,10 +137,10 @@ class BiometricService {
   }
 
   Future<void> setEnabled(bool value) =>
-      _ref.read(preferencesProvider).setBiometricEnabled(value);
+      _ref.read(preferencesProvider).biometricEnabled.set(value);
 
   Future<void> dismissPrompt() =>
-      _ref.read(preferencesProvider).setBiometricPromptDismissed(true);
+      _ref.read(preferencesProvider).biometricPromptDismissed.set(true);
 }
 
 final biometricServiceProvider = Provider<BiometricService>(

@@ -38,10 +38,9 @@ class EnrollmentScreen extends StatelessWidget {
           final available = await container.read(
             biometricAvailableProvider.future,
           );
-          final enabled = await repo.preferences.getBiometricEnabled().first;
-          final dismissed = await repo.preferences
-              .getBiometricPromptDismissed()
-              .first;
+          final enabled = await repo.preferences.biometricEnabled.stream.first;
+          final dismissed =
+              await repo.preferences.biometricPromptDismissed.stream.first;
           return available && !enabled && !dismissed;
         },
         emailOffered: () => container.read(emailLinkingOfferedProvider),
@@ -74,7 +73,7 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
     super.initState();
     // The default for this value is intentionally
     // different for the fresh install and upgrade flows.
-    repo.preferences.setLongPin(false);
+    repo.preferences.longPin.set(false);
   }
 
   @override
@@ -85,7 +84,7 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
 
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
     // The empty Data tab points out the Scan button on the first visit.
-    await repo.preferences.markScanTipPending();
+    await repo.preferences.scanTipPending.set(true);
     // LockGate handles displaying the PIN overlay if the app is still
     // locked after enrollment.
     if (context.mounted) context.goHomeScreen();
@@ -125,7 +124,7 @@ class _ProvidedEnrollmentScreenState extends State<_ProvidedEnrollmentScreen> {
               isAccepted: state.isAccepted,
               onContinue: addOnNextPressed,
               onToggleAccepted: (isAccepted) {
-                repo.preferences.markLatestTermsAsAccepted(isAccepted);
+                repo.preferences.acceptedLatestTerms.set(isAccepted);
                 addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted));
               },
             );

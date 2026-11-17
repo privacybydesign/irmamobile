@@ -25,62 +25,62 @@ void main() {
       <(String, Future<void> Function(IrmaPreferences), String, Object)>[
         (
           "screenshots enabled",
-          (p) => p.setScreenshotsEnabled(true),
+          (p) => p.screenshotsEnabled.set(true),
           "preference.screenshots_enabled",
           true,
         ),
-        ("long PIN", (p) => p.setLongPin(false), "preference.long_pin", false),
+        ("long PIN", (p) => p.longPin.set(false), "preference.long_pin", false),
         (
           "PIN visible",
-          (p) => p.setPinVisible(true),
+          (p) => p.pinVisible.set(true),
           "preference.pin_visible",
           true,
         ),
         (
           "report errors",
-          (p) => p.setReportErrors(true),
+          (p) => p.reportErrors.set(true),
           "preference.report_errors",
           true,
         ),
         (
           "accepted rooted risk",
-          (p) => p.setAcceptedRootedRisk(true),
+          (p) => p.acceptedRootedRisk.set(true),
           "preference.accepted_rooted_risk",
           true,
         ),
         (
           "biometric enabled",
-          (p) => p.setBiometricEnabled(true),
+          (p) => p.biometricEnabled.set(true),
           "preference.biometric_enabled",
           true,
         ),
         (
           "biometric immediate",
-          (p) => p.setBiometricImmediate(false),
+          (p) => p.biometricImmediate.set(false),
           "preference.biometric_immediate",
           false,
         ),
         (
           "biometric prompt dismissed",
-          (p) => p.setBiometricPromptDismissed(true),
+          (p) => p.biometricPromptDismissed.set(true),
           "preference.biometric_prompt_dismissed",
           true,
         ),
         (
           "preferred language",
-          (p) => p.setPreferredLanguageCode("nl"),
+          (p) => p.preferredLanguageCode.set("nl"),
           "preference.preferred_language_code",
           "nl",
         ),
         (
           "show name changed notification",
-          (p) => p.setShowNameChangedNotification(true),
+          (p) => p.showNameChangedNotification.set(true),
           "preference.show_name_changed_notification",
           true,
         ),
         (
           "last scheme update, in seconds",
-          (p) => p.setLastSchemeUpdate(
+          (p) => p.lastSchemeUpdate.set(
             DateTime.fromMillisecondsSinceEpoch(1700000000000),
           ),
           "preference.last_schemeupdate",
@@ -88,43 +88,43 @@ void main() {
         ),
         (
           "notifications",
-          (p) => p.setSerializedNotifications("[]"),
+          (p) => p.serializedNotifications.set("[]"),
           "preference.notifications",
           "[]",
         ),
         (
           "accepted terms, the Dutch URL",
-          (p) => p.markLatestTermsAsAccepted(true),
+          (p) => p.acceptedLatestTerms.set(true),
           "preference.accepted_terms_url",
           "https://example.com/nl",
         ),
         (
           "credential order",
-          (p) => p.setCredentialOrder(["a", "b"]),
+          (p) => p.credentialOrder.set(["a", "b"]),
           "preference.credential_order",
           ["a", "b"],
         ),
         (
           "card order",
-          (p) => p.setCardOrder(["x"]),
+          (p) => p.cardOrder.set(["x"]),
           "preference.card_order",
           ["x"],
         ),
         (
           "wallet view",
-          (p) => p.setWalletView("list"),
+          (p) => p.walletView.set("list"),
           "preference.wallet_view",
           "list",
         ),
         (
           "card motion",
-          (p) => p.setCardMotion("fly"),
+          (p) => p.cardMotion.set("fly"),
           "preference.card_motion",
           "fly",
         ),
         (
           "appearance, by name",
-          (p) => p.setAppearance(Appearance.dark),
+          (p) => p.appearance.set(Appearance.dark),
           "preference.appearance",
           "dark",
         ),
@@ -148,31 +148,31 @@ void main() {
         ),
         (
           "review done",
-          (p) => p.setReviewDone(true),
+          (p) => p.reviewDone.set(true),
           "preference.review_done",
           true,
         ),
         (
           "scan tip pending",
-          (p) => p.markScanTipPending(),
+          (p) => p.scanTipPending.set(true),
           "preference.scan_tip_pending",
           true,
         ),
         (
           "e-mail linked",
-          (p) => p.markEmailLinked(),
+          (p) => p.emailLinked.set(true),
           "preference.email_linked",
           true,
         ),
         (
           "e-mail banner dismissed",
-          (p) => p.dismissEmailBanner(),
+          (p) => p.emailBannerDismissed.set(true),
           "preference.email_banner_dismissed",
           true,
         ),
         (
           "e-mail banner snoozed, in milliseconds",
-          (p) => p.snoozeEmailBannerUntil(
+          (p) => p.emailBannerSnoozedUntil.set(
             DateTime.fromMillisecondsSinceEpoch(1700000000123),
           ),
           "preference.email_banner_snoozed_until_ms",
@@ -180,7 +180,7 @@ void main() {
         ),
         (
           "local backend host",
-          (p) => p.setLocalBackendHost("10.0.2.2"),
+          (p) => p.localBackendHost.set("10.0.2.2"),
           "preference.local_backend_host",
           "10.0.2.2",
         ),
@@ -196,47 +196,55 @@ void main() {
   // What an empty store reads as.
   final defaults =
       <(String, Future<Object?> Function(IrmaPreferences), Object)>[
-        ("screenshots enabled", (p) => p.getScreenshotsEnabled().first, false),
-        ("long PIN", (p) => p.getLongPin().first, true),
-        ("PIN visible", (p) async => p.getPinVisible(), false),
-        ("report errors", (p) => p.getReportErrors().first, false),
-        ("accepted rooted risk", (p) => p.getAcceptedRootedRisk().first, false),
-        ("biometric enabled", (p) => p.getBiometricEnabled().first, false),
-        ("biometric immediate", (p) => p.getBiometricImmediate().first, true),
         (
-          "biometric prompt dismissed",
-          (p) => p.getBiometricPromptDismissed().first,
+          "screenshots enabled",
+          (p) => p.screenshotsEnabled.stream.first,
           false,
         ),
-        ("preferred language", (p) => p.getPreferredLanguageCode().first, ""),
+        ("long PIN", (p) => p.longPin.stream.first, true),
+        ("PIN visible", (p) async => p.pinVisible.value, false),
+        ("report errors", (p) => p.reportErrors.stream.first, false),
+        (
+          "accepted rooted risk",
+          (p) => p.acceptedRootedRisk.stream.first,
+          false,
+        ),
+        ("biometric enabled", (p) => p.biometricEnabled.stream.first, false),
+        ("biometric immediate", (p) => p.biometricImmediate.stream.first, true),
+        (
+          "biometric prompt dismissed",
+          (p) => p.biometricPromptDismissed.stream.first,
+          false,
+        ),
+        ("preferred language", (p) => p.preferredLanguageCode.stream.first, ""),
         (
           "last scheme update",
-          (p) => p.getLastSchemeUpdate().first,
+          (p) => p.lastSchemeUpdate.stream.first,
           DateTime.fromMillisecondsSinceEpoch(0),
         ),
-        ("notifications", (p) => p.getSerializedNotifications().first, ""),
-        ("accepted terms", (p) => p.hasAcceptedLatestTerms().first, false),
-        ("credential order", (p) async => p.getCredentialOrder(), <String>[]),
-        ("card order", (p) async => p.getCardOrder(), <String>[]),
-        ("wallet view", (p) async => p.getWalletViewNow(), ""),
-        ("appearance", (p) => p.getAppearance().first, Appearance.system),
-        ("review success count", (p) async => p.getReviewSuccessCountNow(), 0),
-        ("review times asked", (p) async => p.getReviewTimesAskedNow(), 0),
-        ("review last asked", (p) async => p.getReviewLastAskEpochMsNow(), 0),
-        ("review done", (p) async => p.getReviewDoneNow(), false),
-        ("scan tip pending", (p) => p.getScanTipPending().first, false),
-        ("e-mail linked", (p) => p.getEmailLinked().first, false),
+        ("notifications", (p) => p.serializedNotifications.stream.first, ""),
+        ("accepted terms", (p) => p.acceptedLatestTerms.stream.first, false),
+        ("credential order", (p) async => p.credentialOrder.value, <String>[]),
+        ("card order", (p) async => p.cardOrder.value, <String>[]),
+        ("wallet view", (p) async => p.walletView.value, ""),
+        ("appearance", (p) => p.appearance.stream.first, Appearance.system),
+        ("review success count", (p) async => p.reviewSuccessCount.value, 0),
+        ("review times asked", (p) async => p.reviewTimesAsked.value, 0),
+        ("review last asked", (p) async => p.reviewLastAskEpochMs.value, 0),
+        ("review done", (p) async => p.reviewDone.value, false),
+        ("scan tip pending", (p) => p.scanTipPending.stream.first, false),
+        ("e-mail linked", (p) => p.emailLinked.stream.first, false),
         (
           "e-mail banner dismissed",
-          (p) => p.getEmailBannerDismissed().first,
+          (p) => p.emailBannerDismissed.stream.first,
           false,
         ),
         (
           "e-mail banner snoozed",
-          (p) => p.getEmailBannerSnoozedUntil().first,
+          (p) => p.emailBannerSnoozedUntil.stream.first,
           DateTime.fromMillisecondsSinceEpoch(0),
         ),
-        ("local backend host", (p) => p.getLocalBackendHost().first, ""),
+        ("local backend host", (p) => p.localBackendHost.stream.first, ""),
       ];
 
   for (final (name, read, value) in defaults) {
@@ -246,10 +254,10 @@ void main() {
   }
 
   test("terms accepted for the Dutch URL count, others do not", () async {
-    await prefs.markLatestTermsAsAccepted(true);
-    expect(await prefs.hasAcceptedLatestTerms().first, isTrue);
-    await prefs.markLatestTermsAsAccepted(false);
-    expect(await prefs.hasAcceptedLatestTerms().first, isFalse);
+    await prefs.acceptedLatestTerms.set(true);
+    expect(await prefs.acceptedLatestTerms.stream.first, isTrue);
+    await prefs.acceptedLatestTerms.set(false);
+    expect(await prefs.acceptedLatestTerms.stream.first, isFalse);
     expect(await _raw("preference.accepted_terms_url"), "no-terms-accepted");
   });
 
@@ -261,7 +269,7 @@ void main() {
       mostRecentTermsUrlNl: "nl",
       mostRecentTermsUrlEn: "en",
     );
-    expect(await migrated.getAppearance().first, Appearance.dark);
+    expect(await migrated.appearance.stream.first, Appearance.dark);
   });
 
   test("retired keys are removed when the preferences open", () async {
@@ -279,10 +287,10 @@ void main() {
   });
 
   test("clearAll empties the store but keeps the name notice off", () async {
-    await prefs.setLongPin(false);
-    await prefs.setShowNameChangedNotification(true);
+    await prefs.longPin.set(false);
+    await prefs.showNameChangedNotification.set(true);
     await prefs.clearAll();
     expect(await _raw("preference.long_pin"), isNull);
-    expect(await prefs.getShowNameChangedNotification().first, isFalse);
+    expect(await prefs.showNameChangedNotification.stream.first, isFalse);
   });
 }

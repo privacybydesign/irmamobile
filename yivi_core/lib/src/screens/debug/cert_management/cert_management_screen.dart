@@ -48,7 +48,7 @@ class _CertificateManagementScreenState
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
     final errorReported = await IrmaRepositoryProvider.of(
       context,
-    ).preferences.getReportErrors().first;
+    ).preferences.reportErrors.stream.first;
 
     if (!mounted) return;
 

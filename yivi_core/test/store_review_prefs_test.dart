@@ -20,34 +20,34 @@ void main() {
 
   test("review state starts at zero", () async {
     final prefs = await freshPrefs();
-    expect(prefs.getReviewSuccessCountNow(), 0);
-    expect(prefs.getReviewTimesAskedNow(), 0);
-    expect(prefs.getReviewLastAskEpochMsNow(), 0);
-    expect(prefs.getReviewDoneNow(), isFalse);
+    expect(prefs.reviewSuccessCount.value, 0);
+    expect(prefs.reviewTimesAsked.value, 0);
+    expect(prefs.reviewLastAskEpochMs.value, 0);
+    expect(prefs.reviewDone.value, isFalse);
   });
 
   test("incrementReviewSuccessCount adds one each call", () async {
     final prefs = await freshPrefs();
     await prefs.incrementReviewSuccessCount();
     await prefs.incrementReviewSuccessCount();
-    expect(prefs.getReviewSuccessCountNow(), 2);
+    expect(prefs.reviewSuccessCount.value, 2);
   });
 
   test("recordReviewAsked bumps the ask count and stamps the time", () async {
     final prefs = await freshPrefs();
     await prefs.recordReviewAsked(nowEpochMs: 1234);
 
-    expect(prefs.getReviewTimesAskedNow(), 1);
-    expect(prefs.getReviewLastAskEpochMsNow(), 1234);
+    expect(prefs.reviewTimesAsked.value, 1);
+    expect(prefs.reviewLastAskEpochMs.value, 1234);
 
     await prefs.recordReviewAsked(nowEpochMs: 5678);
-    expect(prefs.getReviewTimesAskedNow(), 2);
-    expect(prefs.getReviewLastAskEpochMsNow(), 5678);
+    expect(prefs.reviewTimesAsked.value, 2);
+    expect(prefs.reviewLastAskEpochMs.value, 5678);
   });
 
   test("setReviewDone persists", () async {
     final prefs = await freshPrefs();
-    await prefs.setReviewDone(true);
-    expect(prefs.getReviewDoneNow(), isTrue);
+    await prefs.reviewDone.set(true);
+    expect(prefs.reviewDone.value, isTrue);
   });
 }

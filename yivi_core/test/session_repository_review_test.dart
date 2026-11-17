@@ -53,7 +53,7 @@ void main() {
 
   test("each successful session increments the review counter once", () async {
     final repo = await repository();
-    final base = repo.preferences.getReviewSuccessCountNow();
+    final base = repo.preferences.reviewSuccessCount.value;
     final events = StreamController<Event>();
     final sessions = SessionRepository(repo: repo, eventStream: events.stream);
     addTearDown(sessions.close);
@@ -66,12 +66,12 @@ void main() {
     events.add(_event(2, SessionStatus.success));
     await Future<void>.delayed(Duration.zero);
 
-    expect(repo.preferences.getReviewSuccessCountNow(), base + 2);
+    expect(repo.preferences.reviewSuccessCount.value, base + 2);
   });
 
   test("failed and dismissed sessions never count", () async {
     final repo = await repository();
-    final base = repo.preferences.getReviewSuccessCountNow();
+    final base = repo.preferences.reviewSuccessCount.value;
     final events = StreamController<Event>();
     final sessions = SessionRepository(repo: repo, eventStream: events.stream);
     addTearDown(sessions.close);
@@ -81,6 +81,6 @@ void main() {
     events.add(_event(2, SessionStatus.dismissed));
     await Future<void>.delayed(Duration.zero);
 
-    expect(repo.preferences.getReviewSuccessCountNow(), base);
+    expect(repo.preferences.reviewSuccessCount.value, base);
   });
 }

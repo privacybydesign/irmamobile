@@ -56,7 +56,7 @@ class LocalBackendsTile extends ConsumerWidget {
     controller.dispose();
 
     if (host != null) {
-      await ref.read(preferencesProvider).setLocalBackendHost(host);
+      await ref.read(preferencesProvider).localBackendHost.set(host);
     }
   }
 

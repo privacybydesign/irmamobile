@@ -10,5 +10,5 @@ final preferencesProvider = Provider<IrmaPreferences>(
 
 /// Whether the user opted for a 16-digit PIN (vs the default 5-digit).
 final longPinProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).getLongPin(),
+  (ref) => ref.watch(preferencesProvider).longPin.stream,
 );

@@ -92,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // no auth.
                     onChanged: (value) async {
                       if (!value) {
-                        await repo.preferences.setBiometricEnabled(false);
+                        await repo.preferences.biometricEnabled.set(false);
                         return;
                       }
                       final ok = await ref
@@ -103,10 +103,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           );
                       if (ok) {
-                        await repo.preferences.setBiometricEnabled(true);
+                        await repo.preferences.biometricEnabled.set(true);
                       }
                     },
-                    stream: repo.preferences.getBiometricEnabled(),
+                    stream: repo.preferences.biometricEnabled.stream,
                   ),
                   // Belongs to the one above: indented, and greyed out
                   // while biometric unlock is off (the pref is ignored
@@ -118,16 +118,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         "settings.biometric_immediate_explanation",
                     indent: 16,
                     enabled: biometricEnabled,
-                    onChanged: repo.preferences.setBiometricImmediate,
-                    stream: repo.preferences.getBiometricImmediate(),
+                    onChanged: repo.preferences.biometricImmediate.set,
+                    stream: repo.preferences.biometricImmediate.stream,
                   ),
                 ],
                 ToggleTile(
                   key: const Key("report_toggle"),
                   labelTranslationKey: "settings.report_errors",
                   subtitleTranslationKey: "settings.report_errors_explanation",
-                  onChanged: repo.preferences.setReportErrors,
-                  stream: repo.preferences.getReportErrors(),
+                  onChanged: repo.preferences.reportErrors.set,
+                  stream: repo.preferences.reportErrors.stream,
                 ),
                 if (Platform.isAndroid)
                   ToggleTile(
@@ -135,8 +135,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     labelTranslationKey: "settings.enable_screenshots",
                     subtitleTranslationKey:
                         "settings.enable_screenshots_explanation",
-                    onChanged: repo.preferences.setScreenshotsEnabled,
-                    stream: repo.preferences.getScreenshotsEnabled(),
+                    onChanged: repo.preferences.screenshotsEnabled.set,
+                    stream: repo.preferences.screenshotsEnabled.stream,
                   ),
                 if (showDeveloperModeToggle)
                   ToggleTile(
@@ -151,7 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         // Light, dark, or as the system: one choice, marked.
         StreamBuilder<Appearance>(
-          stream: repo.preferences.getAppearance(),
+          stream: repo.preferences.appearance.stream,
           builder: (context, snapshot) {
             final appearance = snapshot.data ?? Appearance.system;
             return RadioTilesCard(
@@ -164,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
               defaultSelectedIndex: appearance.index,
               onChanged: (i) =>
-                  repo.preferences.setAppearance(Appearance.values[i]),
+                  repo.preferences.appearance.set(Appearance.values[i]),
             );
           },
         ),

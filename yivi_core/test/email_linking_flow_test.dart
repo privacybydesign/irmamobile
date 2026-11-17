@@ -741,7 +741,7 @@ void main() {
       expect(openSessions(tester), [1]);
       expect(container.read(emailLinkingProvider).disclosureSessionId, 1);
       expect(find.text("Email address linked"), findsOneWidget);
-      expect(await stored(tester, prefs.getEmailLinked()), isTrue);
+      expect(await stored(tester, prefs.emailLinked.stream), isTrue);
     });
 
     testWidgets("an issuance that is not part of the flow ends as today", (
@@ -754,7 +754,7 @@ void main() {
         find.text("The data has been successfully added to Yivi"),
         findsOneWidget,
       );
-      expect(await stored(tester, prefs.getEmailLinked()), isFalse);
+      expect(await stored(tester, prefs.emailLinked.stream), isFalse);
     });
 
     testWidgets("a disclosure that is not part of the flow links nothing", (
@@ -763,7 +763,7 @@ void main() {
       await pumpSession(tester, 5);
 
       expect(find.text("Email address linked"), findsNothing);
-      expect(await stored(tester, prefs.getEmailLinked()), isFalse);
+      expect(await stored(tester, prefs.emailLinked.stream), isFalse);
     });
 
     testWidgets("an unreachable keyshare server ends on the error screen", (
@@ -794,7 +794,7 @@ void main() {
         findsOneWidget,
       );
       expect(openSessions(tester), isEmpty);
-      expect(await stored(tester, prefs.getEmailLinked()), isFalse);
+      expect(await stored(tester, prefs.emailLinked.stream), isFalse);
     });
   });
 
@@ -885,11 +885,11 @@ void main() {
 
       expect(find.byType(EmailLinkBanner), findsNothing);
       expect(find.text("Remind you later?"), findsNothing);
-      expect(await stored(tester, prefs.getEmailBannerDismissed()), isFalse);
+      expect(await stored(tester, prefs.emailBannerDismissed.stream), isFalse);
       expect(
         (await stored(
           tester,
-          prefs.getEmailBannerSnoozedUntil(),
+          prefs.emailBannerSnoozedUntil.stream,
         ))!.isAfter(DateTime.now().add(const Duration(days: 1))),
         isTrue,
       );
@@ -911,7 +911,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(EmailLinkBanner), findsNothing);
-      expect(await stored(tester, prefs.getEmailBannerDismissed()), isTrue);
+      expect(await stored(tester, prefs.emailBannerDismissed.stream), isTrue);
     });
 
     testWidgets("the link opens the e-mail flow for linking", (tester) async {

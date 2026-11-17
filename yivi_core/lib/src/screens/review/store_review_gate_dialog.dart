@@ -41,7 +41,7 @@ class _StoreReviewGateDialogState
     final service = ref.read(storeReviewServiceProvider);
     // Terminal regardless of what the native card decides to show: a happy
     // user is asked at most once.
-    await ref.read(preferencesProvider).setReviewDone(true);
+    await ref.read(preferencesProvider).reviewDone.set(true);
     if (service != null) {
       unawaited(service.requestReview());
     }
@@ -52,7 +52,7 @@ class _StoreReviewGateDialogState
     setState(() => _busy = true);
     // An unhappy user is never routed to the store again, whether or not they
     // end up sending feedback.
-    await ref.read(preferencesProvider).setReviewDone(true);
+    await ref.read(preferencesProvider).reviewDone.set(true);
     if (!mounted) return;
     final navigator = Navigator.of(context);
     navigator.pop();

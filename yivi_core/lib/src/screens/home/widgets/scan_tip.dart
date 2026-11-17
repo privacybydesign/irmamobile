@@ -12,7 +12,7 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/translated_text.dart";
 
 final _scanTipPendingProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).getScanTipPending(),
+  (ref) => ref.watch(preferencesProvider).scanTipPending.stream,
 );
 
 /// Whether the tip on the Scan button shows: on the first visit after the
@@ -71,7 +71,7 @@ class ScanTip extends ConsumerWidget {
                 key: const Key("scan_tip_ok"),
                 label: context.tr("scan_tip.ok"),
                 onPressed: () =>
-                    ref.read(preferencesProvider).markScanTipShown(),
+                    ref.read(preferencesProvider).scanTipPending.set(false),
               ),
             ],
           ),

@@ -12,7 +12,7 @@ class ChangeLanguageRadio extends StatelessWidget {
 
   Future<void> _onChangedLanguage(int index, IrmaPreferences prefs) async {
     final selectedLocale = supportedLocales[index];
-    await prefs.setPreferredLanguageCode(selectedLocale.languageCode);
+    await prefs.preferredLanguageCode.set(selectedLocale.languageCode);
   }
 
   @override

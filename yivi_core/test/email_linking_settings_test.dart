@@ -76,16 +76,16 @@ void main() {
     }
   }
 
-  testWidgets("has no e-mail entry when linking is not offered", (tester) async {
+  testWidgets("has no e-mail entry when linking is not offered", (
+    tester,
+  ) async {
     await pumpSettings(tester);
 
     expect(find.byKey(const Key("link_email_link")), findsNothing);
     expect(find.text("Link email address"), findsNothing);
   });
 
-  testWidgets("offers to link an e-mail address when offered", (
-    tester,
-  ) async {
+  testWidgets("offers to link an e-mail address when offered", (tester) async {
     linkingOffered = true;
     await pumpSettings(tester);
 
@@ -95,7 +95,7 @@ void main() {
 
   testWidgets("drops the entry once an address is linked", (tester) async {
     linkingOffered = true;
-    await prefs.markEmailLinked();
+    await prefs.emailLinked.set(true);
     await pumpSettings(tester);
 
     expect(find.byKey(const Key("link_email_link")), findsNothing);

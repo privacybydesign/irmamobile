@@ -20,12 +20,12 @@ class DetectRootedDeviceIrmaPrefsRepository
 
   @override
   Stream<bool> hasAcceptedRootedDeviceRisk() {
-    return _preferences.getAcceptedRootedRisk();
+    return _preferences.acceptedRootedRisk.stream;
   }
 
   @override
   Future<void> setHasAcceptedRootedDeviceRisk() async {
-    _preferences.setAcceptedRootedRisk(true);
+    _preferences.acceptedRootedRisk.set(true);
   }
 
   @override

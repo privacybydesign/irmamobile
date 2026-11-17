@@ -246,7 +246,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         builder: (context, state) {
           return NameChangedScreen(
             onContinuePressed: () =>
-                repo.preferences.setShowNameChangedNotification(false),
+                repo.preferences.showNameChangedNotification.set(false),
           );
         },
       ),
@@ -435,7 +435,8 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
         .getVersionInformation()
         .map<VersionInformation?>((version) => version)
         .defaultIfEmpty(null);
-    final nameChangedStream = repo.preferences.getShowNameChangedNotification();
+    final nameChangedStream =
+        repo.preferences.showNameChangedNotification.stream;
     final enrollmentStream = repo.getEnrollmentStatus();
 
     // combine the streams into one

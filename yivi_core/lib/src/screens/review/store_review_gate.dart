@@ -55,10 +55,10 @@ class _StoreReviewGateState extends ConsumerState<StoreReviewGate>
     final prefs = ref.read(preferencesProvider);
     final now = DateTime.now().millisecondsSinceEpoch;
     if (!shouldAskForReview(
-      done: prefs.getReviewDoneNow(),
-      timesAsked: prefs.getReviewTimesAskedNow(),
-      successCount: prefs.getReviewSuccessCountNow(),
-      lastAskEpochMs: prefs.getReviewLastAskEpochMsNow(),
+      done: prefs.reviewDone.value,
+      timesAsked: prefs.reviewTimesAsked.value,
+      successCount: prefs.reviewSuccessCount.value,
+      lastAskEpochMs: prefs.reviewLastAskEpochMs.value,
       nowEpochMs: now,
     )) {
       return;

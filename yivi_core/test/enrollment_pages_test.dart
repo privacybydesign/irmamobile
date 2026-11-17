@@ -222,7 +222,7 @@ void main() {
         expect(done, 1);
         expect(
           await tester.runAsync(
-            () => repo.preferences.getBiometricPromptDismissed().first,
+            () => repo.preferences.biometricPromptDismissed.stream.first,
           ),
           isTrue,
         );
@@ -331,7 +331,9 @@ void main() {
         // The issuance and the link in MijnYivi, both with this PIN.
         expect(pins.map((e) => e.payload!["pin"]), ["12345", "12345"]);
         expect(
-          await tester.runAsync(() => repo.preferences.getEmailLinked().first),
+          await tester.runAsync(
+            () => repo.preferences.emailLinked.stream.first,
+          ),
           isTrue,
         );
         expect(

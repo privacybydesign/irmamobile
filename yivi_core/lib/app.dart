@@ -89,7 +89,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     _listenScreenshotPref();
     _appearanceSubscription = ref
         .read(preferencesProvider)
-        .getAppearance()
+        .appearance
+        .stream
         .listen((appearance) {
           if (mounted && appearance != _appearance) {
             setState(() => _appearance = appearance);
@@ -114,9 +115,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final repo = ref.read(irmaRepositoryProvider);
     final prefs = ref.read(preferencesProvider);
 
-    final showNameChangedNotification = await prefs
-        .getShowNameChangedNotification()
-        .first;
+    final showNameChangedNotification =
+        await prefs.showNameChangedNotification.stream.first;
 
     if (showNameChangedNotification) {
       _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen((
@@ -124,7 +124,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
       ) {
         // If the user is unenrolled we never want to show the name changed notification again
         if (event == EnrollmentStatus.unenrolled) {
-          repo.preferences.setShowNameChangedNotification(false);
+          repo.preferences.showNameChangedNotification.set(false);
           _enrollmentStatusSubscription?.cancel();
         }
       });
@@ -134,11 +134,11 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   Future<void> _handleUpdateSchemes() async {
     final repo = ref.read(irmaRepositoryProvider);
     final prefs = ref.read(preferencesProvider);
-    final lastSchemeUpdate = await prefs.getLastSchemeUpdate().first;
+    final lastSchemeUpdate = await prefs.lastSchemeUpdate.stream.first;
 
     if (DateTime.now().difference(lastSchemeUpdate).inHours >
         schemeUpdateIntervalHours) {
-      prefs.setLastSchemeUpdate(DateTime.now());
+      prefs.lastSchemeUpdate.set(DateTime.now());
       repo.bridgedDispatch(UpdateSchemesEvent());
     }
   }
@@ -169,7 +169,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final prefs = ref.read(preferencesProvider);
     // We only wait for the privacy screen to be loaded on start-up.
     _privacyScreenLoaded = false;
-    _screenshotPrefSubscription = prefs.getScreenshotsEnabled().listen((
+    _screenshotPrefSubscription = prefs.screenshotsEnabled.stream.listen((
       enabled,
     ) async {
       if (enabled) {

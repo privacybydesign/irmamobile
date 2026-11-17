@@ -31,7 +31,7 @@ class _TermsChangedListenerState extends ConsumerState<TermsChangedListener> {
     _subscription?.cancel();
 
     final preferences = ref.read(preferencesProvider);
-    final stream = preferences.hasAcceptedLatestTerms();
+    final stream = preferences.acceptedLatestTerms.stream;
 
     _subscription = stream.listen((accepted) async {
       if (!accepted && mounted && !_dialogActive) {
@@ -98,7 +98,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
           label: context.tr("new_terms_and_conditions.accept"),
           size: PillSize.regular,
           onPressed: () async {
-            await prefs.markLatestTermsAsAccepted(true);
+            await prefs.acceptedLatestTerms.set(true);
             if (context.mounted) Navigator.of(context).pop();
           },
         ),

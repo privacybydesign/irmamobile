@@ -90,7 +90,7 @@ Future<void> runYiviApp({
 
     await initSentry(preferences: preferences);
     // How a card opens from the stack, as set in the debug settings.
-    final motion = preferences.getCardMotionNow();
+    final motion = preferences.cardMotion.value;
     if (motion.isNotEmpty) CardMotion.current.value = CardMotion.decode(motion);
     SecurityContextBinding.ensureInitialized();
 

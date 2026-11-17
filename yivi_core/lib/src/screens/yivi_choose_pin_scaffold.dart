@@ -37,7 +37,7 @@ class YiviChoosePinScaffold extends StatelessWidget {
         leading: YiviBackButton(onTap: onBack),
       ),
       body: StreamBuilder<bool>(
-        stream: prefs.getLongPin(),
+        stream: prefs.longPin.stream,
         builder: (context, snapshot) {
           final toggleValue = ValueNotifier<bool>(
             newPinNotifier.value.isNotEmpty

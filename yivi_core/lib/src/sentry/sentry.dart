@@ -16,7 +16,7 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
   if (dsn != "") {
     final completer = Completer();
     // Keep listening to make sure preference changes are immediately processed.
-    preferences.getReportErrors().listen((reportErrors) async {
+    preferences.reportErrors.stream.listen((reportErrors) async {
       _reportErrorsPreferenceValue = reportErrors;
       if (Sentry.isEnabled) await Sentry.close();
       await SentryFlutter.init((options) async {

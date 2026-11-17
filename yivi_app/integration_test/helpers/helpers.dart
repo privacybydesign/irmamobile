@@ -298,7 +298,7 @@ Future<void> issueCredentials(
   // for test_all.dart is the whole run. Tests that don't ask for a locale leave
   // the preference alone, so "use system language" keeps its default.
   if (locale != null) {
-    await irmaBinding.repository.preferences.setPreferredLanguageCode(
+    await irmaBinding.repository.preferences.preferredLanguageCode.set(
       locale.languageCode,
     );
     await tester.pumpAndSettle();

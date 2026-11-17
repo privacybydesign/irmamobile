@@ -36,9 +36,9 @@ void main() {
   final homeTab = find.byType(DataTab).hitTestable();
 
   Future<bool> enabledPref() =>
-      irmaBinding.repository.preferences.getBiometricEnabled().first;
+      irmaBinding.repository.preferences.biometricEnabled.stream.first;
   Future<bool> dismissedPref() =>
-      irmaBinding.repository.preferences.getBiometricPromptDismissed().first;
+      irmaBinding.repository.preferences.biometricPromptDismissed.stream.first;
 
   // ---------------------------------------------------------------------------
   // Enrollment opt-in (shown once, right after the PIN is confirmed).
@@ -146,7 +146,7 @@ void main() {
     testWidgets("post-unlock prompt is suppressed once dismissed", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricPromptDismissed(
+      await irmaBinding.repository.preferences.biometricPromptDismissed.set(
         true,
       );
       await pumpYiviApp(
@@ -161,9 +161,9 @@ void main() {
     });
 
     testWidgets("lock-screen button unlocks the app", (tester) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       // Disable auto-scan: this test drives the manual button.
-      await irmaBinding.repository.preferences.setBiometricImmediate(false);
+      await irmaBinding.repository.preferences.biometricImmediate.set(false);
       await pumpYiviApp(
         tester,
         irmaBinding.repository,
@@ -183,9 +183,9 @@ void main() {
     testWidgets("lock-screen button failure keeps the app locked", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       // Disable auto-scan: this test drives the manual button.
-      await irmaBinding.repository.preferences.setBiometricImmediate(false);
+      await irmaBinding.repository.preferences.biometricImmediate.set(false);
       await pumpYiviApp(
         tester,
         irmaBinding.repository,
@@ -208,7 +208,7 @@ void main() {
     testWidgets("immediate biometric auto-scans and unlocks on launch", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       // immediate pref left at its default (on).
       await pumpYiviApp(
         tester,
@@ -226,7 +226,7 @@ void main() {
     testWidgets("immediate biometric cancel falls back to PIN, fires once", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       final fakeAuth = FakeLocalAuthentication(
         available: true,
         authenticateResult: false,
@@ -244,8 +244,8 @@ void main() {
     testWidgets("immediate off: no auto-scan, app stays locked", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
-      await irmaBinding.repository.preferences.setBiometricImmediate(false);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
+      await irmaBinding.repository.preferences.biometricImmediate.set(false);
       final fakeAuth = FakeLocalAuthentication(
         available: true,
         authenticateResult: true,
@@ -262,7 +262,7 @@ void main() {
     testWidgets("explicit logout suppresses the next auto-scan", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       final fakeAuth = FakeLocalAuthentication(
         available: true,
         authenticateResult: true,
@@ -288,7 +288,7 @@ void main() {
     testWidgets("re-opening after logout resumes the auto-scan", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       final fakeAuth = FakeLocalAuthentication(
         available: true,
         authenticateResult: true,
@@ -332,7 +332,7 @@ void main() {
     });
 
     testWidgets("re-opening the app re-fires the auto-scan", (tester) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       // authenticateResult:false keeps us on the lock screen, so a second scan
       // on re-open is observable via the call counter.
       final fakeAuth = FakeLocalAuthentication(
@@ -384,10 +384,10 @@ void main() {
     testWidgets("biometric is unavailable while the PIN is blocked", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       // Disable auto-scan: a successful auto-scan would unlock before this test
       // can enter its wrong PINs.
-      await irmaBinding.repository.preferences.setBiometricImmediate(false);
+      await irmaBinding.repository.preferences.biometricImmediate.set(false);
       await pumpYiviApp(
         tester,
         irmaBinding.repository,
@@ -427,7 +427,7 @@ void main() {
     testWidgets(
       "universal-link session at launch never unlocks biometrically",
       (tester) async {
-        await irmaBinding.repository.preferences.setBiometricEnabled(true);
+        await irmaBinding.repository.preferences.biometricEnabled.set(true);
         // biometricImmediate left at its default (on): the auto-scan WOULD fire
         // on launch if it weren't gated by the pending session.
         final fakeAuth = FakeLocalAuthentication(
@@ -499,7 +499,7 @@ void main() {
     // arriving while the OS prompt is up must not be admitted by that unlock.
     testWidgets("resume-lock: a link arriving mid-prompt is refused by the "
         "backstop", (tester) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       final fakeAuth = FakeLocalAuthentication(
         available: true,
         authenticateResult: true,
@@ -557,7 +557,7 @@ void main() {
     testWidgets("resume-lock: a session started while backgrounded is PIN-gated", (
       tester,
     ) async {
-      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.biometricEnabled.set(true);
       final fakeAuth = FakeLocalAuthentication(
         available: true,
         authenticateResult: true,
@@ -608,7 +608,7 @@ void main() {
     }) async {
       // Suppress the post-unlock prompt so the unlock reaches home cleanly; the
       // toggle stays visible because biometric is still "available".
-      await irmaBinding.repository.preferences.setBiometricPromptDismissed(
+      await irmaBinding.repository.preferences.biometricPromptDismissed.set(
         true,
       );
       await pumpAndUnlockApp(

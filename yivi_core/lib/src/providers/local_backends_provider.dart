@@ -17,7 +17,7 @@ class LocalBackends {
 }
 
 final _localBackendHostProvider = StreamProvider<String>(
-  (ref) => ref.watch(preferencesProvider).getLocalBackendHost(),
+  (ref) => ref.watch(preferencesProvider).localBackendHost.stream,
 );
 
 /// Null unless a host is set in the debug menu.

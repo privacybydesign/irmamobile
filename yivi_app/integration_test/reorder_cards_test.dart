@@ -150,7 +150,7 @@ Future<List<String>> getCardOrderOnDisk(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  final hashes = irmaBinding.repository.preferences.getCardOrder();
+  final hashes = irmaBinding.repository.preferences.cardOrder.value;
   final idByHash = {
     for (final c in walletCards(tester)) c.hash: c.credentialId,
   };

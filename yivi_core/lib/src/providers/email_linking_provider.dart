@@ -78,15 +78,15 @@ class DefaultKeyshareEmailLinkApi implements KeyshareEmailLinkApi {
 }
 
 final _emailLinkedProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).getEmailLinked(),
+  (ref) => ref.watch(preferencesProvider).emailLinked.stream,
 );
 
 final _emailBannerDismissedProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).getEmailBannerDismissed(),
+  (ref) => ref.watch(preferencesProvider).emailBannerDismissed.stream,
 );
 
 final _emailBannerSnoozedUntilProvider = StreamProvider<DateTime>(
-  (ref) => ref.watch(preferencesProvider).getEmailBannerSnoozedUntil(),
+  (ref) => ref.watch(preferencesProvider).emailBannerSnoozedUntil.stream,
 );
 
 /// Whether the e-mail linking flow is available: linking is offered and no
@@ -201,14 +201,16 @@ class EmailLinking extends Notifier<EmailLinkingState> {
     return link;
   }
 
-  Future<void> markLinked() => ref.read(preferencesProvider).markEmailLinked();
+  Future<void> markLinked() =>
+      ref.read(preferencesProvider).emailLinked.set(true);
 
   Future<void> snoozeBanner() => ref
       .read(preferencesProvider)
-      .snoozeEmailBannerUntil(DateTime.now().add(emailBannerSnoozeDuration));
+      .emailBannerSnoozedUntil
+      .set(DateTime.now().add(emailBannerSnoozeDuration));
 
   Future<void> dismissBanner() =>
-      ref.read(preferencesProvider).dismissEmailBanner();
+      ref.read(preferencesProvider).emailBannerDismissed.set(true);
 }
 
 final emailLinkingProvider = NotifierProvider<EmailLinking, EmailLinkingState>(

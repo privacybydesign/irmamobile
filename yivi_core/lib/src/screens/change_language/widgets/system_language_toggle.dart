@@ -16,11 +16,11 @@ class UseSystemLanguageToggle extends StatelessWidget {
         ToggleTile(
           key: const Key("use_system_language_toggle"),
           labelTranslationKey: "settings.use_system_language",
-          stream: prefs.getPreferredLanguageCode().map(
+          stream: prefs.preferredLanguageCode.stream.map(
             (languageCode) => languageCode.isEmpty,
           ),
           onChanged: (bool useSystemLanguage) =>
-              prefs.setPreferredLanguageCode(useSystemLanguage ? "" : lang),
+              prefs.preferredLanguageCode.set(useSystemLanguage ? "" : lang),
         ),
       ],
     );

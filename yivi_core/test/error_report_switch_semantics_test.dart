@@ -40,7 +40,7 @@ void main() {
       mostRecentTermsUrlNl: "",
       mostRecentTermsUrlEn: "",
     );
-    await preferences.setReportErrors(reportErrors);
+    await preferences.reportErrors.set(reportErrors);
     return IrmaRepository(client: _RecordingBridge(), preferences: preferences);
   }
 
@@ -183,8 +183,7 @@ void main() {
     // preference?). That the checkbox renders as checked when the preference is
     // on is covered above.
     final enabled = await tester.runAsync(
-      () => repo.preferences
-          .getReportErrors()
+      () => repo.preferences.reportErrors.stream
           .firstWhere((enabled) => enabled)
           .timeout(const Duration(seconds: 5), onTimeout: () => false),
     );

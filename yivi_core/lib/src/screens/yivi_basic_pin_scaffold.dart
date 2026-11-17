@@ -42,7 +42,7 @@ class YiviBasicPinScaffold extends StatelessWidget {
         ),
       ),
       body: StreamBuilder<bool>(
-        stream: prefs.getLongPin(),
+        stream: prefs.longPin.stream,
         builder: (context, snapshot) {
           final maxPinSize = (snapshot.data ?? false)
               ? longPinSize

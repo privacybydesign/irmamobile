@@ -33,7 +33,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     final repo = IrmaRepositoryProvider.of(context);
     final navigator = Navigator.of(context);
 
-    final hasLongPin = await repo.preferences.getLongPin().first;
+    final hasLongPin = await repo.preferences.longPin.stream.first;
     final maxPinSize = hasLongPin ? longPinSize : shortPinSize;
 
     return navigator.push(

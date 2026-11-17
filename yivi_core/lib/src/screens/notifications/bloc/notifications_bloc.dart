@@ -46,9 +46,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   Stream<NotificationsState> _mapInitToState() async* {
     yield NotificationsLoading();
 
-    final serializedRecords = await _repo.preferences
-        .getSerializedNotifications()
-        .first;
+    final serializedRecords =
+        await _repo.preferences.serializedNotifications.stream.first;
     _records = _recordsFromJson(serializedRecords);
 
     await _refresh();
@@ -144,7 +143,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
   Future<void> _persistRecords() async {
     final serialized = jsonEncode(_records.map((r) => r.toJson()).toList());
-    await _repo.preferences.setSerializedNotifications(serialized);
+    await _repo.preferences.serializedNotifications.set(serialized);
   }
 
   List<CredentialStatusNotificationRecord> _recordsFromJson(String serialized) {
@@ -163,7 +162,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       // Old-format data (full Notification objects) or otherwise corrupted
       // cache: clear and start fresh.
       reportError(e, stackTrace);
-      _repo.preferences.setSerializedNotifications("");
+      _repo.preferences.serializedNotifications.set("");
       return [];
     }
   }

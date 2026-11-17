@@ -28,14 +28,14 @@ class IrmaPreferencesOrderRepo implements OrderRepo {
   IrmaPreferencesOrderRepo(this._prefs);
 
   @override
-  Future<List<String>> loadOrder() async => _prefs.getCardOrder();
+  Future<List<String>> loadOrder() async => _prefs.cardOrder.value;
 
   @override
   Future<List<String>> loadLegacyTypeOrder() async =>
-      _prefs.getCredentialOrder();
+      _prefs.credentialOrder.value;
 
   @override
-  Future<void> saveOrder(List<String> hashes) => _prefs.setCardOrder(hashes);
+  Future<void> saveOrder(List<String> hashes) => _prefs.cardOrder.set(hashes);
 }
 
 final credentialOrderRepoProvider = Provider<OrderRepo>(
@@ -282,12 +282,12 @@ final walletViewProvider = NotifierProvider<WalletViewController, WalletView?>(
 class WalletViewController extends Notifier<WalletView?> {
   @override
   WalletView? build() {
-    final saved = ref.read(preferencesProvider).getWalletViewNow();
+    final saved = ref.read(preferencesProvider).walletView.value;
     return WalletView.values.where((v) => v.name == saved).firstOrNull;
   }
 
   void set(WalletView view) {
     state = view;
-    ref.read(preferencesProvider).setWalletView(view.name);
+    ref.read(preferencesProvider).walletView.set(view.name);
   }
 }

@@ -226,7 +226,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     // Seed the toggle from the saved value the first time only — don't clobber
     // an in-session change on later dependency updates (e.g. theme change).
     if (_prefs == null && prefs != null) {
-      pinVisibilityValue.value = prefs.getPinVisible();
+      pinVisibilityValue.value = prefs.pinVisible.value;
     }
     _prefs = prefs;
   }
@@ -813,7 +813,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             () {
               Haptics.key();
               pinVisibilityValue.value = !visible;
-              _prefs?.setPinVisible(!visible);
+              _prefs?.pinVisible.set(!visible);
               _jumpController.forward(from: 0);
             },
           ),

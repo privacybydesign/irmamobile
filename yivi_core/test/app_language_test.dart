@@ -17,7 +17,7 @@ void main() {
     // StreamingSharedPreferences.instance is a cached singleton, so an
     // override left behind by an earlier test survives setMockInitialValues.
     // Every case states the override it wants.
-    await prefs.setPreferredLanguageCode(override);
+    await prefs.preferredLanguageCode.set(override);
     final language = AppLanguage(prefs);
     addTearDown(language.close);
     return (prefs, language);
@@ -74,10 +74,10 @@ void main() {
       addTearDown(sub.cancel);
       await pumpEventQueue();
 
-      await prefs.setPreferredLanguageCode("nl");
+      await prefs.preferredLanguageCode.set("nl");
       await pumpEventQueue();
       // Pinning the override to the language already in effect is not a change.
-      await prefs.setPreferredLanguageCode("nl");
+      await prefs.preferredLanguageCode.set("nl");
       await pumpEventQueue();
 
       expect(seen, ["nl"]);
@@ -91,7 +91,7 @@ void main() {
     addTearDown(sub.cancel);
     await pumpEventQueue();
 
-    await prefs.setPreferredLanguageCode("en");
+    await prefs.preferredLanguageCode.set("en");
     await pumpEventQueue();
 
     expect(seen, isEmpty);

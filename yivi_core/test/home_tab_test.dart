@@ -147,7 +147,7 @@ void main() {
       await settle(tester);
     }
     final raw = await tester.runAsync(
-      () => repo.preferences.getSerializedNotifications().first,
+      () => repo.preferences.serializedNotifications.stream.first,
     );
     final records = (jsonDecode(raw!) as List).cast<Map<String, dynamic>>();
     expect(records, isNotEmpty);

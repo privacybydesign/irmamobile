@@ -64,12 +64,12 @@ void main() {
       final switchFinder = find.byKey(const Key("error_reporting_switch"));
       await tester.scrollUntilVisible(switchFinder.hitTestable(), 50);
       expect(
-        await irmaBinding.repository.preferences.getReportErrors().first,
+        await irmaBinding.repository.preferences.reportErrors.stream.first,
         isFalse,
       );
       await tester.tapAndSettle(switchFinder);
       expect(
-        await irmaBinding.repository.preferences.getReportErrors().first,
+        await irmaBinding.repository.preferences.reportErrors.stream.first,
         isTrue,
       );
 

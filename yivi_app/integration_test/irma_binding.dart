@@ -118,13 +118,13 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     );
 
     // Mark terms as accepted (must be after the conditional tearDown which clears all preferences).
-    await _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
+    await _preferences!.acceptedLatestTerms.set(acceptedTermsAndConditions);
 
     // Enable screenshots to make sure screen recordings can be made.
-    await _preferences!.setScreenshotsEnabled(true);
+    await _preferences!.screenshotsEnabled.set(true);
 
     // Always set ShowNameChangedNotification to false when testing
-    await _preferences!.setShowNameChangedNotification(false);
+    await _preferences!.showNameChangedNotification.set(false);
 
     // Ensure enrollment status is set as expected.
     if (!kept && enrollmentStatus == EnrollmentStatus.enrolled) {
@@ -136,7 +136,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
           schemeId: _testKeyshareSchemeId,
         ),
       );
-      await _preferences!.setLongPin(false);
+      await _preferences!.longPin.set(false);
       await _expectBridgeEventGuarded(
         (event) => event is EnrollmentSuccessEvent,
       );
@@ -153,7 +153,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     // Drop any in-app language override a previous test left behind, so the
     // baseline really is the pinned system locale. "" is the default value, so
     // "use system language" stays on for tests that assert on it.
-    await _preferences!.setPreferredLanguageCode("");
+    await _preferences!.preferredLanguageCode.set("");
 
     _repository = IrmaRepository(
       client: _bridge,

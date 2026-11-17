@@ -97,7 +97,7 @@ void main() {
 
     test("is hidden once an address is linked", () async {
       linkingOffered = true;
-      await prefs.markEmailLinked();
+      await prefs.emailLinked.set(true);
 
       expect(await readVisible(newContainer()), isFalse);
     });
@@ -105,12 +105,12 @@ void main() {
     test("is hidden until the snooze has passed", () async {
       linkingOffered = true;
 
-      await prefs.snoozeEmailBannerUntil(
+      await prefs.emailBannerSnoozedUntil.set(
         DateTime.now().add(const Duration(days: 1)),
       );
       expect(await readVisible(newContainer()), isFalse);
 
-      await prefs.snoozeEmailBannerUntil(
+      await prefs.emailBannerSnoozedUntil.set(
         DateTime.now().subtract(const Duration(seconds: 1)),
       );
       expect(await readVisible(newContainer()), isTrue);
@@ -118,7 +118,7 @@ void main() {
 
     test("comes back when the snooze ends while the app stays open", () async {
       linkingOffered = true;
-      await prefs.snoozeEmailBannerUntil(
+      await prefs.emailBannerSnoozedUntil.set(
         DateTime.now().add(const Duration(milliseconds: 200)),
       );
       final container = newContainer();
@@ -138,10 +138,10 @@ void main() {
       "stays hidden after Negeren, even when the snooze has passed",
       () async {
         linkingOffered = true;
-        await prefs.snoozeEmailBannerUntil(
+        await prefs.emailBannerSnoozedUntil.set(
           DateTime.now().subtract(const Duration(days: 30)),
         );
-        await prefs.dismissEmailBanner();
+        await prefs.emailBannerDismissed.set(true);
 
         expect(await readVisible(newContainer()), isFalse);
       },
@@ -151,7 +151,7 @@ void main() {
       "the settings entry stays available after the banner is gone",
       () async {
         linkingOffered = true;
-        await prefs.dismissEmailBanner();
+        await prefs.emailBannerDismissed.set(true);
         final container = newContainer();
         final subscription = container.listen(
           emailLinkAvailableProvider,
@@ -165,7 +165,7 @@ void main() {
 
     test("the settings entry is gone once an address is linked", () async {
       linkingOffered = true;
-      await prefs.markEmailLinked();
+      await prefs.emailLinked.set(true);
       final container = newContainer();
       final subscription = container.listen(
         emailLinkAvailableProvider,
@@ -177,16 +177,17 @@ void main() {
     });
 
     test("is wiped with the other preferences", () async {
-      await prefs.markEmailLinked();
-      await prefs.dismissEmailBanner();
-      await prefs.snoozeEmailBannerUntil(DateTime.now());
+      await prefs.emailLinked.set(true);
+      await prefs.emailBannerDismissed.set(true);
+      await prefs.emailBannerSnoozedUntil.set(DateTime.now());
 
       await prefs.clearAll();
 
-      expect(await prefs.getEmailLinked().first, isFalse);
-      expect(await prefs.getEmailBannerDismissed().first, isFalse);
+      expect(await prefs.emailLinked.stream.first, isFalse);
+      expect(await prefs.emailBannerDismissed.stream.first, isFalse);
       expect(
-        (await prefs.getEmailBannerSnoozedUntil().first).millisecondsSinceEpoch,
+        (await prefs.emailBannerSnoozedUntil.stream.first)
+            .millisecondsSinceEpoch,
         0,
       );
     });
@@ -199,7 +200,7 @@ void main() {
 
       await container.read(emailLinkingProvider.notifier).snoozeBanner();
 
-      final until = await prefs.getEmailBannerSnoozedUntil().first;
+      final until = await prefs.emailBannerSnoozedUntil.stream.first;
       expect(
         until.isAfter(before.add(emailBannerSnoozeDuration)) ||
             until.isAtSameMomentAs(before.add(emailBannerSnoozeDuration)),
@@ -213,7 +214,7 @@ void main() {
         ),
         isTrue,
       );
-      expect(await prefs.getEmailBannerDismissed().first, isFalse);
+      expect(await prefs.emailBannerDismissed.stream.first, isFalse);
     });
 
     test("Negeren dismisses the banner for good", () async {
@@ -221,7 +222,7 @@ void main() {
 
       await container.read(emailLinkingProvider.notifier).dismissBanner();
 
-      expect(await prefs.getEmailBannerDismissed().first, isTrue);
+      expect(await prefs.emailBannerDismissed.stream.first, isTrue);
     });
 
     test("tracks the issuance and then the disclosure session", () {
@@ -279,7 +280,7 @@ void main() {
 
       await container.read(emailLinkingProvider.notifier).markLinked();
 
-      expect(await prefs.getEmailLinked().first, isTrue);
+      expect(await prefs.emailLinked.stream.first, isTrue);
     });
   });
 

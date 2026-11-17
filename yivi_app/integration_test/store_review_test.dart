@@ -67,7 +67,7 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key("review_gate_positive")));
 
       await tester.pumpUntil(() => service.requestReviewCalls == 1);
-      expect(irmaBinding.repository.preferences.getReviewDoneNow(), isTrue);
+      expect(irmaBinding.repository.preferences.reviewDone.value, isTrue);
     });
 
     testWidgets("no, not really: routes to private feedback, not the store", (
@@ -79,7 +79,7 @@ void main() {
 
       await tester.waitFor(find.byKey(const Key("review_feedback_input")));
       expect(service.requestReviewCalls, 0);
-      expect(irmaBinding.repository.preferences.getReviewDoneNow(), isTrue);
+      expect(irmaBinding.repository.preferences.reviewDone.value, isTrue);
     });
   });
 }

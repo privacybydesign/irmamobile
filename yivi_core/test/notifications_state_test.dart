@@ -120,7 +120,7 @@ void main() {
       bridge.deliver(CredentialsEvent(credentials: credentials));
 
   Future<List<Map<String, dynamic>>> stored() async {
-    final raw = await prefs.getSerializedNotifications().first;
+    final raw = await prefs.serializedNotifications.stream.first;
     if (raw.isEmpty) return [];
     return (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
   }
@@ -212,7 +212,7 @@ void main() {
   });
 
   test("corrupt stored records: an empty start, the store cleared", () async {
-    await prefs.setSerializedNotifications("{not json");
+    await prefs.serializedNotifications.set("{not json");
     cards([_card("a", revoked: true)]);
     final list = await driver.load();
     expect(list.length, 1);
