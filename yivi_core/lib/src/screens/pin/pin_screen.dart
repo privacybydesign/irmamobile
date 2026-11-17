@@ -10,12 +10,11 @@ import "../../providers/startup_url_resolved_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/after_frame.dart";
-import "../../util/haptics.dart";
 import "../../util/i18n.dart";
-import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_close_button.dart";
 import "../error/session_error_screen.dart";
+import "pin_entry.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_countdown_provider.dart";
 import "providers/pin_unlock_provider.dart";
@@ -34,17 +33,11 @@ class PinScreen extends ConsumerStatefulWidget {
   /// that navigates through the GoRouter instance directly.
   final void Function()? onForgotPin;
 
-  /// Whether to offer biometric unlock here. Only the app-unlock flow (the
-  /// LockGate overlay) sets this; the modal re-auth flow leaves it false so
-  /// biometric never substitutes for an explicit PIN confirmation.
-  final bool allowBiometric;
-
   const PinScreen({
     super.key,
     required this.onAuthenticated,
     this.leading,
     this.onForgotPin,
-    this.allowBiometric = false,
   });
 
   @override
@@ -56,7 +49,6 @@ class _PinScreenState extends ConsumerState<PinScreen>
   // Bumped on a wrong/blocked attempt to remount YiviPinScreen with an empty
   // buffer — clears the entered digits and their dots. Same pattern as
   // SessionPinEntryScreen.
-  int _resetNonce = 0;
 
   // "Scan on launch": guards the one auto-fire of the biometric prompt per
   // foreground. Set true once fired; stays true after a cancel/fail so we don't
@@ -116,17 +108,12 @@ class _PinScreenState extends ConsumerState<PinScreen>
 
   void _handleStateChange(PinUnlockState state) {
     if (state.authenticated) {
-      Haptics.success();
       widget.onAuthenticated();
       return;
     }
-    // A wrong PIN or a block is said on the screen itself (see build): the
-    // entry is cleared, the dots ring red and the line says what happened.
-    if (state.pinInvalid) {
-      Haptics.error();
-      if (mounted) setState(() => _resetNonce++);
-    } else if (state.error != null) {
-      Haptics.error();
+    // A wrong PIN or a block is said on the pad itself (PinEntry); an
+    // error has a screen of its own.
+    if (!state.pinInvalid && state.error != null) {
       _goToSessionErrorScreen(state.error);
     }
   }
@@ -215,7 +202,6 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // Hide biometric while blocked — otherwise it would bypass the temporary
     // lockout that the wrong-PIN rate limiter just imposed.
     final showBiometric =
-        widget.allowBiometric &&
         biometricAvailable &&
         biometricEnabled &&
         !blocked &&
@@ -261,114 +247,21 @@ class _PinScreenState extends ConsumerState<PinScreen>
             : const [],
       ),
       // Only the spinner while the PIN is being verified.
-      body: UnlockPinEntry(
-        waiting: waiting,
-        busy: state.authenticateInProgress,
-        resetNonce: _resetNonce,
-        onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
-        onBiometricUnlock: showBiometric ? _biometricUnlock : null,
-        biometricGlyph: showBiometric
-            // Tinted as the keypad.
-            ? BiometricGlyph(
-                type: biometricType,
-                color: YiviPalette.of(context).heading,
-              )
-            : null,
-      ),
-    );
-  }
-}
-
-/// The PIN pad of the app's unlock ([pinUnlockProvider]), on the lock
-/// screen and in the lock screen's scanner sheet: the waiting request (if
-/// any) over it, the tries left or the block under the title, and a short
-/// PIN sent as soon as it is complete. While [busy] the pad stays (keypad
-/// dimmed) and the line under the title says the PIN is being checked; the
-/// pad comes back with an empty buffer when [resetNonce] changes (after a
-/// wrong PIN).
-class UnlockPinEntry extends ConsumerWidget {
-  final WaitingRequest? waiting;
-  final bool busy;
-  final int resetNonce;
-  final bool showMark;
-
-  /// In the middle of the room between the bar and the keypad.
-  final bool centreUpper;
-  final VoidCallback onForgotPin;
-  final VoidCallback? onBiometricUnlock;
-  final Widget? biometricGlyph;
-
-  const UnlockPinEntry({
-    super.key,
-    required this.waiting,
-    required this.busy,
-    required this.resetNonce,
-    this.showMark = true,
-    this.centreUpper = false,
-    required this.onForgotPin,
-    this.onBiometricUnlock,
-    this.biometricGlyph,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(pinUnlockProvider);
-    final maxPinSize = ref.watch(longPinProvider) ? longPinSize : shortPinSize;
-    final blockedFor =
-        ref
-            .watch(
-              pinCountdownProvider(
-                ref.watch(pinUnlockProvider.select((s) => s.blockedUntil)),
-              ),
-            )
-            .value ??
-        Duration.zero;
-    final blocked = blockedFor.inSeconds > 0;
-    final enabled = !blocked && !busy;
-    // A wrong PIN or a block, said in the line under the title.
-    final attempts = PinAttempts.of(
-      context,
-      blockedFor: blockedFor,
-      blocked: blocked,
-      wrong: state.pinInvalid,
-      left: state.remainingAttempts,
-    );
-    final waiting = this.waiting;
-
-    void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
-
-    return KeyedSubtree(
-      key: ValueKey(resetNonce),
-      child: YiviPinScreen(
-        instruction: waiting != null
-            ? context.tr(waitingLineKey(waiting))
-            : blocked
-            ? context.tr("pin.blocked_title")
-            : context.tr("pin.subtitle"),
-        header: waiting == null
-            ? null
-            : WaitingRequestAnnouncement(request: waiting),
-        showMark: showMark,
-        // Under the announcement (the heading) a quiet line, the
-        // block well clear of the keypad.
-        instructionStyle: waiting == null
-            ? PinInstructionStyle.heading
-            : PinInstructionStyle.line,
-        upperGap: waiting == null ? 40 : 48,
-        centreUpper: centreUpper,
-        detail: attempts.line,
-        detailKind: attempts.detailKind,
-        detailClock: blocked,
-        busy: busy,
-        pinError: attempts.pinError,
-        maxPinSize: maxPinSize,
-        submitLabel: "pin.unlock",
-        onSubmit: enabled ? submit : (_) {},
-        enabled: enabled,
-        onForgotPin: onForgotPin,
-        onBiometricUnlock: onBiometricUnlock,
-        biometricGlyph: biometricGlyph,
-        listener: submitWhenFull(maxPinSize, submit, enabled: enabled),
+      body: PinEntry(
+        mode: UnlockEntry(
+          waiting: waiting,
+          onBiometricUnlock: showBiometric ? _biometricUnlock : null,
+          biometricGlyph: showBiometric
+              // Tinted as the keypad.
+              ? BiometricGlyph(
+                  type: biometricType,
+                  color: YiviPalette.of(context).heading,
+                )
+              : null,
+        ),
+        feedback: state.feedback,
+        onSubmit: ref.read(pinUnlockProvider.notifier).unlock,
+        onForgotPin: widget.onForgotPin,
       ),
     );
   }

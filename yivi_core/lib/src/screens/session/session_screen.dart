@@ -11,7 +11,6 @@ import "../../models/session_state.dart";
 import "../../models/session_user_interaction.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../providers/preferences_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../util/after_frame.dart";
@@ -222,7 +221,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             remainingAttempts: session.remainingPinAttempts,
             blockedTimeSeconds: session.pinBlockedTimeSeconds,
             submitting: isAwaiting,
-            maxPinSize: ref.watch(longPinProvider) ? 16 : 5,
             onPinEntered: _submitPin,
             onCancel: _dismissSession,
           ),

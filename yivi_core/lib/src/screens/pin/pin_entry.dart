@@ -1,0 +1,207 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:material_ui/material_ui.dart";
+
+import "../../providers/preferences_provider.dart";
+import "../../providers/waiting_request_provider.dart";
+import "../../util/i18n.dart";
+import "../../util/navigation.dart";
+import "pin_feedback.dart";
+import "providers/pin_countdown_provider.dart";
+import "widgets/waiting_request_announcement.dart";
+import "yivi_pin_screen.dart";
+
+/// What a PIN pad is for.
+sealed class PinEntryMode {
+  const PinEntryMode();
+}
+
+/// Unlocking the app: the waiting request (if any) over the pad.
+final class UnlockEntry extends PinEntryMode {
+  const UnlockEntry({
+    this.waiting,
+    this.showMark = true,
+    this.centreUpper = false,
+    this.onBiometricUnlock,
+    this.biometricGlyph,
+  });
+
+  final WaitingRequest? waiting;
+  final bool showMark;
+
+  /// In the middle of the room between the bar and the keypad.
+  final bool centreUpper;
+  final VoidCallback? onBiometricUnlock;
+  final Widget? biometricGlyph;
+}
+
+/// Confirming a session: [detail] says what the PIN is for.
+final class SessionEntry extends PinEntryMode {
+  const SessionEntry({this.detail});
+
+  /// "to share your data with …".
+  final String? detail;
+}
+
+/// The PIN pad with what every host needs around it: the tries left or the
+/// block under the title, a fresh pad after a wrong PIN
+/// ([PinFeedback.wrongCount]), the long or short PIN, and a short PIN sent
+/// as soon as it is complete, once.
+class PinEntry extends ConsumerStatefulWidget {
+  const PinEntry({
+    super.key,
+    required this.mode,
+    required this.onSubmit,
+    this.feedback = const PinFeedback(),
+    this.onForgotPin,
+  });
+
+  final PinEntryMode mode;
+  final ValueChanged<String> onSubmit;
+  final PinFeedback feedback;
+
+  /// The "Forgot PIN?" link; the reset screen by default.
+  final VoidCallback? onForgotPin;
+
+  @override
+  ConsumerState<PinEntry> createState() => _PinEntryState();
+}
+
+class _PinEntryState extends ConsumerState<PinEntry> {
+  /// A session's PIN is sent once, until the pad is cleared.
+  bool _submitted = false;
+
+  @override
+  void didUpdateWidget(PinEntry old) {
+    super.didUpdateWidget(old);
+    if (old.feedback.wrongCount != widget.feedback.wrongCount) {
+      _submitted = false;
+    }
+  }
+
+  /// The block's time left; until the countdown's first value is in, as it
+  /// is now, so a block shows in the frame it comes in.
+  Duration _blockedFor() {
+    final until = widget.feedback.blockedUntil;
+    return ref.watch(pinCountdownProvider(until)).value ??
+        (until == null || until.isBefore(DateTime.now())
+            ? Duration.zero
+            : until.difference(DateTime.now()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final feedback = widget.feedback;
+    final maxPinSize = ref.watch(longPinProvider) ? longPinSize : shortPinSize;
+    final blockedFor = _blockedFor();
+    final blocked = blockedFor.inSeconds > 0;
+    final attempts = PinAttempts.of(
+      context,
+      blockedFor: blockedFor,
+      blocked: blocked,
+      wrong: feedback.wrong,
+      left: feedback.left,
+    );
+    final onForgotPin = widget.onForgotPin ?? context.pushResetPinScreen;
+    final pad = switch (widget.mode) {
+      UnlockEntry() && final mode => _unlock(
+        context,
+        mode,
+        attempts,
+        blocked: blocked,
+        maxPinSize: maxPinSize,
+        onForgotPin: onForgotPin,
+      ),
+      SessionEntry() && final mode => _session(
+        context,
+        mode,
+        attempts,
+        blocked: blocked,
+        maxPinSize: maxPinSize,
+        onForgotPin: onForgotPin,
+      ),
+    };
+    // A wrong PIN: a fresh pad, with an empty buffer.
+    return KeyedSubtree(key: ValueKey(feedback.wrongCount), child: pad);
+  }
+
+  Widget _unlock(
+    BuildContext context,
+    UnlockEntry mode,
+    PinAttempts attempts, {
+    required bool blocked,
+    required int maxPinSize,
+    required VoidCallback onForgotPin,
+  }) {
+    final busy = widget.feedback.busy;
+    final enabled = !blocked && !busy;
+    final waiting = mode.waiting;
+    return YiviPinScreen(
+      instruction: waiting != null
+          ? context.tr(waitingLineKey(waiting))
+          : blocked
+          ? context.tr("pin.blocked_title")
+          : context.tr("pin.subtitle"),
+      header: waiting == null
+          ? null
+          : WaitingRequestAnnouncement(request: waiting),
+      showMark: mode.showMark,
+      // Under the announcement (the heading) a quiet line, the block well
+      // clear of the keypad.
+      instructionStyle: waiting == null
+          ? PinInstructionStyle.heading
+          : PinInstructionStyle.line,
+      upperGap: waiting == null ? 40 : 48,
+      centreUpper: mode.centreUpper,
+      detail: attempts.line,
+      detailKind: attempts.detailKind,
+      detailClock: blocked,
+      busy: busy,
+      pinError: attempts.pinError,
+      maxPinSize: maxPinSize,
+      submitLabel: "pin.unlock",
+      onSubmit: enabled ? widget.onSubmit : (_) {},
+      enabled: enabled,
+      onForgotPin: onForgotPin,
+      onBiometricUnlock: mode.onBiometricUnlock,
+      biometricGlyph: mode.biometricGlyph,
+      listener: submitWhenFull(maxPinSize, widget.onSubmit, enabled: enabled),
+    );
+  }
+
+  Widget _session(
+    BuildContext context,
+    SessionEntry mode,
+    PinAttempts attempts, {
+    required bool blocked,
+    required int maxPinSize,
+    required VoidCallback onForgotPin,
+  }) {
+    final busy = widget.feedback.busy;
+    void submit(String pin) {
+      if (busy || _submitted) return;
+      _submitted = true;
+      widget.onSubmit(pin);
+    }
+
+    // While the PIN is checked the pad stays (dots full, keypad dimmed) and
+    // the line under the title says so.
+    return YiviPinScreen(
+      instruction: context.tr(
+        blocked ? "pin.blocked_title" : "session_pin.subtitle",
+      ),
+      // A lock, not the logo: this PIN confirms a request.
+      lockIcon: true,
+      detail: attempts.line ?? mode.detail,
+      detailKind: attempts.detailKind,
+      detailClock: blocked,
+      busy: busy,
+      pinError: attempts.pinError,
+      maxPinSize: maxPinSize,
+      enabled: !busy && !blocked,
+      submitLabel: "session_pin.submit",
+      onSubmit: submit,
+      onForgotPin: onForgotPin,
+      listener: submitWhenFull(maxPinSize, submit),
+    );
+  }
+}

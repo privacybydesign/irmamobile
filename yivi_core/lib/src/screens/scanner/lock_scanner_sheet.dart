@@ -9,7 +9,7 @@ import "../../providers/waiting_request_provider.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_sheet.dart";
-import "../pin/pin_screen.dart" show UnlockPinEntry;
+import "../pin/pin_entry.dart";
 import "../pin/providers/pin_unlock_provider.dart";
 import "../pin/widgets/waiting_request_announcement.dart";
 import "../reset_pin/reset_pin_screen.dart";
@@ -179,13 +179,8 @@ class _UnlockPage extends ConsumerStatefulWidget {
 }
 
 class _UnlockPageState extends ConsumerState<_UnlockPage> {
-  int _resetNonce = 0;
-
   @override
   Widget build(BuildContext context) {
-    ref.listen<PinUnlockState>(pinUnlockProvider, (_, next) {
-      if (next.pinInvalid && mounted) setState(() => _resetNonce++);
-    });
     final state = ref.watch(pinUnlockProvider);
     final busy = state.authenticateInProgress || state.authenticated;
 
@@ -196,12 +191,14 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
       scrolls: false,
       childClearsBottom: true,
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-      child: UnlockPinEntry(
-        waiting: ref.watch(waitingRequestProvider).value,
-        busy: busy,
-        resetNonce: _resetNonce,
-        showMark: false,
-        centreUpper: true,
+      child: PinEntry(
+        mode: UnlockEntry(
+          waiting: ref.watch(waitingRequestProvider).value,
+          showMark: false,
+          centreUpper: true,
+        ),
+        feedback: state.feedback.copyWith(busy: busy),
+        onSubmit: ref.read(pinUnlockProvider.notifier).unlock,
         onForgotPin: () => Navigator.of(
           context,
         ).push(MaterialPageRoute<void>(builder: (_) => ResetPinScreen())),

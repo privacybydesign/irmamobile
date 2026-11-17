@@ -11,7 +11,6 @@ import "../../../providers/credential_store_provider.dart";
 import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/nested_issuance_host_provider.dart";
-import "../../../providers/preferences_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_motion.dart";
@@ -1573,7 +1572,6 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
         remainingAttempts: state?.remainingPinAttempts,
         blockedTimeSeconds: state?.pinBlockedTimeSeconds,
         submitting: awaiting,
-        maxPinSize: ref.watch(longPinProvider) ? 16 : 5,
         onPinEntered: (pin) => _repo.enterSessionPin(widget.sessionId, pin),
         onCancel: widget.onCancel,
       ),

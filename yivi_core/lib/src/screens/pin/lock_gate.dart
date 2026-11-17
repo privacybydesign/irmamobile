@@ -141,7 +141,6 @@ class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
                   onGenerateRoute: (_) => MaterialPageRoute<void>(
                     builder: (innerCtx) => TermsChangedListener(
                       child: PinScreen(
-                        allowBiometric: true,
                         onAuthenticated: () {
                           if (context.mounted) {
                             ref

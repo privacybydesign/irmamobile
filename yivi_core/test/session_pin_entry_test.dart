@@ -19,6 +19,8 @@ void main() {
       client: RecordingBridge(),
       preferences: await freshPreferences(),
     );
+    // A short PIN, which submits itself once full.
+    await repo.preferences.longPin.set(false);
   });
   tearDown(() => repo.close());
 

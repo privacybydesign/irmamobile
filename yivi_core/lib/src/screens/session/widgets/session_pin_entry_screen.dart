@@ -5,10 +5,10 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
-import "../../../util/navigation.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
-import "../../pin/providers/pin_countdown_provider.dart";
+import "../../pin/pin_entry.dart";
+import "../../pin/pin_feedback.dart";
 import "../../pin/yivi_pin_screen.dart";
 
 /// Session PIN entry. A thin wrapper around the shared [YiviPinScreen]: it owns
@@ -25,7 +25,6 @@ class SessionPinEntryScreen extends ConsumerStatefulWidget {
   final int? remainingAttempts;
   final int? blockedTimeSeconds;
   final bool submitting;
-  final int maxPinSize;
   final ValueChanged<String> onPinEntered;
   final VoidCallback onCancel;
 
@@ -42,7 +41,6 @@ class SessionPinEntryScreen extends ConsumerStatefulWidget {
     this.remainingAttempts,
     this.blockedTimeSeconds,
     this.submitting = false,
-    this.maxPinSize = shortPinSize,
     this.inSheet = false,
   });
 
@@ -54,95 +52,73 @@ class SessionPinEntryScreen extends ConsumerStatefulWidget {
 class _SessionPinEntryScreenState extends ConsumerState<SessionPinEntryScreen> {
   int? _previousRemainingAttempts;
   int? _previousBlockedTimeSeconds;
-  int _resetNonce = 0;
-  bool _submitted = false;
 
-  /// The wrong PIN just entered, until the block or the next attempt.
-  bool _wrong = false;
-
-  /// When a block ends ([pinCountdownProvider] counts down to it).
-  DateTime? _blockedUntil;
+  /// What the pad is told: one more [PinFeedback.wrongCount] per wrong PIN
+  /// or block, the wrong PIN until the next try, and the block's end.
+  PinFeedback _feedback = const PinFeedback();
 
   @override
   void didUpdateWidget(SessionPinEntryScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Blocked: clear the entry and count down on the screen; the keypad is
-    // off until the block is over.
+    // Blocked: a fresh pad and a countdown; the keypad is off until the
+    // block is over.
     if (widget.blockedTimeSeconds != null &&
         _previousBlockedTimeSeconds == null) {
-      _resetEntry();
       Haptics.error();
-      _blockedUntil = DateTime.now().add(
-        Duration(seconds: widget.blockedTimeSeconds!),
+      _feedback = PinFeedback(
+        wrongCount: _feedback.wrongCount + 1,
+        wrong: _feedback.wrong,
+        left: widget.remainingAttempts,
+        blockedUntil: DateTime.now().add(
+          Duration(seconds: widget.blockedTimeSeconds!),
+        ),
       );
     }
-    // Wrong PIN: clear the entry and say so on the screen (unless blocked,
-    // which takes priority).
+    // Wrong PIN: a fresh pad, saying so (unless blocked, which takes
+    // priority).
     else if (widget.remainingAttempts != null &&
         widget.remainingAttempts != _previousRemainingAttempts &&
         widget.blockedTimeSeconds == null) {
-      _resetEntry();
-      _wrong = true;
       Haptics.error();
+      _feedback = PinFeedback(
+        wrongCount: _feedback.wrongCount + 1,
+        wrong: true,
+        left: widget.remainingAttempts,
+        blockedUntil: _feedback.blockedUntil,
+      );
     }
 
     _previousRemainingAttempts = widget.remainingAttempts;
     _previousBlockedTimeSeconds = widget.blockedTimeSeconds;
   }
 
-  void _resetEntry() => setState(() {
-    _resetNonce++;
-    _submitted = false;
-  });
-
   void _submit(String pin) {
-    if (widget.submitting || _submitted) return;
-    _submitted = true;
-    _wrong = false;
+    // The wrong PIN is said until the next try.
+    if (_feedback.wrong) {
+      setState(
+        () => _feedback = PinFeedback(
+          wrongCount: _feedback.wrongCount,
+          left: _feedback.left,
+          blockedUntil: _feedback.blockedUntil,
+        ),
+      );
+    }
     widget.onPinEntered(pin);
   }
 
   @override
   Widget build(BuildContext context) {
-    const paddingSize = YiviSpace.pageSide;
-    // Until the countdown's first value is in, the time left as it is now:
-    // the block shows in the same frame it comes in.
-    final until = _blockedUntil;
-    final blockedLeft =
-        ref.watch(pinCountdownProvider(until)).value ??
-        (until == null || until.isBefore(DateTime.now())
-            ? Duration.zero
-            : until.difference(DateTime.now()));
-    final blocked = blockedLeft > Duration.zero;
-    final attempts = PinAttempts.of(
-      context,
-      blockedFor: blockedLeft,
-      blocked: blocked,
-      wrong: _wrong,
-      left: widget.remainingAttempts,
-    );
-    // While the PIN is checked the pad stays (dots full, keypad dimmed) and
-    // the line under the title says so; after a wrong PIN it comes back with
-    // a fresh buffer.
-    final pad = YiviPinScreen(
-      key: ValueKey(_resetNonce),
-      instruction: context.tr(
-        blocked ? "pin.blocked_title" : "session_pin.subtitle",
+    final pad = PinEntry(
+      mode: SessionEntry(detail: widget.detail),
+      feedback: PinFeedback(
+        wrongCount: _feedback.wrongCount,
+        wrong: _feedback.wrong,
+        left: widget.remainingAttempts,
+        blockedUntil: _feedback.blockedUntil,
+        busy: widget.submitting,
       ),
-      // A lock, not the logo: this PIN confirms a request.
-      lockIcon: true,
-      detail: attempts.line ?? widget.detail,
-      detailKind: attempts.detailKind,
-      detailClock: blocked,
-      busy: widget.submitting,
-      pinError: attempts.pinError,
-      maxPinSize: widget.maxPinSize,
-      enabled: !widget.submitting && !blocked,
-      submitLabel: "session_pin.submit",
       onSubmit: _submit,
-      onForgotPin: context.pushResetPinScreen,
-      listener: submitWhenFull(widget.maxPinSize, _submit),
     );
     if (widget.inSheet) return pad;
 
@@ -158,7 +134,7 @@ class _SessionPinEntryScreenState extends ConsumerState<SessionPinEntryScreen> {
         bottom: false,
         child: Container(
           alignment: Alignment.center,
-          margin: const EdgeInsets.symmetric(horizontal: paddingSize),
+          margin: const EdgeInsets.symmetric(horizontal: YiviSpace.pageSide),
           child: pad,
         ),
       ),

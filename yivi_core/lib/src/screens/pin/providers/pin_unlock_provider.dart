@@ -6,6 +6,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../../../models/authentication_events.dart";
 import "../../../models/session.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../util/haptics.dart";
+import "../pin_feedback.dart";
 
 /// App-unlock authentication state. Replaces the old `PinBloc`: a single
 /// [Notifier] holds the auth state, [unlock] talks to the keyshare server,
@@ -20,6 +22,9 @@ class PinUnlockState {
   final int? remainingAttempts;
   final SessionError? error;
 
+  /// One more with every wrong PIN: the pad starts empty again.
+  final int wrongCount;
+
   const PinUnlockState({
     this.authenticated = false,
     this.authenticateInProgress = false,
@@ -27,7 +32,17 @@ class PinUnlockState {
     this.blockedUntil,
     this.remainingAttempts,
     this.error,
+    this.wrongCount = 0,
   });
+
+  /// What the pad shows of this.
+  PinFeedback get feedback => PinFeedback(
+    wrongCount: wrongCount,
+    wrong: pinInvalid,
+    left: remainingAttempts,
+    blockedUntil: blockedUntil,
+    busy: authenticateInProgress,
+  );
 }
 
 class PinUnlockNotifier extends Notifier<PinUnlockState> {
@@ -39,7 +54,12 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
     // but keep any active server-side block (so locking can't race the
     // getBlockTime() seed below into clearing a real block).
     final sub = repo.getLocked().listen((locked) {
-      if (locked) state = PinUnlockState(blockedUntil: state.blockedUntil);
+      if (locked) {
+        state = PinUnlockState(
+          blockedUntil: state.blockedUntil,
+          wrongCount: state.wrongCount,
+        );
+      }
     });
     ref.onDispose(sub.cancel);
 
@@ -54,7 +74,10 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
       blockSub?.cancel();
       blockSub = null;
       if (blockedUntil != null) {
-        state = PinUnlockState(blockedUntil: blockedUntil);
+        state = PinUnlockState(
+          blockedUntil: blockedUntil,
+          wrongCount: state.wrongCount,
+        );
       }
     });
     ref.onDispose(() => blockSub?.cancel());
@@ -66,11 +89,18 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
     if (state.authenticateInProgress) return;
     final repo = ref.read(irmaRepositoryProvider);
 
-    state = const PinUnlockState(authenticateInProgress: true);
+    final wrongCount = state.wrongCount;
+    state = PinUnlockState(
+      authenticateInProgress: true,
+      wrongCount: wrongCount,
+    );
 
     final event = await repo.unlock(pin);
     state = switch (event) {
-      AuthenticationSuccessEvent() => const PinUnlockState(authenticated: true),
+      AuthenticationSuccessEvent() => PinUnlockState(
+        authenticated: true,
+        wrongCount: wrongCount,
+      ),
       // To have some timing slack we add some time to the blocked duration.
       AuthenticationFailedEvent(
         :final remainingAttempts,
@@ -83,14 +113,26 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
           blockedUntil: DateTime.now().add(
             Duration(seconds: blockedDuration + 5),
           ),
+          wrongCount: wrongCount + 1,
         ),
       AuthenticationFailedEvent(:final remainingAttempts) => PinUnlockState(
         pinInvalid: true,
         remainingAttempts: remainingAttempts,
+        wrongCount: wrongCount + 1,
       ),
-      AuthenticationErrorEvent(:final error) => PinUnlockState(error: error),
+      AuthenticationErrorEvent(:final error) => PinUnlockState(
+        error: error,
+        wrongCount: wrongCount,
+      ),
       _ => throw Exception("Unexpected subtype of AuthenticationResult"),
     };
+    // Here, where the answer arrives: a pad shown twice (the lock screen
+    // under the scanner sheet) buzzes once.
+    if (state.authenticated) {
+      Haptics.success();
+    } else {
+      Haptics.error();
+    }
   }
 }
 
