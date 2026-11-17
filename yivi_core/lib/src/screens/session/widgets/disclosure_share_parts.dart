@@ -249,7 +249,7 @@ class _ShareProgress extends StatelessWidget {
         ? palette
               .body(15, weight: FontWeight.w600)
               .copyWith(height: 20 / 15, color: palette.errorText)
-        : ProgressPartTrack.lineStyle(context);
+        : ProgressPart.lineStyle(context);
     final bars = p != null && p.total > 0
         ? Row(
             key: const Key("share_progress_parts"),
@@ -257,7 +257,7 @@ class _ShareProgress extends StatelessWidget {
             spacing: 6,
             children: [
               for (var i = 0; i < p.total; i++)
-                _SharePart(filled: i < p.filled),
+                ProgressPart(width: 28, filled: i < p.filled),
             ],
           )
         : null;
@@ -313,46 +313,6 @@ class _ShareProgress extends StatelessWidget {
 
   /// The width of [total] parts of 28 with 6 between them.
   static double _partsWidth(int total) => total * 28.0 + (total - 1) * 6.0;
-}
-
-class _SharePart extends StatefulWidget {
-  final bool filled;
-
-  const _SharePart({required this.filled});
-
-  @override
-  State<_SharePart> createState() => _SharePartState();
-}
-
-class _SharePartState extends State<_SharePart>
-    with SingleTickerProviderStateMixin {
-  late final _fill = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 450),
-    value: widget.filled ? 1 : 0,
-  );
-
-  @override
-  void didUpdateWidget(_SharePart old) {
-    super.didUpdateWidget(old);
-    if (widget.filled == old.filled) return;
-    final to = widget.filled ? 1.0 : 0.0;
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _fill.value = to;
-    } else {
-      _fill.animateTo(to);
-    }
-  }
-
-  @override
-  void dispose() {
-    _fill.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) =>
-      ProgressPartTrack(width: 28, fill: _fill);
 }
 
 /// The green ring around a card that landed while the screen was open: it

@@ -9,7 +9,7 @@ import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/press_scale.dart";
-import "progress_part.dart";
+import "../../../widgets/progress_part.dart";
 import "requestor_card.dart";
 
 /// What a card is added for: the request behind the sheet ("For
@@ -160,20 +160,23 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: YiviSpace.x12,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 6,
-            children: [
-              for (var i = 1; i <= total; i++)
-                _Part(width: _partWidth, index: i, shown: _shown!),
-            ],
+          ValueListenableBuilder(
+            valueListenable: _shown!,
+            builder: (context, shown, _) => Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 6,
+              children: [
+                for (var i = 1; i <= total; i++)
+                  ProgressPart(width: _partWidth, filled: i <= shown),
+              ],
+            ),
           ),
           Flexible(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: ProgressPartTrack.lineStyle(context),
+              style: ProgressPart.lineStyle(context),
             ),
           ),
         ],
@@ -294,66 +297,4 @@ class IssueRequestorPill extends StatelessWidget {
 
   /// Its logo and a few letters.
   static const double _minWidth = 120;
-}
-
-/// One part of [IssueSheetProgress]: grey, or filled green from the start
-/// edge. It fills (or empties) over 420 ms as the step shown passes it.
-class _Part extends StatefulWidget {
-  final double width;
-
-  /// Which step this part is, from 1.
-  final int index;
-  final ValueListenable<int> shown;
-
-  const _Part({required this.width, required this.index, required this.shown});
-
-  @override
-  State<_Part> createState() => _PartState();
-}
-
-class _PartState extends State<_Part> with SingleTickerProviderStateMixin {
-  late final _fill = AnimationController(
-    vsync: this,
-    duration: YiviMotion.page,
-    value: _filled ? 1 : 0,
-  );
-
-  bool get _filled => widget.index <= widget.shown.value;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.shown.addListener(_change);
-  }
-
-  @override
-  void didUpdateWidget(_Part old) {
-    super.didUpdateWidget(old);
-    if (old.shown != widget.shown) {
-      old.shown.removeListener(_change);
-      widget.shown.addListener(_change);
-      _change();
-    }
-  }
-
-  void _change() {
-    final target = _filled ? 1.0 : 0.0;
-    if (_fill.value == target && !_fill.isAnimating) return;
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _fill.value = target;
-    } else {
-      _fill.animateTo(target);
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.shown.removeListener(_change);
-    _fill.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) =>
-      ProgressPartTrack(width: widget.width, fill: _fill);
 }

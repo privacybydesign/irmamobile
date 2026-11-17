@@ -43,6 +43,7 @@ import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_bottom_bar_base.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/progress_part.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -1284,9 +1285,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byKey(const Key("share_progress_parts")),
-          matching: find.byWidgetPredicate(
-            (w) => w.runtimeType.toString() == "_SharePart",
-          ),
+          matching: find.byType(ProgressPart),
         ),
         findsNWidgets(2),
       );
