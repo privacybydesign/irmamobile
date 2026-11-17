@@ -401,7 +401,7 @@ Future<void> testWrongTxCodeShowsInlineError(
   // unmount before any tap-and-settle: while it's animating out, its cursor
   // still ticks and any subsequent tap may be absorbed by the off-stage
   // route.
-  await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+  await tester.tap(find.byKey(const Key("session_close")));
   // After the tx_code screen unmounts the cursor stops, so pumpAndSettle is
   // safe again — and we need it because the home's bottom nav transition
   // continues briefly after the pop completes.
@@ -571,7 +571,7 @@ Future<void> testCancelAfterWrongAttempt(
     find.text("Incorrect code. 2 attempts remaining."),
   );
 
-  await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+  await tester.tap(find.byKey(const Key("session_close")));
   // After the tx_code screen unmounts the cursor stops, so pumpAndSettle is
   // safe again — and we need it because the home's bottom nav transition
   // continues briefly after the pop completes.
@@ -600,11 +600,11 @@ Future<void> testCancelTxCodeScreenDismissesSession(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // Tx code screen — tap "Cancel" in the bottom bar to dismiss the session.
+  // Tx code screen: the close button dismisses the session.
   await tester.pumpUntilFound(find.byType(OpenID4VCIPreAuthTxCodeScreen));
   // The code field takes the keyboard: the bar can be below it while it
   // comes up. Without the keyboard the bar is in reach.
-  final cancel = find.byKey(const Key("bottom_bar_secondary"));
+  final cancel = find.byKey(const Key("session_close"));
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pumpUntilFound(cancel.hitTestable());
   await tester.tap(cancel);
@@ -714,7 +714,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(ActivityCard, skipOffstage: false).at(0),
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.text("YOU DELETED"), findsOneWidget);
+  expect(find.text("You deleted"), findsOneWidget);
   expect(find.byType(ActivityCredentialTile), findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -731,7 +731,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(ActivityCard, skipOffstage: false).at(1),
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.text("YOU DELETED"), findsOneWidget);
+  expect(find.text("You deleted"), findsOneWidget);
   expect(find.byType(ActivityCredentialTile), findsOneWidget);
   await evaluateCredentialCard(
     tester,

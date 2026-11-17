@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../util/i18n.dart";
+import "../../widgets/action_bar.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/status_screen.dart";
 
 /// Tells IRMA users once that the app is now called Yivi: the new logo on a
@@ -31,9 +31,9 @@ class NameChangedScreen extends StatelessWidget {
       ),
       title: context.tr("name_changed.header"),
       message: context.tr("name_changed.explanation"),
-      actions: IrmaBottomBar(
-        primaryButtonLabel: "action_feedback.ok",
-        onPrimaryPressed: onContinuePressed,
+      actions: ActionBar.single(
+        label: context.tr("action_feedback.ok"),
+        onTap: onContinuePressed,
       ),
     );
   }

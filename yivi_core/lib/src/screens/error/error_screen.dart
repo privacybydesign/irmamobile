@@ -3,9 +3,9 @@ import "package:material_ui/material_ui.dart";
 import "../../models/error_event.dart";
 import "../../sentry/sentry.dart";
 import "../../util/i18n.dart";
+import "../../widgets/action_bar.dart";
 import "../../widgets/error_status_screen.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
 
 class ErrorScreen extends StatefulWidget {
   final VoidCallback? onTapClose;
@@ -80,18 +80,20 @@ class _ErrorScreenState extends State<ErrorScreen> {
       type: widget.type,
       details: widget.details,
       reportable: widget.reportable,
-      actions: IrmaBottomBar(
-        primaryButtonLabel: widget.onTapClose != null
-            ? context.tr("error.button_ok")
-            : null,
-        onPrimaryPressed: widget.onTapClose,
-        // If the error has been reported, the secondary button should be disabled, but the label should remain visible.
-        secondaryButtonLabel: widget.onReportError != null
-            ? context.tr("error.button_send_to_irma")
-            : null,
-        onSecondaryPressed: widget.onReportError != null && !_hasReported
-            ? _onTapReport
-            : null,
+      actions: ActionBar(
+        actions: [
+          if (widget.onTapClose != null)
+            ActionBar.primary(
+              label: context.tr("error.button_ok"),
+              onTap: widget.onTapClose,
+            ),
+          // Once reported, the button stays but cannot be tapped again.
+          if (widget.onReportError != null)
+            ActionBar.secondary(
+              label: context.tr("error.button_send_to_irma"),
+              onTap: _hasReported ? null : _onTapReport,
+            ),
+        ],
       ),
     );
   }

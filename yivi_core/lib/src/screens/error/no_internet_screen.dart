@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
+import "../../widgets/action_bar.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/status_screen.dart";
 
 class NoInternetScreen extends StatelessWidget {
@@ -24,13 +24,18 @@ class NoInternetScreen extends StatelessWidget {
       tone: YiviTone.info,
       title: context.tr("error.no_internet_title"),
       message: context.tr("error.types.no_internet"),
-      actions: IrmaBottomBar(
-        primaryButtonLabel: context.tr("error.button_back"),
-        onPrimaryPressed: onTapClose,
-        secondaryButtonLabel: onTapRetry == null
-            ? null
-            : context.tr("error.button_retry"),
-        onSecondaryPressed: onTapRetry,
+      actions: ActionBar(
+        actions: [
+          ActionBar.primary(
+            label: context.tr("error.button_back"),
+            onTap: onTapClose,
+          ),
+          if (onTapRetry != null)
+            ActionBar.secondary(
+              label: context.tr("error.button_retry"),
+              onTap: onTapRetry,
+            ),
+        ],
       ),
     );
   }

@@ -4,8 +4,8 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/i18n.dart";
+import "../../widgets/action_bar.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/status_screen.dart";
 import "../settings/settings_screen.dart";
 
@@ -23,15 +23,18 @@ class ResetPinScreen extends StatelessWidget {
       ),
       title: context.tr("reset_pin.header"),
       message: context.tr("reset_pin.explanation"),
-      actions: IrmaBottomBar(
-        primaryDanger: true,
-        primaryButtonLabel: "reset_pin.reset",
-        onPrimaryPressed: () => showConfirmDeleteDialog(context),
-        secondaryButtonLabel: "ui.cancel",
-        // `Navigator.of(context).pop` (not GoRouter's `context.pop`) so this
-        // screen works whether it was pushed via the GoRouter `/reset_pin`
-        // route or onto the LockGate overlay's local Navigator.
-        onSecondaryPressed: () => Navigator.of(context).pop(),
+      actions: ActionBar(
+        actions: [
+          ActionBar.primary(
+            label: context.tr("reset_pin.reset"),
+            onTap: () => showConfirmDeleteDialog(context),
+            danger: true,
+          ),
+          ActionBar.secondary(
+            label: context.tr("ui.cancel"),
+            onTap: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
     );
   }

@@ -10,6 +10,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/nfc_credentials.dart";
+import "../../../widgets/action_bar.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/compact_bar.dart";
@@ -21,7 +22,6 @@ import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dar
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/status_chip.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/technical_details.dart";
@@ -192,14 +192,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       );
     }
 
-    final bar = IrmaBottomBarBase(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: YiviSpace.x12,
-        children: [?reason, button],
-      ),
-    );
+    final bar = ActionBar(above: reason, actions: [button]);
 
     return SessionScaffold(
       appBarTitle: "issuance.title",

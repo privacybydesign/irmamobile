@@ -221,7 +221,7 @@ class _ShareBar extends StatelessWidget {
     );
     // Floats over the page: solid behind the button, with the fade above
     // it, so the line never sits on a card.
-    return inBar ? IrmaBottomBarBase(child: content) : content;
+    return inBar ? ActionBar(actions: [content]) : content;
   }
 }
 

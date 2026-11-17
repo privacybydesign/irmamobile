@@ -10,11 +10,11 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/combine.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/action_bar.dart";
 import "../../../widgets/active_indicator.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "../../error/error_screen.dart";
 import "../../pin/yivi_pin_screen.dart";
@@ -187,14 +187,14 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         Widget? bottomBar;
         if (schemeManager.keyshareServer.isNotEmpty) {
           if (schemeIsActive) {
-            bottomBar = IrmaBottomBar(
-              primaryButtonLabel: "debug.scheme_management.verify_pin.title",
-              onPrimaryPressed: () => _verifyPin(context, schemeManager.id),
+            bottomBar = ActionBar.single(
+              label: context.tr("debug.scheme_management.verify_pin.title"),
+              onTap: () => _verifyPin(context, schemeManager.id),
             );
           } else {
-            bottomBar = IrmaBottomBar(
-              primaryButtonLabel: "ui.activate",
-              onPrimaryPressed: () => _onActivateScheme(context),
+            bottomBar = ActionBar.single(
+              label: context.tr("ui.activate"),
+              onTap: () => _onActivateScheme(context),
             );
           }
         }

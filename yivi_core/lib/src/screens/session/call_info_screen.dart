@@ -5,11 +5,11 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
+import "../../widgets/action_bar.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
 import "widgets/session_columns.dart";
 
 /// After sharing for a phone call (a `tel:` return URL): the data is
@@ -97,9 +97,9 @@ class CallInfoScreen extends StatelessWidget {
         ),
         bottomNavigationBar: tablet
             ? null
-            : IrmaBottomBar(
-                primaryButtonLabel: t("share.call.button"),
-                onPrimaryPressed: () => onContinue?.call(),
+            : ActionBar.single(
+                label: t("share.call.button"),
+                onTap: () => onContinue?.call(),
               ),
         body: tablet
             ? SessionCentred(

@@ -7,7 +7,6 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/icon_square.dart";
-import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "requestor_card.dart";
 import "requestor_trust_sheet.dart";
@@ -42,10 +41,6 @@ class PairingRequired extends StatelessWidget {
     return SessionScaffold(
       appBarTitle: "session.pairing.title",
       onDismiss: onDismiss,
-      bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: context.tr("session.navigation_bar.cancel"),
-        onSecondaryPressed: () => onDismiss(),
-      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(

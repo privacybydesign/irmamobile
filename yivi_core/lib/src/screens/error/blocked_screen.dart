@@ -4,8 +4,8 @@ import "../../models/clear_all_data_event.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
+import "../../widgets/action_bar.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/status_screen.dart";
 
 class BlockedScreen extends StatelessWidget {
@@ -28,11 +28,11 @@ class BlockedScreen extends StatelessWidget {
         tone: YiviTone.danger,
         title: context.tr("error.blocked_title"),
         message: context.tr("error.types.blocked"),
-        actions: IrmaBottomBar(
-          primaryDanger: true,
-          primaryButtonLabel: context.tr("error.button_reset"),
-          onPrimaryPressed: () =>
+        actions: ActionBar.single(
+          label: context.tr("error.button_reset"),
+          onTap: () =>
               repositoryOf(context).bridgedDispatch(ClearAllDataEvent()),
+          danger: true,
         ),
       ),
     );

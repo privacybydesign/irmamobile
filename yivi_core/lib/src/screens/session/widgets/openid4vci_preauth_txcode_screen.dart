@@ -9,9 +9,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/action_bar.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_actions.dart";
-import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
 import "session_scaffold.dart";
@@ -270,28 +270,15 @@ class _OpenID4VCIPreAuthTxCodeScreenState
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, int? length) {
-    final cancelLabel = context.tr(
-      "issuance.pre-authorized_code.tx_code_screen.cancel",
-    );
-
-    if (length != null) {
-      return IrmaBottomBar(
-        secondaryButtonLabel: cancelLabel,
-        onSecondaryPressed: widget.onDismiss,
-      );
-    }
-
-    final continueLabel = context.tr(
-      "issuance.pre-authorized_code.tx_code_screen.continue",
-    );
-    return IrmaBottomBar(
-      primaryButtonLabel: continueLabel,
-      onPrimaryPressed: _textController.text.isNotEmpty
+  /// A code of a known length is sent once it is complete: no button.
+  /// Leaving is the close button's.
+  Widget? _buildBottomBar(BuildContext context, int? length) {
+    if (length != null) return null;
+    return ActionBar.single(
+      label: context.tr("issuance.pre-authorized_code.tx_code_screen.continue"),
+      onTap: _textController.text.isNotEmpty
           ? () => widget.onSubmit(_textController.text)
           : null,
-      secondaryButtonLabel: cancelLabel,
-      onSecondaryPressed: widget.onDismiss,
     );
   }
 }

@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
+import "../../widgets/action_bar.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/status_screen.dart";
 
 /// Shown when the user has used all transaction-code attempts on the
@@ -25,9 +25,9 @@ class TxCodeLockoutScreen extends StatelessWidget {
       tone: YiviTone.danger,
       title: context.tr("issuance.pre-authorized_code.tx_code_lockout.title"),
       message: context.tr("issuance.pre-authorized_code.tx_code_lockout.body"),
-      actions: IrmaBottomBar(
-        primaryButtonLabel: context.tr("error.button_ok"),
-        onPrimaryPressed: onTapClose,
+      actions: ActionBar.single(
+        label: context.tr("error.button_ok"),
+        onTap: onTapClose,
       ),
     );
   }

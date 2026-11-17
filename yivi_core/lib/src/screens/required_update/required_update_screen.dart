@@ -5,7 +5,7 @@ import "package:url_launcher/url_launcher.dart";
 
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
-import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/action_bar.dart";
 import "../../widgets/status_screen.dart";
 
 class RequiredUpdateScreen extends StatelessWidget {
@@ -18,9 +18,9 @@ class RequiredUpdateScreen extends StatelessWidget {
       tone: YiviTone.info,
       title: context.tr("update.title"),
       message: context.tr("update.explanation"),
-      actions: IrmaBottomBar(
-        primaryButtonLabel: context.tr("update.update_app"),
-        onPrimaryPressed: () {
+      actions: ActionBar.single(
+        label: context.tr("update.update_app"),
+        onTap: () {
           late String url;
           if (Platform.isAndroid) {
             url =

@@ -16,11 +16,11 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/combine.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/action_bar.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "../../error/error_screen.dart";
 import "../util/snackbar.dart";
@@ -253,9 +253,9 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
               },
             ),
       ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: "debug.scheme_management.update",
-        onPrimaryPressed: _onUpdateSchemes,
+      bottomNavigationBar: ActionBar.single(
+        label: context.tr("debug.scheme_management.update"),
+        onTap: _onUpdateSchemes,
       ),
     );
   }
