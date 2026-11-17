@@ -16,6 +16,7 @@ import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/screens/back_to_website/back_to_website_screen.dart";
 import "package:yivi_core/src/screens/enrollment/biometric/enrollment_biometric_screen.dart";
 import "package:yivi_core/src/screens/enrollment/choose_pin/choose_pin_screen.dart";
+import "package:yivi_core/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart";
 import "package:yivi_core/src/screens/enrollment/email/enrollment_email_link.dart";
 import "package:yivi_core/src/screens/enrollment/email/enrollment_email_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
@@ -163,6 +164,38 @@ void main() {
   });
 
   group("PIN", () {
+    testWidgets("confirming a different PIN says so and sends nothing", (
+      tester,
+    ) async {
+      final (size, padding) = _sizes["tablet upright"]!;
+      _device(tester, size, padding);
+      var mismatches = 0;
+      final confirmed = <String>[];
+      await pumpHome(
+        tester,
+        repo: repo,
+        home: ConfirmPinScreen(
+          stepLabel: "Step 2 of 3",
+          submitConfirmationPin: confirmed.add,
+          onPrevious: () {},
+          newPinNotifier: ValueNotifier("58193"),
+          onPinMismatch: () => mismatches++,
+        ),
+      );
+      await settle(tester);
+      Future<void> type(String digits) async {
+        for (final d in digits.split("")) {
+          await tester.tap(find.text(d));
+          await tester.pump();
+        }
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+
+      await type("58194");
+      expect(mismatches, 1);
+      expect(confirmed, isEmpty);
+    });
+
     for (final name in [
       "tablet sideways",
       "phone sideways",
