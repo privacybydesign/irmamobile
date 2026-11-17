@@ -26,6 +26,7 @@ import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/section_header.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/two_pane.dart";
@@ -398,18 +399,7 @@ class _Details extends ConsumerWidget {
       String key, {
       Map<String, String>? params,
       double below = 8,
-    }) => Padding(
-      padding: EdgeInsets.fromLTRB(
-        YiviSpace.x4,
-        YiviSpace.x24,
-        YiviSpace.x4,
-        below,
-      ),
-      child: Semantics(
-        header: true,
-        child: Text(context.tr(key, params), style: palette.display(16)),
-      ),
-    );
+    }) => SectionHeader(context.tr(key, params), below: below);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

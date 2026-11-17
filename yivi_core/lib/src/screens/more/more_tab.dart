@@ -12,9 +12,9 @@ import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/centred_max_width.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/tab_layout.dart";
 import "../../widgets/title_scroll_edge.dart";
-import "../../widgets/translated_text.dart";
 import "../../widgets/two_pane.dart";
 import "../help/help_screen.dart";
 import "../home/widgets/home_tab.dart";
@@ -46,18 +46,8 @@ class _MoreTabState extends ConsumerState<MoreTab> {
         ? ref.read(selectedMorePageProvider.notifier).select(p)
         : push();
 
-    Widget buildHeaderText(String translationKey) => Padding(
-      padding: const EdgeInsets.fromLTRB(
-        YiviSpace.x4,
-        YiviSpace.x16,
-        YiviSpace.x4,
-        YiviSpace.x8,
-      ),
-      child: Semantics(
-        header: true,
-        child: TranslatedText(translationKey, style: palette.display(16)),
-      ),
-    );
+    Widget buildHeaderText(String translationKey) =>
+        SectionHeader(context.tr(translationKey));
 
     final appManagement = <Widget>[
       Semantics(

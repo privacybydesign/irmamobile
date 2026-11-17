@@ -17,6 +17,7 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/party_avatar.dart";
+import "../../../widgets/section_header.dart";
 import "../../../widgets/status_chip.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
@@ -404,22 +405,7 @@ class ActivitySectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        YiviSpace.x4,
-        YiviSpace.x32,
-        YiviSpace.x4,
-        YiviSpace.x8,
-      ),
-      child: Semantics(
-        header: true,
-        child: Text(
-          context.tr(role.titleKey),
-          style: palette.display(16).copyWith(color: palette.text),
-        ),
-      ),
-    );
+    return SectionHeader(context.tr(role.titleKey));
   }
 }
 
@@ -484,21 +470,7 @@ class ActivitySignedMessage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            YiviSpace.x4,
-            YiviSpace.x32,
-            YiviSpace.x4,
-            YiviSpace.x8,
-          ),
-          child: Semantics(
-            header: true,
-            child: Text(
-              context.tr("activity.signed_message"),
-              style: palette.display(16),
-            ),
-          ),
-        ),
+        SectionHeader(context.tr("activity.signed_message")),
         SurfaceCard(
           padding: const EdgeInsets.fromLTRB(
             YiviSpace.x16,

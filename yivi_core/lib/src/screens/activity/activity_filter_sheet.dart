@@ -15,6 +15,7 @@ import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/sheet_actions.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/yivi_spinner.dart";
 import "activity_entry.dart";
 import "activity_query_labels.dart";
@@ -251,34 +252,8 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     ),
   );
 
-  Widget _heading(String title, String? hint) {
-    final palette = YiviPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        YiviSpace.x4,
-        YiviSpace.x24,
-        YiviSpace.x4,
-        YiviSpace.x8,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Expanded(
-            child: Semantics(
-              header: true,
-              child: Text(title, style: palette.display(16)),
-            ),
-          ),
-          if (hint != null)
-            Text(
-              hint,
-              style: palette.body(13).copyWith(color: palette.secondaryText),
-            ),
-        ],
-      ),
-    );
-  }
+  Widget _heading(String title, String? hint) =>
+      SectionHeader(title, hint: hint);
 
   Widget _kinds() => Wrap(
     spacing: YiviSpace.x8,
