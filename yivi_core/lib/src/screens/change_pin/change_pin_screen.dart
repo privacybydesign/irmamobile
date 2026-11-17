@@ -1,22 +1,21 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../models/session.dart";
-import "../../providers/irma_repository_provider.dart";
-import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
+import "../../widgets/glass/glass_dialog.dart";
+import "../../widgets/irma_app_bar.dart";
 import "../enrollment/choose_pin/choose_pin_screen.dart";
 import "../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
 import "../error/session_error_screen.dart";
-import "models/change_pin_state.dart";
-import "models/old_pin_verification_state.dart";
-import "models/validation_state.dart";
-import "providers/change_pin_providers.dart";
-import "widgets/confirm_pin.dart";
-import "widgets/enter_pin.dart";
+import "../pin/pin_entry.dart";
+import "../pin/yivi_pin_screen.dart";
+import "change_pin_flow.dart";
 
+/// Change PIN: its pages follow the step ([changePinFlowProvider]) in a
+/// navigator of their own, so they slide as before and confirm can be
+/// swiped back to choose. Nothing pushes or pops by name.
 class ChangePinScreen extends ConsumerStatefulWidget {
   const ChangePinScreen({super.key});
 
@@ -25,155 +24,160 @@ class ChangePinScreen extends ConsumerStatefulWidget {
 }
 
 class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  /// The pages of the last step that had pages (blocked and done have
+  /// none of their own: the screen goes).
+  List<Page<void>> _pages = const [];
 
-  final newPin = ValueNotifier<String>("");
+  ChangePinFlow get _flow => ref.read(changePinFlowProvider.notifier);
 
-  Map<String, WidgetBuilder> _routeBuilders() {
-    return {
-      EnterPin.routeName: (_) => EnterPin(
-        submitOldPin: _submitOldPin,
-        cancel: context.goSettingsScreen,
+  List<Page<void>>? _pagesOf(ChangePinStep step) => switch (step) {
+    // Keyed by the wrong PINs: after one the page slides in again.
+    EnterOldPin(:final feedback) && final enter => [
+      MaterialPage(
+        key: ValueKey("enter#${feedback.wrongCount}"),
+        child: _EnterOldPin(step: enter),
       ),
-      ChoosePinScreen.routeName: (_) => ChoosePinScreen(
-        onChoosePin: _chooseNewPin,
-        onPrevious: context.goSettingsScreen,
-        newPinNotifier: newPin,
+    ],
+    ChooseNewPin(:final round, :final previous) => [
+      MaterialPage(
+        key: ValueKey("choose#$round"),
+        child: ChoosePinScreen(
+          onChoosePin: _flow.choose,
+          onPrevious: context.goSettingsScreen,
+          newPinNotifier: ValueNotifier(previous),
+        ),
       ),
-      ConfirmPin.routeName: (_) => ConfirmPin(
-        confirmNewPin: _confirmNewPin,
-        cancel: context.goSettingsScreen,
-        returnToChoosePin: _returnToChoosePin,
-        onPinMismatch: _handlePinMismatch,
-        newPinNotifier: newPin,
+    ],
+    ConfirmNewPin(:final chosen, :final choose) => [
+      ...?_pagesOf(choose),
+      MaterialPage(
+        key: const ValueKey("confirm"),
+        child: _ConfirmNewPin(
+          chosen: chosen,
+          onBack: _flow.backToChoose,
+          onMismatch: _mismatch,
+          onConfirmed: _confirm,
+        ),
       ),
-    };
-  }
+    ],
+    ChangePinFailed(:final error, :final back) => [
+      ...?_pagesOf(back),
+      MaterialPage(
+        key: const ValueKey("error"),
+        child: SessionErrorScreen(error: error, onTapClose: _flow.closeError),
+      ),
+    ],
+    ChangePinBlocked() || ChangePinDone() => null,
+  };
 
-  void _returnToChoosePin() {
-    navigatorKey.currentState?.popUntil(
-      (route) => route.settings.name == ChoosePinScreen.routeName,
-    );
-  }
+  void _mismatch() => showPinConfirmationFailedDialog(
+    context,
+    onPressed: (dialogContext) {
+      Navigator.pop(dialogContext);
+      _flow.mismatch();
+    },
+  );
 
-  void _submitOldPin(String pin) {
-    ref.read(changePinProvider.notifier).setOldPin(pin);
-    ref.read(verifyOldPinProvider.notifier).verify(pin);
-  }
-
-  void _chooseNewPin(String pin) {
-    ref.read(changePinProvider.notifier).setNewPin(pin);
-    navigatorKey.currentState?.pushNamed(ConfirmPin.routeName, arguments: pin);
-  }
-
-  void _confirmNewPin(String pin) {
-    ref.read(changePinProvider.notifier).confirmNewPin();
-  }
-
-  void _handlePinMismatch() {
-    showPinConfirmationFailedDialog(
+  Future<void> _confirm(String pin) async {
+    final confirmed = await showConfirmDialog(
       context,
-      onPressed: (context) {
-        Navigator.pop(context); // pop dialog
-        navigatorKey.currentState
-          ?..popUntil(
-            (route) => route.settings.name == ChoosePinScreen.routeName,
-          )
-          ..pushReplacementNamed(ChoosePinScreen.routeName);
-      },
+      icon: const ToneDisc(icon: Icons.password_rounded),
+      titleKey: "change_pin.dialog.title",
+      messageKey: "change_pin.dialog.body",
+      confirmKey: "change_pin.dialog.ok",
+      cancelKey: "change_pin.dialog.cancel",
     );
-  }
-
-  void _onSuccessShowFloatingSnackbar() {
-    showAppToast(context, context.tr("change_pin.toast"));
-  }
-
-  void _handleResetPinSuccess() {
-    context.goSettingsScreen();
-    _onSuccessShowFloatingSnackbar();
-  }
-
-  void _handleBadPinAttempts(int attemptsRemaining, DateTime? blockedUntil) {
-    // go back
-    navigatorKey.currentState?.pop();
-    // The enter-PIN page opened again says it was wrong (EnterPin); out of
-    // tries, the app locks with the block.
-    if (attemptsRemaining <= 0) {
-      context.goHomeScreenWithoutTransition();
-      ref.read(irmaRepositoryProvider).lock(unblockTime: blockedUntil);
+    if (!mounted) return;
+    if (confirmed) {
+      _flow.commit(pin);
+    } else {
+      context.goSettingsScreen();
     }
   }
 
-  void _handleException(SessionError? e) {
-    navigatorKey.currentState?.pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => SessionErrorScreen(
-          error: e,
-          onTapClose: () {
-            navigatorKey.currentState?.pop();
-          },
-        ),
-      ),
-    );
+  /// A page went (a back swipe or the back button): the step follows.
+  void _removed(Page<Object?> page) {
+    final key = page.key;
+    if (key == const ValueKey("confirm")) {
+      _flow.backToChoose();
+    } else if (key == const ValueKey("error")) {
+      _flow.closeError();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<ChangePinState>(changePinProvider, (_, state) {
-      switch (state.newPinConfirmed) {
-        case ValidationState.valid:
-          _handleResetPinSuccess();
-          break;
-        case ValidationState.error:
-          _handleException(state.error);
-          break;
+    ref.listen(changePinFlowProvider, (_, step) {
+      switch (step) {
+        case ChangePinDone():
+          context.goSettingsScreen();
+          showAppToast(context, context.tr("change_pin.toast"));
+        case ChangePinBlocked():
+          context.goHomeScreenWithoutTransition();
         default:
           break;
       }
     });
-
-    ref.listen<OldPinVerificationState>(verifyOldPinProvider, (_, state) {
-      switch (state.validationState) {
-        case ValidationState.valid:
-          Haptics.success();
-          // old pin verified, proceed to new pin screen
-          navigatorKey.currentState?.pushReplacementNamed(
-            ChoosePinScreen.routeName,
-          );
-          break;
-        case ValidationState.invalid:
-          Haptics.error();
-          assert(state.attemptsRemaining != null);
-          _handleBadPinAttempts(state.attemptsRemaining!, state.blockedUntil);
-          navigatorKey.currentState?.pushNamed(EnterPin.routeName);
-          break;
-        case ValidationState.error:
-          Haptics.error();
-          _handleException(state.error);
-          break;
-        case ValidationState.initial: // for completeness
-          break;
-      }
-    });
-
-    final routeBuilders = _routeBuilders();
+    final pages = _pagesOf(ref.watch(changePinFlowProvider));
+    if (pages != null) _pages = pages;
 
     return HeroControllerScope(
       controller: MaterialApp.createMaterialHeroController(),
-      child: Navigator(
-        key: navigatorKey,
-        initialRoute: EnterPin.routeName,
-        onGenerateRoute: (RouteSettings settings) {
-          if (!routeBuilders.containsKey(settings.name)) {
-            throw Exception("Invalid route: ${settings.name}");
-          }
-          final child = routeBuilders[settings.name];
+      child: Navigator(pages: _pages, onDidRemovePage: _removed),
+    );
+  }
+}
 
-          // only assert in debug mode
-          assert(child != null);
+/// The current PIN; after a wrong one it says how many tries are left.
+class _EnterOldPin extends ConsumerWidget {
+  final EnterOldPin step;
 
-          return MaterialPageRoute(builder: child!, settings: settings);
-        },
+  const _EnterOldPin({required this.step});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return YiviPinScaffold(
+      appBar: IrmaAppBar(
+        titleString: "",
+        leading: YiviBackButton(onTap: context.goSettingsScreen),
+      ),
+      body: PinEntry(
+        mode: const VerifyOldEntry(),
+        feedback: step.feedback,
+        onSubmit: ref.read(changePinFlowProvider.notifier).submitOld,
+      ),
+    );
+  }
+}
+
+/// The new PIN again.
+class _ConfirmNewPin extends StatelessWidget {
+  final String chosen;
+  final VoidCallback onBack;
+  final VoidCallback onMismatch;
+  final ValueChanged<String> onConfirmed;
+
+  const _ConfirmNewPin({
+    required this.chosen,
+    required this.onBack,
+    required this.onMismatch,
+    required this.onConfirmed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return YiviPinScaffold(
+      appBar: IrmaAppBar(
+        titleString: "",
+        leading: YiviBackButton(onTap: onBack),
+      ),
+      body: PinEntry(
+        mode: ConfirmEntry(
+          chosen: chosen,
+          instructionKey: "change_pin.confirm_pin.instruction",
+          onMismatch: onMismatch,
+        ),
+        onSubmit: onConfirmed,
       ),
     );
   }

@@ -11,8 +11,7 @@ import "package:yivi_core/src/screens/change_pin/change_pin_screen.dart";
 
 import "support/onboarding_v2_harness.dart";
 
-/// Change PIN as it is today, step by step. Phase 9 rewrites the screen on
-/// one notifier; these must keep passing (open questions 2 and 4 aside).
+/// Change PIN, step by step.
 void main() {
   late RecordingBridge bridge;
   late IrmaRepository repo;
@@ -218,8 +217,9 @@ void main() {
     expect(currentLocation(router), "/home/settings");
   });
 
-  testWidgets("today: closing an error on the old-PIN step leaves no page "
-      "to go back to (open question 4 of phase 9)", (tester) async {
+  testWidgets("closing an error on the old-PIN step goes back to it", (
+    tester,
+  ) async {
     bridge.respond = (event) => event is AuthenticateEvent
         ? AuthenticationErrorEvent(
             error: SessionError(errorType: "transport", info: "offline"),
@@ -231,7 +231,6 @@ void main() {
     await tester.tap(find.byKey(const Key("bottom_bar_primary")));
     await idle(tester);
     expect(find.byKey(const ValueKey("no_internet_screen")), findsNothing);
-    expect(enterOld, findsNothing);
-    expect(chooseShort, findsNothing);
+    expect(enterOld, findsOneWidget);
   });
 }
