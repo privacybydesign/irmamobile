@@ -97,8 +97,9 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final memory = GlassSheetPages.memoryOf(context);
-    final coming = GlassSheetPages.comingOf(context);
+    final page = GlassSheetPages.maybeOf(context);
+    final memory = page?.memory;
+    final coming = page?.coming;
     if (memory == null || coming == null) {
       // Starts empty, so the first part fills as it comes in.
       _shown ??= _own = ValueNotifier(widget.step - 1);
@@ -108,7 +109,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
     _shown =
         memory.putIfAbsent("issue_sheet_progress", () => ValueNotifier(0))
             as ValueNotifier<int>;
-    _pageKey = GlassSheetPages.pageKeyOf(context);
+    _pageKey = page?.key;
     if (_coming != coming) {
       _coming?.removeListener(_follow);
       _coming = coming..addListener(_follow);

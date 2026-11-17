@@ -302,13 +302,13 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   void _back() => widget.code ? _change() : widget.onBack();
 
   /// The address page's field gets the keyboard again when the code page
-  /// over it goes (see [GlassSheetPages.isTopPage]).
+  /// over it goes (see [SheetPageInfo.isTop]).
   bool _wasTop = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final top = GlassSheetPages.isTopPage(context);
+    final top = GlassSheetPages.maybeOf(context)?.isTop ?? true;
     if (!widget.code && top && !_wasTop) {
       afterFrame(() => _focusNode.requestFocus());
     }

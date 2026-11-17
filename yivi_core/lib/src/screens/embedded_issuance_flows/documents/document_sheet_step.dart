@@ -142,7 +142,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
   void didChangeDependencies() {
     super.didChangeDependencies();
     // A swipe back goes back a screen here, not to the details.
-    GlassSheetPages.setInnerSwipe(context, this);
+    GlassSheetPages.maybeOf(context)?.setInnerSwipe(this);
   }
 
   @override

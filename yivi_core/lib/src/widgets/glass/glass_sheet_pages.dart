@@ -33,37 +33,12 @@ class GlassSheetPages extends StatefulWidget {
   /// How far the page under a new one moves left, as a fraction of the width.
   static const underShift = 0.3;
 
-  /// Values the pages keep for the next page (e.g. where a progress bar
-  /// stood, so the next one fills on from there); null outside the pages.
-  static Map<Object, Object?>? memoryOf(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<_SheetPageRole>()?.memory;
-
-  /// The key of the page that is on top once the pages stop moving (the new
-  /// page while it slides in, the one under while the top one slides out);
-  /// null outside the pages.
-  static ValueListenable<Object?>? comingOf(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<_SheetPageRole>()?.coming;
-
-  /// The key of the page around [context]; null outside the pages.
-  static Object? pageKeyOf(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<_SheetPageRole>()?.pageKey;
-
-  /// Whether the page around [context] is the one on top (or not in pages
-  /// at all), not the one under it.
-  static bool isTopPage(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<_SheetPageRole>()?.top ?? true;
-
-  /// Hands the back swipe on the page around [context] to [swipe] while it
-  /// is [GlassSheetInnerSwipe.enabled] (a page with screens of its own, as
-  /// adding a document); null hands it back to the sheet.
-  static void setInnerSwipe(BuildContext context, GlassSheetInnerSwipe? swipe) {
-    final role = context.getInheritedWidgetOfExactType<_SheetPageRole>();
-    if (role == null) return;
-    if (swipe == null) {
-      role.inner.remove(role.pageKey);
-    } else {
-      role.inner[role.pageKey] = swipe;
-    }
+  /// The page of these pages around [context]; null outside pages. It
+  /// depends on the page's role, so a page that reads it builds again as
+  /// it goes under another or comes back on top.
+  static SheetPageInfo? maybeOf(BuildContext context) {
+    final role = context.dependOnInheritedWidgetOfExactType<_SheetPageRole>();
+    return role == null ? null : SheetPageInfo._(role);
   }
 
   @override
@@ -83,10 +58,10 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   /// out after it was removed.
   late List<Widget> _shown = widget.pages;
 
-  /// See [GlassSheetPages.memoryOf].
+  /// See [SheetPageInfo.memory].
   final _memory = <Object, Object?>{};
 
-  /// See [GlassSheetPages.comingOf].
+  /// See [SheetPageInfo.coming].
   late final _coming = ValueNotifier<Object?>(widget.pages.last.key);
 
   /// See [_SheetPageRole.fadeIn]. In time with [_slide], also when it is
@@ -103,7 +78,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   final _held = <Object?>{};
 
   /// The pages that take the back swipe themselves, by page key (see
-  /// [GlassSheetPages.setInnerSwipe]).
+  /// [SheetPageInfo.setInnerSwipe]).
   final _inner = <Object?, GlassSheetInnerSwipe>{};
 
   /// The page that takes the swipe under way, if one does.
@@ -399,7 +374,7 @@ class _SheetPageRole extends InheritedWidget {
   final bool dims;
   final Map<Object, Object?> memory;
 
-  /// See [GlassSheetPages.comingOf].
+  /// See [SheetPageInfo.coming].
   final ValueListenable<Object?> coming;
 
   /// The opacity of what is in the top page's bar alone, and of what is in
@@ -417,7 +392,7 @@ class _SheetPageRole extends InheritedWidget {
   final Set<Object?> held;
 
   /// The pages that take the back swipe themselves (see
-  /// [GlassSheetPages.setInnerSwipe]).
+  /// [SheetPageInfo.setInnerSwipe]).
   final Map<Object?, GlassSheetInnerSwipe> inner;
   final Key? pageKey;
 
@@ -630,4 +605,37 @@ class GlassSheetPageMotion extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       _SheetPageRole.maybeOf(context)?.slide(child) ?? child;
+}
+
+/// What a page of [GlassSheetPages] knows about its place.
+final class SheetPageInfo {
+  const SheetPageInfo._(this._role);
+
+  final _SheetPageRole _role;
+
+  /// The key of this page.
+  Object? get key => _role.pageKey;
+
+  /// Whether this page is the one on top, not the one under it.
+  bool get isTop => _role.top;
+
+  /// Values the pages keep for the next page (e.g. where a progress bar
+  /// stood, so the next one fills on from there).
+  Map<Object, Object?> get memory => _role.memory;
+
+  /// The key of the page that is on top once the pages stop moving (the
+  /// new page while it slides in, the one under while the top one slides
+  /// out).
+  ValueListenable<Object?> get coming => _role.coming;
+
+  /// Hands the back swipe on this page to [swipe] while it is
+  /// [GlassSheetInnerSwipe.enabled] (a page with screens of its own, as
+  /// adding a document); null hands it back to the sheet.
+  void setInnerSwipe(GlassSheetInnerSwipe? swipe) {
+    if (swipe == null) {
+      _role.inner.remove(_role.pageKey);
+    } else {
+      _role.inner[_role.pageKey] = swipe;
+    }
+  }
 }

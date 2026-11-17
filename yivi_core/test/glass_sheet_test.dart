@@ -587,6 +587,61 @@ void main() {
       expect(born["done"], 1);
     });
 
+    testWidgets("a page with screens of its own keeps the back swipe after a "
+        "page went over it and came back", (tester) async {
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      late StateSetter set;
+      var over = false;
+      var backs = 0;
+      final swiper = <_InnerSwiper>[];
+      showGlassSheet<void>(
+        context: _page,
+        builder: (_) => StatefulBuilder(
+          builder: (context, setState) {
+            set = setState;
+            return GlassSheetPages(
+              onBack: () => backs++,
+              pages: [
+                GlassSheetPage.scroll(
+                  key: const ValueKey("root"),
+                  title: SheetTitle("root"),
+                  child: const Text("root"),
+                ),
+                GlassSheetPage.fill(
+                  key: const ValueKey("steps"),
+                  title: SheetTitle("steps"),
+                  exits: SheetExits(onBack: () => backs++),
+                  child: _InnerSwipePage(registered: swiper.add),
+                ),
+                if (over)
+                  GlassSheetPage.scroll(
+                    key: const ValueKey("over"),
+                    title: SheetTitle("over"),
+                    exits: SheetExits(onBack: () {}),
+                    child: const Text("over"),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      set(() => over = true);
+      await tester.pumpAndSettle();
+      set(() => over = false);
+      await tester.pumpAndSettle();
+
+      final steps = find.byType(_InnerSwipePage);
+      await tester.dragFrom(
+        tester.getTopLeft(steps) + const Offset(8, 200),
+        const Offset(200, 0),
+      );
+      await tester.pumpAndSettle();
+      expect(swiper.last.starts, 1);
+      expect(backs, 0);
+    });
+
     testWidgets("a new page is a route of its own, named by its title", (
       tester,
     ) async {
@@ -950,7 +1005,7 @@ void main() {
                       const _Counted(),
                       Builder(
                         builder: (context) {
-                          GlassSheetPages.isTopPage(context);
+                          GlassSheetPages.maybeOf(context)?.isTop;
                           builds++;
                           return Column(
                             children: [
@@ -1164,4 +1219,43 @@ class _BornState extends State<_Born> {
 
   @override
   Widget build(BuildContext context) => Text("${widget.name} page");
+}
+
+/// A page with screens of its own: takes the back swipe while it is on top.
+class _InnerSwipePage extends StatefulWidget {
+  final ValueChanged<_InnerSwiper> registered;
+
+  const _InnerSwipePage({required this.registered});
+
+  @override
+  State<_InnerSwipePage> createState() => _InnerSwiper();
+}
+
+class _InnerSwiper extends State<_InnerSwipePage>
+    implements GlassSheetInnerSwipe {
+  var starts = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // As the document step does.
+    GlassSheetPages.maybeOf(context)?.setInnerSwipe(this);
+    widget.registered(this);
+  }
+
+  @override
+  bool get enabled => true;
+
+  @override
+  void start() => starts++;
+
+  @override
+  void update(double delta) {}
+
+  @override
+  void end(double velocity) {}
+
+  @override
+  Widget build(BuildContext context) =>
+      const ColoredBox(color: Color(0xFFEEEEEE), child: SizedBox.expand());
 }
