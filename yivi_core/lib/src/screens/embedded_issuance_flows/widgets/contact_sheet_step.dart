@@ -1,10 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/email_code_pointer.dart";
-import "../../../models/session.dart";
-import "../../../providers/email_issuance_provider.dart";
-import "../../../providers/sms_issuance_provider.dart";
+import "../../../providers/contact_issuance_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
@@ -20,9 +17,6 @@ import "../email/widgets/email_address_entry.dart";
 import "../sms/widgets/phone_number_entry.dart";
 import "contact_widgets.dart";
 
-/// Which contact detail a [ContactSheetStep] adds.
-enum ContactKind { email, phone }
-
 /// Steps 2 and 3 of adding an e-mail address or phone number in a sheet (the
 /// Change sheet of a request, or Add data), made for a sheet with the
 /// keyboard up, as two pages of it: the address or number with a line on
@@ -33,14 +27,12 @@ enum ContactKind { email, phone }
 /// way on ([SheetAction]): at the bottom on a phone held upright, in the bar
 /// elsewhere; the keyboard's return key does the same.
 ///
-/// Both pages follow the flow's provider; the sheet shows the code page
-/// while its stage is the code ([ContactSheetStep.atCode]).
-///
-/// The same issuer calls as the full screens (`emailIssuanceProvider`,
-/// `smsIssuanceProvider`). The checked code starts the issuance through
+/// Both pages follow the flow's provider (`contactIssuanceProvider`); the
+/// sheet shows the code page while its stage is the code
+/// ([ContactSheetStep.atCode]). The checked code starts the issuance through
 /// [handlePointer], which hands it to the sheet waiting for it (step 3).
 class ContactSheetStep extends ConsumerStatefulWidget {
-  final ContactKind kind;
+  final ContactFlow flow;
 
   /// What the progress tag names: the request, or the card being added.
   final IssueSheetSubject subject;
@@ -57,143 +49,29 @@ class ContactSheetStep extends ConsumerStatefulWidget {
 
   const ContactSheetStep({
     super.key,
-    required this.kind,
+    required this.flow,
     required this.subject,
     required this.total,
     this.code = false,
     required this.onBack,
   });
 
-  /// Whether [kind]'s flow is at the code, so the sheet shows the code page.
+  /// Whether [flow] is at the code, so the sheet shows the code page.
   /// Watches the flow from a build; [watch] false reads it once (a
   /// callback).
-  static bool atCode(WidgetRef ref, ContactKind kind, {bool watch = true}) =>
-      _stageOf(ref, kind, watch: watch) == _Stage.code;
+  static bool atCode(WidgetRef ref, ContactFlow flow, {bool watch = true}) =>
+      (watch
+              ? ref.watch(contactIssuanceProvider(flow))
+              : ref.read(contactIssuanceProvider(flow)))
+          .stage ==
+      ContactStage.code;
 
   /// Back from the code to the address, filled in, to change it.
-  static void backToAddress(WidgetRef ref, ContactKind kind) =>
-      _Flow.of(kind).back(ref);
+  static void backToAddress(WidgetRef ref, ContactFlow flow) =>
+      ref.read(contactIssuanceProvider(flow).notifier).backToAddress();
 
   @override
   ConsumerState<ContactSheetStep> createState() => _ContactSheetStepState();
-}
-
-/// The stage of either flow, in the terms of this step.
-enum _Stage { entering, sending, code }
-
-/// [kind]'s stage: watched from a build, or read once ([watch] false).
-_Stage _stageOf(WidgetRef ref, ContactKind kind, {required bool watch}) =>
-    _Flow.of(kind).state(ref, watch: watch).stage;
-
-/// What a flow's provider holds, in the terms of this step.
-typedef _FlowState = ({_Stage stage, String target, Object error});
-
-/// The e-mail or the SMS flow, through its provider: the one place the two
-/// differ in what they call.
-sealed class _Flow {
-  const _Flow();
-
-  factory _Flow.of(ContactKind kind) =>
-      kind == ContactKind.email ? const _EmailFlow() : const _PhoneFlow();
-
-  /// The flow's state: watched from a build, or read once ([watch] false).
-  _FlowState state(WidgetRef ref, {required bool watch});
-
-  int get codeLength;
-
-  void send(WidgetRef ref, String target, String language);
-
-  Future<SessionPointer?> verify(WidgetRef ref, String code);
-
-  void resetError(WidgetRef ref);
-
-  /// Back from the code to the address.
-  void back(WidgetRef ref);
-
-  /// When a new code can be sent to [target].
-  DateTime? resendAt(WidgetRef ref, String target);
-}
-
-class _EmailFlow extends _Flow {
-  const _EmailFlow();
-
-  static final _p = emailIssuanceProvider;
-
-  @override
-  _FlowState state(WidgetRef ref, {required bool watch}) {
-    final s = watch ? ref.watch(_p) : ref.read(_p);
-    return (
-      stage: switch (s.stage) {
-        EmailIssuanceStage.enteringEmail => _Stage.entering,
-        EmailIssuanceStage.waiting => _Stage.sending,
-        EmailIssuanceStage.enteringVerificationCode => _Stage.code,
-      },
-      target: s.email,
-      error: s.error,
-    );
-  }
-
-  @override
-  int get codeLength => emailCodeLength;
-
-  @override
-  void send(WidgetRef ref, String target, String language) =>
-      ref.read(_p.notifier).sendEmail(email: target, language: language);
-
-  @override
-  Future<SessionPointer?> verify(WidgetRef ref, String code) =>
-      ref.read(_p.notifier).verifyCode(code: code);
-
-  @override
-  void resetError(WidgetRef ref) => ref.read(_p.notifier).resetError();
-
-  @override
-  void back(WidgetRef ref) => ref.read(_p.notifier).goBackToEnteringEmail();
-
-  @override
-  DateTime? resendAt(WidgetRef ref, String target) =>
-      ref.read(_p.notifier).resendAt(target);
-}
-
-class _PhoneFlow extends _Flow {
-  const _PhoneFlow();
-
-  static final _p = smsIssuanceProvider;
-
-  @override
-  _FlowState state(WidgetRef ref, {required bool watch}) {
-    final s = watch ? ref.watch(_p) : ref.read(_p);
-    return (
-      stage: switch (s.stage) {
-        SmsIssuanceStage.enteringPhoneNumber => _Stage.entering,
-        SmsIssuanceStage.waiting => _Stage.sending,
-        SmsIssuanceStage.enteringVerificationCode => _Stage.code,
-      },
-      target: s.phoneNumber,
-      error: s.error,
-    );
-  }
-
-  @override
-  int get codeLength => smsCodeLength;
-
-  @override
-  void send(WidgetRef ref, String target, String language) =>
-      ref.read(_p.notifier).sendSms(phoneNumber: target, language: language);
-
-  @override
-  Future<SessionPointer?> verify(WidgetRef ref, String code) =>
-      ref.read(_p.notifier).verifyCode(code: code);
-
-  @override
-  void resetError(WidgetRef ref) => ref.read(_p.notifier).resetError();
-
-  @override
-  void back(WidgetRef ref) => ref.read(_p.notifier).goBackToEnterPhone();
-
-  @override
-  DateTime? resendAt(WidgetRef ref, String target) =>
-      ref.read(_p.notifier).resendAt(target);
 }
 
 class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
@@ -209,9 +87,10 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   /// A new code was sent from the code stage.
   var _sentAgain = false;
 
-  bool get _email => widget.kind == ContactKind.email;
+  bool get _email => widget.flow.kind == ContactKind.email;
 
-  _Flow get _flow => _Flow.of(widget.kind);
+  ContactIssuance get _flow =>
+      ref.read(contactIssuanceProvider(widget.flow).notifier);
 
   /// The `contact_sheet.<part>_email` or `_phone` text.
   String _k(String part, [Map<String, String> params = const {}]) =>
@@ -226,7 +105,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     afterFrame(() {
       if (widget.code) {
         _codeFocus.requestFocus();
-      } else if (_stageNow() == _Stage.entering) {
+      } else if (_stateNow().stage == ContactStage.address) {
         _focusNode.requestFocus();
       }
     });
@@ -240,21 +119,13 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     super.dispose();
   }
 
-  // ---------- the two flows, through their providers ----------
+  // ---------- the flow, through its provider ----------
 
-  /// The stage outside build, where watching is not allowed.
-  _Stage _stageNow() => _stageOf(ref, widget.kind, watch: false);
+  /// The state outside build, where watching is not allowed.
+  ContactIssuanceState _stateNow() =>
+      ref.read(contactIssuanceProvider(widget.flow));
 
-  bool _errorNow() => !_none(_flow.state(ref, watch: false).error);
-
-  static bool _none(Object error) =>
-      error is EmailIssuanceNoError || error is SmsIssuanceNoError;
-
-  static bool _wrongCode(Object error) =>
-      error is EmailIssuanceInvalidCodeError ||
-      error is SmsIssuanceInvalidCodeError;
-
-  void _send(String target) => _flow.send(ref, target, _language);
+  void _send(String target) => _flow.send(target, language: _language);
 
   void _submitTarget() {
     final target = _email
@@ -268,7 +139,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   Future<void> _verify(String code) async {
     if (_verifying) return;
     setState(() => _verifying = true);
-    final session = await _flow.verify(ref, code.toUpperCase());
+    final session = await _flow.verify(code.toUpperCase());
     if (!mounted) return;
     setState(() => _verifying = false);
     if (session == null) {
@@ -281,14 +152,14 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     await handlePointer(context, session);
   }
 
-  void _resetError() => _flow.resetError(ref);
+  void _resetError() => _flow.clearError();
 
   /// Back on the address, filled in, to change it: the code page slides
   /// away (the address page under it focuses its field as it comes back).
   void _change() {
     _codeController.clear();
     _sentAgain = false;
-    ContactSheetStep.backToAddress(ref, widget.kind);
+    ContactSheetStep.backToAddress(ref, widget.flow);
   }
 
   void _sendAgain(String target) {
@@ -375,17 +246,17 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   @override
   Widget build(BuildContext context) {
-    final state = _flow.state(ref, watch: true);
+    final state = ref.watch(contactIssuanceProvider(widget.flow));
     final code = widget.code;
-    final atCode = state.stage == _Stage.code;
-    final sending = state.stage == _Stage.sending;
+    final atCode = state.stage == ContactStage.code;
+    final sending = state.stage == ContactStage.sending;
     final error = state.error;
     // Each page shows its own errors: the code's on the code page, a code
     // that was not sent on the address page.
-    final String? errorText = _none(error) || code != atCode
+    final String? errorText = error == null || code != atCode
         ? null
         : code
-        ? _wrongCode(error)
+        ? error is ContactWrongCode
               ? context.tr("contact_sheet.wrong_code")
               : context.tr("contact_sheet.not_checked")
         : _k("not_sent");
@@ -402,7 +273,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       );
       final sideways = useSheetColumns(context);
       final resend = ContactResend.row(
-        until: _flow.resendAt(ref, state.target),
+        until: _flow.resendAt(state.target),
         hint: _sentAgain ? context.tr("contact_sheet.sent_again") : _k("hint"),
         onResend: () => _sendAgain(state.target),
       );
@@ -447,7 +318,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             onChanged: (text) {
               // Typing again clears the error; emptying the boxes after a
               // failed check does not.
-              if (text.isNotEmpty && _errorNow()) _resetError();
+              if (text.isNotEmpty && _stateNow().error != null) {
+                _resetError();
+              }
               setState(() {});
             },
             onCompleted: _verify,
@@ -494,6 +367,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               focusNode: _focusNode,
               onValidChanged: (valid) => setState(() => _valid = valid),
               onSubmitted: _submitTarget,
+              initial: _stateNow().target,
             )
           else
             PhoneNumberEntry(
@@ -503,6 +377,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
                 if (mounted) setState(() => _valid = valid);
               },
               onSubmitted: _submitTarget,
+              initial: _stateNow().target,
             ),
           if (errorText != null)
             KeyedSubtree(

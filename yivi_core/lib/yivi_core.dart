@@ -8,12 +8,12 @@ import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
+import "src/providers/contact_issuance_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/providers/qr_scanner_factory_provider.dart";
 import "src/providers/regula_face_service_provider.dart";
-import "src/providers/sms_issuance_provider.dart";
 import "src/providers/store_review_provider.dart";
 import "src/providers/wallet_cards_provider.dart";
 import "src/screens/data/card_transition/choreography.dart";
@@ -25,13 +25,12 @@ import "src/widgets/preferred_language_builder.dart";
 
 export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
-export "src/providers/email_issuance_provider.dart";
+export "src/providers/contact_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/passport_issuer_provider.dart"
     show faceCaptureUrlProvider, faceVerificationConfigProvider;
 export "src/providers/qr_scanner_factory_provider.dart";
 export "src/providers/regula_face_service_provider.dart";
-export "src/providers/sms_issuance_provider.dart";
 export "src/providers/store_review_provider.dart" show StoreReviewService;
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 export "src/util/mrz_glare.dart" show Reflection, glareTileShare, mrzHasGlare;

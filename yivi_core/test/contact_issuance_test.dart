@@ -1,9 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/models/session.dart";
-import "package:yivi_core/src/providers/email_issuance_provider.dart";
+import "package:yivi_core/src/providers/contact_issuance_provider.dart";
 import "package:yivi_core/src/providers/resend_wait.dart";
-import "package:yivi_core/src/providers/sms_issuance_provider.dart";
 
 final _pointer = SessionPointer(
   protocol: .irma,
@@ -31,38 +30,19 @@ class _Issuer {
   }
 }
 
-class _EmailApi implements EmailIssuerApi {
-  _EmailApi(this.issuer);
+class _Api implements ContactIssuerApi {
+  _Api(this.issuer);
   final _Issuer issuer;
 
   @override
-  Future<void> sendEmail({
-    required String emailAddress,
-    required String language,
-  }) => issuer.send(emailAddress, language);
+  Future<void> send({required String target, required String language}) =>
+      issuer.send(target, language);
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String email,
-    required String verificationCode,
-  }) => issuer.verify(email, verificationCode);
-}
-
-class _SmsApi implements SmsIssuerApi {
-  _SmsApi(this.issuer);
-  final _Issuer issuer;
-
-  @override
-  Future<void> sendSms({
-    required String phoneNumber,
-    required String language,
-  }) => issuer.send(phoneNumber, language);
-
-  @override
-  Future<SessionPointer> verifyCode({
-    required String phoneNumber,
-    required String verificationCode,
-  }) => issuer.verify(phoneNumber, verificationCode);
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
+  }) => issuer.verify(target, code);
 }
 
 /// The stage, in one word for both flows.
@@ -71,100 +51,39 @@ enum _Stage { address, sending, code }
 /// What went wrong, in one word for both flows.
 enum _Error { none, wrongCode, rateLimited, other }
 
-/// One flow, e-mail or SMS, through the notifier the app uses: the one
-/// place this test knows which.
-abstract class _Flow {
-  ProviderContainer get container;
-  Object get wrongCode;
-  Object get rateLimited;
-  _Stage get stage;
-  String get target;
-  _Error get error;
-  Future<void> send(String target);
-  Future<SessionPointer?> verify(String code);
-  void back();
-  DateTime? resendAt(String target);
-}
-
-class _Email implements _Flow {
-  _Email(this.container) {
-    container.listen(emailIssuanceProvider, (_, _) {});
+/// One flow, e-mail or SMS, through the notifier the app uses.
+class _Flow {
+  _Flow(this.container, this.flow) {
+    container.listen(contactIssuanceProvider(flow), (_, _) {});
   }
-  @override
   final ProviderContainer container;
-  EmailIssuer get _n => container.read(emailIssuanceProvider.notifier);
-  EmailIssuanceState get _s => container.read(emailIssuanceProvider);
+  final ContactFlow flow;
 
-  @override
-  Object get wrongCode => EmailIssuanceInvalidCodeError();
-  @override
-  Object get rateLimited => EmailIssuanceRateLimitError();
-  @override
+  ContactIssuance get _n =>
+      container.read(contactIssuanceProvider(flow).notifier);
+  ContactIssuanceState get _s => container.read(contactIssuanceProvider(flow));
+
+  Object get wrongCode => const ContactWrongCode();
+  Object get rateLimited => const ContactRateLimited();
   _Stage get stage => switch (_s.stage) {
-    EmailIssuanceStage.enteringEmail => _Stage.address,
-    EmailIssuanceStage.waiting => _Stage.sending,
-    EmailIssuanceStage.enteringVerificationCode => _Stage.code,
+    ContactStage.address => _Stage.address,
+    ContactStage.sending => _Stage.sending,
+    ContactStage.code => _Stage.code,
   };
-  @override
-  String get target => _s.email;
-  @override
+  String get target => _s.target;
   _Error get error => switch (_s.error) {
-    EmailIssuanceNoError() => _Error.none,
-    EmailIssuanceInvalidCodeError() => _Error.wrongCode,
-    EmailIssuanceRateLimitError() => _Error.rateLimited,
+    null => _Error.none,
+    ContactWrongCode() => _Error.wrongCode,
+    ContactRateLimited() => _Error.rateLimited,
     _ => _Error.other,
   };
-  @override
-  Future<void> send(String target) =>
-      _n.sendEmail(email: target, language: "nl");
-  @override
-  Future<SessionPointer?> verify(String code) => _n.verifyCode(code: code);
-  @override
-  void back() => _n.goBackToEnteringEmail();
-  @override
+  Future<void> send(String target) => _n.send(target, language: "nl");
+  Future<SessionPointer?> verify(String code) => _n.verify(code);
+  void back() => _n.backToAddress();
   DateTime? resendAt(String target) => _n.resendAt(target);
 
-  void codeOnItsWay(String target) => _n.startVerification(email: target);
-  bool get fromLink => _s.emailSource == EmailSource.link;
-}
-
-class _Phone implements _Flow {
-  _Phone(this.container) {
-    container.listen(smsIssuanceProvider, (_, _) {});
-  }
-  @override
-  final ProviderContainer container;
-  SmsIssuer get _n => container.read(smsIssuanceProvider.notifier);
-  SmsIssuanceState get _s => container.read(smsIssuanceProvider);
-
-  @override
-  Object get wrongCode => SmsIssuanceInvalidCodeError();
-  @override
-  Object get rateLimited => SmsIssuanceRateLimitError();
-  @override
-  _Stage get stage => switch (_s.stage) {
-    SmsIssuanceStage.enteringPhoneNumber => _Stage.address,
-    SmsIssuanceStage.waiting => _Stage.sending,
-    SmsIssuanceStage.enteringVerificationCode => _Stage.code,
-  };
-  @override
-  String get target => _s.phoneNumber;
-  @override
-  _Error get error => switch (_s.error) {
-    SmsIssuanceNoError() => _Error.none,
-    SmsIssuanceInvalidCodeError() => _Error.wrongCode,
-    SmsIssuanceRateLimitError() => _Error.rateLimited,
-    _ => _Error.other,
-  };
-  @override
-  Future<void> send(String target) =>
-      _n.sendSms(phoneNumber: target, language: "nl");
-  @override
-  Future<SessionPointer?> verify(String code) => _n.verifyCode(code: code);
-  @override
-  void back() => _n.goBackToEnterPhone();
-  @override
-  DateTime? resendAt(String target) => _n.resendAt(target);
+  void codeOnItsWay(String target) => _n.codeOnItsWay(target);
+  bool get fromLink => _s.source == ContactSource.link;
 }
 
 /// Adding an e-mail address or a phone number: sending the code, the wait
@@ -181,8 +100,8 @@ void main() {
     container = ProviderContainer(
       overrides: [
         resendClockProvider.overrideWithValue(() => now),
-        emailIssuerApiProvider.overrideWithValue(_EmailApi(issuer)),
-        smsIssuerApiProvider.overrideWithValue(_SmsApi(issuer)),
+        emailIssuerApiProvider.overrideWithValue(_Api(issuer)),
+        smsIssuerApiProvider.overrideWithValue(_Api(issuer)),
       ],
     );
   });
@@ -191,13 +110,13 @@ void main() {
   for (final (name, make, a, b) in [
     (
       "e-mail",
-      (ProviderContainer c) => _Email(c) as _Flow,
+      (ProviderContainer c) => _Flow(c, ContactFlow.email),
       "ann@example.com",
       "bob@example.com",
     ),
     (
       "phone",
-      (ProviderContainer c) => _Phone(c) as _Flow,
+      (ProviderContainer c) => _Flow(c, ContactFlow.phone),
       "+31612345678",
       "+31687654321",
     ),
@@ -292,7 +211,7 @@ void main() {
   }
 
   test("e-mail: a code on its way through the link skips sending", () {
-    final flow = _Email(container);
+    final flow = _Flow(container, ContactFlow.linkEmail);
     flow.codeOnItsWay("ann@example.com");
     expect(flow.stage, _Stage.code);
     expect(flow.target, "ann@example.com");

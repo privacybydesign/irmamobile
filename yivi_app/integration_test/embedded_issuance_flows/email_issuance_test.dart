@@ -200,7 +200,7 @@ Future<void> _goToVerifyCodeScreen(
 const _correctPin = "123456";
 const _incorrectPin = "654321";
 
-class FakeEmailIssuerApi implements EmailIssuerApi {
+class FakeEmailIssuerApi implements ContactIssuerApi {
   String enteredEmail = "";
   String enteredCode = "";
   int numEmailsSent = 0;
@@ -209,25 +209,22 @@ class FakeEmailIssuerApi implements EmailIssuerApi {
   FakeEmailIssuerApi({this.errorOnSendEmail});
 
   @override
-  Future<void> sendEmail({
-    required String emailAddress,
-    required String language,
-  }) async {
+  Future<void> send({required String target, required String language}) async {
     numEmailsSent += 1;
-    enteredEmail = emailAddress;
+    enteredEmail = target;
     if (errorOnSendEmail != null && numEmailsSent == 1) {
       throw Exception(errorOnSendEmail);
     }
   }
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String email,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) async {
-    enteredCode = verificationCode;
+    enteredCode = code;
 
-    if (verificationCode == _correctPin) {
+    if (code == _correctPin) {
       // create fake demo issuance request to pretend an issuance session is started
       return await createIssuanceSession(
         attributes: {

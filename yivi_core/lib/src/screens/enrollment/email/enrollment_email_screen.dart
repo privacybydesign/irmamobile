@@ -5,7 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/email_code_pointer.dart";
 import "../../../models/session.dart";
-import "../../../providers/email_issuance_provider.dart";
+import "../../../providers/contact_issuance_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
@@ -65,6 +65,8 @@ class EnrollmentEmailScreen extends ConsumerStatefulWidget {
 enum _Check { idle, checking, linked, failed }
 
 class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
+  static final _flow = contactIssuanceProvider(ContactFlow.linkEmail);
+
   final _emailFocus = FocusNode();
   final _codeFocus = FocusNode();
   final _codeController = TextEditingController();
@@ -102,12 +104,12 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
 
   void _applyLink(EmailCodePointer link) {
     if (!mounted || _check != _Check.idle) return;
-    final flow = ref.read(emailIssuanceProvider);
-    if (flow.stage != EmailIssuanceStage.enteringVerificationCode) return;
+    final flow = ref.read(_flow);
+    if (flow.stage != ContactStage.code) return;
     // Anyone can send a link with their own address: only a code for the
     // address typed here is used.
     final email = link.email;
-    if (email != null && email.toLowerCase() != flow.email.toLowerCase()) {
+    if (email != null && email.toLowerCase() != flow.target.toLowerCase()) {
       return;
     }
     _codeController.text = link.code;
@@ -126,12 +128,9 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
       return;
     }
     _sentAgain = false;
-    await ref
-        .read(emailIssuanceProvider.notifier)
-        .sendEmail(email: email, language: _language);
+    await ref.read(_flow.notifier).send(email, language: _language);
     if (!mounted) return;
-    if (ref.read(emailIssuanceProvider).stage ==
-        EmailIssuanceStage.enteringVerificationCode) {
+    if (ref.read(_flow).stage == ContactStage.code) {
       _codeFocus.requestFocus();
     }
   }
@@ -139,9 +138,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   Future<void> _verify(String code) async {
     if (_check == _Check.checking) return;
     setState(() => _check = _Check.checking);
-    final issuance = await ref
-        .read(emailIssuanceProvider.notifier)
-        .verifyCode(code: code.toUpperCase());
+    final issuance = await ref.read(_flow.notifier).verify(code.toUpperCase());
     if (!mounted) return;
     if (issuance == null) {
       // Not right: empty boxes, ready for another try; the error stays under
@@ -186,31 +183,28 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
   void _change() {
     _codeController.clear();
     _sentAgain = false;
-    ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail();
+    ref.read(_flow.notifier).backToAddress();
     afterFrame(() => _emailFocus.requestFocus());
   }
 
   void _sendAgain(String email) {
     _codeController.clear();
     setState(() => _sentAgain = true);
-    ref
-        .read(emailIssuanceProvider.notifier)
-        .sendEmail(email: email, language: _language);
+    ref.read(_flow.notifier).send(email, language: _language);
   }
 
   @override
   Widget build(BuildContext context) {
-    final flow = ref.watch(emailIssuanceProvider);
+    final flow = ref.watch(_flow);
     final palette = YiviPalette.of(context);
     final tablet = isTabletWindow(context);
     final sideways = enrollmentSideways(context);
     final keyboard = MediaQuery.viewInsetsOf(context).bottom > 0;
-    final code = flow.stage == EmailIssuanceStage.enteringVerificationCode;
-    final sending =
-        _waitingForAccount || flow.stage == EmailIssuanceStage.waiting;
+    final code = flow.stage == ContactStage.code;
+    final sending = _waitingForAccount || flow.stage == ContactStage.sending;
     final busy = _check == _Check.checking || _check == _Check.linked;
     final error = flow.error;
-    final hasError = error is! EmailIssuanceNoError;
+    final hasError = error != null;
     final align = sideways ? TextAlign.start : TextAlign.center;
 
     // With the keyboard up a phone has little room: the tile goes, and held
@@ -267,7 +261,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     } else {
       final String? codeError = switch (_check) {
         _Check.failed => context.tr("enrollment.email_step.not_linked"),
-        _ when error is EmailIssuanceInvalidCodeError => context.tr(
+        _ when error is ContactWrongCode => context.tr(
           "contact_sheet.wrong_code",
         ),
         _ when hasError => context.tr("contact_sheet.not_checked"),
@@ -277,7 +271,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         const SizedBox(height: YiviSpace.x4),
         ContactSentTo(
           label: context.tr("contact_sheet.sent_to_email"),
-          target: flow.email,
+          target: flow.target,
           email: true,
           changeLabel: context.tr("contact_sheet.change"),
           onChange: busy ? () {} : _change,
@@ -291,7 +285,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
           invalid: codeError != null,
           onChanged: (text) {
             if (text.isNotEmpty && hasError) {
-              ref.read(emailIssuanceProvider.notifier).resetError();
+              ref.read(_flow.notifier).clearError();
             }
             setState(() {});
           },
@@ -335,15 +329,13 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
             align: TextAlign.center,
           ),
           _Check.idle => ContactResend.row(
-            until: ref
-                .read(emailIssuanceProvider.notifier)
-                .resendAt(flow.email),
+            until: ref.read(_flow.notifier).resendAt(flow.target),
             hint: context.tr(
               _sentAgain
                   ? "contact_sheet.sent_again"
                   : "contact_sheet.hint_email",
             ),
-            onResend: () => _sendAgain(flow.email),
+            onResend: () => _sendAgain(flow.target),
           ),
         },
       ];
@@ -396,5 +388,6 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     key: _emailKey,
     focusNode: _emailFocus,
     onValidChanged: (valid) => setState(() => _valid = valid),
+    initial: ref.read(_flow).target,
   );
 }

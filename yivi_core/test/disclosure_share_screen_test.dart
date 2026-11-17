@@ -15,8 +15,8 @@ import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
+import "package:yivi_core/src/providers/contact_issuance_provider.dart";
 import "package:yivi_core/src/providers/credential_store_provider.dart";
-import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/last_shared_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
@@ -3661,7 +3661,7 @@ Future<void> _pumpFor(
 }
 
 /// The e-mail issuer, faked: sending always works; any code gives a session.
-class _FakeEmailApi implements EmailIssuerApi {
+class _FakeEmailApi implements ContactIssuerApi {
   final sent = <String>[];
   final verified = <String>[];
 
@@ -3669,17 +3669,15 @@ class _FakeEmailApi implements EmailIssuerApi {
   var failCodes = false;
 
   @override
-  Future<void> sendEmail({
-    required String emailAddress,
-    required String language,
-  }) async => sent.add(emailAddress);
+  Future<void> send({required String target, required String language}) async =>
+      sent.add(target);
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String email,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) async {
-    verified.add(verificationCode);
+    verified.add(code);
     if (failCodes) throw Exception("could not verify");
     return SessionPointer(
       u: "https://irma.example/session/abc",

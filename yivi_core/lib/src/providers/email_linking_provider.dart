@@ -7,8 +7,8 @@ import "package:http/http.dart" as http;
 
 import "../models/email_code_pointer.dart";
 import "../models/session.dart";
+import "contact_issuance_provider.dart";
 import "credentials_provider.dart";
-import "email_issuance_provider.dart";
 import "local_backends_provider.dart";
 import "preferences_provider.dart";
 import "provider_helpers.dart" as helpers;
@@ -171,13 +171,14 @@ class EmailLinking extends Notifier<EmailLinkingState> {
   }
 
   bool _codeRequestedFor(String? email) {
-    if (!ref.exists(emailIssuanceProvider)) return false;
+    final provider = contactIssuanceProvider(ContactFlow.linkEmail);
+    if (!ref.exists(provider)) return false;
 
-    final flow = ref.read(emailIssuanceProvider);
-    return flow.stage == EmailIssuanceStage.enteringVerificationCode &&
-        flow.emailSource == EmailSource.typed &&
+    final flow = ref.read(provider);
+    return flow.stage == ContactStage.code &&
+        flow.source == ContactSource.typed &&
         (email == null ||
-            flow.email.trim().toLowerCase() == email.toLowerCase());
+            flow.target.trim().toLowerCase() == email.toLowerCase());
   }
 
   /// Hands the pending link to the caller exactly once.
@@ -203,7 +204,3 @@ class EmailLinking extends Notifier<EmailLinkingState> {
 final emailLinkingProvider = NotifierProvider<EmailLinking, EmailLinkingState>(
   EmailLinking.new,
 );
-
-/// Alive while the e-mail issuance flow for linking is open, as opposed to the
-/// flow that adds the e-mail credential. Only its presence is read.
-final linkingFlowOpenProvider = Provider.autoDispose<bool>((ref) => true);

@@ -4,7 +4,7 @@ import "package:altcha_lib/altcha_lib.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:http/http.dart" as http;
 import "package:http/testing.dart";
-import "package:yivi_core/src/providers/sms_issuance_provider.dart";
+import "package:yivi_core/src/providers/contact_issuer_api.dart";
 
 const _host = "https://issuer.example";
 const _secret = "test-hmac-secret";
@@ -21,7 +21,7 @@ Future<Challenge> _issueChallenge() {
 }
 
 void main() {
-  group("DefaultSmsIssuerApi.sendSms", () {
+  group("SmsIssuerApi.send", () {
     test(
       "fetches a challenge and attaches a verifiable altcha field",
       () async {
@@ -43,8 +43,8 @@ void main() {
           return http.Response("unexpected ${request.url.path}", 500);
         });
 
-        final api = DefaultSmsIssuerApi(host: _host, client: client);
-        await api.sendSms(phoneNumber: "+31612345678", language: "en");
+        final api = SmsIssuerApi(host: _host, client: client);
+        await api.send(target: "+31612345678", language: "en");
 
         expect(challengeFetched, isTrue);
         final body = jsonDecode(sentBody!) as Map<String, dynamic>;
@@ -79,8 +79,8 @@ void main() {
         return http.Response("unexpected", 500);
       });
 
-      final api = DefaultSmsIssuerApi(host: _host, client: client);
-      await api.sendSms(phoneNumber: "+31612345678", language: "en");
+      final api = SmsIssuerApi(host: _host, client: client);
+      await api.send(target: "+31612345678", language: "en");
 
       final body = jsonDecode(sentBody!) as Map<String, dynamic>;
       expect(body.containsKey("altcha"), isFalse);
@@ -94,10 +94,10 @@ void main() {
         return http.Response("error:destination-not-allowed", 400);
       });
 
-      final api = DefaultSmsIssuerApi(host: _host, client: client);
+      final api = SmsIssuerApi(host: _host, client: client);
       expect(
-        () => api.sendSms(phoneNumber: "+99912345678", language: "en"),
-        throwsA(isA<SmsIssuanceDestinationNotAllowedError>()),
+        () => api.send(target: "+99912345678", language: "en"),
+        throwsA(isA<ContactNotAllowed>()),
       );
     });
 
@@ -109,10 +109,10 @@ void main() {
         return http.Response("error:invalid-captcha", 400);
       });
 
-      final api = DefaultSmsIssuerApi(host: _host, client: client);
+      final api = SmsIssuerApi(host: _host, client: client);
       expect(
-        () => api.sendSms(phoneNumber: "+31612345678", language: "en"),
-        throwsA(isA<SmsIssuanceCaptchaError>()),
+        () => api.send(target: "+31612345678", language: "en"),
+        throwsA(isA<ContactCaptchaFailed>()),
       );
     });
   });

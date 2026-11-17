@@ -3,7 +3,6 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../models/log_entry.dart";
-import "../providers/email_issuance_provider.dart";
 
 extension RoutingHelpers on BuildContext {
   void pushErrorScreen({required String message}) {
@@ -18,11 +17,9 @@ extension RoutingHelpers on BuildContext {
     push("/reset_pin");
   }
 
-  void pushEmailIssuanceScreen({
-    EmailIssuancePurpose purpose = EmailIssuancePurpose.addCredential,
-  }) {
-    push("/issue_email", extra: purpose);
-  }
+  /// The full-screen flow that links an e-mail address to the keyshare
+  /// server.
+  void pushEmailIssuanceScreen() => push("/issue_email");
 
   /// Pops back to the nearest session screen below the current one.
   ///

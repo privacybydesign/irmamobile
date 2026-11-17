@@ -10,7 +10,6 @@ import "src/data/irma_repository.dart";
 import "src/models/enrollment_status.dart";
 import "src/models/log_entry.dart";
 import "src/models/version_information.dart";
-import "src/providers/email_issuance_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/pane_selection_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
@@ -241,11 +240,8 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         mode: PresentationMode.sheet,
         phone: PhoneTransition.rise,
         path: "/issue_email",
-        builder: (context, state) => EmailIssuanceScreen(
-          purpose:
-              state.extra as EmailIssuancePurpose? ??
-              EmailIssuancePurpose.addCredential,
-        ),
+        // Linking the address to the keyshare server.
+        builder: (context, state) => const EmailIssuanceScreen(),
       ),
     ],
     redirect: (context, state) {

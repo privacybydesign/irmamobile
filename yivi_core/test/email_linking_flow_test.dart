@@ -22,8 +22,8 @@ import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_state.dart";
+import "package:yivi_core/src/providers/contact_issuance_provider.dart";
 import "package:yivi_core/src/providers/credentials_provider.dart";
-import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
@@ -41,25 +41,22 @@ class _SilentBridge extends IrmaBridge {
   void dispatch(Event event) {}
 }
 
-class _FakeEmailIssuerApi implements EmailIssuerApi {
+class _FakeEmailIssuerApi implements ContactIssuerApi {
   final sent = <String>[];
   final verified = <({String email, String code})>[];
   Object? verifyFailsWith;
 
   @override
-  Future<void> sendEmail({
-    required String emailAddress,
-    required String language,
-  }) async {
-    sent.add(emailAddress);
+  Future<void> send({required String target, required String language}) async {
+    sent.add(target);
   }
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String email,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) async {
-    verified.add((email: email, code: verificationCode));
+    verified.add((email: target, code: code));
     if (verifyFailsWith != null) throw verifyFailsWith!;
     return SessionPointer(
       u: "https://email-issuer.example/irma/session/abc",
@@ -173,11 +170,7 @@ void main() {
         GoRoute(
           path: "/issue_email",
           builder: (context, state) {
-            return EmailIssuanceScreen(
-              purpose:
-                  state.extra as EmailIssuancePurpose? ??
-                  EmailIssuancePurpose.addCredential,
-            );
+            return const EmailIssuanceScreen();
           },
         ),
         GoRoute(
@@ -243,7 +236,7 @@ void main() {
       .toList();
 
   Future<void> openLinkingFlow(WidgetTester tester) async {
-    router.push("/issue_email", extra: EmailIssuancePurpose.linkKeyshare);
+    router.push("/issue_email");
     await tester.pumpAndSettle();
   }
 
@@ -292,25 +285,6 @@ void main() {
         ),
       );
       // The label sits above the field, the hint inside it.
-      expect(find.text("Email address"), findsOneWidget);
-      expect(field.decoration!.labelText, isNull);
-      expect(field.decoration!.hintText, "Enter your email address...");
-    });
-
-    testWidgets("adding the credential keeps today's copy and hint", (
-      tester,
-    ) async {
-      await pumpApp(tester);
-      router.push("/issue_email");
-      await tester.pumpAndSettle();
-
-      expect(find.text("Enter your email address"), findsOneWidget);
-      final field = tester.widget<TextField>(
-        find.descendant(
-          of: find.byKey(const Key("email_input_field")),
-          matching: find.byType(TextField),
-        ),
-      );
       expect(find.text("Email address"), findsOneWidget);
       expect(field.decoration!.labelText, isNull);
       expect(field.decoration!.hintText, "Enter your email address...");
@@ -440,27 +414,6 @@ void main() {
       expect(openSessions(tester), [1]);
       expect(container.read(emailLinkingProvider).issuanceSessionId, 1);
     });
-
-    testWidgets(
-      "adding the credential still sends the code on the sixth character",
-      (tester) async {
-        await pumpApp(tester);
-        router.push("/issue_email");
-        await tester.pumpAndSettle();
-        await sendEmailTo(tester, "jan@example.com");
-
-        await tester.enterText(
-          find.byKey(const Key("email_verification_code_input_field")),
-          "ABC123",
-        );
-        await settle(tester);
-
-        expect(issuerApi.verified, [
-          (email: "jan@example.com", code: "ABC123"),
-        ]);
-        expect(container.read(emailLinkingProvider).issuanceSessionId, isNull);
-      },
-    );
   });
 
   group("link while the flow is open", () {
@@ -526,34 +479,13 @@ void main() {
       await pumpApp(tester);
       final context = tester.element(find.text("home"));
       final link = EmailCodePointer(email: "jan@example.com", code: "XYZ789");
-      issuerApi.verifyFailsWith = EmailIssuanceInvalidCodeError();
+      issuerApi.verifyFailsWith = const ContactWrongCode();
 
       repo.setPendingPointer(link);
       handlePointer(context, link);
       await settle(tester);
 
       expect(repo.pendingPointer, isNull);
-    });
-
-    testWidgets("is dropped while adding the credential", (tester) async {
-      await pumpApp(tester);
-      router.push("/issue_email");
-      await tester.pumpAndSettle();
-
-      handlePointer(
-        tester.element(find.byType(EmailIssuanceScreen)),
-        EmailCodePointer(email: "evil@example.com", code: "XYZ789"),
-      );
-      await settle(tester);
-      router.pop();
-      await tester.pumpAndSettle();
-      router.push("/issue_email", extra: EmailIssuancePurpose.linkKeyshare);
-      await tester.pump();
-      await settle(tester);
-
-      expect(issuerApi.verified, isEmpty);
-      expect(container.read(emailLinkingProvider).link, isNull);
-      expect(find.text("Link your email address"), findsOneWidget);
     });
 
     testWidgets("for another address waits for a tap on Check code", (

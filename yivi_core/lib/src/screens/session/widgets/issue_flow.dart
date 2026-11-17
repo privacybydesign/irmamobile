@@ -7,12 +7,11 @@ import "../../../models/credential.dart";
 import "../../../models/credential_store.dart";
 import "../../../models/requestor_trust.dart";
 import "../../../models/session_state.dart";
+import "../../../providers/contact_issuance_provider.dart";
 import "../../../providers/credential_store_provider.dart";
-import "../../../providers/email_issuance_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/nested_issuance_host_provider.dart";
 import "../../../providers/session_state_provider.dart";
-import "../../../providers/sms_issuance_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
@@ -192,7 +191,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   final _vciOpened = <int>{};
 
   /// Yivi's own e-mail or phone step for [issueAdding] is shown (step 2).
-  ContactKind? _contact;
+  ContactFlow? _contact;
 
   /// The document screens for [issueAdding] are shown (step 2).
   DocumentType? _document;
@@ -278,8 +277,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         if (opened) repo?.clearInAppLaunches();
         if (contact && container != null) {
           container
-            ..invalidate(emailIssuanceProvider)
-            ..invalidate(smsIssuanceProvider);
+            ..invalidate(contactIssuanceProvider(ContactFlow.email))
+            ..invalidate(contactIssuanceProvider(ContactFlow.phone));
         }
       });
     } else {
@@ -413,8 +412,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (_opened) _repo.clearInAppLaunches();
     if (_contact != null) {
       ref
-        ..invalidate(emailIssuanceProvider)
-        ..invalidate(smsIssuanceProvider);
+        ..invalidate(contactIssuanceProvider(ContactFlow.email))
+        ..invalidate(contactIssuanceProvider(ContactFlow.phone));
     }
     _forgetSession();
     issueAdded = null;
@@ -458,8 +457,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       _hosts.register(this);
       setState(
         () => _contact = flow == EmbeddedFlow.email
-            ? ContactKind.email
-            : ContactKind.phone,
+            ? ContactFlow.email
+            : ContactFlow.phone,
       );
       return;
     }
@@ -654,10 +653,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       _leaveDocument();
     } else if (_website) {
       _leaveWebsite();
-    } else if (_contact case final kind?) {
+    } else if (_contact case final flow?) {
       // From the code to the address; from the address to the details.
-      if (ContactSheetStep.atCode(ref, kind, watch: false)) {
-        ContactSheetStep.backToAddress(ref, kind);
+      if (ContactSheetStep.atCode(ref, flow, watch: false)) {
+        ContactSheetStep.backToAddress(ref, flow);
       } else {
         setState(() => _contact = null);
       }
@@ -833,22 +832,22 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             onOther: issueHasOtherChoices ? _issueChooseOther : null,
           ),
         ),
-      if (_contact case final kind?) ...[
+      if (_contact case final flow?) ...[
         KeyedSubtree(
-          key: ValueKey(("prove", kind)),
+          key: ValueKey(("prove", flow)),
           child: ContactSheetStep(
-            kind: kind,
+            flow: flow,
             subject: subject,
             total: total,
             onBack: () => setState(() => _contact = null),
           ),
         ),
         // Once the code is sent, its page slides in over the address.
-        if (ContactSheetStep.atCode(ref, kind))
+        if (ContactSheetStep.atCode(ref, flow))
           KeyedSubtree(
-            key: ValueKey(("code", kind)),
+            key: ValueKey(("code", flow)),
             child: ContactSheetStep(
-              kind: kind,
+              flow: flow,
               subject: subject,
               total: total,
               code: true,

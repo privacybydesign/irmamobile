@@ -1,44 +1,38 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/models/session.dart";
-import "package:yivi_core/src/providers/email_issuance_provider.dart";
+import "package:yivi_core/src/providers/contact_issuance_provider.dart";
 import "package:yivi_core/src/providers/resend_wait.dart";
-import "package:yivi_core/src/providers/sms_issuance_provider.dart";
 import "package:yivi_core/src/widgets/resend_countdown.dart";
 
-class _Sms implements SmsIssuerApi {
+class _Sms implements ContactIssuerApi {
   final sent = <String>[];
   var fail = false;
 
   @override
-  Future<void> sendSms({
-    required String phoneNumber,
-    required String language,
-  }) async {
-    if (fail) throw SmsIssuanceRateLimitError();
-    sent.add(phoneNumber);
+  Future<void> send({required String target, required String language}) async {
+    if (fail) throw const ContactRateLimited();
+    sent.add(target);
   }
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String phoneNumber,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) => throw UnimplementedError();
 }
 
-class _Email implements EmailIssuerApi {
+class _Email implements ContactIssuerApi {
   final sent = <String>[];
 
   @override
-  Future<void> sendEmail({
-    required String emailAddress,
-    required String language,
-  }) async => sent.add(emailAddress);
+  Future<void> send({required String target, required String language}) async =>
+      sent.add(target);
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String email,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) => throw UnimplementedError();
 }
 
@@ -60,14 +54,14 @@ void main() {
       ],
     );
     // Kept alive, as the flow's screens keep them.
-    container.listen(smsIssuanceProvider, (_, _) {});
-    container.listen(emailIssuanceProvider, (_, _) {});
+    container.listen(contactIssuanceProvider(ContactFlow.phone), (_, _) {});
+    container.listen(contactIssuanceProvider(ContactFlow.email), (_, _) {});
   });
   tearDown(() => container.dispose());
 
-  SmsIssuer smsIssuer() => container.read(smsIssuanceProvider.notifier);
-  Future<void> sendSms(String n) =>
-      smsIssuer().sendSms(phoneNumber: n, language: "en");
+  ContactIssuance smsIssuer() =>
+      container.read(contactIssuanceProvider(ContactFlow.phone).notifier);
+  Future<void> sendSms(String n) => smsIssuer().send(n, language: "en");
 
   group("SMS", () {
     test("the same number within a minute is ignored", () async {
@@ -114,13 +108,15 @@ void main() {
   });
 
   test("e-mail: the same minute per address", () async {
-    final issuer = container.read(emailIssuanceProvider.notifier);
-    await issuer.sendEmail(email: "jan@example.com", language: "en");
-    await issuer.sendEmail(email: "jan@example.com", language: "en");
-    await issuer.sendEmail(email: "piet@example.com", language: "en");
+    final issuer = container.read(
+      contactIssuanceProvider(ContactFlow.email).notifier,
+    );
+    await issuer.send("jan@example.com", language: "en");
+    await issuer.send("jan@example.com", language: "en");
+    await issuer.send("piet@example.com", language: "en");
     expect(email.sent, ["jan@example.com", "piet@example.com"]);
     now = now.add(const Duration(minutes: 1));
-    await issuer.sendEmail(email: "jan@example.com", language: "en");
+    await issuer.send("jan@example.com", language: "en");
     expect(email.sent, [
       "jan@example.com",
       "piet@example.com",

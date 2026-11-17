@@ -1,9 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../models/email_code_pointer.dart";
-import "../../../../providers/email_issuance_provider.dart";
+import "../../../../providers/contact_issuance_provider.dart";
 import "../../../../providers/email_linking_provider.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
@@ -17,10 +16,10 @@ import "../../../../widgets/translated_text.dart";
 import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
+/// The code for the address to link: typed, or filled in from the link in
+/// the e-mail.
 class VerifyEmailScreen extends ConsumerStatefulWidget {
-  final EmailIssuancePurpose purpose;
-
-  const VerifyEmailScreen({required this.purpose});
+  const VerifyEmailScreen();
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -33,7 +32,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
   var _codeComplete = false;
   var _codeFromLink = false;
 
-  bool get _linking => widget.purpose == EmailIssuancePurpose.linkKeyshare;
+  static final _flow = contactIssuanceProvider(ContactFlow.linkEmail);
 
   @override
   void initState() {
@@ -42,7 +41,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
   }
 
   @override
-  void resetFlow() => ref.read(emailIssuanceProvider.notifier).reset();
+  void resetFlow() => ref.read(_flow.notifier).reset();
 
   void _codeChanged(String code) {
     final complete = code.length == emailCodeLength;
@@ -53,7 +52,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
 
   /// Fills in the code from the link in the e-mail and continues with it.
   void _applyLink() {
-    if (!_linking || !mounted) return;
+    if (!mounted) return;
 
     final handling = ref.read(emailLinkingProvider).linkHandling;
     final link = ref.read(emailLinkingProvider.notifier).takeLink();
@@ -61,7 +60,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
 
     // Without an address the code is for the address of this screen.
     if (link.email case final email?) {
-      ref.read(emailIssuanceProvider.notifier).startVerification(email: email);
+      ref.read(_flow.notifier).codeOnItsWay(email);
     }
     codeController.text = link.code;
     setState(() {
@@ -78,9 +77,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
     });
 
     // When the state changes to an invalid code error we clear the textfield and regain focus
-    ref.listen(emailIssuanceProvider, (prev, next) {
-      if (next.error is EmailIssuanceInvalidCodeError &&
-          (prev?.error != next.error)) {
+    ref.listen(_flow, (prev, next) {
+      if (next.error is ContactWrongCode && (prev?.error != next.error)) {
         clearWrongCode(
           () => setState(() {
             _codeComplete = false;
@@ -90,26 +88,23 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
       }
     });
 
-    final state = ref.watch(emailIssuanceProvider);
+    final state = ref.watch(_flow);
 
-    final titleKey = _linking
-        ? "email_linking.verify_code.title"
-        : "email_issuance.verify_code.title";
+    const titleKey = "email_linking.verify_code.title";
 
     // Handle the more generic errors
-    if (state.error is! EmailIssuanceNoError &&
-        state.error is! EmailIssuanceInvalidCodeError) {
+    if (state.error != null && state.error is! ContactWrongCode) {
       return EmbeddedIssuanceErrorScreen(
         titleTranslationKey: titleKey,
         contentTranslationKey: "email_issuance.verify_code.error",
         errorMessage: state.error.toString(),
         onTryAgain: () {
-          ref.read(emailIssuanceProvider.notifier).resetError();
+          ref.read(_flow.notifier).clearError();
         },
       );
     }
 
-    final codeInvalid = state.error is EmailIssuanceInvalidCodeError;
+    final codeInvalid = state.error is ContactWrongCode;
 
     final palette = YiviPalette.of(context);
 
@@ -126,13 +121,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
           ContactIntro(
             icon: Icons.mail_rounded,
             tone: YiviTone.warning,
-            headerKey: _linking
-                ? "email_linking.verify_code.header"
-                : "email_issuance.verify_code.header",
-            bodyKey: _linking
-                ? "email_linking.verify_code.body"
-                : "email_issuance.verify_code.body",
-            bodyParams: {"email": state.email},
+            headerKey: "email_linking.verify_code.header",
+            bodyKey: "email_linking.verify_code.body",
+            bodyParams: {"email": state.target},
           ),
         ],
         field: ContactCodeField(
@@ -141,8 +132,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
           focusNode: codeFocus,
           length: emailCodeLength,
           invalid: codeInvalid,
-          onChanged: _linking ? _codeChanged : null,
-          onCompleted: _linking ? null : _handleCode,
+          onChanged: _codeChanged,
         ),
         after: [
           if (codeInvalid)
@@ -164,39 +154,23 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
                 ),
               ),
             ),
-          // The dialog to send it again only after the minute.
-          if (!_linking)
-            ContactResend.link(
-              until: ref
-                  .read(emailIssuanceProvider.notifier)
-                  .resendAt(state.email),
-              linkKey: "email_issuance.verify_code.no_email_received",
-              onResend: () => _showResendDialog(state.email),
-            ),
         ],
-        bottomBar: _linking
-            ? ResendCountdown(
-                until: ref
-                    .read(emailIssuanceProvider.notifier)
-                    .resendAt(state.email),
-                builder: (context, left) => IrmaBottomBar(
-                  primaryButtonLabel: "email_linking.verify_code.next_button",
-                  onPrimaryPressed: _codeComplete
-                      ? () => _handleCode(codeController.text)
-                      : null,
-                  secondaryButtonLabel: left == null
-                      ? "email_linking.verify_code.resend_button"
-                      : "email_linking.verify_code.resend_button_in",
-                  secondaryButtonParams: left == null ? null : {"time": left},
-                  onSecondaryPressed: left == null
-                      ? () => _showResendDialog(state.email)
-                      : null,
-                ),
-              )
-            : IrmaBottomBar(
-                secondaryButtonLabel: "email_issuance.verify_code.back_button",
-                onSecondaryPressed: context.pop,
-              ),
+        bottomBar: ResendCountdown(
+          until: ref.read(_flow.notifier).resendAt(state.target),
+          builder: (context, left) => IrmaBottomBar(
+            primaryButtonLabel: "email_linking.verify_code.next_button",
+            onPrimaryPressed: _codeComplete
+                ? () => _handleCode(codeController.text)
+                : null,
+            secondaryButtonLabel: left == null
+                ? "email_linking.verify_code.resend_button"
+                : "email_linking.verify_code.resend_button_in",
+            secondaryButtonParams: left == null ? null : {"time": left},
+            onSecondaryPressed: left == null
+                ? () => _showResendDialog(state.target)
+                : null,
+          ),
+        ),
       ),
     );
   }
@@ -206,22 +180,20 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
   Future<void> _handleCode(String code) async {
     final sessionId = await handleCode(
       code,
-      (code) => ref.read(emailIssuanceProvider.notifier).verifyCode(code: code),
+      (code) => ref.read(_flow.notifier).verify(code),
     );
-    if (_linking && sessionId != null && mounted) {
+    if (sessionId != null && mounted) {
       ref.read(emailLinkingProvider.notifier).trackIssuance(sessionId);
     }
   }
 
   Future<void> _goBack() => confirmThen(
     "email_issuance.verify_code.back_dialog",
-    ref.read(emailIssuanceProvider.notifier).goBackToEnteringEmail,
+    ref.read(_flow.notifier).backToAddress,
   );
 
   Future<void> _showResendDialog(String email) => confirmThen(
     "email_issuance.verify_code.resend_dialog",
-    () => ref
-        .read(emailIssuanceProvider.notifier)
-        .sendEmail(email: email, language: context.lang),
+    () => ref.read(_flow.notifier).send(email, language: context.lang),
   );
 }

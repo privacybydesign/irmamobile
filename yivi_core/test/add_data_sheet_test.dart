@@ -17,8 +17,8 @@ import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
+import "package:yivi_core/src/providers/contact_issuance_provider.dart";
 import "package:yivi_core/src/providers/credential_store_provider.dart";
-import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
@@ -26,7 +26,6 @@ import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/pane_selection_provider.dart";
 import "package:yivi_core/src/providers/resend_wait.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
-import "package:yivi_core/src/providers/sms_issuance_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_row.dart";
 import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
@@ -1522,7 +1521,7 @@ void main() {
 }
 
 /// The e-mail issuer, faked: sending always works; any code gives a session.
-class _FakeSmsApi implements SmsIssuerApi {
+class _FakeSmsApi implements ContactIssuerApi {
   final sent = <String>[];
   final verified = <String>[];
   var failCodes = false;
@@ -1531,20 +1530,17 @@ class _FakeSmsApi implements SmsIssuerApi {
   var delay = Duration.zero;
 
   @override
-  Future<void> sendSms({
-    required String phoneNumber,
-    required String language,
-  }) async {
+  Future<void> send({required String target, required String language}) async {
     await Future<void>.delayed(delay);
-    sent.add(phoneNumber);
+    sent.add(target);
   }
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String phoneNumber,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) async {
-    verified.add(verificationCode);
+    verified.add(code);
     if (failCodes) throw Exception("not this code");
     return SessionPointer(
       u: "https://irma.example/session/abc",
@@ -1555,7 +1551,7 @@ class _FakeSmsApi implements SmsIssuerApi {
   }
 }
 
-class _FakeEmailApi implements EmailIssuerApi {
+class _FakeEmailApi implements ContactIssuerApi {
   final sent = <String>[];
   final verified = <String>[];
 
@@ -1563,20 +1559,17 @@ class _FakeEmailApi implements EmailIssuerApi {
   var delay = Duration.zero;
 
   @override
-  Future<void> sendEmail({
-    required String emailAddress,
-    required String language,
-  }) async {
+  Future<void> send({required String target, required String language}) async {
     await Future<void>.delayed(delay);
-    sent.add(emailAddress);
+    sent.add(target);
   }
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String email,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) async {
-    verified.add(verificationCode);
+    verified.add(code);
     return SessionPointer(
       u: "https://irma.example/session/abc",
       irmaqr: "issuing",

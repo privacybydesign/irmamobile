@@ -12,7 +12,7 @@ import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
-import "package:yivi_core/src/providers/email_issuance_provider.dart";
+import "package:yivi_core/src/providers/contact_issuance_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/screens/back_to_website/back_to_website_screen.dart";
 import "package:yivi_core/src/screens/enrollment/biometric/enrollment_biometric_screen.dart";
@@ -49,24 +49,22 @@ void _device(WidgetTester tester, Size size, EdgeInsets padding) {
   addTearDown(tester.view.reset);
 }
 
-class _FakeEmailIssuerApi implements EmailIssuerApi {
+class _FakeEmailIssuerApi implements ContactIssuerApi {
   final sent = <String>[];
   final verified = <String>[];
   var codeRight = true;
 
   @override
-  Future<void> sendEmail({
-    required String emailAddress,
-    required String language,
-  }) async => sent.add(emailAddress);
+  Future<void> send({required String target, required String language}) async =>
+      sent.add(target);
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String email,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) async {
-    verified.add(verificationCode);
-    if (!codeRight) throw EmailIssuanceInvalidCodeError();
+    verified.add(code);
+    if (!codeRight) throw const ContactWrongCode();
     return SessionPointer(
       u: "https://email-issuer.example/session",
       irmaqr: "issuing",

@@ -2,20 +2,17 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/email_code_pointer.dart";
-import "../../../providers/email_issuance_provider.dart";
+import "../../../providers/contact_issuance_provider.dart";
 import "../../../providers/email_linking_provider.dart";
 import "../../../util/after_frame.dart";
 import "../widgets/contact_widgets.dart";
 import "widgets/enter_email_screen.dart";
 import "widgets/verify_email_screen.dart";
 
+/// Linking an e-mail address to the keyshare server, full-screen: the
+/// address, then the code.
 class EmailIssuanceScreen extends ConsumerStatefulWidget {
-  final EmailIssuancePurpose purpose;
-
-  const EmailIssuanceScreen({
-    super.key,
-    this.purpose = EmailIssuancePurpose.addCredential,
-  });
+  const EmailIssuanceScreen({super.key});
 
   @override
   ConsumerState<EmailIssuanceScreen> createState() =>
@@ -23,6 +20,8 @@ class EmailIssuanceScreen extends ConsumerStatefulWidget {
 }
 
 class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
+  static final _flow = contactIssuanceProvider(ContactFlow.linkEmail);
+
   @override
   void initState() {
     super.initState();
@@ -38,18 +37,16 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
   /// is typed, the code cannot be checked, so the link is dropped and the flow
   /// starts at the address.
   void _showCodeScreenFor(EmailCodePointer? link) {
-    if (link == null || widget.purpose != EmailIssuancePurpose.linkKeyshare) {
-      return;
-    }
+    if (link == null) return;
     final email = link.email;
     if (email == null) {
-      final stage = ref.read(emailIssuanceProvider).stage;
-      if (stage == .enteringEmail) {
+      final stage = ref.read(_flow).stage;
+      if (stage == ContactStage.address) {
         ref.read(emailLinkingProvider.notifier).takeLink();
       }
       return;
     }
-    ref.read(emailIssuanceProvider.notifier).startVerification(email: email);
+    ref.read(_flow.notifier).codeOnItsWay(email);
   }
 
   @override
@@ -58,16 +55,12 @@ class _EmailIssuanceScreenState extends ConsumerState<EmailIssuanceScreen> {
       _showCodeScreenFor(link);
     });
 
-    if (widget.purpose == EmailIssuancePurpose.linkKeyshare) {
-      ref.watch(linkingFlowOpenProvider);
-    }
-
-    final state = ref.watch(emailIssuanceProvider);
+    final state = ref.watch(_flow);
 
     return switch (state.stage) {
-      .enteringEmail => EnterEmailScreen(purpose: widget.purpose),
-      .enteringVerificationCode => VerifyEmailScreen(purpose: widget.purpose),
-      .waiting => const ContactWaitingScreen(
+      ContactStage.address => const EnterEmailScreen(),
+      ContactStage.code => const VerifyEmailScreen(),
+      ContactStage.sending => const ContactWaitingScreen(
         titleKey: "email_issuance.enter_email.title",
         backKey: "email_issuance.enter_email.back_button",
       ),

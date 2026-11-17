@@ -1,7 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../providers/email_issuance_provider.dart";
+import "../../../../providers/contact_issuance_provider.dart";
 import "../../../../theme/yivi_tone.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
@@ -9,10 +9,9 @@ import "../../widgets/contact_widgets.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 import "email_address_entry.dart";
 
+/// The address to link.
 class EnterEmailScreen extends ConsumerStatefulWidget {
-  final EmailIssuancePurpose purpose;
-
-  const EnterEmailScreen({required this.purpose});
+  const EnterEmailScreen();
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -42,28 +41,25 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     final email = _entryKey.currentState?.submittable();
     if (email != null) {
       ref
-          .read(emailIssuanceProvider.notifier)
-          .sendEmail(email: email, language: context.lang);
+          .read(contactIssuanceProvider(ContactFlow.linkEmail).notifier)
+          .send(email, language: context.lang);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(emailIssuanceProvider);
-    final linking = widget.purpose == EmailIssuancePurpose.linkKeyshare;
-    final titleKey = linking
-        ? "email_linking.enter_email.title"
-        : "email_issuance.enter_email.title";
+    final state = ref.watch(contactIssuanceProvider(ContactFlow.linkEmail));
+    const titleKey = "email_linking.enter_email.title";
 
-    if (state.error is! EmailIssuanceNoError) {
+    if (state.error != null) {
       return EmbeddedIssuanceErrorScreen(
         titleTranslationKey: titleKey,
         contentTranslationKey: "email_issuance.enter_email.error",
         errorMessage: state.error.toString(),
         onTryAgain: () {
           ref
-              .read(emailIssuanceProvider.notifier)
-              .sendEmail(email: state.email, language: context.lang);
+              .read(contactIssuanceProvider(ContactFlow.linkEmail).notifier)
+              .send(state.target, language: context.lang);
         },
       );
     }
@@ -74,17 +70,12 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       fieldAlignment: 0.0,
       icon: Icons.mail_rounded,
       tone: YiviTone.warning,
-      headerKey: linking
-          ? "email_linking.enter_email.header"
-          : "email_issuance.enter_email.header",
-      bodyKey: linking
-          ? "email_linking.enter_email.body"
-          : "email_issuance.enter_email.body",
-      labelKey: linking
-          ? "email_linking.enter_email.label"
-          : "email_issuance.enter_email.label",
+      headerKey: "email_linking.enter_email.header",
+      bodyKey: "email_linking.enter_email.body",
+      labelKey: "email_linking.enter_email.label",
       field: EmailAddressEntry(
         key: _entryKey,
+        initial: state.target,
         focusNode: _focusNode,
         onValidChanged: (valid) => setState(() => _validEmail = valid),
       ),

@@ -36,9 +36,8 @@ import "../models/session_preview.dart";
 import "../models/session_state.dart";
 import "../models/session_user_interaction.dart";
 import "../models/version_information.dart";
-import "../providers/email_issuance_provider.dart";
+import "../providers/contact_issuer_api.dart";
 import "../providers/passport_issuer_provider.dart";
-import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
 import "../util/nfc_credentials.dart";
@@ -834,7 +833,7 @@ class IrmaRepository {
     if (!context.mounted) return;
 
     prepareEmbeddedFlow(credentialId, issueUrl, ref);
-    context.pushEmailIssuanceScreen(purpose: EmailIssuancePurpose.linkKeyshare);
+    context.pushEmailIssuanceScreen();
   }
 
   /// The documents ([nfcRequiringCredentialIds]), the phone number and the

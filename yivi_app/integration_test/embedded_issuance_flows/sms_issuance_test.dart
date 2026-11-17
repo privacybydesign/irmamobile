@@ -236,7 +236,7 @@ Future<void> _goToVerifyCodeScreen(
 const _correctPin = "123456";
 const _incorrectPin = "654321";
 
-class FakeSmsIssuerApi implements SmsIssuerApi {
+class FakeSmsIssuerApi implements ContactIssuerApi {
   String enteredPhone = "";
   String enteredCode = "";
   int numSmsSent = 0;
@@ -245,25 +245,22 @@ class FakeSmsIssuerApi implements SmsIssuerApi {
   FakeSmsIssuerApi({this.errorOnSendSms});
 
   @override
-  Future<void> sendSms({
-    required String phoneNumber,
-    required String language,
-  }) async {
+  Future<void> send({required String target, required String language}) async {
     numSmsSent += 1;
-    enteredPhone = phoneNumber;
+    enteredPhone = target;
     if (errorOnSendSms != null && numSmsSent == 1) {
       throw Exception(errorOnSendSms);
     }
   }
 
   @override
-  Future<SessionPointer> verifyCode({
-    required String phoneNumber,
-    required String verificationCode,
+  Future<SessionPointer> verify({
+    required String target,
+    required String code,
   }) async {
-    enteredCode = verificationCode;
+    enteredCode = code;
 
-    if (verificationCode == _correctPin) {
+    if (code == _correctPin) {
       // create fake demo issuance request to pretend an issuance session is started
       return await createIssuanceSession(
         attributes: {

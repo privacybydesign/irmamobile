@@ -15,7 +15,6 @@ import "package:intl_phone_number_input/src/providers/country_provider.dart";
 import "package:intl_phone_number_input/src/utils/phone_number/phone_number_util.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/after_frame.dart";
@@ -91,11 +90,15 @@ class PhoneNumberEntry extends ConsumerStatefulWidget {
   /// has none on iOS; elsewhere it does.
   final VoidCallback? onSubmitted;
 
+  /// The number typed before, when coming back from the code.
+  final String initial;
+
   const PhoneNumberEntry({
     super.key,
     required this.focusNode,
     required this.onValidChanged,
     this.onSubmitted,
+    this.initial = "",
   });
 
   @override
@@ -131,7 +134,7 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
     _country = _countryOf("NL") ?? _countries.first;
     afterFrame(() async {
       // The number typed before, when coming back from the code.
-      final phone = ref.read(smsIssuanceProvider).phoneNumber;
+      final phone = widget.initial;
       if (phone.isEmpty) return;
       final known = await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
       if (!mounted) return;

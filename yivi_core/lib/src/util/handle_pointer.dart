@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../models/email_code_pointer.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
-import "../providers/email_issuance_provider.dart";
+import "../providers/contact_issuance_provider.dart";
 import "../providers/email_linking_provider.dart";
 import "../providers/irma_repository_provider.dart";
 import "../providers/nested_issuance_host_provider.dart";
@@ -60,14 +60,19 @@ void _showEmailLinkScreen(BuildContext context, EmailCodePointer link) {
   // the biometric unlock disabled.
   container.read(irmaRepositoryProvider).setPendingPointer(null);
 
-  final linkingOpen = container.exists(linkingFlowOpenProvider);
+  final linkingOpen = container.exists(
+    contactIssuanceProvider(ContactFlow.linkEmail),
+  );
   // Nothing takes the link in the flow that adds the e-mail credential, and
   // the next linking flow must not pick up a stale one.
-  if (!linkingOpen && container.exists(emailIssuanceProvider)) return;
+  if (!linkingOpen &&
+      container.exists(contactIssuanceProvider(ContactFlow.email))) {
+    return;
+  }
 
   container.read(emailLinkingProvider.notifier).receiveLink(link);
   if (!linkingOpen) {
-    context.pushEmailIssuanceScreen(purpose: EmailIssuancePurpose.linkKeyshare);
+    context.pushEmailIssuanceScreen();
   }
 }
 

@@ -1,7 +1,6 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../providers/email_issuance_provider.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/pill_text_field.dart";
@@ -26,11 +25,15 @@ class EmailAddressEntry extends ConsumerStatefulWidget {
   /// The keyboard's return key ("Next"): the step's way on.
   final VoidCallback? onSubmitted;
 
+  /// The address typed before, when coming back from the code.
+  final String initial;
+
   const EmailAddressEntry({
     super.key,
     required this.focusNode,
     required this.onValidChanged,
     this.onSubmitted,
+    this.initial = "",
   });
 
   @override
@@ -48,7 +51,7 @@ class EmailAddressEntryState extends ConsumerState<EmailAddressEntry> {
     super.initState();
     afterFrame(() {
       // The address typed before, when coming back from the code.
-      final email = ref.read(emailIssuanceProvider).email;
+      final email = widget.initial;
       _textController.text = email;
       _setValid(isValidEmail(email));
     });
