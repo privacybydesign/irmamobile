@@ -280,7 +280,7 @@ class RequestorCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           YiviSpace.x16,
-          20,
+          YiviSpace.x16,
           YiviSpace.x16,
           YiviSpace.x16,
         ),
@@ -352,7 +352,7 @@ class RequestorCard extends StatelessWidget {
       decoration: SurfaceCard.decoration(context),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-          14,
+          YiviSpace.x16,
           YiviSpace.x12,
           YiviSpace.x12,
           YiviSpace.x12,
@@ -389,7 +389,7 @@ class RequestorCard extends StatelessWidget {
                     ),
                     if (label != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 3),
+                        padding: const EdgeInsets.only(top: YiviSpace.x4),
                         child: Text(
                           label,
                           key: const Key("session_requestor_trust"),

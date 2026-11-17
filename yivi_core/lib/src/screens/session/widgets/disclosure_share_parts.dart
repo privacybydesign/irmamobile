@@ -14,8 +14,10 @@ class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.title);
 
   @override
-  Widget build(BuildContext context) =>
-      CapsLabel(title, padding: const EdgeInsets.symmetric(horizontal: 6));
+  Widget build(BuildContext context) => CapsLabel(
+    title,
+    padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
+  );
 }
 
 /// The strip at the foot of a card with other choices.

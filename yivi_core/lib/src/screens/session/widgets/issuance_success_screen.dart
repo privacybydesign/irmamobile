@@ -105,7 +105,7 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
             key: const Key("issuance_success_landscape"),
             title: context.tr("issuance.success_feedback.header", params),
             note: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
               child: Text(
                 context.tr(text, params),
                 style: palette.body(16).copyWith(height: 24 / 16),
@@ -114,14 +114,19 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
             overview: [
               Padding(
                 // Room for the check over the card's corner.
-                padding: const EdgeInsets.only(top: 14),
+                padding: const EdgeInsets.only(top: YiviSpace.x16),
                 child: IssuanceReceived(cards: cards, cardKeys: _cardKeys),
               ),
             ],
             receives: [
               CapsLabel(
                 context.tr("data.add.in_your_app"),
-                padding: const EdgeInsets.fromLTRB(6, 0, 6, YiviSpace.x8),
+                padding: const EdgeInsets.fromLTRB(
+                  YiviSpace.x8,
+                  0,
+                  YiviSpace.x8,
+                  YiviSpace.x8,
+                ),
               ),
               ...IssuanceOffer(cards: cards).receives(context),
             ],

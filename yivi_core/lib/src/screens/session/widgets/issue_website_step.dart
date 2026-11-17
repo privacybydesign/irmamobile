@@ -187,7 +187,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   picture,
-                  const SizedBox(height: 28),
+                  const SizedBox(height: YiviSpace.x32),
                   heading,
                   const SizedBox(height: YiviSpace.x8),
                   Padding(
@@ -233,7 +233,7 @@ class _NumberedStep extends StatelessWidget {
         ),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(top: 3),
+            padding: const EdgeInsets.only(top: YiviSpace.x4),
             child: Text(
               text,
               style: palette
@@ -268,7 +268,7 @@ class _AppAndBrowser extends StatelessWidget {
     Widget item(Widget picture, String text, {Key? key}) => SizedBox(
       width: 110,
       child: Column(
-        spacing: 10,
+        spacing: YiviSpace.x12,
         children: [
           picture,
           Text(
@@ -289,7 +289,7 @@ class _AppAndBrowser extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 14,
+        spacing: YiviSpace.x16,
         children: [
           item(
             ClipRRect(

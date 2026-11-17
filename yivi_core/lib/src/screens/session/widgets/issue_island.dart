@@ -104,7 +104,12 @@ class _IssueIslandState extends State<IssueIsland>
       liveRegion: true,
       child: Container(
         width: sideways ? IssueIsland.sidewaysWidth : double.infinity,
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          YiviSpace.x16,
+          YiviSpace.x16,
+          YiviSpace.x16,
+        ),
         decoration: BoxDecoration(
           color: fill,
           borderRadius: BorderRadius.circular(radius),
@@ -236,7 +241,12 @@ class _IssueIslandState extends State<IssueIsland>
           ],
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(YiviSpace.x2, 14, YiviSpace.x2, 0),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x2,
+            YiviSpace.x16,
+            YiviSpace.x2,
+            0,
+          ),
           child: Text(
             context.tr(
               widget.signing

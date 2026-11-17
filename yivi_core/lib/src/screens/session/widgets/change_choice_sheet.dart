@@ -781,7 +781,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                 "n": "${n + 1}",
                 "total": "${set.length}",
               }),
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
             ),
             if (inApp.contains(d.credentialId)) ...[
               const SizedBox(height: YiviSpace.x8),
@@ -916,7 +916,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           // Optional data: leaving it out is the first choice, the whole
           // width also held sideways.
           if (pickOne.optional) ...[
-            const SizedBox(height: 18),
+            const SizedBox(height: YiviSpace.x16),
             _ShareNothingCard(
               key: const Key("sheet_share_nothing"),
               subtitle: context.tr("share.sheet.share_nothing_sub", {
@@ -1042,7 +1042,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                   ),
           ),
           if (pickOne.optional) ...[
-            const SizedBox(height: 18),
+            const SizedBox(height: YiviSpace.x16),
             _ShareNothingCard(
               key: const Key("sheet_share_nothing"),
               subtitle: context.tr("share.sheet.share_nothing_sub", {
@@ -1051,12 +1051,17 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
               selected: true,
               onTap: _pickNothing,
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: YiviSpace.x24),
             CapsLabel(
               context.tr(
                 many ? "share.sheet.or_add_one" : "share.sheet.or_add_it",
               ),
-              padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+              padding: const EdgeInsets.fromLTRB(
+                YiviSpace.x8,
+                0,
+                YiviSpace.x8,
+                0,
+              ),
             ),
           ],
           ..._kindRows(addable, requestor, landscape),

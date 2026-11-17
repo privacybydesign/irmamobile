@@ -166,7 +166,7 @@ class _AddToggle extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 6,
+            horizontal: YiviSpace.x8,
             vertical: YiviSpace.x8,
           ),
           child: Row(
@@ -258,7 +258,12 @@ class _AddKindRow extends ConsumerWidget {
           scale: PressScale.card,
           child: Container(
             constraints: const BoxConstraints(minHeight: 65),
-            padding: const EdgeInsets.fromLTRB(YiviSpace.x16, 10, 14, 10),
+            padding: const EdgeInsets.fromLTRB(
+              YiviSpace.x16,
+              YiviSpace.x12,
+              YiviSpace.x16,
+              YiviSpace.x12,
+            ),
             decoration: SurfaceCard.decoration(context),
             child: Row(
               spacing: YiviSpace.x12,

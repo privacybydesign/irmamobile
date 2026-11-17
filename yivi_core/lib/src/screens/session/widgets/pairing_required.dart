@@ -137,7 +137,7 @@ class PairingRequired extends StatelessWidget {
               const SizedBox(height: YiviSpace.x32),
               Row(
                 mainAxisSize: MainAxisSize.min,
-                spacing: 10,
+                spacing: YiviSpace.x12,
                 children: [
                   SizedBox.square(
                     dimension: 18,

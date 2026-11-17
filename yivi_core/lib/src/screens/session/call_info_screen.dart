@@ -68,7 +68,7 @@ class CallInfoScreen extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: YiviSpace.x16,
-            vertical: 10,
+            vertical: YiviSpace.x12,
           ),
           child: Text(
             number,
@@ -105,7 +105,7 @@ class CallInfoScreen extends StatelessWidget {
             ? SessionCentred(
                 children: [
                   for (final (i, part) in parts.indexed) ...[
-                    if (i > 0) const SizedBox(height: 14),
+                    if (i > 0) const SizedBox(height: YiviSpace.x16),
                     part,
                   ],
                   const SizedBox(height: YiviSpace.x32),
@@ -130,7 +130,7 @@ class CallInfoScreen extends StatelessWidget {
                         YiviSpace.x24,
                         YiviSpace.x24,
                       ),
-                  child: Column(spacing: 14, children: parts),
+                  child: Column(spacing: YiviSpace.x16, children: parts),
                 ),
               ),
       ),

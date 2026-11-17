@@ -303,7 +303,7 @@ class DisclosureFeedbackScreenState
               .copyWith(height: 24 / 16, color: palette.text),
         ),
       ),
-      if (nextBox != null) ...[const SizedBox(height: 18), nextBox],
+      if (nextBox != null) ...[const SizedBox(height: YiviSpace.x16), nextBox],
     ];
     Widget fading(List<Widget> children) => _FadeUp(
       on: _arriving,
@@ -991,7 +991,7 @@ class _NextBox extends StatelessWidget {
       key: const Key("share_done_next"),
       padding: const EdgeInsets.fromLTRB(
         YiviSpace.x16,
-        14,
+        YiviSpace.x16,
         YiviSpace.x16,
         YiviSpace.x16,
       ),
@@ -1006,7 +1006,7 @@ class _NextBox extends StatelessWidget {
         spacing: YiviSpace.x4,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: YiviSpace.x12),
             child: ExcludeSemantics(
               child: Row(
                 children: [

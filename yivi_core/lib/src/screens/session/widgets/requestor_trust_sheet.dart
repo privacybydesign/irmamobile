@@ -329,12 +329,17 @@ class RequestorTrustSheet extends StatelessWidget {
             ),
             CapsLabel(
               doLabel,
-              padding: const EdgeInsets.fromLTRB(6, 22, 6, YiviSpace.x8),
+              padding: const EdgeInsets.fromLTRB(
+                YiviSpace.x8,
+                YiviSpace.x24,
+                YiviSpace.x8,
+                YiviSpace.x8,
+              ),
             ),
             _Group(children: [for (final d in dos) _DoRow(item: d)]),
             // For the curious, last and out of the way.
             if (onTechnicalDetails case final open?) ...[
-              const SizedBox(height: 22),
+              const SizedBox(height: YiviSpace.x24),
               _Group(
                 children: [
                   _DoRow(
@@ -366,7 +371,11 @@ class RequestorTrustSheet extends StatelessWidget {
     if (!useSheetColumns(context)) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [...who, const SizedBox(height: 18), ...facts],
+        children: [
+          ...who,
+          const SizedBox(height: YiviSpace.x16),
+          ...facts,
+        ],
       );
     }
     return SheetSplit(
@@ -476,7 +485,7 @@ class _FactRow extends StatelessWidget {
         vertical: YiviSpace.x12,
       ),
       child: Row(
-        spacing: 14,
+        spacing: YiviSpace.x16,
         children: [
           ExcludeSemantics(
             child: IconSquare(icon: icon, fill: tile, ink: ink),
@@ -510,7 +519,7 @@ class _DoRow extends StatelessWidget {
         vertical: YiviSpace.x12,
       ),
       child: Row(
-        spacing: 14,
+        spacing: YiviSpace.x16,
         children: [
           ExcludeSemantics(
             child: IconSquare(

@@ -165,7 +165,10 @@ class _IssuancePermissionState extends State<IssuancePermission> {
                   children: [
                     Expanded(child: SingleChildScrollView(child: heading)),
                     const SizedBox(height: YiviSpace.x16),
-                    if (reason != null) ...[reason, const SizedBox(height: 10)],
+                    if (reason != null) ...[
+                      reason,
+                      const SizedBox(height: YiviSpace.x12),
+                    ],
                     button,
                   ],
                 ),
@@ -193,7 +196,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 10,
+        spacing: YiviSpace.x12,
         children: [?reason, button],
       ),
     );
@@ -464,7 +467,7 @@ class IssuanceLandscape extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
               child: Semantics(
                 header: true,
                 child: Text(
@@ -535,7 +538,12 @@ class _MismatchBox extends StatelessWidget {
       ],
     );
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, YiviSpace.x12, 14, YiviSpace.x12),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        YiviSpace.x12,
+        YiviSpace.x16,
+        YiviSpace.x12,
+      ),
       decoration: ShapeDecoration(
         color: palette.errorSurface,
         shape: const RoundedRectangleBorder(
@@ -544,7 +552,7 @@ class _MismatchBox extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 6,
+        spacing: YiviSpace.x8,
         children: [
           Text(
             head,
@@ -616,7 +624,7 @@ class IssuerHeading extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: YiviSpace.x16),
         KeyedSubtree(
           key: cardKey,
           child: RequestorCard.compact(
@@ -638,7 +646,12 @@ class YouGetLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CapsLabel(
     context.tr("data.add.details.you_get"),
-    padding: const EdgeInsets.fromLTRB(6, YiviSpace.x24, 6, YiviSpace.x8),
+    padding: const EdgeInsets.fromLTRB(
+      YiviSpace.x8,
+      YiviSpace.x24,
+      YiviSpace.x8,
+      YiviSpace.x8,
+    ),
   );
 }
 

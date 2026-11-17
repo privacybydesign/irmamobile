@@ -29,7 +29,12 @@ class TechnicalDetailsSheet extends StatelessWidget {
     List<Widget> group(TechGroup g) => [
       CapsLabel(
         g.title,
-        padding: const EdgeInsets.fromLTRB(6, 18, 6, YiviSpace.x8),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x8,
+          YiviSpace.x16,
+          YiviSpace.x8,
+          YiviSpace.x8,
+        ),
       ),
       SurfaceCard(
         padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
@@ -58,7 +63,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
+            padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
             child: Text(
               context.tr("share.tech.intro"),
               style: palette
@@ -86,7 +91,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
             )
           else
             for (final g in groups) ...group(g),
-          const SizedBox(height: 18),
+          const SizedBox(height: YiviSpace.x16),
           Center(
             child: PillButton(
               key: const Key("technical_details_copy"),
@@ -126,7 +131,7 @@ class _Row extends StatelessWidget {
         .copyWith(height: 20 / 14.5, color: palette.text);
     return MergeSemantics(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: YiviSpace.x12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: YiviSpace.x2,

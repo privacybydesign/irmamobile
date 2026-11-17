@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/credential.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
@@ -157,7 +158,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
       child: Row(
         key: const Key("issue_sheet_progress_parts"),
         mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 10,
+        spacing: YiviSpace.x12,
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
