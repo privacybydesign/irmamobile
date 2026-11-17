@@ -1,5 +1,4 @@
 import "package:flutter/cupertino.dart" show CupertinoIcons;
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -19,7 +18,6 @@ import "../../activity/activity_detail_screen.dart";
 import "../../activity/activity_entry.dart";
 import "../../activity/widgets/activity_card.dart";
 import "../../activity/widgets/activity_detail_parts.dart";
-import "../../home/home_screen.dart";
 import "../../home/widgets/home_tab.dart";
 
 /// The Activity section of a card's details: how often it was shared, then
@@ -187,7 +185,7 @@ class _AddedRow extends StatelessWidget {
 /// Asks the Activity tab [query] and switches to it.
 void _askActivityTab(BuildContext context, WidgetRef ref, ActivityQuery query) {
   ref.read(activityLogProvider.notifier).setFilter(query);
-  context.read<HomeTabState>().add(HomeTab.activity);
+  ref.read(homeTabProvider.notifier).select(HomeTab.activity);
 }
 
 /// Opens [log] as a page over the card: it slides in from the side, with

@@ -1,5 +1,4 @@
 import "package:collection/collection.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -12,7 +11,6 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../home/home_screen.dart";
 import "../../home/widgets/home_tab.dart";
 import "wallet_transition.dart";
 
@@ -85,13 +83,6 @@ class IssuanceFlight {
       return false;
     }
 
-    final HomeTabState tabs;
-    try {
-      tabs = context.read<HomeTabState>();
-    } on ProviderNotFoundException {
-      return false;
-    }
-
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     if (reduceMotion) return false;
 
@@ -101,7 +92,7 @@ class IssuanceFlight {
       hash: card.hash,
       inserted: cards.length == 1,
     );
-    tabs.add(HomeTab.data);
+    container.read(homeTabProvider.notifier).select(HomeTab.data);
 
     final palette = YiviPalette.of(context);
     var first = true;

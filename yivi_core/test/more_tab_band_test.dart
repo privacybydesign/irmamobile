@@ -1,8 +1,6 @@
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/more/more_tab.dart";
 import "package:yivi_core/src/widgets/title_scroll_edge.dart";
 
@@ -32,10 +30,7 @@ void main() {
     await pumpHome(
       tester,
       repo: repo,
-      home: BlocProvider<HomeTabState>(
-        create: (_) => HomeTabState(),
-        child: MoreTab(onChangeTab: (_) {}),
-      ),
+      home: MoreTab(onChangeTab: (_) {}),
     );
     await settle(tester);
     await tester.pumpAndSettle();

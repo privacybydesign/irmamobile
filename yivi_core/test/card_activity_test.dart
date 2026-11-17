@@ -1,4 +1,4 @@
-import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -10,7 +10,6 @@ import "package:yivi_core/src/providers/activity_providers.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/card_activity_section.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
-import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 
 import "helpers/credential_factory.dart";
@@ -61,14 +60,12 @@ LogInfo _shared(String id, String who, DateTime time) => LogInfo(
 void main() {
   late IrmaRepository repo;
   late RecordingBridge bridge;
-  late HomeTabState tabs;
   final log = [
     for (var i = 0; i < 7; i++)
       _shared("e$i", "Shop $i", DateTime.utc(2026, 10, 20 - i, 12)),
   ];
 
   setUp(() async {
-    tabs = HomeTabState();
     bridge = RecordingBridge()
       ..respond = (event) => switch (event) {
         QueryLogsEvent() => LogPageEvent(
@@ -99,7 +96,6 @@ void main() {
     );
   });
   tearDown(() async {
-    await tabs.close();
     await repo.close();
   });
 
@@ -122,11 +118,8 @@ void main() {
           () => _FixedOrder([_card]),
         ),
       ],
-      home: BlocProvider<HomeTabState>.value(
-        value: tabs,
-        child: SingleChildScrollView(
-          child: CardActivitySection(credential: _card),
-        ),
+      home: SingleChildScrollView(
+        child: CardActivitySection(credential: _card),
       ),
     );
     await settle(tester);
@@ -145,13 +138,10 @@ void main() {
           () => _FixedOrder([_card]),
         ),
       ],
-      home: BlocProvider<HomeTabState>.value(
-        value: tabs,
-        child: CredentialDetailPane(
-          hash: _card.hash,
-          onSwitch: (_) {},
-          onDeleted: () {},
-        ),
+      home: CredentialDetailPane(
+        hash: _card.hash,
+        onSwitch: (_) {},
+        onDeleted: () {},
       ),
     );
     await settle(tester);
@@ -219,10 +209,14 @@ void main() {
     await pump(tester);
     await tester.tap(find.byKey(const Key("card_activity_see_all")));
     await settle(tester);
-    expect(tabs.state, HomeTab.activity);
+    expect(_tabs(tester).read(homeTabProvider), HomeTab.activity);
 
     final last = bridge.dispatched.whereType<QueryLogsEvent>().last.query;
     expect(last.filter.credentialHash, "email-card");
     expect(last.limit, activityPageSize);
   });
 }
+
+/// The provider container the app under test reads its tab from.
+ProviderContainer _tabs(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first));

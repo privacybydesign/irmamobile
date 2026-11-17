@@ -19,7 +19,6 @@ import "src/providers/sms_issuance_provider.dart";
 import "src/providers/store_review_provider.dart";
 import "src/providers/wallet_cards_provider.dart";
 import "src/screens/data/card_transition/choreography.dart";
-import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/sentry/sentry.dart";
 import "src/util/card_font_licenses.dart";
@@ -168,7 +167,6 @@ class YiviApp extends ConsumerWidget {
           BlocProvider(
             create: (context) => notificationsBloc..add(Initialize()),
           ),
-          BlocProvider(create: (context) => HomeTabState()),
         ],
         child: PreferredLocaleBuilder(
           builder: (context, preferredLocale) {

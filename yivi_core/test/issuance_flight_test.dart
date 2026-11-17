@@ -1,4 +1,4 @@
-import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -7,7 +7,6 @@ import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/wallet/issuance_flight.dart";
-import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
@@ -32,18 +31,15 @@ final _older = [
 
 void main() {
   late IrmaRepository repo;
-  late HomeTabState tabs;
 
   setUp(() async {
     repo = IrmaRepository(
       client: RecordingBridge(),
       preferences: await freshPreferences(),
     );
-    tabs = HomeTabState();
   });
   tearDown(() async {
     IssuanceFlight.reset();
-    await tabs.close();
     await repo.close();
   });
 
@@ -71,32 +67,29 @@ void main() {
           () => _FixedOrder(wallet),
         ),
       ],
-      home: BlocProvider<HomeTabState>.value(
-        value: tabs,
-        child: Builder(
-          builder: (context) => MediaQuery(
-            data: MediaQuery.of(
-              context,
-            ).copyWith(disableAnimations: reduceMotion),
-            child: Stack(
-              children: [
-                Positioned.fill(child: DataTab()),
-                Positioned(
-                  left: 40,
-                  top: 700,
-                  child: Builder(
-                    builder: (context) {
-                      sourceContext = context;
-                      return CredentialCardArt(
-                        key: sourceKey,
-                        credential: _received,
-                        width: 300,
-                      );
-                    },
-                  ),
+      home: Builder(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(disableAnimations: reduceMotion),
+          child: Stack(
+            children: [
+              Positioned.fill(child: DataTab()),
+              Positioned(
+                left: 40,
+                top: 700,
+                child: Builder(
+                  builder: (context) {
+                    sourceContext = context;
+                    return CredentialCardArt(
+                      key: sourceKey,
+                      credential: _received,
+                      width: 300,
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -118,7 +111,7 @@ void main() {
     tester,
   ) async {
     await pump(tester, wallet: [_received, ..._older]);
-    tabs.add(HomeTab.activity);
+    _tabs(tester).read(homeTabProvider.notifier).select(HomeTab.activity);
 
     final firstSlot = tester.getTopLeft(tile(_received));
     final secondSlot = tester.getTopLeft(tile(_older.first));
@@ -131,7 +124,7 @@ void main() {
       isTrue,
     );
     await tester.pump();
-    expect(tabs.state, HomeTab.data);
+    expect(_tabs(tester).read(homeTabProvider), HomeTab.data);
 
     // It starts on the success card, and the list has not made room yet.
     expect(tester.getTopLeft(flyingCard), const Offset(40, 700));
@@ -251,13 +244,10 @@ void main() {
           () => _FixedOrder(const []),
         ),
       ],
-      home: BlocProvider<HomeTabState>.value(
-        value: tabs,
-        child: IssuanceSuccessScreen(
-          credentials: [_received],
-          flyHome: true,
-          onDismiss: (_) => dismissed++,
-        ),
+      home: IssuanceSuccessScreen(
+        credentials: [_received],
+        flyHome: true,
+        onDismiss: (_) => dismissed++,
       ),
     );
     await settle(tester);
@@ -269,3 +259,7 @@ void main() {
     expect(flyingCard, findsNothing);
   });
 }
+
+/// The provider container the app under test reads its tab from.
+ProviderContainer _tabs(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first));

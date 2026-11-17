@@ -1,4 +1,3 @@
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
@@ -11,7 +10,6 @@ import "../../util/i18n.dart";
 import "../../util/rebuild_when_safe.dart";
 import "../../widgets/app_toast.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../home/home_screen.dart";
 import "../home/widgets/home_tab.dart";
 import "../home/widgets/open_qr_scanner.dart";
 import "../reset_pin/reset_pin_screen.dart";
@@ -146,7 +144,9 @@ class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
                         allowBiometric: true,
                         onAuthenticated: () {
                           if (context.mounted) {
-                            context.read<HomeTabState>().add(HomeTab.data);
+                            ref
+                                .read(homeTabProvider.notifier)
+                                .select(HomeTab.data);
                           }
                         },
                         // Push ResetPinScreen onto the overlay's local

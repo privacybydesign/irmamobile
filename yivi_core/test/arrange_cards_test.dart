@@ -1,5 +1,4 @@
 import "package:flutter/services.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -8,7 +7,6 @@ import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/home/home_screen.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -104,10 +102,7 @@ void main() {
             () => _FixedOrder(_wallet),
           ),
         ],
-        home: BlocProvider<HomeTabState>(
-          create: (_) => HomeTabState(),
-          child: DataTab(),
-        ),
+        home: DataTab(),
       );
       await settle(tester);
       await tester.pumpAndSettle();

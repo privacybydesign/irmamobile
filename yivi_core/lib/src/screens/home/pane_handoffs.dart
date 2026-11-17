@@ -1,4 +1,4 @@
-import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/log_entry.dart";
@@ -7,7 +7,6 @@ import "../../providers/wallet_cards_provider.dart";
 import "../../util/adaptive_layout.dart";
 import "../../widgets/pane_handoff.dart";
 import "../data/wallet/wallet_transition.dart";
-import "home_screen.dart";
 import "widgets/home_tab.dart";
 
 // What the home tabs' pages hand to a detail pane when the phone turns
@@ -17,8 +16,9 @@ import "widgets/home_tab.dart";
 /// A card on its own screen, opened from Data or Notifications: in the
 /// pane of the tab it was opened from.
 Widget cardHandoff(BuildContext context, String hash, Widget child) {
-  final tabs = context.read<HomeTabState>();
-  final fromNotifications = tabs.state == HomeTab.notifications;
+  final fromNotifications =
+      ProviderScope.containerOf(context, listen: false).read(homeTabProvider) ==
+      HomeTab.notifications;
   return PaneHandoff(
     paneAvailable: useHomePanes,
     onHandoff: (container) {
@@ -30,7 +30,7 @@ Widget cardHandoff(BuildContext context, String hash, Widget child) {
         container.read(selectedNotificationCardProvider.notifier).select(shown);
         container.read(selectedNotificationProvider.notifier).select(null);
       } else {
-        tabs.add(HomeTab.data);
+        container.read(homeTabProvider.notifier).select(HomeTab.data);
         container.read(selectedCardProvider.notifier).select(shown);
       }
     },
@@ -40,11 +40,10 @@ Widget cardHandoff(BuildContext context, String hash, Widget child) {
 
 /// An activity entry on its own screen: in the Activity tab's pane.
 Widget activityHandoff(BuildContext context, LogInfo log, Widget child) {
-  final tabs = context.read<HomeTabState>();
   return PaneHandoff(
     paneAvailable: useHomePanes,
     onHandoff: (container) {
-      tabs.add(HomeTab.activity);
+      container.read(homeTabProvider.notifier).select(HomeTab.activity);
       container.read(selectedActivityProvider.notifier).select(log);
     },
     child: child,
@@ -54,11 +53,10 @@ Widget activityHandoff(BuildContext context, LogInfo log, Widget child) {
 /// Instellingen or Veelgestelde vragen on their own screen: in the More
 /// tab's pane, on a tablet and on a phone held sideways.
 Widget morePageHandoff(BuildContext context, MorePage page, Widget child) {
-  final tabs = context.read<HomeTabState>();
   return PaneHandoff(
     paneAvailable: useHomePanes,
     onHandoff: (container) {
-      tabs.add(HomeTab.more);
+      container.read(homeTabProvider.notifier).select(HomeTab.more);
       container.read(selectedMorePageProvider.notifier).select(page);
     },
     child: child,

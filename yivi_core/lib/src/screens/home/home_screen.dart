@@ -25,24 +25,12 @@ import "widgets/home_tab.dart";
 import "widgets/pending_pointer_listener.dart";
 import "widgets/scan_tip.dart";
 
-/// Having different transition types causes separate instances of the HomeScreen to be created.
-/// In order to keep the selected tab state across these instances, we move
-/// the state outside of the HomeScreen widget and into this Bloc.
-class HomeTabState extends Bloc<HomeTab, HomeTab> {
-  HomeTabState() : super(.data);
-
+class HomeScreen extends ConsumerStatefulWidget {
   @override
-  Stream<HomeTab> mapEventToState(HomeTab event) async* {
-    yield event;
-  }
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class HomeScreen extends StatefulWidget {
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// The tabs, kept alive across the layouts (tab bar, rail, sidebar).
   final _keptTabs = GlobalKey();
 
@@ -52,13 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Another tab, or, on the tab already selected, its lists back to the
   /// top, as on iOS.
   void _changeTab(HomeTab tab) {
-    final tabs = context.read<HomeTabState>();
-    if (tab == tabs.state) {
+    if (tab == ref.read(homeTabProvider)) {
       final shown = _tabKeys[tab]!.currentContext;
       if (shown != null) scrollListsToTop(shown);
       return;
     }
-    tabs.add(tab);
+    ref.read(homeTabProvider.notifier).select(tab);
   }
 
   @override
@@ -67,47 +54,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // The tabs are kept alive, so leaving Notifications is no dispose of it:
     // what it showed counts as read once another tab is picked.
-    return BlocListener<HomeTabState, HomeTab>(
-      listenWhen: (previous, next) =>
-          previous == .notifications && next != .notifications,
-      listener: (context, _) =>
-          context.read<NotificationsBloc>().add(MarkAllNotificationsAsRead()),
-      child: BlocBuilder<HomeTabState, HomeTab>(
-        builder: (context, tabState) {
-          // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
-          // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
-          // root route in the navigator. In that case, we background the app on Android.
-          // On iOS, there is no back button so we don't have to handle this case.
-          return PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, popResult) {
-              // A card open from the stack closes first.
-              if (CardTransitionScope.maybeOf(context)?.closeOpen() ?? false) {
-                return;
-              }
-              if (tabState == .data) {
-                ProviderScope.containerOf(
-                  context,
-                  listen: false,
-                ).read(irmaRepositoryProvider).bridgedDispatch(AndroidSendToBackgroundEvent());
-              } else {
-                _changeTab(.data);
-              }
-            },
-            child: PendingPointerListener(
-              child: Scaffold(
-                backgroundColor: palette.background,
-                resizeToAvoidBottomInset: false,
-                body: useSidebar(context)
-                    ? _withSidebar(context, tabState)
-                    : useHomePanes(context)
-                    ? _withRail(context, tabState)
-                    : _withTabBar(context, tabState),
-              ),
+    ref.listen(homeTabProvider, (previous, next) {
+      if (previous == .notifications && next != .notifications) {
+        context.read<NotificationsBloc>().add(MarkAllNotificationsAsRead());
+      }
+    });
+    final tabState = ref.watch(homeTabProvider);
+    return Builder(
+      builder: (context) {
+        // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
+        // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
+        // root route in the navigator. In that case, we background the app on Android.
+        // On iOS, there is no back button so we don't have to handle this case.
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, popResult) {
+            // A card open from the stack closes first.
+            if (CardTransitionScope.maybeOf(context)?.closeOpen() ?? false) {
+              return;
+            }
+            if (tabState == .data) {
+              ref
+                  .read(irmaRepositoryProvider)
+                  .bridgedDispatch(AndroidSendToBackgroundEvent());
+            } else {
+              _changeTab(.data);
+            }
+          },
+          child: PendingPointerListener(
+            child: Scaffold(
+              backgroundColor: palette.background,
+              resizeToAvoidBottomInset: false,
+              body: useSidebar(context)
+                  ? _withSidebar(context, tabState)
+                  : useHomePanes(context)
+                  ? _withRail(context, tabState)
+                  : _withTabBar(context, tabState),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

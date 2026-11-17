@@ -1,4 +1,3 @@
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
@@ -11,7 +10,6 @@ import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 
 import "helpers/credential_factory.dart";
@@ -97,10 +95,7 @@ void main() {
             () => _FixedOrder(_wallet),
           ),
         ],
-        home: BlocProvider<HomeTabState>(
-          create: (_) => HomeTabState(),
-          child: DataTab(),
-        ),
+        home: DataTab(),
       );
       await settle(tester);
       await tester.pumpAndSettle();
@@ -302,10 +297,7 @@ void main() {
             builder: (_, _) => Scaffold(
               // As the home screen: the keyboard does not squeeze the tab.
               resizeToAvoidBottomInset: false,
-              body: BlocProvider<HomeTabState>(
-                create: (_) => HomeTabState(),
-                child: DataTab(),
-              ),
+              body: DataTab(),
             ),
             routes: [
               GoRoute(

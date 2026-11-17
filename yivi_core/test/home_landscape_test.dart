@@ -69,7 +69,6 @@ void androidTest(String description, WidgetTesterCallback body) => testWidgets(
 
 void main() {
   late IrmaRepository repo;
-  late HomeTabState tabs;
   late NotificationsBloc notifications;
 
   setUp(() async {
@@ -111,10 +110,8 @@ void main() {
     size(tester, view, insets);
     addTearDown(tester.view.reset);
     // In the test's zone, so their events run while the test pumps.
-    tabs = HomeTabState();
     notifications = NotificationsBloc(repo: repo);
     addTearDown(() async {
-      await tabs.close();
       await notifications.close();
     });
     final router = await pumpRoutes(
@@ -133,7 +130,6 @@ void main() {
         ShellRoute(
           builder: (context, state, child) => MultiBlocProvider(
             providers: [
-              BlocProvider<HomeTabState>.value(value: tabs),
               BlocProvider<NotificationsBloc>.value(value: notifications),
             ],
             child: child,
@@ -216,7 +212,7 @@ void main() {
 
       await tester.tap(find.byKey(const Key("nav_button_more")));
       await tester.pumpAndSettle();
-      expect(tabs.state, HomeTab.more);
+      expect(container(tester).read(homeTabProvider), HomeTab.more);
     });
 
     androidTest("sideways on Android: the rail docked to the edge", (
@@ -329,10 +325,10 @@ void main() {
         await tester.pump();
       }
       // Nothing changes until the finger lets go.
-      expect(tabs.state, HomeTab.data);
+      expect(container(tester).read(homeTabProvider), HomeTab.data);
       await finger.up();
       await tester.pump();
-      expect(tabs.state, HomeTab.more);
+      expect(container(tester).read(homeTabProvider), HomeTab.more);
       expect(ticks, hasLength(3));
       await tester.pump(const Duration(milliseconds: 400));
 
@@ -346,7 +342,7 @@ void main() {
       expect(ticks, hasLength(4));
       await again.up();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(tabs.state, HomeTab.activity);
+      expect(container(tester).read(homeTabProvider), HomeTab.activity);
     });
 
     iosTest("upright: the selected Activity tab has a filled icon", (
@@ -542,7 +538,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(location(router), "/home");
       expect(container(tester).read(selectedCardProvider), "address");
-      expect(tabs.state, HomeTab.data);
+      expect(container(tester).read(homeTabProvider), HomeTab.data);
       expect(
         find.byKey(const Key("credential_detail_pane_address")),
         findsOneWidget,
@@ -576,7 +572,7 @@ void main() {
       await tester.pump();
       await tester.pumpAndSettle();
       expect(location(router), "/home");
-      expect(tabs.state, HomeTab.more);
+      expect(container(tester).read(homeTabProvider), HomeTab.more);
       expect(find.byKey(const Key("more_pane_settings")), findsOneWidget);
     });
   });

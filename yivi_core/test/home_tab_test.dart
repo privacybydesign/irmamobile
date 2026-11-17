@@ -78,10 +78,8 @@ void main() {
       ..padding = const FakeViewPadding(top: 62, bottom: 34)
       ..viewPadding = const FakeViewPadding(top: 62, bottom: 34);
     addTearDown(tester.view.reset);
-    final tabs = HomeTabState();
     final notifications = NotificationsBloc(repo: repo)..add(Initialize());
     addTearDown(() async {
-      await tabs.close();
       await notifications.close();
     });
     final router = await pumpRoutes(
@@ -100,7 +98,6 @@ void main() {
         ShellRoute(
           builder: (context, state, child) => MultiBlocProvider(
             providers: [
-              BlocProvider<HomeTabState>.value(value: tabs),
               BlocProvider<NotificationsBloc>.value(value: notifications),
             ],
             child: child,
