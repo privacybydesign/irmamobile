@@ -811,15 +811,9 @@ class IrmaRepository {
     WidgetRef ref,
   ) {
     if (!prepareEmbeddedFlow(credentialId, url, ref)) return;
-    switch (embeddedFlowOf(credentialId)!) {
-      case EmbeddedFlow.email:
-        context.pushEmailIssuanceScreen();
-      case EmbeddedFlow.phone:
-        context.pushSmsIssuanceScreen();
-      case EmbeddedFlow.document:
-        // Added in the sheet (IssueFlow), which never comes here.
-        assert(false, "documents are added in the sheet");
-    }
+    // E-mail addresses, phone numbers and documents are added in the
+    // sheet (IssueFlow), which never comes here.
+    assert(false, "${embeddedFlowOf(credentialId)} is added in the sheet");
   }
 
   /// Opens the e-mail issuance flow with the e-mail issuer of the default

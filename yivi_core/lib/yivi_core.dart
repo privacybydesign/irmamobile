@@ -34,7 +34,6 @@ export "src/providers/regula_face_service_provider.dart";
 export "src/providers/sms_issuance_provider.dart";
 export "src/providers/store_review_provider.dart" show StoreReviewService;
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
-export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 export "src/util/mrz_glare.dart" show Reflection, glareTileShare, mrzHasGlare;
 export "src/util/mrz_reading.dart"
     show fixMrzLineLength, fixMrzLineLengths, minMrzLineLength, mrzLineCount;
@@ -151,7 +150,6 @@ class YiviApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     // Eagerly initialize the credential order controller so it starts
     // tracking credential changes before the data tab is first mounted.
     ref.read(credentialOrderControllerProvider);

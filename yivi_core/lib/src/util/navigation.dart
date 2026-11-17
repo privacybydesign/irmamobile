@@ -18,10 +18,6 @@ extension RoutingHelpers on BuildContext {
     push("/reset_pin");
   }
 
-  void pushSmsIssuanceScreen() {
-    push("/issue_mobilenumber");
-  }
-
   void pushEmailIssuanceScreen({
     EmailIssuancePurpose purpose = EmailIssuancePurpose.addCredential,
   }) {
