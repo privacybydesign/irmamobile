@@ -283,7 +283,7 @@ void main() {
       final title = _styleOf(tester, "Leg je telefoon op je paspoort");
       expect(title.fontSize, 24);
       expect(title.fontWeight, FontWeight.w700);
-      expect(title.height, 32 / 24);
+      expect(title.height, 30 / 24);
       expect(title.color, _textColor);
       expect(
         tester.getTopLeft(find.text("Leg je telefoon op je paspoort")).dy,

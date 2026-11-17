@@ -151,12 +151,9 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                                 Flexible(
                                   child: TranslatedText(
                                     infoText,
-                                    style: palette
-                                        .display(26, weight: FontWeight.w700)
-                                        .copyWith(
-                                          height: 34 / 26,
-                                          color: palette.heading,
-                                        ),
+                                    style: palette.titleResult.copyWith(
+                                      color: palette.heading,
+                                    ),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),

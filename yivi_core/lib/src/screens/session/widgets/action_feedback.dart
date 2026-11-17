@@ -44,7 +44,7 @@ class ActionFeedback extends StatelessWidget {
     final graphic = hero ?? const SuccessGraphic();
     final title = TranslatedText(
       titleTranslationKey,
-      style: palette.display(26, weight: FontWeight.w700),
+      style: palette.titleResult,
     );
     final explanation = TranslatedText(
       explanationTranslationKey,

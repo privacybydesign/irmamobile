@@ -124,13 +124,7 @@ class StatusBody extends StatelessWidget {
   List<Widget> _texts(YiviPalette palette, TextAlign align) => [
     Semantics(
       header: true,
-      child: Text(
-        title,
-        textAlign: align,
-        style: palette
-            .display(26, weight: FontWeight.w700)
-            .copyWith(height: 34 / 26),
-      ),
+      child: Text(title, textAlign: align, style: palette.titleResult),
     ),
     if ((message ?? "").isNotEmpty)
       Padding(

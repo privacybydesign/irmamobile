@@ -246,9 +246,7 @@ class ActivityHeroHeader extends StatelessWidget {
               child: Text(
                 party.name,
                 textAlign: TextAlign.center,
-                style: palette
-                    .display(24, weight: FontWeight.w700)
-                    .copyWith(color: palette.text, height: 30 / 24),
+                style: palette.titleStep.copyWith(color: palette.text),
               ),
             ),
             const SizedBox(height: YiviSpace.x4),

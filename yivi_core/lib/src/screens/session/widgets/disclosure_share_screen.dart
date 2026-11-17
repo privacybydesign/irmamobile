@@ -433,9 +433,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         child: Text(
           t("share.title.$kind"),
           key: const Key("share_title"),
-          style: palette
-              .display(24, weight: FontWeight.w700)
-              .copyWith(height: 30 / 24, color: palette.text),
+          style: palette.titleStep.copyWith(color: palette.text),
         ),
       ),
     );

@@ -69,10 +69,17 @@ void main() {
       });
     }
 
-    test("a step title is 30 high", () {
-      final style = YiviPalette.light.titleStep;
-      expect(style.fontSize! * style.height!, closeTo(30, 0.001));
-    });
+    for (final (name, of, line)
+        in <(String, TextStyle Function(YiviPalette), double)>[
+          ("result", (p) => p.titleResult, 34),
+          ("step", (p) => p.titleStep, 30),
+          ("compact", (p) => p.titleCompact, 30),
+        ]) {
+      test("a $name title is $line high", () {
+        final style = of(YiviPalette.light);
+        expect(style.fontSize! * style.height!, closeTo(line, 0.001));
+      });
+    }
   });
 
   test("spacing roles sit on the scale", () {

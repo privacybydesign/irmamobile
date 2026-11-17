@@ -343,12 +343,8 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             _k(widget.code ? "code_head" : "head"),
             key: const Key("contact_sheet_heading"),
             style: sideways
-                ? palette
-                      .display(22, weight: FontWeight.w700)
-                      .copyWith(height: 29 / 22, color: palette.text)
-                : palette
-                      .display(24, weight: FontWeight.w700)
-                      .copyWith(height: 30 / 24, color: palette.text),
+                ? palette.titleCompact.copyWith(color: palette.text)
+                : palette.titleStep.copyWith(color: palette.text),
           ),
         ),
       ),

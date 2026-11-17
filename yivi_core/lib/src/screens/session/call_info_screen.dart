@@ -50,7 +50,7 @@ class CallInfoScreen extends StatelessWidget {
           t("share.call.title"),
           key: const Key("call_title"),
           textAlign: TextAlign.center,
-          style: palette.display(24).copyWith(color: palette.text),
+          style: palette.titleStep.copyWith(color: palette.text),
         ),
       ),
       Text(

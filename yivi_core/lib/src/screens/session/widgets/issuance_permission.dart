@@ -473,9 +473,7 @@ class IssuanceLandscape extends StatelessWidget {
                 child: Text(
                   title,
                   key: const Key("issuance_question"),
-                  style: palette
-                      .display(24, weight: FontWeight.w700)
-                      .copyWith(height: 30 / 24, color: palette.heading),
+                  style: palette.titleStep.copyWith(color: palette.heading),
                 ),
               ),
             ),
@@ -618,9 +616,7 @@ class IssuerHeading extends StatelessWidget {
                   ? context.tr("issuance.heading.many", {"count": "$count"})
                   : context.tr("issuance.heading.one"),
               key: titleKey ?? const Key("issuance_question"),
-              style: palette
-                  .display(24, weight: FontWeight.w700)
-                  .copyWith(height: 30 / 24, color: palette.text),
+              style: palette.titleStep.copyWith(color: palette.text),
             ),
           ),
         ),

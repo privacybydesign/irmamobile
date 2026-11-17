@@ -366,9 +366,7 @@ class _DarkPermissionFallback extends StatelessWidget {
               "mrz_camera_permissions.title",
               isHeader: true,
               textAlign: TextAlign.center,
-              style: palette
-                  .display(22, weight: FontWeight.w700)
-                  .copyWith(height: 30 / 22, color: Colors.white),
+              style: palette.titleCompact.copyWith(color: Colors.white),
             ),
             TranslatedText(
               "mrz_camera_permissions.content",

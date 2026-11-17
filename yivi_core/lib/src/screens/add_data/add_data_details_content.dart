@@ -207,9 +207,7 @@ class AddDataDetailsContent extends StatelessWidget {
         credential.name,
         key: titleKey ?? const Key("add_data_details_name"),
         textAlign: align,
-        style: palette
-            .display(24, weight: FontWeight.w700)
-            .copyWith(height: 30 / 24, color: palette.text),
+        style: palette.titleStep.copyWith(color: palette.text),
       ),
     );
   }

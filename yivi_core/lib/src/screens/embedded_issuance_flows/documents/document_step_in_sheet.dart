@@ -142,9 +142,7 @@ class DocumentSheetHeading extends StatelessWidget {
         key: textKey,
         isHeader: true,
         textAlign: TextAlign.center,
-        style: palette
-            .display(24, weight: FontWeight.w700)
-            .copyWith(height: 30 / 24, color: palette.text),
+        style: palette.titleStep.copyWith(color: palette.text),
       ),
     );
   }

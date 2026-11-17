@@ -853,9 +853,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
                     height: 21 / 15,
                     color: YiviPalette.of(context).heading,
                   ),
-            (_, true) => YiviPalette.of(
-              context,
-            ).display(22).copyWith(height: 30 / 22),
+            (_, true) => YiviPalette.of(context).titleCompact,
             (_, false) => YiviPalette.of(context).titleSmall,
           },
         ),

@@ -146,9 +146,7 @@ class ManualEntryLayout extends StatelessWidget {
           child: TranslatedText(
             titleKey,
             isHeader: true,
-            style: palette
-                .display(24, weight: FontWeight.w700)
-                .copyWith(height: 32 / 24, color: palette.heading),
+            style: palette.titleStep.copyWith(color: palette.heading),
           ),
         ),
         Padding(

@@ -311,7 +311,8 @@ class YiviPalette {
       );
 
   /// The title of a result or status screen.
-  TextStyle get titleResult => display(26, weight: FontWeight.w700);
+  TextStyle get titleResult =>
+      display(26, weight: FontWeight.w700).copyWith(height: 34 / 26);
 
   /// What a step or permission screen asks.
   TextStyle get titleStep =>
@@ -319,7 +320,8 @@ class YiviPalette {
 
   /// A title where the layout is short on room: the PIN header, sideways,
   /// a low sheet step.
-  TextStyle get titleCompact => display(22, weight: FontWeight.w700);
+  TextStyle get titleCompact =>
+      display(22, weight: FontWeight.w700).copyWith(height: 30 / 22);
 
   /// The title of an empty state, a dialog, or a step that has little to
   /// say.

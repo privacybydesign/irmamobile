@@ -33,9 +33,7 @@ class SheetHeading extends StatelessWidget {
             child: Text(
               title,
               key: titleKey,
-              style: palette
-                  .display(24, weight: FontWeight.w700)
-                  .copyWith(height: 30 / 24, color: palette.text),
+              style: palette.titleStep.copyWith(color: palette.text),
             ),
           ),
           if (lead case final lead?) ...[

@@ -308,9 +308,7 @@ class RequestorTrustSheet extends StatelessWidget {
                 head,
                 key: const Key("trust_sheet_head"),
                 textAlign: TextAlign.center,
-                style: palette
-                    .display(22, weight: FontWeight.w700)
-                    .copyWith(height: 30 / 22, color: palette.text),
+                style: palette.titleCompact.copyWith(color: palette.text),
               ),
             ),
             const SizedBox(height: YiviSpace.x4),

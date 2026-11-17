@@ -1406,9 +1406,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       child: Text(
         context.tr("issuance.success_feedback.header"),
         key: _titleKey("done"),
-        style: palette
-            .display(24, weight: FontWeight.w700)
-            .copyWith(height: 30 / 24, color: palette.text),
+        style: palette.titleStep.copyWith(color: palette.text),
       ),
     );
     final text = Text(

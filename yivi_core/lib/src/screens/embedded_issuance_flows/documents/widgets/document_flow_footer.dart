@@ -207,6 +207,4 @@ class DocumentFlowFooter extends StatelessWidget {
 /// of the redesign. Takes [theme] for the callers; the colours follow the
 /// app brightness through the palette.
 TextStyle documentFlowTitleStyle(IrmaThemeData theme) =>
-    YiviPalette.forBrightness(
-      theme.brightness,
-    ).display(24, weight: FontWeight.w700).copyWith(height: 32 / 24);
+    YiviPalette.forBrightness(theme.brightness).titleStep;

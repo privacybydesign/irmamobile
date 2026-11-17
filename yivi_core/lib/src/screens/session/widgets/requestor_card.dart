@@ -298,9 +298,7 @@ class RequestorCard extends StatelessWidget {
               requestor.name,
               key: const Key("session_requestor_name"),
               textAlign: TextAlign.center,
-              style: palette
-                  .display(22, weight: FontWeight.w700)
-                  .copyWith(height: 28 / 22, color: palette.text),
+              style: palette.titleCompact.copyWith(color: palette.text),
             ),
             if (pillRow != null) ...[
               const SizedBox(height: YiviSpace.x8),

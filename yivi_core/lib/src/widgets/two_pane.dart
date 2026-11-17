@@ -162,10 +162,7 @@ class PaneTitle extends StatelessWidget {
       ),
       child: Semantics(
         header: true,
-        child: Text(
-          context.tr(translationKey),
-          style: palette.display(22, weight: FontWeight.w700),
-        ),
+        child: Text(context.tr(translationKey), style: palette.titleCompact),
       ),
     );
   }
