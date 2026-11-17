@@ -1,6 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/session_state.dart";
+import "../../../providers/session_flow_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/haptics.dart";
@@ -10,6 +12,7 @@ import "../../../widgets/irma_close_button.dart";
 import "../../pin/pin_entry.dart";
 import "../../pin/pin_feedback.dart";
 import "../../pin/yivi_pin_screen.dart";
+import "../models/session_view.dart";
 
 /// Session PIN entry. A thin wrapper around the shared [YiviPinScreen]: it owns
 /// only the session-specific bits (close button, submitting spinner, and the
@@ -138,6 +141,56 @@ class _SessionPinEntryScreenState extends ConsumerState<SessionPinEntryScreen> {
           child: pad,
         ),
       ),
+    );
+  }
+}
+
+/// The PIN of session [sessionId], from its [SessionFlow]: the title and
+/// what it is for by the session's type, the attempts left, the spinner
+/// while the PIN is checked. The PIN goes to the flow.
+class SessionPinPage extends ConsumerWidget {
+  final int sessionId;
+
+  /// Only the PIN pad, for a page in a sheet.
+  final bool inSheet;
+
+  /// Instead of dismissing the session.
+  final VoidCallback? onCancel;
+
+  const SessionPinPage({
+    super.key,
+    required this.sessionId,
+    this.inSheet = false,
+    this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final view = ref.watch(sessionFlowProvider(sessionId));
+    final flow = ref.read(sessionFlowProvider(sessionId).notifier);
+    final state = view.state;
+    final type = state?.type ?? SessionType.issuance;
+    return SessionPinEntryScreen(
+      inSheet: inSheet,
+      title: type == SessionType.issuance
+          ? "issuance.title"
+          : "disclosure.title",
+      detail: state == null
+          ? null
+          : sessionPinDetail(
+              context,
+              kind: switch (type) {
+                SessionType.issuance => "issuance",
+                SessionType.signature => "signature",
+                SessionType.disclosure => "disclosure",
+              },
+              requestor: state.requestor.name,
+            ),
+      remainingAttempts: state?.remainingPinAttempts,
+      blockedTimeSeconds: state?.pinBlockedTimeSeconds,
+      submitting: view is SessionPin && view.submitting,
+      onPinEntered: flow.enterPin,
+      onCancel: onCancel ?? flow.dismiss,
     );
   }
 }
