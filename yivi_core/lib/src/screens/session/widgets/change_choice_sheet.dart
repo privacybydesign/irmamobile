@@ -246,7 +246,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       from: from,
       // Where the row will be once the sheet is up, not where it is while
       // the sheet slides.
-      to: (overlay) => sheetSettledBox(row, overlay),
+      to: (overlay) => GlassSheet.settledBox(row, overlay),
       path: const FlightPath.into(),
       keys: const [
         FlightKey(0, FlightKey.start),
@@ -274,8 +274,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     if (_landing) return;
     final flies =
         issueAdding == null && !MediaQuery.disableAnimationsOf(context);
-    delayGlassSheetClose(
-      context,
+    GlassSheet.of(context).delayClose(
       flies
           ? SheetMotion.carried.closeDelay
           : (widget.addNew != null ? SheetMotion.issue : SheetMotion.share)
@@ -317,7 +316,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final hand = glassSheetHand(context);
+    final hand = GlassSheet.of(context).hand;
     if (hand?.dragging == _hand?.dragging) return;
     _hand?.dragging.removeListener(_onHand);
     _hand?.shown.removeListener(_steerHand);
@@ -688,7 +687,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         onLanded: widget.onLanded,
       );
       if (flew && mounted) {
-        delayGlassSheetClose(context, const Duration(milliseconds: 180));
+        GlassSheet.of(context).delayClose(const Duration(milliseconds: 180));
       }
     }
     // On "Success" while the sheet goes.

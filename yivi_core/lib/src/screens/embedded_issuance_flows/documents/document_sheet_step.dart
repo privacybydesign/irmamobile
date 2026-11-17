@@ -309,7 +309,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
           preparing: _preparing,
           child: NavigatorPopHandler(
             onPopWithResult: (_) {
-              if (!glassSheetClosing(context)) _back();
+              if (!GlassSheet.of(context).closing) _back();
             },
             child: Semantics(
               container: true,

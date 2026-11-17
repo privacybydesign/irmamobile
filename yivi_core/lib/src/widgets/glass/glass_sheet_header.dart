@@ -87,16 +87,16 @@ class GlassSheetHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sideways = useSheetColumns(context);
-    if (sideways && extra != null && !_GlassSheetFloating.of(context)) {
+    if (sideways && extra != null && !GlassSheet.of(context).floating) {
       return _startRow(context);
     }
     if (sideways && this.titleWidget != null && !titleWidgetCentred) {
       return _row(context);
     }
     final palette = YiviPalette.of(context);
-    final floating = _GlassSheetFloating.of(context);
+    final floating = GlassSheet.of(context).floating;
     final titleWidget = this.titleWidget;
-    final action = sheetActionInBar(context) ? this.action : null;
+    final action = GlassSheet.actionInBar(context) ? this.action : null;
     final onBack = this.onBack;
 
     // Names the page (see GlassSheetPages): a screen reader reads it when
@@ -151,7 +151,7 @@ class GlassSheetHeader extends StatelessWidget {
 
     Widget shown(Widget child) => _kept(buttons, child);
     // Through closeGlassSheet, so a [GlassSheetConfirmDismiss] can ask first.
-    void close() => closeGlassSheet(context);
+    void close() => GlassSheet.of(context).close();
     final keepsClose = SheetKeepsClose.of(context);
     // A phone held sideways: the way on takes the close button's place;
     // a page without one keeps the close button.
@@ -245,15 +245,17 @@ class GlassSheetHeader extends StatelessWidget {
 
   /// The round close button. Through [closeGlassSheet], so a
   /// [GlassSheetConfirmDismiss] can ask first.
-  Widget _closeButton(BuildContext context) =>
-      _kept(buttons, IrmaCloseButton(onTap: () => closeGlassSheet(context)));
+  Widget _closeButton(BuildContext context) => _kept(
+    buttons,
+    IrmaCloseButton(onTap: () => GlassSheet.of(context).close()),
+  );
 
   /// A phone held sideways with [extra]: one row from the start, the back
   /// button (or the close button on a first page), [titleWidget], [extra],
   /// and at the end the way on ([action]), or the close button when there is
   /// none.
   Widget _startRow(BuildContext context) {
-    final action = sheetActionInBar(context) ? this.action : null;
+    final action = GlassSheet.actionInBar(context) ? this.action : null;
     final onBack = this.onBack;
     Widget shown(Widget child) => _kept(buttons, child);
     final Widget? start = onBack != null

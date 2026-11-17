@@ -146,7 +146,7 @@ class DocumentFlowFooter extends StatelessWidget {
     final actions = sheetActions(context, buttons);
     // Upright, in the page's own bottom bar (it puts them there).
     if (SheetSlotAction.atBottom(context)) return actions;
-    if (!sheetActionInBar(context)) return SheetBottomBar(child: actions);
+    if (!GlassSheet.actionInBar(context)) return SheetBottomBar(child: actions);
     // The way on is in the bar; the other choice, if any, a link at the
     // bottom.
     return Padding(
@@ -178,7 +178,7 @@ class DocumentFlowFooter extends StatelessWidget {
         secondary: asAction(secondary),
       );
     }
-    if (sheetActionInBar(context)) {
+    if (GlassSheet.actionInBar(context)) {
       return SheetSlotAction(
         action: asAction(primary),
         child: secondary == null

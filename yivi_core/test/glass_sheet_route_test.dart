@@ -51,7 +51,7 @@ void main() {
       builder: (_) => PopScope(
         canPop: canPop,
         onPopInvokedWithResult: (_, _) =>
-            onPop?.call(glassSheetClosing(_inSheet)),
+            onPop?.call(GlassSheet.of(_inSheet).closing),
         child: GlassSheetPage.scroll(
           title: SheetTitle("Sheet"),
           child: Builder(
@@ -91,7 +91,7 @@ void main() {
       await open(tester, phone);
       final top = tester.getTopLeft(find.text("row 0")).dy;
       if (delayed) {
-        delayGlassSheetClose(_inSheet, const Duration(milliseconds: 200));
+        GlassSheet.of(_inSheet).delayClose(const Duration(milliseconds: 200));
       }
       Navigator.of(_inSheet).pop();
       await tester.pump();
@@ -110,7 +110,7 @@ void main() {
   testWidgets("the hand: dragging while the header is held, not once it "
       "settles; a tablet's form sheet has one too", (tester) async {
     await open(tester, phone);
-    final hand = glassSheetHand(_inSheet)!;
+    final hand = GlassSheet.of(_inSheet).hand!;
     expect(hand.dragging.value, isFalse);
     final drag = await tester.startGesture(
       tester.getCenter(find.text("Sheet")),
@@ -124,17 +124,17 @@ void main() {
     expect(hand.dragging.value, isFalse);
 
     await open(tester, tablet);
-    expect(glassSheetHand(_inSheet), isNotNull);
+    expect(GlassSheet.of(_inSheet).hand, isNotNull);
   });
 
   testWidgets("the action in the bar: on a tablet's form sheet and "
       "sideways; outside a sheet by the window", (tester) async {
     await open(tester, tablet);
-    expect(sheetActionInBar(_inSheet), isTrue);
+    expect(GlassSheet.actionInBar(_inSheet), isTrue);
     await open(tester, phone);
-    expect(sheetActionInBar(_inSheet), isFalse);
-    expect(sheetActionInBar(_home), isFalse);
+    expect(GlassSheet.actionInBar(_inSheet), isFalse);
+    expect(GlassSheet.actionInBar(_home), isFalse);
     await open(tester, const Size(844, 390));
-    expect(sheetActionInBar(_home), isTrue);
+    expect(GlassSheet.actionInBar(_home), isTrue);
   });
 }

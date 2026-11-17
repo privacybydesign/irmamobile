@@ -236,11 +236,11 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final title = widget.title.text;
     final onBack = widget.exits.onBack;
     final action = widget.action;
-    final inBar = sheetActionInBar(context);
+    final inBar = GlassSheet.actionInBar(context);
     final bottomUp =
         widget.bottomInBar &&
         useSheetColumns(context) &&
-        !_GlassSheetFloating.of(context);
+        !GlassSheet.of(context).floating;
     _slot.takesBottom =
         widget.slotBottom &&
         !widget._scrolls &&
@@ -338,7 +338,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: _GlassSheet._radius,
+                top: _SheetSurface._radius,
               ),
               // The band is the edge of this page's content: it goes
               // with it as pages change, so it never switches at the end,
@@ -586,7 +586,7 @@ class GlassSheetScrollView extends StatelessWidget {
     // [GlassSheetPage]'s header (its hard scroll edge). The page clips the
     // bottom.
     final inset = _padding(context);
-    final physics = glassSheetScrollPhysics(context);
+    final physics = _sheetScrollPhysics(context);
     final fit = slivers == null ? _FitPage.maybeOf(context) : null;
     if (fit != null) {
       return _FitMeasure(

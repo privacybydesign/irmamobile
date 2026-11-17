@@ -138,7 +138,7 @@ class SheetMotion {
 
 /// Makes the sheet at [context] wait [delay] before it goes down, the next
 /// time it closes: a card is picked up first and lands while it goes.
-void delayGlassSheetClose(BuildContext context, Duration delay) {
+void _delayClose(BuildContext context, Duration delay) {
   final route = ModalRoute.of(context);
   if (route is _GlassSheetRoute) {
     route.motion = route.motion.copyWith(closeDelay: delay);
@@ -149,7 +149,7 @@ void delayGlassSheetClose(BuildContext context, Duration delay) {
 /// once the sheet is all the way up: where it is now, without the sheet's
 /// slide in. For a flight that waits there while the sheet comes in under
 /// it.
-Rect? sheetSettledBox(GlobalKey key, RenderBox overlay) {
+Rect? _settledBox(GlobalKey key, RenderBox overlay) {
   final box = key.currentContext?.findRenderObject();
   if (box is! RenderBox || !box.hasSize || !overlay.attached) return null;
   // The route's slide is the outermost translation above the box.
@@ -212,25 +212,21 @@ CurvedAnimation formSheetCurve(Animation<double> animation) => CurvedAnimation(
   reverseCurve: Curves.easeIn,
 );
 
-/// The scroll physics for a list in a sheet (see [GlassSheetScope]).
-ScrollPhysics? glassSheetScrollPhysics(BuildContext context) =>
-    context.dependOnInheritedWidgetOfExactType<GlassSheetScope>()?.physics;
+/// The scroll physics for a list in a sheet (see [_GlassSheetScope]).
+ScrollPhysics? _sheetScrollPhysics(BuildContext context) =>
+    context.dependOnInheritedWidgetOfExactType<_GlassSheetScope>()?.physics;
 
 /// Hands a sheet's content the physics for its list: as on the credential's
 /// page and in native iOS sheets, a drag that starts at the top of the list
 /// pulls the sheet down with it, and far enough or fast enough closes it; a
 /// drag that starts further down only scrolls.
-class GlassSheetScope extends InheritedWidget {
+class _GlassSheetScope extends InheritedWidget {
   final ScrollPhysics physics;
 
-  const GlassSheetScope({
-    super.key,
-    required this.physics,
-    required super.child,
-  });
+  const _GlassSheetScope({required this.physics, required super.child});
 
   @override
-  bool updateShouldNotify(GlassSheetScope oldWidget) =>
+  bool updateShouldNotify(_GlassSheetScope oldWidget) =>
       physics != oldWidget.physics;
 }
 
@@ -328,7 +324,7 @@ Widget _formSheet(BuildContext context, WidgetBuilder builder) {
           child: Material(
             type: MaterialType.transparency,
             child: _FormSheetDrag(
-              child: _GlassSheet(
+              child: _SheetSurface(
                 attached: false,
                 height: height,
                 keyboard: covered,
@@ -384,7 +380,7 @@ class _FormSheetDragState extends State<_FormSheetDrag>
         d.velocity.pixelsPerSecond.dy,
       );
       _back();
-      if (close) closeGlassSheet(context);
+      if (close) _closeSheet(context);
     },
     onVerticalDragCancel: _back,
     child: AnimatedBuilder(
@@ -401,7 +397,7 @@ class _FormSheetDragState extends State<_FormSheetDrag>
 /// close, not a step back: a [NavigatorPopHandler] in the sheet (a flow
 /// with screens of its own, that steps back on the system back) sees
 /// [glassSheetClosing] and leaves its screens as they are.
-void closeGlassSheet(BuildContext context) {
+void _closeSheet(BuildContext context) {
   final route = ModalRoute.of(context);
   if (route is _GlassSheetRoute) {
     route._close();
@@ -412,7 +408,7 @@ void closeGlassSheet(BuildContext context) {
 
 /// Whether the pop that a [PopScope] or [NavigatorPopHandler] at [context]
 /// is told about is the sheet being closed, rather than the system back.
-bool glassSheetClosing(BuildContext context) {
+bool _sheetClosing(BuildContext context) {
   final route = ModalRoute.of(context);
   return route is _GlassSheetRoute && route._closeAsked;
 }
@@ -421,9 +417,7 @@ bool glassSheetClosing(BuildContext context) {
 /// way ([dragging], until the sheet has settled after it), and how far up
 /// the sheet is meanwhile ([shown]: 1 all the way up, 0 gone). Null outside
 /// a sheet.
-({ValueListenable<bool> dragging, Animation<double> shown})? glassSheetHand(
-  BuildContext context,
-) {
+SheetHand? _sheetHand(BuildContext context) {
   final route = ModalRoute.of(context);
   if (route is! _GlassSheetRoute) return null;
   return (dragging: route._hand, shown: route.animation!);
@@ -744,7 +738,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
         ? EdgeInsets.only(left: media.padding.left, right: media.padding.right)
         : EdgeInsets.zero;
     // The sheet keeps its place and size when the keyboard comes up: only
-    // its content ends above the keyboard (see _GlassSheet).
+    // its content ends above the keyboard (see _SheetSurface).
     return MediaQuery.removeViewInsets(
       context: context,
       removeBottom: true,
@@ -788,9 +782,9 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
                     _measure(context);
                     return _onScrollStart(n);
                   },
-                  child: GlassSheetScope(
+                  child: _GlassSheetScope(
                     physics: _physics,
-                    child: _GlassSheet(
+                    child: _SheetSurface(
                       attached: true,
                       height: height,
                       onFitted: _setFitted,
@@ -866,7 +860,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
 /// The look of every sheet: solid, corners of 38 (concentric with a
 /// 44 close button inset 16). Attached to the bottom edge it has square
 /// bottom corners, which the screen's own corners round off.
-class _GlassSheet extends StatefulWidget {
+class _SheetSurface extends StatefulWidget {
   final bool attached;
 
   /// Its full height; lower while a page fits its content.
@@ -887,7 +881,7 @@ class _GlassSheet extends StatefulWidget {
   /// the route leaves the page above it uncovered.
   final ValueChanged<bool>? onFitted;
 
-  const _GlassSheet({
+  const _SheetSurface({
     required this.attached,
     required this.height,
     this.bottomInset = 0,
@@ -900,10 +894,10 @@ class _GlassSheet extends StatefulWidget {
   static const _radius = Radius.circular(YiviCorners.sheet);
 
   @override
-  State<_GlassSheet> createState() => _GlassSheetState();
+  State<_SheetSurface> createState() => _SheetSurfaceState();
 }
 
-class _GlassSheetState extends State<_GlassSheet>
+class _SheetSurfaceState extends State<_SheetSurface>
     with SingleTickerProviderStateMixin {
   /// The height a page that fits its content asks for ([GlassSheetPage.fit]);
   /// null: full height.
@@ -974,8 +968,8 @@ class _GlassSheetState extends State<_GlassSheet>
     final bottomInset = widget.bottomInset;
     final palette = YiviPalette.of(context);
     final radius = attached
-        ? const BorderRadius.vertical(top: _GlassSheet._radius)
-        : const BorderRadius.all(_GlassSheet._radius);
+        ? const BorderRadius.vertical(top: _SheetSurface._radius)
+        : const BorderRadius.all(_SheetSurface._radius);
     final shape = RoundedRectangleBorder(borderRadius: radius);
     final media = MediaQuery.of(context);
     // Solid, at the sheet level: in light the page colour, so its white cards stand out without a shadow; in dark below
@@ -1109,7 +1103,7 @@ class _GlassSheetFloating extends InheritedWidget {
 /// tablet's form sheet and in a wide sheet (a phone held sideways), where
 /// the keyboard would cover a button at the bottom. A phone held upright has
 /// it at the bottom, in the thumb's reach, right above the keyboard.
-bool sheetActionInBar(BuildContext context) =>
+bool _actionInBar(BuildContext context) =>
     _GlassSheetFloating.of(context) || useSheetColumns(context);
 
 /// What a sideways [GlassSheetPage] puts at the bottom of its
@@ -1147,7 +1141,7 @@ class SheetKeepsClose extends InheritedWidget {
   /// Whether the pages at [context] show the close button at the right.
   static bool of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<SheetKeepsClose>() != null &&
-      !sheetActionInBar(context);
+      !_actionInBar(context);
 
   @override
   bool updateShouldNotify(SheetKeepsClose oldWidget) => false;
@@ -1208,3 +1202,46 @@ Widget _kept(bool visible, Widget child) => Visibility(
   maintainState: true,
   child: child,
 );
+
+/// A hand on a sheet: whether a drag or pull of it is under way
+/// ([dragging], until the sheet has settled after it), and how far up the
+/// sheet is meanwhile ([shown]: 1 all the way up, 0 gone).
+typedef SheetHand = ({ValueListenable<bool> dragging, Animation<double> shown});
+
+/// The sheet around a context: the phone's sheet, a tablet's form sheet,
+/// or none. Each getter looks it up when it is read, and has an answer
+/// outside a sheet too.
+final class GlassSheet {
+  const GlassSheet._(this._context);
+
+  final BuildContext _context;
+
+  static GlassSheet of(BuildContext context) => GlassSheet._(context);
+
+  /// A tablet's form sheet, floating in the middle of the window.
+  bool get floating => _GlassSheetFloating.of(_context);
+
+  /// The pop scopes in the sheet are being told about a close by its close
+  /// button (not the system back).
+  bool get closing => _sheetClosing(_context);
+
+  /// The hand on the sheet; null outside one.
+  SheetHand? get hand => _sheetHand(_context);
+
+  /// Closes the sheet, through a scope that may ask first; outside a sheet
+  /// the route is asked to pop.
+  void close() => _closeSheet(_context);
+
+  /// The sheet waits [delay] before it goes when it is next closed; nothing
+  /// outside a sheet.
+  void delayClose(Duration delay) => _delayClose(_context, delay);
+
+  /// The way on goes in the bar: on a tablet's form sheet, and where a
+  /// sheet has columns (a phone held sideways), also outside a sheet.
+  static bool actionInBar(BuildContext context) => _actionInBar(context);
+
+  /// Where the box of [key] will be once the sheet has settled, in
+  /// [overlay]'s coordinates.
+  static Rect? settledBox(GlobalKey key, RenderBox overlay) =>
+      _settledBox(key, overlay);
+}

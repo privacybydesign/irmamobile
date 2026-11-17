@@ -286,7 +286,7 @@ class _SheetCamera extends StatelessWidget {
         ),
       );
     }
-    final inBar = sheetActionInBar(context);
+    final inBar = GlassSheet.actionInBar(context);
     final Widget manual = inBar
         ? SheetSlotAction(
             action: null,
