@@ -140,8 +140,15 @@ class PaneTitle extends StatelessWidget {
   const PaneTitle(this.translationKey, {super.key});
 
   /// The padding of a page in a pane.
-  static EdgeInsets pagePadding(BuildContext context) =>
-      _clear(context, const EdgeInsets.fromLTRB(20, 20, 20, YiviSpace.x24));
+  static EdgeInsets pagePadding(BuildContext context) => _clear(
+    context,
+    const EdgeInsets.fromLTRB(
+      YiviSpace.pageSide,
+      YiviSpace.x16,
+      YiviSpace.pageSide,
+      YiviSpace.x24,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
