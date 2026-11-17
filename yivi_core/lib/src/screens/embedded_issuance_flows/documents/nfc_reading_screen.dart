@@ -62,16 +62,7 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   final ScannedMrz mrz;
   final VoidCallback? onCancel;
 
-  /// Shows the face check's intro and says whether the user starts it. In a
-  /// sheet it opens as the sheet's next screen; by default full-screen.
-  final Future<bool> Function(BuildContext context)? faceIntro;
-
-  const NfcReadingScreen({
-    required this.mrz,
-    this.onCancel,
-    this.faceIntro,
-    super.key,
-  });
+  const NfcReadingScreen({required this.mrz, this.onCancel, super.key});
 
   @override
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
@@ -272,10 +263,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           // page is not revealed again after the intro/liveness — instead the
           // user sees a loader that leads into issuance.
           setState(() => _preparingIssuance = true);
-          final proceed =
-              await (widget.faceIntro ?? FaceVerificationIntroScreen.show)(
-                context,
-              );
+          // In a sheet its intro is the next screen there.
+          final flow = DocumentStepInSheet.flowOf(context);
+          final proceed = flow != null
+              ? await flow.askFace()
+              : await FaceVerificationIntroScreen.show(context);
           if (!proceed) {
             if (mounted) {
               setState(() => _preparingIssuance = false);
@@ -398,13 +390,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     // In a sheet its bar says the data is being fetched while the loader
     // shows: once the face check over it is gone (the loader is switched on
     // under it). After the build: it rebuilds the sheet's bar.
-    final preparing = DocumentStepInSheet.preparingOf(context);
+    final flow = DocumentStepInSheet.flowOf(context);
     final shown =
         _preparingIssuance && (ModalRoute.isCurrentOf(context) ?? true);
-    if (preparing != null && preparing.value != shown) {
-      final value = shown;
+    if (flow != null) {
       // Still here then, so the sheet step around it is too.
-      afterFrame(() => preparing.value = value);
+      afterFrame(() => flow.preparing(shown));
     }
 
     // an issuance error is different from a passport nfc scanning error

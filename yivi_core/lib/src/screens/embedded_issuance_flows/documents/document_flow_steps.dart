@@ -97,9 +97,6 @@ abstract final class DocumentFlowSteps {
   }
 
   /// Reading the chip, then starting the issuance (`handlePointer`).
-  static Widget nfc(
-    ScannedMrz mrz, {
-    required VoidCallback onCancel,
-    Future<bool> Function(BuildContext context)? faceIntro,
-  }) => NfcReadingScreen(mrz: mrz, onCancel: onCancel, faceIntro: faceIntro);
+  static Widget nfc(ScannedMrz mrz, {required VoidCallback onCancel}) =>
+      NfcReadingScreen(mrz: mrz, onCancel: onCancel);
 }

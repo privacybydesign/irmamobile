@@ -28,6 +28,7 @@ import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "../../add_data/add_data_details_content.dart";
+import "../../embedded_issuance_flows/documents/document_flow.dart";
 import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
 import "../../error/session_error_screen.dart";
@@ -195,14 +196,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// The document screens for [issueAdding] are shown (step 2).
   DocumentType? _document;
-
-  /// The issuer asked for a face check while adding the document: a step
-  /// more in the progress.
-  bool _faceCheck = false;
-
-  /// Counts the times adding the document went back to its chip screen, to
-  /// read it again ([DocumentSheetStep.readAgain]).
-  int _readAgain = 0;
 
   /// The issuance that came back from the issuer, shown in the sheet.
   int? _nestedId;
@@ -399,10 +392,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   }
 
   /// Back from the document screens to the details.
-  void _leaveDocument() => setState(() {
-    _document = null;
-    _faceCheck = false;
-  });
+  void _leaveDocument() => setState(() => _document = null);
 
   /// None of the steps that prove the card is under way: no website opened,
   /// no e-mail, phone or document step.
@@ -412,7 +402,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     _website = false;
     _contact = null;
     _document = null;
-    _faceCheck = false;
   }
 
   /// Ends what adding left running: the issuance, the waiting host, the
@@ -435,9 +424,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// Adding a document goes back to its chip screen, which starts over: the
   /// issuer asks for a face check again if it wants one.
   void _backToChip() {
-    if (_document == null) return;
-    _readAgain++;
-    _faceCheck = false;
+    if (_document case final type?) {
+      ref.read(documentFlowProvider(type).notifier).readAgain();
+    }
   }
 
   void _dismissNested(int sessionId) => _repo.dismissSession(sessionId);
@@ -451,7 +440,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       switch (_repo.embeddedFlowOf(d.credentialId)) {
         EmbeddedFlow.email || EmbeddedFlow.phone => 4,
         EmbeddedFlow.document when documentTypeOf(d.credentialId) != null =>
-          _faceCheck ? 6 : 5,
+          switch (_document) {
+            final type? => ref.watch(documentFlowProvider(type)).total,
+            null => 5,
+          },
         _ => 3,
       };
 
@@ -477,10 +469,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (document != null) {
       if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
       _hosts.register(this);
-      setState(() {
-        _document = document;
-        _faceCheck = false;
-      });
+      setState(() => _document = document);
       return;
     }
     // The issuer's website (every document Yivi issues itself has a
@@ -875,13 +864,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           child: DocumentSheetStep(
             type: _document!,
             subject: subject,
-            total: total,
             onBack: _leaveDocument,
-            onStopped: _issueLeave,
-            onFaceCheck: () {
-              if (!_faceCheck) setState(() => _faceCheck = true);
-            },
-            readAgain: _readAgain,
           ),
         ),
       if (nested != null || issueAdded != null)

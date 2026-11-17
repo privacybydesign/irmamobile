@@ -7,6 +7,7 @@ import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/regula_face_service_provider.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_flow.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_sheet_step.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -38,20 +39,17 @@ void main() {
   });
 
   late BuildContext home;
-  late StateSetter setHost;
   var backs = 0;
-  var stops = 0;
+
+  /// How often the issuer asked for a face check (the flow's flag turned on).
   var faceChecks = 0;
-  var total = 5;
-  var readAgain = 0;
 
   Future<void> pump(
     WidgetTester tester, {
     PassportIssuer? issuer,
     RegulaFaceService? face,
   }) async {
-    backs = stops = faceChecks = readAgain = 0;
-    total = 5;
+    backs = faceChecks = 0;
     tester.view
       ..devicePixelRatio = 1
       ..physicalSize = const Size(390, 844);
@@ -97,7 +95,6 @@ void main() {
       context: home,
       builder: (_) => StatefulBuilder(
         builder: (context, setState) {
-          setHost = setState;
           return GlassSheetPages(
             onBack: () => backs++,
             pages: [
@@ -105,14 +102,7 @@ void main() {
                 key: const ValueKey("document"),
                 type: DocumentType.passport,
                 subject: const IssueSheetSubject.none(),
-                total: total,
                 onBack: () => backs++,
-                onStopped: () => stops++,
-                onFaceCheck: () {
-                  faceChecks++;
-                  setState(() => total = 6);
-                },
-                readAgain: readAgain,
               ),
             ],
           );
@@ -120,6 +110,12 @@ void main() {
       ),
     );
     await frames(tester);
+    ProviderScope.containerOf(home).listen(
+      documentFlowProvider(DocumentType.passport).select((s) => s.faceCheck),
+      (before, now) {
+        if (now && before != true) faceChecks++;
+      },
+    );
   }
 
   (int, int)? progress(WidgetTester tester) {
@@ -237,7 +233,7 @@ void main() {
     // On the chip for a moment.
     expect(find.byType(NfcReadingScreen), findsOneWidget);
     await readChip(tester);
-    expect(faceChecks, 2);
+    // Asked again: the intro is back, still one step more.
     expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
     expect(progress(tester), (5, 6));
   });
@@ -248,7 +244,10 @@ void main() {
     await pump(tester);
     await toChip(tester);
     final before = tester.state(find.byType(NfcReadingScreen));
-    setHost(() => readAgain++);
+    // What the issue flow does on back from adding it.
+    ProviderScope.containerOf(
+      home,
+    ).read(documentFlowProvider(DocumentType.passport).notifier).readAgain();
     await frames(tester);
     expect(find.byType(NfcReadingScreen), findsOneWidget);
     expect(

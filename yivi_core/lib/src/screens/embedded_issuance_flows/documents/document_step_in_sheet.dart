@@ -7,25 +7,27 @@ import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
+import "document_flow.dart";
 
 /// Marks the document screens shown as a step in a sheet (`DocumentSheetStep`):
 /// they leave out their own app bar and Cancel (the sheet's bar has the
 /// title, back and close), and let the sheet's glass show behind them. The
 /// same screens on their full-screen routes have no marker and keep both.
 class DocumentStepInSheet extends InheritedWidget {
-  /// Set by the chip screen while it waits for the issuer after the face
-  /// check (a loading screen), so the sheet's bar can say so in its title.
-  final ValueNotifier<bool>? preparing;
+  /// The flow of the sheet's step: the chip screen tells it when it shows
+  /// the loader after the face check, and asks it for the face check's
+  /// intro.
+  final DocumentFlow? flow;
 
-  const DocumentStepInSheet({super.key, this.preparing, required super.child});
+  const DocumentStepInSheet({super.key, this.flow, required super.child});
 
   /// Whether the screen at [context] is a step in a sheet.
   static bool of(BuildContext context) =>
       context.getInheritedWidgetOfExactType<DocumentStepInSheet>() != null;
 
-  /// See [preparing]; null outside a sheet.
-  static ValueNotifier<bool>? preparingOf(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<DocumentStepInSheet>()?.preparing;
+  /// See [flow]; null outside a sheet.
+  static DocumentFlow? flowOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<DocumentStepInSheet>()?.flow;
 
   @override
   bool updateShouldNotify(DocumentStepInSheet oldWidget) => false;
