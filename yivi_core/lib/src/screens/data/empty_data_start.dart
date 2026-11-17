@@ -226,9 +226,9 @@ class _Option extends StatelessWidget {
                       ),
                       TranslatedText(
                         textKey,
-                        style: palette
-                            .body(13.5)
-                            .copyWith(color: palette.secondaryText),
+                        style: palette.rowSubtitle.copyWith(
+                          color: palette.secondaryText,
+                        ),
                       ),
                     ],
                   ),

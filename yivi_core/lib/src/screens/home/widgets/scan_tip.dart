@@ -58,7 +58,7 @@ class ScanTip extends ConsumerWidget {
               TranslatedText(
                 "scan_tip.title",
                 style: palette
-                    .body(14.5, weight: FontWeight.w700)
+                    .body(15, weight: FontWeight.w700)
                     .copyWith(color: palette.heading),
               ),
               const SizedBox(height: YiviSpace.x2),

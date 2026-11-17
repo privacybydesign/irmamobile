@@ -116,7 +116,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
                 padding: const .fromLTRB(4, 20, 4, 0),
                 child: TranslatedText(
                   "face_verification.intro.explanation",
-                  style: palette.body(17).copyWith(height: 26 / 17),
+                  style: palette.body(16).copyWith(height: 24 / 16),
                 ),
               ),
               const SizedBox(height: YiviSpace.x16),

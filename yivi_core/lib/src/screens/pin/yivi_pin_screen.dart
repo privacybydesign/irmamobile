@@ -878,9 +878,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             (_, true) => YiviPalette.of(
               context,
             ).display(22).copyWith(height: 30 / 22),
-            (_, false) => YiviPalette.of(
-              context,
-            ).display(19).copyWith(height: 26 / 19),
+            (_, false) => YiviPalette.of(context).titleSmall,
           },
         ),
       ),

@@ -415,9 +415,9 @@ class _PhotoViewerState extends State<_PhotoViewer>
                                       widget.title,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: YiviPalette.of(context)
-                                          .display(17)
-                                          .copyWith(color: Colors.white),
+                                      style: YiviPalette.of(
+                                        context,
+                                      ).barTitle.copyWith(color: Colors.white),
                                     ),
                                   ),
                                 ),

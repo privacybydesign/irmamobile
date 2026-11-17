@@ -166,18 +166,16 @@ class _CameraScaffold extends StatelessWidget {
                         context.tr(title),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .display(18)
-                            .copyWith(
-                              color: Colors.white,
-                              shadows: const [
-                                Shadow(
-                                  color: Color(0x73000000),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 1),
-                                ),
-                              ],
+                        style: palette.titleSmall.copyWith(
+                          color: Colors.white,
+                          shadows: const [
+                            Shadow(
+                              color: Color(0x73000000),
+                              blurRadius: 8,
+                              offset: Offset(0, 1),
                             ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

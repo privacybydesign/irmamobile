@@ -25,6 +25,15 @@ void main() {
             "Alexandria",
           ),
           (
+            "titleSmall",
+            (p) => p.titleSmall,
+            20,
+            FontWeight.w700,
+            "Alexandria",
+          ),
+          ("barTitle", (p) => p.barTitle, 17, FontWeight.w600, "Alexandria"),
+          ("barAction", (p) => p.barAction, 17, FontWeight.w400, "Open Sans"),
+          (
             "sectionHeader",
             (p) => p.sectionHeader,
             16,

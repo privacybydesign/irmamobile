@@ -13,7 +13,7 @@ class CapsLabel extends StatelessWidget {
 
   /// The label's text style, for a label that is not a header.
   static TextStyle style(YiviPalette palette) => palette
-      .body(12.5, weight: FontWeight.w700)
+      .body(13, weight: FontWeight.w700)
       .copyWith(letterSpacing: 0.6, color: palette.secondaryText);
 
   @override

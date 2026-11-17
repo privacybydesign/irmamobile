@@ -70,8 +70,8 @@ class ScanPill extends StatelessWidget {
                     context.tr(key),
                     textAlign: TextAlign.center,
                     style: palette
-                        .body(14.5, weight: FontWeight.w600)
-                        .copyWith(color: colour, height: 20 / 14.5),
+                        .body(15, weight: FontWeight.w600)
+                        .copyWith(color: colour, height: 20 / 15),
                   ),
                 ),
               ],

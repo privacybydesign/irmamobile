@@ -86,7 +86,7 @@ class PairingRequired extends StatelessWidget {
                     context.tr("session.pairing.heading"),
                     key: const Key("pairing_heading"),
                     textAlign: TextAlign.center,
-                    style: palette.display(23).copyWith(color: palette.text),
+                    style: palette.titleStep.copyWith(color: palette.text),
                   ),
                 ),
                 const SizedBox(height: YiviSpace.x12),

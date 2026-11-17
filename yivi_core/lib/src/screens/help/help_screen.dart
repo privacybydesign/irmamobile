@@ -187,7 +187,7 @@ class _AskAQuestion extends StatelessWidget {
                     child: TranslatedText(
                       "help.ask",
                       isHeader: true,
-                      style: palette.display(18),
+                      style: palette.titleSmall,
                     ),
                   ),
                 ],

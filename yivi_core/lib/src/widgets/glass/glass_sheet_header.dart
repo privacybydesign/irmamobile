@@ -115,12 +115,10 @@ class GlassSheetHeader extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: sideways ? 1 : 2,
             overflow: TextOverflow.ellipsis,
-            style: palette
-                .display(17)
-                .copyWith(
-                  height: (sideways ? 20 : 22) / 17,
-                  color: palette.text,
-                ),
+            style: palette.barTitle.copyWith(
+              height: (sideways ? 20 : 22) / 17,
+              color: palette.text,
+            ),
           ),
         ),
       ),
@@ -330,9 +328,7 @@ class GlassSheetHeader extends StatelessWidget {
         key: const Key("glass_sheet_title"),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: palette
-            .display(17)
-            .copyWith(height: 20 / 17, color: palette.text),
+        style: palette.barTitle.copyWith(height: 20 / 17, color: palette.text),
       ),
     );
     final heading = FadeTransition(
@@ -482,7 +478,7 @@ class _BarTextButton extends StatelessWidget {
                 ),
                 child: Text(
                   label,
-                  style: palette.body(17).copyWith(color: palette.link),
+                  style: palette.barAction.copyWith(color: palette.link),
                 ),
               ),
             ],

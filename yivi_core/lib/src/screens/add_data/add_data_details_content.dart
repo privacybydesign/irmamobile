@@ -453,9 +453,10 @@ class _Markdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final style = palette
-        .body(14.5)
-        .copyWith(height: 21 / 14.5, color: palette.heading);
+    final style = palette.paragraph.copyWith(
+      height: 22 / 15,
+      color: palette.heading,
+    );
     return IrmaMarkdown(
       data,
       styleSheet: MarkdownStyleSheet(

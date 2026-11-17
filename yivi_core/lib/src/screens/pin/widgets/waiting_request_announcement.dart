@@ -42,9 +42,7 @@ class WaitingRequestAnnouncement extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: palette
-                .display(21, weight: FontWeight.w700)
-                .copyWith(height: 27 / 21, color: palette.text),
+            style: palette.titleSmall.copyWith(color: palette.text),
           ),
         ),
       ],

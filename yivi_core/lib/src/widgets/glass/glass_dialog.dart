@@ -106,9 +106,7 @@ class GlassDialog extends StatelessWidget {
             title,
             key: const Key("dialog_title"),
             textAlign: TextAlign.center,
-            style: palette
-                .display(20, weight: FontWeight.w700)
-                .copyWith(height: 28 / 20),
+            style: palette.titleSmall.copyWith(height: 28 / 20),
           ),
         ),
         if ((message ?? "").isNotEmpty)

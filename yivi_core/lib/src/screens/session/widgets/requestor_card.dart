@@ -588,7 +588,7 @@ class RequestorTrustPill extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: palette
-                  .body(12.5, weight: FontWeight.w700)
+                  .body(12, weight: FontWeight.w700)
                   .copyWith(color: style.pillInk),
             ),
           ),

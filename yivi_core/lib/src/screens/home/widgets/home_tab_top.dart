@@ -379,9 +379,7 @@ class _Bar extends StatelessWidget {
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .display(17)
-                            .copyWith(color: palette.text),
+                        style: palette.barTitle.copyWith(color: palette.text),
                       ),
                     ),
                   ),

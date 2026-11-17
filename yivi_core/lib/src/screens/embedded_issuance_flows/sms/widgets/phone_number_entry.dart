@@ -245,7 +245,7 @@ class PhoneNumberEntryState extends ConsumerState<PhoneNumberEntry> {
       autofillHints: const [AutofillHints.telephoneNumberNational],
       textDirection: TextDirection.ltr,
       style: palette
-          .body(17, weight: FontWeight.w600)
+          .body(16, weight: FontWeight.w600)
           .copyWith(color: palette.text, letterSpacing: 0.4),
       cursorColor: palette.link,
       inputFormatters: [
@@ -386,7 +386,7 @@ class _CountryButton extends StatelessWidget {
                   country.dialCode ?? "",
                   textDirection: TextDirection.ltr,
                   style: palette
-                      .body(17, weight: FontWeight.w600)
+                      .body(16, weight: FontWeight.w600)
                       .copyWith(color: palette.text),
                 ),
                 const SizedBox(width: YiviSpace.x2),

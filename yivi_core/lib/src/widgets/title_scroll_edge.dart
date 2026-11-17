@@ -95,7 +95,7 @@ class _TitleScrollEdgeState extends State<TitleScrollEdge> {
                       widget.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: palette.display(17).copyWith(color: palette.text),
+                      style: palette.barTitle.copyWith(color: palette.text),
                     ),
                   ),
                 ),

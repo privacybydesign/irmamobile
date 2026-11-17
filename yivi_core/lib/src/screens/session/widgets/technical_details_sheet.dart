@@ -127,8 +127,8 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final value = palette
-        .body(14.5, weight: FontWeight.w600)
-        .copyWith(height: 20 / 14.5, color: palette.text);
+        .body(15, weight: FontWeight.w600)
+        .copyWith(height: 20 / 15, color: palette.text);
     return MergeSemantics(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: YiviSpace.x12),
@@ -138,9 +138,10 @@ class _Row extends StatelessWidget {
           children: [
             Text(
               row.label,
-              style: palette
-                  .body(12.5)
-                  .copyWith(height: 17 / 12.5, color: palette.secondaryText),
+              style: palette.caption.copyWith(
+                height: 17 / 12,
+                color: palette.secondaryText,
+              ),
             ),
             SelectableText(
               row.value,

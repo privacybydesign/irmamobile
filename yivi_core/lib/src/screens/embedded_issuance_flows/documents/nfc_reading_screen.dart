@@ -597,8 +597,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
                   "face_verification.preparing",
                   textAlign: .center,
                   style: palette
-                      .body(17)
-                      .copyWith(height: 26 / 17, color: palette.heading),
+                      .body(16)
+                      .copyWith(height: 24 / 16, color: palette.heading),
                 ),
               ],
             ),

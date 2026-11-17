@@ -225,7 +225,7 @@ class _SettingUp extends StatelessWidget {
                   "enrollment.setting_up",
                   isHeader: true,
                   textAlign: TextAlign.center,
-                  style: palette.display(20),
+                  style: palette.titleSmall,
                 ),
               ],
             ],

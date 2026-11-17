@@ -321,6 +321,17 @@ class YiviPalette {
   /// a low sheet step.
   TextStyle get titleCompact => display(22, weight: FontWeight.w700);
 
+  /// The title of an empty state, a dialog, or a step that has little to
+  /// say.
+  TextStyle get titleSmall => display(20, weight: FontWeight.w700);
+
+  /// The title in a bar: the app bar, a sheet's bar, the title that stays
+  /// when a page scrolls. 17, as iOS draws them.
+  TextStyle get barTitle => display(17);
+
+  /// A text button in a bar ("Done", "Edit"). 17, as iOS draws them.
+  TextStyle get barAction => body(17);
+
   /// The header above a group of rows.
   TextStyle get sectionHeader => display(16);
 

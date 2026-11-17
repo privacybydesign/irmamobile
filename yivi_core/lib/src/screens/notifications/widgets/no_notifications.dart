@@ -34,7 +34,7 @@ class NoNotifications extends StatelessWidget {
           TranslatedText(
             "notifications.empty",
             textAlign: TextAlign.center,
-            style: palette.display(18).copyWith(color: palette.text),
+            style: palette.titleSmall.copyWith(color: palette.text),
           ),
           const SizedBox(height: YiviSpace.x8),
           ConstrainedBox(
@@ -42,9 +42,10 @@ class NoNotifications extends StatelessWidget {
             child: TranslatedText(
               "notifications.empty_text",
               textAlign: TextAlign.center,
-              style: palette
-                  .body(14.5)
-                  .copyWith(height: 21 / 14.5, color: palette.secondaryText),
+              style: palette.paragraph.copyWith(
+                height: 22 / 15,
+                color: palette.secondaryText,
+              ),
             ),
           ),
         ],

@@ -286,12 +286,10 @@ class _AddKindRow extends ConsumerWidget {
                         how,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .body(13.5)
-                            .copyWith(
-                              height: 19 / 13.5,
-                              color: palette.secondaryText,
-                            ),
+                        style: palette.rowSubtitle.copyWith(
+                          height: 18 / 13,
+                          color: palette.secondaryText,
+                        ),
                       ),
                     ],
                   ),

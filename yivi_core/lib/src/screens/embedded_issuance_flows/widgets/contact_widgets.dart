@@ -662,9 +662,9 @@ class ContactSentTo extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: palette
-                        .body(12.5)
-                        .copyWith(color: palette.secondaryText),
+                    style: palette.caption.copyWith(
+                      color: palette.secondaryText,
+                    ),
                   ),
                   Text(
                     target,

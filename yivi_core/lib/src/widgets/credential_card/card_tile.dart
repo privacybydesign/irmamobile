@@ -118,9 +118,9 @@ class CardTile extends StatelessWidget {
                             subtitle,
                             maxLines: subtitleMaxLines,
                             overflow: TextOverflow.ellipsis,
-                            style: palette
-                                .body(12.5)
-                                .copyWith(color: palette.secondaryText),
+                            style: palette.caption.copyWith(
+                              color: palette.secondaryText,
+                            ),
                           ),
                         ],
                       ),

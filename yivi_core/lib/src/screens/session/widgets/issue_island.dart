@@ -232,8 +232,8 @@ class _IssueIslandState extends State<IssueIsland>
                     Text(
                       label,
                       style: palette
-                          .body(12.5, weight: FontWeight.w600)
-                          .copyWith(color: _onDark(style), height: 17 / 12.5),
+                          .body(12, weight: FontWeight.w600)
+                          .copyWith(color: _onDark(style), height: 16 / 12),
                     ),
                 ],
               ),
@@ -253,9 +253,10 @@ class _IssueIslandState extends State<IssueIsland>
                   ? "issuance.island.body_sign"
                   : "issuance.island.body",
             ),
-            style: palette
-                .body(14.5)
-                .copyWith(color: const Color(0xFFE6E9EC), height: 21 / 14.5),
+            style: palette.paragraph.copyWith(
+              color: const Color(0xFFE6E9EC),
+              height: 22 / 15,
+            ),
           ),
         ),
         Align(

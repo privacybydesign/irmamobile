@@ -228,7 +228,7 @@ class _Menu<T> extends StatelessWidget {
                       child: Text(
                         section,
                         style: palette
-                            .body(12.5, weight: FontWeight.w600)
+                            .body(13, weight: FontWeight.w600)
                             .copyWith(color: palette.secondaryText),
                       ),
                     ),
@@ -248,12 +248,10 @@ class _Menu<T> extends StatelessWidget {
                   ),
                   child: Text(
                     footnote!,
-                    style: palette
-                        .body(12.5)
-                        .copyWith(
-                          height: 17 / 12.5,
-                          color: palette.secondaryText,
-                        ),
+                    style: palette.caption.copyWith(
+                      height: 16 / 12,
+                      color: palette.secondaryText,
+                    ),
                   ),
                 ),
               ],

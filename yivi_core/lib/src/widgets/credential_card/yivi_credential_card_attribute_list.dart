@@ -853,8 +853,8 @@ class ValueTag extends StatelessWidget {
           Text(
             text,
             style: palette
-                .body(12.5, weight: FontWeight.w600)
-                .copyWith(color: ink, height: 17 / 12.5),
+                .body(12, weight: FontWeight.w600)
+                .copyWith(color: ink, height: 16 / 12),
           ),
         ],
       ),

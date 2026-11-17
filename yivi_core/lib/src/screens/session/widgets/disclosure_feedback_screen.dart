@@ -286,9 +286,10 @@ class DisclosureFeedbackScreenState
           title,
           key: const Key("share_done_title"),
           textAlign: sideways ? TextAlign.start : TextAlign.center,
-          style: palette
-              .display(27, weight: FontWeight.w600)
-              .copyWith(height: 35 / 27, color: palette.text),
+          style: palette.titleResult.copyWith(
+            height: 34 / 26,
+            color: palette.text,
+          ),
         ),
       ),
       SizedBox(height: sideways ? 12 : 16),
@@ -1057,12 +1058,7 @@ class _NextBox extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            head,
-            style: palette
-                .display(19, weight: FontWeight.w700)
-                .copyWith(height: 25 / 19, color: palette.text),
-          ),
+          Text(head, style: palette.titleSmall.copyWith(color: palette.text)),
           Text(
             text,
             style: palette
