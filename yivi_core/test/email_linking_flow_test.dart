@@ -381,11 +381,13 @@ void main() {
       Finder checkButton() => find.byKey(const Key("bottom_bar_primary"));
       bool enabled() =>
           tester
-              .widget<InkWell>(
-                find.descendant(
-                  of: checkButton(),
-                  matching: find.byType(InkWell),
-                ),
+              .widget<GestureDetector>(
+                find
+                    .descendant(
+                      of: checkButton(),
+                      matching: find.byType(GestureDetector),
+                    )
+                    .first,
               )
               .onTap !=
           null;

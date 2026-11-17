@@ -74,86 +74,69 @@ class FancyPillButton extends StatelessWidget {
         overflow: bar ? TextOverflow.ellipsis : null,
       ),
     );
-    return Semantics(
-      button: true,
-      enabled: enabled,
+    return _Tap(
+      onTap: onPressed,
       label: label,
-      excludeSemantics: true,
-      child: PressScale(
-        enabled: enabled,
-        // Not pressable yet: a plain neutral fill, without the red and its
-        // facets, so it reads as waiting rather than as a faded red button.
-        // Solid rather than see-through: it covers the button it replaces
-        // while sheet pages change. The red fades in when it can be pressed.
-        child: ClipPath(
-          clipper: const ShapeBorderClipper(shape: shape),
-          child: ColoredBox(
-            color: palette.disabledFill,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: ExcludeSemantics(
-                    child: AnimatedOpacity(
-                      opacity: enabled ? 1 : 0,
-                      duration: enableFade,
-                      curve: Curves.easeOut,
-                      child: SvgPicture.asset(
-                        yiviAsset("ui/btn-bg.svg"),
-                        fit: BoxFit.fill,
-                      ),
+      dimWhenDisabled: false,
+      child: ClipPath(
+        clipper: const ShapeBorderClipper(shape: shape),
+        child: ColoredBox(
+          color: palette.disabledFill,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: ExcludeSemantics(
+                  child: AnimatedOpacity(
+                    opacity: enabled ? 1 : 0,
+                    duration: enableFade,
+                    curve: Curves.easeOut,
+                    child: SvgPicture.asset(
+                      yiviAsset("ui/btn-bg.svg"),
+                      fit: BoxFit.fill,
                     ),
                   ),
                 ),
-                Positioned.fill(
-                  child: IgnorePointer(
-                    // Dark: flat, no line across the top. Disabled: none.
-                    child: palette.isDark || !enabled
-                        ? null
-                        : DecoratedBox(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.28),
-                                ),
+              ),
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: palette.isDark || !enabled
+                      ? null
+                      : DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.28),
                               ),
                             ),
                           ),
-                  ),
+                        ),
                 ),
-                Material(
-                  type: MaterialType.transparency,
-                  child: InkWell(
-                    highlightColor: Colors.transparent,
-                    onTap: onPressed,
-                    // The size's height is the least: a label that wraps at a
-                    // large text size makes the pill taller.
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: size.height,
-                        minWidth: bar ? 0 : double.infinity,
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: bar ? 16 : 20,
-                          vertical: bar ? 0 : 8,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: bar
-                              ? MainAxisSize.min
-                              : MainAxisSize.max,
-                          spacing: YiviSpace.x8,
-                          children: [
-                            ?leading,
-                            Flexible(child: text),
-                          ],
-                        ),
-                      ),
+              ),
+              Material(
+                type: MaterialType.transparency,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: size.height,
+                    minWidth: bar ? 0 : double.infinity,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: bar ? 16 : 20,
+                      vertical: bar ? 0 : 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: bar ? MainAxisSize.min : MainAxisSize.max,
+                      spacing: YiviSpace.x8,
+                      children: [
+                        ?leading,
+                        Flexible(child: text),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -191,67 +174,58 @@ class FancyRoundButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final enabled = onPressed != null;
-    return Semantics(
-      button: true,
-      enabled: enabled,
+    return _Tap(
+      onTap: onPressed,
       label: label,
-      excludeSemantics: true,
-      child: PressScale(
-        scale: PressScale.button,
-        enabled: enabled,
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            shape: const CircleBorder(),
-            shadows: shadows,
-          ),
-          position: DecorationPosition.background,
-          child: ClipOval(
-            child: ColoredBox(
-              color: palette.disabledFill,
-              child: SizedBox.square(
-                dimension: size,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    AnimatedOpacity(
-                      opacity: enabled ? 1 : 0,
+      scale: PressScale.button,
+      dimWhenDisabled: false,
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: const CircleBorder(),
+          shadows: shadows,
+        ),
+        position: DecorationPosition.background,
+        child: ClipOval(
+          child: ColoredBox(
+            color: palette.disabledFill,
+            child: SizedBox.square(
+              dimension: size,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  AnimatedOpacity(
+                    opacity: enabled ? 1 : 0,
+                    duration: FancyPillButton.enableFade,
+                    curve: Curves.easeOut,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        SvgPicture.asset(
+                          yiviAsset("ui/round-btn-bg.svg"),
+                          fit: BoxFit.cover,
+                        ),
+                        const IgnorePointer(
+                          child: CustomPaint(painter: _RoundEdgePainter()),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Material(
+                    type: MaterialType.transparency,
+                    child: TweenAnimationBuilder<Color?>(
+                      tween: ColorTween(
+                        end: enabled ? Colors.white : palette.secondaryText,
+                      ),
                       duration: FancyPillButton.enableFade,
                       curve: Curves.easeOut,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          SvgPicture.asset(
-                            yiviAsset("ui/round-btn-bg.svg"),
-                            fit: BoxFit.cover,
-                          ),
-                          const IgnorePointer(
-                            child: CustomPaint(painter: _RoundEdgePainter()),
-                          ),
-                        ],
+                      builder: (context, color, _) => Icon(
+                        icon,
+                        color: color,
+                        size: iconSize ?? size * 0.5,
                       ),
                     ),
-                    Material(
-                      type: MaterialType.transparency,
-                      child: InkWell(
-                        highlightColor: Colors.transparent,
-                        customBorder: const CircleBorder(),
-                        onTap: onPressed,
-                        child: TweenAnimationBuilder<Color?>(
-                          tween: ColorTween(
-                            end: enabled ? Colors.white : palette.secondaryText,
-                          ),
-                          duration: FancyPillButton.enableFade,
-                          curve: Curves.easeOut,
-                          builder: (context, color, _) => Icon(
-                            icon,
-                            color: color,
-                            size: iconSize ?? size * 0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -406,24 +380,14 @@ class PillButton extends StatelessWidget {
       ),
     );
 
-    return Opacity(
-      opacity: onPressed == null ? 0.5 : 1,
-      child: PressScale(
-        enabled: onPressed != null,
-        child: Material(
-          color: fill,
-          shape: FancyPillButton.shape.copyWith(side: side),
-          clipBehavior: Clip.antiAlias,
-          // No ink: the pill gives feedback by scaling, like the other glass
-          // buttons.
-          child: InkWell(
-            onTap: onPressed,
-            splashFactory: NoSplash.splashFactory,
-            highlightColor: Colors.transparent,
-            overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-            child: content,
-          ),
-        ),
+    return _Tap(
+      onTap: onPressed,
+      label: label,
+      child: Material(
+        color: fill,
+        shape: FancyPillButton.shape.copyWith(side: side),
+        clipBehavior: Clip.antiAlias,
+        child: content,
       ),
     );
   }
@@ -460,46 +424,38 @@ class SmallPill extends StatelessWidget {
       color: fill,
       shape: const StadiumBorder(),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        highlightColor: Colors.transparent,
-        onTap: onPressed,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: height, minWidth: 44),
-          // Its own size, centred; a large text size makes it taller.
-          child: Align(
-            widthFactor: 1,
-            heightFactor: 1,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                14,
-                YiviSpace.x4,
-                14,
-                YiviSpace.x4,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 6,
-                children: [
-                  Flexible(
-                    child: Text(
-                      label,
-                      style: palette
-                          .body(13, weight: FontWeight.w600)
-                          .copyWith(color: fg),
-                    ),
+      child: // Its own size, centred; a large text size makes it taller.
+      ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: height, minWidth: 44),
+        child: Align(
+          widthFactor: 1,
+          heightFactor: 1,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              14,
+              YiviSpace.x4,
+              14,
+              YiviSpace.x4,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 6,
+              children: [
+                Flexible(
+                  child: Text(
+                    label,
+                    style: palette
+                        .body(13, weight: FontWeight.w600)
+                        .copyWith(color: fg),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
-    return Semantics(
-      button: true,
-      enabled: onPressed != null,
-      child: PressScale(enabled: onPressed != null, child: pill),
-    );
+    return _Tap(onTap: onPressed, label: label, child: pill);
   }
 }
 
@@ -524,37 +480,26 @@ class TextLink extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final fg = color ?? palette.link;
-    return Semantics(
-      button: true,
-      enabled: onPressed != null,
-      child: Opacity(
-        opacity: onPressed == null ? 0.5 : 1,
-        child: PressScale(
-          enabled: onPressed != null,
-          child: InkWell(
-            highlightColor: Colors.transparent,
-            onTap: onPressed,
-            customBorder: const StadiumBorder(),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
-                child: Center(
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: palette
-                        .body(15, weight: FontWeight.w600)
-                        .copyWith(
-                          color: fg,
-                          decoration: TextDecoration.none,
-                          decorationColor: fg,
-                        ),
+    return _Tap(
+      onTap: onPressed,
+      label: label,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
+          child: Center(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: palette
+                  .body(15, weight: FontWeight.w600)
+                  .copyWith(
+                    color: fg,
+                    decoration: TextDecoration.none,
+                    decorationColor: fg,
                   ),
-                ),
-              ),
             ),
           ),
         ),
@@ -611,6 +556,47 @@ class PlainIconButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// What every button here does with a tap: a button for screen readers
+/// (named [label] when given), a press scale, a plain tap without ink, and
+/// at half strength when it cannot be pressed ([dimWhenDisabled]).
+class _Tap extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final String? label;
+  final double scale;
+  final bool dimWhenDisabled;
+
+  const _Tap({
+    required this.child,
+    required this.onTap,
+    this.label,
+    this.scale = PressScale.button,
+    this.dimWhenDisabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+    Widget tap = PressScale(
+      scale: scale,
+      enabled: enabled,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: child,
+      ),
+    );
+    if (dimWhenDisabled && !enabled) tap = Opacity(opacity: 0.5, child: tap);
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: label,
+      excludeSemantics: label != null,
+      child: tap,
     );
   }
 }
