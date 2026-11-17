@@ -5,6 +5,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
+import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
@@ -50,6 +51,7 @@ void _device(WidgetTester tester, Size size, EdgeInsets padding) {
 
 class _FakeEmailIssuerApi implements EmailIssuerApi {
   final sent = <String>[];
+  final verified = <String>[];
   var codeRight = true;
 
   @override
@@ -63,6 +65,7 @@ class _FakeEmailIssuerApi implements EmailIssuerApi {
     required String email,
     required String verificationCode,
   }) async {
+    verified.add(verificationCode);
     if (!codeRight) throw EmailIssuanceInvalidCodeError();
     return SessionPointer(
       u: "https://email-issuer.example/session",
@@ -414,6 +417,60 @@ void main() {
       );
       expect(link.calls, 0);
       expect(done, 0);
+    });
+
+    group("the link in the e-mail, while the step shows", () {
+      Future<void> atCode(WidgetTester tester) async {
+        _device(
+          tester,
+          _sizes["phone upright"]!.$1,
+          _sizes["phone upright"]!.$2,
+        );
+        account.complete(null);
+        issuer.codeRight = false;
+        await pumpStep(tester);
+        await enterAddress(tester);
+        await tester.tap(find.byKey(const Key("enrollment_email_send")));
+        await settle(tester);
+      }
+
+      testWidgets("for the typed address: filled in and checked, and taken "
+          "from the queue", (tester) async {
+        await atCode(tester);
+        repo.setPendingPointer(
+          EmailCodePointer(email: "Jan@Example.com", code: "XYZ789"),
+        );
+        await settle(tester);
+        expect(issuer.verified, ["XYZ789"]);
+        expect(
+          await tester.runAsync(() => repo.getPendingPointer().first),
+          isNull,
+        );
+      });
+
+      testWidgets("for another address: ignored", (tester) async {
+        await atCode(tester);
+        repo.setPendingPointer(
+          EmailCodePointer(email: "evil@example.com", code: "XYZ789"),
+        );
+        await settle(tester);
+        expect(issuer.verified, isEmpty);
+      });
+
+      testWidgets("before a code was asked for: ignored", (tester) async {
+        _device(
+          tester,
+          _sizes["phone upright"]!.$1,
+          _sizes["phone upright"]!.$2,
+        );
+        await pumpStep(tester);
+        repo.setPendingPointer(
+          EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
+        );
+        await settle(tester);
+        expect(issuer.verified, isEmpty);
+        expect(issuer.sent, isEmpty);
+      });
     });
 
     testWidgets("phone sideways with the keyboard: Send code next to the "

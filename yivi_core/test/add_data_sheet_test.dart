@@ -12,12 +12,14 @@ import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_store.dart";
+import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
 import "package:yivi_core/src/providers/credential_store_provider.dart";
 import "package:yivi_core/src/providers/email_issuance_provider.dart";
+import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
@@ -31,6 +33,7 @@ import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_flow.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/util/handle_pointer.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
@@ -1128,6 +1131,39 @@ void main() {
     expect(find.byKey(const Key("issue_sheet_for_requestor")), findsNothing);
   });
 
+  testWidgets("a link in an e-mail while the sheet waits for the code is "
+      "dropped", (tester) async {
+    final api = _FakeEmailApi();
+    await _pump(
+      tester,
+      overrides: [emailIssuerApiProvider.overrideWithValue(api)],
+    );
+    await tester.tap(find.byKey(const Key("pbdf.sidn-pbdf.email_tile")));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key("sheet_go_button")));
+    await _pumpFor(tester);
+    await tester.enterText(
+      find.byKey(const Key("email_input_field")),
+      "jan@example.com",
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key("contact_sheet_send")));
+    await _pumpFor(tester);
+    expect(find.byKey(const Key("contact_sheet_code")), findsOneWidget);
+
+    handlePointer(
+      tester.element(find.byKey(const Key("contact_sheet_code"))),
+      EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
+    );
+    await _pumpFor(tester);
+    expect(api.verified, isEmpty);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byKey(const Key("contact_sheet_code"))),
+    );
+    expect(container.read(emailLinkingProvider).link, isNull);
+    expect(find.text("XYZ789"), findsNothing);
+  });
+
   testWidgets("a phone number: number, code, checked, all in the sheet", (
     tester,
   ) async {
@@ -1521,6 +1557,7 @@ class _FakeSmsApi implements SmsIssuerApi {
 
 class _FakeEmailApi implements EmailIssuerApi {
   final sent = <String>[];
+  final verified = <String>[];
 
   /// How long sending takes, as over the network.
   var delay = Duration.zero;
@@ -1538,12 +1575,15 @@ class _FakeEmailApi implements EmailIssuerApi {
   Future<SessionPointer> verifyCode({
     required String email,
     required String verificationCode,
-  }) async => SessionPointer(
-    u: "https://irma.example/session/abc",
-    irmaqr: "issuing",
-    protocol: Protocol.irma,
-    continueOnSecondDevice: true,
-  );
+  }) async {
+    verified.add(verificationCode);
+    return SessionPointer(
+      u: "https://irma.example/session/abc",
+      irmaqr: "issuing",
+      protocol: Protocol.irma,
+      continueOnSecondDevice: true,
+    );
+  }
 }
 
 /// Closing the sheet in the middle of adding a document: the screen it is
