@@ -1,0 +1,16 @@
+# texts
+Given name
+Erika
+Family name
+Mustermann
+Country
+DE
+# semantics
+Given name
+Erika
+Family name
+Mustermann
+Country
+DE
+# bordered boxes: 0
+# lines: 2

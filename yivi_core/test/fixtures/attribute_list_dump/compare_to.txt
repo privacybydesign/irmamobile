@@ -1,0 +1,21 @@
+# texts
+First names
+Willeke Liselotte
+
+Exactly what they ask
+Surname
+de Bruijn
+Asked: Jansen
+Email address
+w@example.org
+# semantics
+First names
+Willeke Liselotte
+Exactly what they ask
+Surname
+de Bruijn
+Asked: Jansen
+Email address
+w@example.org
+# bordered boxes: 2
+# lines: 0

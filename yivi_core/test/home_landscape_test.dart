@@ -36,6 +36,12 @@ class _FixedOrder extends CredentialOrderController {
 
   @override
   Future<List<Credential>> build() async => items;
+
+  /// The card with [hash] deleted.
+  void drop(String hash) => state = AsyncData([
+    for (final c in items)
+      if (c.hash != hash) c,
+  ]);
 }
 
 final _wallet = [
@@ -462,6 +468,48 @@ void main() {
         card.width / card.height,
         moreOrLessEquals(CredentialCardArt.aspectRatio, epsilon: 0.01),
       );
+    });
+
+    iosTest("the pane shows the picked card; when it is deleted, the "
+        "first card", (tester) async {
+      await pump(tester);
+      await tapCard(tester, "address");
+      expect(
+        find.byKey(const Key("credential_detail_pane_address")),
+        findsOneWidget,
+      );
+      (container(tester).read(credentialOrderControllerProvider.notifier)
+              as _FixedOrder)
+          .drop("address");
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key("credential_detail_pane_address")),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const Key("credential_detail_pane_personal")),
+        findsOneWidget,
+      );
+    });
+
+    iosTest("next to the pane: + while not searching, Cancel in its place "
+        "while searching", (tester) async {
+      await pump(tester);
+      final add = find.byKey(const Key("data_tab_add_data"));
+      final cancel = find.byKey(const Key("data_search_cancel"));
+      expect(add, findsOneWidget);
+      expect(cancel, findsNothing);
+      final place = tester.getRect(add);
+      await tester.tap(find.byKey(const Key("search_field")));
+      await tester.pumpAndSettle();
+      expect(add, findsNothing);
+      expect(cancel, findsOneWidget);
+      expect(tester.getRect(cancel).right, closeTo(place.right, 0.5));
+      expect(tester.getRect(cancel).center.dy, closeTo(place.center.dy, 0.5));
+      await tester.tap(cancel);
+      await tester.pumpAndSettle();
+      expect(add, findsOneWidget);
+      expect(tester.getRect(add), place);
     });
 
     iosTest("the search field floats on top of the cards", (tester) async {

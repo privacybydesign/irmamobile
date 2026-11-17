@@ -352,6 +352,55 @@ void main() {
       expect(focused(), isFalse);
     });
 
+    testWidgets("the query outlives the tab: built again, the field has "
+        "the text and the results stay", (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 1200);
+      addTearDown(tester.view.reset);
+      final shownTab = ValueNotifier(true);
+      await pumpHome(
+        tester,
+        repo: repo,
+        overrides: [
+          credentialsProvider.overrideWith(
+            (ref) => Stream.value((credentials: _wallet, problematic: [])),
+          ),
+          credentialOrderControllerProvider.overrideWith(
+            () => _FixedOrder(_wallet),
+          ),
+        ],
+        home: ValueListenableBuilder(
+          valueListenable: shownTab,
+          builder: (_, on, _) => on ? DataTab() : const SizedBox(),
+        ),
+      );
+      await settle(tester);
+      await tester.pumpAndSettle();
+      await search(tester, "utrecht");
+      final before = shown(tester);
+      expect(before, isNotEmpty);
+      expect(before.length, lessThan(_wallet.length));
+
+      shownTab.value = false;
+      await tester.pumpAndSettle();
+      expect(find.byType(DataTab), findsNothing);
+      shownTab.value = true;
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<EditableText>(
+              find.descendant(
+                of: find.byKey(const Key("search_field")),
+                matching: find.byType(EditableText),
+              ),
+            )
+            .controller
+            .text,
+        "utrecht",
+      );
+      expect(shown(tester), before);
+    });
+
     testWidgets("a card found by a field says which, with how many more", (
       tester,
     ) async {

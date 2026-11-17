@@ -1,0 +1,14 @@
+# texts
+Age
+Older than 21, not older than 65
+Show all ages
+City
+Arnhem
+# semantics
+Age
+Older than 21, not older than 65
+Show all ages
+City
+Arnhem
+# bordered boxes: 0
+# lines: 1

@@ -1,0 +1,16 @@
+# texts
+First names
+Willeke Liselotte
+Surname
+de Bruijn
+Email address
+w@example.org
+# semantics
+First names
+Willeke Liselotte
+Surname
+de Bruijn
+Email address
+w@example.org
+# bordered boxes: 0
+# lines: 2

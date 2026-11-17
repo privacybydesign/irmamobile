@@ -1,0 +1,28 @@
+# texts
+Over 12
+yes
+Over 16
+yes
+Over 18
+yes
+Over 21
+yes
+Over 65
+no
+City
+Arnhem
+# semantics
+Over 12
+yes
+Over 16
+yes
+Over 18
+yes
+Over 21
+yes
+Over 65
+no
+City
+Arnhem
+# bordered boxes: 0
+# lines: 0

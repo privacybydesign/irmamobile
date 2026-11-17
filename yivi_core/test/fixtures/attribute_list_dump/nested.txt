@@ -1,0 +1,45 @@
+# texts
+Name
+Radboud University
+Faculties
+2
+
+Science
+
+Courses
+Cryptography
+Distributed Systems
+Arts
+
+Courses
+Medieval Europe
+Address
+
+Street
+Kerkstraat 1
+City
+Nijmegen
+Nationalities
+NL
+BE
+# semantics
+Name
+Radboud University
+Faculties, 2
+Science
+Courses
+Cryptography
+Distributed Systems
+Arts
+Courses
+Medieval Europe
+Address
+Street
+Kerkstraat 1
+City
+Nijmegen
+Nationalities
+NL
+BE
+# bordered boxes: 9
+# lines: 1
