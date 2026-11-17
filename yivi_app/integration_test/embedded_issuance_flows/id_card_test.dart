@@ -10,7 +10,7 @@ import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/screens/home/home_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/passport_mrz_manual_entry_screen.dart";
 
 import "../helpers/document_reading_helpers.dart";
 import "../irma_binding.dart";
@@ -250,7 +250,7 @@ void main() {
       expect(fakeReader.readCallCount, 0);
     });
 
-    testWidgets("user can cancel NFC reading flow", (tester) async {
+    testWidgets("back from the chip ends the read", (tester) async {
       final cancelCompleter = Completer<void>();
       final fakeReader = FakePassportReader(
         mrzResult: fakeIdCardMrz,
@@ -269,16 +269,11 @@ void main() {
 
       await startNfcRead(tester);
 
-      // The full-screen route keeps its Cancel; it asks, then ends the read
-      // and goes home.
-      await tester.waitFor(find.byKey(const Key("bottom_bar_secondary")));
-      await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
-
-      await tester.waitFor(find.text("Cancel reading ID-card?"));
-      await tester.tapAndSettle(find.text("Yes"));
-      await tester.waitFor(find.byType(HomeScreen));
-
-      expect(fakeReader.cancelCount, 1);
+      // No Cancel in the sheet: back from the chip ends the read, and the
+      // details typed in are on top again.
+      await sheetBack(tester);
+      await tester.waitFor(find.byType(PassportMrzManualEntryScreen));
+      expect(find.byType(NfcReadingScreen), findsNothing);
     });
 
     testWidgets("creating issuance session fails should show error", (

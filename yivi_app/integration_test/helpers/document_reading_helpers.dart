@@ -10,8 +10,6 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
@@ -25,10 +23,11 @@ Future<void> navigateToDrivingLicenceNfcReadingScreen(
   FakeDrivingLicenceReader reader,
   FakePassportIssuer issuer,
 ) async {
-  await pumpAndUnlockApp(
+  // Through the Add data sheet, as a user would.
+  await openDrivingLicenceInstructionScreen(
     tester,
-    binding.repository,
-    providerOverrides: [
+    binding,
+    overrides: [
       drivingLicenceReaderProvider.overrideWith2((mrz) {
         reader.setMrz(mrz);
         return reader;
@@ -37,9 +36,10 @@ Future<void> navigateToDrivingLicenceNfcReadingScreen(
     ],
   );
 
-  final homeContext = tester.element(find.byType(HomeScreen));
-  homeContext.pushDocumentManualEntry(.drivingLicence);
-  await tester.pumpAndSettle();
+  // Start on the instruction; the camera has no access in these tests, so
+  // its fallback shows, with "Enter manually" as its only button.
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await tester.enterText(
     find.byKey(const Key("driving_licence_mrz_input_field")),
@@ -60,10 +60,11 @@ Future<void> navigateToIdCardNfcReadingScreen(
   FakePassportReader reader,
   FakePassportIssuer issuer,
 ) async {
-  await pumpAndUnlockApp(
+  // Through the Add data sheet, as a user would.
+  await openIdCardInstructionScreen(
     tester,
-    binding.repository,
-    providerOverrides: [
+    binding,
+    overrides: [
       idCardReaderProvider.overrideWith2((mrz) {
         reader.setMrz(mrz);
         return reader;
@@ -72,9 +73,10 @@ Future<void> navigateToIdCardNfcReadingScreen(
     ],
   );
 
-  final homeContext = tester.element(find.byType(HomeScreen));
-  homeContext.pushDocumentManualEntry(.identityCard);
-  await tester.pumpAndSettle();
+  // Start on the instruction; the camera has no access in these tests, so
+  // its fallback shows, with "Enter manually" as its only button.
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await tester.enterText(
     find.byKey(const Key("document_nr_input_field")),
@@ -103,10 +105,11 @@ Future<void> navigateToPassportNfcReadingScreen(
   FakePassportIssuer issuer, {
   RegulaFaceService? regulaFaceService,
 }) async {
-  await pumpAndUnlockApp(
+  // Through the Add data sheet, as a user would.
+  await openPassportInstructionScreen(
     tester,
-    binding.repository,
-    providerOverrides: [
+    binding,
+    overrides: [
       passportReaderProvider.overrideWith2((mrz) {
         reader.setMrz(mrz);
         return reader;
@@ -117,9 +120,10 @@ Future<void> navigateToPassportNfcReadingScreen(
     ],
   );
 
-  final homeContext = tester.element(find.byType(HomeScreen));
-  homeContext.pushDocumentManualEntry(.passport);
-  await tester.pumpAndSettle();
+  // Start on the instruction; the camera has no access in these tests, so
+  // its fallback shows, with "Enter manually" as its only button.
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await tester.enterText(
     find.byKey(const Key("document_nr_input_field")),
