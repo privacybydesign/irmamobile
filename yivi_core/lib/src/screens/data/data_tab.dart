@@ -28,7 +28,6 @@ import "../../util/navigation.dart";
 import "../../widgets/app_toast.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/glass_menu.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/pill_buttons.dart";
@@ -38,11 +37,11 @@ import "../../widgets/surface_card.dart";
 import "../../widgets/tab_layout.dart";
 import "../../widgets/title_scroll_edge.dart";
 import "../../widgets/translated_text.dart";
-import "../../widgets/two_pane.dart";
 import "../../widgets/yivi_spinner.dart";
 import "../add_data/add_data_sheet.dart";
 import "../home/widgets/home_tab_top.dart";
-import "../home/widgets/search_scroll_edge.dart";
+import "../home/widgets/search_tab_controller.dart";
+import "../home/widgets/search_tab_scaffold.dart";
 import "card_transition/card_transition.dart";
 import "card_transition/card_transition_layer.dart";
 import "card_transition/stack_cards.dart";
@@ -57,9 +56,6 @@ import "widgets/email_link_banner.dart";
 
 part "card_views.dart";
 
-/// Height of the floating search row at the top of the tab.
-const double _topBarHeight = 48;
-
 class DataTab extends ConsumerStatefulWidget {
   @override
   ConsumerState<DataTab> createState() => _DataTabState();
@@ -69,8 +65,14 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   /// The search outlives this State ([dataSearchProvider]): the tab is
   /// built anew when a card opened from the results closes.
   late String _query = ref.read(dataSearchProvider).query;
-  late final _search = TextEditingController(text: _query);
-  final _focus = FocusNode();
+
+  /// As in Activity: a tap in the field switches to the search right away,
+  /// before anything is typed; Cancel ends it, losing focus does not.
+  late final _search = SearchTabController(
+    this,
+    text: _query,
+    onFocus: () => ref.read(dataSearchProvider.notifier).start(),
+  );
 
   /// What the search looks in, made again only when the cards change.
   final _searchIndex = WalletSearchCache();
@@ -78,12 +80,6 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   @override
   void initState() {
     super.initState();
-    // As in Activity: a tap in the field switches to the search right away,
-    // before anything is typed; Cancel ends it, losing focus does not.
-    _focus.addListener(() {
-      if (!_focus.hasFocus) return;
-      ref.read(dataSearchProvider.notifier).start();
-    });
     // Built anew while a card opened from the search was open.
     _refocus();
   }
@@ -101,46 +97,15 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   @override
   void didPopNext() => _refocus();
 
-  /// Gives the field the keyboard back when it had it as a card opened,
-  /// once this page is on top again: the tab is also built anew while the
-  /// card is still open, and then it waits for [didPopNext].
-  void _refocus() => afterFrame(() {
-    if (!mounted || ModalRoute.of(context)?.isCurrent == false) return;
-    if (!ref.read(dataSearchProvider.notifier).takeRefocus()) return;
-    _whenCardGone(_showKeyboard);
-  });
-
-  /// Runs [then] once the card above this page has finished going, looked
-  /// at frame by frame: the route's animation does not report it.
-  void _whenCardGone(VoidCallback then, {int frames = 120}) {
-    final going = ModalRoute.of(context)?.secondaryAnimation;
-    if (going == null || going.isDismissed || frames == 0) return then();
-    afterFrame(() {
-      if (mounted) _whenCardGone(then, frames: frames - 1);
-    });
-    WidgetsBinding.instance.scheduleFrame();
-  }
-
-  /// As the card goes, the page gives the field its focus back by itself,
-  /// but without the keyboard, and asking a field that has the focus does
-  /// not bring it up then (seen on iOS): the field lets go and is asked
-  /// afresh, as a tap on it would.
-  void _showKeyboard() {
-    void ask() => _focus.context
-        ?.findAncestorStateOfType<EditableTextState>()
-        ?.requestKeyboard();
-    if (!_focus.hasFocus) return ask();
-    _focus.unfocus();
-    afterFrame(() {
-      if (mounted) ask();
-    });
-  }
+  /// Gives the field the keyboard back when it had it as a card opened.
+  void _refocus() => _search.showKeyboardWhenOnTop(
+    () => ref.read(dataSearchProvider.notifier).takeRefocus(),
+  );
 
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
     _search.dispose();
-    _focus.dispose();
     super.dispose();
   }
 
@@ -151,32 +116,22 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
 
   /// The field under the large title, or the bar's search button: search
   /// mode, with the field in the bar and the keyboard up.
-  void _startSearching() {
-    ref.read(dataSearchProvider.notifier).start();
-    afterFrame(() {
-      if (mounted) _focus.requestFocus();
-    });
-  }
+  void _startSearching() =>
+      _search.startInBar(ref.read(dataSearchProvider.notifier).start);
 
   void _stopSearching() {
-    _search.clear();
-    _focus.unfocus();
+    _search.stop();
     setState(() => _query = "");
     ref.read(dataSearchProvider.notifier).stop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final padding = MediaQuery.paddingOf(context);
     final panes = useHomePanes(context);
-    final top = panes
-        ? padding.top + FloatingBarPlacement.topGap(context)
-        : padding.top;
     // Next to a pane, and while searching, the list starts under the bar;
     // on a phone held upright its large title is on the bar's row.
     final topInset = panes
-        ? top + _topBarHeight + 8
+        ? SearchTabScaffold.edge(context)
         : HomeTabTop.listTop(context);
     final searching =
         ref.watch(dataSearchProvider.select((s) => s.active)) ||
@@ -190,18 +145,17 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       afterFrame(() => _revealCard(context, hash, top: topInset));
     });
 
-    final field = GlassSearchField(
+    Widget field(double height) => GlassSearchField(
       fieldKey: const Key("search_field"),
       hintKey: "wallet.search_placeholder",
-      controller: _search,
-      focusNode: _focus,
+      controller: _search.field,
+      focusNode: _search.focus,
       onChanged: _onQuery,
-      height: panes ? 48 : 44,
+      height: height,
     );
-    // Blue, as a plain action next to a field (the red is for the main one).
-    final cancel = TextLink(
+    final cancel = SearchCancelButton(
       key: const Key("data_search_cancel"),
-      label: context.tr("wallet.search_cancel"),
+      labelKey: "wallet.search_cancel",
       onPressed: _stopSearching,
     );
     final add = YiviIconButton(
@@ -211,67 +165,32 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       onTap: () => showAddDataSheet(context),
       look: IconButtonLook.bar,
     );
-    final content = _Content(
-      searchIndex: _searchIndex,
-      query: _query,
+    final hash = panes ? ref.watch(dataPaneCardProvider) : null;
+
+    return SearchTabScaffold(
       searching: searching,
-      topInset: topInset,
-      titleTop: HomeTabTop.titleTop(context),
-      onStartSearch: panes ? null : _startSearching,
-    );
-
-    // Next to a pane: the field floats over the list, with + beside it.
-    final list = panes
-        ? SearchScrollEdge(
-            height: top + _topBarHeight + 8,
-            top: top,
-            row: Row(
-              spacing: YiviSpace.x8,
-              children: [
-                Expanded(child: field),
-                if (searching) cancel else add,
-              ],
-            ),
-            child: content,
-          )
-        // A phone held upright: the large title scrolls under a solid bar,
-        // with "…" at its left and + at its right.
-        : HomeTabTop(
-            title: context.tr("home.nav_bar.data"),
-            searching: searching,
-            searchRow: Row(
-              spacing: YiviSpace.x4,
-              children: [
-                Expanded(child: field),
-                cancel,
-              ],
-            ),
-            searchButtonKey: const Key("data_search_button"),
-            searchLabel: context.tr("wallet.search_placeholder"),
-            onSearch: _startSearching,
-            leading: const _ViewMenuButton(),
-            // The + turns into the close button of a card that opens.
-            trailingTurnsIntoClose: true,
-            trailing: add,
-            // Rows and grid tiles fade where they are as a card opens over
-            // them (the stack has its own movement and doesn't come here).
-            othersDrop: false,
-            child: content,
-          );
-
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: palette.background,
-      body: panes ? _withDetailPane(list) : list,
-    );
-  }
-
-  /// The tablet layout: the cards next to the details of the open card
-  /// (the first card until the user picks one).
-  Widget _withDetailPane(Widget list) {
-    final hash = ref.watch(dataPaneCardProvider);
-    return TwoPane(
-      list: list,
+      title: context.tr("home.nav_bar.data"),
+      searchLabel: context.tr("wallet.search_placeholder"),
+      searchButtonKey: const Key("data_search_button"),
+      onStartSearch: _startSearching,
+      field: field,
+      barAction: cancel,
+      // Next to a pane: + beside the field, Cancel in its place.
+      rowAction: searching ? cancel : add,
+      // On a phone held upright "…" at the bar's left and + at its right;
+      // the + turns into the close button of a card that opens.
+      leading: const _ViewMenuButton(),
+      trailing: add,
+      trailingTurnsIntoClose: true,
+      list: _Content(
+        searchIndex: _searchIndex,
+        query: _query,
+        searching: searching,
+        topInset: topInset,
+        titleTop: HomeTabTop.titleTop(context),
+        onStartSearch: panes ? null : _startSearching,
+      ),
+      // The details of the open card: the first until the user picks one.
       placeholder: const EmptyDataPane(),
       detail: hash == null
           ? null
