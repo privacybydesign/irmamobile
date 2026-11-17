@@ -39,8 +39,8 @@ Widget _app() => IrmaTheme(
 
 void _open() => showGlassSheet<void>(
   context: _page,
-  builder: (_) => GlassSheetPage(
-    title: "Sheet",
+  builder: (_) => GlassSheetPage.scroll(
+    title: SheetTitle("Sheet"),
     child: Column(
       children: [
         const GlassSurface(

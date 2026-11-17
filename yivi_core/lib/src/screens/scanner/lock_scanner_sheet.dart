@@ -184,12 +184,10 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
     final state = ref.watch(pinUnlockProvider);
     final busy = state.authenticateInProgress || state.authenticated;
 
-    return GlassSheetPage(
+    return GlassSheetPage.fill(
       key: const Key("lock_scanner_unlock"),
-      title: context.tr("waiting_request.unlock_title"),
-      onBack: busy ? null : widget.onBack,
-      scrolls: false,
-      childClearsBottom: true,
+      title: SheetTitle(context.tr("waiting_request.unlock_title")),
+      exits: SheetExits(onBack: busy ? null : widget.onBack),
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       child: PinEntry(
         mode: UnlockEntry(

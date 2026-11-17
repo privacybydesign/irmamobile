@@ -243,10 +243,12 @@ Future<void> showSignedMessageSheet({
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) fly(opening: false);
       },
-      child: GlassSheetPage(
+      child: GlassSheetPage.scroll(
         key: const Key("message_sheet"),
-        title: context.tr("share.message_label"),
-        titleUnder: titleKey,
+        title: SheetTitle(
+          context.tr("share.message_label"),
+          reveal: SheetTitleReveal.under(titleKey),
+        ),
         padding: const EdgeInsets.fromLTRB(
           YiviSpace.x16,
           0,

@@ -50,15 +50,15 @@ class TechnicalDetailsSheet extends StatelessWidget {
         ),
       ),
     ];
-    return GlassSheetPage(
-      title: context.tr("share.tech.title"),
-      onBack: onBack,
+    return GlassSheetPage.scroll(
+      title: SheetTitle(context.tr("share.tech.title")),
+      exits: SheetExits(onBack: onBack),
       padding: const EdgeInsets.fromLTRB(
         YiviSpace.x16,
         0,
         YiviSpace.x16,
         YiviSpace.x24,
-      ),
+      ), // A phone held sideways: the groups in two columns.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -72,7 +72,6 @@ class TechnicalDetailsSheet extends StatelessWidget {
             ),
           ),
           if (useSheetColumns(context))
-            // A phone held sideways: the groups in two columns.
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: YiviSpace.x16,

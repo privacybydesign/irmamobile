@@ -514,31 +514,53 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
     }
 
     final landscape = useSheetColumns(context);
-    return GlassSheetPage(
-      // Left by dragging its header down: no close button.
-      closable: false,
-      title: context.tr(
-        _email
-            ? "email_issuance.enter_email.title"
-            : "sms_issuance.enter_phone.title",
-      ),
-      onBack: _back,
-      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-      split: landscape,
-      action: action,
-      // Two steps of their own: the address, then the code.
-      titleWidget: IssueRequestorPill.maybe(widget.subject),
-      titleWidgetCentred: true,
-      titleUnder: _headingKey,
-      bottomInBar: true,
-      bottom: IssueSheetProgress(step: code ? 3 : 2, total: widget.total),
-      child: landscape
-          ? body
-          : Padding(
-              padding: const EdgeInsets.only(top: YiviSpace.x8),
-              child: body,
-            ),
-    );
+    return landscape
+        ? GlassSheetPage.split(
+            // Two steps of their own: the address, then the code.
+            title: SheetTitle(
+              context.tr(
+                _email
+                    ? "email_issuance.enter_email.title"
+                    : "sms_issuance.enter_phone.title",
+              ),
+              widget: IssueRequestorPill.maybe(widget.subject),
+              centred: true,
+              reveal: SheetTitleReveal.under(_headingKey),
+            ), // Left by dragging its header down: no close button.
+            exits: SheetExits(onBack: _back, close: SheetClose.none),
+            action: action,
+            bottomInBar: true,
+            bottom: IssueSheetProgress(step: code ? 3 : 2, total: widget.total),
+            child: landscape
+                ? body
+                : Padding(
+                    padding: const EdgeInsets.only(top: YiviSpace.x8),
+                    child: body,
+                  ),
+          )
+        : GlassSheetPage.scroll(
+            // Two steps of their own: the address, then the code.
+            title: SheetTitle(
+              context.tr(
+                _email
+                    ? "email_issuance.enter_email.title"
+                    : "sms_issuance.enter_phone.title",
+              ),
+              widget: IssueRequestorPill.maybe(widget.subject),
+              centred: true,
+              reveal: SheetTitleReveal.under(_headingKey),
+            ), // Left by dragging its header down: no close button.
+            exits: SheetExits(onBack: _back, close: SheetClose.none),
+            padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
+            action: action,
+            bottom: IssueSheetProgress(step: code ? 3 : 2, total: widget.total),
+            child: landscape
+                ? body
+                : Padding(
+                    padding: const EdgeInsets.only(top: YiviSpace.x8),
+                    child: body,
+                  ),
+          );
   }
 }
 

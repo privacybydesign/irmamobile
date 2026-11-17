@@ -33,8 +33,8 @@ Widget _app() => IrmaTheme(
 /// A sheet whose list is taller than the sheet.
 void _open() => showGlassSheet<void>(
   context: _page,
-  builder: (_) => GlassSheetPage(
-    title: "Sheet",
+  builder: (_) => GlassSheetPage.scroll(
+    title: SheetTitle("Sheet"),
     child: Column(children: [for (var i = 0; i < 40; i++) Text("row $i")]),
   ),
 );
@@ -51,8 +51,8 @@ void _openGuarded({required bool answer}) {
         _asked++;
         return answer;
       },
-      child: GlassSheetPage(
-        title: "Sheet",
+      child: GlassSheetPage.scroll(
+        title: SheetTitle("Sheet"),
         child: Column(children: [for (var i = 0; i < 40; i++) Text("row $i")]),
       ),
     ),
@@ -82,10 +82,12 @@ void main() {
       await tester.pumpAndSettle();
       showGlassSheet<void>(
         context: _page,
-        builder: (_) => GlassSheetPage(
-          title: "Step",
-          onBack: () {},
-          closable: closable,
+        builder: (_) => GlassSheetPage.scroll(
+          title: SheetTitle("Step"),
+          exits: SheetExits(
+            onBack: () {},
+            close: closable ? SheetClose.end : SheetClose.none,
+          ),
           action: SheetAction(
             key: const Key("next"),
             label: "Next",
@@ -177,8 +179,8 @@ void main() {
       await tester.pumpAndSettle();
       showGlassSheet<void>(
         context: _page,
-        builder: (_) => GlassSheetPage(
-          title: "Step",
+        builder: (_) => GlassSheetPage.scroll(
+          title: SheetTitle("Step"),
           child: Builder(
             builder: (context) {
               SheetActionSlot.maybeOf(context)?.set(
@@ -413,7 +415,10 @@ void main() {
             asked++;
             return false;
           },
-          child: GlassSheetPage(title: "Sheet", child: Text("body")),
+          child: GlassSheetPage.scroll(
+            title: SheetTitle("Sheet"),
+            child: Text("body"),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -455,16 +460,16 @@ void main() {
             return GlassSheetPages(
               onBack: () => setState(() => pages = 1),
               pages: [
-                GlassSheetPage(
+                GlassSheetPage.scroll(
                   key: ValueKey("one"),
-                  title: "First",
+                  title: SheetTitle("First"),
                   child: Text("first page"),
                 ),
                 if (pages > 1)
-                  GlassSheetPage(
+                  GlassSheetPage.scroll(
                     key: const ValueKey("two"),
-                    title: "Second",
-                    onBack: () => setState(() => pages = 1),
+                    title: SheetTitle("Second"),
+                    exits: SheetExits(onBack: () => setState(() => pages = 1)),
                     child: const Text("second page"),
                   ),
               ],
@@ -489,20 +494,20 @@ void main() {
             return GlassSheetPages(
               onBack: () {},
               pages: [
-                GlassSheetPage(
+                GlassSheetPage.scroll(
                   key: ValueKey("one"),
-                  title: "First",
+                  title: SheetTitle("First"),
                   child: Text("first page"),
                 ),
                 if (under)
-                  GlassSheetPage(
+                  GlassSheetPage.scroll(
                     key: ValueKey("pin"),
-                    title: "PIN",
+                    title: SheetTitle("PIN"),
                     child: Text("pin page"),
                   ),
-                GlassSheetPage(
+                GlassSheetPage.scroll(
                   key: ValueKey("done"),
-                  title: "Success",
+                  title: SheetTitle("Success"),
                   child: Text("done page"),
                 ),
               ],
@@ -536,10 +541,10 @@ void main() {
       late StateSetter set;
       var top = 1;
       var pin = false;
-      Widget page(String name, {VoidCallback? onBack}) => GlassSheetPage(
+      Widget page(String name, {VoidCallback? onBack}) => GlassSheetPage.scroll(
         key: ValueKey(name),
-        title: name,
-        onBack: onBack,
+        title: SheetTitle(name),
+        exits: SheetExits(onBack: onBack),
         child: _Born(name: name, born: born),
       );
       showGlassSheet<void>(
@@ -646,17 +651,18 @@ void main() {
               onBack: () => setState(() => two = false),
               pages: [
                 // A field in the title's place, no back button.
-                GlassSheetPage(
+                GlassSheetPage.scroll(
                   key: ValueKey("one"),
-                  title: "First",
-                  titleWidget: Text("field"),
+                  title: SheetTitle("First", widget: Text("field")),
                   child: Text("first page"),
                 ),
                 if (two)
-                  GlassSheetPage(
+                  GlassSheetPage.scroll(
                     key: const ValueKey("two"),
-                    title: "Second",
-                    onBack: () => setState(() => two = false),
+                    title: SheetTitle("Second"),
+                    exits: SheetExits(
+                      onBack: () => setState(() => two = false),
+                    ),
                     child: const Text("second page"),
                   ),
               ],
@@ -706,18 +712,20 @@ void main() {
             return GlassSheetPages(
               onBack: () => setState(() => two = false),
               pages: [
-                GlassSheetPage(
+                GlassSheetPage.scroll(
                   key: const ValueKey("one"),
-                  title: "First",
+                  title: SheetTitle("First"),
                   child: Column(
                     children: [for (var i = 0; i < 60; i++) Text("row $i")],
                   ),
                 ),
                 if (two)
-                  GlassSheetPage(
+                  GlassSheetPage.scroll(
                     key: const ValueKey("two"),
-                    title: "Second",
-                    onBack: () => setState(() => two = false),
+                    title: SheetTitle("Second"),
+                    exits: SheetExits(
+                      onBack: () => setState(() => two = false),
+                    ),
                     child: const Text("second page"),
                   ),
               ],
@@ -768,9 +776,9 @@ void main() {
               return GlassSheetPages(
                 onBack: () => setState(() => two = false),
                 pages: [
-                  GlassSheetPage(
+                  GlassSheetPage.scroll(
                     key: ValueKey("one"),
-                    title: "First",
+                    title: SheetTitle("First"),
                     bottom: SizedBox(
                       key: Key("first_button"),
                       height: 52,
@@ -779,10 +787,12 @@ void main() {
                     child: Text("first page"),
                   ),
                   if (two)
-                    GlassSheetPage(
+                    GlassSheetPage.scroll(
                       key: const ValueKey("two"),
-                      title: "Second",
-                      onBack: () => setState(() => two = false),
+                      title: SheetTitle("Second"),
+                      exits: SheetExits(
+                        onBack: () => setState(() => two = false),
+                      ),
                       bottom: secondButton
                           ? const SizedBox(
                               key: Key("second_button"),
@@ -929,16 +939,17 @@ void main() {
             return GlassSheetPages(
               onBack: () => setState(() => pages = 1),
               pages: [
-                GlassSheetPage(
+                GlassSheetPage.scroll(
                   key: const ValueKey("list"),
-                  title: "List",
+                  title: SheetTitle(
+                    "List",
+                  ), // Depends on where its page is, as the progress
+                  // bar does.
                   child: Column(
                     children: [
                       const _Counted(),
                       Builder(
                         builder: (context) {
-                          // Depends on where its page is, as the progress
-                          // bar does.
                           GlassSheetPages.isTopPage(context);
                           builds++;
                           return Column(
@@ -952,10 +963,10 @@ void main() {
                   ),
                 ),
                 if (pages > 1)
-                  GlassSheetPage(
+                  GlassSheetPage.scroll(
                     key: const ValueKey("next"),
-                    title: "Next",
-                    onBack: () => setState(() => pages = 1),
+                    title: SheetTitle("Next"),
+                    exits: SheetExits(onBack: () => setState(() => pages = 1)),
                     child: const Text("next page"),
                   ),
               ],
@@ -1028,8 +1039,8 @@ void main() {
   group("the keyboard", () {
     void openWithField() => showGlassSheet<void>(
       context: _page,
-      builder: (_) => GlassSheetPage(
-        title: "Sheet",
+      builder: (_) => GlassSheetPage.scroll(
+        title: SheetTitle("Sheet"),
         bottom: const SizedBox(
           key: Key("sheet_buttons"),
           height: 52,
@@ -1080,15 +1091,15 @@ void main() {
             return GlassSheetPages(
               onBack: () => setState(() => pages = 1),
               pages: [
-                GlassSheetPage(
+                GlassSheetPage.scroll(
                   key: ValueKey("code"),
-                  title: "Code",
+                  title: SheetTitle("Code"),
                   child: TextField(key: Key("code_field"), autofocus: true),
                 ),
                 if (pages > 1)
-                  GlassSheetPage(
+                  GlassSheetPage.scroll(
                     key: ValueKey("next"),
-                    title: "Next",
+                    title: SheetTitle("Next"),
                     child: Text("no fields here"),
                   ),
               ],

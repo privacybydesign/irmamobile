@@ -762,8 +762,8 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final palette = YiviPalette.of(context);
     final set = addableOptions(pickOne);
     final inApp = ref.watch(cardTypesInAppProvider);
-    return GlassSheetPage(
-      title: context.tr("share.sheet.together_title"),
+    return GlassSheetPage.scroll(
+      title: SheetTitle(context.tr("share.sheet.together_title")),
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       child: Column(
         key: const Key("sheet_together"),
@@ -892,15 +892,15 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final title = pickOne.optional
         ? context.tr("share.sheet.optional_title")
         : context.tr("share.sheet.pick_card");
-    return GlassSheetPage(
-      title: title,
-      titleUnder: _chooseTitle,
+    return GlassSheetPage.scroll(
+      title: SheetTitle(title, reveal: SheetTitleReveal.under(_chooseTitle)),
       padding: const EdgeInsets.fromLTRB(
         YiviSpace.x16,
         0,
         YiviSpace.x16,
         YiviSpace.x24,
-      ),
+      ), // Optional data: leaving it out is the first choice, the whole
+      // width also held sideways.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -913,8 +913,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
                     "requestor": requestor,
                   }),
           ),
-          // Optional data: leaving it out is the first choice, the whole
-          // width also held sideways.
           if (pickOne.optional) ...[
             const SizedBox(height: YiviSpace.x16),
             _ShareNothingCard(
@@ -1013,10 +1011,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final title = pickOne.optional
         ? context.tr("share.sheet.optional_title")
         : context.tr("share.next.pick");
-    return GlassSheetPage(
-      title: title,
-      titleUnder: _kindsTitle,
-      // A low sheet with only the kinds; it grows into the full sheet as
+    return GlassSheetPage.scroll(
+      title: SheetTitle(
+        title,
+        reveal: SheetTitleReveal.under(_kindsTitle),
+      ), // A low sheet with only the kinds; it grows into the full sheet as
       // adding one comes in.
       fit: true,
       padding: const EdgeInsets.fromLTRB(

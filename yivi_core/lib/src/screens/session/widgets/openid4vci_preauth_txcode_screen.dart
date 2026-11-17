@@ -169,14 +169,15 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       final continueLabel = context.tr(
         "issuance.pre-authorized_code.tx_code_screen.continue",
       );
-      return GlassSheetPage(
-        // Left by dragging its header down: no close button.
-        closable: false,
+      return GlassSheetPage.scroll(
         key: const Key("sheet_openid4vci_tx_code"),
-        title: context.tr("issuance.pre-authorized_code.tx_code_screen.title"),
-        onBack: widget.onDismiss,
-        padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-        // A code of a known length is sent once it is complete.
+        title: SheetTitle(
+          context.tr("issuance.pre-authorized_code.tx_code_screen.title"),
+        ), // Left by dragging its header down: no close button.
+        exits: SheetExits(onBack: widget.onDismiss, close: SheetClose.none),
+        padding: const EdgeInsets.symmetric(
+          horizontal: YiviSpace.x16,
+        ), // A code of a known length is sent once it is complete.
         action: length != null
             ? null
             : SheetAction(

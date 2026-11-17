@@ -420,26 +420,30 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     };
 
     final justAdded = widget.justAdded;
-    final page = GlassSheetPage(
-      title: context.tr("data.add.title"),
-      titleWidget: _inBar
-          ? GlassSearchField(
-              fieldKey: const Key("add_data_search_bar"),
-              hintKey: "data.add.search",
-              controller: _search,
-              focusNode: _focus,
-              height: 44,
-              onChanged: (_) => setState(() {}),
-            )
-          : null,
-      // The close button at the top right on a phone held upright, as in
+    final page = GlassSheetPage.scroll(
+      title: SheetTitle(
+        context.tr("data.add.title"),
+        widget: _inBar
+            ? GlassSearchField(
+                fieldKey: const Key("add_data_search_bar"),
+                hintKey: "data.add.search",
+                controller: _search,
+                focusNode: _focus,
+                height: 44,
+                onChanged: (_) => setState(() {}),
+              )
+            : null,
+      ), // The close button at the top right on a phone held upright, as in
       // other sheets; on a tablet and a phone held sideways at the top left,
       // where the pages after this one keep the top right for the way on.
-      closeAtStart: useFormSheet(context) || usePhoneLandscape(context),
-      // The list's bands run from edge to edge; the rest keeps 16 from it
+      exits: SheetExits(
+        close: useFormSheet(context) || usePhoneLandscape(context)
+            ? SheetClose.start
+            : SheetClose.end,
+      ), // The list's bands run from edge to edge; the rest keeps 16 from it
       // ([_inset]).
+      // In the bar while searching, as the Data tab's: then not here.
       slivers: [
-        // In the bar while searching, as the Data tab's: then not here.
         if (!_inBar)
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(

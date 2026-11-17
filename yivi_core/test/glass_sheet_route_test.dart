@@ -52,8 +52,8 @@ void main() {
         canPop: canPop,
         onPopInvokedWithResult: (_, _) =>
             onPop?.call(glassSheetClosing(_inSheet)),
-        child: GlassSheetPage(
-          title: "Sheet",
+        child: GlassSheetPage.scroll(
+          title: SheetTitle("Sheet"),
           child: Builder(
             builder: (context) {
               _inSheet = context;

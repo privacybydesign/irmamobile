@@ -146,71 +146,138 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
         : null;
     final picture = _AppAndBrowser(host: widget.host, waiting: opened);
 
-    return GlassSheetPage(
-      title: widget.title,
-      titleWidget: widget.titleWidget,
-      titleWidgetCentred: true,
-      titleUnder: _headingKey,
-      onBack: widget.onBack,
-      action: SheetAction(
-        key: const Key("sheet_open_website"),
-        label: opened
-            ? context.tr("data.add.website.continue")
-            : context.tr("data.add.website.open", params),
-        busy: _opening,
-        onTap: _open,
-      ),
-      bottom: widget.bottom,
-      bottomInBar: true,
-      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-      split: sideways,
-      child: sideways
-          // A phone held sideways: the words at the left, the picture and
-          // the steps at the right.
-          ? SheetSplit(
-              start: [heading, lead],
-              end: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: YiviSpace.x12,
-                children: [
-                  SurfaceCard(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: YiviSpace.x24,
-                    ),
-                    child: picture,
-                  ),
-                  ?steps,
-                  ?other,
-                ],
-              ),
-            )
-          : Padding(
-              padding: const EdgeInsets.only(top: YiviSpace.x24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  picture,
-                  const SizedBox(height: YiviSpace.x32),
-                  heading,
-                  const SizedBox(height: YiviSpace.x8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: YiviSpace.x12,
-                    ),
-                    child: lead,
-                  ),
-                  if (steps != null) ...[
-                    const SizedBox(height: YiviSpace.x24),
-                    steps,
-                  ],
-                  if (other != null) ...[
-                    const SizedBox(height: YiviSpace.x16),
-                    other,
-                  ],
-                ],
-              ),
+    return sideways
+        ? GlassSheetPage.split(
+            title: SheetTitle(
+              widget.title,
+              widget: widget.titleWidget,
+              centred: true,
+              reveal: SheetTitleReveal.under(_headingKey),
             ),
-    );
+            exits: SheetExits(onBack: widget.onBack),
+            action: SheetAction(
+              key: const Key("sheet_open_website"),
+              label: opened
+                  ? context.tr("data.add.website.continue")
+                  : context.tr("data.add.website.open", params),
+              busy: _opening,
+              onTap: _open,
+            ),
+            bottom: widget.bottom,
+            bottomInBar:
+                true, // A phone held sideways: the words at the left, the picture and
+            // the steps at the right.
+            child: sideways
+                ? SheetSplit(
+                    start: [heading, lead],
+                    end: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: YiviSpace.x12,
+                      children: [
+                        SurfaceCard(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: YiviSpace.x24,
+                          ),
+                          child: picture,
+                        ),
+                        ?steps,
+                        ?other,
+                      ],
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(top: YiviSpace.x24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        picture,
+                        const SizedBox(height: YiviSpace.x32),
+                        heading,
+                        const SizedBox(height: YiviSpace.x8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: YiviSpace.x12,
+                          ),
+                          child: lead,
+                        ),
+                        if (steps != null) ...[
+                          const SizedBox(height: YiviSpace.x24),
+                          steps,
+                        ],
+                        if (other != null) ...[
+                          const SizedBox(height: YiviSpace.x16),
+                          other,
+                        ],
+                      ],
+                    ),
+                  ),
+          )
+        : GlassSheetPage.scroll(
+            title: SheetTitle(
+              widget.title,
+              widget: widget.titleWidget,
+              centred: true,
+              reveal: SheetTitleReveal.under(_headingKey),
+            ),
+            exits: SheetExits(onBack: widget.onBack),
+            action: SheetAction(
+              key: const Key("sheet_open_website"),
+              label: opened
+                  ? context.tr("data.add.website.continue")
+                  : context.tr("data.add.website.open", params),
+              busy: _opening,
+              onTap: _open,
+            ),
+            bottom: widget.bottom,
+            padding: const EdgeInsets.symmetric(
+              horizontal: YiviSpace.x16,
+            ), // A phone held sideways: the words at the left, the picture and
+            // the steps at the right.
+            child: sideways
+                ? SheetSplit(
+                    start: [heading, lead],
+                    end: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: YiviSpace.x12,
+                      children: [
+                        SurfaceCard(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: YiviSpace.x24,
+                          ),
+                          child: picture,
+                        ),
+                        ?steps,
+                        ?other,
+                      ],
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(top: YiviSpace.x24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        picture,
+                        const SizedBox(height: YiviSpace.x32),
+                        heading,
+                        const SizedBox(height: YiviSpace.x8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: YiviSpace.x12,
+                          ),
+                          child: lead,
+                        ),
+                        if (steps != null) ...[
+                          const SizedBox(height: YiviSpace.x24),
+                          steps,
+                        ],
+                        if (other != null) ...[
+                          const SizedBox(height: YiviSpace.x16),
+                          other,
+                        ],
+                      ],
+                    ),
+                  ),
+          );
   }
 }
 

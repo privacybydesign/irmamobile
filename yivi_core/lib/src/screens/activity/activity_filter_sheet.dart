@@ -168,9 +168,9 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   }
 
   Widget _main(YiviPalette palette, int? total, bool ready) {
-    return GlassSheetPage(
+    return GlassSheetPage.scroll(
       key: const Key("activity_filter_main"),
-      title: _t("sheet.title"),
+      title: SheetTitle(_t("sheet.title")),
       padding: const EdgeInsets.fromLTRB(
         YiviSpace.x16,
         YiviSpace.x4,
@@ -396,10 +396,10 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
       _leaveCardPage();
       _set(_q.withCard(c));
     });
-    return GlassSheetPage(
+    return GlassSheetPage.scroll(
       key: const Key("activity_filter_cards"),
-      title: _t("sheet.card"),
-      onBack: () => setState(_leaveCardPage),
+      title: SheetTitle(_t("sheet.card")),
+      exits: SheetExits(onBack: () => setState(_leaveCardPage)),
       slivers: [
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(

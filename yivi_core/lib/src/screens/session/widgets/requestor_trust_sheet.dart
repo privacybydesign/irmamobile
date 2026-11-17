@@ -276,86 +276,158 @@ class RequestorTrustSheet extends StatelessWidget {
       namesRoute: true,
       scopesRoute: true,
       explicitChildNodes: true,
-      child: GlassSheetPage(
-        title: "",
-        onBack: onBack,
-        // No title in the bar; once something is under it, the hard edge.
-        // Held sideways the columns scroll each on their own.
-        padding: const EdgeInsets.fromLTRB(
-          YiviSpace.x16,
-          YiviSpace.x4,
-          YiviSpace.x16,
-          YiviSpace.x24,
-        ),
-        split: sideways,
-        child: _columns(
-          context,
-          [
-            // The card's logo flies in here.
-            Center(
-              child: RequestorLogo(
-                requestor: requestor,
-                style: style,
-                size: 84,
-                flightKey: logoKey,
-                heroTag: logoHeroTag,
-              ),
-            ),
-            const SizedBox(height: YiviSpace.x16),
-            Semantics(
-              header: true,
-              child: Text(
-                head,
-                key: const Key("trust_sheet_head"),
-                textAlign: TextAlign.center,
-                style: palette.titleCompact.copyWith(color: palette.text),
-              ),
-            ),
-            const SizedBox(height: YiviSpace.x4),
-            Text(
-              body,
-              textAlign: TextAlign.center,
-              style: palette
-                  .body(15)
-                  .copyWith(height: 22 / 15, color: palette.heading),
-            ),
-          ],
-          [
-            _Group(
-              children: [
-                for (final f in facts) _FactRow(fact: f, style: style),
-              ],
-            ),
-            CapsLabel(
-              doLabel,
-              padding: const EdgeInsets.fromLTRB(
-                YiviSpace.x8,
-                YiviSpace.x24,
-                YiviSpace.x8,
-                YiviSpace.x8,
-              ),
-            ),
-            _Group(children: [for (final d in dos) _DoRow(item: d)]),
-            // For the curious, last and out of the way.
-            if (onTechnicalDetails case final open?) ...[
-              const SizedBox(height: YiviSpace.x24),
-              _Group(
-                children: [
-                  _DoRow(
-                    item: _Do(
-                      key: const Key("trust_sheet_technical_details"),
-                      icon: Icons.code_rounded,
-                      title: context.tr("share.tech.link"),
-                      subtitle: context.tr("share.tech.link_text"),
-                      onTap: open,
+      child: sideways
+          ? GlassSheetPage.split(
+              title: SheetTitle(""),
+              exits: SheetExits(
+                onBack: onBack,
+              ), // The card's logo flies in here.
+              // For the curious, last and out of the way.
+              child: _columns(
+                context,
+                [
+                  Center(
+                    child: RequestorLogo(
+                      requestor: requestor,
+                      style: style,
+                      size: 84,
+                      flightKey: logoKey,
+                      heroTag: logoHeroTag,
                     ),
                   ),
+                  const SizedBox(height: YiviSpace.x16),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      head,
+                      key: const Key("trust_sheet_head"),
+                      textAlign: TextAlign.center,
+                      style: palette.titleCompact.copyWith(color: palette.text),
+                    ),
+                  ),
+                  const SizedBox(height: YiviSpace.x4),
+                  Text(
+                    body,
+                    textAlign: TextAlign.center,
+                    style: palette
+                        .body(15)
+                        .copyWith(height: 22 / 15, color: palette.heading),
+                  ),
+                ],
+                [
+                  _Group(
+                    children: [
+                      for (final f in facts) _FactRow(fact: f, style: style),
+                    ],
+                  ),
+                  CapsLabel(
+                    doLabel,
+                    padding: const EdgeInsets.fromLTRB(
+                      YiviSpace.x8,
+                      YiviSpace.x24,
+                      YiviSpace.x8,
+                      YiviSpace.x8,
+                    ),
+                  ),
+                  _Group(children: [for (final d in dos) _DoRow(item: d)]),
+                  if (onTechnicalDetails case final open?) ...[
+                    const SizedBox(height: YiviSpace.x24),
+                    _Group(
+                      children: [
+                        _DoRow(
+                          item: _Do(
+                            key: const Key("trust_sheet_technical_details"),
+                            icon: Icons.code_rounded,
+                            title: context.tr("share.tech.link"),
+                            subtitle: context.tr("share.tech.link_text"),
+                            onTap: open,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
-            ],
-          ],
-        ),
-      ),
+            )
+          : GlassSheetPage.scroll(
+              title: SheetTitle(""),
+              exits: SheetExits(
+                onBack: onBack,
+              ), // No title in the bar; once something is under it, the hard edge.
+              // Held sideways the columns scroll each on their own.
+              padding: const EdgeInsets.fromLTRB(
+                YiviSpace.x16,
+                YiviSpace.x4,
+                YiviSpace.x16,
+                YiviSpace.x24,
+              ), // The card's logo flies in here.
+              // For the curious, last and out of the way.
+              child: _columns(
+                context,
+                [
+                  Center(
+                    child: RequestorLogo(
+                      requestor: requestor,
+                      style: style,
+                      size: 84,
+                      flightKey: logoKey,
+                      heroTag: logoHeroTag,
+                    ),
+                  ),
+                  const SizedBox(height: YiviSpace.x16),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      head,
+                      key: const Key("trust_sheet_head"),
+                      textAlign: TextAlign.center,
+                      style: palette.titleCompact.copyWith(color: palette.text),
+                    ),
+                  ),
+                  const SizedBox(height: YiviSpace.x4),
+                  Text(
+                    body,
+                    textAlign: TextAlign.center,
+                    style: palette
+                        .body(15)
+                        .copyWith(height: 22 / 15, color: palette.heading),
+                  ),
+                ],
+                [
+                  _Group(
+                    children: [
+                      for (final f in facts) _FactRow(fact: f, style: style),
+                    ],
+                  ),
+                  CapsLabel(
+                    doLabel,
+                    padding: const EdgeInsets.fromLTRB(
+                      YiviSpace.x8,
+                      YiviSpace.x24,
+                      YiviSpace.x8,
+                      YiviSpace.x8,
+                    ),
+                  ),
+                  _Group(children: [for (final d in dos) _DoRow(item: d)]),
+                  if (onTechnicalDetails case final open?) ...[
+                    const SizedBox(height: YiviSpace.x24),
+                    _Group(
+                      children: [
+                        _DoRow(
+                          item: _Do(
+                            key: const Key("trust_sheet_technical_details"),
+                            icon: Icons.code_rounded,
+                            title: context.tr("share.tech.link"),
+                            subtitle: context.tr("share.tech.link_text"),
+                            onTap: open,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
     );
   }
 

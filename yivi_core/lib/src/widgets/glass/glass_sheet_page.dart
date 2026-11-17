@@ -173,63 +173,6 @@ class GlassSheetPage extends StatefulWidget {
        fit = false,
        underBar = null;
 
-  /// The old flags, until every page uses the constructors above.
-  GlassSheetPage({
-    super.key,
-    required String title,
-    Widget? titleWidget,
-    VoidCallback? onBack,
-    this.child,
-    this.slivers,
-    this.bottom,
-    this.action,
-    bool closable = true,
-    bool closeAtStart = false,
-    EdgeInsets padding = EdgeInsets.zero,
-    bool scrolls = true,
-    bool childClearsBottom = false,
-    bool split = false,
-    this.slotBottom = false,
-    this.fit = false,
-    bool titleWidgetCentred = false,
-    double? titleAfterScroll,
-    GlobalKey? titleUnder,
-    this.bottomInBar = false,
-    Widget? underBar,
-    GlobalKey? underBarAfter,
-  }) : title = SheetTitle(
-         title,
-         widget: titleWidget,
-         centred: titleWidgetCentred,
-         reveal: titleUnder != null
-             ? SheetTitleReveal.under(titleUnder)
-             : titleAfterScroll != null
-             ? SheetTitleReveal.afterScroll(titleAfterScroll)
-             : const SheetTitleReveal.always(),
-       ),
-       exits = SheetExits(
-         onBack: onBack,
-         close: !closable
-             ? SheetClose.none
-             : closeAtStart
-             ? SheetClose.start
-             : SheetClose.end,
-       ),
-       _body = split
-           ? _PageBody.split
-           : scrolls
-           ? _PageBody.scroll
-           : _PageBody.fill,
-       padding = split ? EdgeInsets.zero : padding,
-       underBar = underBar == null || underBarAfter == null
-           ? null
-           : (row: underBar, after: underBarAfter),
-       assert((child == null) != (slivers == null), "child or slivers"),
-       assert(
-         (scrolls && !split) || child != null,
-         "a page that fills itself has a child",
-       );
-
   bool get _scrolls => _body == _PageBody.scroll;
   bool get _split => _body == _PageBody.split;
 
@@ -693,8 +636,10 @@ Future<void> showTitledGlassSheet({
   required Widget child,
 }) => showGlassSheet<void>(
   context: context,
-  builder: (context) =>
-      GlassSheetPage(title: context.tr(titleKey), child: child),
+  builder: (context) => GlassSheetPage.scroll(
+    title: SheetTitle(context.tr(titleKey)),
+    child: child,
+  ),
 );
 
 /// How many sheets are fully open: the band behind Android's buttons then

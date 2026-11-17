@@ -74,7 +74,8 @@ void main() {
       await tester.pumpAndSettle();
       showGlassSheet<void>(
         context: _page,
-        builder: (_) => GlassSheetPage(title: "Sheet", child: _rows()),
+        builder: (_) =>
+            GlassSheetPage.scroll(title: SheetTitle("Sheet"), child: _rows()),
       );
       await tester.pumpAndSettle();
     }
@@ -117,8 +118,8 @@ void main() {
       await tester.pumpAndSettle();
       showGlassSheet<void>(
         context: _page,
-        builder: (_) => GlassSheetPage(
-          title: "Sheet",
+        builder: (_) => GlassSheetPage.scroll(
+          title: SheetTitle("Sheet"),
           child: Column(
             children: [
               for (var i = 0; i < 40; i++)

@@ -46,16 +46,16 @@ void _openTwoPages() {
         return GlassSheetPages(
           onBack: back,
           pages: [
-            GlassSheetPage(
+            GlassSheetPage.scroll(
               key: ValueKey("one"),
-              title: "First",
+              title: SheetTitle("First"),
               child: Text("first page"),
             ),
             if (two)
-              GlassSheetPage(
+              GlassSheetPage.scroll(
                 key: const ValueKey("two"),
-                title: "Second",
-                onBack: back,
+                title: SheetTitle("Second"),
+                exits: SheetExits(onBack: back),
                 child: const Text("second page"),
               ),
           ],

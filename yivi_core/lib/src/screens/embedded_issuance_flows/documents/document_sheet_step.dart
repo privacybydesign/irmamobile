@@ -278,39 +278,39 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
 
   @override
   Widget build(BuildContext context) {
-    return GlassSheetPage(
-      // Left by dragging its header down: no close button.
-      closable: false,
-      title: context.tr(_titleKey),
-      onBack: _back,
+    // The screens fill the page; upright their buttons are in the page's
+    // bottom bar, which stays put while they change.
+    return GlassSheetPage.fill(
       // Each screen has its heading in the page; the bar names it once
       // that has scrolled away.
-      titleWidget: IssueRequestorPill.maybe(widget.subject),
-      titleWidgetCentred: true,
-      titleAfterScroll: 60,
-      // Above the screens' buttons, staying put while they change (also on
+      title: SheetTitle(
+        context.tr(_titleKey),
+        widget: IssueRequestorPill.maybe(widget.subject),
+        centred: true,
+        reveal: SheetTitleReveal.afterScroll(60),
+      ), // Left by dragging its header down: no close button.
+      exits: SheetExits(
+        onBack: _back,
+        close: SheetClose.none,
+      ), // Above the screens' buttons, staying put while they change (also on
       // a screen without buttons, which keeps their room).
       bottomInBar: true,
       bottom: IssueSheetProgress(step: _screen.step, total: widget.total),
-      // The screens fill the page; upright their buttons are in the page's
-      // bottom bar, which stays put while they change.
-      scrolls: false,
-      childClearsBottom: true,
-      slotBottom: true,
+      slotBottom:
+          true, // System back steps back in the flow first; closing the sheet
+      // leaves the screens as they are while it goes.
+      // A container of its own: its routes block the semantics of
+      // what was painted before them, which would otherwise include the
+      // sheet's bar (title, back, close) for screen readers.
       child: MediaQuery.removePadding(
         context: context,
         removeTop: true,
         child: DocumentStepInSheet(
           preparing: _preparing,
-          // System back steps back in the flow first; closing the sheet
-          // leaves the screens as they are while it goes.
           child: NavigatorPopHandler(
             onPopWithResult: (_) {
               if (!glassSheetClosing(context)) _back();
             },
-            // A container of its own: its routes block the semantics of
-            // what was painted before them, which would otherwise include the
-            // sheet's bar (title, back, close) for screen readers.
             child: Semantics(
               container: true,
               explicitChildNodes: true,

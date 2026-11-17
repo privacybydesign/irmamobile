@@ -190,11 +190,12 @@ class _CountryPickerState extends State<_CountryPicker> {
       height: landscape ? 40 : 44,
       onChanged: (q) => setState(() => _query = q),
     );
-    return GlassSheetPage(
-      title: _t("country_title"),
+    return GlassSheetPage.scroll(
       // Sideways the search field is in the bar, next to the title.
-      titleWidget: landscape ? search : null,
-      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
+      title: SheetTitle(_t("country_title"), widget: landscape ? search : null),
+      padding: const EdgeInsets.symmetric(
+        horizontal: YiviSpace.x16,
+      ), // As far below the search field as a list under a header.
       slivers: [
         if (!landscape) SliverToBoxAdapter(child: search),
         if (query.isEmpty) ...[
@@ -214,7 +215,6 @@ class _CountryPickerState extends State<_CountryPicker> {
             ),
           )
         else ...[
-          // As far below the search field as a list under a header.
           const SliverToBoxAdapter(child: SizedBox(height: YiviSpace.x16)),
           group(null, found),
         ],
