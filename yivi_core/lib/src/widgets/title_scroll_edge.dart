@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
 import "../util/after_frame.dart";
@@ -169,7 +170,7 @@ class BarTitleFade extends StatelessWidget {
       final fade = AnimatedOpacity(
         key: fadeKey,
         opacity: visible ? 1 : 0,
-        duration: const Duration(milliseconds: 180),
+        duration: YiviMotion.quick,
         curve: Curves.easeOut,
         child: child,
       );

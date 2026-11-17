@@ -311,7 +311,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// The pick-up as the drag starts, in time rather than with the hand.
   late final _picking = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 160),
+    duration: YiviMotion.quick,
   )..addListener(_steerHand);
 
   @override

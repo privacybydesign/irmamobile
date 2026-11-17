@@ -55,7 +55,7 @@ abstract final class HomeNavigation {
   static const double lineThickness = 3;
 
   static Duration _slide(BuildContext context) =>
-      YiviMotion.duration(context, const Duration(milliseconds: 240));
+      YiviMotion.duration(context, YiviMotion.quick);
 }
 
 /// The tabs: the label's key, the selected icon and the other one.

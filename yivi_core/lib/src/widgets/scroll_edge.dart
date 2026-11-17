@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 
 /// How far content has scrolled under a bar, from 0 (nothing under it) to 1
@@ -154,7 +155,7 @@ class ShownTween extends StatelessWidget {
     valueListenable: shown,
     builder: (context, on, _) => TweenAnimationBuilder<double>(
       tween: Tween(end: on ? 1 : 0),
-      duration: const Duration(milliseconds: 240),
+      duration: YiviMotion.quick,
       curve: Curves.easeOut,
       builder: (context, t, _) => builder(t),
     ),

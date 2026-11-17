@@ -70,7 +70,7 @@ class TwoPane extends StatelessWidget {
                       child: AnimatedSwitcher(
                         duration: YiviMotion.duration(
                           context,
-                          const Duration(milliseconds: 220),
+                          YiviMotion.quick,
                         ),
                         child:
                             detail ??

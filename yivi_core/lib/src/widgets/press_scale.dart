@@ -31,7 +31,7 @@ class _PressScaleState extends State<_PressScale> {
       onPointerCancel: (_) => _press(false),
       child: AnimatedScale(
         scale: _down && !reduceMotion ? widget.scale : 1,
-        duration: const Duration(milliseconds: 220),
+        duration: YiviMotion.quick,
         curve: YiviMotion.ease,
         child: widget.child,
       ),

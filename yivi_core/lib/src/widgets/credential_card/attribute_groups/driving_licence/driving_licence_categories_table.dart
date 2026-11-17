@@ -87,7 +87,7 @@ class _DrivingLicenceCategoriesTableState
     } else {
       position.animateTo(
         target,
-        duration: const Duration(milliseconds: 250),
+        duration: YiviMotion.standard,
         curve: Curves.easeInOut,
       );
     }

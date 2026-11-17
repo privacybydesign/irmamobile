@@ -13,6 +13,7 @@ import "../../models/log_entry.dart";
 import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
 import "../../providers/pane_selection_provider.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
@@ -856,7 +857,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     // Next to the field: Cancel while typing; after Enter the filter, as
     // Cancel makes room for it.
     final fieldAction = AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
+      duration: YiviMotion.standard,
       switchInCurve: Curves.easeOut,
       switchOutCurve: Curves.easeIn,
       layoutBuilder: (current, previous) => Row(

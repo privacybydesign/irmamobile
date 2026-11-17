@@ -235,7 +235,7 @@ class IssueRequestorPill extends StatelessWidget {
     // While the island is open it stands in the pill's place.
     final pill = AnimatedOpacity(
       opacity: scope?.isOpen ?? false ? 0 : 1,
-      duration: const Duration(milliseconds: 160),
+      duration: YiviMotion.quick,
       child: Center(
         child: Semantics(
           key: const Key("issue_sheet_for_requestor"),

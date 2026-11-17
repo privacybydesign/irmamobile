@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_edges.dart";
+import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../theme/yivi_space.dart";
 import "../theme/yivi_tone.dart";
@@ -84,7 +85,7 @@ class _ErrorDetailsState extends State<ErrorDetails> {
           ),
         ),
         AnimatedSize(
-          duration: const Duration(milliseconds: 240),
+          duration: YiviMotion.quick,
           curve: Curves.easeOutCubic,
           alignment: Alignment.topCenter,
           child: !_open

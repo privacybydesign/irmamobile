@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/credential.dart";
 import "../../providers/credential_field_search.dart";
 import "../../theme/theme.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";

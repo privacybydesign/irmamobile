@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../providers/qr_scanner_factory_provider.dart";
+import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/press_scale.dart";
@@ -41,7 +42,7 @@ class TorchButton extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AnimatedContainer(
-                    duration: const Duration(milliseconds: 160),
+                    duration: YiviMotion.quick,
                     width: size,
                     height: size,
                     decoration: BoxDecoration(

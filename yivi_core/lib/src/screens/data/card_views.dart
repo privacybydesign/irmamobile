@@ -134,7 +134,7 @@ class _Nudge extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(end: open ? 1 : 0),
-      duration: YiviMotion.duration(context, const Duration(milliseconds: 320)),
+      duration: YiviMotion.duration(context, YiviMotion.standard),
       curve: Curves.easeOutCubic,
       child: child,
       builder: (context, t, child) => Transform.translate(

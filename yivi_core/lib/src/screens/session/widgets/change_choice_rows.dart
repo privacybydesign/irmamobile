@@ -131,7 +131,7 @@ class _OwnedCard extends StatelessWidget {
           child: FadingTileOutline(
             shown: selected,
             color: YiviPalette.of(context).link,
-            duration: const Duration(milliseconds: 220),
+            duration: YiviMotion.quick,
             outlineKey: const Key("sheet_chosen_ring"),
             child: SharedCardTile(bundle: bundle),
           ),

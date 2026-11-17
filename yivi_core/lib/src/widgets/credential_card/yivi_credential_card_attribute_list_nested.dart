@@ -381,7 +381,7 @@ class _FoldHeader extends StatelessWidget {
             if (onTap != null)
               AnimatedRotation(
                 turns: open ? 0.5 : 0,
-                duration: const Duration(milliseconds: 220),
+                duration: YiviMotion.quick,
                 curve: Curves.easeOutCubic,
                 child: Icon(
                   Icons.expand_more_rounded,

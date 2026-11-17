@@ -349,10 +349,7 @@ class _FoldState extends State<_Fold> {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final duration = YiviMotion.duration(
-      context,
-      const Duration(milliseconds: 220),
-    );
+    final duration = YiviMotion.duration(context, YiviMotion.quick);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

@@ -3,6 +3,7 @@ import "dart:ui" show lerpDouble;
 import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../glass/round_icon_button.dart";
@@ -242,7 +243,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
   bool _dragging = false;
   late final _springBack = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 220),
+    duration: YiviMotion.quick,
   )..addListener(() => setState(() => _drag = _dragFrom * (1 - _springT)));
   double _dragFrom = 0;
   double get _springT => Curves.easeOutCubic.transform(_springBack.value);
@@ -384,7 +385,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                       opacity: _chrome && !_dragging && _drag == 0
                           ? route.value
                           : 0,
-                      duration: const Duration(milliseconds: 180),
+                      duration: YiviMotion.quick,
                       child: DecoratedBox(
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
@@ -446,7 +447,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                     // Follows the route at once; eases when the bars hide.
                     duration: route.isAnimating
                         ? Duration.zero
-                        : const Duration(milliseconds: 180),
+                        : YiviMotion.quick,
                     builder: (context, opacity, _) => IrmaCloseButton(
                       key: const Key("photo_viewer_close"),
                       onTap: _close,

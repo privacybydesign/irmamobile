@@ -213,7 +213,7 @@ void main() {
       expect(_band, findsNothing);
       shown.value = true;
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 120));
+      await tester.pump(const Duration(milliseconds: 80));
       // Fading in with the header.
       final half = tester.widget<DecoratedBox>(_band).decoration;
       expect((half as BoxDecoration).color!.a, inExclusiveRange(0, 0.7));
