@@ -1152,7 +1152,9 @@ void main() {
       });
 
       testWidgets("the last transaction code wrong, then an error: the "
-          "error screen, not the lockout", (tester) async {
+          "lockout over the sheet; closed, the sheet without the session", (
+        tester,
+      ) async {
         final (_, nested) = await start(
           tester,
           openId(SessionStatus.requestPreAuthorizedCode, txCode: txCode),
@@ -1167,8 +1169,19 @@ void main() {
         await _pumpFor(tester);
         nested.add(openId(SessionStatus.error));
         await _pumpFor(tester);
-        expect(find.byType(SessionErrorScreen), findsOneWidget);
+        expect(find.byType(TxCodeLockoutScreen), findsOneWidget);
+        expect(find.byType(SessionErrorScreen), findsNothing);
+        tester
+            .widget<TxCodeLockoutScreen>(find.byType(TxCodeLockoutScreen))
+            .onTapClose();
+        await _pumpFor(tester);
         expect(find.byType(TxCodeLockoutScreen), findsNothing);
+        expect(_sheet, findsOneWidget);
+        expect(find.byKey(const Key("sheet_openid4vci_tx_code")), findsNothing);
+        expect(
+          find.byKey(const ValueKey(("issue_sheet_progress", 2, 3))),
+          findsOneWidget,
+        );
       });
 
       testWidgets("a pairing code: the session screen is pushed, the sheet "

@@ -11,6 +11,7 @@ import "../../../providers/contact_issuance_provider.dart";
 import "../../../providers/credential_store_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/nested_issuance_host_provider.dart";
+import "../../../providers/session_flow_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
@@ -31,7 +32,9 @@ import "../../embedded_issuance_flows/documents/document_flow.dart";
 import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
 import "../../error/session_error_screen.dart";
+import "../../error/tx_code_lockout_screen.dart";
 import "../models/disclosure_view_model.dart";
+import "../models/session_view.dart";
 import "../models/technical_details.dart";
 import "issuance_permission.dart";
 import "issuance_success_screen.dart";
@@ -187,9 +190,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The sheet takes the next session that starts, without a type picked
   /// first ([issueTakeSession]): only its issuance pages show.
   bool _standalone = false;
-
-  /// OpenID4VCI sessions whose pre-authorized code was granted already.
-  final _vciGranted = <int>{};
 
   /// The issuer's website was opened for [issueAdding].
   bool _opened = false;
@@ -686,16 +686,17 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   void issueListen() {
     final nested = _nestedId;
     if (nested == null) return;
-    ref.listen(sessionStateProvider(nested), (prev, next) {
-      if (next.value case final state?) _onNested(prev?.value, state);
-    });
+    ref.listen(sessionFlowProvider(nested), _onNested);
   }
 
-  void _onNested(SessionState? previous, SessionState next) {
-    final status = next.status;
-    if (status == SessionStatus.success) {
+  void _onNested(SessionView? previous, SessionView next) {
+    // Only what a state of the session says: not before the first one, and
+    // not while a tap waits for Go's answer (the page stays as it was).
+    if (next.state == null || next is SessionWaiting) return;
+    if (next is SessionSucceeded) {
+      if (previous is SessionSucceeded) return;
       // Kept: the request picks the cards up and the state moves on.
-      final cards = next.offeredCredentials ?? const [];
+      final cards = next.state.offeredCredentials ?? const [];
       _repo.clearInAppLaunches();
       _hosts.unregister(this);
       _pin = false;
@@ -708,7 +709,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       setState(() {});
       return;
     }
-    if (status == SessionStatus.dismissed) {
+    if (next is SessionDismissed) {
+      if (previous is SessionDismissed) return;
       if (_standalone && issueAdding == null) {
         _forgetSession();
         _pin = false;
@@ -725,67 +727,55 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     }
     // The PIN is a page in the sheet, on top of the issuance, while irmago
     // asks for it.
-    final pin = status == SessionStatus.requestPin;
+    final pin = next is SessionPin;
     if (pin) _pinShown = true;
     if (pin != _pin) setState(() => _pin = pin);
-    // OpenID4VCI without a transaction code: granted at once, as on the
-    // session screen; the next state follows.
-    if (status == SessionStatus.requestPreAuthorizedCode &&
-        next.transactionCodeParameters == null &&
-        _vciGranted.add(next.id)) {
-      _grantPreAuthorizedCode(next.id, null);
-    }
-    if (status == previous?.status || _overSheet || pin) return;
-    if (status == SessionStatus.error) {
-      _showOverSheet(
-        (context) => SessionErrorScreen(
-          error: next.error,
-          onTapClose: () => Navigator.of(context).pop(),
-        ),
-        then: () {
-          if (!mounted) return;
-          setState(() {
-            _nestedId = null;
-            _granted = false;
-          });
-          if (_standalone && issueAdding == null) issueSessionEnded();
-        },
-      );
-    } else if (!_handledInSheet(next)) {
-      // Anything else (a pairing code, an OpenID4VCI code, a request instead
-      // of an issuance) takes the session screen, as without the sheet.
-      final id = next.id;
-      setState(() => _nestedId = null);
-      issueRouteContext.pushSessionScreen(
-        SessionRouteParams(
-          sessionId: id,
-          hasUnderlyingSession: issueRequest != null,
-        ),
-      );
-      if (_standalone && issueAdding == null) issueSessionEnded();
+    if (pin || _overSheet || previous.runtimeType == next.runtimeType) return;
+    switch (next) {
+      // Over the sheet, then back to it without the session.
+      case SessionFailed(:final error, :final state):
+        _showOverSheet(
+          (context) => SessionErrorScreen(
+            // The error as Go sent it (it may have none); else why the
+            // state could not be shown.
+            error: state?.status == SessionStatus.error ? state!.error : error,
+            onTapClose: () => Navigator.of(context).pop(),
+          ),
+          then: _afterOverSheet,
+        );
+      case SessionTxLockout():
+        _showOverSheet(
+          (context) => TxCodeLockoutScreen(
+            onTapClose: () => Navigator.of(context).pop(),
+          ),
+          then: _afterOverSheet,
+        );
+      // A pairing code, or a request instead of an issuance, takes the
+      // session screen, as without the sheet.
+      case SessionPairing() || SessionShare():
+        final id = next.state!.id;
+        setState(() => _nestedId = null);
+        issueRouteContext.pushSessionScreen(
+          SessionRouteParams(
+            sessionId: id,
+            hasUnderlyingSession: issueRequest != null,
+          ),
+        );
+        if (_standalone && issueAdding == null) issueSessionEnded();
+      // The offer and OpenID4VCI's own steps are pages of the sheet.
+      case _:
     }
   }
 
-  bool _handledInSheet(SessionState s) => _openIdStep(s) || _isOffer(s);
-
-  /// "Do you want to add this data?": an issuance without anything to
-  /// disclose first.
-  bool _isOffer(SessionState s) =>
-      s.status == SessionStatus.requestPermission &&
-      s.type == SessionType.issuance &&
-      s.offeredCredentials != null &&
-      (s.disclosurePlan?.disclosureChoicesOverview?.isEmpty ?? true);
-
-  /// OpenID4VCI's own steps before the offer: a transaction code, or the
-  /// issuer's website for the authorization code. Shown in the sheet too.
-  bool _openIdStep(SessionState s) =>
-      s.status == SessionStatus.requestPreAuthorizedCode ||
-      (s.status == SessionStatus.requestAuthorizationCode &&
-          s.authorizationRequestUrl != null &&
-          s.offeredCredentialTypes != null);
-
-  void _grantPreAuthorizedCode(int sessionId, String? transactionCode) =>
-      _repo.grantPreAuthorizedCode(sessionId, transactionCode);
+  /// Back from a page over the sheet: the sheet without the session.
+  void _afterOverSheet() {
+    if (!mounted) return;
+    setState(() {
+      _nestedId = null;
+      _granted = false;
+    });
+    if (_standalone && issueAdding == null) issueSessionEnded();
+  }
 
   void _showOverSheet(WidgetBuilder builder, {VoidCallback? then}) {
     _overSheet = true;
@@ -1161,20 +1151,18 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   /// Step 3: the issuance that came back, then "Success".
   Widget _buildIssuance(int? nestedId, IssueSheetSubject? subject, int total) {
-    final state = nestedId == null
+    final view = nestedId == null
         ? null
-        : ref.watch(sessionStateProvider(nestedId)).value;
-    if (state != null && nestedId != null && _openIdStep(state)) {
-      return _buildOpenIdStep(state, nestedId);
+        : ref.watch(sessionFlowProvider(nestedId));
+    if (_openIdStepOf(view) case final step? when nestedId != null) {
+      return _buildOpenIdStep(step, nestedId);
     }
     final awaiting =
         nestedId != null &&
         ref.watch(sessionAwaitingInteractionProvider(nestedId));
     // After "Add", and under "Success" (sliding away as it comes in), the
     // offer as it was: the session has moved on by then.
-    final current = state != null && _isOffer(state) && !awaiting
-        ? state
-        : null;
+    final current = view is SessionOffer ? view.state : null;
     if (current != null) _lastOffer = current;
     final offer =
         current ?? (issueAdded != null || _granted ? _lastOffer : null);
@@ -1375,13 +1363,55 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     setState(() => _opened = false);
   }
 
-  /// OpenID4VCI's transaction code or authorization-code step, as a page.
-  /// Back declines the issuance.
-  Widget _buildOpenIdStep(SessionState state, int sessionId) {
-    if (state.status == SessionStatus.requestPreAuthorizedCode) {
-      final parameters = state.transactionCodeParameters;
-      if (parameters == null) {
-        // Granted at once (see _onNested); the next state follows.
+  /// OpenID4VCI's own step before the offer in [view], if it is one: a
+  /// transaction code, the issuer's website for the authorization code, or
+  /// the wait while a pre-authorized code without a transaction code is
+  /// granted. While a tap waits for Go's answer the step stays.
+  SessionView? _openIdStepOf(SessionView? view) {
+    final step = switch (view) {
+      SessionWaiting(:final state?) => sessionViewOf(state, awaiting: false),
+      _ => view,
+    };
+    return switch (step) {
+      SessionTxCode() || SessionAuthCode() => step,
+      SessionWaiting(:final state?)
+          when state.status == SessionStatus.requestPreAuthorizedCode =>
+        step,
+      _ => null,
+    };
+  }
+
+  /// OpenID4VCI's transaction code or authorization-code step ([step], from
+  /// [_openIdStepOf]), as a page. Back declines the issuance.
+  Widget _buildOpenIdStep(SessionView step, int sessionId) {
+    final flow = ref.read(sessionFlowProvider(sessionId).notifier);
+    switch (step) {
+      case SessionTxCode(:final state, :final parameters):
+        return OpenID4VCIPreAuthTxCodeScreen(
+          inSheet: true,
+          sessionId: sessionId,
+          issuedCredentials: state.offeredCredentialTypes ?? const [],
+          transactionCodeParameters: parameters,
+          onSubmit: flow.grantPreAuthorizedCode,
+          onDismiss: () => _dismissNested(sessionId),
+        );
+      case SessionAuthCode(:final state, :final url):
+        // The issuer's login in the browser: the website page of adding a
+        // card, as for a card from a website.
+        return IssueWebsiteStep(
+          key: const Key("sheet_openid4vci_authcode"),
+          title: context.tr("issuance.authorization_code.pending.title"),
+          host: hostOf(url) ?? state.requestor.name,
+          issuer: state.requestor.name,
+          opened: _vciOpened.contains(sessionId),
+          onOpen: () async {
+            setState(() => _vciOpened.add(sessionId));
+            await _repo.authenticateOpenID4VCI(url);
+          },
+          onBack: () => _dismissNested(sessionId),
+        );
+      default:
+        // Granted at once (by the session's flow); the next state follows.
         return GlassSheetPage.scroll(
           title: SheetTitle(context.tr("issuance.title")),
           // Left by dragging its header down: no close button.
@@ -1391,31 +1421,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           ),
           child: _loading(),
         );
-      }
-      return OpenID4VCIPreAuthTxCodeScreen(
-        inSheet: true,
-        sessionId: sessionId,
-        issuedCredentials: state.offeredCredentialTypes ?? const [],
-        transactionCodeParameters: parameters,
-        onSubmit: (code) => _grantPreAuthorizedCode(sessionId, code),
-        onDismiss: () => _dismissNested(sessionId),
-      );
     }
-    // The issuer's login in the browser: the website page of adding a
-    // card, as for a card from a website.
-    final url = state.authorizationRequestUrl!;
-    return IssueWebsiteStep(
-      key: const Key("sheet_openid4vci_authcode"),
-      title: context.tr("issuance.authorization_code.pending.title"),
-      host: hostOf(url) ?? state.requestor.name,
-      issuer: state.requestor.name,
-      opened: _vciOpened.contains(sessionId),
-      onOpen: () async {
-        setState(() => _vciOpened.add(sessionId));
-        await _repo.authenticateOpenID4VCI(url);
-      },
-      onBack: () => _dismissNested(sessionId),
-    );
   }
 
   Widget _buildSuccess(
@@ -1581,7 +1587,7 @@ typedef IssueSuccessLink = ({String label, VoidCallback onTap, Key key});
 
 /// The PIN for the issuance in the sheet, as a page of the sheet: the PIN
 /// pad without the logo, under the sheet's bar and the progress.
-class _NestedPin extends ConsumerStatefulWidget {
+class _NestedPin extends StatelessWidget {
   final int sessionId;
   final IssueSheetSubject? subject;
 
@@ -1598,46 +1604,24 @@ class _NestedPin extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_NestedPin> createState() => _NestedPinState();
-}
-
-class _NestedPinState extends ConsumerState<_NestedPin> {
-  late final _repo = ref.read(irmaRepositoryProvider);
-
-  @override
   Widget build(BuildContext context) {
-    final state = ref.watch(sessionStateProvider(widget.sessionId)).value;
-    final awaiting = ref.watch(
-      sessionAwaitingInteractionProvider(widget.sessionId),
-    );
     // The pad fills the page and scales itself to it; it does not scroll.
     // It keeps clear of the home indicator itself (YiviPinScreen), so the
     // link under the keypad sits as low as on the full-screen PIN.
     return GlassSheetPage.fill(
       title: SheetTitle(
         context.tr("issuance.title"),
-        widget: IssueRequestorPill.maybe(widget.subject),
+        widget: IssueRequestorPill.maybe(subject),
         centred: true,
       ),
       // Left by dragging its header down: no close button.
-      exits: SheetExits(onBack: widget.onCancel, close: SheetClose.none),
+      exits: SheetExits(onBack: onCancel, close: SheetClose.none),
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-      child: SessionPinEntryScreen(
+      child: SessionPinPage(
         key: const Key("sheet_pin"),
+        sessionId: sessionId,
         inSheet: true,
-        title: "issuance.title",
-        detail: state == null
-            ? null
-            : sessionPinDetail(
-                context,
-                kind: "issuance",
-                requestor: state.requestor.name,
-              ),
-        remainingAttempts: state?.remainingPinAttempts,
-        blockedTimeSeconds: state?.pinBlockedTimeSeconds,
-        submitting: awaiting,
-        onPinEntered: (pin) => _repo.enterSessionPin(widget.sessionId, pin),
-        onCancel: widget.onCancel,
+        onCancel: onCancel,
       ),
     );
   }
