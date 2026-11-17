@@ -3,22 +3,20 @@ import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
-import "package:permission_handler/permission_handler.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
-import "../../../util/test_detection.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/translated_text.dart";
+import "../../scanner/util/camera_access.dart";
 import "document_instruction_screen.dart" show DocumentTipBox;
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
@@ -55,36 +53,23 @@ class MrzReaderScreenState extends ConsumerState<MrzReaderScreen> {
   // One scanner across the portrait and landscape layouts: the key keeps its
   // state (and the camera) when the device turns.
   final _scannerKey = GlobalKey<MrzScannerState>();
-  late PermissionStatus _cameraPermissionStatus = .denied;
-
-  @override
-  void initState() {
-    super.initState();
-    _initCameraPermission();
-  }
-
-  void _initCameraPermission() {
-    afterFrame(() async {
-      if (TestContext.isRunningIntegrationTest(context)) {
-        return;
-      }
-      final status = await Permission.camera.request();
-      if (!mounted) return;
-      setState(() {
-        _cameraPermissionStatus = status;
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    final body = _cameraPermissionStatus == .granted
-        ? MrzScanner(
-            key: _scannerKey,
-            onSuccess: widget.onSuccess,
-            mrzParser: widget.mrzParser,
-          )
-        : const _DarkPermissionFallback();
+    // While it is looked up the dark card shows, without words. In
+    // integration tests there is no camera: the fallback shows.
+    final body = CameraAccessBuilder(
+      inTests: CameraAccess.denied,
+      builder: (context, access) => switch (access) {
+        null => const SizedBox.shrink(),
+        CameraAccess.granted => MrzScanner(
+          key: _scannerKey,
+          onSuccess: widget.onSuccess,
+          mrzParser: widget.mrzParser,
+        ),
+        _ => const _DarkPermissionFallback(),
+      },
+    );
 
     // In a sheet, as on the canvas: the picture in a rounded card under the
     // sheet's bar, "Enter manually" under it, no Cancel.
@@ -341,11 +326,11 @@ class _SheetCamera extends StatelessWidget {
 
 /// Without camera permission, on the dark camera screen: what to do, in
 /// white, between the title and the buttons.
-class _DarkPermissionFallback extends StatelessWidget {
+class _DarkPermissionFallback extends ConsumerWidget {
   const _DarkPermissionFallback();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
     // Clear of the buttons: under it, or beside it held sideways.
@@ -378,10 +363,9 @@ class _DarkPermissionFallback extends StatelessWidget {
             TextLink(
               label: context.tr("mrz_camera_permissions.open_settings"),
               color: Colors.white,
-              onPressed: () async {
-                await openAppSettings();
-                if (context.mounted) Navigator.of(context).pop();
-              },
+              // The camera stays, and looks again when the app comes back.
+              onPressed: () =>
+                  ref.read(cameraPermissionProvider).openSettings(),
             ),
           ],
         ),

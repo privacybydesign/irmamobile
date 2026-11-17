@@ -6,7 +6,6 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
-import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
@@ -41,55 +40,7 @@ class ScannerScreen extends ConsumerStatefulWidget {
   ConsumerState<ScannerScreen> createState() => ScannerScreenState();
 }
 
-class ScannerScreenState extends ConsumerState<ScannerScreen>
-    with WidgetsBindingObserver {
-  /// Null while it is being looked up.
-  CameraAccess? _access;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    afterFrame(() => _check(ask: true));
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Back from Settings (or the system's question): look again.
-    if (state == AppLifecycleState.resumed &&
-        _access != null &&
-        _access != CameraAccess.granted) {
-      _check();
-    }
-  }
-
-  Future<void> _check({bool ask = false}) async {
-    if (!mounted) return;
-    // During integration tests there is no camera to ask for.
-    if (TestContext.isRunningIntegrationTest(context)) {
-      setState(() => _access = CameraAccess.granted);
-      return;
-    }
-    final permission = ref.read(cameraPermissionProvider);
-    var access = await permission.status();
-    if (access == CameraAccess.askable && ask) {
-      access = await permission.request();
-    }
-    if (!mounted) return;
-    // Once asked, anything but yes sends the user to Settings.
-    setState(
-      () => _access = access == CameraAccess.granted
-          ? CameraAccess.granted
-          : CameraAccess.denied,
-    );
-  }
-
+class ScannerScreenState extends ConsumerState<ScannerScreen> {
   void onQrScanned(Pointer pointer) {
     if (pointer is SessionPointer) {
       // QR was scanned using the in-app scanner, so the session
@@ -128,14 +79,18 @@ class ScannerScreenState extends ConsumerState<ScannerScreen>
     if (TestContext.isRunningIntegrationTest(context)) {
       return Container();
     }
-    return switch (_access) {
-      null => const SizedBox.shrink(),
-      CameraAccess.granted => QRScanner(side: side, onFound: onQrScanned),
-      _ => _NoCamera(
-        side: side,
-        onOpenSettings: () => ref.read(cameraPermissionProvider).openSettings(),
-      ),
-    };
+    return CameraAccessBuilder(
+      inTests: CameraAccess.granted,
+      builder: (context, access) => switch (access) {
+        null => const SizedBox.shrink(),
+        CameraAccess.granted => QRScanner(side: side, onFound: onQrScanned),
+        _ => _NoCamera(
+          side: side,
+          onOpenSettings: () =>
+              ref.read(cameraPermissionProvider).openSettings(),
+        ),
+      },
+    );
   }
 }
 
