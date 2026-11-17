@@ -65,7 +65,7 @@ class EmptyDataTitle extends StatelessWidget {
               .display(tablet ? 28 : 24, weight: FontWeight.w700)
               .copyWith(height: tablet ? 36 / 28 : 32 / 24),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: YiviSpace.x8),
         TranslatedText(
           "data_tab.start.text",
           textAlign: TextAlign.center,
@@ -88,7 +88,7 @@ class EmptyDataPane extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(YiviSpace.x16),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
           child: Column(
@@ -130,7 +130,7 @@ class EmptyDataOptions extends StatelessWidget {
     final tablet = isTabletWindow(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 10,
+      spacing: YiviSpace.x12,
       children: [
         _Option(
           key: const Key("empty_data_qr"),
@@ -202,9 +202,9 @@ class _Option extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(YiviSpace.x16),
             child: Row(
-              spacing: 14,
+              spacing: YiviSpace.x16,
               children: [
                 ExcludeSemantics(
                   child: IconSquare(

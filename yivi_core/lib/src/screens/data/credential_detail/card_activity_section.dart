@@ -67,7 +67,7 @@ class CardActivitySection extends ConsumerWidget {
               YiviSpace.x4,
               0,
               YiviSpace.x4,
-              10,
+              YiviSpace.x12,
             ),
             child: Text(
               summary(),
@@ -76,7 +76,7 @@ class CardActivitySection extends ConsumerWidget {
             ),
           )
         else
-          const SizedBox(height: 6),
+          const SizedBox(height: YiviSpace.x8),
         SurfaceCard(
           clipBehavior: Clip.antiAlias,
           child: Column(

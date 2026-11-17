@@ -778,7 +778,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 6, bottom: 6),
+      padding: const EdgeInsets.only(top: YiviSpace.x8, bottom: YiviSpace.x8),
       child: Row(
         children: [
           Expanded(

@@ -329,7 +329,7 @@ class _CompactHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       key: const Key("credential_detail_compact_header"),
-      spacing: 14,
+      spacing: YiviSpace.x16,
       children: [
         CredentialCardArt(
           credential: credential,
