@@ -847,12 +847,10 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       onTap: _openFilter,
       look: IconButtonLook.bar,
     );
-    final cancel = TextButton(
+    final cancel = TextLink(
       key: const Key("activity_search_cancel"),
-      // Blue, as a plain action next to a field.
-      style: TextButton.styleFrom(foregroundColor: palette.link),
+      label: context.tr("activity.query.cancel"),
       onPressed: _endSearching,
-      child: Text(context.tr("activity.query.cancel")),
     );
     // Next to the field: Cancel while typing; after Enter the filter, as
     // Cancel makes room for it.

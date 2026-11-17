@@ -743,7 +743,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
       // The dots centred, the eye beside them (and the arrow, for a short PIN
       // that is possibly not secure); an equal space on the other side keeps
       // the dots in the middle.
-      final side = _shortNeedsArrow ? 84.0 : 40.0;
+      final side = _shortNeedsArrow ? 88.0 : 44.0;
       field = SizedBox(
         height: _pinFieldHeight,
         child: Row(
@@ -821,28 +821,13 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
     String semanticLabelKey,
     VoidCallback fn,
   ) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(28),
-      child: Ink(
-        width: 32,
-        height: 32,
-        decoration: const BoxDecoration(shape: BoxShape.circle),
-        child: Semantics(
-          button: true,
-          child: InkWell(
-            highlightColor: Colors.transparent,
-            onTap: fn,
-            customBorder: const CircleBorder(),
-            child: Icon(
-              icon,
-              size: 20,
-              color: YiviPalette.of(context).secondaryText,
-              semanticLabel: context.tr(semanticLabelKey),
-            ),
-          ),
-        ),
-      ),
+    // 44 across, as every icon button: a 20 icon in the secondary colour.
+    return YiviIconButton(
+      icon: icon,
+      label: context.tr(semanticLabelKey),
+      onTap: fn,
+      iconSize: 20,
+      iconColor: YiviPalette.of(context).secondaryText,
     );
   }
 

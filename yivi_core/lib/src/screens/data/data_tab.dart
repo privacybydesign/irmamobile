@@ -198,11 +198,10 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       height: panes ? 48 : 44,
     );
     // Blue, as a plain action next to a field (the red is for the main one).
-    final cancel = TextButton(
+    final cancel = TextLink(
       key: const Key("data_search_cancel"),
-      style: TextButton.styleFrom(foregroundColor: palette.link),
+      label: context.tr("wallet.search_cancel"),
       onPressed: _stopSearching,
-      child: Text(context.tr("wallet.search_cancel")),
     );
     final add = YiviIconButton(
       key: const Key("data_tab_add_data"),

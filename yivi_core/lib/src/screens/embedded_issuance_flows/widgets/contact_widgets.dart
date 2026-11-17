@@ -678,32 +678,10 @@ class ContactSentTo extends StatelessWidget {
               ),
             ),
           ),
-          Semantics(
-            button: true,
-            child: Material(
-              color: palette.tint,
-              shape: const StadiumBorder(),
-              child: InkWell(
-                highlightColor: Colors.transparent,
-                key: const Key("contact_sheet_change"),
-                customBorder: const StadiumBorder(),
-                onTap: onChange,
-                child: Container(
-                  constraints: const BoxConstraints(
-                    minHeight: 32,
-                    minWidth: 44,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  alignment: Alignment.center,
-                  child: Text(
-                    changeLabel,
-                    style: palette
-                        .body(13, weight: FontWeight.w600)
-                        .copyWith(color: palette.link),
-                  ),
-                ),
-              ),
-            ),
+          SmallPill(
+            key: const Key("contact_sheet_change"),
+            label: changeLabel,
+            onPressed: onChange,
           ),
         ],
       ),

@@ -13,6 +13,7 @@ import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/sheet_actions.dart";
 import "../../widgets/yivi_spinner.dart";
 import "activity_entry.dart";
@@ -241,10 +242,10 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           ),
         ),
         if (!_q.isEmpty)
-          TextButton(
+          TextLink(
             key: const Key("activity_filter_clear"),
+            label: _t("sheet.clear"),
             onPressed: () => _set(ActivityQuery.empty),
-            child: Text(_t("sheet.clear")),
           ),
       ],
     ),
