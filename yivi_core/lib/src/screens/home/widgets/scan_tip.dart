@@ -11,14 +11,10 @@ import "../../../widgets/glass/glass_surface.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/translated_text.dart";
 
-final _scanTipPendingProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).scanTipPending.stream,
-);
-
 /// Whether the tip on the Scan button shows: on the first visit after the
 /// enrollment, until "Got it" or until there is data.
 final scanTipVisibleProvider = Provider<bool>((ref) {
-  final pending = ref.watch(_scanTipPendingProvider).value ?? false;
+  final pending = ref.watch(scanTipPendingProvider);
   return pending && !ref.watch(hasCredentialsProvider);
 });
 

@@ -222,7 +222,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             remainingAttempts: session.remainingPinAttempts,
             blockedTimeSeconds: session.pinBlockedTimeSeconds,
             submitting: isAwaiting,
-            maxPinSize: (ref.watch(longPinProvider).value ?? false) ? 16 : 5,
+            maxPinSize: ref.watch(longPinProvider) ? 16 : 5,
             onPinEntered: _submitPin,
             onCancel: _dismissSession,
           ),

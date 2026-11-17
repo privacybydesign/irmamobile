@@ -77,37 +77,24 @@ class DefaultKeyshareEmailLinkApi implements KeyshareEmailLinkApi {
   }
 }
 
-final _emailLinkedProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).emailLinked.stream,
-);
-
-final _emailBannerDismissedProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).emailBannerDismissed.stream,
-);
-
-final _emailBannerSnoozedUntilProvider = StreamProvider<DateTime>(
-  (ref) => ref.watch(preferencesProvider).emailBannerSnoozedUntil.stream,
-);
-
 /// Whether the e-mail linking flow is available: linking is offered and no
 /// address is linked yet. The banner and the settings entry both follow it.
 final emailLinkAvailableProvider = Provider<bool>((ref) {
   final offered = ref.watch(emailLinkingOfferedProvider);
-  final linked = ref.watch(_emailLinkedProvider).value ?? true;
+  final linked = ref.watch(emailLinkedProvider);
   return offered && !linked;
 });
 
-/// Whether the banner on the Data tab shows. It stays hidden until every
-/// preference has loaded, so it never flashes up for a user who dismissed it.
+/// Whether the banner on the Data tab shows.
 /// It also waits for the first credential: right after enrollment the tab is
 /// empty, and the banner should not be the first thing a new user sees.
 final emailBannerVisibleProvider = Provider<bool>((ref) {
   if (!ref.watch(emailLinkAvailableProvider)) return false;
   if (!ref.watch(hasCredentialsProvider)) return false;
 
-  final dismissed = ref.watch(_emailBannerDismissedProvider).value ?? true;
-  final snoozedUntil = ref.watch(_emailBannerSnoozedUntilProvider).value;
-  if (dismissed || snoozedUntil == null) return false;
+  final dismissed = ref.watch(emailBannerDismissedProvider);
+  final snoozedUntil = ref.watch(emailBannerSnoozedUntilProvider);
+  if (dismissed) return false;
 
   final snoozeLeft = snoozedUntil.difference(DateTime.now());
   if (snoozeLeft <= Duration.zero) return true;

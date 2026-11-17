@@ -9,6 +9,7 @@ import "../../data/irma_preferences.dart";
 import "../../models/clear_all_data_event.dart";
 import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../providers/preferences_provider.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/email_linking.dart";
 import "../../util/i18n.dart";
@@ -76,8 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // has biometrics enrolled.
             final biometricAvailable =
                 ref.watch(biometricAvailableProvider).value ?? false;
-            final biometricEnabled =
-                ref.watch(biometricEnabledProvider).value ?? false;
+            final biometricEnabled = ref.watch(biometricEnabledProvider);
             return GlassGroup(
               children: [
                 if (biometricAvailable) ...[

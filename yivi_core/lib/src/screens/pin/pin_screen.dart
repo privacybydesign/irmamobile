@@ -178,7 +178,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
 
     final biometricAvailable =
         ref.watch(biometricAvailableProvider).value ?? false;
-    final biometricEnabled = ref.watch(biometricEnabledProvider).value ?? false;
+    final biometricEnabled = ref.watch(biometricEnabledProvider);
     // Hide biometric when a session is pending: biometric unlock doesn't refresh
     // the keyshare token, so the session would still demand the PIN — a second
     // prompt. Entering the PIN here refreshes the token and the session proceeds.
@@ -221,8 +221,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // the unresolved-launch-URL window are already excluded. On cancel/fail
     // nothing happens and `_autoTriggered` stays true — the user falls back to
     // the PIN pad or the manual button.
-    final biometricImmediate =
-        ref.watch(biometricImmediateProvider).value ?? false;
+    final biometricImmediate = ref.watch(biometricImmediateProvider);
     if (showBiometric && biometricImmediate && !_autoTriggered) {
       _autoTriggered = true;
       final repo = ref.read(irmaRepositoryProvider);
@@ -305,9 +304,7 @@ class UnlockPinEntry extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(pinUnlockProvider);
-    final maxPinSize = (ref.watch(longPinProvider).value ?? false)
-        ? longPinSize
-        : shortPinSize;
+    final maxPinSize = ref.watch(longPinProvider) ? longPinSize : shortPinSize;
     final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
     final blocked = blockedFor.inSeconds > 0;
     final enabled = !blocked && !busy;

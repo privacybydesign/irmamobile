@@ -45,22 +45,6 @@ final biometricTypeProvider = FutureProvider<BiometricType?>((ref) async {
   return null;
 });
 
-/// Whether the user opted in to biometric unlock (pref-backed, default off).
-final biometricEnabledProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).biometricEnabled.stream,
-);
-
-/// Whether the biometric scan fires automatically when the lock screen appears
-/// (pref-backed, default on). Only matters while [biometricEnabledProvider].
-final biometricImmediateProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).biometricImmediate.stream,
-);
-
-/// Whether the one-time opt-in prompt has already been answered/dismissed.
-final biometricPromptDismissedProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).biometricPromptDismissed.stream,
-);
-
 /// Biometric actions. A successful prompt only flips the local `appLocked`
 /// flag via [IrmaRepository.unlockAppLocally] — it never authenticates against
 /// the keyshare server, so the first session afterwards still requires the

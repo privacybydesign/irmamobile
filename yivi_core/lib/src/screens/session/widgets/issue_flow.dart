@@ -1575,7 +1575,7 @@ class _NestedPinState extends ConsumerState<_NestedPin> {
         remainingAttempts: state?.remainingPinAttempts,
         blockedTimeSeconds: state?.pinBlockedTimeSeconds,
         submitting: awaiting,
-        maxPinSize: (ref.watch(longPinProvider).value ?? false) ? 16 : 5,
+        maxPinSize: ref.watch(longPinProvider) ? 16 : 5,
         onPinEntered: (pin) => _repo.enterSessionPin(widget.sessionId, pin),
         onCancel: widget.onCancel,
       ),

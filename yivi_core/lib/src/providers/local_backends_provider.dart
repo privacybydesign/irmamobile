@@ -16,12 +16,8 @@ class LocalBackends {
   String get keyshareEmailLink => "http://$host:8081/email/link";
 }
 
-final _localBackendHostProvider = StreamProvider<String>(
-  (ref) => ref.watch(preferencesProvider).localBackendHost.stream,
-);
-
 /// Null unless a host is set in the debug menu.
 final localBackendsProvider = Provider<LocalBackends?>((ref) {
-  final host = ref.watch(_localBackendHostProvider).value?.trim() ?? "";
+  final host = ref.watch(localBackendHostProvider).trim();
   return host.isEmpty ? null : LocalBackends(host);
 });

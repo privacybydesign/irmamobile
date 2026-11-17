@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../routing.dart";
 import "../../providers/app_locked_provider.dart";
+import "../../providers/preferences_provider.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../util/rebuild_when_safe.dart";
@@ -84,8 +85,8 @@ class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
   /// down. Shown on the root navigator so it sits above the now-visible app.
   void _maybeOfferBiometricUnlock() {
     final available = ref.read(biometricAvailableProvider).value ?? false;
-    final enabled = ref.read(biometricEnabledProvider).value ?? false;
-    final dismissed = ref.read(biometricPromptDismissedProvider).value ?? false;
+    final enabled = ref.read(biometricEnabledProvider);
+    final dismissed = ref.read(biometricPromptDismissedProvider);
     if (!available || enabled || dismissed) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = rootNavigatorKey.currentContext;

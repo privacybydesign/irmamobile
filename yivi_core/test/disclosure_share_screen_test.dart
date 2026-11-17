@@ -20,6 +20,7 @@ import "package:yivi_core/src/providers/email_issuance_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/last_shared_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
@@ -205,12 +206,12 @@ Future<_Calls> _pump(
   addTearDown(YiviFlight.reset);
   addTearDown(DoneFlight.reset);
   final calls = _Calls();
-  final repo = (await tester.runAsync(
-    () async => IrmaRepository(
-      client: calls.bridge,
-      preferences: await freshPreferences(),
-    ),
-  ))!;
+  final repo = (await tester.runAsync(() async {
+    final preferences = await freshPreferences();
+    // A 5-digit PIN, as chosen at enrollment.
+    await preferences.longPin.set(false);
+    return IrmaRepository(client: calls.bridge, preferences: preferences);
+  }))!;
   addTearDown(() => tester.runAsync(repo.close));
   calls.repo = repo;
   final router = GoRouter(
@@ -234,6 +235,7 @@ Future<_Calls> _pump(
         ).overrideWith((ref) => sessions ?? Stream.value(session!)),
         credentialOrderControllerProvider.overrideWith(wallet),
         irmaRepositoryProvider.overrideWithValue(repo),
+        preferencesProvider.overrideWithValue(repo.preferences),
         groupedCredentialStoreProvider.overrideWith(
           (ref) => Stream.value(const []),
         ),
