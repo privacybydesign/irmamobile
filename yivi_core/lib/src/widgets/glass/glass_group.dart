@@ -4,6 +4,7 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
+import "../surface_card.dart";
 
 /// A rounded group of rows on a surface, with thin dividers between them,
 /// like the groups in Settings and More. Flat: its colour sets it off from
@@ -28,10 +29,7 @@ class GlassGroup extends StatelessWidget {
   static const radius = YiviCorners.cardRadius;
 
   static RoundedRectangleBorder _shape(BuildContext context) =>
-      RoundedRectangleBorder(
-        borderRadius: radius,
-        side: YiviEdges.block(context),
-      );
+      SurfaceCard.shape(context);
 
   /// The line between two rows.
   static Divider _divider(YiviPalette palette, double indent) =>

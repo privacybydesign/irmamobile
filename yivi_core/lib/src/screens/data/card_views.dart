@@ -341,48 +341,40 @@ class _ListRow extends StatelessWidget {
       found: result?.hits.firstOrNull?.field.claimKey,
       pressDepth: 4,
       moves: moves,
-      child: Material(
-        color: palette.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-          side: selected
-              ? BorderSide(width: 2, color: palette.primary)
-              : YiviEdges.block(context),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(padding),
-          child: Row(
-            spacing: YiviSpace.x16,
-            children: [
-              _flightSlot(
-                first: flightTarget,
-                child: CardHero(
-                  credential: credential,
-                  width: picture,
-                  hintText: hintText,
-                ),
+      child: SurfaceCard(
+        selected: selected,
+        padding: const EdgeInsets.all(padding),
+        child: Row(
+          spacing: YiviSpace.x16,
+          children: [
+            _flightSlot(
+              first: flightTarget,
+              child: CardHero(
+                credential: credential,
+                width: picture,
+                hintText: hintText,
               ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    line(
-                      credential.name,
-                      palette.display(16).copyWith(color: palette.text),
-                    ),
-                    if ((hintText ?? "").isNotEmpty)
-                      line(hintText!, palette.body(14)),
-                    line(
-                      credential.issuer.name,
-                      palette.body(12).copyWith(color: palette.heading),
-                    ),
-                    ?match,
-                  ],
-                ),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  line(
+                    credential.name,
+                    palette.display(16).copyWith(color: palette.text),
+                  ),
+                  if ((hintText ?? "").isNotEmpty)
+                    line(hintText!, palette.body(14)),
+                  line(
+                    credential.issuer.name,
+                    palette.body(12).copyWith(color: palette.heading),
+                  ),
+                  ?match,
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,7 +1,5 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/yivi_corners.dart";
-import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
@@ -9,6 +7,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/icon_square.dart";
+import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
 import "../widgets/enrollment_page.dart";
 import "welcome_card_fan.dart";
@@ -201,24 +200,14 @@ class _CheckCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: palette.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-          side: YiviEdges.block(context),
-        ),
+    return SurfaceCard(
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x4,
+        YiviSpace.x4,
+        YiviSpace.x16,
+        YiviSpace.x4,
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          YiviSpace.x4,
-          YiviSpace.x4,
-          YiviSpace.x16,
-          YiviSpace.x4,
-        ),
-        child: child,
-      ),
+      child: child,
     );
   }
 }

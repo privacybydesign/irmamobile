@@ -4,8 +4,6 @@ import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart" hide Notification;
 
 import "../../../providers/wallet_cards_provider.dart";
-import "../../../theme/yivi_corners.dart";
-import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
@@ -13,6 +11,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/irma_avatar.dart";
+import "../../../widgets/surface_card.dart";
 import "../../data/wallet/card_hero.dart";
 import "../models/credential_status_notification.dart";
 import "../models/notification.dart";
@@ -97,74 +96,61 @@ class NotificationCard extends ConsumerWidget {
         localizedTimeStamp,
       ].where((s) => s.isNotEmpty).join(", "),
       excludeSemantics: true,
-      child: Material(
-        color: palette.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-          side: selected
-              ? BorderSide(width: 2, color: palette.primary)
-              : YiviEdges.block(context),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Builder(
-          builder: (pictureContext) => InkWell(
-            onTap: () => onTap(pictureContext),
-            child: Padding(
-              padding: const EdgeInsets.all(YiviSpace.x16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: YiviSpace.x16,
-                children: [
-                  ?(picture == null
-                      ? null
-                      : Padding(
-                          padding: const EdgeInsets.only(top: YiviSpace.x4),
-                          child: picture,
-                        )),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      child: Builder(
+        builder: (pictureContext) => SurfaceCard(
+          selected: selected,
+          onTap: () => onTap(pictureContext),
+          padding: const EdgeInsets.all(YiviSpace.x16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: YiviSpace.x16,
+            children: [
+              ?(picture == null
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.only(top: YiviSpace.x4),
+                      child: picture,
+                    )),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localizedTimeStamp,
+                      style: palette.body(12).copyWith(color: palette.heading),
+                    ),
+                    const SizedBox(height: YiviSpace.x2),
+                    Row(
+                      spacing: YiviSpace.x4,
                       children: [
-                        Text(
-                          localizedTimeStamp,
-                          style: palette
-                              .body(12)
-                              .copyWith(color: palette.heading),
+                        if (icon != null)
+                          Icon(icon, size: 16, color: iconColor),
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: palette
+                                .display(16)
+                                .copyWith(color: palette.text),
+                          ),
                         ),
-                        const SizedBox(height: YiviSpace.x2),
-                        Row(
-                          spacing: YiviSpace.x4,
-                          children: [
-                            if (icon != null)
-                              Icon(icon, size: 16, color: iconColor),
-                            Flexible(
-                              child: Text(
-                                title,
-                                style: palette
-                                    .display(16)
-                                    .copyWith(color: palette.text),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: YiviSpace.x2),
-                        Text(contentMessage, style: palette.body(14)),
                       ],
                     ),
-                  ),
-                  if (!notification.read)
-                    Container(
-                      width: 10,
-                      height: 10,
-                      margin: const EdgeInsets.only(top: YiviSpace.x4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: palette.primary,
-                      ),
-                    ),
-                ],
+                    const SizedBox(height: YiviSpace.x2),
+                    Text(contentMessage, style: palette.body(14)),
+                  ],
+                ),
               ),
-            ),
+              if (!notification.read)
+                Container(
+                  width: 10,
+                  height: 10,
+                  margin: const EdgeInsets.only(top: YiviSpace.x4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: palette.primary,
+                  ),
+                ),
+            ],
           ),
         ),
       ),

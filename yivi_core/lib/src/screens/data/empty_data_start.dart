@@ -2,8 +2,6 @@ import "dart:math";
 
 import "package:material_ui/material_ui.dart";
 
-import "../../theme/yivi_corners.dart";
-import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
@@ -11,6 +9,7 @@ import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/caps_label.dart";
 import "../../widgets/icon_square.dart";
+import "../../widgets/surface_card.dart";
 import "../../widgets/translated_text.dart";
 import "../add_data/add_data_sheet.dart";
 import "../home/widgets/open_qr_scanner.dart";
@@ -191,51 +190,40 @@ class _Option extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Semantics(
       button: true,
-      child: Material(
-        color: palette.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: YiviCorners.cardRadius,
-          side: YiviEdges.block(context),
-        ),
-        clipBehavior: Clip.antiAlias,
-        // The theme's grey press highlight, as every other row.
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(YiviSpace.x16),
-            child: Row(
-              spacing: YiviSpace.x16,
-              children: [
-                ExcludeSemantics(
-                  child: IconSquare(
-                    icon: icon,
-                    fill: tileColor,
-                    ink: iconColor,
-                    size: 44,
-                    iconSize: 24,
-                    radius: 10,
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TranslatedText(
-                        titleKey,
-                        style: palette.display(16, weight: FontWeight.w600),
-                      ),
-                      TranslatedText(
-                        textKey,
-                        style: palette.rowSubtitle.copyWith(
-                          color: palette.secondaryText,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+      child: SurfaceCard(
+        onTap: onTap,
+        padding: const EdgeInsets.all(YiviSpace.x16),
+        child: Row(
+          spacing: YiviSpace.x16,
+          children: [
+            ExcludeSemantics(
+              child: IconSquare(
+                icon: icon,
+                fill: tileColor,
+                ink: iconColor,
+                size: 44,
+                iconSize: 24,
+                radius: 10,
+              ),
             ),
-          ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TranslatedText(
+                    titleKey,
+                    style: palette.display(16, weight: FontWeight.w600),
+                  ),
+                  TranslatedText(
+                    textKey,
+                    style: palette.rowSubtitle.copyWith(
+                      color: palette.secondaryText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
