@@ -1,3 +1,4 @@
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
@@ -879,6 +880,68 @@ void main() {
       await _settle(tester);
       expect(_home, findsOneWidget);
       expect(h.of(UserInteractionType.dismiss), isEmpty);
+    });
+  });
+
+  group("haptics", () {
+    /// The haptic feedback types asked for while [body] runs.
+    Future<List<String>> felt(
+      WidgetTester tester,
+      Future<void> Function() body,
+    ) async {
+      final felt = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == "HapticFeedback.vibrate") {
+            felt.add(call.arguments as String);
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await body();
+      return felt;
+    }
+
+    testWidgets("success: felt once, also when the screen is rebuilt", (
+      tester,
+    ) async {
+      final h = await pumpSessionScreen(tester, sessionId: _id);
+      h.emit(_disclosure(SessionStatus.requestPermission));
+      await _settle(tester);
+      final haptics = await felt(tester, () async {
+        // Twice: the screen is built again.
+        for (var i = 0; i < 2; i++) {
+          h.emit(_disclosure(SessionStatus.success, secondDevice: true));
+          await _settle(tester);
+        }
+      });
+      expect(haptics, ["HapticFeedbackType.mediumImpact"]);
+    });
+
+    testWidgets("an error: felt once, also when the screen is rebuilt", (
+      tester,
+    ) async {
+      final h = await pumpSessionScreen(tester, sessionId: _id);
+      final haptics = await felt(tester, () async {
+        // Twice: the screen is built again.
+        for (var i = 0; i < 2; i++) {
+          h.emit(
+            _disclosure(
+              SessionStatus.error,
+              error: SessionError(errorType: "transport", info: "x"),
+            ),
+          );
+          await _settle(tester);
+        }
+      });
+      expect(haptics, ["HapticFeedbackType.heavyImpact"]);
     });
   });
 }

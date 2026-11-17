@@ -17,12 +17,12 @@ import "../../sentry/sentry.dart";
 import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
 import "../../util/navigation.dart";
-import "../../util/string.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/yivi_spinner.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
+import "models/session_outcome.dart";
 import "models/session_view.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_feedback_screen.dart";
@@ -74,32 +74,97 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// success it is "Back to {requestor}" even if the request is gone.
   SessionState? _underlying;
 
-  /// True after dispatching openURLExternally / openURLinAppBrowser, so
-  /// post-frame rebuilds of the success screen don't re-fire the side effect.
-  bool _returnUrlSideEffectFired = false;
+  /// What the success screen is; decided once, when the session went
+  /// through.
+  SessionOutcome? _outcome;
+
+  /// Read once: what the session hands back to the caller differs.
+  final _platform = Platform.isIOS
+      ? SessionPlatform.ios
+      : SessionPlatform.android;
 
   /// Set when a return-URL launch threw. Renders the error screen until the
   /// user closes it; the close handler then skips the silent reopen.
   SessionError? _returnUrlError;
-
-  /// Latched on the first `_buildSuccess` call for this session: true iff
-  /// the finished issuance includes a credential the user launched
-  /// in-app. We capture once and clear the launched set immediately so
-  /// rebuilds keep returning the same decision.
-  bool? _inAppLaunchedSuccess;
 
   /// True once the user closed an error on a session that has no way back to
   /// its caller other than the iOS status-bar back link. Replaces the session
   /// body with [ArrowBack] until they leave the app.
   bool _showArrowBack = false;
 
-  /// True once the finished keyshare disclosure was recorded as a linked address.
-  bool _emailLinkRecorded = false;
-
   @override
   void initState() {
     super.initState();
     _repo = ref.read(irmaRepositoryProvider);
+    ref.listenManual(
+      sessionFlowProvider(widget.sessionId),
+      _onView,
+      fireImmediately: true,
+    );
+  }
+
+  /// What runs once when the session comes to a new view: build only draws.
+  void _onView(SessionView? previous, SessionView next) {
+    if (previous?.runtimeType == next.runtimeType) return;
+    switch (next) {
+      case SessionSucceeded(:final state):
+        Haptics.success();
+        final outcome = _outcome = _outcomeOf(state);
+        _runOutcome(outcome);
+      case SessionFailed():
+        Haptics.error();
+      // Pop back to the previous screen (scanner, home, or the underlying
+      // session). Clear so an abandoned in-app launch doesn't leak into the
+      // next session.
+      case SessionDismissed():
+        _repo.clearInAppLaunches();
+        afterFrame(() {
+          if (widget.hasUnderlyingSession) {
+            context.popToUnderlyingSession();
+          } else {
+            Navigator.of(context).pop();
+          }
+        });
+      default:
+    }
+  }
+
+  /// What the success screen is for [session]. The first time, it reads
+  /// whether the issuance was launched in the app and forgets the launches.
+  SessionOutcome _outcomeOf(SessionState session) {
+    final keyshareLink =
+        ref.read(emailLinkingProvider).disclosureSessionId == widget.sessionId;
+    final flow = ref.read(sessionFlowProvider(widget.sessionId).notifier);
+    return sessionOutcomeOf(
+      SessionFacts(
+        type: session.type,
+        returnUrl: session.parsedClientReturnUrl,
+        platform: _platform,
+        secondDevice: session.continueOnSecondDevice,
+        inAppLaunched: !keyshareLink && flow.inAppLaunchedOnSuccess(session),
+        forRequest: widget.hasUnderlyingSession,
+        keyshareLink: keyshareLink,
+      ),
+    );
+  }
+
+  /// What [outcome] does once, after the frame that shows it.
+  void _runOutcome(SessionOutcome outcome) {
+    switch (outcome) {
+      case EmailLinked():
+        final linking = ref.read(emailLinkingProvider.notifier);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          linking.markLinked();
+        });
+      case OpenReturnUrl(:final url):
+        afterFrame(() => _goToReturnUrl(url));
+      case IssuedToBackground():
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+          _popToUnderlyingOrHome();
+        });
+      default:
+    }
   }
 
   @override
@@ -138,11 +203,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       // No state yet, waiting for Go after a tap, or an OpenID4VCI code
       // being granted.
       SessionWaiting(:final state) => _buildLoadingScreen(state),
-      // Auto-pop when dismissed — pop back to the previous screen
-      // (scanner, home, or underlying session). Clear so an abandoned
-      // in-app launch doesn't leak into the next session.
-      SessionDismissed(:final state) => _buildDismissed(state),
-      SessionSucceeded(:final state) => _buildSucceeded(state),
+      // Popping (see _onView).
+      SessionDismissed(:final state) => _buildLoadingScreen(state),
+      SessionSucceeded(:final state) => _buildSuccess(
+        state,
+        _outcome ?? _outcomeOf(state),
+      ),
       SessionPairing(:final state) => PairingRequired(
         pairingCode: state.pairingCode ?? "",
         requestor: state.requestor,
@@ -188,23 +254,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     };
   }
 
-  Widget _buildDismissed(SessionState session) {
-    _repo.clearInAppLaunches();
-    afterFrame(() {
-      if (widget.hasUnderlyingSession) {
-        context.popToUnderlyingSession();
-      } else {
-        Navigator.of(context).pop();
-      }
-    });
-    return _buildLoadingScreen(session);
-  }
-
-  Widget _buildSucceeded(SessionState session) {
-    Haptics.success();
-    return _buildSuccess(session);
-  }
-
   void _dismissSession() => _flow.dismiss();
 
   Future<void> _showDismissDialog() async {
@@ -241,55 +290,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     _flow.grant(disclosureChoices);
   }
 
-  Widget _buildSuccess(SessionState session) {
-    final linking = ref.read(emailLinkingProvider);
-
-    // E-mail linking ends on its own screen once MijnYivi has the address.
-    if (linking.disclosureSessionId == widget.sessionId) {
-      if (!_emailLinkRecorded) {
-        _emailLinkRecorded = true;
-        final linkingNotifier = ref.read(emailLinkingProvider.notifier);
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          linkingNotifier.markLinked();
-        });
-      }
-      return EmailLinkedScreen(onDismiss: (_) => _popToUnderlyingOrHome());
-    }
-
-    // Latch the in-app-launched decision on first build, then clear the
-    // launched set so abandoned launches don't leak into a future session.
-    // Build runs multiple times; without latching, the cleared set would
-    // flip the decision on subsequent builds.
-    if (_inAppLaunchedSuccess == null) {
-      _inAppLaunchedSuccess = _repo.didIssueInAppLaunchedCredential(session);
-      _repo.clearInAppLaunches();
-    }
-
-    // An issuance during a request: confirm what was added, then back to
-    // the request ("Back to {requestor}").
-    if (widget.hasUnderlyingSession && session.type == .issuance) {
-      return IssuanceSuccessScreen(
-        credentials: session.offeredCredentials ?? const [],
-        backTo: _underlying?.requestor.name,
-        onDismiss: (_) {
-          if (mounted) context.popToUnderlyingSession();
-        },
-      );
-    }
-
-    // The user originated this issuance from inside the app (add-data tap
-    // or OpenID4VCI launch). Keep them in-app on finish — skip any return
-    // URL the issuer set, and skip the iOS ArrowBack / Android background
-    // fallbacks.
-    // "Success", with the card flying into the data tab on OK.
-    Widget issued() => IssuanceSuccessScreen(
-      credentials: session.offeredCredentials ?? const [],
-      onDismiss: (_) => _popToUnderlyingOrHome(),
-      flyHome: true,
-    );
-
-    if (_inAppLaunchedSuccess!) return issued();
-
+  Widget _buildSuccess(SessionState session, SessionOutcome outcome) {
     // "Shared with {requestor}", with what to do now.
     Widget shared({
       bool onOtherDevice = false,
@@ -310,74 +311,56 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       onBackToWebsite: onBackToWebsite,
     );
 
-    final returnUrl = session.parsedClientReturnUrl;
-
-    // A tel: return URL is device-agnostic — the phone is the device that
-    // places the call — so surface the Call-via-Yivi screen regardless of
-    // whether this is a same- or second-device session.
-    if (returnUrl != null && returnUrl.isPhoneNumber) {
-      return CallInfoScreen(
+    return switch (outcome) {
+      EmailLinked() => EmailLinkedScreen(
+        onDismiss: (_) => _popToUnderlyingOrHome(),
+      ),
+      // Confirm what was added, then back to the request ("Back to
+      // {requestor}").
+      AddedForRequest() => IssuanceSuccessScreen(
+        credentials: session.offeredCredentials ?? const [],
+        backTo: _underlying?.requestor.name,
+        onDismiss: (_) {
+          if (mounted) context.popToUnderlyingSession();
+        },
+      ),
+      // "Success", with the card flying into the data tab on OK.
+      Added() => IssuanceSuccessScreen(
+        credentials: session.offeredCredentials ?? const [],
+        onDismiss: (_) => _popToUnderlyingOrHome(),
+        flyHome: true,
+      ),
+      CallVia(:final url) => CallInfoScreen(
         otherParty: session.requestor.name,
-        phoneNumber: returnUrl.phoneNumber,
+        phoneNumber: url.phoneNumber,
         onContinue: () =>
-            _openReturnUrl(returnUrl, alwaysExternal: true, popOnSuccess: true),
+            _openReturnUrl(url, alwaysExternal: true, popOnSuccess: true),
         onCancel: _closeSession,
-      );
-    }
-
-    // Second-device session: the result lives on the other device, whose
-    // browser started the session and honours any browser-kind return URL
-    // there. Confirm success locally and do NOT open a browser on the phone —
-    // opening it here would be a pointless redirect on the wrong device.
-    // (tel: is handled above; it stays device-agnostic.)
-    if (session.continueOnSecondDevice) {
-      if (session.type == .issuance) return issued();
-      return shared(onOtherDevice: true);
-    }
-
-    // Same-device session with a browser return URL (external / in-app): hand
-    // the user back to where they started by opening it. After sharing, they
-    // first sees what was shared, with "Back to {host}" to go there.
-    if (returnUrl != null) {
-      if (_returnUrlError != null) {
-        return _buildError(_returnUrlError!);
-      }
-      if (session.type != .issuance) {
-        return shared(
-          returnHost: returnUrl.uri.host.withoutWww(),
-          onReturn: () => _goToReturnUrl(returnUrl),
-        );
-      }
-      if (!_returnUrlSideEffectFired) {
-        _returnUrlSideEffectFired = true;
-        afterFrame(() => _goToReturnUrl(returnUrl));
-      }
-      return _buildLoadingScreen(session);
-    }
-
-    // Same-device session: hand the user back to the calling app. iOS lacks a
-    // programmatic way to do that: after sharing, the done screen says to tap
-    // ◀ at the top left; after an issuance, ArrowBack. On Android, after
-    // sharing, the done screen's "Back to the website" moves the task to the
-    // background so the OS surfaces the previous app; after an issuance that
-    // happens at once.
-    if (Platform.isIOS && session.type != .issuance) {
-      return shared(goBackYourself: true);
-    }
-    if (session.type != .issuance) {
-      return shared(
+      ),
+      Shared(next: OtherDevice()) => shared(onOtherDevice: true),
+      // A return URL that could not be opened: the error, until closed.
+      Shared(next: ReturnTo()) || OpenReturnUrl()
+          when _returnUrlError != null =>
+        _buildError(_returnUrlError!),
+      // After sharing, they first see what was shared, with "Back to
+      // {host}" to go there.
+      Shared(next: ReturnTo(:final host, :final url)) => shared(
+        returnHost: host,
+        onReturn: () => _goToReturnUrl(url),
+      ),
+      Shared(next: GoBackYourself()) => shared(goBackYourself: true),
+      // Moves the task to the background so the OS surfaces the previous
+      // app.
+      Shared(next: BackToWebsite()) => shared(
         onBackToWebsite: () {
           _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
           _popToUnderlyingOrHome();
         },
-      );
-    }
-    if (Platform.isIOS) return const ArrowBack(type: .issuance);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
-      _popToUnderlyingOrHome();
-    });
-    return _buildLoadingScreen(session);
+      ),
+      // Opening (see _runOutcome).
+      OpenReturnUrl() || IssuedToBackground() => _buildLoadingScreen(session),
+      IssuedArrowBack() => const ArrowBack(type: .issuance),
+    };
   }
 
   /// The candidate instances of the last disclosure plan the user picked in
@@ -401,25 +384,30 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   Future<void> _closeSession() async {
     final session = _lastState;
-    final returnUrl = session?.parsedClientReturnUrl;
-    // Don't silently reopen the issuer's return URL when the user
-    // originated this issuance from inside the app — they expect to land
-    // back in Yivi, not bounced back to a browser.
-    final wasInAppLaunched =
-        session != null && _repo.didIssueInAppLaunchedCredential(session);
-    final shouldSilentReopen =
-        returnUrl != null &&
-        !returnUrl.isPhoneNumber &&
-        // On a second-device session the browser lives on the other device;
-        // reopening the return URL on the phone would be a pointless redirect.
-        session?.continueOnSecondDevice != true &&
-        session?.error?.errorType != "clientReturnUrl" &&
-        _returnUrlError?.errorType != "clientReturnUrl" &&
-        !wasInAppLaunched;
+    // Nothing seen of the session: just leave.
+    final close = session == null
+        ? null
+        : sessionCloseOf(
+            SessionFacts(
+              type: session.type,
+              returnUrl: session.parsedClientReturnUrl,
+              platform: _platform,
+              secondDevice: session.continueOnSecondDevice,
+              // Don't silently reopen the issuer's return URL when the user
+              // originated this issuance from inside the app — they expect
+              // to land back in Yivi, not bounced back to a browser.
+              inAppLaunched:
+                  _flow.inAppLaunched ??
+                  _repo.didIssueInAppLaunchedCredential(session),
+              forRequest: widget.hasUnderlyingSession,
+              keyshareLink: false,
+            ),
+            error: _returnUrlError ?? session.error,
+          );
 
-    if (shouldSilentReopen) {
+    if (close?.reopen case final url?) {
       try {
-        await _repo.openURLExternally(returnUrl.toString());
+        await _repo.openURLExternally(url.toString());
       } catch (e, st) {
         // The user is on the way out — don't surface a second error screen.
         reportError(e, st);
@@ -430,27 +418,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // session. Safe to call even when nothing was launched.
     _repo.clearInAppLaunches();
 
-    // Same-device session that set no return URL: the caller is whatever app
-    // handed the session over, typically the browser the user started in.
-    // Leaving them on the Yivi home screen strands them there — the retry
-    // lives in the caller — so hand them back the same way _buildSuccess
-    // does. Requestors that chain sessions rely on this: a failure mid-chain
-    // is recoverable, but only from the page that started it.
-    final shouldReturnToCaller =
-        session != null &&
-        returnUrl == null &&
-        !wasInAppLaunched &&
-        !widget.hasUnderlyingSession &&
-        !session.continueOnSecondDevice;
-
-    if (shouldReturnToCaller) {
+    switch (close?.caller) {
       // iOS has no programmatic way back, so point at the status-bar back
       // link and stay put until the user leaves.
-      if (Platform.isIOS) {
+      case CallerReturn.arrowBack:
         if (mounted) setState(() => _showArrowBack = true);
         return;
-      }
-      _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+      case CallerReturn.background:
+        _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+      case CallerReturn.none || null:
     }
 
     if (mounted) {
@@ -498,6 +474,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     } catch (e, st) {
       reportError(e, st);
       if (mounted) {
+        Haptics.error();
         setState(() {
           _returnUrlError = SessionError(
             errorType: "clientReturnUrl",
@@ -510,7 +487,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildError(SessionError error) {
-    Haptics.error();
     return SessionErrorScreen(error: error, onTapClose: _closeSession);
   }
 }

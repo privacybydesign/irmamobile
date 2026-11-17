@@ -29,6 +29,22 @@ class SessionFlow extends Notifier<SessionView> {
   int? _lastTxCodeAttempts;
   bool _granted = false;
   bool _reported = false;
+  bool? _inAppLaunched;
+
+  /// Whether the finished issuance includes a card the user launched in the
+  /// app; null until [inAppLaunchedOnSuccess] read it.
+  bool? get inAppLaunched => _inAppLaunched;
+
+  /// Whether the finished [session] includes a card the user launched in
+  /// the app. Read once, after success: the launches are then forgotten, so
+  /// an abandoned one doesn't leak into a later session, and the answer
+  /// stays the same.
+  bool inAppLaunchedOnSuccess(SessionState session) {
+    if (_inAppLaunched case final launched?) return launched;
+    final launched = _repo.didIssueInAppLaunchedCredential(session);
+    _repo.clearInAppLaunches();
+    return _inAppLaunched = launched;
+  }
 
   // Listens instead of watching: a watch rebuilds the notifier, and with
   // it what it remembers.
