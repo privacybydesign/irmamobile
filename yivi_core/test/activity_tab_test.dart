@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:go_router/go_router.dart";
 import "package:intl/intl.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -11,6 +12,7 @@ import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_filter_sheet.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_query_chips.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab_top.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
@@ -774,6 +776,495 @@ void main() {
     }
     expect(find.text("Gemeente"), findsOneWidget);
     expect(queries().map((q) => q.cursor), contains("20"));
+  });
+
+  group("search ends and comes back (phase 13 pins)", () {
+    bool searching() => find.byType(GlassSearchField).evaluate().isNotEmpty;
+
+    testWidgets("after Enter, the field's clear button with no tags ends "
+        "the search", (tester) async {
+      await pump(tester);
+      await startSearch(tester);
+      await tester.enterText(field, "agree");
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await _settle(tester);
+      expect(searching(), isTrue);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(GlassSearchField),
+          matching: find.byIcon(Icons.close),
+        ),
+      );
+      await _settle(tester);
+      expect(searching(), isFalse);
+      expect(queries().last.filter.text, isNull);
+    });
+
+    testWidgets("after Enter, the cross on the last tag ends the search", (
+      tester,
+    ) async {
+      await pump(tester);
+      await startSearch(tester);
+      await tester.tap(
+        find.byKey(const Key("activity_suggestion_kind:signed")),
+      );
+      await _settle(tester);
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await _settle(tester);
+      expect(searching(), isTrue);
+      await tester.tap(find.byKey(const Key("activity_chip_kinds")));
+      await _settle(tester);
+      expect(searching(), isFalse);
+      expect(queries().last.filter.types, isNull);
+    });
+
+    testWidgets("back in the field after Enter: Cancel returns and the "
+        "suggestions come back", (tester) async {
+      await pump(tester);
+      await startSearch(tester);
+      await tester.enterText(field, "agree");
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await _settle(tester);
+      expect(find.byKey(const Key("activity_search_cancel")), findsNothing);
+      expect(find.byKey(const Key("activity_suggestions")), findsNothing);
+      await tester.tap(field);
+      await _settle(tester);
+      expect(find.byKey(const Key("activity_search_cancel")), findsOneWidget);
+      expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
+    });
+
+    testWidgets("Clear while searching ends the search and asks nothing", (
+      tester,
+    ) async {
+      await pump(tester);
+      await startSearch(tester);
+      await tester.enterText(field, "nothing like this");
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await _settle(tester);
+      expect(queries().last.filter.text, "nothing like this");
+      await tester.tap(find.byKey(const Key("activity_clear_filters")));
+      await _settle(tester);
+      expect(searching(), isFalse);
+      final last = queries().last.filter;
+      expect(last.text, isNull);
+      expect(last.types, isNull);
+      expect(last.partyKey, isNull);
+      expect(find.text("Shop 0"), findsOneWidget);
+    });
+
+    testWidgets("Cancel without a change still scrolls the log to the top", (
+      tester,
+    ) async {
+      await pump(tester);
+      await tester.drag(find.text("Shop 3"), const Offset(0, -500));
+      await _settle(tester);
+      final list = find.byType(CustomScrollView).first;
+      double offset() => tester
+          .state<ScrollableState>(
+            find.descendant(of: list, matching: find.byType(Scrollable)).first,
+          )
+          .position
+          .pixels;
+      expect(offset(), greaterThan(0));
+      await tester.tap(find.byKey(const Key("activity_search_button")));
+      await _settle(tester);
+      await tester.tap(find.byKey(const Key("activity_search_cancel")));
+      await _settle(tester);
+      expect(offset(), 0);
+    });
+
+    testWidgets("suggestions: at most 4 per group, 6 while typing", (
+      tester,
+    ) async {
+      await pump(tester);
+      await startSearch(tester);
+      // The row is lazy: count what it holds. Nothing typed: shared and
+      // signed (nothing was received or deleted), and 4 of the 26 parties.
+      int shown() => tester
+          .widget<ListView>(find.byKey(const Key("activity_suggestions")))
+          .semanticChildCount!;
+      expect(shown(), 2 + 4);
+      // Typing "shop": 6 of the 25 shops, and the words to find in the data.
+      await tester.enterText(field, "shop");
+      await _settle(tester);
+      expect(shown(), 6 + 1);
+    });
+
+    testWidgets("suggestions: an option with an unknown count stays, and "
+        "they sort only once every count is in", (tester) async {
+      final answer = bridge.respond!;
+      List<int>? counts(int n) => null;
+      var answerCounts = counts;
+      bridge.respond = (event) => event is CountLogsEvent
+          ? LogCountsEvent(
+              requestId: event.requestId,
+              counts: answerCounts(event.filters.length) ?? const [],
+            )
+          : answer(event);
+      double x(String kind) => tester
+          .getTopLeft(find.byKey(Key("activity_suggestion_kind:$kind")))
+          .dx;
+
+      // No counts at all: nothing dropped (also what nothing has), and
+      // the kinds in their own order.
+      await pump(tester);
+      await startSearch(tester);
+      // All four kinds (two of them have nothing) and 4 parties.
+      expect(
+        tester
+            .widget<ListView>(find.byKey(const Key("activity_suggestions")))
+            .semanticChildCount,
+        4 + 4,
+      );
+      expect(x("received"), lessThan(x("shared")));
+
+      // Every count in, each one more than the one before: most first.
+      answerCounts = (n) => [for (var i = 0; i < n; i++) i + 1];
+      await tester.enterText(field, "s");
+      await tester.enterText(field, "");
+      await _settle(tester);
+      expect(x("signed"), lessThan(x("shared")));
+    });
+
+    Future<void> openFilter(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key("activity_filter_button")));
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+    }
+
+    Future<void> applyFilter(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key("activity_filter_apply")));
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+    }
+
+    testWidgets("the filter sheet applied while searching keeps the typed "
+        "words in the field, not as a tag", (tester) async {
+      await pump(tester);
+      await startSearch(tester);
+      await tester.enterText(field, "agree");
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await _settle(tester);
+      await openFilter(tester);
+      await tester.tap(find.byKey(const Key("activity_filter_kind_signed")));
+      await _settle(tester);
+      await applyFilter(tester);
+      expect(searching(), isTrue);
+      expect(tester.widget<EditableText>(field).controller.text, "agree");
+      expect(find.byKey(const Key("activity_chip_text")), findsNothing);
+      expect(find.byKey(const Key("activity_chip_kinds")), findsOneWidget);
+      expect(queries().last.filter.types, [LogType.signature]);
+      expect(queries().last.filter.text, "agree");
+    });
+
+    testWidgets("an emptied filter sheet with nothing typed ends the search", (
+      tester,
+    ) async {
+      await pump(tester);
+      await startSearch(tester);
+      await tester.tap(
+        find.byKey(const Key("activity_suggestion_kind:signed")),
+      );
+      await _settle(tester);
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await _settle(tester);
+      await openFilter(tester);
+      await tester.tap(find.byKey(const Key("activity_filter_clear")));
+      await _settle(tester);
+      await applyFilter(tester);
+      expect(searching(), isFalse);
+      expect(queries().last.filter.types, isNull);
+    });
+
+    testWidgets("a row opened while searching puts the keyboard away; back, "
+        "it stays down", (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      addTearDown(tester.view.reset);
+      await pumpRoutes(
+        tester,
+        repo: repo,
+        initialLocation: "/home",
+        routes: [
+          GoRoute(
+            path: "/home",
+            builder: (_, _) =>
+                Scaffold(resizeToAvoidBottomInset: false, body: ActivityTab()),
+            routes: [
+              GoRoute(
+                path: "activity_details",
+                builder: (context, _) => Scaffold(
+                  body: TextButton(
+                    key: const Key("test_details_back"),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("Back"),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+      await _settle(tester);
+      bool focused() => tester.widget<EditableText>(field).focusNode.hasFocus;
+      await startSearch(tester);
+      await tester.enterText(field, "gemeente");
+      await _settle(tester);
+      expect(focused(), isTrue);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ActivityCard),
+          matching: find.text("Gemeente"),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+      expect(find.byKey(const Key("test_details_back")), findsOneWidget);
+      await tester.tap(find.byKey(const Key("test_details_back")));
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+      expect(searching(), isTrue);
+      expect(focused(), isFalse);
+    });
+
+    testWidgets(
+      "sideways: the newest entry is in the pane until one is picked; the "
+      "field row floats over the list, the tags and suggestions under it",
+      (tester) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = const Size(874, 402);
+        tester.view.padding = const FakeViewPadding(left: 62, right: 62);
+        addTearDown(tester.view.reset);
+        await pumpHome(tester, repo: repo, home: ActivityTab());
+        await _settle(tester);
+        final pane = find.byWidgetPredicate(
+          (w) =>
+              w.key is ValueKey<String> &&
+              (w.key! as ValueKey<String>).value.startsWith(
+                "activity_detail_pane_",
+              ),
+        );
+        expect(pane, findsOneWidget);
+        expect(
+          find.descendant(of: pane, matching: find.text("Shop 0")),
+          findsWidgets,
+        );
+        await tester.tap(
+          find.descendant(
+            of: find.byType(ActivityCard),
+            matching: find.text("Shop 2"),
+          ),
+        );
+        await _settle(tester);
+        expect(
+          find.descendant(of: pane, matching: find.text("Shop 2")),
+          findsWidgets,
+        );
+
+        // Over the list, before any search.
+        final fieldBox = find.byKey(const Key("activity_search_field"));
+        expect(fieldBox, findsOneWidget);
+        await tester.tap(fieldBox);
+        await _settle(tester);
+        expect(find.byKey(const Key("activity_suggestions")), findsOneWidget);
+        await tester.tap(
+          find.byKey(const Key("activity_suggestion_kind:signed")),
+        );
+        await _settle(tester);
+        final fieldBottom = tester.getBottomLeft(fieldBox).dy;
+        expect(
+          tester.getTopLeft(find.byKey(const Key("activity_chips"))).dy,
+          greaterThanOrEqualTo(fieldBottom),
+        );
+        expect(
+          tester.getTopLeft(find.byKey(const Key("activity_suggestions"))).dy,
+          greaterThanOrEqualTo(fieldBottom),
+        );
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+    );
+
+    Attribute head(List<dynamic> path, String name) =>
+        Attribute(claimPath: path, displayName: name);
+    Attribute leaf(List<dynamic> path, String name) => Attribute(
+      claimPath: path,
+      displayName: name,
+      value: AttributeValue(type: AttributeType.string, string: "x"),
+    );
+
+    testWidgets("filter sheet: a field group's all lights its fields as "
+        "included; one of them keeps only it; all again drops it", (
+      tester,
+    ) async {
+      final pid = testCredential(
+        type: "eu.pid",
+        hash: "pid",
+        name: "PID",
+        attributes: [
+          head(["address"], "Adres"),
+          leaf(["address", "street"], "Straat"),
+          leaf(["address", "locality"], "Woonplaats"),
+        ],
+      );
+      await pump(tester, cards: [pid]);
+      await openFilter(tester);
+      await tester.ensureVisible(find.byKey(const Key("activity_filter_card")));
+      await tester.tap(find.byKey(const Key("activity_filter_card")));
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+      await tester.tap(find.byKey(const Key("activity_filter_card_pid")));
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+      ActivityToggleTag tag(String key) => tester.widget<ActivityToggleTag>(
+        find.byKey(Key("activity_filter_field_$key")),
+      );
+      Future<void> tap(String key) async {
+        final f = find.byKey(Key("activity_filter_field_$key"));
+        await tester.ensureVisible(f);
+        await tester.tap(f);
+        await _settle(tester);
+      }
+
+      await tap("address");
+      expect(tag("address").selected, isTrue);
+      expect(tag("address/street").included, isTrue);
+      expect(tag("address/locality").included, isTrue);
+
+      await tap("address/street");
+      expect(tag("address").selected, isFalse);
+      expect(tag("address/street").selected, isTrue);
+      expect(tag("address/locality").included, isFalse);
+      expect(tag("address/locality").selected, isFalse);
+
+      await tap("address");
+      expect(tag("address").selected, isTrue);
+      expect(tag("address/street").selected, isFalse);
+      expect(tag("address/street").included, isTrue);
+      await tap("address");
+      expect(tag("address").selected, isFalse);
+      expect(tag("address/street").included, isFalse);
+    });
+
+    testWidgets("filter sheet: a custom period starts a year back up to "
+        "today", (tester) async {
+      await pump(tester);
+      await openFilter(tester);
+      final custom = find.byKey(const Key("activity_filter_period_custom"));
+      await tester.ensureVisible(custom);
+      await tester.tap(custom);
+      await _settle(tester);
+      final today = DateTime.now();
+      final strings = MaterialLocalizations.of(
+        tester.element(find.byKey(const Key("activity_filter_main"))),
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("activity_filter_from")),
+          matching: find.text(
+            strings.formatMediumDate(
+              DateTime(today.year - 1, today.month, today.day),
+            ),
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key("activity_filter_to")),
+          matching: find.text(
+            strings.formatMediumDate(
+              DateTime(today.year, today.month, today.day),
+            ),
+          ),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("filter sheet: no results disables the button, and so does "
+        "a range that ends before it starts", (tester) async {
+      Future<void> openWith(ActivityQuery q) async {
+        // A fresh app each time: the sheet of the last one is still up.
+        await tester.pumpWidget(const SizedBox());
+        await pumpHome(
+          tester,
+          repo: repo,
+          home: Builder(
+            builder: (context) => TextButton(
+              key: const Key("test_open_sheet"),
+              onPressed: () => showActivityFilterSheet(context, q),
+              child: const Text("Open"),
+            ),
+          ),
+        );
+        await _settle(tester);
+        await tester.tap(find.byKey(const Key("test_open_sheet")));
+        await tester.pump(const Duration(milliseconds: 500));
+        await _settle(tester);
+      }
+
+      /// "No results" on the button, and a tap on it leaves the sheet up.
+      Future<void> expectDisabled() async {
+        final apply = find.byKey(const Key("activity_filter_apply"));
+        expect(
+          find.descendant(of: apply, matching: find.text("No results")),
+          findsOneWidget,
+        );
+        await tester.tap(apply, warnIfMissed: false);
+        await tester.pump(const Duration(milliseconds: 500));
+        await _settle(tester);
+        expect(find.byKey(const Key("activity_filter_main")), findsOneWidget);
+      }
+
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      addTearDown(tester.view.reset);
+      await openWith(const ActivityQuery(text: "zzz nothing"));
+      await expectDisabled();
+
+      await openWith(
+        ActivityQuery(
+          period: ActivityPeriod.custom,
+          from: DateTime(2026, 3, 10),
+          to: DateTime(2026, 3, 1),
+        ),
+      );
+      await expectDisabled();
+    });
+
+    testWidgets("day groups split at local midnight", (tester) async {
+      final late = DateTime(2026, 3, 10, 23, 30);
+      final early = DateTime(2026, 3, 11, 0, 30);
+      LogInfo at(String id, DateTime time) => LogInfo(
+        id: id,
+        type: LogType.disclosure,
+        time: time.toUtc(),
+        issuanceLog: null,
+        disclosureLog: DisclosureLog(
+          protocol: Protocol.irma,
+          credentials: [_credential("email")],
+          verifier: _party("Shop $id"),
+        ),
+        signedMessageLog: null,
+        removalLog: null,
+      );
+      final days = [at("b", early), at("a", late)];
+      bridge.respond = (event) => switch (event) {
+        QueryLogsEvent() => LogPageEvent(
+          requestId: event.requestId,
+          page: _answer(days, event.query),
+        ),
+        ListPartiesEvent() => PartiesEvent(
+          requestId: event.requestId,
+          parties: _parties(days),
+        ),
+        _ => null,
+      };
+      await pump(tester);
+      final title = DateFormat("EEEE d MMMM", "en_US");
+      expect(find.text(title.format(late)), findsOneWidget);
+      expect(find.text(title.format(early)), findsOneWidget);
+    });
   });
 }
 
