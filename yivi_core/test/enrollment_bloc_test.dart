@@ -226,4 +226,47 @@ void main() {
       expect(enrollments(), 0);
     },
   );
+
+  test("a second Continue during the biometric check is ignored", () async {
+    final check = Completer<bool>();
+    final bloc = EnrollmentBloc(
+      language: "en",
+      repo: repo,
+      biometricOffered: () => check.future,
+      emailOffered: () => true,
+    );
+    addTearDown(bloc.close);
+    final states = <EnrollmentState>[];
+    final sub = bloc.stream.listen(states.add);
+    addTearDown(sub.cancel);
+    await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
+    bloc.add(EnrollmentNextPressed());
+    bloc.add(EnrollmentNextPressed());
+    await Future<void>.delayed(Duration.zero);
+    check.complete(true);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(bloc.state, isA<EnrollmentChoosePin>());
+    expect(states.whereType<EnrollmentChoosePin>().length, 1);
+  });
+
+  test(
+    "terms toggled during the biometric check: still the PIN step",
+    () async {
+      final check = Completer<bool>();
+      final bloc = EnrollmentBloc(
+        language: "en",
+        repo: repo,
+        biometricOffered: () => check.future,
+        emailOffered: () => true,
+      );
+      addTearDown(bloc.close);
+      await next(bloc, EnrollmentTermsUpdated(isAccepted: true));
+      bloc.add(EnrollmentNextPressed());
+      bloc.add(EnrollmentTermsUpdated(isAccepted: false));
+      await Future<void>.delayed(Duration.zero);
+      check.complete(true);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(bloc.state, isA<EnrollmentChoosePin>());
+    },
+  );
 }
