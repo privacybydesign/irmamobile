@@ -19,6 +19,7 @@ import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
 import "../scroll_edge.dart";
 import "../yivi_spinner.dart";
+import "form_sheet_frame.dart";
 import "glass_surface.dart";
 import "sheet_actions.dart";
 import "sheet_layout.dart";
@@ -170,47 +171,9 @@ Rect? _settledBox(GlobalKey key, RenderBox overlay) {
   return at & box.size;
 }
 
-/// The width of a sheet on a tablet (a form sheet in the middle): 540, as
-/// an iOS form sheet, or less in a narrow window. One column: under
-/// [sheetColumnsWidth].
-double tabletSheetWidth(double window) => math.min(540.0, window - 48);
-
-/// The height of a sheet on a tablet: at most 85% of the window, and no
-/// taller than 720 (a native form sheet's proportions; the QR scanner's).
-double tabletSheetHeight(double window) => math.min(window * 0.85, 720.0);
-
 /// The dim over the page under a sheet: the phone's sheet and every form
 /// sheet on a tablet.
 const sheetDim = Color(0x470C1824);
-
-/// How a form sheet on a tablet comes in (and goes) on [curved]: it rises a
-/// little and settles while it fades in. The dim fades on its own.
-Widget formSheetTransition(Animation<double> curved, Widget child) =>
-    FadeTransition(
-      opacity: curved,
-      child: AnimatedBuilder(
-        animation: curved,
-        child: child,
-        builder: (context, child) => Transform.translate(
-          offset: Offset(0, 48 * (1 - curved.value)),
-          child: Transform.scale(
-            scale: 0.97 + 0.03 * curved.value,
-            child: child,
-          ),
-        ),
-      ),
-    );
-
-/// How long a form sheet on a tablet takes to come in, and to go.
-const formSheetDuration = Duration(milliseconds: 260);
-const formSheetReverseDuration = Duration(milliseconds: 240);
-
-/// The easing of [formSheetTransition].
-CurvedAnimation formSheetCurve(Animation<double> animation) => CurvedAnimation(
-  parent: animation,
-  curve: YiviMotion.ease,
-  reverseCurve: Curves.easeIn,
-);
 
 /// The scroll physics for a list in a sheet (see [_GlassSheetScope]).
 ScrollPhysics? _sheetScrollPhysics(BuildContext context) =>
@@ -254,13 +217,13 @@ class _GlassFormSheetRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => formSheetDuration;
+  Duration get transitionDuration => FormSheetFrame.duration;
 
   @override
-  Duration get reverseTransitionDuration => formSheetReverseDuration;
+  Duration get reverseTransitionDuration => FormSheetFrame.reverseDuration;
 
   /// Made once: a new one each frame would add a listener every time.
-  late final CurvedAnimation _curved = formSheetCurve(animation!);
+  late final CurvedAnimation _curved = FormSheetFrame.curve(animation!);
 
   @override
   void dispose() {
@@ -281,62 +244,32 @@ class _GlassFormSheetRoute<T> extends PageRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
     Widget child,
-  ) => formSheetTransition(_curved, child);
+  ) => FormSheetFrame.transition(_curved, child);
 }
 
-/// The form sheet of [_GlassFormSheetRoute], placed in the window.
-Widget _formSheet(BuildContext context, WidgetBuilder builder) {
-  final media = MediaQuery.of(context);
-  final screen = media.size.height;
-  // Every sheet as tall as a form sheet may be.
-  final height = tabletSheetHeight(screen);
-  final keyboard = media.viewInsets.bottom;
-  // Centred; with the keyboard up it moves up, as a native form sheet,
-  // centred in the room above the keyboard but no higher than 12
-  // below the safe area. What still falls behind the keyboard, the
-  // content ends above (as in the phone's sheet), so its buttons
-  // stay in sight.
-  final lowest = (screen - height) / 2;
-  final top = ((screen - keyboard - height) / 2)
-      .clamp(math.min(media.padding.top + 12, lowest), lowest)
-      .toDouble();
-  final covered = math.max(0.0, top + height - (screen - keyboard));
-  return MediaQuery.removeViewInsets(
-    context: context,
-    removeBottom: true,
-    // In the safe area: clear of a side panel (an unfolded phone
-    // held sideways) or a notch.
-    child: Padding(
-      padding: EdgeInsets.only(
-        top: top,
-        left: 24 + media.padding.left,
-        right: 24 + media.padding.right,
-      ),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: tabletSheetWidth(
-              media.size.width - media.padding.left - media.padding.right,
-            ),
-            maxHeight: height,
-          ),
-          child: Material(
-            type: MaterialType.transparency,
-            child: _FormSheetDrag(
-              child: _SheetSurface(
-                attached: false,
-                height: height,
-                keyboard: covered,
-                child: builder(context),
-              ),
+/// The form sheet of [_GlassFormSheetRoute], placed in the window. Every
+/// sheet is as tall as a form sheet may be; what the keyboard still covers
+/// the content ends above (as in the phone's sheet), so its buttons stay in
+/// sight.
+Widget _formSheet(BuildContext context, WidgetBuilder builder) =>
+    FormSheetFrame(
+      followKeyboard: true,
+      builder: (context, place) => MediaQuery.removeViewInsets(
+        context: context,
+        removeBottom: true,
+        child: Material(
+          type: MaterialType.transparency,
+          child: _FormSheetDrag(
+            child: _SheetSurface(
+              attached: false,
+              height: place.size.height,
+              keyboard: place.covered,
+              child: builder(context),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
 
 /// A drag down on a form sheet's header moves it down with the finger; far
 /// enough or fast enough it closes (through [Navigator.maybePop], so a

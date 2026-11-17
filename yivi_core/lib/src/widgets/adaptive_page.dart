@@ -4,6 +4,7 @@ import "../theme/yivi_corners.dart";
 import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
+import "glass/form_sheet_frame.dart";
 import "glass/glass_sheet.dart";
 import "pane_handoff.dart";
 
@@ -98,7 +99,7 @@ class _AdaptiveRoute<T> extends PageRoute<T>
 
   /// The eased [animation] of the transitions, made once: a new one on every
   /// frame would add a status listener to [animation] each time.
-  late final CurvedAnimation _curved = formSheetCurve(animation!);
+  late final CurvedAnimation _curved = FormSheetFrame.curve(animation!);
 
   @override
   void dispose() {
@@ -128,12 +129,12 @@ class _AdaptiveRoute<T> extends PageRoute<T>
       ? super.transitionDuration
       : _phone == PhoneTransition.rise && !_expanded
       ? YiviMotion.page
-      : formSheetDuration;
+      : FormSheetFrame.duration;
 
   @override
   Duration get reverseTransitionDuration => _platformPush
       ? super.reverseTransitionDuration
-      : formSheetReverseDuration;
+      : FormSheetFrame.reverseDuration;
 
   @override
   Widget buildContent(BuildContext context) {
@@ -176,9 +177,8 @@ class _AdaptiveRoute<T> extends PageRoute<T>
       );
     }
 
-    // The size of every sheet on a tablet ([showGlassSheet]).
-    final width = tabletSheetWidth(safeWidth).clamp(0.0, safeWidth);
-    final height = tabletSheetHeight(size.height);
+    // Where every sheet on a tablet sits ([showGlassSheet] too); the screen
+    // inside keeps the keyboard, so the sheet stays put.
     return Stack(
       children: [
         if (!_stacked)
@@ -193,43 +193,39 @@ class _AdaptiveRoute<T> extends PageRoute<T>
               ),
             ),
           ),
-        Padding(
-          padding: EdgeInsets.only(left: insets.left, right: insets.right),
-          child: Center(
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: DecoratedBox(
-                decoration: ShapeDecoration(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(YiviCorners.sheet),
-                    ),
-                  ),
-                  shadows: _stacked
-                      ? null
-                      : const [
-                          BoxShadow(
-                            color: Color(0x4D000000),
-                            blurRadius: 80,
-                            offset: Offset(0, 30),
-                          ),
-                        ],
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(
+        FormSheetFrame(
+          builder: (context, place) => SizedBox.fromSize(
+            size: place.size,
+            child: DecoratedBox(
+              decoration: ShapeDecoration(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
                     Radius.circular(YiviCorners.sheet),
                   ),
-                  // The screen inside thinks it has the whole window: give it
-                  // the sheet's size and no system insets.
-                  child: MediaQuery(
-                    data: MediaQuery.of(context).copyWith(
-                      size: Size(width, height),
-                      padding: EdgeInsets.zero,
-                      viewPadding: EdgeInsets.zero,
-                    ),
-                    child: child,
+                ),
+                shadows: _stacked
+                    ? null
+                    : const [
+                        BoxShadow(
+                          color: Color(0x4D000000),
+                          blurRadius: 80,
+                          offset: Offset(0, 30),
+                        ),
+                      ],
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(YiviCorners.sheet),
+                ),
+                // The screen inside thinks it has the whole window: give it
+                // the sheet's size and no system insets.
+                child: MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    size: place.size,
+                    padding: EdgeInsets.zero,
+                    viewPadding: EdgeInsets.zero,
                   ),
+                  child: child,
                 ),
               ),
             ),
@@ -278,7 +274,7 @@ class _AdaptiveRoute<T> extends PageRoute<T>
               ),
             ),
           ),
-          formSheetTransition(curved, child),
+          FormSheetFrame.transition(curved, child),
         ],
       );
     }

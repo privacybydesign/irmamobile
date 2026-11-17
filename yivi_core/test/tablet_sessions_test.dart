@@ -6,6 +6,7 @@ import "package:yivi_core/src/screens/session/call_info_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
+import "package:yivi_core/src/widgets/glass/form_sheet_frame.dart";
 import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
@@ -144,7 +145,7 @@ void main() {
     expect(find.byType(BottomSheet), findsNothing);
     final options = tester.getRect(find.text("options"));
     // A form sheet of 540, as on an iPad.
-    final width = tabletSheetWidth(_tablet.width);
+    final width = FormSheetFrame.width(_tablet.width);
     expect(width, 540);
     expect(options.left, greaterThan((_tablet.width - width) / 2 - 1));
     expect(options.right, lessThan((_tablet.width + width) / 2 + 1));
