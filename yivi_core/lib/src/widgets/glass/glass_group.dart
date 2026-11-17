@@ -189,7 +189,12 @@ class GlassTileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(6, YiviSpace.x4, 6, YiviSpace.x8),
+    padding: const EdgeInsets.fromLTRB(
+      YiviSpace.x8,
+      YiviSpace.x4,
+      YiviSpace.x8,
+      YiviSpace.x8,
+    ),
     child: Semantics(
       header: true,
       child: Text(text, style: YiviPalette.of(context).display(15)),

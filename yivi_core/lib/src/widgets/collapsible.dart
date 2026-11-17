@@ -78,8 +78,8 @@ class _CollapsibleState extends State<Collapsible> {
               : context.tr("accessibility.collapsed"),
           child: Padding(
             padding: const EdgeInsets.only(
-              top: YiviSpace.x4 * 3,
-              bottom: YiviSpace.x4 * 3,
+              top: YiviSpace.x12,
+              bottom: YiviSpace.x12,
               left: YiviSpace.x16,
               right: YiviSpace.x16,
             ),

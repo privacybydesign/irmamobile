@@ -136,14 +136,14 @@ class SheetSplit extends StatelessWidget {
                           child: SingleChildScrollView(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
-                              spacing: 10,
+                              spacing: YiviSpace.x12,
                               children: start,
                             ),
                           ),
                         ),
                         if (actions != null)
                           Padding(
-                            padding: const EdgeInsets.only(top: 10),
+                            padding: const EdgeInsets.only(top: YiviSpace.x12),
                             // In place while the content slides over to
                             // another page.
                             child: GlassSheetHold(child: actions),
@@ -178,7 +178,7 @@ class SheetSplit extends StatelessWidget {
 Widget sheetStack(Widget top, Widget bottom) => Column(
   mainAxisSize: MainAxisSize.min,
   crossAxisAlignment: CrossAxisAlignment.stretch,
-  spacing: 10,
+  spacing: YiviSpace.x12,
   children: [top, bottom],
 );
 

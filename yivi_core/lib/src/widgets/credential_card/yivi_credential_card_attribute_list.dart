@@ -1131,10 +1131,13 @@ class _PrimArrayContent extends StatelessWidget {
       children: [
         Text(node.label, style: attributeLabelStyle(context)),
         Padding(
-          padding: const EdgeInsets.only(top: 6, bottom: YiviSpace.x4),
+          padding: const EdgeInsets.only(
+            top: YiviSpace.x8,
+            bottom: YiviSpace.x4,
+          ),
           child: Wrap(
-            spacing: 6,
-            runSpacing: 6,
+            spacing: YiviSpace.x8,
+            runSpacing: YiviSpace.x8,
             children: [
               for (final v in node.values)
                 Container(

@@ -90,13 +90,13 @@ class CardTile extends StatelessWidget {
           Padding(
             padding: EdgeInsets.fromLTRB(
               YiviSpace.x16,
-              14,
               YiviSpace.x16,
-              footer == null ? 12 : 10,
+              YiviSpace.x16,
+              YiviSpace.x12,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 10,
+              spacing: YiviSpace.x12,
               children: [
                 Row(
                   spacing: YiviSpace.x12,
@@ -178,11 +178,11 @@ class CardTileStrip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           YiviSpace.x16,
-          10,
+          YiviSpace.x12,
           YiviSpace.x16,
           YiviSpace.x12,
         ),
-        child: Row(spacing: 10, children: children),
+        child: Row(spacing: YiviSpace.x12, children: children),
       ),
     );
   }

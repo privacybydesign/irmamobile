@@ -483,7 +483,12 @@ class _Card extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, YiviSpace.x4, 14, YiviSpace.x8),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          YiviSpace.x4,
+          YiviSpace.x16,
+          YiviSpace.x8,
+        ),
         child: child,
       ),
     );
@@ -547,11 +552,11 @@ class _ListHeading extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Padding(
       key: _FoldHeader.headingKey,
-      padding: const EdgeInsets.only(top: 10, bottom: YiviSpace.x2),
+      padding: const EdgeInsets.only(top: YiviSpace.x12, bottom: YiviSpace.x2),
       child: Semantics(
         header: true,
         child: Row(
-          spacing: 6,
+          spacing: YiviSpace.x8,
           children: [
             Flexible(
               child: Text(

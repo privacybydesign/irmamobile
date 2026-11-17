@@ -131,7 +131,7 @@ class GlassDialog extends StatelessWidget {
             padding: const EdgeInsets.only(top: YiviSpace.x24),
             child: landscape
                 ? Row(
-                    spacing: 10,
+                    spacing: YiviSpace.x12,
                     children: [
                       for (final a in actions.reversed) Expanded(child: a),
                     ],
