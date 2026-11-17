@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/activity_query.dart";
 import "../../providers/activity_providers.dart";
 import "../../providers/credentials_search.dart";
+import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
@@ -19,6 +20,7 @@ import "../../widgets/list_row.dart";
 import "../../widgets/section_header.dart";
 import "../../widgets/yivi_spinner.dart";
 import "activity_entry.dart";
+import "activity_options.dart";
 import "activity_query_labels.dart";
 import "widgets/activity_detail_parts.dart";
 import "widgets/activity_query_chips.dart";
@@ -66,7 +68,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   /// How many entries match the question, and each option tried in it.
   int? _total;
   final _counts = <String, int>{};
-  var _generation = 0;
+  late final _counter = ActivityOptionCounter(ref.read(irmaRepositoryProvider));
 
   @override
   void initState() {
@@ -106,41 +108,31 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   }
 
   /// Counts the question and every option in it with one question to
-  /// irmago: an option that leaves nothing gets faded.
+  /// irmago: an option that leaves nothing gets faded. A count irmago left
+  /// out counts as nothing.
   Future<void> _recount() async {
     if (!mounted) return;
-    final generation = ++_generation;
-    final tries = <String, ActivityQuery>{"total": _q, ..._options()};
-    final keys = tries.keys.toList();
-    final counts = await countActivity(ref, [for (final k in keys) tries[k]!]);
-    if (counts == null || !mounted || generation != _generation) return;
+    final options = activityFilterOptions(
+      _q,
+      cards: _cards,
+      parties: ref.read(activityPartiesProvider).value ?? const [],
+    );
+    final tries = <String, ActivityQuery>{
+      "total": _q,
+      for (final o in options) o.key: o.query,
+    };
+    final counts = await _counter.count(tries);
+    if (counts == null || !mounted) return;
     setState(() {
       _counts.clear();
-      for (final (i, k) in keys.indexed) {
-        _counts[k] = i < counts.length ? counts[i] : 0;
+      for (final k in tries.keys) {
+        _counts[k] = counts[k] ?? 0;
       }
       _total = _q.rangeWrong ? 0 : _counts["total"];
     });
   }
 
-  List<ActivityCardRef> get _cards => activityCardRefs(ref);
-
-  /// Every option, as the question it would make.
-  Map<String, ActivityQuery> _options() {
-    final card = _q.card;
-    return {
-      for (final kind in ActivityKind.ordered)
-        "kind:${kind.name}": _q.copyWith(kinds: {kind.logType}),
-      for (final c in _cards) "card:${c.key}": _q.withCard(c),
-      if (card != null)
-        for (final g in claimTokenGroups(card.art.attributes))
-          for (final t in g.tokens) "field:${t.key}": _q.copyWith(fields: [t]),
-      for (final p in ref.read(activityPartiesProvider).value ?? const [])
-        "party:${p.key}": _q.copyWith(party: () => p),
-      for (final p in ActivityPeriod.values)
-        "period:${p.name}": _q.copyWith(period: p),
-    };
-  }
+  List<ActivityCardRef> get _cards => ref.read(activityCardRefsProvider);
 
   /// Whether the option can still be picked. Unknown counts never fade.
   bool _fits(String key) => (_counts[key] ?? 1) > 0;
@@ -754,7 +746,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
               firstDate: DateTime(2018),
               lastDate: today,
             );
-            if (picked != null) onPicked(picked);
+            if (picked != null && mounted) onPicked(picked);
           },
           child: Padding(
             padding: const EdgeInsets.fromLTRB(

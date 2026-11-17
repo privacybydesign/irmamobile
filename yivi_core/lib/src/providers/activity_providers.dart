@@ -258,24 +258,24 @@ final removedCardTypesProvider =
 /// How many entries each of [queries] finds, in one question to irmago;
 /// null when that fails.
 Future<List<int>?> countActivity(
-  WidgetRef ref,
+  IrmaRepository repo,
   List<ActivityQuery> queries,
 ) async {
   try {
-    return await ref.read(irmaRepositoryProvider).countLogs([
-      for (final q in queries) q.toLogFilter(),
-    ]);
+    return await repo.countLogs([for (final q in queries) q.toLogFilter()]);
   } catch (_) {
     return null;
   }
 }
 
 /// Every card a question can be about: those in the wallet, then the types
-/// of removed ones ([removedCardTypesProvider]), as they are now.
-List<ActivityCardRef> activityCardRefs(WidgetRef ref) => [
-  for (final c in ref.read(walletCardsProvider)) ActivityCardRef.of(c),
-  ...?ref.read(removedCardTypesProvider).value,
-];
+/// of removed ones ([removedCardTypesProvider]).
+final activityCardRefsProvider = Provider.autoDispose<List<ActivityCardRef>>(
+  (ref) => [
+    for (final c in ref.watch(walletCardsProvider)) ActivityCardRef.of(c),
+    ...?ref.watch(removedCardTypesProvider).value,
+  ],
+);
 
 /// The loaded entries by day here (local time), newest first.
 final activityDayGroupsProvider = Provider<List<List<LogInfo>>>((ref) {

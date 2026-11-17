@@ -11,7 +11,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/activity_query.dart";
 import "../../models/log_entry.dart";
 import "../../providers/activity_providers.dart";
-import "../../providers/credentials_search.dart";
+import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
@@ -36,6 +36,7 @@ import "activity_detail_screen.dart";
 import "activity_entry.dart";
 import "activity_filter_sheet.dart";
 import "activity_kind_words.dart";
+import "activity_options.dart";
 import "activity_query_labels.dart";
 import "widgets/activity_card.dart";
 import "widgets/activity_detail_parts.dart";
@@ -110,7 +111,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// How many entries each suggestion would leave: those with none go.
   final _counts = <String, int>{};
   Timer? _countDelay;
-  var _countGeneration = 0;
+  late final _counter = ActivityOptionCounter(ref.read(irmaRepositoryProvider));
 
   @override
   void initState() {
@@ -228,31 +229,15 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
   /// The draft with what is still typed as words to search.
   ActivityQuery _withTyped(ActivityQuery q, String typed) {
     // "gedeeld met" asks for shared entries; the rest is searched.
-    final (kinds, rest) = readKindWords(typed, _kindPhrases());
+    final (kinds, rest) = readKindWords(
+      typed,
+      ActivityWords.of(context).kindPhrases(),
+    );
     if (kinds.isNotEmpty) q = q.copyWith(kinds: {...q.kinds, ...kinds});
     final words = rest.trim();
     if (words.isEmpty) return q;
     final text = q.text.trim();
     return q.copyWith(text: text.isEmpty ? words : "$text $words");
-  }
-
-  /// Each kind's ways of saying it, in the app's language: its relation
-  /// ("Gedeeld met"), its label with the relation's last word ("Ondertekend
-  /// voor", where the relation says more), and its label ("Gedeeld").
-  Map<LogType, List<String>> _kindPhrases() => {
-    for (final kind in ActivityKind.ordered)
-      kind.logType: () {
-        final label = context.tr(kind.labelKey);
-        final relation = context.tr(kind.relationKey);
-        return [relation, "$label ${relation.split(" ").last}", label];
-      }(),
-  };
-
-  /// The draft with the typed words to find in the data alone.
-  ActivityQuery _withValue(ActivityQuery q, String typed) {
-    final words = typed.trim();
-    final value = q.value.trim();
-    return q.copyWith(value: value.isEmpty ? words : "$value $words");
   }
 
   /// Enter: the log shows what the draft and the typed words find, and the
@@ -342,113 +327,62 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   // ---------------------------------------------------------------- suggestions
 
-  List<ActivityCardRef> get _cards => activityCardRefs(ref);
-
   /// Everything that could be suggested, by group in the order shown, before
-  /// the counts weed out and sort. Only what narrows the question: no kinds
-  /// once one is picked, no parties once one is, and once a card is picked,
-  /// its fields instead of the cards (after the parties). While typing, what
-  /// has the typed text in its name, and last the typed words to find in
-  /// the data alone.
+  /// the counts weed out and sort ([activitySuggestions]), each with its
+  /// picture and label.
   List<List<_Suggestion>> _candidates(List<PartySummary> parties) {
-    final q = _asked;
-    final typed = normaliseForSearch(_typed.trim());
-    bool hit(String s) =>
-        typed.isEmpty || normaliseForSearch(s).contains(typed);
-    final card = q.card;
-
-    final kinds = [
-      if (q.kinds.isEmpty)
-        for (final kind in ActivityKind.ordered)
-          if (hit(context.tr(kind.labelKey)))
-            _Suggestion(
-              key: "kind:${kind.name}",
-              leading: CornerBadge(
-                icon: kind.icon,
-                fill: kind.badge,
-                size: 20,
-                iconSize: 12,
-              ),
-              title: context.tr(kind.labelKey),
-              query: q.copyWith(kinds: {kind.logType}),
-            ),
-    ];
-    final cards = [
-      if (card == null)
-        for (final c in _cards)
-          if (hit(c.name))
-            _Suggestion(
-              key: "card:${c.key}",
-              leading: CredentialCardArt(
-                credential: c.art,
-                width: 30,
-                greyedOut: c.removed,
-              ),
-              title: c.name,
-              query: q.withCard(c),
-            ),
-    ];
-    final partyHits = [
-      if (q.party == null)
-        for (final p in parties)
-          if (hit(p.party.name))
-            _Suggestion(
-              key: "party:${p.key}",
-              leading: ActivityPartyLogo(
-                party: ActivityParty.of(p.party),
-                size: 22,
-              ),
-              title: p.party.name,
-              query: q.copyWith(party: () => p),
-            ),
-    ];
-    // The fields of the card asked about (picked fields join: either one);
-    // while typing with no card asked, those of every card that match,
-    // each asking about its card too.
-    final fieldCards = card != null
-        ? [card]
-        : typed.isEmpty
-        ? const <ActivityCardRef>[]
-        : _cards;
-    final fields = <_Suggestion>[
-      for (final c in fieldCards)
-        if (!c.removed)
-          for (final g in claimTokenGroups(c.art.attributes))
-            for (final t in g.tokens)
-              if (!q.fields.contains(t) && hit(claimTokenLabel(context, t)))
-                _Suggestion(
-                  key: "field:${c.key}:${t.key}",
-                  leading: CredentialCardArt(credential: c.art, width: 30),
-                  // The full path, as the tag it becomes.
-                  title: "${c.name} › ${claimTokenLabel(context, t)}",
-                  query: card == null
-                      ? q.withCard(c).copyWith(fields: [t])
-                      : q.copyWith(fields: {...q.fields, t}.toList()),
-                ),
-    ];
-    final words = _typed.trim();
+    final words = ActivityWords.of(context);
     return [
-      kinds,
-      // Empty once a card is picked.
-      cards,
-      partyHits,
-      fields,
-      if (words.isNotEmpty)
-        [
-          _Suggestion(
-            key: "value",
-            leading: Icon(
-              Icons.badge_outlined,
-              size: 18,
-              color: YiviPalette.of(context).link,
-            ),
-            title: context.tr("activity.query.suggest.value_for", {
-              "text": words,
-            }),
-            query: _withValue(_asked, words),
-          ),
-        ],
+      for (final group in activitySuggestions(
+        asked: _asked,
+        typed: _typed,
+        cards: ref.read(activityCardRefsProvider),
+        parties: parties,
+        words: words,
+      ))
+        [for (final o in group) _suggestion(o, words)],
     ];
+  }
+
+  _Suggestion _suggestion(ActivityOption o, ActivityWords words) {
+    final (leading, title) = switch (o) {
+      KindOption(:final kind) => (
+        CornerBadge(icon: kind.icon, fill: kind.badge, size: 20, iconSize: 12),
+        words.kind(kind),
+      ),
+      CardOption(:final card) => (
+        CredentialCardArt(
+          credential: card.art,
+          width: 30,
+          greyedOut: card.removed,
+        ),
+        card.name,
+      ),
+      PartyOption(:final party) => (
+        ActivityPartyLogo(party: ActivityParty.of(party.party), size: 22),
+        party.party.name,
+      ),
+      // The full path, as the tag it becomes.
+      FieldOption(:final card, :final token) => (
+        CredentialCardArt(credential: card.art, width: 30),
+        "${card.name} › ${words.field(token)}",
+      ),
+      ValueOption(:final words) => (
+        Icon(
+          Icons.badge_outlined,
+          size: 18,
+          color: YiviPalette.of(context).link,
+        ),
+        context.tr("activity.query.suggest.value_for", {"text": words}),
+      ),
+      PeriodOption() => throw StateError("no period suggestions"),
+    };
+    return _Suggestion(
+      key: o.key,
+      leading: leading,
+      title: title,
+      query: o.query,
+    );
   }
 
   /// The suggestions in one row: per group those that leave something, the
@@ -478,19 +412,17 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
     _countDelay?.cancel();
     _countDelay = Timer(const Duration(milliseconds: 150), () async {
       if (!mounted || !_searching) return;
-      final generation = ++_countGeneration;
       final all = _candidates(
         ref.read(activityPartiesProvider).value ?? const [],
-      ).flattened.toList();
-      final counts = await countActivity(ref, [for (final s in all) s.query]);
-      if (counts == null || !mounted || generation != _countGeneration) {
-        return;
-      }
+      ).flattened;
+      final counts = await _counter.count({
+        for (final s in all) s.key: s.query,
+      });
+      if (counts == null || !mounted) return;
       setState(() {
-        _counts.clear();
-        for (final (i, s) in all.indexed) {
-          if (i < counts.length) _counts[s.key] = counts[i];
-        }
+        _counts
+          ..clear()
+          ..addAll(counts);
       });
     });
   }
