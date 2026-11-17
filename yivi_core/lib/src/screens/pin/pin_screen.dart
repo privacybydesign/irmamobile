@@ -17,6 +17,7 @@ import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_close_button.dart";
 import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
+import "providers/pin_countdown_provider.dart";
 import "providers/pin_unlock_provider.dart";
 import "widgets/biometric_glyph.dart";
 import "widgets/waiting_request_announcement.dart";
@@ -173,7 +174,15 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // Hide pin screen once authenticated.
     if (state.authenticated) return Container();
 
-    final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
+    final blockedFor =
+        ref
+            .watch(
+              pinCountdownProvider(
+                ref.watch(pinUnlockProvider.select((s) => s.blockedUntil)),
+              ),
+            )
+            .value ??
+        Duration.zero;
     final blocked = blockedFor.inSeconds > 0;
 
     final biometricAvailable =
@@ -305,7 +314,15 @@ class UnlockPinEntry extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(pinUnlockProvider);
     final maxPinSize = ref.watch(longPinProvider) ? longPinSize : shortPinSize;
-    final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
+    final blockedFor =
+        ref
+            .watch(
+              pinCountdownProvider(
+                ref.watch(pinUnlockProvider.select((s) => s.blockedUntil)),
+              ),
+            )
+            .value ??
+        Duration.zero;
     final blocked = blockedFor.inSeconds > 0;
     final enabled = !blocked && !busy;
     // A wrong PIN or a block, said in the line under the title.

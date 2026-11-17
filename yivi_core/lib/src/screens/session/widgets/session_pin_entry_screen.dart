@@ -1,5 +1,4 @@
-import "dart:async";
-
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
@@ -9,6 +8,7 @@ import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_close_button.dart";
+import "../../pin/providers/pin_countdown_provider.dart";
 import "../../pin/yivi_pin_screen.dart";
 
 /// Session PIN entry. A thin wrapper around the shared [YiviPinScreen]: it owns
@@ -17,7 +17,7 @@ import "../../pin/yivi_pin_screen.dart";
 /// after a wrong attempt by bumping a [ValueKey], which remounts
 /// [YiviPinScreen] with an empty buffer. No biometrics here — sessions always
 /// require the PIN.
-class SessionPinEntryScreen extends StatefulWidget {
+class SessionPinEntryScreen extends ConsumerStatefulWidget {
   final String title;
 
   /// What the PIN is for, under the title: "to share your data with …".
@@ -47,10 +47,11 @@ class SessionPinEntryScreen extends StatefulWidget {
   });
 
   @override
-  State<SessionPinEntryScreen> createState() => _SessionPinEntryScreenState();
+  ConsumerState<SessionPinEntryScreen> createState() =>
+      _SessionPinEntryScreenState();
 }
 
-class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
+class _SessionPinEntryScreenState extends ConsumerState<SessionPinEntryScreen> {
   int? _previousRemainingAttempts;
   int? _previousBlockedTimeSeconds;
   int _resetNonce = 0;
@@ -59,9 +60,8 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   /// The wrong PIN just entered, until the block or the next attempt.
   bool _wrong = false;
 
-  /// When a block ends, and the ticker that counts down to it.
+  /// When a block ends ([pinCountdownProvider] counts down to it).
   DateTime? _blockedUntil;
-  Timer? _ticker;
 
   @override
   void didUpdateWidget(SessionPinEntryScreen oldWidget) {
@@ -76,12 +76,6 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
       _blockedUntil = DateTime.now().add(
         Duration(seconds: widget.blockedTimeSeconds!),
       );
-      _ticker?.cancel();
-      _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-        if (!mounted) return;
-        if (_blockedLeft == Duration.zero) _ticker?.cancel();
-        setState(() {});
-      });
     }
     // Wrong PIN: clear the entry and say so on the screen (unless blocked,
     // which takes priority).
@@ -95,19 +89,6 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
 
     _previousRemainingAttempts = widget.remainingAttempts;
     _previousBlockedTimeSeconds = widget.blockedTimeSeconds;
-  }
-
-  @override
-  void dispose() {
-    _ticker?.cancel();
-    super.dispose();
-  }
-
-  Duration get _blockedLeft {
-    final until = _blockedUntil;
-    if (until == null) return Duration.zero;
-    final left = until.difference(DateTime.now());
-    return left.isNegative ? Duration.zero : left;
   }
 
   void _resetEntry() => setState(() {
@@ -125,7 +106,14 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   @override
   Widget build(BuildContext context) {
     const paddingSize = YiviSpace.pageSide;
-    final blockedLeft = _blockedLeft;
+    // Until the countdown's first value is in, the time left as it is now:
+    // the block shows in the same frame it comes in.
+    final until = _blockedUntil;
+    final blockedLeft =
+        ref.watch(pinCountdownProvider(until)).value ??
+        (until == null || until.isBefore(DateTime.now())
+            ? Duration.zero
+            : until.difference(DateTime.now()));
     final blocked = blockedLeft > Duration.zero;
     final attempts = PinAttempts.of(
       context,

@@ -9,7 +9,7 @@ import "../../../providers/irma_repository_provider.dart";
 
 /// App-unlock authentication state. Replaces the old `PinBloc`: a single
 /// [Notifier] holds the auth state, [unlock] talks to the keyshare server,
-/// and the blocked countdown lives in [pinBlockedForProvider] instead of a
+/// and the blocked countdown lives in pinCountdownProvider instead of a
 /// manual `CountdownTimer` + `BehaviorSubject`.
 @immutable
 class PinUnlockState {
@@ -97,27 +97,3 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
 final pinUnlockProvider = NotifierProvider<PinUnlockNotifier, PinUnlockState>(
   PinUnlockNotifier.new,
 );
-
-/// Seconds remaining until the PIN can be tried again, ticking down once a
-/// second. Derived from [PinUnlockState.blockedUntil] — recomputed (and the
-/// old ticker cancelled) whenever the block changes.
-final pinBlockedForProvider = StreamProvider.autoDispose<Duration>((
-  ref,
-) async* {
-  final blockedUntil = ref.watch(
-    pinUnlockProvider.select((s) => s.blockedUntil),
-  );
-  if (blockedUntil == null) {
-    yield Duration.zero;
-    return;
-  }
-  while (true) {
-    final remaining = blockedUntil.difference(DateTime.now());
-    if (remaining.inSeconds <= 0) {
-      yield Duration.zero;
-      return;
-    }
-    yield remaining;
-    await Future<void>.delayed(const Duration(seconds: 1));
-  }
-});

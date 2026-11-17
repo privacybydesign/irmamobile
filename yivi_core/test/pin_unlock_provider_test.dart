@@ -6,6 +6,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/authentication_events.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/screens/pin/providers/pin_countdown_provider.dart";
 import "package:yivi_core/src/screens/pin/providers/pin_unlock_provider.dart";
 
 import "support/onboarding_v2_harness.dart";
@@ -142,9 +143,15 @@ void main() {
       overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
     );
     final seen = <Duration>[];
-    c.listen(
-      pinBlockedForProvider,
+    void follow(DateTime? until) => c.listen(
+      pinCountdownProvider(until),
       (_, next) => next.whenData(seen.add),
+      fireImmediately: true,
+    );
+    // As the lock screen does: the countdown of the notifier's block.
+    c.listen(
+      pinUnlockProvider.select((s) => s.blockedUntil),
+      (_, until) => follow(until),
       fireImmediately: true,
     );
     await tester.pump();
