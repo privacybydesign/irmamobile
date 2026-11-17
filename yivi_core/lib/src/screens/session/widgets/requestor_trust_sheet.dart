@@ -13,6 +13,7 @@ import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/icon_square.dart";
+import "../../../widgets/list_row.dart";
 import "../../../widgets/surface_card.dart";
 import "../models/technical_details.dart";
 import "requestor_card.dart";
@@ -479,27 +480,12 @@ class _FactRow extends StatelessWidget {
         palette.tint,
       ),
     };
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: YiviSpace.x16,
-        vertical: YiviSpace.x12,
+    return ListRow(
+      leading: ExcludeSemantics(
+        child: IconSquare(icon: icon, fill: tile, ink: ink),
       ),
-      child: Row(
-        spacing: YiviSpace.x16,
-        children: [
-          ExcludeSemantics(
-            child: IconSquare(icon: icon, fill: tile, ink: ink),
-          ),
-          Expanded(
-            child: Text(
-              fact.text,
-              style: palette
-                  .body(15, weight: FontWeight.w600)
-                  .copyWith(height: 21 / 15, color: palette.text),
-            ),
-          ),
-        ],
-      ),
+      title: fact.text,
+      trailing: RowTrailing.none,
     );
   }
 }
@@ -513,49 +499,20 @@ class _DoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final tap = item.onTap;
-    final row = Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: YiviSpace.x16,
-        vertical: YiviSpace.x12,
+    return ListRow(
+      key: item.key,
+      leading: ExcludeSemantics(
+        child: IconSquare(
+          icon: item.icon,
+          fill: palette.tint,
+          ink: palette.link,
+        ),
       ),
-      child: Row(
-        spacing: YiviSpace.x16,
-        children: [
-          ExcludeSemantics(
-            child: IconSquare(
-              icon: item.icon,
-              fill: palette.tint,
-              ink: palette.link,
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: palette
-                      .body(15, weight: FontWeight.w600)
-                      .copyWith(height: 21 / 15, color: palette.text),
-                ),
-                Text(
-                  item.subtitle,
-                  style: palette
-                      .body(13)
-                      .copyWith(height: 18 / 13, color: palette.secondaryText),
-                ),
-              ],
-            ),
-          ),
-          if (tap != null)
-            Icon(Icons.chevron_right_rounded, size: 22, color: palette.faint),
-        ],
-      ),
-    );
-    if (tap == null) return KeyedSubtree(key: item.key, child: row);
-    return Semantics(
-      button: true,
-      child: InkWell(key: item.key, onTap: tap, child: row),
+      title: item.title,
+      subtitle: item.subtitle,
+      subtitleMaxLines: 3,
+      trailing: tap == null ? RowTrailing.none : RowTrailing.chevron,
+      onTap: tap,
     );
   }
 }

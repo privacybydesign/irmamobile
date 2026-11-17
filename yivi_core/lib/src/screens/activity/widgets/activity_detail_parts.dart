@@ -16,6 +16,7 @@ import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/list_row.dart";
 import "../../../widgets/party_avatar.dart";
 import "../../../widgets/section_header.dart";
 import "../../../widgets/status_chip.dart";
@@ -575,40 +576,14 @@ class ActivityAllWithParty extends ConsumerWidget {
       padding: const EdgeInsets.only(top: YiviSpace.x24),
       child: SurfaceCard(
         clipBehavior: Clip.antiAlias,
-        child: Semantics(
-          button: true,
-          label: "$label, ${summary.count}",
-          excludeSemantics: true,
-          child: InkWell(
-            key: const Key("activity_all_with_party"),
-            onTap: () => onAsk(ActivityQuery(party: summary)),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 52),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-                child: Row(
-                  spacing: YiviSpace.x12,
-                  children: [
-                    Icon(Icons.history_rounded, size: 20, color: palette.link),
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: palette
-                            .display(16, weight: FontWeight.w500)
-                            .copyWith(color: palette.link),
-                      ),
-                    ),
-                    Text(
-                      "${summary.count}",
-                      style: palette
-                          .body(14)
-                          .copyWith(color: palette.secondaryText),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+        child: ListRow(
+          key: const Key("activity_all_with_party"),
+          leading: Icon(Icons.history_rounded, size: 20, color: palette.link),
+          title: label,
+          value: "${summary.count}",
+          semanticsLabel: "$label, ${summary.count}",
+          dense: true,
+          onTap: () => onAsk(ActivityQuery(party: summary)),
         ),
       ),
     );

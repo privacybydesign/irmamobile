@@ -15,6 +15,7 @@ import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/sheet_actions.dart";
+import "../../widgets/list_row.dart";
 import "../../widgets/section_header.dart";
 import "../../widgets/yivi_spinner.dart";
 import "activity_entry.dart";
@@ -297,70 +298,26 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     Widget? trailing,
   }) {
     final palette = YiviPalette.of(context);
-    return Opacity(
-      opacity: faded ? 0.38 : 1,
-      child: Semantics(
-        button: true,
-        selected: selected,
-        enabled: !faded,
-        child: InkWell(
-          key: key,
-          onTap: faded ? null : onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 56),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                YiviSpace.x16,
-                YiviSpace.x8,
-                YiviSpace.x16,
-                YiviSpace.x8,
-              ),
-              child: Row(
-                spacing: YiviSpace.x12,
-                children: [
-                  leading,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: palette
-                              .display(15)
-                              .copyWith(color: palette.text),
-                        ),
-                        if (subtitle.isNotEmpty)
-                          Text(
-                            subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: palette
-                                .body(13)
-                                .copyWith(color: palette.secondaryText),
-                          ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: 22,
-                    child:
-                        trailing ??
-                        (selected
-                            ? Icon(
-                                Icons.check_rounded,
-                                size: 22,
-                                color: palette.link,
-                              )
-                            : null),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+    return ListRow(
+      key: key,
+      leading: leading,
+      title: title,
+      titleMaxLines: 1,
+      subtitle: subtitle.isEmpty ? null : subtitle,
+      dense: true,
+      // The check's room is kept, so the rows line up.
+      trailingWidget: SizedBox(
+        width: 22,
+        child:
+            trailing ??
+            (selected
+                ? Icon(Icons.check_rounded, size: 22, color: palette.link)
+                : null),
       ),
+      selected: selected,
+      // Fits none of the other choices: greyed out, no taps.
+      enabled: !faded,
+      onTap: onTap,
     );
   }
 
