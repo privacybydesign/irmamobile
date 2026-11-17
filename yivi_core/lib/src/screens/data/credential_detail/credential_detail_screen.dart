@@ -388,6 +388,11 @@ class _Details extends ConsumerWidget {
     final foundLabel = credential.attributes
         .firstWhereOrNull((a) => claimPathKey(a.claimPath) == found)
         ?.effectiveDisplayName;
+    // Only a found field marks the typed words: without one the details do
+    // not rebuild per letter typed in the list's field.
+    final foundQuery = foundLabel == null
+        ? ""
+        : ref.watch(dataSearchQueryProvider);
     final sharable =
         credential.credentialInstanceIds.keys.any(
           (f) => f != CredentialFormat.idemix,
@@ -517,7 +522,7 @@ class _Details extends ConsumerWidget {
               namespaced: credential.isMdoc,
               showDividers: true,
               found: foundLabel == null ? null : found,
-              foundQuery: ref.watch(dataSearchQueryProvider),
+              foundQuery: foundQuery,
               foundKey: key,
             ),
           ),

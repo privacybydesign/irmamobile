@@ -6,12 +6,12 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/count_badge.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
+import "../../../widgets/credential_card/attribute_list/value_tag.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/credential_card/faded_card_art.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/press_scale.dart";
 

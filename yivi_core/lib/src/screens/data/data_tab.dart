@@ -269,22 +269,32 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
   Widget _withDetailPane(Widget list) {
     final cards = ref.watch(walletCardsProvider);
     final hash = _paneCardHash(ref.watch(selectedCardProvider), cards);
-    final selection = ref.read(selectedCardProvider.notifier);
     return TwoPane(
       list: list,
       placeholder: const EmptyDataPane(),
       detail: hash == null
           ? null
-          : CredentialDetailPane(
-              key: ValueKey(hash),
-              hash: hash,
-              found: switch (ref.watch(foundCardFieldProvider)) {
-                (hash: final h, :final claimKey) when h == hash => claimKey,
-                _ => null,
-              },
-              onSwitch: selection.select,
-              onDeleted: () => selection.select(null),
-            ),
+          : _paneFor(hash, switch (ref.watch(foundCardFieldProvider)) {
+              (hash: final h, :final claimKey) when h == hash => claimKey,
+              _ => null,
+            }),
+    );
+  }
+
+  CredentialDetailPane? _pane;
+
+  /// The details of [hash]: the same widget while the card and its found
+  /// field stay, so the pane does not build again for every letter typed.
+  CredentialDetailPane _paneFor(String hash, String? found) {
+    final pane = _pane;
+    if (pane != null && pane.hash == hash && pane.found == found) return pane;
+    final selection = ref.read(selectedCardProvider.notifier);
+    return _pane = CredentialDetailPane(
+      key: ValueKey(hash),
+      hash: hash,
+      found: found,
+      onSwitch: selection.select,
+      onDeleted: () => selection.select(null),
     );
   }
 }

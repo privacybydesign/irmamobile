@@ -1,7 +1,4 @@
-import "dart:math";
-
 import "package:collection/collection.dart";
-import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/credential.dart";
@@ -16,15 +13,14 @@ import "../search_mark.dart";
 import "../status_chip.dart";
 import "../translated_text.dart";
 import "attribute_groups/attribute_group.dart";
-import "attribute_groups/attribute_group_registry.dart";
 import "attribute_groups/attribute_value_formatting.dart";
+import "attribute_list/attribute_tree.dart";
+import "attribute_list/value_tag.dart";
 import "attribute_photo.dart";
 import "models/credential_card_layout.dart";
 
 part "attribute_list/attribute_nested.dart";
 part "attribute_list/attribute_rows.dart";
-part "attribute_list/attribute_tree.dart";
-part "attribute_list/value_tag.dart";
 
 /// How `overNN` age attributes are listed.
 enum AgeDisplay {
@@ -104,46 +100,19 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groups = <_ClaimedGroup>[];
-    var remaining = attributes;
-    for (final renderer
-        in renderers ?? attributeGroupRenderers[credentialId] ?? const []) {
-      final group = renderer.claim(remaining, compareTo: compareTo);
-      if (group == null) continue;
-      final claimedKeys = {
-        for (final a in group.claimed) claimPathKey(a.claimPath),
-      };
-      assert(() {
-        final offered = {for (final a in remaining) claimPathKey(a.claimPath)};
-        return offered.containsAll(claimedKeys);
-      }(), "${renderer.runtimeType} claimed an attribute it was not offered");
-      final firstIndex = attributes.indexWhere(
-        (a) => claimedKeys.contains(claimPathKey(a.claimPath)),
-      );
-      groups.add(
-        _ClaimedGroup(group, firstIndex < 0 ? attributes.length : firstIndex),
-      );
-      remaining = remaining
-          .where((a) => !claimedKeys.contains(claimPathKey(a.claimPath)))
-          .toList();
-    }
-
-    // Images end up last on every level through _valuesFirst.
-    final tree = _buildTree(
-      remaining,
+    final nodes = buildAttributeTree(
+      attributes,
+      credentialId: credentialId,
+      renderers: renderers,
       compareTo: compareTo,
-      namespaced: namespaced,
       mismatched: mismatched,
       matched: matched,
       found: found == null
           ? null
           : (claimKey: found!, key: foundKey, query: foundQuery),
+      namespaced: namespaced,
+      collapseAges: ageDisplay == AgeDisplay.collapsed,
     );
-    _insertGroups(tree.children, groups, attributes);
-    // Comparing against another credential needs every attribute on its own row.
-    if (ageDisplay == AgeDisplay.collapsed && compareTo == null) {
-      _collapseAges(tree.children);
-    }
     final ctx = _Ctx(
       // Shared or compared values are never folded away.
       foldable: !disclosure && compareTo == null,
@@ -154,6 +123,6 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       mismatchedTag: mismatchedTag,
       hideLabel: attributes.length == 1 ? hideLabel : null,
     );
-    return _NestedList(nodes: _normalize(tree.children), ctx: ctx);
+    return _NestedList(nodes: nodes, ctx: ctx);
   }
 }

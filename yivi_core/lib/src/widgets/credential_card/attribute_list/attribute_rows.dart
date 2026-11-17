@@ -1,7 +1,7 @@
 part of "../yivi_credential_card_attribute_list.dart";
 
 class _FlatRow extends StatelessWidget {
-  final _Node node;
+  final AttributeNode node;
   // The first row of the list: nothing is drawn above it.
   final bool isFirst;
   final _Ctx ctx;
@@ -29,7 +29,7 @@ class _FlatRow extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _RowContent extends StatelessWidget {
-  final _Node node;
+  final AttributeNode node;
   // The first row of the list: nothing is drawn above it.
   final bool isFirst;
   final _Ctx ctx;
@@ -42,13 +42,13 @@ class _RowContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (node) {
-      _RowNode n => _LeafContent(node: n, ctx: ctx),
-      _AgeNode n => _AgeContent(node: n, layout: ctx.layout),
-      _PrimArrayNode n => _PrimArrayContent(node: n),
-      // Only a header without values gets here (see _rowDrawsBorder).
-      _GroupNode n => Text(n.label ?? "", style: attributeLabelStyle(context)),
-      _ItemNode() => const SizedBox.shrink(),
-      _AttributeGroupNode n => AttributeGroupScope(
+      RowNode n => _LeafContent(node: n, ctx: ctx),
+      AgeNode n => _AgeContent(node: n, layout: ctx.layout),
+      PrimArrayNode n => _PrimArrayContent(node: n),
+      // Only a header without values gets here (see rowDrawsBorder).
+      GroupNode n => Text(n.label ?? "", style: attributeLabelStyle(context)),
+      ItemNode() => const SizedBox.shrink(),
+      AttributeGroupNode n => AttributeGroupScope(
         isFirst: isFirst,
         isDisclosure: ctx.disclosure,
         child: Builder(builder: n.group.build),
@@ -63,7 +63,7 @@ class _RowContent extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _LeafContent extends StatelessWidget {
-  final _RowNode node;
+  final RowNode node;
   final _Ctx ctx;
   const _LeafContent({required this.node, required this.ctx});
 
@@ -119,7 +119,7 @@ class _LeafContent extends StatelessWidget {
   Widget _buildValue(BuildContext context, IrmaThemeData theme) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
-    if (_isImage(node.attribute)) return _tappableImage();
+    if (isImageAttribute(node.attribute)) return _tappableImage();
     final text = formatAttributeValue(context, val);
     final style = attributeValueStyle(
       context,
@@ -225,7 +225,7 @@ class _FoundRow extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _AgeContent extends StatefulWidget {
-  final _AgeNode node;
+  final AgeNode node;
   final CredentialCardLayout layout;
   const _AgeContent({required this.node, required this.layout});
 
@@ -308,10 +308,10 @@ class _AgeContentState extends State<_AgeContent> {
   }
 }
 
-/// A pill that says whether the holder is over [_AgeEntry.age]. The mark and the
+/// A pill that says whether the holder is over [AgeEntry.age]. The mark and the
 /// colour repeat what the spoken label says.
 class _AgeChip extends StatelessWidget {
-  final _AgeEntry entry;
+  final AgeEntry entry;
   const _AgeChip({required this.entry});
 
   static const double gap = 6;
@@ -439,7 +439,7 @@ class _ChevronPainter extends CustomPainter {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _PrimArrayContent extends StatelessWidget {
-  final _PrimArrayNode node;
+  final PrimArrayNode node;
   const _PrimArrayContent({required this.node});
 
   @override

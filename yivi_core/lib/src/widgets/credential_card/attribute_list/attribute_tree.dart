@@ -1,26 +1,34 @@
-part of "../yivi_credential_card_attribute_list.dart";
+import "dart:math";
+
+import "package:collection/collection.dart";
+import "package:flutter/foundation.dart";
+import "package:material_ui/material_ui.dart";
+
+import "../../../models/credential.dart";
+import "../attribute_groups/attribute_group.dart";
+import "../attribute_groups/attribute_group_registry.dart";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tree model
 // ─────────────────────────────────────────────────────────────────────────────
 
-sealed class _Node {
-  const _Node();
+sealed class AttributeNode {
+  const AttributeNode();
 }
 
-class _GroupNode extends _Node {
+class GroupNode extends AttributeNode {
   final String? label;
   final List<dynamic> path;
-  final List<_Node> children;
-  _GroupNode({this.label, required this.path, required this.children});
+  final List<AttributeNode> children;
+  GroupNode({this.label, required this.path, required this.children});
 }
 
-class _ItemNode extends _Node {
+class ItemNode extends AttributeNode {
   final String? parentLabel;
   final int itemIndex;
   final List<dynamic> path;
-  final List<_Node> children;
-  _ItemNode({
+  final List<AttributeNode> children;
+  ItemNode({
     this.parentLabel,
     required this.itemIndex,
     required this.path,
@@ -28,15 +36,15 @@ class _ItemNode extends _Node {
   });
 }
 
-class _RowNode extends _Node {
+class RowNode extends AttributeNode {
   final Attribute attribute;
   final AttributeValue? compareToValue;
   final bool hasCompareTo;
   final bool mismatch;
   final bool match;
   // Set on the row a search found the card by.
-  final _Found? found;
-  _RowNode({
+  final FoundField? found;
+  RowNode({
     required this.attribute,
     required this.hasCompareTo,
     this.compareToValue,
@@ -46,35 +54,35 @@ class _RowNode extends _Node {
   });
 }
 
-class _AgeEntry {
+class AgeEntry {
   final int age;
   final bool over;
-  const _AgeEntry({required this.age, required this.over});
+  const AgeEntry({required this.age, required this.over});
 }
 
 /// All `overNN` attributes of one group, folded into a single row.
-class _AgeNode extends _Node {
-  final List<_AgeEntry> ages;
-  _AgeNode({required this.ages});
+class AgeNode extends AttributeNode {
+  final List<AgeEntry> ages;
+  AgeNode({required this.ages});
 }
 
-class _PrimArrayNode extends _Node {
+class PrimArrayNode extends AttributeNode {
   final String label;
   final List<dynamic> path;
   final List<AttributeValue> values;
-  _PrimArrayNode({
+  PrimArrayNode({
     required this.label,
     required this.path,
     required this.values,
   });
 }
 
-class _AttributeGroupNode extends _Node {
+class AttributeGroupNode extends AttributeNode {
   final AttributeGroup group;
-  _AttributeGroupNode(this.group);
+  AttributeGroupNode(this.group);
 }
 
-bool _isImage(Attribute a) =>
+bool isImageAttribute(Attribute a) =>
     a.value?.type == AttributeType.image ||
     a.value?.type == AttributeType.base64Image;
 
@@ -92,7 +100,7 @@ String? _keyLabel(List<dynamic> arrayPath) {
 
 class _StackFrame {
   final List<dynamic> path;
-  final List<_Node> childrenArr;
+  final List<AttributeNode> childrenArr;
   _StackFrame({required this.path, required this.childrenArr});
 }
 
@@ -100,7 +108,7 @@ class _PrimCollector {
   final String label;
   final List<dynamic> path;
   final List<AttributeValue> values;
-  final List<_Node> parent;
+  final List<AttributeNode> parent;
   _PrimCollector({
     required this.label,
     required this.path,
@@ -109,14 +117,14 @@ class _PrimCollector {
   });
 }
 
-typedef _Found = ({String claimKey, GlobalKey? key, String query});
+typedef FoundField = ({String claimKey, GlobalKey? key, String query});
 
-_GroupNode _buildTree(
+GroupNode _buildTree(
   List<Attribute> attrs, {
   List<Attribute>? compareTo,
   Set<String> mismatched = const {},
   Set<String> matched = const {},
-  _Found? found,
+  FoundField? found,
   bool namespaced = false,
 }) {
   final headers = <String, Attribute>{};
@@ -130,7 +138,7 @@ _GroupNode _buildTree(
     compareValues.putIfAbsent(claimPathKey(c.claimPath), () => c.value);
   }
 
-  final root = _GroupNode(path: const [], children: []);
+  final root = GroupNode(path: const [], children: []);
   final stack = <_StackFrame>[
     _StackFrame(path: const [], childrenArr: root.children),
   ];
@@ -139,9 +147,7 @@ _GroupNode _buildTree(
   void flushPrim(String key) {
     final c = primCollectors[key];
     if (c == null) return;
-    c.parent.add(
-      _PrimArrayNode(label: c.label, path: c.path, values: c.values),
-    );
+    c.parent.add(PrimArrayNode(label: c.label, path: c.path, values: c.values));
     primCollectors.remove(key);
   }
 
@@ -195,7 +201,7 @@ _GroupNode _buildTree(
   void ensureGroupFrame(List<dynamic> path) {
     if (isOpen(path)) return;
     popToPrefix(path);
-    final group = _GroupNode(label: labelFor(path), path: path, children: []);
+    final group = GroupNode(label: labelFor(path), path: path, children: []);
     stack.last.childrenArr.add(group);
     stack.add(_StackFrame(path: path, childrenArr: group.children));
   }
@@ -219,9 +225,8 @@ _GroupNode _buildTree(
       ensureGroupFrame(arrayHeaderPath);
       popToPrefix(arrayHeaderPath);
       final arrayFrame = stack.last;
-      final itemIndex =
-          arrayFrame.childrenArr.whereType<_ItemNode>().length + 1;
-      final item = _ItemNode(
+      final itemIndex = arrayFrame.childrenArr.whereType<ItemNode>().length + 1;
+      final item = ItemNode(
         parentLabel: labelFor(arrayHeaderPath),
         itemIndex: itemIndex,
         path: itemPath,
@@ -243,7 +248,7 @@ _GroupNode _buildTree(
       popToPrefix(p);
 
       final parentFrame = stack.last;
-      final group = _GroupNode(
+      final group = GroupNode(
         label: e.effectiveDisplayName,
         path: p,
         children: [],
@@ -294,7 +299,7 @@ _GroupNode _buildTree(
     final frame = stack.last;
     final key = claimPathKey(p);
     frame.childrenArr.add(
-      _RowNode(
+      RowNode(
         attribute: e,
         hasCompareTo: compareTo != null,
         compareToValue: compareValues[key],
@@ -314,15 +319,15 @@ _GroupNode _buildTree(
 /// lists), then images, keeping the order within each of the three. A value
 /// would otherwise land between two sections, where it reads as part of the
 /// one above it.
-void _valuesFirst(_Node node) {
-  final children = _childrenOf(node);
+void _valuesFirst(AttributeNode node) {
+  final children = nodeChildren(node);
   if (children == null) return;
 
-  int rank(_Node c) => switch (c) {
-    _RowNode n when _isImage(n.attribute) => 2,
-    _RowNode() || _PrimArrayNode() => 0,
+  int rank(AttributeNode c) => switch (c) {
+    RowNode n when isImageAttribute(n.attribute) => 2,
+    RowNode() || PrimArrayNode() => 0,
     // A header without descendants is drawn as a labelled row.
-    _GroupNode n when n.children.isEmpty => 0,
+    GroupNode n when n.children.isEmpty => 0,
     _ => 1,
   };
   final ordered = [
@@ -337,9 +342,9 @@ void _valuesFirst(_Node node) {
 }
 
 /// The children of a group or an item; null for a node that has none.
-List<_Node>? _childrenOf(_Node node) => switch (node) {
-  _GroupNode n => n.children,
-  _ItemNode n => n.children,
+List<AttributeNode>? nodeChildren(AttributeNode node) => switch (node) {
+  GroupNode n => n.children,
+  ItemNode n => n.children,
   _ => null,
 };
 
@@ -349,7 +354,7 @@ List<_Node>? _childrenOf(_Node node) => switch (node) {
 
 final _ageClaim = RegExp(r"^over(\d+)$");
 
-_AgeEntry? _ageEntry(Attribute attribute) {
+AgeEntry? _ageEntry(Attribute attribute) {
   final claim = attribute.claimPath.lastOrNull;
   if (claim is! String) return null;
   final age = _ageClaim.firstMatch(claim)?.group(1);
@@ -367,15 +372,15 @@ _AgeEntry? _ageEntry(Attribute attribute) {
   };
   if (over == null) return null;
 
-  return _AgeEntry(age: int.parse(age), over: over);
+  return AgeEntry(age: int.parse(age), over: over);
 }
 
-void _collapseAges(List<_Node> children) {
-  final ages = <_AgeEntry>[];
+void _collapseAges(List<AttributeNode> children) {
+  final ages = <AgeEntry>[];
   int? firstIndex;
-  final rest = <_Node>[];
+  final rest = <AttributeNode>[];
   for (final child in children) {
-    final entry = child is _RowNode ? _ageEntry(child.attribute) : null;
+    final entry = child is RowNode ? _ageEntry(child.attribute) : null;
     if (entry == null) {
       rest.add(child);
       continue;
@@ -386,14 +391,14 @@ void _collapseAges(List<_Node> children) {
 
   if (firstIndex != null) {
     ages.sort((a, b) => a.age.compareTo(b.age));
-    rest.insert(firstIndex, _AgeNode(ages: ages));
+    rest.insert(firstIndex, AgeNode(ages: ages));
     children
       ..clear()
       ..addAll(rest);
   }
 
   for (final child in children) {
-    if (_childrenOf(child) case final grandchildren?) {
+    if (nodeChildren(child) case final grandchildren?) {
       _collapseAges(grandchildren);
     }
   }
@@ -411,28 +416,28 @@ class _ClaimedGroup {
   _ClaimedGroup(this.group, this.firstIndex);
 }
 
-Object? _topSegment(_Node node) => switch (node) {
-  _RowNode n => n.attribute.claimPath.firstOrNull,
-  _GroupNode n => n.path.firstOrNull,
-  _ItemNode n => n.path.firstOrNull,
-  _PrimArrayNode n => n.path.firstOrNull,
-  _AttributeGroupNode _ => null,
+Object? _topSegment(AttributeNode node) => switch (node) {
+  RowNode n => n.attribute.claimPath.firstOrNull,
+  GroupNode n => n.path.firstOrNull,
+  ItemNode n => n.path.firstOrNull,
+  PrimArrayNode n => n.path.firstOrNull,
+  AttributeGroupNode _ => null,
   // Ages are collapsed after the groups are inserted, so none exist yet.
-  _AgeNode _ => null,
+  AgeNode _ => null,
 };
 
 /// Inserts [groups] into the top-level [children]. Groups resolving to the
 /// same slot keep their registry order; only an `end` group goes below the
 /// images.
 void _insertGroups(
-  List<_Node> children,
+  List<AttributeNode> children,
   List<_ClaimedGroup> groups,
   List<Attribute> original,
 ) {
   if (groups.isEmpty) return;
   final n = children.length;
   var bottom = children.indexWhere(
-    (c) => c is _RowNode && _isImage(c.attribute),
+    (c) => c is RowNode && isImageAttribute(c.attribute),
   );
   if (bottom < 0) bottom = n;
   final originalIndex = [
@@ -459,10 +464,10 @@ void _insertGroups(
       },
   ];
 
-  final placed = <_Node>[];
+  final placed = <AttributeNode>[];
   for (var j = 0; j <= n; j++) {
     for (var k = 0; k < groups.length; k++) {
-      if (slots[k] == j) placed.add(_AttributeGroupNode(groups[k].group));
+      if (slots[k] == j) placed.add(AttributeGroupNode(groups[k].group));
     }
     if (j < n) placed.add(children[j]);
   }
@@ -476,32 +481,32 @@ void _insertGroups(
 // its padding. The divider below it is drawn by the list (see `_NestedList`).
 // ─────────────────────────────────────────────────────────────────────────────
 
-bool _rowDrawsBorder(_Node node) => switch (node) {
-  _RowNode() || _PrimArrayNode() || _AttributeGroupNode() || _AgeNode() => true,
+bool rowDrawsBorder(AttributeNode node) => switch (node) {
+  RowNode() || PrimArrayNode() || AttributeGroupNode() || AgeNode() => true,
   // A header without values is drawn as a labelled row.
-  _GroupNode n => n.children.isEmpty,
-  _ItemNode() => false,
+  GroupNode n => n.children.isEmpty,
+  ItemNode() => false,
 };
 
 // ── Shape of the tree ────────────────────────────────────────────────────────
 
-/// Makes every array a [_GroupNode] whose children are all items, and drops
+/// Makes every array a [GroupNode] whose children are all items, and drops
 /// headers that only repeat what is below them.
-List<_Node> _normalize(List<_Node> nodes) {
-  final out = <_Node>[];
+List<AttributeNode> _normalize(List<AttributeNode> nodes) {
+  final out = <AttributeNode>[];
   var i = 0;
   while (i < nodes.length) {
     final n = nodes[i];
-    if (n is _ItemNode) {
+    if (n is ItemNode) {
       // Items of an array that has no header of its own.
-      final run = <_ItemNode>[];
-      while (i < nodes.length && nodes[i] is _ItemNode) {
-        run.add(nodes[i] as _ItemNode);
+      final run = <ItemNode>[];
+      while (i < nodes.length && nodes[i] is ItemNode) {
+        run.add(nodes[i] as ItemNode);
         i++;
       }
       final first = run.first;
       out.add(
-        _GroupNode(
+        GroupNode(
           label: first.parentLabel,
           path: first.path.sublist(0, first.path.length - 1),
           children: [for (final item in run) _normalizeItem(item)],
@@ -510,24 +515,24 @@ List<_Node> _normalize(List<_Node> nodes) {
       continue;
     }
     i++;
-    if (n is! _GroupNode) {
+    if (n is! GroupNode) {
       out.add(n);
       continue;
     }
     // A list of plain values under a header of the same name.
     if (n.children.length == 1 &&
-        n.children.first is _PrimArrayNode &&
+        n.children.first is PrimArrayNode &&
         n.label != null &&
-        (n.children.first as _PrimArrayNode).label == n.label) {
+        (n.children.first as PrimArrayNode).label == n.label) {
       out.add(n.children.first);
       continue;
     }
     out.add(
-      _GroupNode(
+      GroupNode(
         label: n.label,
         path: n.path,
-        children: _isList(n)
-            ? [for (final c in n.children) _normalizeItem(c as _ItemNode)]
+        children: isListNode(n)
+            ? [for (final c in n.children) _normalizeItem(c as ItemNode)]
             : _normalize(n.children),
       ),
     );
@@ -535,15 +540,15 @@ List<_Node> _normalize(List<_Node> nodes) {
   return out;
 }
 
-_ItemNode _normalizeItem(_ItemNode item) {
+ItemNode _normalizeItem(ItemNode item) {
   var children = item.children;
   // A header at the item's own path wraps the item's values.
   if (children.length == 1 &&
-      children.first is _GroupNode &&
-      listEquals((children.first as _GroupNode).path, item.path)) {
-    children = (children.first as _GroupNode).children;
+      children.first is GroupNode &&
+      listEquals((children.first as GroupNode).path, item.path)) {
+    children = (children.first as GroupNode).children;
   }
-  return _ItemNode(
+  return ItemNode(
     parentLabel: item.parentLabel,
     itemIndex: item.itemIndex,
     path: item.path,
@@ -551,83 +556,86 @@ _ItemNode _normalizeItem(_ItemNode item) {
   );
 }
 
-bool _isList(_Node n) =>
-    n is _GroupNode &&
+bool isListNode(AttributeNode n) =>
+    n is GroupNode &&
     n.children.isNotEmpty &&
-    n.children.every((c) => c is _ItemNode);
+    n.children.every((c) => c is ItemNode);
 
-bool _isNested(_Node n) => n is _GroupNode && n.children.isNotEmpty;
+bool isNestedNode(AttributeNode n) => n is GroupNode && n.children.isNotEmpty;
 
-String _labelOf(_GroupNode g) =>
+String groupLabel(GroupNode g) =>
     g.label ??
     g.path.lastWhere((s) => s is String, orElse: () => "").toString();
 
 /// An item's title: its first value, when that is text.
-_RowNode? _titleRow(_ItemNode item) {
+RowNode? itemTitleRow(ItemNode item) {
   final first = item.children.firstOrNull;
-  if (first is _RowNode &&
-      first.attribute.value?.type == AttributeType.string) {
+  if (first is RowNode && first.attribute.value?.type == AttributeType.string) {
     return first;
   }
   return null;
 }
 
 /// The item's place in the credential's list, counted from 1.
-int _itemNumber(_ItemNode item) {
+int itemNumber(ItemNode item) {
   final last = item.path.lastOrNull;
   return last is num ? last.toInt() + 1 : item.itemIndex;
 }
 
-/// The item's name: its title, or else its place in the list. Without a
-/// title it is drawn muted, so it does not read as a shared value.
-({String text, bool muted}) _itemName(
-  BuildContext context,
-  _ItemNode item,
-  String listLabel,
-) {
-  final title = _titleRow(item);
-  if (title != null) {
-    return (
-      text: formatAttributeValue(context, title.attribute.value!),
-      muted: false,
-    );
-  }
-  return (
-    text: context.tr("credential.nested.item", {
-      "label": listLabel,
-      "number": "${_itemNumber(item)}",
-    }),
-    muted: true,
-  );
-}
-
 /// What an item holds, without its title.
-List<_Node> _itemBody(_ItemNode item) =>
-    _titleRow(item) == null ? item.children : item.children.sublist(1);
+List<AttributeNode> itemBody(ItemNode item) =>
+    itemTitleRow(item) == null ? item.children : item.children.sublist(1);
 
-Iterable<String> _values(BuildContext context, _Node n) sync* {
-  switch (n) {
-    case _RowNode r when r.attribute.value != null && !_isImage(r.attribute):
-      yield formatAttributeValue(context, r.attribute.value!);
-    case _PrimArrayNode p:
-      for (final v in p.values) {
-        yield formatAttributeValue(context, v);
-      }
-    default:
-      for (final c in _childrenOf(n) ?? const <_Node>[]) {
-        yield* _values(context, c);
-      }
+/// The tree the attribute list draws for [attributes]: what the group
+/// renderers for [credentialId] (or [renderers]) claim placed among the
+/// rest, values before images on every level, the ages on one row when
+/// [collapseAges], and every array as a group of items.
+List<AttributeNode> buildAttributeTree(
+  List<Attribute> attributes, {
+  String? credentialId,
+  List<AttributeGroupRenderer>? renderers,
+  List<Attribute>? compareTo,
+  Set<String> mismatched = const {},
+  Set<String> matched = const {},
+  FoundField? found,
+  bool namespaced = false,
+  bool collapseAges = false,
+}) {
+  final groups = <_ClaimedGroup>[];
+  var remaining = attributes;
+  for (final renderer
+      in renderers ?? attributeGroupRenderers[credentialId] ?? const []) {
+    final group = renderer.claim(remaining, compareTo: compareTo);
+    if (group == null) continue;
+    final claimedKeys = {
+      for (final a in group.claimed) claimPathKey(a.claimPath),
+    };
+    assert(() {
+      final offered = {for (final a in remaining) claimPathKey(a.claimPath)};
+      return offered.containsAll(claimedKeys);
+    }(), "${renderer.runtimeType} claimed an attribute it was not offered");
+    final firstIndex = attributes.indexWhere(
+      (a) => claimedKeys.contains(claimPathKey(a.claimPath)),
+    );
+    groups.add(
+      _ClaimedGroup(group, firstIndex < 0 ? attributes.length : firstIndex),
+    );
+    remaining = remaining
+        .where((a) => !claimedKeys.contains(claimPathKey(a.claimPath)))
+        .toList();
   }
-}
 
-/// One line for something folded: a list's item names, else its values.
-String _summary(BuildContext context, List<_Node> nodes) {
-  final names = [
-    for (final n in nodes)
-      if (_isList(n))
-        for (final i in (n as _GroupNode).children.cast<_ItemNode>())
-          _itemName(context, i, _labelOf(n)).text,
-  ];
-  if (names.isNotEmpty) return names.join(", ");
-  return nodes.expand((n) => _values(context, n)).join(", ");
+  // Images end up last on every level through _valuesFirst.
+  final tree = _buildTree(
+    remaining,
+    compareTo: compareTo,
+    namespaced: namespaced,
+    mismatched: mismatched,
+    matched: matched,
+    found: found,
+  );
+  _insertGroups(tree.children, groups, attributes);
+  // Comparing against another credential needs every attribute on its own row.
+  if (collapseAges && compareTo == null) _collapseAges(tree.children);
+  return _normalize(tree.children);
 }

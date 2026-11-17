@@ -34,12 +34,12 @@ class _Ctx {
 // ── The list's own rows ──────────────────────────────────────────────────────
 
 class _NestedList extends StatelessWidget {
-  final List<_Node> nodes;
+  final List<AttributeNode> nodes;
   final _Ctx ctx;
 
   const _NestedList({required this.nodes, required this.ctx});
 
-  static bool _lined(_Node n) => _isNested(n) || _rowDrawsBorder(n);
+  static bool _lined(AttributeNode n) => isNestedNode(n) || rowDrawsBorder(n);
 
   @override
   Widget build(BuildContext context) {
@@ -61,12 +61,12 @@ class _NestedList extends StatelessWidget {
 
   Widget _row(
     BuildContext context,
-    _Node node, {
+    AttributeNode node, {
     required bool isFirst,
     required bool divider,
   }) {
-    if (_isNested(node)) {
-      final g = node as _GroupNode;
+    if (isNestedNode(node)) {
+      final g = node as GroupNode;
       return _Fold(
         key: ValueKey(claimPathKey(g.path)),
         group: g,
@@ -90,7 +90,7 @@ class _NestedList extends StatelessWidget {
 /// A top-level object or list: a row that folds it, then the object as one
 /// card or the list as a column of cards. Starts open.
 class _Fold extends StatefulWidget {
-  final _GroupNode group;
+  final GroupNode group;
   final _Ctx ctx;
   // Draw a line below the row while folded, as below an ordinary row.
   final bool divider;
@@ -113,8 +113,8 @@ class _FoldState extends State<_Fold> {
   Widget build(BuildContext context) {
     final g = widget.group;
     final ctx = widget.ctx;
-    final label = _labelOf(g);
-    final list = _isList(g);
+    final label = groupLabel(g);
+    final list = isListNode(g);
     final open = _open || !ctx.foldable;
 
     return Column(
@@ -144,7 +144,7 @@ class _FoldState extends State<_Fold> {
               spacing: YiviSpace.x8,
               children: list
                   ? [
-                      for (final item in g.children.cast<_ItemNode>())
+                      for (final item in g.children.cast<ItemNode>())
                         _ItemCard(
                           key: ValueKey(claimPathKey(item.path)),
                           item: item,
@@ -258,7 +258,7 @@ class _FoldHeader extends StatelessWidget {
 /// One item of a top-level list. Folds on its own to its name and a
 /// summary; starts open.
 class _ItemCard extends StatefulWidget {
-  final _ItemNode item;
+  final ItemNode item;
   final String listLabel;
   final _Ctx ctx;
 
@@ -281,7 +281,7 @@ class _ItemCardState extends State<_ItemCard> {
     final ctx = widget.ctx;
     final palette = YiviPalette.of(context);
     final name = _itemName(context, widget.item, widget.listLabel);
-    final body = _itemBody(widget.item);
+    final body = itemBody(widget.item);
     final open = _open || !ctx.foldable || body.isEmpty;
 
     return _Card(
@@ -352,7 +352,7 @@ class _Card extends StatelessWidget {
 /// with its count and each item as a named block under a thin line; an
 /// object as a named block.
 class _CardBody extends StatelessWidget {
-  final List<_Node> nodes;
+  final List<AttributeNode> nodes;
   final _Ctx ctx;
 
   const _CardBody({required this.nodes, required this.ctx});
@@ -360,26 +360,26 @@ class _CardBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final children = <Widget>[];
-    void add(List<_Node> nodes) {
+    void add(List<AttributeNode> nodes) {
       for (final n in nodes) {
-        if (!_isNested(n)) {
+        if (!isNestedNode(n)) {
           children.add(_FlatRow(node: n, isFirst: false, ctx: ctx));
           continue;
         }
-        final g = n as _GroupNode;
-        final label = _labelOf(g);
-        if (!_isList(g)) {
+        final g = n as GroupNode;
+        final label = groupLabel(g);
+        if (!isListNode(g)) {
           children.add(_BlockName(text: label, line: children.isNotEmpty));
           add(g.children);
           continue;
         }
         children.add(_ListHeading(label: label, count: g.children.length));
-        for (final (i, item) in g.children.cast<_ItemNode>().indexed) {
+        for (final (i, item) in g.children.cast<ItemNode>().indexed) {
           final name = _itemName(context, item, label);
           children.add(
             _BlockName(text: name.text, muted: name.muted, line: i > 0),
           );
-          add(_itemBody(item));
+          add(itemBody(item));
         }
       }
     }
@@ -456,4 +456,57 @@ class _BlockName extends StatelessWidget {
       ),
     );
   }
+}
+
+// ── Words for the tree ──────────────────────────────────────────────────────
+
+/// The item's name: its title, or else its place in the list. Without a
+/// title it is drawn muted, so it does not read as a shared value.
+({String text, bool muted}) _itemName(
+  BuildContext context,
+  ItemNode item,
+  String listLabel,
+) {
+  final title = itemTitleRow(item);
+  if (title != null) {
+    return (
+      text: formatAttributeValue(context, title.attribute.value!),
+      muted: false,
+    );
+  }
+  return (
+    text: context.tr("credential.nested.item", {
+      "label": listLabel,
+      "number": "${itemNumber(item)}",
+    }),
+    muted: true,
+  );
+}
+
+Iterable<String> _values(BuildContext context, AttributeNode n) sync* {
+  switch (n) {
+    case RowNode r
+        when r.attribute.value != null && !isImageAttribute(r.attribute):
+      yield formatAttributeValue(context, r.attribute.value!);
+    case PrimArrayNode p:
+      for (final v in p.values) {
+        yield formatAttributeValue(context, v);
+      }
+    default:
+      for (final c in nodeChildren(n) ?? const <AttributeNode>[]) {
+        yield* _values(context, c);
+      }
+  }
+}
+
+/// One line for something folded: a list's item names, else its values.
+String _summary(BuildContext context, List<AttributeNode> nodes) {
+  final names = [
+    for (final n in nodes)
+      if (isListNode(n))
+        for (final i in (n as GroupNode).children.cast<ItemNode>())
+          _itemName(context, i, groupLabel(n)).text,
+  ];
+  if (names.isNotEmpty) return names.join(", ");
+  return nodes.expand((n) => _values(context, n)).join(", ");
 }

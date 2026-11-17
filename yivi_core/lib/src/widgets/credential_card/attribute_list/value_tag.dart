@@ -1,4 +1,6 @@
-part of "../yivi_credential_card_attribute_list.dart";
+import "package:material_ui/material_ui.dart";
+
+import "../../../theme/yivi_palette.dart";
 
 /// What a [ValueTag] says about a value: it is exactly what was asked
 /// (green, with a check), it is not (red), or it is what is asked of a card

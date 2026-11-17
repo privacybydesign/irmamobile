@@ -20,6 +20,7 @@ import "package:yivi_core/src/screens/home/widgets/home_navigation.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
 
 import "helpers/credential_factory.dart";
@@ -510,6 +511,29 @@ void main() {
       await tester.pumpAndSettle();
       expect(add, findsOneWidget);
       expect(tester.getRect(add), place);
+    });
+
+    iosTest("the details pane does not rebuild per letter when no field "
+        "was found", (tester) async {
+      await pump(tester);
+      final list = find.descendant(
+        of: find.byKey(const Key("credential_detail_pane_personal")),
+        matching: find.byType(YiviCredentialCardAttributeList),
+      );
+      final before = tester.widget(list);
+      await tester.tap(find.byKey(const Key("search_field")));
+      await tester.pumpAndSettle();
+      // Every card is called "Test credential": found by its name, not by
+      // a field.
+      for (final typed in ["t", "te", "tes", "test"]) {
+        await tester.enterText(find.byKey(const Key("search_field")), typed);
+        await tester.pumpAndSettle();
+      }
+      expect(
+        find.byKey(const Key("credential_detail_pane_personal")),
+        findsOneWidget,
+      );
+      expect(identical(tester.widget(list), before), isTrue);
     });
 
     iosTest("the search field floats on top of the cards", (tester) async {
