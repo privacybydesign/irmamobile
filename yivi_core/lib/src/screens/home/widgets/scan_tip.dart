@@ -46,9 +46,9 @@ class ScanTip extends ConsumerWidget {
             borderRadius: BorderRadius.all(Radius.circular(YiviCorners.dialog)),
           ),
           padding: const EdgeInsets.fromLTRB(
-            14,
+            YiviSpace.x16,
             YiviSpace.x12,
-            14,
+            YiviSpace.x16,
             YiviSpace.x12,
           ),
           child: Column(

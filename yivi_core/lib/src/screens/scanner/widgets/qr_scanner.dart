@@ -8,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/session.dart";
 import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/yivi_motion.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "qr_overlay.dart";
@@ -166,7 +167,7 @@ class QRScannerState extends State<QRScanner>
       children: [
         Expanded(child: camera),
         Padding(
-          padding: EdgeInsets.only(top: 14, bottom: bottom),
+          padding: EdgeInsets.only(top: YiviSpace.x16, bottom: bottom),
           child: Center(child: torch),
         ),
       ],

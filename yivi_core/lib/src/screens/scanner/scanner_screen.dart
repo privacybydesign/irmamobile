@@ -177,7 +177,7 @@ class _NoCamera extends StatelessWidget {
               style: palette.display(20).copyWith(color: palette.text),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: YiviSpace.x12),
           Text(
             context.tr("qr_scanner.no_camera.message"),
             textAlign: textAlign,
@@ -206,7 +206,7 @@ class _NoCamera extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ExcludeSemantics(child: tile),
-                  const SizedBox(width: 28),
+                  const SizedBox(width: YiviSpace.x32),
                   Flexible(child: text),
                 ],
               )
@@ -214,7 +214,7 @@ class _NoCamera extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ExcludeSemantics(child: tile),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: YiviSpace.x16),
                   text,
                 ],
               ),

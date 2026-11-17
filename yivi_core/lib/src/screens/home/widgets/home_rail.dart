@@ -72,11 +72,11 @@ class HomeRail extends StatelessWidget {
           Container(
             width: 32,
             height: 1,
-            margin: const EdgeInsets.symmetric(vertical: 6),
+            margin: const EdgeInsets.symmetric(vertical: YiviSpace.x8),
             color: palette.divider,
           ),
           const HomeScanButton(),
-          const SizedBox(height: 10),
+          const SizedBox(height: YiviSpace.x12),
         ],
       ),
     );
