@@ -89,7 +89,7 @@ class _EnrollmentBiometricScreenState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         EnrollmentStepLabel(widget.stepLabel),
-        const SizedBox(height: 6),
+        const SizedBox(height: YiviSpace.x8),
         EnrollmentTitle("enrollment.biometric.title_$kind", textAlign: align),
         const SizedBox(height: YiviSpace.x8),
         EnrollmentLead("enrollment.biometric.body", textAlign: align),

@@ -172,7 +172,7 @@ class _Sideways extends StatelessWidget {
       ],
     );
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: tablet ? 40 : 16),
+      padding: EdgeInsets.symmetric(horizontal: tablet ? YiviSpace.x48 : 16),
       child: CentredMaxWidth(maxWidth: _sidewaysMaxWidth, child: columns),
     );
   }
@@ -192,13 +192,18 @@ class _UprightTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Centred(
-      padding: EdgeInsets.fromLTRB(40, top + 24, 40, 20),
+      padding: EdgeInsets.fromLTRB(
+        YiviSpace.x48,
+        top + 24,
+        YiviSpace.x48,
+        YiviSpace.x24,
+      ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: enrollmentColumnMaxWidth),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 40,
+          spacing: YiviSpace.x48,
           children: [?about, action],
         ),
       ),

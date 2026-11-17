@@ -207,7 +207,7 @@ class _SettingUp extends StatelessWidget {
       backgroundColor: palette.background,
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x48),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -217,7 +217,7 @@ class _SettingUp extends StatelessWidget {
                   height: 52,
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: YiviSpace.x48),
               LoadingIndicator(),
               if (showText) ...[
                 const SizedBox(height: YiviSpace.x24),

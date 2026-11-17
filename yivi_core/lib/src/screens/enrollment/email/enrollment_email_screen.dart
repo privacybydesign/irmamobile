@@ -311,7 +311,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         ),
         switch (_check) {
           _Check.checking => const Padding(
-            padding: EdgeInsets.only(top: 14),
+            padding: EdgeInsets.only(top: YiviSpace.x16),
             child: Center(
               child: SizedBox.square(
                 dimension: 22,
@@ -372,7 +372,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
       children: [
         if (showStep) ...[
           EnrollmentStepLabel(widget.stepLabel),
-          const SizedBox(height: 6),
+          const SizedBox(height: YiviSpace.x8),
         ],
         EnrollmentTitle(
           code
