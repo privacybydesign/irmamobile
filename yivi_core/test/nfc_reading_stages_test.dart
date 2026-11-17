@@ -4,6 +4,7 @@ import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_svg/svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/extensions.dart";
@@ -14,6 +15,7 @@ import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/nfc_settings_provider.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_error_dialog.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_view.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/nfc_settings.dart";
@@ -521,7 +523,8 @@ void main() {
     }, variant: _iosOnly);
   });
 
-  testWidgets("a failed read keeps the existing error layout", (tester) async {
+  testWidgets("a failed read is a stage: its picture, the text, a way to "
+      "the logs and Try again", (tester) async {
     await pumpScreen(tester);
 
     reader.emit(
@@ -533,10 +536,20 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(NfcStageScaffold), findsNothing);
+    expect(find.byType(NfcStageScaffold), findsOneWidget);
+    // The error's picture in the stage's picture area, 240 square.
+    final picture = find.descendant(
+      of: find.byKey(const Key("nfc_stage_picture")),
+      matching: find.byType(SvgPicture),
+    );
+    expect(tester.getSize(picture), const Size(240, 240));
     // Try again; the sheet's close is the way out.
     expect(primaryButton(), findsOneWidget);
     expect(cancelButton(), findsNothing);
+
+    await tester.tap(find.text("Show technical details"));
+    await tester.pumpAndSettle();
+    expect(find.byType(NfcErrorDialog), findsOneWidget);
   }, variant: _androidOnly);
 }
 

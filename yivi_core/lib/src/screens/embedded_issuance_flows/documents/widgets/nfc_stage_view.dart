@@ -42,6 +42,7 @@ class NfcStageScaffold extends StatelessWidget {
     required this.bodyKey,
     required this.textParams,
     required this.actions,
+    this.below,
     super.key,
   });
 
@@ -58,6 +59,9 @@ class NfcStageScaffold extends StatelessWidget {
   final String bodyKey;
   final Map<String, String> textParams;
   final List<NfcStageAction> actions;
+
+  /// Under the line of text: a failure's "Show error".
+  final Widget? below;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +97,7 @@ class NfcStageScaffold extends StatelessWidget {
               textAlign: .center,
               style: YiviPalette.of(context).body(16).copyWith(height: 24 / 16),
             ),
+            ?below,
           ],
         ),
       ),
@@ -125,6 +130,7 @@ class NfcStageScaffold extends StatelessWidget {
                     translationParams: textParams,
                     style: documentSplitBodyStyle(palette),
                   ),
+                  ?below,
                 ],
               ),
             ),

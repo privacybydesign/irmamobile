@@ -11,26 +11,22 @@ import "../../../../package_name.dart";
 import "../../../../yivi_core.dart";
 import "../../../providers/nfc_availability_provider.dart";
 import "../../../providers/nfc_settings_provider.dart";
-import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/done_check.dart";
-import "../../../widgets/glass/sheet_layout.dart";
+import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "document_flow.dart";
 import "document_issuance.dart";
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
-import "widgets/document_flow_footer.dart";
 import "widgets/nfc_error_dialog.dart";
 import "widgets/nfc_stage_pictures.dart";
 import "widgets/nfc_stage_view.dart";
-
-part "nfc_error_view.dart";
 
 class NfcReadingScreen extends ConsumerStatefulWidget {
   final ScannedMrz mrz;
@@ -43,6 +39,9 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
+
+/// The error pictures' size in the stage's picture area.
+const _errorPictureSize = 240.0;
 
 /// What the screen shows while reading. Only states without an error or a
 /// cancel have one; those keep their own layout.
@@ -341,8 +340,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     );
   }
 
-  /// The failed or cancelled read, with "Retry". With [logs] (a failure), a
-  /// link shows them.
+  /// The failed or cancelled read, or adding it failed: a stage with the
+  /// error's picture and "Try again". With [logs] (a failure), a link under
+  /// the text shows them.
   Widget _buildError(
     BuildContext context,
     _UiState uiState,
@@ -350,49 +350,30 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     String? sensitiveLogs,
     String illustrationAsset = "error/general_error_illustration.svg",
   }) {
-    final theme = IrmaTheme.of(context);
-
-    return _NfcScaffold(
-      instruction: _TitleAndBody(
-        titleKey: uiState.stateKey,
-        bodyKey: uiState.tipKey,
-        trailing: logs == null
-            ? null
-            : GestureDetector(
-                onTap: () {
-                  _showLogsDialog(
-                    context,
-                    logs: logs,
-                    sensitiveLogs: sensitiveLogs,
-                  );
-                },
-                child: _OrientationAwareTranslatedText(
-                  "error.button_show_error",
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    decoration: .underline,
-                    color: YiviPalette.of(context).link,
-                  ),
-                ),
+    return NfcStageScaffold(
+      picture: SvgPicture.asset(
+        yiviAsset(illustrationAsset),
+        width: _errorPictureSize,
+        height: _errorPictureSize,
+      ),
+      titleKey: uiState.stateKey,
+      bodyKey: uiState.tipKey,
+      textParams: {"document": _documentName(context)},
+      actions: [
+        NfcStageAction.primary(labelKey: "ui.retry", onPressed: _retry),
+      ],
+      below: logs == null
+          ? null
+          : TextLink(
+              label: context.tr("error.button_show_error"),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) =>
+                    NfcErrorDialog(logs: logs, sensitiveLogs: sensitiveLogs),
               ),
-      ),
-      illustration: Padding(
-        padding: const .all(YiviSpace.x16),
-        child: SvgPicture.asset(yiviAsset(illustrationAsset)),
-      ),
-      footer: _retryBar(context),
+            ),
     );
   }
-
-  /// "Retry", in the sheet's own buttons: its close button is the way out.
-  DocumentFlowFooter _retryBar(BuildContext context) => DocumentFlowFooter(
-    buttons: [
-      DocumentFlowButton(
-        key: DocumentFlowButton.primaryKey,
-        labelKey: "ui.retry",
-        onPressed: _retry,
-      ),
-    ],
-  );
 
   _UiState passportReadingStateToUiState(DocumentReaderState state) {
     final stateKey = _getTranslationKeyForState(state);
@@ -450,4 +431,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       .invalidatedByUser => "",
     };
   }
+}
+
+class _UiState {
+  final String tipKey;
+  final String stateKey;
+
+  _UiState({required this.tipKey, required this.stateKey});
 }
