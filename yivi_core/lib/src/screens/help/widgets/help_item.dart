@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../util/i18n.dart";
-import "../../../widgets/collapsible.dart";
+import "../../../widgets/faq_fold.dart";
 
 class HelpItem extends StatelessWidget {
   final String headerTranslationKey;
@@ -11,5 +11,5 @@ class HelpItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      Collapsible(header: context.tr(headerTranslationKey), content: body);
+      FaqFold(question: context.tr(headerTranslationKey), answer: body);
 }

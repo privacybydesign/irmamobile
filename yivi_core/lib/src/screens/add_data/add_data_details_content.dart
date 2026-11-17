@@ -2,14 +2,13 @@ import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/credential_store.dart";
-import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
-import "../../util/reveal_whole.dart";
 import "../../widgets/caps_label.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
+import "../../widgets/faq_fold.dart";
 import "../../widgets/flight/yivi_flight.dart";
 import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/sheet_layout.dart";
@@ -148,10 +147,10 @@ class AddDataDetailsContent extends StatelessWidget {
         GlassGroup(
           children: [
             if (purpose.isNotEmpty)
-              _Fold(
+              FaqFold(
                 key: const Key("add_data_purpose"),
                 question: context.tr("data.add.details.purpose_question"),
-                child: _Markdown(purpose),
+                answer: _Markdown(purpose),
               ),
             if (howTo.isNotEmpty) _howTo(context, howTo),
           ],
@@ -232,10 +231,10 @@ class AddDataDetailsContent extends StatelessWidget {
         (steps.isEmpty ? before : after).add(line);
       }
     }
-    return _Fold(
+    return FaqFold(
       key: const Key("add_data_howto"),
       question: context.tr("data.add.details.howto_question"),
-      child: Column(
+      answer: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: YiviSpace.x8,
         children: [
@@ -319,96 +318,6 @@ class _YouGet extends StatelessWidget {
                 ),
             ],
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Fold extends StatefulWidget {
-  final String question;
-  final Widget child;
-
-  const _Fold({super.key, required this.question, required this.child});
-
-  @override
-  State<_Fold> createState() => _FoldState();
-}
-
-class _FoldState extends State<_Fold> {
-  bool _open = false;
-
-  /// Opened: once it has grown, the whole answer in view (the sheet's
-  /// content starts under its bar, so nothing is covered at the top).
-  Future<void> _toggle(Duration grow) async {
-    setState(() => _open = !_open);
-    if (!_open) return;
-    await Future<void>.delayed(grow);
-    if (mounted) revealWhole(context);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final duration = YiviMotion.duration(context, YiviMotion.quick);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Semantics(
-          button: true,
-          expanded: _open,
-          child: InkWell(
-            onTap: () => _toggle(duration),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 52),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  YiviSpace.x16,
-                  YiviSpace.x16,
-                  YiviSpace.x16,
-                  YiviSpace.x16,
-                ),
-                child: Row(
-                  spacing: YiviSpace.x12,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        widget.question,
-                        style: palette
-                            .display(15)
-                            .copyWith(height: 21 / 15, color: palette.text),
-                      ),
-                    ),
-                    AnimatedRotation(
-                      turns: _open ? 0.5 : 0,
-                      duration: duration,
-                      child: Icon(
-                        Icons.expand_more_rounded,
-                        size: 22,
-                        color: palette.secondaryText,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        AnimatedSize(
-          duration: duration,
-          curve: Curves.easeOutCubic,
-          alignment: Alignment.topCenter,
-          child: _open
-              ? Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    YiviSpace.x16,
-                    0,
-                    YiviSpace.x16,
-                    YiviSpace.x16,
-                  ),
-                  child: widget.child,
-                )
-              : const SizedBox(width: double.infinity),
         ),
       ],
     );
