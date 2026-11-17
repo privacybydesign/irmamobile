@@ -15,9 +15,9 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/icon_square.dart";
 import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/yivi_spinner.dart";
 import "../../embedded_issuance_flows/email/widgets/email_address_entry.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
 import "../widgets/enrollment_page.dart";
@@ -243,7 +243,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
       key: const Key("enrollment_email_send"),
       label: context.tr("contact_sheet.send_code"),
       size: pillSize,
-      leading: sending ? const SheetBusySpinner() : null,
+      leading: sending ? const YiviSpinner.onButton() : null,
       onPressed: _valid && !sending ? _send : null,
     );
 
@@ -300,12 +300,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         switch (_check) {
           _Check.checking => const Padding(
             padding: EdgeInsets.only(top: YiviSpace.x16),
-            child: Center(
-              child: SizedBox.square(
-                dimension: 22,
-                child: CircularProgressIndicator(strokeWidth: 3),
-              ),
-            ),
+            child: Center(child: YiviSpinner(size: 22)),
           ),
           _Check.linked => Padding(
             key: const Key("enrollment_email_linked"),

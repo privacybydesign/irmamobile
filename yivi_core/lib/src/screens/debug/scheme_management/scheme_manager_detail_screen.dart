@@ -15,7 +15,7 @@ import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/progress.dart";
+import "../../../widgets/yivi_spinner.dart";
 import "../../error/error_screen.dart";
 import "../../pin/yivi_pin_screen.dart";
 import "../util/snackbar.dart";
@@ -144,7 +144,9 @@ class SchemeManagerDetailScreen extends StatelessWidget {
   }
 
   void _onDeleteScheme(BuildContext context) {
-    repositoryOf(context).bridgedDispatch(RemoveSchemeEvent(schemeId: schemeManagerId));
+    repositoryOf(
+      context,
+    ).bridgedDispatch(RemoveSchemeEvent(schemeId: schemeManagerId));
     Navigator.of(context).pop();
 
     if (!context.mounted) return;
@@ -167,7 +169,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Scaffold(body: Center(child: IrmaProgress()));
+          return Scaffold(body: Center(child: YiviSpinner()));
         }
 
         final enrollmentStatus = snapshot.data!.a;

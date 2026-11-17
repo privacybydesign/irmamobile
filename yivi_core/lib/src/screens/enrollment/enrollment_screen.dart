@@ -9,8 +9,8 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
-import "../../widgets/loading_indicator.dart";
 import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_spinner.dart";
 import "biometric/enrollment_biometric_screen.dart";
 import "choose_pin/choose_pin_screen.dart";
 import "confirm_pin/confirm_pin_screen.dart";
@@ -154,7 +154,7 @@ class _SettingUp extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: YiviSpace.x48),
-              LoadingIndicator(),
+              YiviSpinner(),
               if (showText) ...[
                 const SizedBox(height: YiviSpace.x24),
                 TranslatedText(

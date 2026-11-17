@@ -21,7 +21,7 @@ import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/progress.dart";
+import "../../../widgets/yivi_spinner.dart";
 import "../../error/error_screen.dart";
 import "../util/snackbar.dart";
 import "requestor_scheme_detail_screen.dart";
@@ -52,7 +52,9 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
-    final errorReported = await repositoryOf(context).preferences.reportErrors.stream.first;
+    final errorReported = await repositoryOf(
+      context,
+    ).preferences.reportErrors.stream.first;
 
     if (!mounted) return;
 
@@ -193,7 +195,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
               ),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return Center(child: IrmaProgress());
+                  return Center(child: YiviSpinner());
                 }
                 final enrollmentStatus = snapshot.data!.a;
                 final irmaConfiguration = snapshot.data!.b;

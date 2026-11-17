@@ -26,12 +26,12 @@ import "../../widgets/floating_bar_placement.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/glass/round_icon_button.dart";
-import "../../widgets/loading_indicator.dart";
 import "../../widgets/loading_more_indicator.dart";
 import "../../widgets/scroll_edge.dart";
 import "../../widgets/tab_layout.dart";
 import "../../widgets/title_scroll_edge.dart";
 import "../../widgets/two_pane.dart";
+import "../../widgets/yivi_spinner.dart";
 import "../home/widgets/home_tab_top.dart";
 import "../home/widgets/search_scroll_edge.dart";
 import "activity_detail_screen.dart";
@@ -950,7 +950,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
           trailing: filterButton,
           othersDrop: false,
           child: !state.loaded
-              ? Center(child: LoadingIndicator())
+              ? Center(child: YiviSpinner())
               : _searching
               ? _buildLogEntries(
                   context,
@@ -1009,7 +1009,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
       top: top,
       row: row,
       child: !state.loaded
-          ? Center(child: LoadingIndicator())
+          ? Center(child: YiviSpinner())
           : _buildLogEntries(
               context,
               state,

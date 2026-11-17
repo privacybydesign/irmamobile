@@ -15,7 +15,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/progress.dart";
+import "../../../widgets/yivi_spinner.dart";
 import "../../error/error_screen.dart";
 import "../util/snackbar.dart";
 import "widgets/cert_manager_tile.dart";
@@ -46,7 +46,9 @@ class _CertificateManagementScreenState
   Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
-    final errorReported = await repositoryOf(context).preferences.reportErrors.stream.first;
+    final errorReported = await repositoryOf(
+      context,
+    ).preferences.reportErrors.stream.first;
 
     if (!mounted) return;
 
@@ -120,7 +122,7 @@ class _CertificateManagementScreenState
           stream: repo.getEudiConfiguration(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return Center(child: IrmaProgress());
+              return Center(child: YiviSpinner());
             }
             final configuration = snapshot.data!;
 

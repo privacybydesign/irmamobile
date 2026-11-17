@@ -25,6 +25,7 @@ import "../../widgets/glass/glass_surface.dart";
 import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/link.dart";
+import "../../widgets/yivi_spinner.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
 import "widgets/pin_keypad.dart";
 
@@ -653,13 +654,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
                   alignment: PlaceholderAlignment.middle,
                   child: Padding(
                     padding: const EdgeInsets.only(right: YiviSpace.x8),
-                    child: SizedBox.square(
-                      dimension: 14,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: color,
-                      ),
-                    ),
+                    child: YiviSpinner(size: 14, color: color),
                   ),
                 )
               else if (icon != null)

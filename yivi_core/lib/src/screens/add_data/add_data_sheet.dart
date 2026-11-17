@@ -21,6 +21,7 @@ import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/yivi_spinner.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../home/widgets/home_tab_top.dart";
 import "../session/widgets/issue_flow.dart";
@@ -48,7 +49,10 @@ Future<void> showAddDataSheet(
 /// details of its type. The type is looked up in the credential store, or
 /// else described by the [card] itself. Only offered for a card with an
 /// issue URL.
-Future<void> obtainAgain(BuildContext context, {required Credential card}) async {
+Future<void> obtainAgain(
+  BuildContext context, {
+  required Credential card,
+}) async {
   final issueUrl = card.issueUrl;
   assert(issueUrl != null && issueUrl.isNotEmpty, "No issue URL to add from");
   // Listened to while waiting, so the store stays loaded until it is there.
@@ -328,7 +332,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 80),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: YiviSpinner()),
           ),
         ),
       ],

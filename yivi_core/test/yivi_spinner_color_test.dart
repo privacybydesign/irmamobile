@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/loading_indicator.dart";
+import "package:yivi_core/src/widgets/yivi_spinner.dart";
 
 /// Reads the color the circular spinner actually paints with. The painter type
 /// is private to the framework, but its `valueColor` field is public, so a
@@ -25,8 +25,8 @@ void main() {
     ),
   );
 
-  testWidgets("LoadingIndicator paints in the primary red", (tester) async {
-    await tester.pumpWidget(host(LoadingIndicator()));
+  testWidgets("YiviSpinner paints in the primary red", (tester) async {
+    await tester.pumpWidget(host(YiviSpinner()));
 
     expect(paintedSpinnerColor(tester), IrmaThemeData().primary);
   });

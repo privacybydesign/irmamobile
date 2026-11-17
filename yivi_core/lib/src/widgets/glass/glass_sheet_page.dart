@@ -375,7 +375,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
             primaryKey: action.key,
             primaryLabel: action.label,
             onPrimary: action.enabled ? action.onTap : null,
-            primaryLeading: action.busy ? const SheetBusySpinner() : null,
+            primaryLeading: action.busy ? const YiviSpinner.onButton() : null,
             primaryNeutral: action.neutral,
           );
     final given = bottomUp ? null : widget.bottom;
@@ -483,7 +483,7 @@ extension on _GlassSheetPageState {
             primaryLabel: empty ? " " : primary?.label,
             onPrimary: primary?.onTap,
             primaryLeading: primary?.busy ?? false
-                ? const SheetBusySpinner()
+                ? const YiviSpinner.onButton()
                 : null,
             secondaryKey: secondary?.key,
             secondaryLabel: secondary?.label,

@@ -14,7 +14,7 @@ import "../../widgets/glass/glass_group.dart";
 import "../../widgets/glass/glass_search_field.dart";
 import "../../widgets/glass/glass_sheet.dart";
 import "../../widgets/glass/sheet_actions.dart";
-import "../../widgets/loading_indicator.dart";
+import "../../widgets/yivi_spinner.dart";
 import "activity_entry.dart";
 import "activity_query_labels.dart";
 import "widgets/activity_detail_parts.dart";
@@ -197,7 +197,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           ? SizedBox(
               key: const Key("activity_filter_loading"),
               height: 240,
-              child: Center(child: LoadingIndicator()),
+              child: Center(child: YiviSpinner()),
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

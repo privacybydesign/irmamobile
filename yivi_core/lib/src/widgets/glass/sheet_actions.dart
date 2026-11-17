@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../landscape_action_bar.dart";
+import "../yivi_spinner.dart";
 import "glass_sheet.dart";
 import "pill_buttons.dart";
 import "sheet_layout.dart";
@@ -260,23 +261,7 @@ class SheetBarButton extends StatelessWidget {
       label: action.label,
       onPressed: action.enabled ? (onTap ?? action.onTap) : null,
       size: PillSize.bar,
-      leading: action.busy ? const SheetBusySpinner(size: 14) : null,
-    ),
-  );
-}
-
-/// The white spinner before the label of a button that is under way.
-class SheetBusySpinner extends StatelessWidget {
-  final double size;
-
-  const SheetBusySpinner({super.key, this.size = 18});
-
-  @override
-  Widget build(BuildContext context) => SizedBox.square(
-    dimension: size,
-    child: CircularProgressIndicator(
-      strokeWidth: size < 16 ? 2.4 : 3,
-      color: const Color(0xFFFFFFFF),
+      leading: action.busy ? const YiviSpinner.onButton(size: 14) : null,
     ),
   );
 }

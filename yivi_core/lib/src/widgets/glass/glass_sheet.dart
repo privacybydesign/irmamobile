@@ -18,6 +18,7 @@ import "../irma_app_bar.dart";
 import "../irma_close_button.dart";
 import "../pull_to_dismiss_physics.dart";
 import "../scroll_edge.dart";
+import "../yivi_spinner.dart";
 import "glass_surface.dart";
 import "sheet_actions.dart";
 import "sheet_layout.dart";

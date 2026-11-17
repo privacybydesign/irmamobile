@@ -27,7 +27,7 @@ import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_layout.dart";
-import "../../../widgets/loading_indicator.dart";
+import "../../../widgets/yivi_spinner.dart";
 import "../../add_data/add_data_details_content.dart";
 import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
@@ -1302,7 +1302,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// A page still waiting for the issuance's next state.
   Widget _loading() => Padding(
     padding: const EdgeInsets.symmetric(vertical: 80),
-    child: Center(child: LoadingIndicator()),
+    child: Center(child: YiviSpinner()),
   );
 
   /// What the offer holds: the card(s) and their values.

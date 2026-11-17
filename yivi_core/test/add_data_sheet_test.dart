@@ -38,8 +38,8 @@ import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
 import "package:yivi_core/src/widgets/glass/sheet_layout.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
-import "package:yivi_core/src/widgets/loading_indicator.dart";
 import "package:yivi_core/src/widgets/unfocus_on_tap_outside.dart";
+import "package:yivi_core/src/widgets/yivi_spinner.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -724,7 +724,7 @@ void main() {
         expect(find.byKey(const Key("issuance_heading")), findsOneWidget);
         expect(add, findsOneWidget);
         expect(
-          find.descendant(of: _sheet, matching: find.byType(LoadingIndicator)),
+          find.descendant(of: _sheet, matching: find.byType(YiviSpinner)),
           findsNothing,
         );
       }

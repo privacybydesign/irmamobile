@@ -10,8 +10,8 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/theme/yivi_space.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/loading_indicator.dart";
 import "package:yivi_core/src/widgets/translated_text.dart";
+import "package:yivi_core/src/widgets/yivi_spinner.dart";
 
 import "face_liveness_message.dart";
 
@@ -160,7 +160,7 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      LoadingIndicator(),
+                      YiviSpinner(),
                       const SizedBox(height: YiviSpace.x16),
                       TranslatedText(
                         "face_verification.preparing",

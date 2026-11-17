@@ -20,7 +20,7 @@ import "../../util/haptics.dart";
 import "../../util/navigation.dart";
 import "../../util/string.dart";
 import "../../widgets/glass/glass_dialog.dart";
-import "../../widgets/loading_indicator.dart";
+import "../../widgets/yivi_spinner.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
@@ -327,7 +327,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   Widget _buildLoadingScreen(SessionState? session) {
     return SessionScaffold(
-      body: Center(child: LoadingIndicator()),
+      body: Center(child: YiviSpinner()),
       onDismiss: _dismissSession,
       appBarTitle: session != null
           ? _getAppBarTitle(session)

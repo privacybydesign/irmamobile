@@ -30,6 +30,7 @@ import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_spinner.dart";
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
 import "face_verification_intro_screen.dart";
@@ -585,14 +586,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               mainAxisSize: .min,
               spacing: YiviSpace.x24,
               children: [
-                SizedBox.square(
-                  dimension: 44,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 4,
-                    color: palette.primary,
-                    backgroundColor: palette.outline,
-                  ),
-                ),
+                YiviSpinner(size: 44, color: palette.primary, track: true),
                 TranslatedText(
                   "face_verification.preparing",
                   textAlign: .center,

@@ -3,8 +3,8 @@ import "package:material_ui/material_ui.dart";
 import "../theme/theme.dart";
 import "../theme/yivi_palette.dart";
 import "../theme/yivi_space.dart";
-import "loading_indicator.dart";
 import "translated_text.dart";
+import "yivi_spinner.dart";
 
 /// Under a list while more of it loads: a spinner between two lines, and
 /// "Loading…". A list that has come to its end shows nothing: it just ends.
@@ -26,7 +26,7 @@ class LoadingMoreIndicator extends StatelessWidget {
             expandedDividerWidget,
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-              child: SizedBox(width: 24, height: 24, child: LoadingIndicator()),
+              child: YiviSpinner(size: 24),
             ),
             expandedDividerWidget,
           ],
