@@ -333,7 +333,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               YiviSpace.x4,
               YiviSpace.x8,
               YiviSpace.x4,
-              14,
+              YiviSpace.x16,
             ),
       child: Semantics(
         header: true,

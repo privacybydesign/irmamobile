@@ -109,7 +109,7 @@ class SheetPictureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SurfaceCard(
       key: const Key("sheet_picture_card"),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(YiviSpace.x16),
       child: Center(
         child: FittedBox(fit: BoxFit.scaleDown, child: child),
       ),

@@ -458,7 +458,7 @@ class ContactTextLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.only(top: YiviSpace.x24),
         child: TextLink(label: label ?? context.tr(labelKey), onPressed: onTap),
       ),
     );
@@ -639,7 +639,12 @@ class ContactSentTo extends StatelessWidget {
     );
     return SurfaceCard(
       key: const Key("contact_sheet_sent_to"),
-      padding: const EdgeInsets.fromLTRB(10, 10, YiviSpace.x8, 10),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x12,
+        YiviSpace.x12,
+        YiviSpace.x8,
+        YiviSpace.x12,
+      ),
       child: Row(
         spacing: YiviSpace.x12,
         children: [

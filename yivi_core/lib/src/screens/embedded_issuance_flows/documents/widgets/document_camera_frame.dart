@@ -167,7 +167,7 @@ class _Hint extends StatelessWidget {
           vertical: YiviSpace.x12,
         ),
         child: Row(
-          spacing: 10,
+          spacing: YiviSpace.x12,
           children: [
             Icon(icon, size: 20, color: found ? _found : Colors.white),
             Expanded(

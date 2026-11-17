@@ -578,12 +578,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       titleKey: "face_verification.preparing_title",
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x48),
           child: Semantics(
             liveRegion: true,
             child: Column(
               mainAxisSize: .min,
-              spacing: 20,
+              spacing: YiviSpace.x24,
               children: [
                 SizedBox.square(
                   dimension: 44,

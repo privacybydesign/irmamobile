@@ -252,9 +252,9 @@ class _CountryRow extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 52),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              14,
+              YiviSpace.x16,
               YiviSpace.x8,
-              14,
+              YiviSpace.x16,
               YiviSpace.x8,
             ),
             child: Row(

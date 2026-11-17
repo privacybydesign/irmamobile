@@ -289,10 +289,10 @@ void main() {
         tester.getTopLeft(find.text("Leg je telefoon op je paspoort")).dy,
         IrmaAppBar.toolbarHeight + 16 + 360 + 24,
       );
-      // 10 between the title and the line under it.
+      // 12 between the title and the line under it.
       expect(
         tester.getTopLeft(find.text("Je paspoort mag dicht blijven.")).dy,
-        tester.getRect(find.text("Leg je telefoon op je paspoort")).bottom + 10,
+        tester.getRect(find.text("Leg je telefoon op je paspoort")).bottom + 12,
       );
       _expectFooterButton(tester, _secondary(), top: _phone.height - 8 - 56);
     });

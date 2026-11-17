@@ -164,7 +164,7 @@ class ManualEntryLayout extends StatelessWidget {
           ),
         ),
         SurfaceCard(
-          margin: const EdgeInsets.only(top: 20),
+          margin: const EdgeInsets.only(top: YiviSpace.x24),
           padding: const EdgeInsets.all(YiviSpace.x16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -240,7 +240,12 @@ class DocumentField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(YiviSpace.x4, 0, YiviSpace.x4, 6),
+          padding: const EdgeInsets.fromLTRB(
+            YiviSpace.x4,
+            0,
+            YiviSpace.x4,
+            YiviSpace.x8,
+          ),
           child: Text(label, style: fieldLabelStyle(context)),
         ),
         field,

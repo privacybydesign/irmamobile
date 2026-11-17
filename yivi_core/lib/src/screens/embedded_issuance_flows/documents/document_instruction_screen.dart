@@ -72,7 +72,7 @@ class DocumentInstructionScreen extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: YiviSpace.x12),
             child: TranslatedText(
               "$keys.body",
               textAlign: align,
@@ -144,7 +144,7 @@ class DocumentInstructionScreen extends StatelessWidget {
           child: landscape
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 28,
+                  spacing: YiviSpace.x32,
                   children: [
                     Expanded(
                       child: Column(
@@ -193,7 +193,7 @@ class DocumentTipBox extends StatelessWidget {
       ),
       child: Row(
         crossAxisAlignment: .start,
-        spacing: 10,
+        spacing: YiviSpace.x12,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 1),
