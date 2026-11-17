@@ -1,7 +1,9 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../models/email_code_pointer.dart";
 import "../../../providers/contact_issuance_provider.dart";
+import "../../../providers/email_linking_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
@@ -88,6 +90,15 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   bool get _email => widget.flow.kind == ContactKind.email;
 
+  /// The address is linked to the keyshare server: the linking texts, and
+  /// the link in the e-mail is taken here.
+  bool get _linking => widget.flow.linking;
+
+  /// The code in the boxes came from the link in the e-mail ("Code filled
+  /// in from the link"); [_linkCheck]: it checks itself.
+  String? _linkCode;
+  var _linkCheck = false;
+
   ContactIssuance get _flow =>
       ref.read(contactIssuanceProvider(widget.flow).notifier);
 
@@ -107,7 +118,45 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
       } else if (_stateNow().stage == ContactStage.address) {
         _focusNode.requestFocus();
       }
+      if (_linking) _takeLink(ref.read(emailLinkingProvider).link);
     });
+  }
+
+  /// The link in the e-mail, while linking. On the address page: a link
+  /// with an address goes to the code at once (the code page then fills it
+  /// in); one without an address needs the address typed here, so at the
+  /// address it is dropped. On the code page: filled in, said so, and
+  /// checked only when the code was asked for that address here.
+  void _takeLink(EmailCodePointer? link) {
+    if (link == null || !mounted) return;
+    final linking = ref.read(emailLinkingProvider.notifier);
+    if (!widget.code) {
+      final email = link.email;
+      if (email == null) {
+        if (_stateNow().stage == ContactStage.address) linking.takeLink();
+        return;
+      }
+      _flow.codeOnItsWay(email);
+      return;
+    }
+    final check =
+        ref.read(emailLinkingProvider).linkHandling == EmailLinkHandling.submit;
+    final taken = linking.takeLink();
+    if (taken == null) return;
+    // Without an address the code is for the address of this page.
+    if (taken.email case final email?) _flow.codeOnItsWay(email);
+    _linkCode = taken.code;
+    _linkCheck = check;
+    _c.code.text = taken.code;
+    setState(() {});
+    if (check) _verify(taken.code);
+  }
+
+  /// A completed code checks itself, except one filled in from a link that
+  /// waits for "Check code".
+  void _completed(String code) {
+    if (code == _linkCode && !_linkCheck) return;
+    _verify(code);
   }
 
   @override
@@ -184,7 +233,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
         child: KeyedSubtree(
           key: _headingKey,
           child: Text(
-            _k(widget.code ? "code_head" : "head"),
+            widget.code || !_linking
+                ? _k(widget.code ? "code_head" : "head")
+                : context.tr("email_linking.enter_email.header"),
             key: const Key("contact_sheet_heading"),
             style: sideways
                 ? palette.titleCompact.copyWith(color: palette.text)
@@ -219,6 +270,12 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
   @override
   Widget build(BuildContext context) {
+    if (_linking) {
+      ref.listen(
+        emailLinkingProvider.select((state) => state.link),
+        (_, link) => _takeLink(link),
+      );
+    }
     final state = ref.watch(contactIssuanceProvider(widget.flow));
     final code = widget.code;
     final atCode = state.stage == ContactStage.code;
@@ -294,10 +351,34 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               // Typing again clears the error; emptying the boxes after a
               // failed check does not.
               _c.codeTyped(text, hasError: _stateNow().error != null);
+              if (text != _linkCode) _linkCode = null;
               setState(() {});
             },
-            onCompleted: _verify,
+            onCompleted: _completed,
           ),
+          // Linking: the code can also come through the link in the
+          // e-mail; once it did, that is said instead.
+          if (_linking && errorText == null)
+            Padding(
+              padding: const EdgeInsets.only(top: YiviSpace.x12),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(
+                  _linkCode != null
+                      ? context.tr("email_linking.verify_code.filled_from_link")
+                      : context.tr("email_linking.verify_code.body", {
+                          "email": state.target,
+                        }),
+                  key: Key(
+                    _linkCode != null ? "code_filled_from_link" : "link_hint",
+                  ),
+                  textAlign: TextAlign.center,
+                  style: YiviPalette.of(context)
+                      .body(14)
+                      .copyWith(color: YiviPalette.of(context).secondaryText),
+                ),
+              ),
+            ),
           if (errorText != null)
             KeyedSubtree(
               key: const Key("contact_sheet_error"),
@@ -321,7 +402,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
               horizontal: useSheetColumns(context) ? 0 : 4,
             ),
             child: Text(
-              _k("intro"),
+              _linking
+                  ? context.tr("email_linking.enter_email.body")
+                  : _k("intro"),
               style: useSheetColumns(context)
                   ? YiviPalette.of(context).body(14).copyWith(height: 20 / 14)
                   : YiviPalette.of(context).body(15).copyWith(height: 22 / 15),
@@ -367,7 +450,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             // Two steps of their own: the address, then the code.
             title: SheetTitle(
               context.tr(
-                _email
+                _linking
+                    ? "email_linking.enter_email.title"
+                    : _email
                     ? "email_issuance.enter_email.title"
                     : "sms_issuance.enter_phone.title",
               ),
@@ -391,7 +476,9 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
             // Two steps of their own: the address, then the code.
             title: SheetTitle(
               context.tr(
-                _email
+                _linking
+                    ? "email_linking.enter_email.title"
+                    : _email
                     ? "email_issuance.enter_email.title"
                     : "sms_issuance.enter_phone.title",
               ),

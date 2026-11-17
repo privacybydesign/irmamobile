@@ -8,6 +8,7 @@ import "../providers/contact_issuance_provider.dart";
 import "../providers/email_linking_provider.dart";
 import "../providers/irma_repository_provider.dart";
 import "../providers/nested_issuance_host_provider.dart";
+import "email_linking.dart";
 import "navigation.dart";
 
 /// Handles a scanned or opened [pointer]: the link in a verification e-mail
@@ -72,7 +73,7 @@ void _showEmailLinkScreen(BuildContext context, EmailCodePointer link) {
 
   container.read(emailLinkingProvider.notifier).receiveLink(link);
   if (!linkingOpen) {
-    context.pushEmailIssuanceScreen();
+    openEmailLinking(context);
   }
 }
 

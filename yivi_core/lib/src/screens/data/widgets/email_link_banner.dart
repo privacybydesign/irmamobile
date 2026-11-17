@@ -89,7 +89,7 @@ class EmailLinkBanner extends ConsumerWidget {
                       const SizedBox(height: YiviSpace.x8),
                       Link(
                         label: "email_linking.banner.link",
-                        onTap: () => openEmailLinking(context, ref),
+                        onTap: () => openEmailLinking(context),
                       ),
                     ],
                   ),

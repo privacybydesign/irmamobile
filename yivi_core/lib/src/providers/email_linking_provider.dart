@@ -119,10 +119,6 @@ enum EmailLinkHandling {
 }
 
 class EmailLinkingState {
-  /// The e-mail issuance session that has to finish before the keyshare
-  /// disclosure starts.
-  final int? issuanceSessionId;
-
   /// The disclosure session that shares the address with MijnYivi.
   final int? disclosureSessionId;
 
@@ -133,27 +129,18 @@ class EmailLinkingState {
   final EmailLinkHandling linkHandling;
 
   const EmailLinkingState({
-    this.issuanceSessionId,
     this.disclosureSessionId,
     this.link,
     this.linkHandling = .fillIn,
   });
 }
 
-/// Tracks the sessions of the e-mail linking flow, so the session screen knows
-/// which issuance leads into the keyshare disclosure and which disclosure ends
-/// in the "linked" screen.
+/// The link from the e-mail on its way to the linking sheet, and the
+/// disclosure that shares the address with MijnYivi, so the session screen
+/// knows which one ends in the "linked" screen.
 class EmailLinking extends Notifier<EmailLinkingState> {
   @override
   EmailLinkingState build() => const EmailLinkingState();
-
-  void trackIssuance(int sessionId) {
-    state = EmailLinkingState(
-      issuanceSessionId: sessionId,
-      link: state.link,
-      linkHandling: state.linkHandling,
-    );
-  }
 
   void trackDisclosure(int sessionId) {
     state = EmailLinkingState(disclosureSessionId: sessionId);
@@ -164,7 +151,6 @@ class EmailLinking extends Notifier<EmailLinkingState> {
 
   void receiveLink(EmailCodePointer link) {
     state = EmailLinkingState(
-      issuanceSessionId: state.issuanceSessionId,
       link: link,
       linkHandling: _codeRequestedFor(link.email) ? .submit : .fillIn,
     );
@@ -185,7 +171,7 @@ class EmailLinking extends Notifier<EmailLinkingState> {
   EmailCodePointer? takeLink() {
     final link = state.link;
     if (link == null) return null;
-    state = EmailLinkingState(issuanceSessionId: state.issuanceSessionId);
+    state = const EmailLinkingState();
     return link;
   }
 

@@ -225,15 +225,11 @@ void main() {
       expect(await prefs.emailBannerDismissed.stream.first, isTrue);
     });
 
-    test("tracks the issuance and then the disclosure session", () {
+    test("tracks the disclosure session", () {
       final container = newContainer();
       final linking = container.read(emailLinkingProvider.notifier);
 
-      linking.trackIssuance(3);
-      expect(container.read(emailLinkingProvider).issuanceSessionId, 3);
-
       linking.trackDisclosure(4);
-      expect(container.read(emailLinkingProvider).issuanceSessionId, isNull);
       expect(container.read(emailLinkingProvider).disclosureSessionId, 4);
     });
 
@@ -246,19 +242,6 @@ void main() {
 
       expect(linking.takeLink(), same(link));
       expect(linking.takeLink(), isNull);
-    });
-
-    test("taking the link keeps the issuance session", () {
-      final container = newContainer();
-      final linking = container.read(emailLinkingProvider.notifier);
-
-      linking.trackIssuance(3);
-      linking.receiveLink(
-        EmailCodePointer(email: "jan@example.com", code: "ABC123"),
-      );
-      linking.takeLink();
-
-      expect(container.read(emailLinkingProvider).issuanceSessionId, 3);
     });
 
     test("starts the disclosure through the keyshare API", () async {

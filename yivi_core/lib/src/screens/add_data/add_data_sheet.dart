@@ -14,6 +14,7 @@ import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
+import "../../util/email_linking.dart";
 import "../../util/i18n.dart";
 import "../../util/nfc_credentials.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -31,17 +32,21 @@ import "add_data_row.dart";
 /// user can add, and the whole of adding one inside it ([AddDataSheet]).
 /// With [addNew] it opens straight on the details of that type. Without
 /// [flyToDataTab] (opened from elsewhere than the Data tab), "Done" only
-/// closes it.
+/// closes it. With [linking], [addNew] is the keyshare scheme's e-mail
+/// type and the address is linked to the keyshare server: the sheet opens
+/// on the address step.
 Future<void> showAddDataSheet(
   BuildContext context, {
   CredentialDescriptor? addNew,
   bool flyToDataTab = true,
+  bool linking = false,
 }) => showGlassSheet<void>(
   context: context,
   builder: (_) => AddDataSheet(
     key: const Key("add_data_sheet"),
     addNew: addNew,
     flyToDataTab: flyToDataTab,
+    linking: linking,
   ),
 );
 
@@ -101,7 +106,16 @@ class AddDataSheet extends ConsumerStatefulWidget {
   /// "Done" flies the new card into the Data tab, which is under the sheet.
   final bool flyToDataTab;
 
-  const AddDataSheet({super.key, this.addNew, this.flyToDataTab = true});
+  /// Links the e-mail address being added to the keyshare server (see
+  /// [showAddDataSheet]).
+  final bool linking;
+
+  const AddDataSheet({
+    super.key,
+    this.addNew,
+    this.flyToDataTab = true,
+    this.linking = false,
+  });
 
   @override
   ConsumerState<AddDataSheet> createState() => _AddDataSheetState();
@@ -143,7 +157,21 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   @override
   void initState() {
     super.initState();
-    issueStartWith(widget.addNew);
+    issueStartWith(widget.addNew, prove: widget.linking);
+  }
+
+  @override
+  bool get issueLinking => widget.linking;
+
+  /// Linking: the sheet goes and the disclosure that shares the address
+  /// with MijnYivi comes up, as the issuance gave way to it before.
+  @override
+  bool issueSucceeded(List<Credential> cards) {
+    if (!widget.linking) return false;
+    final root = Navigator.of(context, rootNavigator: true).context;
+    issueClose();
+    shareEmailWithKeyshare(root);
+    return true;
   }
 
   @override

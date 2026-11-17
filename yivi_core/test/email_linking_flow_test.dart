@@ -8,7 +8,6 @@ import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
-import "package:pinput/pinput.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
@@ -29,9 +28,9 @@ import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/data/widgets/email_link_banner.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/util/email_linking.dart";
 import "package:yivi_core/src/util/handle_pointer.dart";
 import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
@@ -165,13 +164,21 @@ void main() {
         GoRoute(
           path: "/home",
           builder: (context, state) =>
-              home ?? const Scaffold(body: Text("home")),
-        ),
-        GoRoute(
-          path: "/issue_email",
-          builder: (context, state) {
-            return const EmailIssuanceScreen();
-          },
+              home ??
+              Scaffold(
+                body: Builder(
+                  builder: (context) => Column(
+                    children: [
+                      const Text("home"),
+                      TextButton(
+                        key: const Key("open_linking"),
+                        onPressed: () => openEmailLinking(context),
+                        child: const Text("link"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
         ),
         GoRoute(
           path: "/session",
@@ -217,7 +224,26 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 500));
     });
     await tester.pump();
+    repo.dispatch(
+      CredentialStoreEvent(
+        credentials: [
+          CredentialStoreItem(
+            credential: CredentialDescriptor(
+              credentialId: "pbdf.sidn-pbdf.email",
+              name: "Email address",
+              issuer: _requestor,
+              category: null,
+              attributes: const [],
+              issueURL: "https://email-issuer.example/issue",
+            ),
+            faq: Faq(intro: null, purpose: null, content: null, howTo: null),
+          ),
+        ],
+      ),
+    );
   }
+
+  final sheet = find.byKey(const Key("add_data_sheet"));
 
   // Preference and repository streams finish on the real event loop.
   Future<void> settle(WidgetTester tester) async {
@@ -236,14 +262,22 @@ void main() {
       .toList();
 
   Future<void> openLinkingFlow(WidgetTester tester) async {
-    router.push("/issue_email");
-    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key("open_linking")));
+    await settle(tester);
+    await settle(tester);
   }
 
   Future<void> sendEmailTo(WidgetTester tester, String address) async {
     await tester.enterText(find.byKey(const Key("email_input_field")), address);
     await tester.pump();
-    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+    await tester.tap(find.byKey(const Key("contact_sheet_send")).last);
+    await settle(tester);
+    await settle(tester);
+  }
+
+  /// "Check code" on the code page.
+  Future<void> checkCode(WidgetTester tester) async {
+    await tester.tap(find.byKey(const Key("contact_sheet_verify")).last);
     await settle(tester);
   }
 
@@ -266,160 +300,61 @@ void main() {
     });
   });
 
-  group("enter e-mail and code screens", () {
-    testWidgets("link purpose uses the linking copy and a label above", (
-      tester,
-    ) async {
+  group("the linking sheet", () {
+    testWidgets("opens on the address with the linking copy", (tester) async {
       await pumpApp(tester);
       await openLinkingFlow(tester);
 
+      expect(sheet, findsOneWidget);
       expect(find.text("Link your email address"), findsOneWidget);
       expect(
         find.textContaining("Then you can block your Yivi app"),
         findsOneWidget,
       );
-      final field = tester.widget<TextField>(
-        find.descendant(
-          of: find.byKey(const Key("email_input_field")),
-          matching: find.byType(TextField),
-        ),
-      );
-      // The label sits above the field, the hint inside it.
-      expect(find.text("Email address"), findsOneWidget);
-      expect(field.decoration!.labelText, isNull);
-      expect(field.decoration!.hintText, "Enter your email address...");
-    });
-
-    testWidgets("back from the code asks first, then shows the address", (
-      tester,
-    ) async {
-      await pumpApp(tester);
-      router.push("/issue_email");
-      await tester.pumpAndSettle();
-      await sendEmailTo(tester, "jan@example.com");
-      expect(find.byKey(const Key("email_input_field")), findsNothing);
-
-      await tester.tap(find.byKey(const Key("irma_app_bar_leading")).last);
-      await settle(tester);
-      await tester.tap(find.byKey(const Key("dialog_cancel_button")));
-      await settle(tester);
-      expect(find.byKey(const Key("email_input_field")), findsNothing);
-
-      await tester.tap(find.byKey(const Key("irma_app_bar_leading")).last);
-      await settle(tester);
-      await tester.tap(find.byKey(const Key("dialog_confirm_button")));
-      await settle(tester);
       expect(find.byKey(const Key("email_input_field")), findsOneWidget);
     });
 
-    testWidgets("the code screen starts over when a page above it closes", (
-      tester,
-    ) async {
-      await pumpApp(tester);
-      router.push("/issue_email");
-      await tester.pumpAndSettle();
-      await sendEmailTo(tester, "jan@example.com");
-      expect(find.byKey(const Key("email_input_field")), findsNothing);
-
-      router.push("/error", extra: "over it");
-      await settle(tester);
-      router.pop();
-      await settle(tester);
-
-      expect(find.byKey(const Key("email_input_field")), findsOneWidget);
-    });
-
-    testWidgets("sending the address opens the code screen", (tester) async {
+    testWidgets("sending the address opens the code page", (tester) async {
       await pumpApp(tester);
       await openLinkingFlow(tester);
 
       await sendEmailTo(tester, "jan@example.com");
 
       expect(issuerApi.sent, ["jan@example.com"]);
-      expect(find.text("Enter the code"), findsOneWidget);
+      expect(find.text("Code from the e-mail"), findsOneWidget);
       expect(
         find.textContaining("We've sent an email to jan@example.com"),
         findsOneWidget,
       );
-      // Sent just now: it can go again in a minute.
-      expect(find.text("Send email again in 1:00"), findsOneWidget);
     });
 
-    testWidgets("Check code waits for six characters and does not auto-send", (
-      tester,
-    ) async {
+    testWidgets("a typed code checks itself once complete", (tester) async {
       await pumpApp(tester);
       await openLinkingFlow(tester);
       await sendEmailTo(tester, "jan@example.com");
-
-      Finder checkButton() => find.byKey(const Key("bottom_bar_primary"));
-      bool enabled() =>
-          tester
-              .widget<GestureDetector>(
-                find
-                    .descendant(
-                      of: checkButton(),
-                      matching: find.byType(GestureDetector),
-                    )
-                    .first,
-              )
-              .onTap !=
-          null;
-
-      expect(enabled(), isFalse);
 
       await tester.enterText(
         find.byKey(const Key("email_verification_code_input_field")),
         "abc12",
       );
       await tester.pump();
-      expect(enabled(), isFalse);
+      expect(issuerApi.verified, isEmpty);
 
       await tester.enterText(
         find.byKey(const Key("email_verification_code_input_field")),
         "abc123",
       );
-      await tester.pump();
-      expect(issuerApi.verified, isEmpty);
-      expect(enabled(), isTrue);
-
-      await tester.tap(checkButton());
       await settle(tester);
 
       expect(issuerApi.verified, [(email: "jan@example.com", code: "ABC123")]);
-    });
-
-    testWidgets("the issuance session is tracked for the hand-over", (
-      tester,
-    ) async {
-      await pumpApp(
-        tester,
-        overrides: [
-          // A session that has not reported yet, so it stays on its screen.
-          sessionStateProvider.overrideWith(
-            (ref, id) => StreamController<SessionState>().stream,
-          ),
-        ],
-      );
-      await openLinkingFlow(tester);
-      await sendEmailTo(tester, "jan@example.com");
-      await tester.enterText(
-        find.byKey(const Key("email_verification_code_input_field")),
-        "ABC123",
-      );
-      await tester.pump();
-      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-      await settle(tester);
-
-      expect(openSessions(tester), [1]);
-      expect(container.read(emailLinkingProvider).issuanceSessionId, 1);
+      // The issuance shows in the sheet, not on a session screen.
+      expect(openSessions(tester), isEmpty);
+      expect(sheet, findsOneWidget);
     });
   });
 
   group("link while the flow is open", () {
-    testWidgets("fills in the code, says so, and continues on its own", (
-      tester,
-    ) async {
+    testWidgets("for the address typed: checked at once", (tester) async {
       await pumpApp(tester);
       await openLinkingFlow(tester);
       await sendEmailTo(tester, "jan@example.com");
@@ -431,17 +366,7 @@ void main() {
           );
       await settle(tester);
 
-      expect(find.byKey(const Key("code_filled_from_link")), findsOneWidget);
-      expect(find.text("Code filled in from the link"), findsOneWidget);
-      expect(
-        tester
-            .widget<Pinput>(
-              find.byKey(const Key("email_verification_code_input_field")),
-            )
-            .controller!
-            .text,
-        "XYZ789",
-      );
+      // Checked at once: the sheet goes on to the issuance.
       expect(issuerApi.verified, [(email: "jan@example.com", code: "XYZ789")]);
       expect(container.read(emailLinkingProvider).link, isNull);
     });
@@ -459,18 +384,18 @@ void main() {
       await settle(tester);
       await settle(tester);
 
-      expect(find.byType(EmailIssuanceScreen), findsOneWidget);
-      expect(find.text("Enter the code"), findsOneWidget);
+      expect(sheet, findsOneWidget);
+      expect(find.text("Code from the e-mail"), findsOneWidget);
+      // The code went to the link's address.
       expect(
-        find.textContaining("We've sent an email to jan@example.com"),
-        findsOneWidget,
+        find.textContaining("jan@example.com", findRichText: true),
+        findsWidgets,
       );
       expect(issuerApi.sent, isEmpty);
       expect(find.text("Code filled in from the link"), findsOneWidget);
       expect(issuerApi.verified, isEmpty);
 
-      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-      await settle(tester);
+      await checkCode(tester);
 
       expect(issuerApi.verified, [(email: "jan@example.com", code: "XYZ789")]);
     });
@@ -504,13 +429,12 @@ void main() {
 
       expect(find.text("Code filled in from the link"), findsOneWidget);
       expect(
-        find.textContaining("We've sent an email to other@example.com"),
-        findsOneWidget,
+        find.textContaining("other@example.com", findRichText: true),
+        findsWidgets,
       );
       expect(issuerApi.verified, isEmpty);
 
-      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-      await settle(tester);
+      await checkCode(tester);
 
       expect(issuerApi.verified, [
         (email: "other@example.com", code: "XYZ789"),
@@ -535,8 +459,7 @@ void main() {
 
       expect(issuerApi.verified, isEmpty);
 
-      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-      await settle(tester);
+      await checkCode(tester);
 
       expect(issuerApi.verified, [(email: "evil@example.com", code: "BBB222")]);
     });
@@ -554,7 +477,7 @@ void main() {
       await settle(tester);
       await settle(tester);
       handlePointer(
-        tester.element(find.byType(EmailIssuanceScreen)),
+        tester.element(sheet),
         EmailCodePointer(email: "evil@example.com", code: "BBB222"),
       );
       await settle(tester);
@@ -573,7 +496,6 @@ void main() {
           .receiveLink(EmailCodePointer(code: "XYZ789"));
       await settle(tester);
 
-      expect(find.text("Code filled in from the link"), findsOneWidget);
       expect(issuerApi.verified, [(email: "jan@example.com", code: "XYZ789")]);
       expect(container.read(emailLinkingProvider).link, isNull);
     });
@@ -587,9 +509,9 @@ void main() {
       await settle(tester);
       await settle(tester);
 
-      expect(find.byType(EmailIssuanceScreen), findsOneWidget);
+      expect(sheet, findsOneWidget);
       expect(find.text("Link your email address"), findsOneWidget);
-      expect(find.text("Enter the code"), findsNothing);
+      expect(find.text("Code from the e-mail"), findsNothing);
       expect(issuerApi.verified, isEmpty);
       expect(container.read(emailLinkingProvider).link, isNull);
     });
@@ -600,7 +522,7 @@ void main() {
       await pumpApp(tester);
       await openLinkingFlow(tester);
       await sendEmailTo(tester, "jan@example.com");
-      final context = tester.element(find.text("Enter the code"));
+      final context = tester.element(find.text("Code from the e-mail"));
 
       handlePointer(
         context,
@@ -608,7 +530,7 @@ void main() {
       );
       await settle(tester);
 
-      expect(find.byType(EmailIssuanceScreen), findsOneWidget);
+      expect(sheet, findsOneWidget);
       expect(issuerApi.verified, hasLength(1));
     });
   });
@@ -635,42 +557,52 @@ void main() {
       await settle(tester);
     }
 
-    testWidgets("a tracked issuance continues with the keyshare disclosure", (
-      tester,
-    ) async {
-      await pumpApp(
-        tester,
-        overrides: [
-          sessionStateProvider.overrideWith(
-            (ref, sessionId) => sessionId == _issuanceSessionId
-                ? Stream.value(_successState(sessionId, SessionType.issuance))
-                // Go answers after the screen has been pushed, not within it.
-                : Stream.fromFuture(
-                    Future.delayed(
-                      const Duration(milliseconds: 50),
-                      () => _successState(sessionId, SessionType.disclosure),
-                    ),
+    /// The first session is the e-mail's issuance in the sheet, which
+    /// succeeds; the next the keyshare disclosure, which answers after its
+    /// screen has been pushed.
+    List<Override> sessions() {
+      int? issuance;
+      return [
+        sessionStateProvider.overrideWith((ref, id) {
+          issuance ??= id;
+          return id == issuance
+              ? Stream.value(_successState(id, SessionType.issuance))
+              : Stream.fromFuture(
+                  Future.delayed(
+                    const Duration(milliseconds: 50),
+                    () => _successState(id, SessionType.disclosure),
                   ),
-          ),
-        ],
-      );
-      container
-          .read(emailLinkingProvider.notifier)
-          .trackIssuance(_issuanceSessionId);
+                );
+        }),
+      ];
+    }
 
-      router.push("/session?session_id=$_issuanceSessionId");
-      await tester.pump();
-      await settle(tester);
-      await settle(tester);
+    Future<void> linkTheAddress(WidgetTester tester) async {
+      await openLinkingFlow(tester);
+      await sendEmailTo(tester, "jan@example.com");
+      await tester.enterText(
+        find.byKey(const Key("email_verification_code_input_field")),
+        "ABC123",
+      );
+      for (var i = 0; i < 4; i++) {
+        await settle(tester);
+      }
       await tester.pump(const Duration(seconds: 1));
+    }
+
+    testWidgets("once added in the sheet, the sheet goes and the keyshare "
+        "disclosure comes up", (tester) async {
+      await pumpApp(tester, overrides: sessions());
+      await linkTheAddress(tester);
 
       expect(linkApi.calls, 1);
+      expect(sheet, findsNothing);
       expect(
         find.text("The data has been successfully added to Yivi"),
         findsNothing,
       );
-      expect(openSessions(tester), [1]);
-      expect(container.read(emailLinkingProvider).disclosureSessionId, 1);
+      expect(openSessions(tester), [2]);
+      expect(container.read(emailLinkingProvider).disclosureSessionId, 2);
       expect(find.text("Email address linked"), findsOneWidget);
       expect(await stored(tester, prefs.emailLinked.stream), isTrue);
     });
@@ -701,24 +633,8 @@ void main() {
       tester,
     ) async {
       linkApi.failWith = KeyshareEmailLinkUnavailable();
-      await pumpApp(
-        tester,
-        overrides: [
-          sessionStateProvider.overrideWith(
-            (ref, sessionId) =>
-                Stream.value(_successState(sessionId, SessionType.issuance)),
-          ),
-        ],
-      );
-      container
-          .read(emailLinkingProvider.notifier)
-          .trackIssuance(_issuanceSessionId);
-
-      router.push("/session?session_id=$_issuanceSessionId");
-      await tester.pump();
-      await settle(tester);
-      await settle(tester);
-      await tester.pump(const Duration(seconds: 1));
+      await pumpApp(tester, overrides: sessions());
+      await linkTheAddress(tester);
 
       expect(
         find.textContaining("error linking e-mail address"),
@@ -871,7 +787,7 @@ void main() {
       await settle(tester);
       await tester.pumpAndSettle();
 
-      expect(find.byType(EmailIssuanceScreen), findsOneWidget);
+      expect(sheet, findsOneWidget);
       expect(find.text("Link your email address"), findsOneWidget);
       expect(
         container.read(emailIssuerUrlProvider),

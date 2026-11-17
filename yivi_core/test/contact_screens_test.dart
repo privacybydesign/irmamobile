@@ -3,10 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/widgets/contact_widgets.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/widgets/embedded_issuance_error_screen.dart";
-import "package:yivi_core/src/theme/yivi_tone.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
-import "package:yivi_core/src/widgets/status_body.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -41,38 +38,6 @@ void main() {
         : await tester.pump(const Duration(milliseconds: 500));
   }
 
-  testWidgets("the error screen is a status screen with details and retry", (
-    tester,
-  ) async {
-    var retried = 0;
-    await pump(
-      tester,
-      EmbeddedIssuanceErrorScreen(
-        titleTranslationKey: "email_issuance.enter_email.title",
-        contentTranslationKey: "email_issuance.enter_email.error",
-        errorMessage: "connection refused",
-        onTryAgain: () => retried++,
-      ),
-    );
-
-    expect(find.byType(StatusBody), findsOneWidget);
-    expect(
-      find.text("Something went wrong while sending the verification code."),
-      findsOneWidget,
-    );
-
-    // The details open in place, and close again.
-    await tester.tap(find.text("Show technical details"));
-    await tester.pumpAndSettle();
-    expect(find.text("connection refused"), findsOneWidget);
-    await tester.tap(find.text("Hide technical details"));
-    await tester.pumpAndSettle();
-    expect(find.text("connection refused"), findsNothing);
-
-    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-    expect(retried, 1);
-  });
-
   testWidgets("the code boxes turn red with the error below them", (
     tester,
   ) async {
@@ -86,13 +51,6 @@ void main() {
       Scaffold(
         body: Column(
           children: [
-            const ContactIntro(
-              icon: Icons.mail_rounded,
-              tone: YiviTone.warning,
-              headerKey: "email_issuance.verify_code.header",
-              bodyKey: "email_issuance.verify_code.body",
-              bodyParams: {"email": "jan@example.com"},
-            ),
             ContactCodeField(
               fieldKey: const Key("code"),
               controller: controller,
@@ -109,8 +67,6 @@ void main() {
       settle: false,
     );
 
-    expect(find.text("We've sent you an email"), findsOneWidget);
-    expect(find.textContaining("jan@example.com"), findsOneWidget);
     expect(find.text("Verification code"), findsOneWidget);
     expect(find.text("Invalid code, try again..."), findsOneWidget);
 

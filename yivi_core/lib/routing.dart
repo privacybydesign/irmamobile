@@ -20,7 +20,6 @@ import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/credential_detail/credential_detail_screen.dart";
 import "src/screens/data/wallet/wallet_transition.dart";
 import "src/screens/debug/debug_screen.dart";
-import "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
 import "src/screens/help/help_screen.dart";
@@ -235,13 +234,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         mode: PresentationMode.full,
         path: "/update_required",
         builder: (context, state) => RequiredUpdateScreen(),
-      ),
-      _adaptive(
-        mode: PresentationMode.sheet,
-        phone: PhoneTransition.rise,
-        path: "/issue_email",
-        // Linking the address to the keyshare server.
-        builder: (context, state) => const EmailIssuanceScreen(),
       ),
     ],
     redirect: (context, state) {

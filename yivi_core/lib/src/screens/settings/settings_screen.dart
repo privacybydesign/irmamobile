@@ -179,7 +179,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   key: const Key("link_email_link"),
                   iconData: Icons.mail_outline_rounded,
                   labelTranslationKey: "settings.link_email",
-                  onTap: () => openEmailLinking(context, ref),
+                  onTap: () => openEmailLinking(context),
                 ),
               Tile(
                 key: const Key("change_language_link"),

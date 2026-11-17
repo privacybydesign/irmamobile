@@ -32,7 +32,6 @@ export "src/providers/passport_issuer_provider.dart"
 export "src/providers/qr_scanner_factory_provider.dart";
 export "src/providers/regula_face_service_provider.dart";
 export "src/providers/store_review_provider.dart" show StoreReviewService;
-export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 export "src/util/mrz_glare.dart" show Reflection, glareTileShare, mrzHasGlare;
 export "src/util/mrz_reading.dart"
     show fixMrzLineLength, fixMrzLineLengths, minMrzLineLength, mrzLineCount;

@@ -135,11 +135,22 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   bool _direct = false;
 
   /// Opens the sheet straight on [d]'s details; call from the host's
-  /// initState. Null: the sheet opens on its root page.
-  void issueStartWith(CredentialDescriptor? d) {
+  /// initState. Null: the sheet opens on its root page. [prove]: on step 2
+  /// at once, as if "Add" had been tapped on the details.
+  void issueStartWith(CredentialDescriptor? d, {bool prove = false}) {
     issueAdding = d;
     _direct = d != null;
+    if (prove && d != null) afterFrame(() => _add(d));
   }
+
+  /// The e-mail step links the address to the keyshare server: its flow is
+  /// [ContactFlow.linkEmail].
+  bool get issueLinking => false;
+
+  /// The issuance in the sheet succeeded ([issueAdded] is set, so closing
+  /// does not dismiss it). True: the host took over; "Success" is not
+  /// shown.
+  bool issueSucceeded(List<Credential> cards) => false;
 
   /// The issuer's details over the question (1), and their technical
   /// details over those (2); 0: none.
@@ -278,7 +289,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         if (contact && container != null) {
           container
             ..invalidate(contactIssuanceProvider(ContactFlow.email))
-            ..invalidate(contactIssuanceProvider(ContactFlow.phone));
+            ..invalidate(contactIssuanceProvider(ContactFlow.phone))
+            ..invalidate(contactIssuanceProvider(ContactFlow.linkEmail));
         }
       });
     } else {
@@ -413,7 +425,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (_contact != null) {
       ref
         ..invalidate(contactIssuanceProvider(ContactFlow.email))
-        ..invalidate(contactIssuanceProvider(ContactFlow.phone));
+        ..invalidate(contactIssuanceProvider(ContactFlow.phone))
+        ..invalidate(contactIssuanceProvider(ContactFlow.linkEmail));
     }
     _forgetSession();
     issueAdded = null;
@@ -456,9 +469,11 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
       _hosts.register(this);
       setState(
-        () => _contact = flow == EmbeddedFlow.email
-            ? ContactFlow.email
-            : ContactFlow.phone,
+        () => _contact = flow == EmbeddedFlow.phone
+            ? ContactFlow.phone
+            : issueLinking
+            ? ContactFlow.linkEmail
+            : ContactFlow.email,
       );
       return;
     }
@@ -683,14 +698,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       final cards = next.offeredCredentials ?? const [];
       _repo.clearInAppLaunches();
       _hosts.unregister(this);
-      setState(() {
-        _pin = false;
-        issueAdded = cards;
-        issueAddedKeys = [
-          for (final (i, _) in cards.indexed)
-            GlobalKey(debugLabel: "sheet_added_$i"),
-        ];
-      });
+      _pin = false;
+      issueAdded = cards;
+      issueAddedKeys = [
+        for (final (i, _) in cards.indexed)
+          GlobalKey(debugLabel: "sheet_added_$i"),
+      ];
+      if (issueSucceeded(cards)) return;
+      setState(() {});
       return;
     }
     if (status == SessionStatus.dismissed) {

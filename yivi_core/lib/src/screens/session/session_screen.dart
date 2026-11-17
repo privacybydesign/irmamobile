@@ -14,7 +14,6 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../util/after_frame.dart";
-import "../../util/email_linking.dart";
 import "../../util/haptics.dart";
 import "../../util/navigation.dart";
 import "../../util/string.dart";
@@ -97,10 +96,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// its caller other than the iOS status-bar back link. Replaces the session
   /// body with [ArrowBack] until they leave the app.
   bool _showArrowBack = false;
-
-  /// True once the issuance session of the e-mail linking flow handed over to
-  /// the keyshare disclosure. Keeps the success screen away while it starts.
-  bool _handedOverToKeyshare = false;
 
   /// True once the finished keyshare disclosure was recorded as a linked address.
   bool _emailLinkRecorded = false;
@@ -341,17 +336,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Widget _buildSuccess(SessionState session) {
     final linking = ref.read(emailLinkingProvider);
 
-    // E-mail linking: once the address is issued, share it with the keyshare
-    // server, and finish on its own screen.
-    if (_handedOverToKeyshare ||
-        linking.issuanceSessionId == widget.sessionId) {
-      if (!_handedOverToKeyshare) {
-        _handedOverToKeyshare = true;
-        afterFrame(() => shareEmailWithKeyshare(context, ref));
-      }
-      return _buildLoadingScreen(session);
-    }
-
+    // E-mail linking ends on its own screen once MijnYivi has the address.
     if (linking.disclosureSessionId == widget.sessionId) {
       if (!_emailLinkRecorded) {
         _emailLinkRecorded = true;

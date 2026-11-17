@@ -1,296 +1,19 @@
 import "package:flutter/services.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
-import "../../../../routing.dart";
-import "../../../models/session.dart";
-import "../../../theme/yivi_corners.dart";
-import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../util/after_frame.dart";
-import "../../../util/handle_pointer.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_layout.dart";
 import "../../../widgets/icon_square.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/keyboard_animation_listener.dart";
 import "../../../widgets/pill_text_field.dart";
 import "../../../widgets/resend_countdown.dart";
 import "../../../widgets/surface_card.dart";
 import "../../../widgets/translated_text.dart";
-
-/// A full-screen e-mail or phone step: [before], the [field] and [after] in
-/// a column that scrolls, the field kept in view while it has focus (at
-/// [fieldAlignment], see [Scrollable.ensureVisible]) and the page scrolled
-/// back to the top when it loses it. A tap outside the field closes the
-/// keyboard.
-///
-/// With a [keyboardButton] the [bottomBar] gives way to that button while
-/// the keyboard is up, right above it.
-class ContactScrollPage extends StatefulWidget {
-  final PreferredSizeWidget appBar;
-  final FocusNode focusNode;
-  final double fieldAlignment;
-  final List<Widget> before;
-  final Widget field;
-  final List<Widget> after;
-  final Widget bottomBar;
-  final Widget? keyboardButton;
-
-  const ContactScrollPage({
-    super.key,
-    required this.appBar,
-    required this.focusNode,
-    required this.fieldAlignment,
-    required this.before,
-    required this.field,
-    this.after = const [],
-    required this.bottomBar,
-    this.keyboardButton,
-  });
-
-  @override
-  State<ContactScrollPage> createState() => _ContactScrollPageState();
-}
-
-class _ContactScrollPageState extends State<ContactScrollPage> {
-  final _scrollController = ScrollController();
-  final _fieldPositionKey = GlobalKey();
-
-  // Keeps the scrollable's state when the scaffold's key changes with the
-  // keyboard (see [ContactScrollPage.keyboardButton]).
-  final _scrollableKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    widget.focusNode.addListener(_handleFocusChange);
-  }
-
-  @override
-  void dispose() {
-    widget.focusNode.removeListener(_handleFocusChange);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _handleFocusChange() {
-    if (widget.focusNode.hasFocus) {
-      afterFrame(() {
-        final fieldContext = _fieldPositionKey.currentContext;
-        if (fieldContext == null) {
-          return;
-        }
-
-        Scrollable.ensureVisible(
-          fieldContext,
-          alignment: widget.fieldAlignment,
-          duration: YiviMotion.standard,
-        );
-      });
-    } else {
-      afterFrame(() {
-        if (!_scrollController.hasClients) {
-          return;
-        }
-        _scrollController.animateTo(
-          0,
-          duration: YiviMotion.standard,
-          curve: Curves.easeInOut,
-        );
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    final keyboardButton = widget.keyboardButton;
-    final keyboardUp = keyboardButton != null && media.viewInsets.bottom > 0;
-
-    return GestureDetector(
-      onTap: () {
-        widget.focusNode.unfocus();
-      },
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        key: keyboardButton == null ? null : Key("$keyboardUp"),
-        backgroundColor: YiviPalette.of(context).background,
-        appBar: widget.appBar,
-        body: KeyboardAnimationListener(
-          key: _scrollableKey,
-          onKeyboardSettled: _handleFocusChange,
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: SafeArea(
-              child: Padding(
-                padding: const .all(YiviSpace.x16),
-                child: Column(
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    const SizedBox(height: YiviSpace.x16),
-                    ...widget.before,
-                    Container(key: _fieldPositionKey, child: widget.field),
-                    ...widget.after,
-                    const SizedBox(height: 100),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        floatingActionButtonAnimator: .noAnimation,
-        floatingActionButton: keyboardUp
-            ? Padding(
-                padding: .only(
-                  left: YiviSpace.x16 + media.padding.left,
-                  right: YiviSpace.x16 + media.padding.right,
-                ),
-                child: keyboardButton,
-              )
-            : null,
-        floatingActionButtonLocation: .centerFloat,
-        resizeToAvoidBottomInset: true,
-        bottomNavigationBar: keyboardUp ? null : widget.bottomBar,
-      ),
-    );
-  }
-}
-
-/// The full-screen step where the e-mail address or phone number is typed:
-/// the [ContactIntro], the [field] under its label, and "Next" ([nextKey],
-/// enabled with [onNext]) with a way back ([backKey]); with the keyboard up
-/// only "Next", right above it.
-class ContactEnterPage extends StatelessWidget {
-  final String titleKey;
-  final FocusNode focusNode;
-  final double fieldAlignment;
-  final IconData icon;
-  final YiviTone tone;
-  final String headerKey;
-  final String bodyKey;
-  final String labelKey;
-  final Widget field;
-  final String nextKey;
-  final String backKey;
-  final VoidCallback? onNext;
-
-  const ContactEnterPage({
-    super.key,
-    required this.titleKey,
-    required this.focusNode,
-    required this.fieldAlignment,
-    required this.icon,
-    required this.tone,
-    required this.headerKey,
-    required this.bodyKey,
-    required this.labelKey,
-    required this.field,
-    required this.nextKey,
-    required this.backKey,
-    required this.onNext,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ContactScrollPage(
-      appBar: IrmaAppBar(titleTranslationKey: titleKey),
-      focusNode: focusNode,
-      fieldAlignment: fieldAlignment,
-      before: [
-        ContactIntro(
-          icon: icon,
-          tone: tone,
-          headerKey: headerKey,
-          bodyKey: bodyKey,
-        ),
-        ContactFieldLabel(labelKey),
-      ],
-      field: field,
-      keyboardButton: FancyPillButton(
-        label: context.tr(nextKey),
-        onPressed: onNext,
-      ),
-      bottomBar: IrmaBottomBar(
-        primaryButtonLabel: nextKey,
-        secondaryButtonLabel: backKey,
-        onPrimaryPressed: onNext,
-        onSecondaryPressed: context.pop,
-      ),
-    );
-  }
-}
-
-/// The top of the e-mail and phone screens: a rounded tile with an envelope
-/// or a phone, the heading and the explanation, centred.
-class ContactIntro extends StatelessWidget {
-  final IconData icon;
-
-  /// The colours of the tile: warning (amber) for e-mail, success (green)
-  /// for a phone number, as their cards.
-  final YiviTone tone;
-  final String headerKey;
-  final String bodyKey;
-  final Map<String, String> bodyParams;
-
-  const ContactIntro({
-    super.key,
-    required this.icon,
-    required this.tone,
-    required this.headerKey,
-    required this.bodyKey,
-    this.bodyParams = const {},
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final (fill, ink) = palette.tone(tone);
-
-    return Column(
-      crossAxisAlignment: .stretch,
-      children: [
-        Center(
-          child: ExcludeSemantics(
-            child: IconSquare(
-              icon: icon,
-              fill: fill,
-              ink: ink,
-              size: 88,
-              iconSize: 44,
-              radius: YiviCorners.iconTile,
-            ),
-          ),
-        ),
-        const SizedBox(height: YiviSpace.x24),
-        TranslatedText(
-          headerKey,
-          isHeader: true,
-          textAlign: .center,
-          style: palette
-              .display(24, weight: FontWeight.w700)
-              .copyWith(height: 32 / 24, color: palette.heading),
-        ),
-        const SizedBox(height: YiviSpace.x8),
-        TranslatedText(
-          bodyKey,
-          translationParams: bodyParams,
-          textAlign: .center,
-          style: palette.body(16).copyWith(height: 24 / 16),
-        ),
-      ],
-    );
-  }
-}
 
 /// The label above a field on the e-mail and phone screens.
 class ContactFieldLabel extends StatelessWidget {
@@ -436,35 +159,6 @@ class ContactCodeField extends StatelessWidget {
   }
 }
 
-/// "No email received?": a link-blue text button, centred, 20 below what
-/// is above it.
-class ContactTextLink extends StatelessWidget {
-  final String labelKey;
-
-  /// Shown instead of [labelKey]'s text ("Send again in 0:42").
-  final String? label;
-
-  /// Null while it has to wait: dimmed, without an action.
-  final VoidCallback? onTap;
-
-  const ContactTextLink({
-    super.key,
-    required this.labelKey,
-    this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(top: YiviSpace.x24),
-        child: TextLink(label: label ?? context.tr(labelKey), onPressed: onTap),
-      ),
-    );
-  }
-}
-
 /// The error under the code boxes, centred.
 class ContactCodeError extends StatelessWidget {
   final String _text;
@@ -484,133 +178,6 @@ class ContactCodeError extends StatelessWidget {
   Widget build(BuildContext context) => FieldError(
     _translated ? _text : context.tr(_text),
     align: TextAlign.center,
-  );
-}
-
-/// While the e-mail or SMS issuer is asked to send the code: a spinner, the
-/// step's title ([titleKey]) and a way back ([backKey]).
-class ContactWaitingScreen extends StatelessWidget {
-  final String titleKey;
-  final String backKey;
-
-  const ContactWaitingScreen({
-    super.key,
-    required this.titleKey,
-    required this.backKey,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: IrmaAppBar(titleTranslationKey: titleKey),
-      body: const Padding(
-        padding: .all(YiviSpace.x16),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: backKey,
-        onSecondaryPressed: context.pop,
-      ),
-    );
-  }
-}
-
-/// Asks the question of [keys] (`$keys.title`, `.body`, `.confirm` and
-/// `.cancel`), e.g. whether to go back or to send the code again. True
-/// when confirmed.
-Future<bool> confirmContactStep(BuildContext context, String keys) =>
-    showConfirmDialog(
-      context,
-      titleKey: "$keys.title",
-      messageKey: "$keys.body",
-      confirmKey: "$keys.confirm",
-      cancelKey: "$keys.cancel",
-    );
-
-/// What the e-mail and phone code screens share: the code field's focus and
-/// text, the flow started over ([resetFlow]) when the screen is shown again
-/// after the one above it closed, and a question before going back or
-/// sending again ([confirmThen]).
-mixin VerifyCodeScreen<W extends ConsumerStatefulWidget> on ConsumerState<W>
-    implements RouteAware {
-  final codeFocus = FocusNode();
-  final codeController = TextEditingController();
-
-  /// The flow from the start, as the screen is shown again.
-  void resetFlow();
-
-  @override
-  void didPush() {}
-
-  @override
-  void didPop() {}
-
-  @override
-  void didPushNext() {}
-
-  @override
-  void didPopNext() => Future.microtask(resetFlow);
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    if (route is PageRoute) routeObserver.subscribe(this, route);
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    codeFocus.dispose();
-    codeController.dispose();
-    super.dispose();
-  }
-
-  /// Asks the question of [keys] ([confirmContactStep]) and, when confirmed
-  /// while the screen is still there, does [action].
-  Future<void> confirmThen(String keys, VoidCallback action) async {
-    if (await confirmContactStep(context, keys) && mounted) action();
-  }
-
-  /// A code being checked or its issuance starting: a second one would
-  /// start a second issuance.
-  var _handling = false;
-
-  /// Checks [code] with [verify] and starts the issuance it gives
-  /// ([handlePointer]); does nothing while one is under way. The session's
-  /// id, or null.
-  Future<int?> handleCode(
-    String code,
-    Future<SessionPointer?> Function(String code) verify,
-  ) async {
-    if (_handling) return null;
-    _handling = true;
-    try {
-      final session = await verify(code.toUpperCase());
-      if (session == null || !mounted) return null;
-      return await handlePointer(context, session);
-    } finally {
-      _handling = false;
-    }
-  }
-
-  /// A wrong code: empty boxes, focused for another try; [then] before the
-  /// focus.
-  void clearWrongCode([VoidCallback? then]) {
-    codeController.text = "";
-    then?.call();
-    codeFocus.requestFocus();
-  }
-
-  /// [child], where back goes through [goBack] (which asks first).
-  Widget backAsks(Future<void> Function() goBack, Widget child) => PopScope(
-    canPop: false,
-    onPopInvokedWithResult: (didPop, _) {
-      if (!didPop) goBack();
-    },
-    child: child,
   );
 }
 
@@ -743,8 +310,7 @@ class ContactResendRow extends StatelessWidget {
 class ContactResend extends StatelessWidget {
   final DateTime? until;
   final VoidCallback onResend;
-  final String? _hint;
-  final String? _linkKey;
+  final String _hint;
 
   /// A [hint] and "Send again" on one row ([ContactResendRow]).
   const ContactResend.row({
@@ -752,18 +318,7 @@ class ContactResend extends StatelessWidget {
     required this.until,
     required String hint,
     required this.onResend,
-  }) : _hint = hint,
-       _linkKey = null;
-
-  /// A centred link with [linkKey]'s text ("No email received?",
-  /// [ContactTextLink]).
-  const ContactResend.link({
-    super.key,
-    required this.until,
-    required String linkKey,
-    required this.onResend,
-  }) : _linkKey = linkKey,
-       _hint = null;
+  }) : _hint = hint;
 
   @override
   Widget build(BuildContext context) {
@@ -774,15 +329,8 @@ class ContactResend extends StatelessWidget {
             ? null
             : context.tr("contact_sheet.send_again_in", {"time": left});
         final onTap = left == null ? onResend : null;
-        if (_linkKey case final linkKey?) {
-          return ContactTextLink(
-            labelKey: linkKey,
-            label: waiting,
-            onTap: onTap,
-          );
-        }
         return ContactResendRow(
-          hint: _hint!,
+          hint: _hint,
           label: waiting ?? context.tr("contact_sheet.send_again"),
           onTap: onTap,
         );

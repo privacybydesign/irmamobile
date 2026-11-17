@@ -17,10 +17,6 @@ extension RoutingHelpers on BuildContext {
     push("/reset_pin");
   }
 
-  /// The full-screen flow that links an e-mail address to the keyshare
-  /// server.
-  void pushEmailIssuanceScreen() => push("/issue_email");
-
   /// Pops back to the nearest session screen below the current one.
   ///
   /// Treats the first route as a floor, so it can never empty the navigator.

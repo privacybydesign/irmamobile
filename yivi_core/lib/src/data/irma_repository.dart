@@ -39,7 +39,6 @@ import "../models/version_information.dart";
 import "../providers/contact_issuer_api.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../sentry/sentry.dart";
-import "../util/navigation.dart";
 import "../util/nfc_credentials.dart";
 import "app_language.dart";
 import "irma_bridge.dart";
@@ -813,27 +812,6 @@ class IrmaRepository {
     // E-mail addresses, phone numbers and documents are added in the
     // sheet (IssueFlow), which never comes here.
     assert(false, "${embeddedFlowOf(credentialId)} is added in the sheet");
-  }
-
-  /// Opens the e-mail issuance flow with the e-mail issuer of the default
-  /// scheme, to link the address to the keyshare server afterwards.
-  Future<void> startEmailLinking(BuildContext context, WidgetRef ref) async {
-    final credentialId = "$defaultKeyshareScheme.sidn-pbdf.email";
-    final store = await getCredentialStoreItems().first;
-    final issueUrl = store
-        .where((item) => item.credential.credentialId == credentialId)
-        .firstOrNull
-        ?.credential
-        .issueURL;
-    if (issueUrl == null || issueUrl.isEmpty) {
-      throw UnsupportedError(
-        "Credential type $credentialId does not have a suitable issue url",
-      );
-    }
-    if (!context.mounted) return;
-
-    prepareEmbeddedFlow(credentialId, issueUrl, ref);
-    context.pushEmailIssuanceScreen();
   }
 
   /// The documents ([nfcRequiringCredentialIds]), the phone number and the
