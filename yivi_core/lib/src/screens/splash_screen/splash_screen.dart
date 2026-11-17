@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/loading_indicator.dart";
@@ -53,7 +54,7 @@ class SplashScreen extends StatelessWidget {
                         ),
                   if (isLoading)
                     Padding(
-                      padding: const EdgeInsets.only(top: 40),
+                      padding: const EdgeInsets.only(top: YiviSpace.x48),
                       child: LoadingIndicator(),
                     ),
                 ],

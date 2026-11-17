@@ -165,7 +165,7 @@ class _AskAQuestion extends StatelessWidget {
     return GlassGroup(
       children: [
         Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(YiviSpace.x16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: YiviSpace.x12,

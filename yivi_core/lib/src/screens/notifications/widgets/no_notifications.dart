@@ -21,17 +21,22 @@ class NoNotifications extends StatelessWidget {
     final palette = YiviPalette.of(context);
     return Padding(
       key: const Key("notifications_empty"),
-      padding: const EdgeInsets.fromLTRB(YiviSpace.x16, 40, YiviSpace.x16, 0),
+      padding: const EdgeInsets.fromLTRB(
+        YiviSpace.x16,
+        YiviSpace.x48,
+        YiviSpace.x16,
+        0,
+      ),
       child: Column(
         children: [
           const ExcludeSemantics(child: _Picture()),
-          const SizedBox(height: 28),
+          const SizedBox(height: YiviSpace.x32),
           TranslatedText(
             "notifications.empty",
             textAlign: TextAlign.center,
             style: palette.display(18).copyWith(color: palette.text),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: YiviSpace.x8),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 320),
             child: TranslatedText(

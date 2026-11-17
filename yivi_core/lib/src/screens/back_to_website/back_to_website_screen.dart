@@ -77,7 +77,7 @@ class _Step extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: YiviSpace.x12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: YiviSpace.x12,
