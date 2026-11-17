@@ -1,10 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../models/credential_store.dart";
-import "../../theme/yivi_palette.dart";
-import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
+import "../../widgets/list_row.dart";
 
 /// One credential type to add: its card, small (with a check when the user
 /// has one already, [owned]), its name, and the issuer, after "Needs NFC"
@@ -29,75 +28,35 @@ class AddDataRow extends StatelessWidget {
   });
 
   /// Where a divider between rows starts: past the card.
-  static const dividerIndent = 16.0 + 56 + 14;
+  static const dividerIndent =
+      ListRow.side + CredentialTypeThumbnail.defaultWidth + ListRow.gap;
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final credential = item.credential;
     final subtitle = nfcBlocked
         ? context.tr("data.add.nfc_unsupported.hint")
         : credential.issuer.name;
 
-    return Semantics(
-      button: true,
-      excludeSemantics: true,
-      label: [
-        credential.name,
-        subtitle,
-        if (owned && !nfcBlocked) context.tr("data.add.in_your_app"),
-      ].join(", "),
-      onTap: onTap,
-      child: Opacity(
-        opacity: nfcBlocked ? 0.5 : 1,
-        child: InkWell(
-          key: Key("${credential.credentialId}_tile"),
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 64),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                YiviSpace.x16,
-                YiviSpace.x12,
-                YiviSpace.x16,
-                YiviSpace.x12,
-              ),
-              child: Row(
-                spacing: YiviSpace.x16,
-                children: [
-                  CredentialTypeThumbnail(
-                    descriptor: credential,
-                    owned: owned && !nfcBlocked,
-                    greyedOut: nfcBlocked,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          credential.name,
-                          style: palette
-                              .display(15.5)
-                              .copyWith(height: 21 / 15.5, color: palette.text),
-                        ),
-                        Text(
-                          subtitle,
-                          key: Key("${credential.credentialId}_subtitle"),
-                          maxLines: nfcBlocked ? 3 : 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: palette
-                              .body(13)
-                              .copyWith(color: palette.secondaryText),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.chevron_right, size: 20, color: palette.faint),
-                ],
-              ),
-            ),
-          ),
+    return Opacity(
+      opacity: nfcBlocked ? 0.5 : 1,
+      child: ListRow(
+        key: Key("${credential.credentialId}_tile"),
+        leading: CredentialTypeThumbnail(
+          descriptor: credential,
+          owned: owned && !nfcBlocked,
+          greyedOut: nfcBlocked,
         ),
+        title: credential.name,
+        subtitle: subtitle,
+        subtitleKey: Key("${credential.credentialId}_subtitle"),
+        subtitleMaxLines: nfcBlocked ? 3 : 1,
+        semanticsLabel: [
+          credential.name,
+          subtitle,
+          if (owned && !nfcBlocked) context.tr("data.add.in_your_app"),
+        ].join(", "),
+        onTap: onTap,
       ),
     );
   }

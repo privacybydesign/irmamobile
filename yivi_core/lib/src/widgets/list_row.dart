@@ -36,7 +36,18 @@ class ListRow extends StatelessWidget {
 
   /// Extra space at the start, for a row that belongs to the one above.
   final double indent;
+  final int? titleMaxLines;
   final int subtitleMaxLines;
+
+  /// Read out instead of the row's texts.
+  final String? semanticsLabel;
+
+  /// A key on the subtitle, for tests.
+  final Key? subtitleKey;
+
+  /// A short list of one-line rows (the country picker): 52 high, its parts
+  /// 12 apart.
+  final bool dense;
 
   const ListRow({
     super.key,
@@ -52,15 +63,21 @@ class ListRow extends StatelessWidget {
     this.enabled = true,
     this.link = false,
     this.indent = 0,
+    this.titleMaxLines,
     this.subtitleMaxLines = 1,
+    this.semanticsLabel,
+    this.subtitleKey,
+    this.dense = false,
   });
 
-  /// The least height of a row.
+  /// The least height of a row, and of a [dense] one.
   static const double height = 60;
+  static const double heightDense = 52;
 
   /// Its side, and the gap between its parts.
   static const double side = YiviSpace.x16;
   static const double gap = YiviSpace.x16;
+  static const double gapDense = YiviSpace.x12;
 
   @override
   Widget build(BuildContext context) {
@@ -76,16 +93,16 @@ class ListRow extends StatelessWidget {
           RowTrailing.none => null,
         };
     final row = ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: height),
+      constraints: BoxConstraints(minHeight: dense ? heightDense : height),
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           side + indent,
+          dense ? YiviSpace.x8 : YiviSpace.x12,
           YiviSpace.x12,
-          YiviSpace.x12,
-          YiviSpace.x12,
+          dense ? YiviSpace.x8 : YiviSpace.x12,
         ),
         child: Row(
-          spacing: gap,
+          spacing: dense ? gapDense : gap,
           children: [
             ?leading,
             Expanded(
@@ -94,6 +111,10 @@ class ListRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
+                    maxLines: titleMaxLines,
+                    overflow: titleMaxLines == null
+                        ? null
+                        : TextOverflow.ellipsis,
                     style: palette
                         .body(
                           16,
@@ -106,6 +127,7 @@ class ListRow extends StatelessWidget {
                   if (subtitle case final subtitle?)
                     Text(
                       subtitle,
+                      key: subtitleKey,
                       maxLines: subtitleMaxLines,
                       overflow: TextOverflow.ellipsis,
                       style: palette.paragraphSmall.copyWith(
@@ -130,10 +152,21 @@ class ListRow extends StatelessWidget {
     );
     return Semantics(
       link: link,
+      button: !link && onTap != null && semanticsLabel != null,
       enabled: enabled,
       selected: selected,
+      label: semanticsLabel,
+      excludeSemantics: semanticsLabel != null,
+      onTap: semanticsLabel == null ? null : onTap,
       child: Material(
-        color: selected ? palette.tint : Colors.transparent,
+        // A picked row of a list with a pane is tinted; in a choice (a
+        // check at the end) the check alone says it.
+        color:
+            selected &&
+                trailingWidget == null &&
+                trailing == RowTrailing.chevron
+            ? palette.tint
+            : Colors.transparent,
         child: IgnorePointer(
           ignoring: !enabled,
           child: Opacity(

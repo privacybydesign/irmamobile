@@ -27,6 +27,10 @@ Credential exampleCredentialOf(CredentialDescriptor descriptor) => Credential(
 /// already). Excluded from semantics: the row around it says what it is.
 class CredentialTypeThumbnail extends StatelessWidget {
   final CredentialDescriptor descriptor;
+
+  /// The width it has unless given.
+  static const double defaultWidth = 56;
+
   final double width;
   final bool owned;
   final bool greyedOut;
@@ -34,7 +38,7 @@ class CredentialTypeThumbnail extends StatelessWidget {
   const CredentialTypeThumbnail({
     super.key,
     required this.descriptor,
-    this.width = 56,
+    this.width = defaultWidth,
     this.owned = false,
     this.greyedOut = false,
   });

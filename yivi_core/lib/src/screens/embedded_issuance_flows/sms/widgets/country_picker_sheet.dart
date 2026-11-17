@@ -11,6 +11,7 @@ import "../../../../util/i18n.dart";
 import "../../../../widgets/glass/glass_group.dart";
 import "../../../../widgets/glass/glass_search_field.dart";
 import "../../../../widgets/glass/glass_sheet.dart";
+import "../../../../widgets/list_row.dart";
 
 /// The name of [country] in [languageCode], else its English name.
 String countryName(Country country, String? languageCode) =>
@@ -22,7 +23,14 @@ class CountryFlag extends StatelessWidget {
   final Country country;
   final double width;
 
-  const CountryFlag({super.key, required this.country, this.width = 28});
+  const CountryFlag({
+    super.key,
+    required this.country,
+    this.width = defaultWidth,
+  });
+
+  /// The width it has unless given.
+  static const double defaultWidth = 28;
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +234,8 @@ class _CountryRow extends StatelessWidget {
   /// The name on one line (the grid of a phone held sideways).
   final bool oneLine;
 
-  static const double dividerIndent = 14 + 28 + 12;
+  static const double dividerIndent =
+      ListRow.side + CountryFlag.defaultWidth + ListRow.gapDense;
 
   const _CountryRow({
     required this.country,
@@ -239,53 +248,23 @@ class _CountryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return Semantics(
-      button: true,
-      selected: selected,
-      excludeSemantics: true,
-      label: "$name, ${country.dialCode}",
-      onTap: onTap,
-      child: InkWell(
-        key: Key("phone_country_${country.alpha2Code}"),
-        onTap: onTap,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 52),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              YiviSpace.x16,
-              YiviSpace.x8,
-              YiviSpace.x16,
-              YiviSpace.x8,
-            ),
-            child: Row(
-              spacing: YiviSpace.x12,
-              children: [
-                CountryFlag(country: country),
-                Expanded(
-                  child: Text(
-                    name,
-                    maxLines: oneLine ? 1 : null,
-                    overflow: oneLine ? TextOverflow.ellipsis : null,
-                    style: palette.body(16).copyWith(color: palette.text),
-                  ),
-                ),
-                Text(
-                  country.dialCode ?? "",
-                  style: palette
-                      .body(15)
-                      .copyWith(color: palette.secondaryText),
-                ),
-                SizedBox(
-                  width: 20,
-                  child: selected
-                      ? Icon(Icons.check_rounded, size: 20, color: palette.link)
-                      : null,
-                ),
-              ],
-            ),
-          ),
-        ),
+    return ListRow(
+      key: Key("phone_country_${country.alpha2Code}"),
+      dense: true,
+      leading: CountryFlag(country: country),
+      title: name,
+      titleMaxLines: oneLine ? 1 : null,
+      value: country.dialCode ?? "",
+      // The check's room is kept, so the codes line up.
+      trailingWidget: SizedBox(
+        width: 20,
+        child: selected
+            ? Icon(Icons.check_rounded, size: 20, color: palette.link)
+            : null,
       ),
+      selected: selected,
+      semanticsLabel: "$name, ${country.dialCode}",
+      onTap: onTap,
     );
   }
 }
