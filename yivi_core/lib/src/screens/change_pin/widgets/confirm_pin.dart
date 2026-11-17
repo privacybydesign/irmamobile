@@ -1,8 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../widgets/glass/glass_dialog.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../pin/pin_entry.dart";
 import "../../pin/yivi_pin_screen.dart";
-import "../../yivi_confirm_pin_scaffold.dart";
 
 class ConfirmPin extends StatelessWidget {
   static const String routeName = "change_pin/confirm_pin";
@@ -40,12 +41,19 @@ class ConfirmPin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return YiviConfirmPinScaffold(
-      submit: _showConfirmDialog(context),
-      onBack: returnToChoosePin,
-      instructionKey: "change_pin.confirm_pin.instruction",
-      onPinMismatch: onPinMismatch,
-      newPinNotifier: newPinNotifier,
+    return YiviPinScaffold(
+      appBar: IrmaAppBar(
+        titleString: "",
+        leading: YiviBackButton(onTap: returnToChoosePin),
+      ),
+      body: PinEntry(
+        mode: ConfirmEntry(
+          chosen: newPinNotifier.value,
+          instructionKey: "change_pin.confirm_pin.instruction",
+          onMismatch: onPinMismatch,
+        ),
+        onSubmit: _showConfirmDialog(context),
+      ),
     );
   }
 }

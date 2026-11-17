@@ -1,7 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../../widgets/irma_app_bar.dart";
+import "../../pin/pin_entry.dart";
 import "../../pin/yivi_pin_screen.dart";
-import "../../yivi_confirm_pin_scaffold.dart";
 
 class ConfirmPinScreen extends StatelessWidget {
   static const String routeName = "confirm_pin";
@@ -21,13 +22,20 @@ class ConfirmPinScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return YiviConfirmPinScaffold(
-      stepLabel: stepLabel,
-      submit: submitConfirmationPin,
-      onBack: onPrevious,
-      instructionKey: "enrollment.confirm_pin.instruction",
-      newPinNotifier: newPinNotifier,
-      onPinMismatch: onPinMismatch,
+    return YiviPinScaffold(
+      appBar: IrmaAppBar(
+        titleString: "",
+        leading: YiviBackButton(onTap: onPrevious),
+      ),
+      body: PinEntry(
+        mode: ConfirmEntry(
+          chosen: newPinNotifier.value,
+          instructionKey: "enrollment.confirm_pin.instruction",
+          onMismatch: onPinMismatch,
+          stepLabel: stepLabel,
+        ),
+        onSubmit: submitConfirmationPin,
+      ),
     );
   }
 }

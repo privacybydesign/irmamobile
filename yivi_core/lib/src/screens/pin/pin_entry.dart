@@ -42,6 +42,37 @@ final class SessionEntry extends PinEntryMode {
   final String? detail;
 }
 
+/// Checking the current PIN before choosing a new one.
+final class VerifyOldEntry extends PinEntryMode {
+  const VerifyOldEntry();
+}
+
+/// Choosing a PIN: short or long, a short secure one sent as soon as it is
+/// complete. [previous] (the PIN chosen before a mismatch) sets which.
+final class ChooseEntry extends PinEntryMode {
+  const ChooseEntry({this.stepLabel, this.previous = ""});
+
+  /// "Step 1 of 3" above the title, while enrolling.
+  final String? stepLabel;
+  final String previous;
+}
+
+/// The chosen PIN again: the same goes to onSubmit, another to
+/// [onMismatch].
+final class ConfirmEntry extends PinEntryMode {
+  const ConfirmEntry({
+    required this.chosen,
+    required this.instructionKey,
+    required this.onMismatch,
+    this.stepLabel,
+  });
+
+  final String chosen;
+  final String instructionKey;
+  final VoidCallback onMismatch;
+  final String? stepLabel;
+}
+
 /// The PIN pad with what every host needs around it: the tries left or the
 /// block under the title, a fresh pad after a wrong PIN
 /// ([PinFeedback.wrongCount]), the long or short PIN, and a short PIN sent
@@ -70,6 +101,9 @@ class _PinEntryState extends ConsumerState<PinEntry> {
   /// A session's PIN is sent once, until the pad is cleared.
   bool _submitted = false;
 
+  /// Choosing: long or short, once switched.
+  bool? _longChosen;
+
   @override
   void didUpdateWidget(PinEntry old) {
     super.didUpdateWidget(old);
@@ -91,7 +125,16 @@ class _PinEntryState extends ConsumerState<PinEntry> {
   @override
   Widget build(BuildContext context) {
     final feedback = widget.feedback;
-    final maxPinSize = ref.watch(longPinProvider) ? longPinSize : shortPinSize;
+    final bool long = switch (widget.mode) {
+      ConfirmEntry(:final chosen) => chosen.length > shortPinSize,
+      ChooseEntry(:final previous) =>
+        _longChosen ??
+            (previous.isNotEmpty
+                ? previous.length > shortPinSize
+                : ref.watch(longPinProvider)),
+      _ => ref.watch(longPinProvider),
+    };
+    final maxPinSize = long ? longPinSize : shortPinSize;
     final blockedFor = _blockedFor();
     final blocked = blockedFor.inSeconds > 0;
     final attempts = PinAttempts.of(
@@ -119,9 +162,53 @@ class _PinEntryState extends ConsumerState<PinEntry> {
         maxPinSize: maxPinSize,
         onForgotPin: onForgotPin,
       ),
+      VerifyOldEntry() => YiviPinScreen(
+        instructionKey: "change_pin.enter_pin.instruction",
+        lockIcon: true,
+        maxPinSize: maxPinSize,
+        onSubmit: widget.onSubmit,
+        onForgotPin: onForgotPin,
+        detail: attempts.line,
+        detailKind: PinDetailKind.error,
+        pinError: attempts.pinError,
+        listener: submitWhenFull(maxPinSize, widget.onSubmit),
+      ),
+      ChooseEntry() && final mode => YiviPinScreen(
+        lockIcon: true,
+        stepLabel: mode.stepLabel,
+        instructionKey: "choose_pin.instruction.${long ? "long" : "short"}",
+        maxPinSize: maxPinSize,
+        onSubmit: widget.onSubmit,
+        onTogglePinSize: () => setState(() => _longChosen = !long),
+        // A long PIN's rule; a PIN that is possibly not secure says so in
+        // this line instead (checkSecurePin).
+        detail: long ? context.tr("choose_pin.long_rule") : null,
+        checkSecurePin: true,
+        // A secure short PIN goes on by itself; one that is possibly not
+        // secure, and a long PIN, by the arrow.
+        listener: (context, state) {
+          if (maxPinSize == shortPinSize && state.goodEnough) {
+            widget.onSubmit(state.toString());
+          }
+        },
+      ),
+      ConfirmEntry() && final mode => _confirm(mode, maxPinSize),
     };
     // A wrong PIN: a fresh pad, with an empty buffer.
     return KeyedSubtree(key: ValueKey(feedback.wrongCount), child: pad);
+  }
+
+  Widget _confirm(ConfirmEntry mode, int maxPinSize) {
+    void compare(String pin) =>
+        pin == mode.chosen ? widget.onSubmit(pin) : mode.onMismatch();
+    return YiviPinScreen(
+      lockIcon: true,
+      stepLabel: mode.stepLabel,
+      instructionKey: mode.instructionKey,
+      maxPinSize: maxPinSize,
+      onSubmit: compare,
+      listener: submitWhenFull(maxPinSize, compare),
+    );
   }
 
   Widget _unlock(
