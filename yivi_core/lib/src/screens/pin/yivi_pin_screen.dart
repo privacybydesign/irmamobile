@@ -389,11 +389,11 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             context,
           ).body(14).copyWith(color: YiviPalette.of(context).secondaryText),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: YiviSpace.x8),
       ],
       _buildInstructionText(context),
       ?_buildDetail(context),
-      const SizedBox(height: 20),
+      const SizedBox(height: YiviSpace.x24),
       _buildPinField(context),
     ];
   }
@@ -546,7 +546,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               ..._upperPart(context),
-              const SizedBox(height: 40),
+              const SizedBox(height: YiviSpace.x32),
               _buildKeypad(),
               const SizedBox(height: _keypadToLink),
               _buildActionLinkSlot(),
@@ -668,7 +668,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 6),
+                    padding: const EdgeInsets.only(right: YiviSpace.x8),
                     child: Icon(icon, size: 16, color: color),
                   ),
                 ),

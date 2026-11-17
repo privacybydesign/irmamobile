@@ -5,6 +5,7 @@ import "../../../models/session_preview.dart";
 import "../../../providers/waiting_request_provider.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/corner_badge.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -30,7 +31,7 @@ class WaitingRequestAnnouncement extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _Avatar(parts: parts),
-        const SizedBox(height: 14),
+        const SizedBox(height: YiviSpace.x16),
         // What the screen reader lands on; the line under it follows.
         Semantics(
           header: true,
