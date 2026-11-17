@@ -3,7 +3,7 @@ import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_issuance.dart";
 
 /// A card in ID-card format issued by Utopia (UTO) to a holder of
 /// [nationality].

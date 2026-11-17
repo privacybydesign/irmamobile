@@ -8,6 +8,7 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/regula_face_service_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_flow.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_issuance.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_sheet_step.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";

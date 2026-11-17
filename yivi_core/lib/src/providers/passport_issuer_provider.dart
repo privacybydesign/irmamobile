@@ -48,7 +48,7 @@ final faceCaptureUrlProvider = Provider<Uri>(
 /// The issuer's face verification announcement for the current document flow.
 ///
 /// Set from the start-validation response at the beginning of every document
-/// session (see `NfcReadingScreen`): non-null when the issuer's policy applies
+/// session (see `DocumentIssuance`): non-null when the issuer's policy applies
 /// face verification to this session, null when it does not (or when no
 /// document flow has started). The issuer decides — the wallet never runs or
 /// skips the step on its own — and the announcement also names the Face API

@@ -15,8 +15,8 @@ import "widgets/face_frame_illustration.dart";
 /// onboarding (which is skipped) so the copy and theming are fully under our
 /// control and localised through the app's own i18n.
 ///
-/// Start invokes [onStart] and the back button [onCancel]; use [show] to present it as a route
-/// that resolves to whether the user chose to continue.
+/// Start invokes [onStart] and the back button [onCancel]. In the sheet it is
+/// a screen of `DocumentFlow`, which asks for it.
 class FaceVerificationIntroScreen extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onCancel;
@@ -26,20 +26,6 @@ class FaceVerificationIntroScreen extends StatelessWidget {
     required this.onCancel,
     super.key,
   });
-
-  /// Presents the intro on the root navigator and resolves to `true` when the
-  /// user taps start, `false` when they cancel or back out.
-  static Future<bool> show(BuildContext context) async {
-    final result = await Navigator.of(context, rootNavigator: true).push<bool>(
-      MaterialPageRoute(
-        builder: (routeContext) => FaceVerificationIntroScreen(
-          onStart: () => Navigator.of(routeContext).pop(true),
-          onCancel: () => Navigator.of(routeContext).pop(false),
-        ),
-      ),
-    );
-    return result ?? false;
-  }
 
   /// The canvas's face check intro: the face on a white card, the
   /// explanation, the tips in a group, and one Start button.

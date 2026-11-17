@@ -128,14 +128,21 @@ abstract class TestPassportReader extends DocumentReader<PassportData> {
         ),
       );
 
+  /// How often the read was cancelled.
+  var cancels = 0;
+
+  /// As the real reader: it ends its read when it goes.
   @override
-  DocumentReaderState build() => DocumentReaderPending();
+  DocumentReaderState build() {
+    ref.onDispose(cancel);
+    return DocumentReaderPending();
+  }
 
   @override
   Future<void> checkNfcAvailability() async {}
 
   @override
-  Future<void> cancel() async {}
+  Future<void> cancel() async => cancels++;
 
   @override
   void reset() {}

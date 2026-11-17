@@ -8,22 +8,15 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../../package_name.dart";
-import "../../../../routing.dart";
 import "../../../../yivi_core.dart";
-import "../../../models/session.dart";
-import "../../../providers/document_reader_providers.dart";
 import "../../../providers/nfc_availability_provider.dart";
 import "../../../providers/nfc_settings_provider.dart";
-import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
-import "../../../util/handle_pointer.dart";
 import "../../../util/i18n.dart";
-import "../../../util/navigation.dart";
-import "../../../util/privacy_screen.dart";
 import "../../../widgets/done_check.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/sheet_layout.dart";
@@ -31,9 +24,10 @@ import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_spinner.dart";
+import "document_flow.dart";
+import "document_issuance.dart";
 import "document_step_in_sheet.dart";
 import "document_translation_keys.dart";
-import "face_verification_intro_screen.dart";
 import "widgets/document_flow_footer.dart";
 import "widgets/nfc_error_dialog.dart";
 import "widgets/nfc_stage_pictures.dart";
@@ -41,63 +35,46 @@ import "widgets/nfc_stage_view.dart";
 
 part "nfc_error_view.dart";
 
-/// The card [document] turns out to be when it is not the [picked] one: a
-/// residence permit read in the ID card flow, or the other way round. This
-/// mirrors the passport issuer, which issues an ID card only to a national of
-/// the issuing state and a residence permit only to someone who is not. Null
-/// when the document matches, and for passports and driving licences.
-@visibleForTesting
-DocumentType? wrongDocumentType(DocumentData document, DocumentType picked) {
-  if (picked != .identityCard && picked != .residencePermit) return null;
-  if (document is! PassportData) return null;
-  final national = document.mrz.nationality == document.mrz.country;
-  return switch (picked) {
-    .identityCard when !national => .residencePermit,
-    .residencePermit when national => .identityCard,
-    _ => null,
-  };
-}
-
 class NfcReadingScreen extends ConsumerStatefulWidget {
   final ScannedMrz mrz;
+
+  /// Which read of [mrz] this is: reading again starts a new one.
+  final int attempt;
   final VoidCallback? onCancel;
 
-  const NfcReadingScreen({required this.mrz, this.onCancel, super.key});
+  const NfcReadingScreen({
+    required this.mrz,
+    this.attempt = 0,
+    this.onCancel,
+    super.key,
+  });
 
   @override
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
 
-/// How long the done stage stays up after a successful read. Tests that do
-/// not look at it set it to zero.
-final nfcDoneHoldProvider = Provider<Duration>((ref) => DoneCheck.holdDuration);
-
 /// What the screen shows while reading. Only states without an error or a
 /// cancel have one; those keep their own layout.
 enum _NfcStage { waiting, reading, done, nfcOff }
 
+/// The chip page: the reader's stages, and what [DocumentIssuance] says once
+/// the chip is read. It starts the read (on Android at once, on iOS on
+/// Start, which opens Apple's NFC sheet) and carries on when NFC is
+/// switched on in the settings.
 class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
-    with RouteAware, WidgetsBindingObserver {
-  String? _issuanceError;
-
-  /// True when the current [_issuanceError] is the issuer rejecting the face
-  /// match (HTTP 400 during a face-verification issuance), so the error screen
-  /// can show the dedicated failed-face illustration.
-  bool _issuanceErrorIsFaceMatch = false;
-
-  /// True once face verification is done and we are contacting the issuer.
-  /// Shows a loader instead of the (already-completed) readout page, so the
-  /// user is not sent back to the readout screen after the liveness session.
-  bool _preparingIssuance = false;
-
+    with WidgetsBindingObserver {
   // Android polls for the tag as soon as the screen opens. iOS needs a tap
   // first, because that opens Apple's own NFC sheet.
   bool get _listensAtOnce => defaultTargetPlatform == .android;
 
-  /// Set when the chip turned out to be the other card than the one picked;
-  /// the read is then not sent to the issuer, so it can never be issued as
-  /// the wrong credential.
-  DocumentType? _wrongDocument;
+  ChipRead get _read => (mrz: widget.mrz, attempt: widget.attempt);
+
+  NotifierProvider<DocumentIssuance, DocumentIssuanceState> get _issuance =>
+      documentIssuanceProvider(_read);
+
+  /// The reader of [NfcReadingScreen.mrz]'s document.
+  NotifierProvider<DocumentReader, DocumentReaderState> get _reader =>
+      documentReaderOf(widget.mrz);
 
   /// A text of this document's chip screen: `{document}.nfc.[part]`.
   String _k(String part) => widget.mrz.documentType.nfcKey(part);
@@ -121,17 +98,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     );
 
     if (userWantsCancel && mounted) {
-      ref.read(_reader.notifier).cancel();
+      ref.read(_issuance.notifier).cancel();
       widget.onCancel?.call();
-    }
-  }
-
-  @override
-  void didPopNext() {
-    if (ref.read(_reader) is! DocumentReaderFailed) {
-      if (mounted) {
-        ref.read(_reader.notifier).reset();
-      }
     }
   }
 
@@ -145,6 +113,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// Starts the read without a tap on Android.
   void _autoStartScanning() {
     if (!_listensAtOnce || !mounted) return;
+    if (ref.read(_issuance) is! IssuanceIdle) return;
     if (ref.read(_reader) is! DocumentReaderPending) return;
 
     _startScanning();
@@ -169,265 +138,78 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    if (route is PageRoute) {
-      routeObserver.subscribe(this, route);
-    }
-  }
-
-  @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    routeObserver.unsubscribe(this);
     super.dispose();
   }
 
-  void _startScanning() async {
-    setState(() {
-      _issuanceError = null;
-      _issuanceErrorIsFaceMatch = false;
-      _preparingIssuance = false;
-      _wrongDocument = null;
-    });
-    // Capture the root navigator context up front, outside the try. The Regula
-    // liveness UI is a native screen that backgrounds — and on some devices
-    // tears down — this widget, so we must not rely on this screen's own
-    // context/mounted state to navigate to issuance afterwards, or issuance
-    // never opens and the user is left on the successful-readout page. The
-    // catch below needs it for the same reason, so it cannot live in the try.
-    final navContext = Navigator.of(context, rootNavigator: true).context;
-    // Set once the native liveness UI is in front. Only from that point can
-    // something other than the user unmount this screen, so only from there is
-    // a dead State a reason to route the error somewhere else. Everything
-    // before it is ordinary Flutter code, where an unmounted State means the
-    // user left this route themselves — pushing a full-screen error onto
-    // wherever they went would be a surprise, so that case stays dropped.
-    var livenessStarted = false;
-    try {
-      final passportIssuer = ref.read(passportIssuerProvider);
-
-      final startValidation = await passportIssuer
-          .startSessionAtPassportIssuer();
-      if (!mounted) return;
-      // Publish the issuer's announcement before resolving the face service:
-      // the flavor builders construct against it (the native SDK targets the
-      // announced Face API). The issuer decides whether face verification
-      // applies to this session — the wallet never runs or skips the step on
-      // its own — so a capable service without an announcement stays unused,
-      // and old issuers that announce nothing simply skip the step.
-      ref
-          .read(faceVerificationConfigProvider.notifier)
-          .set(startValidation.faceVerification);
-      final faceService = startValidation.faceVerification == null
-          ? null
-          : ref.read(regulaFaceServiceProvider);
-
-      // The iOS reader sheet resigns the app active for the whole read, which
-      // would put the privacy-screen blur over the scanning animation and its
-      // progress text. Hold it back until the sheet is gone.
-      final result = await PrivacyScreen.suspendDuring(
-        () => ref
-            .read(_reader.notifier)
-            .readDocument(
-              iosNfcMessages: _createStageNfcMessageMapper(),
-              activeAuthenticationParams: startValidation.nonceAndSessionId,
-            ),
-      );
-
-      if (result != null) {
-        // The check draws itself and stays a moment before the flow moves
-        // on to the face check or issuance.
-        if (mounted) {
-          await Future<void>.delayed(ref.read(nfcDoneHoldProvider));
-          if (!mounted) return;
-        }
-
-        final (pdr, rawDocData) = result;
-        final wrongDocument = wrongDocumentType(pdr, widget.mrz.documentType);
-        if (wrongDocument != null) {
-          if (mounted) setState(() => _wrongDocument = wrongDocument);
-          return;
-        }
-        var toIssue = rawDocData;
-        final faceVerification = faceService != null;
-        // When face verification is enabled, show the Yivi intro after the
-        // successful-readout page (Regula's own onboarding is skipped), then
-        // run a Regula liveness session and attach its transaction id so the
-        // issuer can match the live face against the document chip portrait.
-        // Disabled (null service) skips straight to issuance.
-        if (faceVerification) {
-          if (!mounted) return;
-          // Switch the screen behind the intro to a loader now, so the readout
-          // page is not revealed again after the intro/liveness — instead the
-          // user sees a loader that leads into issuance.
-          setState(() => _preparingIssuance = true);
-          // In a sheet its intro is the next screen there.
-          final flow = DocumentStepInSheet.flowOf(context);
-          final proceed = flow != null
-              ? await flow.askFace()
-              : await FaceVerificationIntroScreen.show(context);
-          if (!proceed) {
-            if (mounted) {
-              setState(() => _preparingIssuance = false);
-              // The reader was dropped while the loader showed. The new one
-              // starts in Pending, which ref.listen does not report.
-              afterFrame(_autoStartScanning);
-            }
-            return;
-          }
-          if (!mounted) return;
-          final languageCode = FlutterI18n.currentLocale(context)?.languageCode;
-          livenessStarted = true;
-          toIssue = await withLivenessTransaction(
-            faceService,
-            rawDocData,
-            languageCode: languageCode,
-          );
-        }
-        // navContext is the root navigator's context (guaranteed to outlive
-        // this screen); _startIssuance re-checks navContext.mounted before use.
-        // For the face flow, replace this readout route so issuance does not
-        // return here afterwards. A rejected face match surfaces as an issuance
-        // error and is shown on the generic error screen (with retry/cancel),
-        // where retry re-runs the readout and liveness.
-        await _startIssuance(
-          toIssue,
-          passportIssuer,
-          // ignore: use_build_context_synchronously
-          navContext,
-          faceVerification: faceVerification,
+  void _startScanning() {
+    ref
+        .read(_issuance.notifier)
+        .start(
+          messages: _createStageNfcMessageMapper(),
+          language: FlutterI18n.currentLocale(context)?.languageCode,
+          // The liveness screen can tear this page down; the root outlives it.
+          root: Navigator.of(context, rootNavigator: true).context,
         );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _issuanceError = e.toString();
-        });
-      } else if (livenessStarted && navContext.mounted) {
-        // The liveness UI tore this screen down, so there is no State left to
-        // render the in-screen error on. Surface the failure through the root
-        // navigator instead, so a failed liveness session is not silently
-        // swallowed. Replace the readout route rather than pushing over it,
-        // exactly as _startIssuance does for this same flow, so dismissing the
-        // error does not land the user back on the readout page they already
-        // finished.
-        navContext.pushReplacementErrorScreen(message: e.toString());
-      }
-    }
-  }
-
-  Future<void> _startIssuance(
-    RawDocumentData result,
-    PassportIssuer passportIssuer,
-    BuildContext navContext, {
-    // The face flow replaces this route, so it is not returned to.
-    required bool faceVerification,
-  }) async {
-    try {
-      // start the issuance session at the irma server
-      final sessionPtr = await passportIssuer.startIrmaIssuanceSession(
-        result,
-        widget.mrz.documentType,
-      );
-      if (!navContext.mounted) {
-        return;
-      }
-
-      // Handle it like any other external issuance session, navigating through
-      // the root navigator so issuance opens even if this NFC screen was torn
-      // down while the native liveness UI was in front. For the face flow we
-      // replace this route so the user does not return to the readout page.
-      await handlePointer(
-        navContext,
-        SessionPointer(
-          protocol: .irma,
-          u: sessionPtr.u,
-          irmaqr: sessionPtr.irmaqr,
-          continueOnSecondDevice: true,
-        ),
-        pushReplacement: faceVerification,
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint("issuance error: $e");
-      }
-      if (mounted) {
-        setState(() {
-          _issuanceError = e.toString();
-          // A rejected face match surfaces as an HTTP 400 from the issuer
-          // (vcmrtd: `Exception('Store failed: 400 …')`); flag it so the error
-          // screen shows the dedicated failed-face illustration.
-          _issuanceErrorIsFaceMatch =
-              faceVerification &&
-              e.toString().contains("Store failed: 400") &&
-              !e.toString().contains("error:wrong-document-type");
-          _preparingIssuance = false;
-        });
-      } else if (navContext.mounted) {
-        // The native liveness UI tore this screen down, so there is no State
-        // left to render the in-screen error on (its `_preparingIssuance`
-        // loader is gone with it). Surface the failure through the root
-        // navigator instead, mirroring the success path and handlePointer, so
-        // it is not silently swallowed.
-        if (faceVerification) {
-          navContext.pushReplacementErrorScreen(message: e.toString());
-        } else {
-          navContext.pushErrorScreen(message: e.toString());
-        }
-      }
-    }
   }
 
   void _retry() {
-    ref.read(_reader.notifier).cancel();
+    ref.read(_issuance.notifier).cancel();
     _startScanning();
   }
 
   @override
   Widget build(BuildContext context) {
+    final issuance = ref.watch(_issuance);
+    // Not now on the face check: the reader was dropped while the loader
+    // showed, and the new one starts in Pending, which the listen on the
+    // reader does not report.
+    ref.listen(_issuance, (previous, next) {
+      if (previous is IssuancePreparing && next is IssuanceIdle) {
+        afterFrame(_autoStartScanning);
+      }
+    });
+
     // In a sheet its bar says the data is being fetched while the loader
     // shows: once the face check over it is gone (the loader is switched on
     // under it). After the build: it rebuilds the sheet's bar.
     final flow = DocumentStepInSheet.flowOf(context);
     final shown =
-        _preparingIssuance && (ModalRoute.isCurrentOf(context) ?? true);
+        issuance is IssuancePreparing &&
+        (ModalRoute.isCurrentOf(context) ?? true);
     if (flow != null) {
       // Still here then, so the sheet step around it is too.
       afterFrame(() => flow.preparing(shown));
     }
 
-    // an issuance error is different from a passport nfc scanning error
-    if (_issuanceError != null) {
-      return _buildError(
-        context,
-        _UiState(stateKey: _k("error"), tipKey: _k("error_generic")),
-        _issuanceError!,
-        illustrationAsset: _issuanceErrorIsFaceMatch
-            ? "error/failed_face_verification.svg"
-            : "error/general_error_illustration.svg",
-      );
-    }
-
-    if (_wrongDocument case final wrongDocument?) {
-      return _buildError(
-        context,
-        _UiState(
-          stateKey: _k(_hasWrongDocumentTexts ? "wrong_document" : "error"),
-          tipKey: _k(
-            _hasWrongDocumentTexts ? "wrong_document_tip" : "error_generic",
+    switch (issuance) {
+      // After the face check the issuer is called; a loader leads into
+      // adding it rather than the finished read.
+      case IssuancePreparing():
+        return _buildPreparing(context);
+      case IssuanceError(error: final WrongDocument error):
+        return _buildError(
+          context,
+          _UiState(
+            stateKey: _k(_hasWrongDocumentTexts ? "wrong_document" : "error"),
+            tipKey: _k(
+              _hasWrongDocumentTexts ? "wrong_document_tip" : "error_generic",
+            ),
           ),
-        ),
-        "Picked ${widget.mrz.documentType.name}, "
-        "but the chip shows a ${wrongDocument.name}.",
-      );
-    }
-
-    // After face verification we contact the issuer; show a loader that leads
-    // into issuance rather than falling back to the completed readout page.
-    if (_preparingIssuance) {
-      return _buildPreparing(context);
+          error.details,
+        );
+      case IssuanceError(:final error):
+        return _buildError(
+          context,
+          _UiState(stateKey: _k("error"), tipKey: _k("error_generic")),
+          error.details,
+          illustrationAsset: error is FaceRejected
+              ? "error/failed_face_verification.svg"
+              : "error/general_error_illustration.svg",
+        );
+      case IssuanceIdle():
+        break;
     }
 
     final passportState = ref.watch(_reader);
@@ -661,14 +443,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     return _UiState(tipKey: tipKey, stateKey: stateKey);
   }
-
-  /// The reader of [NfcReadingScreen.mrz]'s document.
-  NotifierProvider<DocumentReader, DocumentReaderState> get _reader =>
-      switch (widget.mrz) {
-        final ScannedPassportMrz mrz => passportReaderProvider(mrz),
-        final ScannedDrivingLicenceMrz mrz => drivingLicenceReaderProvider(mrz),
-        final ScannedIdCardMrz mrz => idCardReaderProvider(mrz),
-      };
 
   String _getTipKeyForState(DocumentReaderState state) {
     // The states with a stage of their own (see [_stageFor]) never get here.
