@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/credential.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "requestor_card.dart";
+import "../requestor/requestor_card.dart";
 
 /// The top of a session page that asks something: the question as the
 /// page's heading, and under it the party it is about as a card

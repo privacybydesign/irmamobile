@@ -8,8 +8,8 @@ import "../../util/i18n.dart";
 import "../../widgets/bars/action_bar.dart";
 import "../../widgets/feedback/glass_dialog.dart";
 import "../../widgets/surfaces/glass_surface.dart";
-import "widgets/session_columns.dart";
-import "widgets/session_result.dart";
+import "layout/session_layout.dart";
+import "result/session_result.dart";
 
 /// After sharing for a phone call (a `tel:` return URL): the data is
 /// shared, now call. The button opens the phone app with the number.

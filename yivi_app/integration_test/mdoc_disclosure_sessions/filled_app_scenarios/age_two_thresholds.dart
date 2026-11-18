@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";

@@ -4,8 +4,8 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/irma_app_bar.dart";
-import "session_columns.dart";
-import "session_scaffold.dart";
+import "../layout/session_layout.dart";
+import "../layout/session_scaffold.dart";
 
 /// The screen after a session: a picture of what happened ([hero]: the
 /// cards received, the hand-over, a disc), what it means ([title], [text],

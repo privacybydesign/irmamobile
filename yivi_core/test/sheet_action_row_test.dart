@@ -2,7 +2,7 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
+import "package:yivi_core/src/screens/session/issuance/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/sheet/sheet_actions.dart";

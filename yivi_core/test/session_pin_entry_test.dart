@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/session_pin_entry_screen.dart";
+import "package:yivi_core/src/screens/session/session_pin_entry_screen.dart";
 
 import "support/onboarding_v2_harness.dart";
 

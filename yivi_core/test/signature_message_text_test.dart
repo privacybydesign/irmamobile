@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/util/signature_message_text.dart";
+import "package:yivi_core/src/screens/session/disclosure/signature_message_text.dart";
 
 void main() {
   String stripBreaks(String s) => s.replaceAll(zeroWidthSpace, "");

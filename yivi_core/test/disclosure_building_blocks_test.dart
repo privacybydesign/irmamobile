@@ -7,13 +7,13 @@ import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
-import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
-import "package:yivi_core/src/screens/session/widgets/session_scaffold.dart";
-import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
+import "package:yivi_core/src/screens/session/disclosure/shared_card_tile.dart";
+import "package:yivi_core/src/screens/session/layout/session_scaffold.dart";
+import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
+import "package:yivi_core/src/screens/session/result/card_pile.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
-import "package:yivi_core/src/widgets/card_pile.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
 import "helpers/credential_factory.dart";

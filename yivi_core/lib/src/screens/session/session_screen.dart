@@ -29,20 +29,20 @@ import "../../widgets/feedback/yivi_spinner.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
+import "disclosure/disclosure_share_screen.dart";
+import "issuance/issuance_permission.dart";
+import "issuance/issue_website_step.dart";
+import "issuance/openid4vci_preauth_txcode_screen.dart";
+import "layout/session_scaffold.dart";
 import "models/disclosure_view_model.dart";
 import "models/session_outcome.dart";
 import "models/session_view.dart";
-import "widgets/arrow_back_screen.dart";
-import "widgets/disclosure_feedback_screen.dart";
-import "widgets/disclosure_share_screen.dart";
-import "widgets/issuance_permission.dart";
-import "widgets/issuance_success_screen.dart";
-import "widgets/issue_website_step.dart";
-import "widgets/openid4vci_preauth_txcode_screen.dart";
-import "widgets/pairing_required.dart";
-import "widgets/session_pin_entry_screen.dart";
-import "widgets/session_result.dart";
-import "widgets/session_scaffold.dart";
+import "pairing_required.dart";
+import "result/arrow_back_screen.dart";
+import "result/disclosure_feedback_screen.dart";
+import "result/issuance_success_screen.dart";
+import "result/session_result.dart";
+import "session_pin_entry_screen.dart";
 
 /// Displays the current [SessionState] for a given session ID.
 ///

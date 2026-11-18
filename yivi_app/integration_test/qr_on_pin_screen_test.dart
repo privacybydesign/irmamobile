@@ -11,7 +11,7 @@ import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/pin/widgets/waiting_request_announcement.dart";
 import "package:yivi_core/src/screens/scanner/lock_scanner_sheet.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
 

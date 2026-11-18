@@ -3,8 +3,8 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
 import "helpers/helpers.dart";

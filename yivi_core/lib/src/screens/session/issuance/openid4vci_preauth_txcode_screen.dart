@@ -14,7 +14,7 @@ import "../../../widgets/input/pill_text_field.dart";
 import "../../../widgets/sheet/glass_sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
-import "session_scaffold.dart";
+import "../layout/session_scaffold.dart";
 
 class OpenID4VCIPreAuthTxCodeScreen extends ConsumerStatefulWidget {
   final int sessionId;

@@ -7,7 +7,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
-import "requestor_card.dart";
+import "../requestor/requestor_card.dart";
 
 /// Why a card is added during a request, as a dark panel that grows out of
 /// the "For {requestor}" pill in the bar ([IssueRequestorPill]), as the

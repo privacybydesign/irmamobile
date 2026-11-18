@@ -1,18 +1,18 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/session_state.dart";
-import "../../../providers/session_flow_provider.dart";
-import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_space.dart";
-import "../../../util/haptics.dart";
-import "../../../util/i18n.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
-import "../../../widgets/buttons/irma_close_button.dart";
-import "../../pin/pin_entry.dart";
-import "../../pin/pin_feedback.dart";
-import "../../pin/yivi_pin_screen.dart";
-import "../models/session_view.dart";
+import "../../models/session_state.dart";
+import "../../providers/session_flow_provider.dart";
+import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
+import "../../util/haptics.dart";
+import "../../util/i18n.dart";
+import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/buttons/irma_close_button.dart";
+import "../pin/pin_entry.dart";
+import "../pin/pin_feedback.dart";
+import "../pin/yivi_pin_screen.dart";
+import "models/session_view.dart";
 
 /// Session PIN entry. A thin wrapper around the shared [YiviPinScreen]: it owns
 /// only the session-specific bits (close button, submitting spinner, and the

@@ -7,9 +7,9 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dar
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/issuance/openid4vci_preauth_txcode_screen.dart";
+import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 
 import "helpers/helpers.dart";
 import "helpers/openid4vci_helpers.dart";

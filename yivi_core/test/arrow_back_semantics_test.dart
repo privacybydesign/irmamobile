@@ -2,7 +2,7 @@ import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/arrow_back_screen.dart";
+import "package:yivi_core/src/screens/session/result/arrow_back_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
 import "helpers/test_translation_loader.dart";

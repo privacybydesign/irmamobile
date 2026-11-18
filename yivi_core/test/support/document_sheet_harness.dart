@@ -14,7 +14,7 @@ import "package:yivi_core/src/providers/regula_face_service_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_flow.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_issuance.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_sheet_step.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
+import "package:yivi_core/src/screens/session/issuance/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";

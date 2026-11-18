@@ -8,7 +8,7 @@ import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/wallet/issuance_flight.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
 import "helpers/credential_factory.dart";

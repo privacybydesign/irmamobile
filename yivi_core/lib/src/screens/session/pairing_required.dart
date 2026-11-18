@@ -1,16 +1,16 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/credential.dart";
-import "../../../theme/yivi_corners.dart";
-import "../../../theme/yivi_edges.dart";
-import "../../../theme/yivi_palette.dart";
-import "../../../theme/yivi_space.dart";
-import "../../../util/i18n.dart";
-import "../../../widgets/feedback/yivi_spinner.dart";
-import "../../../widgets/surfaces/icon_square.dart";
-import "requestor_card.dart";
-import "requestor_trust_sheet.dart";
-import "session_scaffold.dart";
+import "../../models/credential.dart";
+import "../../theme/yivi_corners.dart";
+import "../../theme/yivi_edges.dart";
+import "../../theme/yivi_palette.dart";
+import "../../theme/yivi_space.dart";
+import "../../util/i18n.dart";
+import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/surfaces/icon_square.dart";
+import "layout/session_scaffold.dart";
+import "requestor/requestor_card.dart";
+import "requestor/requestor_trust_sheet.dart";
 
 /// The pairing code to type on the website: who asks for it (or a shield
 /// when that is not known), what to do, the code in four large boxes, and

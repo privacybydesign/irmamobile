@@ -12,7 +12,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_sheet_step.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
+import "package:yivi_core/src/screens/session/issuance/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";

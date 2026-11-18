@@ -13,9 +13,9 @@ import "dart:io";
 
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/issuance/openid4vci_preauth_txcode_screen.dart";
+import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 
 import "../irma_binding.dart";
 import "../util.dart";

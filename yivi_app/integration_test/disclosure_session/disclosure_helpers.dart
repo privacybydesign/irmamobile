@@ -3,12 +3,12 @@ import "dart:async";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/models/disclosure_view_model.dart"
     show inSentence;
+import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
+import "package:yivi_core/src/screens/session/result/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 

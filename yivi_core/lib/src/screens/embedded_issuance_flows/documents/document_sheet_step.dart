@@ -7,7 +7,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/sheet/glass_sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
-import "../../session/widgets/issue_sheet_progress.dart";
+import "../../session/issuance/issue_sheet_progress.dart";
 import "document_flow.dart";
 import "document_flow_steps.dart";
 import "face_verification_intro_screen.dart";

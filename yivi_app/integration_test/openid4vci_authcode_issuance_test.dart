@@ -17,9 +17,9 @@ import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_website_step.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/issuance/issue_website_step.dart";
+import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";

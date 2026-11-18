@@ -2,8 +2,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "helpers/helpers.dart";

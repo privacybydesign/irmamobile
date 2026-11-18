@@ -14,7 +14,7 @@ import "../../../widgets/input/pill_text_field.dart";
 import "../../../widgets/sheet/glass_sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
-import "../../session/widgets/issue_sheet_progress.dart";
+import "../../session/issuance/issue_sheet_progress.dart";
 import "../email/widgets/email_address_entry.dart";
 import "../sms/widgets/phone_number_entry.dart";
 import "contact_step_controller.dart";

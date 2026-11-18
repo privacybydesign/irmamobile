@@ -14,8 +14,8 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dar
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
 import "disclosure_session/disclosure_helpers.dart";

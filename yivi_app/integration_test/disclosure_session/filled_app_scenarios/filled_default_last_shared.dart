@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";

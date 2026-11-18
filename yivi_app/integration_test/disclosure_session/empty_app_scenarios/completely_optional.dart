@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";

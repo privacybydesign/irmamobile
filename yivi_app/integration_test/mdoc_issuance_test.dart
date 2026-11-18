@@ -28,9 +28,9 @@ import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/issuance/openid4vci_preauth_txcode_screen.dart";
+import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 

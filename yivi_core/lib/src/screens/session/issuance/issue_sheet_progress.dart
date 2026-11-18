@@ -10,7 +10,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/buttons/press_scale.dart";
 import "../../../widgets/feedback/progress_part.dart";
 import "../../../widgets/sheet/glass_sheet.dart";
-import "requestor_card.dart";
+import "../requestor/requestor_card.dart";
 
 /// What a card is added for: the request behind the sheet ("For
 /// {requestor}"), or, with no request behind it, nothing.

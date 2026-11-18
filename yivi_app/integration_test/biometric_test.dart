@@ -10,8 +10,8 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 
 import "helpers/fake_local_auth.dart";
 import "helpers/helpers.dart";

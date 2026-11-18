@@ -1,9 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/signed_message.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "package:yivi_core/src/widgets/signed_message.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";

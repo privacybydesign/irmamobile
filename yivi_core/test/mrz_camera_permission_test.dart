@@ -9,7 +9,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/mrz_camera_feed.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/mrz_scanner.dart";
 import "package:yivi_core/src/screens/scanner/util/camera_access.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
+import "package:yivi_core/src/screens/session/issuance/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 

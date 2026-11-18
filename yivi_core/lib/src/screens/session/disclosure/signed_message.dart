@@ -1,14 +1,14 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/yivi_corners.dart";
-import "../theme/yivi_motion.dart";
-import "../theme/yivi_palette.dart";
-import "../theme/yivi_space.dart";
-import "../util/i18n.dart";
-import "../util/signature_message_text.dart";
-import "flight/yivi_flight.dart";
-import "sheet/glass_sheet.dart";
-import "sheet/sheet_heading.dart";
+import "../../../theme/yivi_corners.dart";
+import "../../../theme/yivi_motion.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
+import "../../../util/i18n.dart";
+import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet_heading.dart";
+import "signature_message_text.dart";
 
 /// The message to sign as a quote: a white card, the text in Georgia 17/27
 /// between big brand-red marks (“ top left, ” bottom right).

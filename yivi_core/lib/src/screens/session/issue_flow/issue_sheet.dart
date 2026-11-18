@@ -17,12 +17,12 @@ import "../../../widgets/sheet/sheet_actions.dart";
 import "../../embedded_issuance_flows/documents/document_flow.dart";
 import "../../error/session_error_screen.dart";
 import "../../error/tx_code_lockout_screen.dart";
+import "../issuance/issue_island.dart";
+import "../issuance/issue_sheet_progress.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/issuance_view_model.dart";
 import "../models/session_view.dart";
-import "../widgets/issue_island.dart";
-import "../widgets/issue_sheet_progress.dart";
-import "../widgets/requestor_card.dart";
+import "../requestor/requestor_card.dart";
 import "issue_flow_controller.dart";
 import "issue_flow_pages.dart";
 

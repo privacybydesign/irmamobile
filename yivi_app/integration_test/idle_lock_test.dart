@@ -10,8 +10,8 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 
 import "helpers/helpers.dart";

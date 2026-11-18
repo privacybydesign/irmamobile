@@ -31,11 +31,11 @@ import "package:yivi_core/src/screens/notifications/notifications_provider.dart"
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/pin/lock_gate.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
+import "package:yivi_core/src/screens/session/disclosure/change_choice_sheet.dart";
+import "package:yivi_core/src/screens/session/disclosure/shared_card_tile.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/change_choice_sheet.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/shared_card_tile.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";

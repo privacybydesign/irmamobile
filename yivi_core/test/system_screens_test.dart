@@ -5,7 +5,7 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/error/blocked_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/pairing_required.dart";
+import "package:yivi_core/src/screens/session/pairing_required.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/feedback/error_status_screen.dart";

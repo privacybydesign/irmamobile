@@ -9,7 +9,7 @@ import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/error/no_internet_screen.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 

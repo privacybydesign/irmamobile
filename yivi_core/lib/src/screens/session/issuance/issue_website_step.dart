@@ -13,8 +13,8 @@ import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
 import "../../../widgets/surfaces/numbered_step.dart";
 import "../../../widgets/surfaces/surface_card.dart";
-import "session_columns.dart";
-import "session_scaffold.dart";
+import "../layout/session_layout.dart";
+import "../layout/session_scaffold.dart";
 
 /// The step of adding a card that sends you to the issuer's website, as a
 /// page of the sheet: the Yivi app and the browser with an arrow there and

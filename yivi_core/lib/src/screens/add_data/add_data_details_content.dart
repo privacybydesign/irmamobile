@@ -14,7 +14,7 @@ import "../../widgets/surfaces/glass_group.dart";
 import "../../widgets/surfaces/numbered_step.dart";
 import "../../widgets/text/caps_label.dart";
 import "../../widgets/text/irma_markdown.dart";
-import "../session/widgets/requestor_card.dart";
+import "../session/requestor/requestor_card.dart";
 
 /// Which part of the details to show: all of it, or (in the two columns of a
 /// sheet held sideways, [SheetSplit]) the card with its name and the intro,

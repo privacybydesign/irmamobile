@@ -16,11 +16,11 @@ import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/signed_message.dart";
+import "../disclosure/shared_card_tile.dart";
+import "../disclosure/signed_message.dart";
+import "../requestor/requestor_card.dart";
 import "done_flight.dart";
-import "requestor_card.dart";
 import "session_result.dart";
-import "shared_card_tile.dart";
 
 /// "Shared with {requestor}" (or "Signed for {requestor}"), after the share
 /// button: the shared cards handed to the requestor's logo, which ends with

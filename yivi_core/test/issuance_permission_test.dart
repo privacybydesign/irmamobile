@@ -18,11 +18,11 @@ import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
+import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
+import "package:yivi_core/src/screens/session/result/card_pile.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/requestor_card.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/card_pile.dart";
 
 import "missing_data_fixtures.dart";
 import "support/pump_translated.dart";

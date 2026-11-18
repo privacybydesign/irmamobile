@@ -9,7 +9,7 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/feedback/glass_dialog.dart";
 import "../../../widgets/surfaces/corner_badge.dart";
-import "../../session/widgets/requestor_card.dart";
+import "../../session/requestor/requestor_card.dart";
 
 /// The request waiting behind the lock screen, above the PIN, as one
 /// sentence: who it is from and what they want, as far as Yivi knows that

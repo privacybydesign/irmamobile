@@ -8,11 +8,11 @@ import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/card_pile.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";
 import "../../../widgets/feedback/glass_dialog.dart";
 import "../../data/wallet/issuance_flight.dart";
+import "card_pile.dart";
 import "session_result.dart";
 
 /// "Success" after adding cards: the card with a green check, or the pile

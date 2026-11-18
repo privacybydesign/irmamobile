@@ -13,15 +13,15 @@ import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/layout/centred_max_width.dart";
 import "../../../widgets/text/caps_label.dart";
+import "../layout/session_heading.dart";
+import "../layout/session_layout.dart";
+import "../layout/session_scaffold.dart";
 import "../models/issuance_view_model.dart";
 import "../models/technical_details.dart";
+import "../requestor/requestor_card.dart";
+import "../requestor/requestor_trust_sheet.dart";
 import "document_issuance_permission.dart";
 import "received_card_tile.dart";
-import "requestor_card.dart";
-import "requestor_trust_sheet.dart";
-import "session_columns.dart";
-import "session_heading.dart";
-import "session_scaffold.dart";
 
 /// The button that adds an offer of [count] cards.
 String issuanceAddLabel(BuildContext context, int count) => count > 1

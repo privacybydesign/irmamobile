@@ -29,12 +29,12 @@ import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
 import "../../../widgets/surfaces/surface_card.dart";
 import "../../../widgets/text/caps_label.dart";
+import "../issuance/issue_sheet_progress.dart";
 import "../issue_flow/issue_flow_controller.dart";
 import "../issue_flow/issue_sheet.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/issuance_view_model.dart";
 import "empty_card_spot.dart";
-import "issue_sheet_progress.dart";
 import "shared_card_tile.dart";
 
 export "../issue_flow/issue_sheet.dart" show inSentenceAt, issuerOpenerProvider;
