@@ -1,10 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
-import "../theme/yivi_palette.dart";
-import "../theme/yivi_space.dart";
-import "feedback/yivi_spinner.dart";
-import "text/translated_text.dart";
+import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
+import "../../../widgets/feedback/yivi_spinner.dart";
+import "../../../widgets/text/translated_text.dart";
 
 /// Under a list while more of it loads: a spinner between two lines, and
 /// "Loading…". A list that has come to its end shows nothing: it just ends.

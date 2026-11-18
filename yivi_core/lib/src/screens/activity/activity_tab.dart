@@ -22,11 +22,9 @@ import "../../widgets/bars/scroll_edge.dart";
 import "../../widgets/bars/title_scroll_edge.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../widgets/empty_list_message.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
 import "../../widgets/input/glass_search_field.dart";
 import "../../widgets/layout/tab_layout.dart";
-import "../../widgets/loading_more_indicator.dart";
 import "../../widgets/surfaces/corner_badge.dart";
 import "../home/widgets/home_tab_top.dart";
 import "../home/widgets/search_tab_controller.dart";
@@ -40,6 +38,8 @@ import "activity_search_controller.dart";
 import "widgets/activity_card.dart";
 import "widgets/activity_detail_parts.dart";
 import "widgets/activity_query_chips.dart";
+import "widgets/empty_list_message.dart";
+import "widgets/loading_more_indicator.dart";
 
 part "activity_day_header.dart";
 

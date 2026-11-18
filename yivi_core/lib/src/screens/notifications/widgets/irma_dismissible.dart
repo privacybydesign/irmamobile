@@ -1,9 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/theme.dart";
-import "../theme/yivi_palette.dart";
-import "../theme/yivi_space.dart";
-import "text/translated_text.dart";
+import "../../../theme/theme.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
+import "../../../widgets/text/translated_text.dart";
 
 class IrmaDismissible extends StatelessWidget {
   final Widget child;

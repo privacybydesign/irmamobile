@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/yivi_palette.dart";
+import "../../../theme/yivi_palette.dart";
 
 class ActiveIndicator extends StatelessWidget {
   final bool isActive;

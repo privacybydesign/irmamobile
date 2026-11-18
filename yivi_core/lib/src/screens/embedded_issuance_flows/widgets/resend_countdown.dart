@@ -3,7 +3,7 @@ import "dart:async";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../providers/resend_wait.dart";
+import "../../../providers/resend_wait.dart";
 
 /// A button that sends a code again, while it has to wait ([until], see
 /// [ResendWait]): [builder] gets the time left, "0:42", and builds the

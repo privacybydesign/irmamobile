@@ -14,7 +14,6 @@ import "../../util/navigation.dart";
 import "../../widgets/bars/title_scroll_edge.dart";
 import "../../widgets/feedback/app_toast.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
-import "../../widgets/irma_dismissible.dart";
 import "../../widgets/layout/centred_max_width.dart";
 import "../../widgets/layout/tab_layout.dart";
 import "../../widgets/layout/two_pane.dart";
@@ -25,6 +24,7 @@ import "../data/wallet/wallet_transition.dart";
 import "models/credential_status_notification.dart";
 import "models/notification.dart";
 import "notifications_provider.dart";
+import "widgets/irma_dismissible.dart";
 import "widgets/no_notifications.dart";
 import "widgets/notification_card.dart";
 

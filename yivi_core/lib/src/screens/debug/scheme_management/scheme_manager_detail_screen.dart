@@ -9,7 +9,6 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/active_indicator.dart";
 import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/irma_app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
@@ -19,6 +18,7 @@ import "../../error/error_screen.dart";
 import "../../pin/yivi_pin_screen.dart";
 import "../debug_schemes.dart";
 import "../util/snackbar.dart";
+import "../widgets/active_indicator.dart";
 
 class SchemeManagerDetailScreen extends ConsumerWidget {
   final String schemeManagerId;

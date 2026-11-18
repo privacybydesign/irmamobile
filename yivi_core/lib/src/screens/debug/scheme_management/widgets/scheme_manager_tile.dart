@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../../widgets/active_indicator.dart";
 import "../../debug_schemes.dart";
+import "../../widgets/active_indicator.dart";
 
 class SchemeManagerTile extends StatelessWidget {
   final DebugSchemeManager schemeManager;

@@ -1,8 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
-import "../theme/yivi_palette.dart";
-import "../theme/yivi_space.dart";
-import "text/translated_text.dart";
+import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
+import "../../../widgets/text/translated_text.dart";
 
 /// The line a list shows when there is nothing in it, 32 below where the
 /// list starts.

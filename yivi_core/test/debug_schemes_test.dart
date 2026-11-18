@@ -13,7 +13,7 @@ import "package:yivi_core/src/screens/debug/debug_schemes.dart";
 import "package:yivi_core/src/screens/debug/scheme_management/scheme_management_screen.dart";
 import "package:yivi_core/src/screens/debug/scheme_management/scheme_manager_detail_screen.dart";
 import "package:yivi_core/src/screens/debug/session/portrait_photo_mock.dart";
-import "package:yivi_core/src/widgets/active_indicator.dart";
+import "package:yivi_core/src/screens/debug/widgets/active_indicator.dart";
 
 import "support/onboarding_v2_harness.dart";
 
