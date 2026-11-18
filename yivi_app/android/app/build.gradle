@@ -68,6 +68,12 @@ android {
 
     buildTypes {
         release {
+            // R8 shrinks, optimises and renames the Java/Kotlin code and removes unused
+            // resources. These are the Flutter Gradle plugin's defaults for a release
+            // build; stated here so the release does not depend on them staying so.
+            minifyEnabled true
+            shrinkResources true
+
             // Flutter does not support building for x86 in release mode.
             ndk {
                 abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"

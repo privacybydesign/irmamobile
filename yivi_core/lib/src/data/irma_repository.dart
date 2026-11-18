@@ -984,6 +984,11 @@ class IrmaRepository {
   }
 
   Future<void> openURLinAppBrowser(String url) async {
+    // The in-app browser only gets https pages; anything else goes to the
+    // user's own browser or the app that handles the scheme.
+    if (!Uri.parse(url).isScheme("https")) {
+      return openURLExternally(url, suppressQrScanner: true);
+    }
     _resumedFromBrowserSubject.add(true);
     if (Platform.isAndroid) {
       await _iiabchannel.invokeMethod("open_browser", url);

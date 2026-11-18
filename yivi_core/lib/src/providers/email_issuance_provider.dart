@@ -1,6 +1,5 @@
 import "dart:convert";
 
-import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
@@ -42,7 +41,6 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
     required String emailAddress,
     required String language,
   }) async {
-    debugPrint("Sending email for: $emailAddress");
     final payload = jsonEncode({"email": emailAddress, "language": language});
     final url = "$host/api/embedded/send";
     final response = await http.post(

@@ -48,6 +48,7 @@ Secrets for the `android-alpha` (Android master builds) and `android-beta` (Andr
 - `ANDROID_SIGNING_KEYSTORE`: Base64 encoded Android signing/upload keystore, check the [Fastlane docs](../../fastlane/README.md#android-signingupload-keys) for generating instructions. For the `android-alpha` environment it concerns a signing keystore and for the `android-beta` environment an upload keystore.
 - `ANDROID_SIGNING_KEYSTORE_PASSWORD`: password of the Android keystore (see above).
 - `SENTRY_DSN`: Sentry DSN for error reporting.
+- `SENTRY_AUTH_TOKEN`: Sentry auth token that may upload debug files. Used to upload the Dart symbols of the obfuscated build, so the Dart frames of its crash reports are readable in Sentry. Needs the variables `SENTRY_ORG` and `SENTRY_PROJECT` (the slugs of the Sentry organisation and project), and `SENTRY_URL` when Sentry is not at sentry.io. They can be set once as repository variables. As long as the token or one of the two slugs is missing, the upload is skipped with a warning and the symbols are only kept as a build artifact.
 
 Secrets for the `ad-hoc-alpha` (iOS master/alpha builds) and the `app-store-beta` (iOS production builds) environments:
 
@@ -56,3 +57,4 @@ should be uploaded, because there only is one. This certificate expires every ye
 - `APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD`: password of the Apple development certificate (see above).
 - `APPLE_PROVISIONING_PROFILE`: Base64 encoded Apple provisioning profile that is linked to the distribution certificate (see above). In the `ad-hoc-alpha` environment the `GitHub Actions ad hoc alpha` ad-hoc provisioning profile should be uploaded (linked to `foundation.privacybydesign.irmamob.alpha`) and in the `app-store-beta` environment the `GitHub Actions app store beta` app store provisioning profile should be uploaded (linked to `foundation.privacybydesign.irmamob`). These should be renewed when the distribution certificate is being renewed.
 - `SENTRY_DSN`: Sentry DSN for error reporting.
+- `SENTRY_AUTH_TOKEN`: Sentry auth token that may upload debug files. Used to upload the Dart symbols of the obfuscated build, so the Dart frames of its crash reports are readable in Sentry. Needs the variables `SENTRY_ORG` and `SENTRY_PROJECT` (the slugs of the Sentry organisation and project), and `SENTRY_URL` when Sentry is not at sentry.io. They can be set once as repository variables. As long as the token or one of the two slugs is missing, the upload is skipped with a warning and the symbols are only kept as a build artifact.
