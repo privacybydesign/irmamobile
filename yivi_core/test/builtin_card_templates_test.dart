@@ -1,17 +1,15 @@
 import "dart:io";
 
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_templates.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/card_art_support.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 // The card templates Yivi ships for its own (PbDF) credentials.
 
@@ -188,20 +186,9 @@ void main() {
     Future<void> pump(WidgetTester tester, Credential credential) =>
         pumpTranslated(
           tester,
-          IrmaTheme(
-            builder: (context) => MaterialApp(
-              localizationsDelegates: [
-                FlutterI18nDelegate(
-                  translationLoader: FileTranslationLoader(
-                    basePath: "assets/locales",
-                    forcedLocale: const Locale("en", "US"),
-                  ),
-                ),
-                ...GlobalMaterialLocalizations.delegates,
-              ],
-              home: Scaffold(
-                body: CredentialCardArt(credential: credential, width: 358),
-              ),
+          testApp(
+            Scaffold(
+              body: CredentialCardArt(credential: credential, width: 358),
             ),
           ),
         );

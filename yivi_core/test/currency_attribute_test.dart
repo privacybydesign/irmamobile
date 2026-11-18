@@ -1,21 +1,18 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 // Attributes with the "currency:<code>" display hint arrive as a string value
 // plus that hint. The app may run against an irmago that doesn't send display
 // hints, and a scheme may use codes or amounts this app can't format; in all
 // those cases the raw string must still be shown.
 
-Widget _wrap(Widget child) => IrmaTheme(
-  builder: (_) => MaterialApp(home: Scaffold(body: child)),
-);
+Widget _wrap(Widget child) => testApp(Scaffold(body: child));
 
 Attribute _amount(String value, {String? hint}) => Attribute(
   claimPath: ["balance"],
@@ -83,19 +80,24 @@ void main() {
     testWidgets("shows an amount with a currency hint as currency", (
       tester,
     ) async {
-      await tester.pumpWidget(
+      await pumpTranslated(
+        tester,
         _wrap(CardAttributeList([_amount("12.50", hint: "currency:EUR")])),
       );
       expect(find.text("€12.50"), findsOneWidget);
     });
 
     testWidgets("shows the raw string without a currency hint", (tester) async {
-      await tester.pumpWidget(_wrap(CardAttributeList([_amount("12.50")])));
+      await pumpTranslated(
+        tester,
+        _wrap(CardAttributeList([_amount("12.50")])),
+      );
       expect(find.text("12.50"), findsOneWidget);
     });
 
     testWidgets("shows the raw string for other display hints", (tester) async {
-      await tester.pumpWidget(
+      await pumpTranslated(
+        tester,
         _wrap(CardAttributeList([_amount("12.50", hint: "unit:kg")])),
       );
       expect(find.text("12.50"), findsOneWidget);
@@ -104,14 +106,16 @@ void main() {
     testWidgets("shows the raw string when the amount can't be formatted", (
       tester,
     ) async {
-      await tester.pumpWidget(
+      await pumpTranslated(
+        tester,
         _wrap(CardAttributeList([_amount("€ 12,50", hint: "currency:EUR")])),
       );
       expect(find.text("€ 12,50"), findsOneWidget);
     });
 
     testWidgets("formats amounts in a list of values", (tester) async {
-      await tester.pumpWidget(
+      await pumpTranslated(
+        tester,
         _wrap(
           CardAttributeList([
             Attribute(claimPath: ["balances"], displayName: "Saldi"),
@@ -135,22 +139,13 @@ void main() {
     });
 
     testWidgets("formats for the app's language", (tester) async {
-      await tester.pumpWidget(
-        IrmaTheme(
-          builder: (_) => MaterialApp(
-            localizationsDelegates: [
-              FlutterI18nDelegate(
-                translationLoader: TestTranslationLoader(
-                  basePath: "assets/locales",
-                  forcedLocale: const Locale("nl"),
-                ),
-              ),
-              ...GlobalMaterialLocalizations.delegates,
-            ],
-            home: Scaffold(
-              body: CardAttributeList([_amount("12.50", hint: "currency:EUR")]),
-            ),
+      await pumpTranslated(
+        tester,
+        testApp(
+          Scaffold(
+            body: CardAttributeList([_amount("12.50", hint: "currency:EUR")]),
           ),
+          locale: const Locale("nl"),
         ),
       );
       await tester.pumpAndSettle();

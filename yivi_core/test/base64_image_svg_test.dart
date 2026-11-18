@@ -5,6 +5,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/widgets/surfaces/base64_image.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 // Regression tests for privacybydesign/irmamobile#674: SD-JWT VC credential
 // logos in SVG format were forced through MemoryImage and rendered blank.
 
@@ -20,11 +23,7 @@ String _svgBase64([String prefix = ""]) =>
 
 void main() {
   Future<void> pump(WidgetTester tester, Base64Image widget) =>
-      tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: Center(child: widget)),
-        ),
-      );
+      pumpTranslated(tester, testApp(Scaffold(body: Center(child: widget))));
 
   testWidgets("renders SVG via flutter_svg when the MIME type says so", (
     tester,

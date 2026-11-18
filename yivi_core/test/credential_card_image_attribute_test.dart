@@ -4,8 +4,10 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
+
+import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 // Regression tests for an issuer (the Ver.iD vergoedingenpas demo) that fills
 // an empty photo attribute with a single space. Decoding that as base64 threw
@@ -15,9 +17,7 @@ import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 const _png =
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC";
 
-Widget _wrap(Widget child) => IrmaTheme(
-  builder: (_) => MaterialApp(home: Scaffold(body: child)),
-);
+Widget _wrap(Widget child) => testApp(Scaffold(body: child));
 
 Attribute _photo(String base64Image, {String? mimeType}) => Attribute(
   claimPath: ["photo"],
@@ -38,7 +38,7 @@ void main() {
     testWidgets("renders nothing for an image attribute holding $name", (
       tester,
     ) async {
-      await tester.pumpWidget(_wrap(CardAttributeList([_photo(value)])));
+      await pumpTranslated(tester, _wrap(CardAttributeList([_photo(value)])));
 
       expect(tester.takeException(), isNull);
       expect(find.byType(Image), findsNothing);
@@ -49,7 +49,8 @@ void main() {
   testWidgets("renders nothing for valid base64 that is not an image", (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await pumpTranslated(
+      tester,
       _wrap(
         CardAttributeList([
           _photo(base64Encode(utf8.encode("definitely not a PNG"))),
@@ -65,7 +66,7 @@ void main() {
   });
 
   testWidgets("still renders a valid image", (tester) async {
-    await tester.pumpWidget(_wrap(CardAttributeList([_photo(_png)])));
+    await pumpTranslated(tester, _wrap(CardAttributeList([_photo(_png)])));
 
     expect(tester.takeException(), isNull);
     expect(find.byType(Image), findsOneWidget);
@@ -76,7 +77,8 @@ void main() {
   ) async {
     const svg =
         '<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="red"/></svg>';
-    await tester.pumpWidget(
+    await pumpTranslated(
+      tester,
       _wrap(
         CardAttributeList([
           _photo(base64Encode(utf8.encode(svg)), mimeType: "image/svg+xml"),
@@ -92,7 +94,8 @@ void main() {
   testWidgets("renders a bitmap with its MIME type as a bitmap", (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await pumpTranslated(
+      tester,
       _wrap(CardAttributeList([_photo(_png, mimeType: "image/png")])),
     );
 

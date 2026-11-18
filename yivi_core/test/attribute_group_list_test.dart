@@ -1,31 +1,17 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 // A valid 1x1 PNG.
 const _png =
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC";
 
-Widget _wrap(Widget child) => IrmaTheme(
-  builder: (_) => MaterialApp(
-    localizationsDelegates: [
-      FlutterI18nDelegate(
-        translationLoader: TestTranslationLoader(
-          basePath: "assets/locales",
-          forcedLocale: const Locale("en", "US"),
-        ),
-      ),
-      ...GlobalMaterialLocalizations.delegates,
-    ],
-    home: Scaffold(body: SingleChildScrollView(child: child)),
-  ),
-);
+Widget _wrap(Widget child) =>
+    testApp(Scaffold(body: SingleChildScrollView(child: child)));
 
 Attribute _attr(String id) => Attribute(
   claimPath: [id],

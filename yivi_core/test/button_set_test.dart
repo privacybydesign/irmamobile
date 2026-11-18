@@ -4,6 +4,9 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 Future<void> _pump(
   WidgetTester tester,
   Widget child, {
@@ -12,9 +15,10 @@ Future<void> _pump(
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = const Size(390, 844);
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    MaterialApp(
-      home: MediaQuery(
+  await pumpTranslated(
+    tester,
+    testApp(
+      MediaQuery(
         data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
         child: Scaffold(
           body: Center(

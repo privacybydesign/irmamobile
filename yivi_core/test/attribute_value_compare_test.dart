@@ -6,12 +6,13 @@ import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 // Booleans and integers keep their data outside `string`, so comparing only
 // strings made every pair of them match: a differing value was drawn green.
 
-Widget _wrap(Widget child) => IrmaTheme(
-  builder: (_) => MaterialApp(home: Scaffold(body: child)),
-);
+Widget _wrap(Widget child) => testApp(Scaffold(body: child));
 
 AttributeValue _bool(bool v) => AttributeValue(type: .boolean, boolValue: v);
 
@@ -47,7 +48,8 @@ void main() {
       WidgetTester tester,
       List<Attribute> compareTo,
     ) async {
-      await tester.pumpWidget(
+      await pumpTranslated(
+        tester,
         _wrap(CardAttributeList([_age(3)], compareTo: compareTo)),
       );
       return tester.widget<Text>(find.text("3")).style?.color;

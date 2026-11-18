@@ -1,5 +1,3 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -12,9 +10,8 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/debug/cert_management/cert_management_screen.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 // Regression test for #700: the debug certificate management screen could
 // install certificates but had no way to remove them. Deleteable certificates
@@ -45,25 +42,12 @@ void main() {
   }
 
   Future<void> pumpScreen(WidgetTester tester, IrmaRepository repo) async {
-    final widget = ProviderScope(
+    final widget = testApp(
+      CertificateManagementScreen(),
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
       ],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: TestTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: CertificateManagementScreen(),
-        ),
-      ),
     );
 
     // FileTranslationLoader reads the locale JSON with real IO, which the test

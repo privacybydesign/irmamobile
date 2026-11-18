@@ -3,7 +3,9 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
 import "package:yivi_core/src/screens/data/card_transition/card_transition_layer.dart";
 import "package:yivi_core/src/screens/data/card_transition/choreography.dart";
-import "package:yivi_core/src/theme/theme.dart";
+
+import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 void main() {
   final transitions = GlobalKey<CardTransitionsState>();
@@ -15,17 +17,16 @@ void main() {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(400, 844);
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      IrmaTheme(
-        builder: (_) => MaterialApp(
-          home: CardTransitions(
-            key: transitions,
-            child: const Stack(
-              children: [
-                SizedBox.expand(),
-                Positioned.fill(child: OpenCardLayer()),
-              ],
-            ),
+    await pumpTranslated(
+      tester,
+      testApp(
+        CardTransitions(
+          key: transitions,
+          child: const Stack(
+            children: [
+              SizedBox.expand(),
+              Positioned.fill(child: OpenCardLayer()),
+            ],
           ),
         ),
       ),

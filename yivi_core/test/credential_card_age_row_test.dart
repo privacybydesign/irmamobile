@@ -1,14 +1,11 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 // WCAG 1.4.3 AA for normal text.
 const _minTextContrast = 4.5;
@@ -36,22 +33,8 @@ Attribute _age(int age, _Answer answer) => Attribute(
   value: AttributeValue(type: AttributeType.string, string: answer.name),
 );
 
-Widget _app(Widget child) => ProviderScope(
-  child: IrmaTheme(
-    builder: (_) => MaterialApp(
-      localizationsDelegates: [
-        FlutterI18nDelegate(
-          translationLoader: FileTranslationLoader(
-            basePath: "assets/locales",
-            forcedLocale: const Locale("en", "US"),
-          ),
-        ),
-        ...GlobalMaterialLocalizations.delegates,
-      ],
-      home: Scaffold(body: SingleChildScrollView(child: child)),
-    ),
-  ),
-);
+Widget _app(Widget child) =>
+    testApp(Scaffold(body: SingleChildScrollView(child: child)));
 
 Future<void> _pumpList(
   WidgetTester tester,

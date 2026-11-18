@@ -1,15 +1,13 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_content.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 
 import "helpers/credential_factory.dart";
-import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 TrustedParty _party(String name) =>
     TrustedParty(id: name, name: name, url: null, parent: null, verified: true);
@@ -50,22 +48,11 @@ void main() {
     addTearDown(tester.view.reset);
     await pumpTranslated(
       tester,
-      IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: TestTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: Scaffold(
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: AddDataDetailsContent(credential: credential, faq: faq),
-            ),
+      testApp(
+        Scaffold(
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: AddDataDetailsContent(credential: credential, faq: faq),
           ),
         ),
       ),
