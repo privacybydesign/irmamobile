@@ -4,9 +4,9 @@
 // currently mounted route (`LockGate`); the route stays mounted and
 // resumes when the user enters their PIN.
 
-import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";

@@ -80,9 +80,11 @@ jobs:
 
     steps:
       - name: Check out PR head with full history + submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: refs/pull/${{ inputs.pr || github.event.pull_request.number }}/head
+          # The base-branch fetch below is anonymous; this repository is public.
+          persist-credentials: false
           # fetch-depth: 0 is required so the merge-base with $base is reachable
           # (three-dot diff below); a shallow clone would silently miss it.
           fetch-depth: 0
@@ -259,7 +261,7 @@ jobs:
 
       - name: Upload as artifact
         if: always() && steps.tests.outputs.count != '0'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ios-test-recordings-pr-${{ env.PR_NUMBER }}
           path: videos/

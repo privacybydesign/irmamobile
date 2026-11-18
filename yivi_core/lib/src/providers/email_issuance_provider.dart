@@ -1,6 +1,5 @@
 import "dart:convert";
 
-import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
@@ -42,9 +41,6 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
     required String emailAddress,
     required String language,
   }) async {
-    if (kDebugMode) {
-      debugPrint("Sending email for: $emailAddress");
-    }
     final payload = jsonEncode({"email": emailAddress, "language": language});
     final url = "$host/api/embedded/send";
     final response = await http.post(
@@ -154,24 +150,28 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
     required String email,
     required String language,
   }) async {
-    try {
-      state = EmailIssuanceState(
-        stage: .waiting,
-        enteredCode: "",
-        email: email,
-        error: EmailIssuanceNoError(),
-      );
-      await ref
-          .read(emailIssuerApiProvider)
-          .sendEmail(emailAddress: email, language: language);
-      state = state.copyWith(stage: .enteringVerificationCode);
-    } catch (e) {
-      final err = switch (e) {
-        EmailIssuanceError() => e,
-        _ => EmailIssuanceGeneralError(message: e.toString()),
-      };
-      state = state.copyWith(stage: .enteringEmail, error: err);
-    }
+    state = EmailIssuanceState(
+      stage: .waiting,
+      enteredCode: "",
+      email: email,
+      error: EmailIssuanceNoError(),
+    );
+    await ref
+        .read(emailIssuerApiProvider)
+        .sendEmail(emailAddress: email, language: language)
+        .then((_) {
+          state = state.copyWith(stage: .enteringVerificationCode);
+        })
+        .catchError((e) {
+          final err = switch (e) {
+            EmailIssuanceError() => e,
+            _ => EmailIssuanceGeneralError(message: e.toString()),
+          };
+
+          if (ref.mounted) {
+            state = state.copyWith(stage: .enteringEmail, error: err);
+          }
+        });
   }
 
   Future<SessionPointer?> verifyCode({required String code}) async {

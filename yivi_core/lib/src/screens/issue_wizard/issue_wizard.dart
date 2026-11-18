@@ -1,9 +1,9 @@
 import "dart:async";
 import "dart:io";
 
-import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
+import "package:material_ui/material_ui.dart";
 import "package:visibility_detector/visibility_detector.dart";
 
 import "../../data/irma_repository.dart";
@@ -169,7 +169,12 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
             isSingleton: false,
             description: TranslatedValue.empty(),
           );
-          _repo.openIssueURL(context, type.fullId, type.issueUrl, ref);
+          _repo.openIssueURL(
+            context,
+            type.fullId,
+            getTranslation(context, type.issueUrl),
+            ref,
+          );
         }
         break;
       case "session":

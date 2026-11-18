@@ -19,6 +19,7 @@ void main() {
       await pumpYiviApp(tester, irmaBinding.repository);
 
       // the first time with new terms the dialog should show
+      await tester.waitFor(find.byKey(const Key("terms_changed_dialog")));
       expect(find.byKey(const Key("terms_changed_dialog")), findsOneWidget);
 
       final acceptButton = find.byKey(const Key("bottom_bar_secondary"));
@@ -42,6 +43,7 @@ void main() {
       await pumpYiviApp(tester, irmaBinding.repository);
 
       // the first time with new terms the dialog should show
+      await tester.waitFor(find.byKey(const Key("terms_changed_dialog")));
       expect(find.byKey(const Key("terms_changed_dialog")), findsOneWidget);
 
       final acceptButton = find.byKey(const Key("bottom_bar_primary"));

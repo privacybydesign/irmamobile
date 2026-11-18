@@ -1,6 +1,7 @@
 package irmagobridge
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"slices"
@@ -165,6 +166,17 @@ func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
 	return nil
 }
 
+// Force a Token Status List refresh, so a test can drive a sweep instead of
+// waiting on the client's job. Per-list failures are logged and swallowed inside
+// RefreshStatuses, so an error here means the sweep could not run at all.
+//
+// Dispatching is RefreshStatuses' own job: it signals CredentialsChanged when a
+// status moved, and stays silent when the sweep only re-confirmed what the
+// wallet already had.
+func (ah *eventHandler) refreshCredentialStatuses() error {
+	return yiviClient.RefreshStatuses(context.Background())
+}
+
 func (ah *eventHandler) updateSchemes() error {
 	err := yiviClient.GetIrmaConfiguration().UpdateSchemes()
 	if err != nil {
@@ -198,6 +210,17 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 
 func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
 	yiviClient.SetPreferences(event.Preferences)
+	return nil
+}
+
+// setLocale changes the effective app language in irmago and re-dispatches the
+// credentials so already-delivered data is re-resolved to the new language.
+// The background logo backfill (started by SetLocale) may push a further
+// refresh once logos land. The paged activity-log cache is reset by the app,
+// which follows this event with a LoadLogsEvent.
+func (ah *eventHandler) setLocale(event *setLocaleEvent) error {
+	yiviClient.SetLocale(event.Locale)
+	dispatchCredentialsEvent()
 	return nil
 }
 
@@ -245,6 +268,27 @@ func (ah *eventHandler) installCertificate(event *installCertificateEvent) error
 	}
 
 	// Reload configuration to pick up the new certificate
+	conf.Reload()
+
+	dispatchConfigurationEvent()
+	return nil
+}
+
+func (ah *eventHandler) removeCertificate(event *removeCertificateEvent) error {
+	conf := yiviClient.GetEudiConfiguration()
+
+	switch event.Type {
+	case "issuer":
+		if err := conf.Issuers.RemoveCertificate(event.Thumbprint); err != nil {
+			return err
+		}
+	case "verifier":
+		if err := conf.Verifiers.RemoveCertificate(event.Thumbprint); err != nil {
+			return err
+		}
+	}
+
+	// Reload configuration to drop the removed certificate
 	conf.Reload()
 
 	dispatchConfigurationEvent()

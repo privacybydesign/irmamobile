@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
@@ -35,7 +35,7 @@ class ActivityCard extends StatelessWidget {
 
     if (logEntry.type == LogType.removal) {
       final firstCred = logEntry.removalLog!.credentials.first;
-      title = firstCred.issuer.name.translate(lang);
+      title = firstCred.issuer.name;
       subtitleTranslationKey = "activity.data_deleted";
       semanticLabel = FlutterI18n.translate(
         context,
@@ -44,16 +44,21 @@ class ActivityCard extends StatelessWidget {
       );
 
       logoImage = firstCred.image != null
-          ? Base64Image(base64: firstCred.image!.base64)
+          ? Base64Image(
+              base64: firstCred.image!.base64,
+              mimeType: firstCred.image!.mimeType,
+            )
           : null;
     } else {
       if (logEntry.type == LogType.issuance) {
-        final serverName =
-            logEntry.issuanceLog!.issuer?.name.translate(lang) ?? "";
+        final serverName = logEntry.issuanceLog!.issuer?.name ?? "";
         title = serverName;
         final issuerImage = logEntry.issuanceLog!.issuer?.image;
         logoImage = issuerImage != null
-            ? Base64Image(base64: issuerImage.base64)
+            ? Base64Image(
+                base64: issuerImage.base64,
+                mimeType: issuerImage.mimeType,
+              )
             : null;
         subtitleTranslationKey = "activity.data_received";
         semanticLabel = FlutterI18n.translate(
@@ -62,12 +67,14 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.disclosure) {
-        final serverName =
-            logEntry.disclosureLog!.verifier?.name.translate(lang) ?? "";
+        final serverName = logEntry.disclosureLog!.verifier?.name ?? "";
         title = serverName;
         final verifierImage = logEntry.disclosureLog!.verifier?.image;
         logoImage = verifierImage != null
-            ? Base64Image(base64: verifierImage.base64)
+            ? Base64Image(
+                base64: verifierImage.base64,
+                mimeType: verifierImage.mimeType,
+              )
             : null;
 
         subtitleTranslationKey = "activity.data_shared";
@@ -77,12 +84,14 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.signature) {
-        final serverName =
-            logEntry.signedMessageLog!.verifier?.name.translate(lang) ?? "";
+        final serverName = logEntry.signedMessageLog!.verifier?.name ?? "";
         title = serverName;
         final verifierImage = logEntry.signedMessageLog!.verifier?.image;
         logoImage = verifierImage != null
-            ? Base64Image(base64: verifierImage.base64)
+            ? Base64Image(
+                base64: verifierImage.base64,
+                mimeType: verifierImage.mimeType,
+              )
             : null;
         subtitleTranslationKey = "activity.message_signed";
         semanticLabel = FlutterI18n.translate(

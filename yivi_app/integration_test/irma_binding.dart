@@ -1,3 +1,6 @@
+import "dart:ui" show Locale;
+
+import "package:flutter_test/flutter_test.dart";
 import "package:rxdart/rxdart.dart";
 import "package:yivi_core/src/data/irma_client_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
@@ -64,7 +67,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     var statusFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
       (event) => event is ClientPreferencesEvent,
     );
-    _bridge.dispatch(AppReadyEvent());
+    _bridge.dispatch(AppReadyEvent(locale: "en"));
     EnrollmentStatusEvent currEnrollmentStatus = await statusFuture;
 
     // Ensure the app is not enrolled to its keyshare server yet.
@@ -73,7 +76,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
       statusFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
         (event) => event is ClientPreferencesEvent,
       );
-      _bridge.dispatch(AppReadyEvent());
+      _bridge.dispatch(AppReadyEvent(locale: "en"));
       currEnrollmentStatus = await statusFuture;
     }
 
@@ -127,6 +130,19 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
         (event) => event is EnrollmentSuccessEvent,
       );
     }
+
+    // Pin the system locale so IrmaRepository's effective app language starts
+    // at "en", matching the AppReadyEvent locale above. Without this it is the
+    // host machine's language: on a Dutch simulator the baseline is already
+    // "nl", so a test switching to Dutch is not a change, no SetLocaleEvent is
+    // emitted, and the Go client stays on the locale it was started with.
+    TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
+        const Locale("en", "US");
+
+    // Drop any in-app language override a previous test left behind, so the
+    // baseline really is the pinned system locale. "" is the default value, so
+    // "use system language" stays on for tests that assert on it.
+    await _preferences!.setPreferredLanguageCode("");
 
     _repository = IrmaRepository(
       client: _bridge,

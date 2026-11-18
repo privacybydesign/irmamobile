@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- A1: light motorcycle, side profile facing left -->
+  <path d="M4.4 16.4 7.3 7.6H8.8L6.1 16.4Z"/>
+  <path d="M6.4 6.4h3.4v1.3H6.4Z"/>
+  <path d="M8.8 9.7 11 8.7H14L15 9.9H20.6V11.1H9Z"/>
+  <path d="M10.1 11.1H15.6L19.7 16H17.9L14.8 12.7H11.7L10.4 14Z"/>
+  <path d="M2.3 16.6a2.7 2.7 0 1 0 5.4 0a2.7 2.7 0 1 0 -5.4 0ZM3.6 16.6a1.4 1.4 0 1 0 2.8 0a1.4 1.4 0 1 0 -2.8 0Z"/>
+  <path d="M16.3 16.6a2.7 2.7 0 1 0 5.4 0a2.7 2.7 0 1 0 -5.4 0ZM17.6 16.6a1.4 1.4 0 1 0 2.8 0a1.4 1.4 0 1 0 -2.8 0Z"/>
+</svg>

@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "irma_card.dart";
@@ -52,8 +52,11 @@ class SessionProgressIndicator extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-              child: IrmaLinearProgressIndicator(
-                filledPercentage: step! / stepCount! * 100,
+              // The step text above already says where the user is.
+              child: ExcludeSemantics(
+                child: IrmaLinearProgressIndicator(
+                  filledPercentage: step! / stepCount! * 100,
+                ),
               ),
             ),
           ],

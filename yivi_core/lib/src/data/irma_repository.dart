@@ -2,12 +2,11 @@ import "dart:async";
 import "dart:convert";
 import "dart:io";
 
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_web_auth_2/flutter_web_auth_2.dart";
+import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
@@ -27,6 +26,7 @@ import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
+import "../models/log_entry.dart";
 import "../models/native_events.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
@@ -34,7 +34,6 @@ import "../models/schemaless/session_state.dart";
 import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
-import "../models/translated_value.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
@@ -42,6 +41,7 @@ import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
+import "app_language.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -93,7 +93,16 @@ class IrmaRepository {
     _bridgeEventSubscription = _bridge.events.listen(
       (event) => _eventSubject.add(event),
     );
-    bridgedDispatch(AppReadyEvent());
+
+    // Push the effective app language to the Go client: the initial value
+    // rides on AppReadyEvent (so text and logos resolve correctly from the
+    // first pull), then a SetLocaleEvent on every change. Each change also
+    // resets the paged activity-log cache (LoadLogsEvent with no `before`).
+    bridgedDispatch(AppReadyEvent(locale: _appLanguage.current));
+    _localeSubscription = _appLanguage.changes.listen((locale) {
+      bridgedDispatch(SetLocaleEvent(locale: locale));
+      bridgedDispatch(LoadLogsEvent(max: 10));
+    });
   }
 
   final IrmaPreferences preferences;
@@ -110,7 +119,7 @@ class IrmaRepository {
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _schemalessCredentialsSubject =
-      BehaviorSubject<List<schemaless.Credential>>();
+      BehaviorSubject<schemaless.SchemalessCredentials>();
   final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
 
   final _enrollmentStatusEventSubject =
@@ -136,12 +145,31 @@ class IrmaRepository {
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
+  // Set by a wipe and read once by the enrollment screen it lands on, which
+  // confirms the deletion to the user.
+  bool _walletDeleted = false;
+
+  late final AppLanguage _appLanguage = AppLanguage(preferences);
 
   late StreamSubscription<Event> _bridgeEventSubscription;
+  late final StreamSubscription<String> _localeSubscription;
+
+  /// Whether [close] has been called. A closed repository accepts no further
+  /// events — see [dispatch].
+  bool get isClosed => _closed;
+  bool _closed = false;
 
   Future<void> close() async {
+    // Refuse events for the whole of teardown rather than only once the
+    // subjects are actually closed: close() is asynchronous, and a widget
+    // disposed while it is in flight would otherwise still reach a subject
+    // that is about to close.
+    _closed = true;
+
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
+    await _localeSubscription.cancel();
+    await _appLanguage.close();
 
     // Then we can close all internal subjects
     await Future.wait([
@@ -185,7 +213,10 @@ class IrmaRepository {
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is schemaless.SchemalessCredentialsEvent) {
-      _schemalessCredentialsSubject.add(event.credentials);
+      _schemalessCredentialsSubject.add((
+        credentials: event.credentials,
+        problematic: event.problematic,
+      ));
     } else if (event is SchemalessCredentialStoreEvent) {
       _credentialStoreSubject.add(event.credentials);
     } else if (event is AuthenticationEvent) {
@@ -244,6 +275,7 @@ class IrmaRepository {
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
       _lockedSubject.add(false);
       _blockedSubject.add(null);
+      _walletDeleted = true;
       preferences.clearAll();
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
@@ -258,11 +290,28 @@ class IrmaRepository {
     return _eventSubject.stream;
   }
 
+  /// Dispatches [event] to the repository's listeners.
+  ///
+  /// Silently drops the event once the repository is closed. Widgets outlive
+  /// the repository during teardown — a State.dispose that dismisses a session
+  /// runs while Flutter finalizes the tree, which is after close() — and
+  /// adding to a closed subject throws from inside that finalization, which
+  /// aborts it and corrupts the element tree.
   void dispatch(Event event) {
+    if (_closed) return;
     _eventSubject.add(event);
   }
 
+  /// Whether a wipe happened since the last call. Clears the flag, so the
+  /// confirmation is shown once.
+  bool consumeWalletDeleted() {
+    final deleted = _walletDeleted;
+    _walletDeleted = false;
+    return deleted;
+  }
+
   void bridgedDispatch(Event event) {
+    if (_closed) return;
     dispatch(event);
     _bridge.dispatch(event);
   }
@@ -321,7 +370,7 @@ class IrmaRepository {
     return _credentialsSubject.stream;
   }
 
-  Stream<List<schemaless.Credential>> getSchemalessCredentials() {
+  Stream<schemaless.SchemalessCredentials> getSchemalessCredentials() {
     return _schemalessCredentialsSubject.stream;
   }
 
@@ -763,6 +812,31 @@ class IrmaRepository {
     }
   }
 
+  void _startResidencePermitIssuance(
+    BuildContext context,
+    String url,
+    WidgetRef ref,
+  ) {
+    if (url.isNotEmpty) {
+      final uri = Uri.parse(url);
+
+      final baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
+
+      if (ref.read(ocrProcessorProvider) != null) {
+        context.pushResidencePermitMrzReaderScreen();
+      } else {
+        context.pushResidencePermitManualEntryScreen();
+      }
+    }
+  }
+
   void _startDrivingLicenceIssuance(
     BuildContext context,
     String url,
@@ -849,14 +923,14 @@ class IrmaRepository {
   Future<void> openIssueURL(
     BuildContext context,
     String credentialId,
-    TranslatedValue? issueURL,
+    String? issueURL,
     WidgetRef ref,
   ) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = issueURL?.translate(lang);
+    // issueURL is already resolved to the effective app language by irmago.
+    final url = issueURL;
     if (url == null || url.isEmpty) {
       throw UnsupportedError(
-        "Credential type $credentialId does not have a suitable issue url for $lang",
+        "Credential type $credentialId does not have a suitable issue url",
       );
     }
 
@@ -865,12 +939,14 @@ class IrmaRepository {
       "pbdf.pbdf.passport": _startPassportIssuance,
       "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
       "pbdf.pbdf.idcard": _startIdCardIssuance,
+      "pbdf.pbdf.residencepermit": _startResidencePermitIssuance,
       "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
       "pbdf.sidn-pbdf.email": _startEmailIssuance,
       //----------- staging
       "pbdf-staging.pbdf.passport": _startPassportIssuance,
       "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
       "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
+      "pbdf-staging.pbdf.residencepermit": _startResidencePermitIssuance,
       "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
       "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
     };
@@ -908,6 +984,11 @@ class IrmaRepository {
   }
 
   Future<void> openURLinAppBrowser(String url) async {
+    // The in-app browser only gets https pages; anything else goes to the
+    // user's own browser or the app that handles the scheme.
+    if (!Uri.parse(url).isScheme("https")) {
+      return openURLExternally(url, suppressQrScanner: true);
+    }
     _resumedFromBrowserSubject.add(true);
     if (Platform.isAndroid) {
       await _iiabchannel.invokeMethod("open_browser", url);

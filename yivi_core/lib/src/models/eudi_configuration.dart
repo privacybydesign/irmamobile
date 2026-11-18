@@ -36,13 +36,21 @@ class EudiConfiguration {
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class Cert {
-  Cert({required this.thumbprint, required this.subject, this.childCert});
+  Cert({
+    required this.thumbprint,
+    required this.subject,
+    this.childCert,
+    this.deleteable = false,
+  });
 
   final String thumbprint;
 
   final String subject;
 
   final Cert? childCert;
+
+  @JsonKey(defaultValue: false)
+  final bool deleteable;
 
   factory Cert.fromJson(Map<String, dynamic> json) => _$CertFromJson(json);
 }

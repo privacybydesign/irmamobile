@@ -38,14 +38,14 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     appReady = false;
   }
 
-  private void init() {
+  private void init(String locale) {
     try {
       IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
       byte[] aesKey = AESKey.getKey(context);
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
       assert pi.applicationInfo != null;
       Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(),
-        new ECDSA(context), aesKey);
+        new ECDSA(context), aesKey, locale);
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
       StringBuilder exception = new StringBuilder(e.toString());
       Throwable cause = e.getCause();
@@ -79,10 +79,20 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       // Send a previously recorded initial URL back to the UI once the app is ready
       case "AppReadyEvent":
         appReady = true;
-        activity.runOnUiThread(this::init);
+        // The effective app language rides in the AppReadyEvent payload so the
+        // Go client is constructed with the right locale from the start.
+        String locale = "";
+        try {
+          if (call.arguments instanceof String) {
+            locale = new JSONObject((String) call.arguments).optString("locale", "");
+          }
+        } catch (JSONException ignored) {
+          // Fall back to empty locale (Go defaults to English).
+        }
+        final String initLocale = locale;
+        activity.runOnUiThread(() -> init(initLocale));
         if (initialURL != null) {
-          channel.invokeMethod("HandleURLEvent",
-            String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
+          channel.invokeMethod("HandleURLEvent", handleUrlEventPayload(initialURL, true));
           initialURL = null;
           // Drop the launching intent's data so a later maybeCreateBridge() — e.g.,
           // after a configuration change — doesn't read the same URL and replay it.
@@ -119,10 +129,29 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     }
 
     if (appReady) {
-      channel.invokeMethod("HandleURLEvent", String.format("{\"url\": \"%s\"}", link));
+      channel.invokeMethod("HandleURLEvent", handleUrlEventPayload(link, false));
     } else {
       initialURL = link;
     }
+  }
+
+  /**
+   * The JSON payload of a HandleURLEvent. The URL comes from another app or a web page,
+   * so it is encoded as a JSON string instead of pasted into one: a URL with a quote in
+   * it must not be able to add fields to the event or break it.
+   */
+  static String handleUrlEventPayload(Uri url, boolean isInitialURL) {
+    JSONObject payload = new JSONObject();
+    try {
+      payload.put("url", url.toString());
+      if (isInitialURL) {
+        payload.put("isInitialURL", true);
+      }
+    } catch (JSONException e) {
+      // Only thrown for a null key or a non-finite number, neither of which is passed.
+      throw new IllegalStateException(e);
+    }
+    return payload.toString();
   }
 
   @Override

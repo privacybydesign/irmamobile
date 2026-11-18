@@ -1,6 +1,5 @@
 import "dart:convert";
 
-import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 import "package:pinput/pinput.dart";
@@ -45,10 +44,6 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
     required String phoneNumber,
     required String language,
   }) async {
-    if (kDebugMode) {
-      debugPrint("Sending sms for: $phoneNumber");
-    }
-
     // Solve an ALTCHA proof-of-work challenge before asking the issuer to send
     // an SMS. This taxes automated bulk requests with CPU. Issuers that do not
     // hand out a challenge (ALTCHA disabled, or an older issuer) return null
@@ -205,24 +200,28 @@ class SmsIssuer extends Notifier<SmsIssuanceState> {
     required String phoneNumber,
     required String language,
   }) async {
-    try {
-      state = SmsIssuanceState(
-        stage: .waiting,
-        enteredCode: "",
-        phoneNumber: phoneNumber,
-        error: SmsIssuanceNoError(),
-      );
-      await ref
-          .read(smsIssuerApiProvider)
-          .sendSms(phoneNumber: phoneNumber, language: language);
-      state = state.copyWith(stage: .enteringVerificationCode);
-    } catch (e) {
-      final err = switch (e) {
-        SmsIssuanceError() => e,
-        _ => SmsIssuanceGeneralError(message: e.toString()),
-      };
-      state = state.copyWith(stage: .enteringPhoneNumber, error: err);
-    }
+    state = SmsIssuanceState(
+      stage: .waiting,
+      enteredCode: "",
+      phoneNumber: phoneNumber,
+      error: SmsIssuanceNoError(),
+    );
+    await ref
+        .read(smsIssuerApiProvider)
+        .sendSms(phoneNumber: phoneNumber, language: language)
+        .then((_) {
+          state = state.copyWith(stage: .enteringVerificationCode);
+        })
+        .catchError((e) {
+          final err = switch (e) {
+            SmsIssuanceError() => e,
+            _ => SmsIssuanceGeneralError(message: e.toString()),
+          };
+
+          if (ref.mounted) {
+            state = state.copyWith(stage: .enteringPhoneNumber, error: err);
+          }
+        });
   }
 
   Future<SessionPointer?> verifyCode({required String code}) async {

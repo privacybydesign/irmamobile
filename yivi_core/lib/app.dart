@@ -1,11 +1,10 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../routing.dart";
 import "../../src/models/applifecycle_changed_event.dart";
@@ -20,6 +19,7 @@ import "src/providers/preferences_provider.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
+import "src/widgets/legacy_material_bridge.dart";
 import "src/widgets/lock_gate.dart";
 import "src/widgets/store_review_gate.dart";
 
@@ -66,14 +66,17 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
           forcedLocale: forcedLocale,
         ),
       ),
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
+      ...GlobalMaterialLocalizations.delegates,
     ];
   }
 
   static List<Locale> defaultSupportedLocales() {
-    return const [Locale("en", "US"), Locale("nl", "NL"), Locale("de", "DE")];
+    return const [
+      Locale("en", "US"),
+      Locale("nl", "NL"),
+      Locale("de", "DE"),
+      Locale("fr", "FR"),
+    ];
   }
 
   @override
@@ -188,11 +191,15 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             supportedLocales: defaultSupportedLocales(),
             showSemanticsDebugger: false,
             routerConfig: _router,
-            builder: (context, child) => LockGate(
-              router: _router,
-              child: StoreReviewGate(
-                router: _router,
-                child: child ?? const SizedBox.shrink(),
+            builder: (context, child) => CaptureCoverText(
+              child: LegacyMaterialBridge(
+                child: LockGate(
+                  router: _router,
+                  child: StoreReviewGate(
+                    router: _router,
+                    child: child ?? const SizedBox.shrink(),
+                  ),
+                ),
               ),
             ),
           ),

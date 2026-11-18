@@ -89,6 +89,15 @@ func DispatchFromNative(eventName, payloadString string) {
 				reportError(errors.New(err), false)
 			}
 		}()
+	case "RefreshCredentialStatusesEvent":
+		// In a goroutine: the sweep fetches over HTTP and DispatchFromNative
+		// blocks the main thread (as with UpdateSchemesEvent above).
+		go func() {
+			defer recoverFromPanic("Handling RefreshCredentialStatusesEvent panicked")
+			if err := bridgeEventHandler.refreshCredentialStatuses(); err != nil {
+				reportError(errors.New(err), false)
+			}
+		}()
 	case "LoadLogsEvent":
 		event := &loadLogsEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
@@ -118,6 +127,16 @@ func DispatchFromNative(eventName, payloadString string) {
 		event := &installCertificateEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.installCertificate(event)
+		}
+	case "RemoveCertificateEvent":
+		event := &removeCertificateEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.removeCertificate(event)
+		}
+	case "SetLocaleEvent":
+		event := &setLocaleEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.setLocale(event)
 		}
 	}
 

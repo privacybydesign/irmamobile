@@ -1,11 +1,23 @@
+# Where `flutter build --split-debug-info` writes the Dart symbols, relative to yivi_app.
+DART_SYMBOLS_DIR = "build/dart-symbols"
+
 before_all do
   skip_docs()
   # Ensure that build and profiles directories are present in fastlane directory.
   sh("mkdir -p ./build/ ./profiles/")
 end
 
+# `dart format` reads the package's language version from
+# .dart_tool/package_config.json to decide which formatting style to apply, and
+# falls back to the newest language version the SDK knows when that file is
+# missing. On a clean checkout nothing has written it yet, so the format check
+# has to be preceded by a `flutter pub get` — otherwise it silently formats
+# against a language version the package does not use, which is how the Flutter
+# 3.44 -> 3.47 upgrade turned 34 unmodified files into "changed". It also
+# resolves package:flutter_lints for the analysis_options include.
 lane :lint do
   Dir.chdir("../yivi_core") do
+    sh("flutter", "pub", "get")
     sh("dart", "format", "--set-exit-if-changed", "lib/", "test/")
     sh("flutter", "analyze", "--no-fatal-infos")
 
@@ -18,11 +30,13 @@ lane :lint do
   end
 
   Dir.chdir("../yivi_app") do
+    sh("flutter", "pub", "get")
     sh("dart", "format", "--set-exit-if-changed", "lib/", "integration_test/")
     sh("flutter", "analyze", "--no-fatal-infos")
   end
 
   Dir.chdir("../yivi_fdroid") do
+    sh("flutter", "pub", "get")
     sh("dart", "format", "--set-exit-if-changed", "lib/")
     sh("flutter", "analyze", "--no-fatal-infos")
   end
@@ -30,6 +44,17 @@ end
 
 lane :unit_test do
   Dir.chdir("../yivi_core") do
+    sh("flutter", "test")
+  end
+
+  # The apps have unit tests of their own, for what only they contain: the
+  # Regula and ML Kit glue in yivi_app, the Tesseract and web liveness glue in
+  # yivi_fdroid.
+  Dir.chdir("../yivi_app") do
+    sh("flutter", "test")
+  end
+
+  Dir.chdir("../yivi_fdroid") do
     sh("flutter", "test")
   end
 
@@ -114,6 +139,9 @@ private_lane :android_build_app do |options|
   # Therefore, we use environment variables to hide parameter values.
   puts "In the following command, parameter values are hidden using environment variables."
   cmd = "flutter build $FASTLANE_BUILD_TYPE --flavor $FASTLANE_FLAVOR --release"
+  # Obfuscate the Dart code: class, function and library names are replaced, and the
+  # symbols needed to read a stack trace are written next to the app instead of into it.
+  cmd += " --obfuscate --split-debug-info=#{DART_SYMBOLS_DIR}"
   ENV["FASTLANE_BUILD_TYPE"] = options[:build_type]
   ENV["FASTLANE_FLAVOR"] = options[:flavor]
   if options[:keystore_path]
@@ -126,8 +154,10 @@ private_lane :android_build_app do |options|
   end
 
   Dir.chdir("../yivi_app") do
+    sh("rm", "-rf", DART_SYMBOLS_DIR)
     sh(cmd)
   end
+  archive_dart_symbols(name: "android-#{options[:flavor]}-#{options[:build_type]}")
 end
 
 lane :android_build_integration_test do
@@ -220,9 +250,16 @@ lane :ios_build_app do |options|
   )
 
   Dir.chdir("../yivi_app") do
-    sh("flutter", "build", "ipa", "--release", "--export-options-plist", "./ios/Runner/Flutter-Build-IPA.plist")
+    sh("rm", "-rf", DART_SYMBOLS_DIR)
+    sh(
+      "flutter", "build", "ipa", "--release",
+      # See android_build_app.
+      "--obfuscate", "--split-debug-info=#{DART_SYMBOLS_DIR}",
+      "--export-options-plist", "./ios/Runner/Flutter-Build-IPA.plist"
+    )
     sh("cp ./build/ios/ipa/*.ipa ../fastlane/build/app-#{options[:flavor]}-ios-#{export_method}.ipa")
   end
+  archive_dart_symbols(name: "ios-#{options[:flavor]}-#{export_method}")
 end
 
 lane :ios_build_integration_test do |options|
@@ -278,6 +315,18 @@ lane :ios_build_integration_test do |options|
         sh("zip -r ../../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
       end
     end
+  end
+end
+
+# Keeps the symbols of an obfuscated build, as fastlane/build/dart-symbols-<name>.zip.
+# A stack trace of that build only shows addresses; `flutter symbolize -i <trace>
+# -d <symbols file>` turns it back into function names, and needs the symbols of
+# exactly that build. They are not part of the app and must not be published with it.
+# The delivery workflow also uploads them to Sentry (.github/actions/upload-dart-symbols),
+# which then does this for the crash reports it receives.
+private_lane :archive_dart_symbols do |options|
+  Dir.chdir("../yivi_app/#{DART_SYMBOLS_DIR}") do
+    sh("zip -q -r ../../../fastlane/build/dart-symbols-#{options[:name]}.zip .")
   end
 end
 

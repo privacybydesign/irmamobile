@@ -1,7 +1,8 @@
 import "dart:async";
 import "dart:developer";
 
-import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
 
 import "../../../models/certificate_events.dart";
@@ -16,6 +17,7 @@ import "../../../widgets/translated_text.dart";
 import "../../error/error_screen.dart";
 import "../cert_management/widgets/cert_manager_tile.dart";
 import "../cert_management/widgets/provide_cert_dialog.dart";
+import "../util/snackbar.dart";
 
 class CertificateManagementScreen extends StatefulWidget {
   @override
@@ -81,7 +83,17 @@ class _CertificateManagementScreenState
 
   void _onCertificateTileTap(String thumbprint) =>
       log("Tapped certificate with thumbprint $thumbprint");
-  //Navigator.of(context).push(MaterialPageRoute(builder: (context) => CertManagerDetailScreen(trustAnchorId)));
+
+  void _onRemoveCertificate(String type, Cert cert) {
+    IrmaRepositoryProvider.of(context).bridgedDispatch(
+      RemoveCertificateEvent(type: type, thumbprint: cert.thumbprint),
+    );
+
+    showSnackbar(
+      context,
+      FlutterI18n.translate(context, "debug.cert_management.removed"),
+    );
+  }
 
   @override
   void dispose() {
@@ -119,6 +131,7 @@ class _CertificateManagementScreenState
                     CertManagerTile(
                       cert: cert,
                       onTap: () => _onCertificateTileTap(cert.thumbprint),
+                      onDelete: () => _onRemoveCertificate("issuer", cert),
                     ),
                 SizedBox(height: theme.defaultSpacing),
                 const TranslatedText("debug.cert_management.verifier_certs"),
@@ -127,6 +140,7 @@ class _CertificateManagementScreenState
                     CertManagerTile(
                       cert: cert,
                       onTap: () => _onCertificateTileTap(cert.thumbprint),
+                      onDelete: () => _onRemoveCertificate("verifier", cert),
                     ),
               ],
             );

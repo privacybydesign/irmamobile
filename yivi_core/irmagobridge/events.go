@@ -71,6 +71,15 @@ type installCertificateEvent struct {
 	PemContent string `json:"pem_content"`
 }
 
+type removeCertificateEvent struct {
+	Type       string `json:"type"`
+	Thumbprint string `json:"thumbprint"`
+}
+
+type setLocaleEvent struct {
+	Locale string `json:"locale"`
+}
+
 // //
 // Outgoing events
 // //
@@ -89,7 +98,8 @@ type eudiConfigurationEvent struct {
 }
 
 type schemalessCredentialsEvent struct {
-	Credentials []*clientmodels.Credential `json:"credentials"`
+	Credentials []*clientmodels.Credential            `json:"credentials"`
+	Problematic []*clientmodels.ProblematicCredential `json:"problematic"`
 }
 
 type schemalessCredentialStoreEvent struct {

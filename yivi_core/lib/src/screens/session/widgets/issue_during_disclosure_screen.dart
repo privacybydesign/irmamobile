@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";

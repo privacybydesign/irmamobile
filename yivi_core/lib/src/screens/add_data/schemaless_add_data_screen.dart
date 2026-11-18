@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
 import "../../providers/nfc_availability_provider.dart";
@@ -39,7 +39,6 @@ class SchemalessAddDataScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final storeItems = ref.watch(groupedCredentialStoreProvider);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     // Treat the device as NFC-capable while the check is loading or if it
     // fails: greying out a credential the user can actually obtain is worse
@@ -69,13 +68,25 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                   crossAxisAlignment: .start,
                   spacing: theme.largeSpacing,
                   children: [
-                    for (final CredentialStoreCategory(:category, :items)
+                    for (final CredentialStoreCategory(
+                          :category,
+                          :items,
+                          :source,
+                        )
                         in value)
                       Column(
                         crossAxisAlignment: .start,
                         spacing: theme.smallSpacing,
                         children: [
-                          SectionHeader.text(category.translate(lang)),
+                          if (source == CredentialStoreSource.staging)
+                            const SectionHeader("data.add.staging")
+                          else if (source == CredentialStoreSource.demo)
+                            const SectionHeader("data.add.demo")
+                          // A credential without a category (irmago marshals
+                          // it `omitempty`) groups under "", which would
+                          // otherwise render as a blank gap above the cards.
+                          else if (category.isNotEmpty)
+                            SectionHeader.text(category),
                           Column(
                             spacing: theme.smallSpacing,
                             children: [
@@ -92,6 +103,8 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                                         credential.image != null
                                         ? Base64Image(
                                             base64: credential.image!.base64,
+                                            mimeType:
+                                                credential.image!.mimeType,
                                           )
                                         : null,
                                     credentialName: credential.name,

@@ -1,8 +1,8 @@
 import "dart:io";
 
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
 import "../../models/native_events.dart";
@@ -13,7 +13,6 @@ import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
-import "../../util/language.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -101,6 +100,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// rebuilds keep returning the same decision.
   bool? _inAppLaunchedSuccess;
 
+  /// True once the user closed an error on a session that has no way back to
+  /// its caller other than the iOS status-bar back link. Replaces the session
+  /// body with [ArrowBack] until they leave the app.
+  bool _showArrowBack = false;
+
   @override
   void initState() {
     super.initState();
@@ -167,6 +171,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         _grantPreAuthorizedCode(session, transactionCode: null);
       }
     });
+
+    // Takes precedence over every session state: the session is over, and the
+    // only thing left for the user to do is tap the iOS back link.
+    if (_showArrowBack) {
+      return const ArrowBack(type: ArrowBackType.error);
+    }
 
     // Show loading while waiting for a state update after user interaction,
     // except when on the PIN screen — it handles its own loading overlay
@@ -453,7 +463,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // whether this is a same- or second-device session.
     if (returnUrl != null && returnUrl.isPhoneNumber) {
       return CallInfoScreen(
-        otherParty: getTranslation(context, session.requestor.name),
+        otherParty: session.requestor.name,
         onContinue: () =>
             _openReturnUrl(returnUrl, alwaysExternal: true, popOnSuccess: true),
         onCancel: _closeSession,
@@ -472,7 +482,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return DisclosureFeedbackScreen(
         feedbackType: .success,
         isSignatureSession: session.type == .signature,
-        otherParty: getTranslation(context, session.requestor.name),
+        otherParty: session.requestor.name,
         onDismiss: (_) => pop(),
       );
     }
@@ -558,6 +568,29 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // Clear so an abandoned in-app launch doesn't leak into the next
     // session. Safe to call even when nothing was launched.
     _repo.clearInAppLaunches();
+
+    // Same-device session that set no return URL: the caller is whatever app
+    // handed the session over, typically the browser the user started in.
+    // Leaving them on the Yivi home screen strands them there — the retry
+    // lives in the caller — so hand them back the same way _buildSuccess
+    // does. Requestors that chain sessions rely on this: a failure mid-chain
+    // is recoverable, but only from the page that started it.
+    final shouldReturnToCaller =
+        session != null &&
+        returnUrl == null &&
+        !wasInAppLaunched &&
+        !widget.hasUnderlyingSession &&
+        !session.continueOnSecondDevice;
+
+    if (shouldReturnToCaller) {
+      // iOS has no programmatic way back, so point at the status-bar back
+      // link and stay put until the user leaves.
+      if (Platform.isIOS) {
+        if (mounted) setState(() => _showArrowBack = true);
+        return;
+      }
+      _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+    }
 
     if (mounted) {
       context.popToUnderlyingSessionOrHome(

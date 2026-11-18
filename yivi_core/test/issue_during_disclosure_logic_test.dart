@@ -3,12 +3,11 @@ import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
-import "package:yivi_core/src/models/translated_value.dart";
 import "package:yivi_core/src/providers/issue_during_disclosure_provider.dart";
 
 TrustedParty _issuer() => TrustedParty(
   id: "issuer",
-  name: const TranslatedValue.empty(),
+  name: "",
   url: null,
   parent: null,
   verified: true,
@@ -16,7 +15,7 @@ TrustedParty _issuer() => TrustedParty(
 
 CredentialDescriptor _desc(String credentialId) => CredentialDescriptor(
   credentialId: credentialId,
-  name: const TranslatedValue.empty(),
+  name: "",
   issuer: _issuer(),
   category: null,
   attributes: const [],

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- T: tractor, small front wheel, large rear wheel, facing left -->
+  <path d="M2.4 11.2H12.8V14.6H2.4Z"/>
+  <path d="M6 7.4h1.3v3.8H6Z"/>
+  <path d="M11.6 4.4H20.9V11H11.6Z M13.1 5.8H19.4V9.6H13.1Z"/>
+  <path d="M13.200000000000001 15.6a4.4 4.4 0 1 0 8.8 0a4.4 4.4 0 1 0 -8.8 0ZM15.8 15.6a1.8 1.8 0 1 0 3.6 0a1.8 1.8 0 1 0 -3.6 0Z"/>
+  <path d="M2.9000000000000004 17.6a2.3 2.3 0 1 0 4.6 0a2.3 2.3 0 1 0 -4.6 0ZM4.3 17.6a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0Z"/>
+</svg>

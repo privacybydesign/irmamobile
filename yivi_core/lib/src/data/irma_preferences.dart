@@ -32,6 +32,10 @@ class IrmaPreferences {
          _acceptedRootedRiskKey,
          defaultValue: false,
        ),
+       _acceptedEnvironmentRisk = preferences.getBool(
+         _acceptedEnvironmentRiskKey,
+         defaultValue: false,
+       ),
        _biometricEnabled = preferences.getBool(
          _biometricEnabledKey,
          defaultValue: false,
@@ -80,6 +84,10 @@ class IrmaPreferences {
          _reviewLastAskEpochMsKey,
          defaultValue: 0,
        ),
+       _acceptedTermsAtEpochMs = preferences.getInt(
+         _acceptedTermsAtEpochMsKey,
+         defaultValue: 0,
+       ),
        _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
@@ -118,6 +126,13 @@ class IrmaPreferences {
   static const String _acceptedRootedRiskKey =
       "preference.accepted_rooted_risk";
   final Preference<bool> _acceptedRootedRisk;
+
+  /// Kept apart from [_acceptedRootedRisk]: accepting the risk of a rooted or
+  /// jailbroken device says nothing about an emulator, a cloned app or a
+  /// hooking framework.
+  static const String _acceptedEnvironmentRiskKey =
+      "preference.accepted_environment_risk";
+  final Preference<bool> _acceptedEnvironmentRisk;
 
   /// Whether the user opted in to biometric app-unlock. Default off (opt-in).
   static const String _biometricEnabledKey = "preference.biometric_enabled";
@@ -166,6 +181,13 @@ class IrmaPreferences {
 
   static const String _acceptedTermsUrlKey = "preference.accepted_terms_url";
   final Preference<String> _acceptedTermsUrl;
+
+  /// When the user accepted the terms in [_acceptedTermsUrl] (ms since epoch),
+  /// or 0 when unknown: no terms accepted, or accepted before this was recorded.
+  /// Together with the versioned URL this is the record of the consent.
+  static const String _acceptedTermsAtEpochMsKey =
+      "preference.accepted_terms_at_epoch_ms";
+  final Preference<int> _acceptedTermsAtEpochMs;
 
   // Used to store the prefered order of credentials in the data tab
   static const String _credentialOrderKey = "preference.credential_order";
@@ -224,6 +246,11 @@ class IrmaPreferences {
   Future<bool> setAcceptedRootedRisk(bool value) =>
       _acceptedRootedRisk.setValue(value);
 
+  Stream<bool> getAcceptedEnvironmentRisk() => _acceptedEnvironmentRisk;
+
+  Future<bool> setAcceptedEnvironmentRisk(bool value) =>
+      _acceptedEnvironmentRisk.setValue(value);
+
   Stream<bool> getBiometricEnabled() => _biometricEnabled;
 
   Future<bool> setBiometricEnabled(bool value) =>
@@ -246,6 +273,11 @@ class IrmaPreferences {
       _completedDisclosurePermissionIntro.setValue(value);
 
   Stream<String> getPreferredLanguageCode() => _preferredLanguageCode;
+
+  /// The current preferred-language override, read synchronously. Empty string
+  /// means "follow the system language". Used to compute the effective app
+  /// language at bridge startup, before any stream has emitted.
+  String get preferredLanguageCode => _preferredLanguageCode.getValue();
 
   Future<bool> setPreferredLanguageCode(String value) =>
       _preferredLanguageCode.setValue(value);
@@ -270,8 +302,26 @@ class IrmaPreferences {
   Stream<bool> hasAcceptedLatestTerms() =>
       _acceptedTermsUrl.map((url) => url == mostRecentTermsUrlNl);
 
-  Future<bool> markLatestTermsAsAccepted(bool accepted) => _acceptedTermsUrl
-      .setValue(accepted ? mostRecentTermsUrlNl : "no-terms-accepted");
+  Future<bool> markLatestTermsAsAccepted(bool accepted) async {
+    await _acceptedTermsAtEpochMs.setValue(
+      accepted ? DateTime.now().millisecondsSinceEpoch : 0,
+    );
+    return _acceptedTermsUrl.setValue(
+      accepted ? mostRecentTermsUrlNl : "no-terms-accepted",
+    );
+  }
+
+  /// The versioned terms URL the user accepted, or null when none was.
+  String? get acceptedTermsUrl {
+    final url = _acceptedTermsUrl.getValue();
+    return url == "no-terms-accepted" ? null : url;
+  }
+
+  /// When the user accepted [acceptedTermsUrl], or null when that is unknown.
+  DateTime? get acceptedTermsAt {
+    final epochMs = _acceptedTermsAtEpochMs.getValue();
+    return epochMs == 0 ? null : DateTime.fromMillisecondsSinceEpoch(epochMs);
+  }
 
   List<String> getCredentialOrder() => _credentialOrder.getValue();
 

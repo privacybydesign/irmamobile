@@ -1,7 +1,7 @@
 import "dart:io" show Platform;
 
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
 import "../../widgets/irma_app_bar.dart";

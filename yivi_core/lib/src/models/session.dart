@@ -56,18 +56,11 @@ abstract class Pointer {
     if (content.startsWith("eudi-openid4vp://") ||
         content.startsWith("openid4vp://")) {
       final uri = Uri.parse(content);
-      final requestUri = uri.queryParameters["request_uri"];
       final clientId = uri.queryParameters["client_id"];
       if (clientId == null) {
         throw MissingPointer(
           details:
               'expected "client_id" to be present in query parameters, but it wasn\'t',
-        );
-      }
-      if (requestUri == null) {
-        throw MissingPointer(
-          details:
-              'expected "request_uri" to be present in query parameters, but it wasn\'t',
         );
       }
       return SessionPointer(

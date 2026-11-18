@@ -197,6 +197,7 @@ Future<void> testIssuance(
 Future<void> tapQrScannerButton(WidgetTester tester) async {
   // should be on the pin screen, find the qr scanner button and press it
   final qrButton = find.byType(YiviAppBarQrCodeButton);
+  await tester.waitFor(qrButton);
   await tester.tapAndSettle(qrButton);
 }
 

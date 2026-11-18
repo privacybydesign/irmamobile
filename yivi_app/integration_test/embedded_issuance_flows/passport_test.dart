@@ -1,6 +1,6 @@
 import "dart:async";
 
-import "package:flutter/cupertino.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:mrz_parser/mrz_parser.dart";
@@ -9,6 +9,7 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
@@ -217,6 +218,10 @@ void main() {
       await tester.waitFor(find.byType(NfcReadingScreen));
       final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
       await tester.tap(startScanningButton);
+      // The read runs behind a privacy-screen suspension, so it takes a
+      // platform-channel round trip to get going — more than the microtasks
+      // the tap itself drains.
+      await tester.pumpUntil(() => fakeReader.readCalled);
 
       expect(fakeIssuer.startSessionCount, 1);
       expect(fakeReader.readCalled, isTrue);
@@ -230,6 +235,141 @@ void main() {
 
       readCompleter.complete();
     });
+
+    testWidgets(
+      "face verification attaches the liveness transaction id to the issuance request",
+      (tester) async {
+        final fakeReader = FakePassportReader(
+          mrzResult: fakePassportMrz,
+          statesDuringRead: [
+            DocumentReaderConnecting(),
+            DocumentReaderReadingCardAccess(),
+            DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+            DocumentReaderActiveAuthentication(),
+            DocumentReaderSuccess(),
+          ],
+        );
+        final fakeIssuer = FakePassportIssuer();
+        final fakeFace = FakeRegulaFaceService(transactionId: "txn-passport-1");
+
+        await navigateToPassportNfcReadingScreen(
+          tester,
+          irmaBinding,
+          fakeReader,
+          fakeIssuer,
+          regulaFaceService: fakeFace,
+        );
+
+        await tester.waitFor(find.byType(NfcReadingScreen));
+        // "Start scanning" on the NFC screen; the readout then succeeds.
+        await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+        // The Yivi face-verification intro appears after the successful readout.
+        await tester.waitFor(find.byType(FaceVerificationIntroScreen));
+        // Its "Start" button launches the (fake) liveness session.
+        await tester.tapAndSettle(
+          find.descendant(
+            of: find.byType(FaceVerificationIntroScreen),
+            matching: find.byKey(const Key("bottom_bar_primary")),
+          ),
+        );
+        // The readout and the issuance call sit behind platform-channel round
+        // trips that schedule no frames, so pumpAndSettle can return before the
+        // issuer has been reached.
+        await tester.pumpUntil(() => fakeIssuer.lastIssuedData != null);
+
+        // Liveness must have run and its transaction id must reach the issuer,
+        // and the active language must have been forwarded to the SDK.
+        expect(fakeFace.captureCount, 1);
+        expect(fakeFace.lastLanguageCode, isNotNull);
+        expect(fakeIssuer.lastIssuedData, isNotNull);
+        expect(
+          fakeIssuer.lastIssuedData!.livenessTransactionId,
+          "txn-passport-1",
+        );
+      },
+    );
+
+    testWidgets(
+      "face verification is skipped when the build has no face service",
+      (tester) async {
+        final fakeReader = FakePassportReader(
+          mrzResult: fakePassportMrz,
+          statesDuringRead: [
+            DocumentReaderConnecting(),
+            DocumentReaderReadingCardAccess(),
+            DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+            DocumentReaderActiveAuthentication(),
+            DocumentReaderSuccess(),
+          ],
+        );
+        final fakeIssuer = FakePassportIssuer();
+
+        // The issuer does announce face verification here; what is missing is a
+        // liveness service, as in the FOSS build. No regulaFaceService override
+        // => regulaFaceServiceProvider keeps its null default.
+        await navigateToPassportNfcReadingScreen(
+          tester,
+          irmaBinding,
+          fakeReader,
+          fakeIssuer,
+        );
+
+        await tester.waitFor(find.byType(NfcReadingScreen));
+        await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+        // Reaching the issuer at all proves the step was skipped: an intro
+        // screen would sit there waiting for a tap that never comes.
+        await tester.pumpUntil(() => fakeIssuer.lastIssuedData != null);
+
+        // Straight to issuance: no intro screen, and no transaction id on the
+        // issuance request.
+        expect(find.byType(FaceVerificationIntroScreen), findsNothing);
+        expect(fakeIssuer.lastIssuedData, isNotNull);
+        expect(fakeIssuer.lastIssuedData!.livenessTransactionId, isNull);
+      },
+    );
+
+    testWidgets(
+      "face verification is skipped when the issuer does not announce it",
+      (tester) async {
+        final fakeReader = FakePassportReader(
+          mrzResult: fakePassportMrz,
+          statesDuringRead: [
+            DocumentReaderConnecting(),
+            DocumentReaderReadingCardAccess(),
+            DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+            DocumentReaderActiveAuthentication(),
+            DocumentReaderSuccess(),
+          ],
+        );
+        // The issuer decides whether face verification applies, never the
+        // wallet: without an announcement the step is skipped even though a
+        // fully capable liveness service is injected.
+        final fakeIssuer = FakePassportIssuer(faceVerification: null);
+        final fakeFace = FakeRegulaFaceService(transactionId: "txn-unused");
+
+        await navigateToPassportNfcReadingScreen(
+          tester,
+          irmaBinding,
+          fakeReader,
+          fakeIssuer,
+          regulaFaceService: fakeFace,
+        );
+
+        await tester.waitFor(find.byType(NfcReadingScreen));
+        await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+        // Reaching the issuer at all proves the step was skipped: an intro
+        // screen would sit there waiting for a tap that never comes.
+        await tester.pumpUntil(() => fakeIssuer.lastIssuedData != null);
+
+        // Straight to issuance: no intro screen, no liveness session, no
+        // transaction id on the issuance request.
+        expect(find.byType(FaceVerificationIntroScreen), findsNothing);
+        expect(fakeFace.captureCount, 0);
+        expect(fakeIssuer.lastIssuedData, isNotNull);
+        expect(fakeIssuer.lastIssuedData!.livenessTransactionId, isNull);
+      },
+    );
 
     testWidgets(
       "nfc disabled shows disabled UI and retry cancels current attempt",

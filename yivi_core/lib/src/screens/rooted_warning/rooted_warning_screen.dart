@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../widgets/irma_bottom_bar.dart";
@@ -7,8 +7,13 @@ import "../../widgets/irma_info_scaffold_body.dart";
 
 class RootedWarningScreen extends StatelessWidget {
   final VoidCallback? onAcceptRiskButtonPressed;
+  final String explanationTranslationKey;
 
-  const RootedWarningScreen({this.onAcceptRiskButtonPressed});
+  const RootedWarningScreen({
+    super.key,
+    this.onAcceptRiskButtonPressed,
+    this.explanationTranslationKey = "rooted_warning.explanation",
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +21,7 @@ class RootedWarningScreen extends StatelessWidget {
       body: IrmaInfoScaffoldBody(
         imagePath: yiviAsset("error/insecure_device_illustration.svg"),
         titleTranslationKey: "rooted_warning.title",
-        bodyTranslationKey: "rooted_warning.explanation",
+        bodyTranslationKey: explanationTranslationKey,
       ),
       bottomNavigationBar: IrmaBottomBar(
         key: const Key("warning_screen_accept_button"),

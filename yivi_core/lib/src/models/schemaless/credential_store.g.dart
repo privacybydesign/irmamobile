@@ -18,20 +18,21 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
   Map<String, dynamic> json,
 ) => CredentialDescriptor(
   credentialId: json['credential_id'] as String,
-  name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+  name: json['name'] as String,
   issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
-  category: json['category'] == null
-      ? null
-      : TranslatedValue.fromJson(json['category'] as Map<String, dynamic>?),
+  category: json['category'] as String?,
   attributes: (json['attributes'] as List<dynamic>)
       .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
       .toList(),
-  issueURL: json['issue_url'] == null
-      ? null
-      : TranslatedValue.fromJson(json['issue_url'] as Map<String, dynamic>?),
+  issueURL: json['issue_url'] as String?,
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
+  format: $enumDecodeNullable(
+    _$CredentialFormatEnumMap,
+    json['format'],
+    unknownValue: JsonKey.nullForUndefinedEnumValue,
+  ),
 );
 
 Map<String, dynamic> _$CredentialDescriptorToJson(
@@ -44,6 +45,14 @@ Map<String, dynamic> _$CredentialDescriptorToJson(
   'image': instance.image,
   'attributes': instance.attributes,
   'issue_url': instance.issueURL,
+  'format': _$CredentialFormatEnumMap[instance.format],
+};
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.sdjwtVcdm: 'vc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };
 
 CredentialStoreItem _$CredentialStoreItemFromJson(Map<String, dynamic> json) =>
@@ -59,10 +68,10 @@ Map<String, dynamic> _$CredentialStoreItemToJson(
 ) => <String, dynamic>{'credential': instance.credential, 'faq': instance.faq};
 
 Faq _$FaqFromJson(Map<String, dynamic> json) => Faq(
-  intro: TranslatedValue.fromJson(json['intro'] as Map<String, dynamic>?),
-  purpose: TranslatedValue.fromJson(json['purpose'] as Map<String, dynamic>?),
-  content: TranslatedValue.fromJson(json['content'] as Map<String, dynamic>?),
-  howTo: TranslatedValue.fromJson(json['how_to'] as Map<String, dynamic>?),
+  intro: json['intro'] as String?,
+  purpose: json['purpose'] as String?,
+  content: json['content'] as String?,
+  howTo: json['how_to'] as String?,
 );
 
 Map<String, dynamic> _$FaqToJson(Faq instance) => <String, dynamic>{

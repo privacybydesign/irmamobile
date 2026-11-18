@@ -1,6 +1,6 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../models/enrollment_status.dart";
 import "../../models/error_event.dart";

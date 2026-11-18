@@ -5,6 +5,203 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
+- A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
+- Support for French language ([#806](https://github.com/privacybydesign/irmamobile/issues/806))
+- A link to the privacy policy on the terms screen of the enrollment, so it can be read before any data is processed
+- The moment the terms were accepted is stored next to the version that was accepted
+
+### Changed
+- The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
+
+### Removed
+- The Android app no longer asks for permissions it does not use. Dropped from both flavours: `RECORD_AUDIO` and `WRITE_EXTERNAL_STORAGE`/`READ_EXTERNAL_STORAGE`, which the camera plugin adds for video recording, and `WAKE_LOCK`. The F-Droid app also drops `VIBRATE`; the Play app keeps it, because the face verification SDK declares it
+
+### Security
+- Yivi only works on a device with a screen lock (a PIN, pattern, password or passcode, which fingerprint, face unlock, Face ID and Touch ID also use). On a device without one, a screen explains how to set it, both before enrollment and for existing users; on Android it opens the screen lock settings. The app checks again whenever it is reopened, so after setting a screen lock the user continues where they were
+- Links in markdown texts, which can come from issuers (such as the FAQ in EUDI credential metadata), only open when they are `https` or `mailto` links. A link with another scheme, such as `javascript:`, `file:`, `intent:` or another app's custom scheme, is ignored
+- An issuer or verifier logo or an attribute image in SVG format larger than 1 MiB is not drawn, so an oversized SVG cannot stall the app while it is parsed
+- On Android, other apps can no longer draw over Yivi to capture or redirect taps, for example on the PIN keypad or a consent screen (tapjacking). From Android 12 on, their overlay windows are hidden while Yivi is in the foreground; on every version, a tap that arrives while another window covers Yivi is ignored
+- An Android release build of the Yivi app no longer falls back to the debug key when no release key is given: the build fails instead. For local testing, debug signing can still be requested explicitly with `ORG_GRADLE_PROJECT_allowDebugSigning=true` (or `-PallowDebugSigning`). The F-Droid build is unchanged, because its build recipe builds without the release key
+- On Android 12 and later, the app's data is no longer copied when the user moves to a new phone with Android's device-to-device transfer. `allowBackup="false"` only turned off cloud backup there; explicit data extraction rules now exclude all app data from both
+- On iOS, third-party keyboards are no longer used in the app; the system keyboard is shown instead, so no keyboard extension sees what is typed. The fields for a document's number, dates and driving licence MRZ, from which the chip's access keys are derived, also turn off suggestions, autocorrect and keyboard learning (Gboard's incognito mode on Android), and the driving licence MRZ field no longer offers credit card autofill
+- The NFC error details no longer copy sensitive data to the clipboard. With "show sensitive data" ticked, the dialog shows the chip data and the MRZ-derived inputs for the chip's access keys, but the copy button is off, as sending to Yivi already was; without it, the button copies the logs without personal data, as before
+- Yivi looks at the environment it runs in, in release builds, when it starts, whenever it is reopened and every 30 seconds while it is open. These are checks on the device itself, which someone in control of the device can get around; they do not replace attestation of the app and the device by a backend
+  - With a debugger attached, or a dynamic instrumentation tool such as Frida loaded into the app, Yivi shows a screen that says so and stays closed until it is restarted
+  - On an emulator, inside an app-cloning container, or on a device with a hooking framework (Xposed, LSPosed, a tweak injector), the user gets the warning that a rooted or jailbroken device already gave, with its own explanation, and continues after accepting the risk
+- On iOS, Yivi covers itself while the screen is recorded, mirrored or shared over AirPlay. iOS cannot keep an app out of a recording the way Android does, so the app hides its content for as long as the capture lasts. A new setting, "Allow screen recording", switches this off, like "Enable screenshots" does on Android
+- On Android, the window is kept out of screenshots, recordings and the recents view from the moment it is created, instead of only after the app has started and read the user's preference
+- On Android 14 and later, the content of the app is only given to accessibility services that are an accessibility tool, such as TalkBack, Voice Access and Switch Access. This already followed from the tapjacking protection; it is now set explicitly
+- Yivi locks after five minutes without use while it is open, in addition to the existing lock after five minutes in the background. A touch, a key press and an action of a screen reader or another assistive technology all count as use
+- Error reporting (Sentry) is only started once the user opts in. Before, it was started without the opt-in with crash handling off, and then reported uncaught framework errors by itself. A report the user sends from an error screen still goes out without the opt-in, and only that report. No default personal data is attached to reports
+- The e-mail address and the phone number are no longer written to the device log when they are sent to the e-mail and SMS issuer, and the remaining log lines of the MRZ scanner and the iOS bridge are only written in debug builds
+- A return URL that a requestor gives a session is not opened when its scheme is `javascript`, `vbscript`, `data`, `blob`, `about`, `file`, `content`, `intent` or `android-app`. Web links, phone numbers and other apps' own schemes still work
+- The in-app browser only opens `https` pages, on Android enforced in the native code too. A cleartext `http` return URL with `inapp` opens in the user's own browser instead
+- A deep link is passed to the app as properly encoded JSON. It used to be pasted into a JSON string, so a link with a quote in it could add fields to the event or break it
+- The Android apps state their network security configuration: no cleartext traffic, and only the certificate authorities that ship with Android. That covers the Android network stack; Dart has its own, so the app also refuses every connection from Dart that is not `https`, on both platforms
+- The TLS configuration of the Go bridge (the embedded root certificates and only AEAD cipher suites for TLS 1.2) also applies to the OpenID4VCI, OpenID4VP, status list and did:web traffic. Before, it only reached the IRMA and keyshare traffic
+- In the F-Droid app, the face capture WebView only navigates to `https` pages on the host of the capture page, and cannot read files or content providers
+- The storage key on Android is generated with the default `SecureRandom` instead of `getInstanceStrong()`, which is the same generator there but can block on some devices
+
+### Internal
+- The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
+- The Delivery, Changelog and iOS test recording workflows and the build environment action pin their third-party actions to a commit SHA (the versions they already used), and their checkouts no longer keep the GitHub token in the git config. Delivery runs with a read-only token
+- `go fix` modernisations in the `structodart` developer tool, so the Go code passes the shared Go checks
+- Status checks use the organisation's shared workflows next to our own Flutter/Fastlane jobs: Go checks with govulncheck for the Go bridge, dependency review, workflow lint and one `Status checks passed` gate. They also run on pushes to `master`, the merge queue and every Monday. Dependabot keeps the pinned actions and the Go modules up to date
+- Dependabot also keeps the Dart/Flutter (pub) dependencies of `yivi_core`, `yivi_app` and `yivi_fdroid` and the Android Gradle dependencies up to date, grouped per ecosystem with the same 7-day cooldown. CocoaPods is left out: every pod comes from a Flutter plugin, so pub updates it
+- Status checks run CodeQL (security-extended queries) on the Go bridge, the Android Java plugins and the workflow files, through the organisation's shared workflow. Dart is not supported by CodeQL, and Swift would need a macOS build
+- The privacybydesign/pc-dart fork (pointycastle) is pinned to a commit instead of following `master`, in `yivi_core`, `yivi_app` and `yivi_fdroid`. The pin is the commit before the current `master`, which only added debug prints to `CMac.init`, so those prints are no longer in the app
+- The Go bridge is built with `-trimpath` and without the Go symbol table and DWARF debug information (`-ldflags "-s -w"`). The Android library no longer contains the build machine's file paths (1,940 before, 2 after, from gomobile's own build info) and is 25% smaller (arm64: 45 MB to 34 MB uncompressed). Go stack traces are unaffected
+- Enabled Private Vulnerability Reporting on repository and included SECURITY.md
+- Release builds made with fastlane obfuscate the Dart code (`--obfuscate --split-debug-info`). The symbols needed to read a stack trace of such a build are kept as `dart-symbols-*.zip`, uploaded by Delivery as artifacts of their own, apart from the app artifacts. A stack trace is made readable with `flutter symbolize`; Sentry shows addresses until the symbols are uploaded there
+- The names of the events that cross the bridge between Dart and Go are written out instead of taken from the Dart class names, which obfuscation changes. A test compares them with the events the Go bridge handles
+- The Android release build states `minifyEnabled` and `shrinkResources` (R8), which were the Flutter defaults
+- `ci_scripts/check_security_config.sh`, run in Status checks, fails when a security setting is undone: backup and cleartext rules in the manifests, certificate validation overrides, run-time code loading, a debuggable manifest, the obfuscation and Go build flags
+- Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
+
+## [8.4.0] - 2026-11-03
+### Added
+- Support for SD-JWT-secured W3C VCDM credentials (format `vc+sd-jwt`)
+- An attribute image in SVG format is shown. It used to render blank, because every attribute image was drawn as a bitmap. Attribute images now draw like logos: as an SVG when irmago's new `mime_type` says so or, without one, when the image starts like an SVG; as a bitmap otherwise ([privacybydesign/irmago#779](https://github.com/privacybydesign/irmago/issues/779))
+
+### Changed
+- An attribute the issuer gave no display name is labelled with its key made readable, e.g. `targetCode` as "Target code" and `institutionBRINCode` as "Institution BRIN code", instead of the raw key ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
+
+### Fixed
+- A credential, issuer or verifier logo that is not valid base64, or not an image, no longer shows as a grey error box: it is left out, as attribute images already were.
+- Nested claims the issuer gave no display name keep their structure on the card ([#790](https://github.com/privacybydesign/irmamobile/issues/790))
+  - The entries of a list are titled after the list and numbered per list, e.g. "ALIGNMENT 1/2" and "ALIGNMENT 2/2", instead of "ITEM 1/4" .. "ITEM 4/4" numbered across every such list on the card. A list of values inside such an entry is shown in that entry.
+  - The fields of an object are shown under a heading with its key, e.g. "ACHIEVEMENT", instead of spilling into the level above, where they mixed with the fields of the parent and of other objects.
+  - Each level shows its values first, then its nested objects and lists, then its images. A value used to land between two headings when its key sorted between theirs, where it read as part of the heading above it.
+  - A first key that every attribute on the card shares, such as a VCDM credential's `credentialSubject`, gets no heading of its own. Neither does an mdoc namespace, however many the card shows: an mDL with AAMVA fields shows its elements in one list, as before. This needs irmago to send the format of a credential the wallet does not hold yet, which it does from v1.5.0, the version that adds `format` to credential descriptors.
+- A screen reader now announces the search and add data buttons in the top bar of the data tab as "Search your data" and "Obtain data" ("Zoek in je gegevens" and "Haal gegevens op" in Dutch), instead of only "button" ([#726](https://github.com/privacybydesign/irmamobile/issues/726))
+- A screen reader can now read the App ID and the version on the More tab, and activate the item that enables developer mode ([#727](https://github.com/privacybydesign/irmamobile/issues/727))
+- A screen reader no longer announces the progress bar on the collect data screen by its numeric value; the "Step 1 of 2" text stays ([#728](https://github.com/privacybydesign/irmamobile/issues/728))
+
+### Internal
+- Add widget tests asserting the semantics of the data tab top bar buttons, the version button and the session progress indicator
+- Add integration tests for issuing and disclosing `vc+sd-jwt` and Open Badges credentials against the Veramo test issuer and verifier on staging (`integration_test/vcdm_test.dart`)
+- The debug log leaves out the images of attribute values (`base64_image`), as it already did for logos
+- Upgrade irmago to v1.5.0
+
+## [8.3.3] - 2026-10-16
+### Added
+- Amounts in attributes that use irmago's `currency:<code>` display hint (e.g. `displayHint="currency:EUR"`) are shown as currency in the app's language, e.g. "€ 12,50" in Dutch and "€12.50" in English. With an irmago that doesn't send display hints yet, or with an amount or code that can't be formatted, the raw value is shown as before ([privacybydesign/irmago#752](https://github.com/privacybydesign/irmago/issues/752))
+
+### Internal
+- Upgrade irmago to v1.4.2
+
+## [8.3.2] - 2026-10-14
+### Added
+- The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
+- On Android the MRZ scanner tells the user to tilt the document when a reflection washes out part of the MRZ: "Reflection on the document. Tilt it slightly." It shows once two of the last three frames had a reflection on the MRZ and goes away after three frames without
+- The categories on a driving licence credential (`pbdf.pbdf.drivinglicence`, and its `pbdf-staging` counterpart) are shown as one table laid out like the back of the licence card, instead of three separate rows per category: a vehicle pictogram and the category code, followed by the issue and expiry dates, with "-" for a category that is not held. On the credential detail screen the table starts collapsed to the categories held and ends in a "+ 14 categories not held" row that expands the rest in place. On a disclosure, in the session and in the activity log, it shows exactly the categories being shared, with only the date columns that were requested, or a Status column (Held / Not held) when no date was requested
+
+### Changed
+- The face check in the Play Store and App Store builds also works with the phone held sideways, for people who can only hold their phone that way
+
+### Fixed
+- A credential with more than 32 attributes keeps the order the scheme gives them. Moving its photo to the bottom of the card used to shuffle the other attributes, which put Over 18 at the top of a driving licence with categories
+- Tilting the phone to landscape during the face check in the F-Droid build no longer ends the issuance with an error (`LANDSCAPE_MODE_RESTRICTED`); the face check screen stays in portrait
+- The F-Droid build finds the MRZ of a document on a textured surface such as a tablecloth, where it used to read the fabric below the document instead; it reads documents held at any angle, upside down included, and no longer stalls for seconds on frames without a document in them
+- An MRZ line that OCR read a filler or two too short or too long is no longer thrown away; the run of fillers is brought back to length, which puts the check digits back in place
+- The Play Store build picks the MRZ lines out of the text ML Kit reads by their upper case content instead of their length. Any other line on the document that happened to be 30, 36 or 44 characters long used to be mixed in, and the frame was then thrown away
+- An MRZ reading is only accepted once two camera frames agree on the document number, birth date and expiry date. A single check digit lets about one in ten misreads of its field through, which used to surface later as a chip that would not open. A document number with one misread character (2/Z, 0/O, 0/D, 0/Q, 1/I, 5/S, 8/B) is corrected when its check digit settles which one: a single swap fits, or a single fitting swap turns a letter back into a digit, the direction OCR gets wrong far more often
+- The MRZ camera runs at 1080p instead of 720p, which gives the OCR more pixels per character
+- A camera frame that arrived after the MRZ scanner had released the camera no longer raises an unhandled exception
+- The credentials in the add data screen keep a fixed order: the personal section first, then the other categories alphabetically, each sorted by name. irmago hands them over in a different order on every start. Credentials from the staging scheme (`pbdf-staging`) and the demo scheme (`irma-demo`) are listed separately at the bottom, under "Staging (test environment)" and "Demo (example data)"
+
+### Internal
+- The demo driving licence (`irma-demo.pbdf.drivinglicence`, "Dutch Driving Licence (demo)") gets the categories table too, and the bundled `irma-demo` scheme is updated to the version that adds it
+- Integration tests for the driving licence categories table in `integration_test/driving_licence_card_test.dart`, against the demo driving licence: the issuance screen, collapsing and expanding on the detail screen, a licence with no category, every category or no category data at all, the Status and date columns on a disclosure, and the activity log entry of that disclosure. `issueCredentials` and `evaluateCredentialCard` skip the texts inside an attribute group when they read a card's attribute rows
+- Attribute groups: a credential type can register a renderer (in `attribute_group_registry.dart`) that takes a set of its attributes out of the ordinary attribute rows and draws them as one widget, placed at the top, after a given attribute, at the bottom, or below the images. A renderer is handed only the attributes being shown, so on a disclosure it draws just what is shared, and it does its own comparison colouring
+- Widget tests load the locale files through a `TestTranslationLoader` that decodes them on the test isolate. The locale files are now past the 50 KB at which `rootBundle.loadString` decodes on a background isolate, which never completes under the widget tester's fake async
+- A pull request now has to update this changelog or carry the `skip-changelog` label, which a CI check enforces
+- Upgrade the Regula face SDK: `flutter_face_api` to 8.4.1655 and `flutter_face_core_basic` to 8.4.761
+- The `unit_test` CI lane also runs the tests in `yivi_app` and `yivi_fdroid`, which it used to skip
+
+## [8.3.1] - 2026-10-05
+### Fixed
+- An image attribute whose value is not a decodable image, such as the single space some issuers send for an empty photo, now shows an empty value under its label instead of turning the credential card into a grey error box
+
+### Internal
+- Upgrade irmago to v1.4.1
+
+## [8.3.0] - 2026-09-22
+### Added
+- Recognise the `mso_mdoc` credential format in event payloads, so that mdoc credentials from the Go client decode instead of throwing away the whole payload
+- Decode the per-attribute `intent_to_retain` flag that mdoc verifiers send, so it is available to the app; it is not shown yet
+
+### Internal
+- Integration tests for mdoc issuance and disclosure against the staging EUDI stack (the EU reference Python issuer and Kotlin verifier): `integration_test/mdoc_issuance_test.dart` and `integration_test/mdoc_disclosure_sessions/`, sharing `helpers/eudi_stack_helpers.dart`. They cover the age-verification, PID and mDL document types end to end and assert what the user sees; see `docs/mdoc-integration-plan.md` for the list and the certificate prerequisites on staging
+- Upgrade irmago to v1.4.0
+
+## [8.2.1] - 2026-09-01
+### Added
+- Credentials the wallet has in storage but cannot render — an IRMA credential whose credential type is no longer in the scheme, or one whose display metadata the Go client could not read — are listed at the top of the Data tab in a warning card that states why, with a button to delete them. They were previously invisible: the storage they occupy could not be reached from the app, and a wallet that held nothing else reported itself as empty
+
+### Fixed
+- One unreadable stored credential no longer takes the Data tab down with it. The credentials the wallet can render and the ones it cannot arrive as a single snapshot, so the overview draws whatever did load; when reading the EUDI credentials fails, the IRMA credentials that did load are still delivered
+- A credential whose display name the Go client cannot resolve, which happens when an issuer publishes OpenID4VCI credential display metadata the client cannot parse, now renders with the issuer's initial, or a neutral glyph, instead of failing an assertion in the avatar and blanking its card
+- The Data tab shows a translated error message when its credential list cannot be loaded, instead of a raw Dart error string
+
+### Internal
+- Upgrade Flutter to 3.47.0
+- Take the Material and Cupertino widgets from the standalone `material_ui` and `cupertino_ui` packages, which Flutter 3.47 split out of the SDK and deprecates there in November. Packages that still import the SDK copies keep the Yivi theme through a compatibility bridge around the app
+- Install the arm64 Flutter SDK on Apple Silicon, so the macOS CI jobs no longer run the whole toolchain under Rosetta
+- Render markdown with `flutter_markdown_plus` instead of `flutter_markdown`, which the Flutter team discontinued, and update `pinput` to 6.0.2
+- Bump gomobile to v0.0.0-20260816165457-f98cc9b3c733, whose bind generator handles Go type aliases natively and so no longer needs the `gotypesalias=0` godebug workaround. The bindings it generates for the Go bridge are unchanged
+- Install Go 1.27 in CI, the version `yivi_core/go.mod` asks for, so the jobs no longer download a second toolchain on top of the one they just installed
+- Update the Go client to `irmago` v1.3.1, which declares Go 1.27 itself and so needs the Go directive in `yivi_core/go.mod` raised to 1.27 too. It brings did:key and did:jwk resolution in line with their method specs, accepts SD-JWT VC credentials that leave out the optional `iss` and `sub` claims, verifies Status List Tokens signed with a key published in the issuer's OAuth discovery metadata, decides `ES256K` support from the `jwx_es256k` build tag the bridge already passes rather than accepting the algorithm and failing later, narrows the developer-mode `did:web` fallback to plain HTTP to a 404 only, and reports the credentials it stored but could not load rather than dropping them from the list it returns. The generated bridge bindings are unchanged
+- The compatibility bridge hands the translations the app root already resolved down to the widgets below it, rather than loading them a second time. Loading them twice left every screen under the bridge showing the previous language after a language switch, and blanked the app for an extra frame at startup
+- Upgrade the Android Gradle Plugin to 9.3.1, Gradle to 9.7.0 and the JDK to 21, which AGP 9 requires. Contributors need a JDK 21 as well; see the README. This also drops a `:irmagobridge` entry that pointed at a directory the apps never had, which Gradle 9 rejects, and updates Mockito, whose byte-buddy could not read JDK 21 class files
+- Compile against Android SDK 37, now that AGP 9 supports it, and update `permission_handler` to 13, which requires it
+- Upgrade the remaining Dart dependencies, including ML Kit text recognition, the Regula Face SDK, `mobile_scanner`, `sentry_flutter`, `flutter_riverpod` and `go_router`. `flutter_bloc` stays on 7 while the app moves off it. The iOS `Podfile.lock` is regenerated; an existing checkout needs `flutter clean` before the first iOS build, because the ML Kit pods moved from Objective-C to Swift
+- Read root and jailbreak status in `yivi_core` itself instead of through the `jailbreak_root_detection` package, of which the app used two calls out of eight. The checks it wrapped are kept: RootBeer plus the su and Magisk paths on Android, and the Cydia, suspicious-path and sandbox-write checks on iOS
+- Pre-install every Android SDK component the build needs in CI, and pin the command line tools between the two revisions that can both see the platforms we ask for and write metadata the Android Gradle Plugin can read
+- The Go bridge no longer forwards irmago's warnings to the app as errors. A warning is not an error, and hooking every one of them flooded the app, and the error reporting behind it, with non-fatal ones. Warnings arrive as debug log lines during client start-up; outside developer mode the log level drops to error afterwards, so later ones are dropped entirely. `irmagobridge/error_reporter.go` goes with the hook
+- `SchemalessCredentialsEvent` carries a `problematic` list beside `credentials`, mirroring irmago's `clientmodels.ProblematicCredential`, and `IrmaRepository.getSchemalessCredentials()` yields the two as one record so they cannot drift apart. The new key is optional, so an event from an older Go client still parses
+- Add tests for parsing the `problematic` key off the event when it is populated, empty and absent, and for the credential type card's initials fallback
+
+## [8.2.0] - 2026-08-12
+### Added
+- Face verification for document (passport, ID card, driving licence) issuance: after reading the chip over NFC, the app runs a Regula liveness session and passes the resulting liveness transaction id to the passport issuer, which matches the live face against the chip portrait. The Play Store / App Store build uses Regula's native Face SDK; the F-Droid build runs Regula's web Face SDK in an embedded WebView that loads a Yivi-hosted capture page, so no proprietary native code ships in the APK. Whether the step runs is decided per session by the passport issuer (its face verification policy), which also names the Face API the liveness session targets — so face verification can be switched off remotely and no environment is pinned in the app.
+- Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
+- Certificates installed through the debug certificate management screen can now be deleted again from that screen
+- Support for Token Status List revocation of SD-JWT credentials issued over OpenID4VCI
+
+### Changed
+- Credential and issuer text is resolved in the app language by the Go client instead of being picked in the app, and text the issuer did not translate falls back to English, or to a language it did supply, rather than reading "[translation missing]"
+- Logos missing for the language you use are fetched in the background at startup and after a language switch, and appear once they arrive
+
+### Fixed
+- Credential logos supplied as SVG now render correctly instead of appearing blank
+- The loading spinner is red on every screen; on some screens it was grey
+- Finishing or dismissing a session while the app believes a session is still active underneath it no longer pops every screen off the navigation stack, which left the app unusable until it was restarted
+- The Data tab no longer briefly reloads once an hour, nor every few tens of seconds while you hold a revoked credential: the wallet re-reads its credentials only when something about them actually changed
+- A screen reader now reads out what the terms and conditions checkbox is for, instead of only that it is a checkbox and whether it is ticked; the link to the terms stays separately reachable next to it
+- The same for the optional error reporting checkbox, and the sentence beside it is read as one phrase rather than broken into "Optional:", "Share error messages and app status" and "with Yivi"
+- On the PIN screen, a screen reader announces the "Enter your PIN" heading and how many digits you have entered as separate items; the whole screen used to be a single item that fused the two and offered a pointless tap
+- The screen that sends you back to your browser on iOS is read out as soon as it appears, so you are told what to do rather than being left on a silent screen, and the decorative arrow is no longer announced as an unnamed image
+- Reading a driving licence now performs Active Authentication when the chip carries the licence's authentication key in DG13; it was previously only performed for documents that store that key in DG15, so it was never attempted for a licence
+- On iOS the app is no longer covered by a full-screen blur while the NFC reader sheet is up, so the scanning animation and its progress text stay readable for the whole read. The biometric prompt is uncovered too, as it already was. While either is up the app switcher shows the screen underneath unblurred: the scanning animation, or whatever the prompt was raised over, which can be the unlocked wallet
+
+### Internal
+- The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
+- Remove the unused RecentActivity widget
+- Add an integration test for the required-update screen
+- Add an integration test for switching the app language
+- Add widget tests asserting the semantics of the two enrollment checkboxes, the PIN screen and the iOS back-to-browser screen, so the labels, roles and live regions screen readers rely on are covered
+- Updated Git submodules
+- Fix swallowed errors on cancelling embedded issuance flows
+- The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
+- Upgrade the Android Kotlin Gradle plugin from 2.2.0 to 2.3.20, resolving the Flutter build warning that support for the old Kotlin version would soon be dropped
+- Upgrade vcmrtd to v4.1.0: the BAC, PACE and secure-messaging MAC comparisons are constant-time, and the challenge/response and APDU hex dumps are behind the sensitive-data log gate rather than plain verbose logging
+- The passport issuer's session URL is checked before the signed IRMA issuance request, which carries the attributes read off the chip, is posted to it: it must be https and on an explicit allowlist of IRMA server hosts
+- The two flows that draw system UI in front of the app, the iOS NFC reader sheet and the OS biometric prompt, now suspend the privacy screen while they are up instead of switching it off and restoring it from the screenshot preference afterwards: suspensions are counted, are undone even when the flow throws, and leave that preference alone. Backgrounding the app blurs whatever the count says
+- The iOS privacy-screen overlay can no longer stack or get stranded on screen: it is tracked by reference rather than looked up again by view tag through the deprecated `keyWindow`, adding it is idempotent, and removing it is no longer skipped when the privacy screen was switched off while the overlay was up
+- Upgrade irmago to v1.3.0
 
 ## [8.1.2] - 2026-07-22
 ### Added
@@ -662,6 +859,14 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[Unreleased]: https://github.com/privacybydesign/irmamobile/compare/v8.4.0...HEAD
+[8.4.0]: https://github.com/privacybydesign/irmamobile/compare/v8.3.3...v8.4.0
+[8.3.3]: https://github.com/privacybydesign/irmamobile/compare/v8.3.2...v8.3.3
+[8.3.2]: https://github.com/privacybydesign/irmamobile/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/privacybydesign/irmamobile/compare/v8.3.0...v8.3.1
+[8.3.0]: https://github.com/privacybydesign/irmamobile/compare/v8.2.1...v8.3.0
+[8.2.1]: https://github.com/privacybydesign/irmamobile/compare/v8.2.0...v8.2.1
+[8.2.0]: https://github.com/privacybydesign/irmamobile/compare/v8.1.2...v8.2.0
 [8.1.2]: https://github.com/privacybydesign/irmamobile/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/privacybydesign/irmamobile/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/privacybydesign/irmamobile/compare/v8.0.0...v8.1.0

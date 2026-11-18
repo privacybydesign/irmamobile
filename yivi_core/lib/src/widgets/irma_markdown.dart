@@ -1,8 +1,25 @@
-import "package:flutter/material.dart";
-import "package:flutter_markdown/flutter_markdown.dart";
+// flutter_markdown_plus still takes the core SDK's ThemeData, so read that one
+// here.
+import "package:flutter/material.dart" as core;
+import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../providers/irma_repository_provider.dart";
 import "../theme/theme.dart";
+
+/// The link schemes [IrmaMarkdown] opens. Markdown can come from issuers, for
+/// example the FAQ in EUDI credential metadata, and openURL hands any scheme to
+/// the platform: a link could otherwise launch another app through its custom
+/// scheme, or open a javascript: or file: URL. Links to other schemes are ignored.
+const allowedMarkdownLinkSchemes = {"https", "mailto"};
+
+/// Whether [IrmaMarkdown] opens [href].
+bool isAllowedMarkdownLink(String href) {
+  final uri = Uri.tryParse(href.trim());
+  return uri != null &&
+      allowedMarkdownLinkSchemes.contains(uri.scheme.toLowerCase()) &&
+      (uri.scheme.toLowerCase() != "https" || uri.host.isNotEmpty);
+}
 
 class IrmaMarkdown extends StatelessWidget {
   final String data;
@@ -17,9 +34,9 @@ class IrmaMarkdown extends StatelessWidget {
     return MarkdownBody(
       data: data,
       // Effectively disable image rendering (to prevent remote image loading)
-      sizedImageBuilder: (config) => Container(),
+      imageBuilder: (uri, title, alt) => Container(),
       // Define small style sheet, and merge in any passed styleSheet
-      styleSheet: MarkdownStyleSheet.fromTheme(theme.themeData)
+      styleSheet: MarkdownStyleSheet.fromTheme(core.Theme.of(context))
           .merge(
             MarkdownStyleSheet(
               h1: theme.textTheme.displayLarge,
@@ -33,10 +50,11 @@ class IrmaMarkdown extends StatelessWidget {
           )
           .merge(styleSheet),
 
-      // View links in in-app browser
+      // View https links in the in-app browser, open mailto links in the mail
+      // app, and ignore any other link (see allowedMarkdownLinkSchemes).
       onTapLink: (text, href, alt) {
-        if (href != null) {
-          IrmaRepositoryProvider.of(context).openURL(href);
+        if (href != null && isAllowedMarkdownLink(href)) {
+          IrmaRepositoryProvider.of(context).openURL(href.trim());
         }
       },
     );

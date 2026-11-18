@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -27,6 +28,13 @@ type IrmaMobileBridge interface {
 }
 
 type Signer irmaclient.Signer
+
+const (
+	// how often the EUDI certificate revocation lists are re-fetched
+	eudiCrlUpdateInterval = 60 * time.Minute
+	// how often our own sweep re-fetches the referenced Token Status Lists
+	statusTokenListRefreshInterval = 60 * time.Minute
+)
 
 var bridge IrmaMobileBridge
 var yiviClient *client.Client
@@ -58,8 +66,10 @@ func (p writer) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-// Start is invoked from the native side, when the app starts
-func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, signer Signer, aesKey []byte) {
+// Start is invoked from the native side, when the app starts. locale is the
+// effective app language (a bare language code such as "nl"); irmago uses it
+// to resolve all app-facing text and logos.
+func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, signer Signer, aesKey []byte, locale string) {
 	defer recoverFromEarlyPanic("Starting of bridge panicked")
 
 	// Copy the byte slice to a byte array. This enforces the correct key size and prevents that the
@@ -109,8 +119,10 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		clientErr = errors.WrapPrefix(err, "Embedded certificates could not be loaded", 0)
 		return
 	}
-	irma.SetTLSClientConfig(&tls.Config{
+	tlsConfig := &tls.Config{
 		RootCAs: rootCAs,
+		// Go's default for clients, spelled out: nothing older than TLS 1.2 is spoken.
+		MinVersion: tls.VersionTLS12,
 		CipherSuites: []uint16{
 			// TLS 1.3 cipher suites are always accepted, so we only specify the secure cipher suites for <= TLS 1.2.
 			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
@@ -120,7 +132,9 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 		},
-	})
+	}
+	irma.SetTLSClientConfig(tlsConfig)
+	useTLSConfigForDefaultTransport(tlsConfig)
 
 	// Check for user data directory, and create version-specific directory
 	exists, err := pathExists(appDataPath)
@@ -143,11 +157,14 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		}
 	}
 
-	// forward irma log message to bridge
+	// forward irma log message to bridge. Warnings are deliberately NOT escalated
+	// to app-facing ErrorEvents — a warning is not an error, and doing so flooded
+	// the app with non-fatal ones. They arrive as debug log lines only while the
+	// level is Info: outside developer mode it drops to ErrorLevel below, and
+	// logrus then filters warnings out before they reach this writer.
 	irma.Logger.SetOutput(writer(func(m string) {
 		bridge.DebugLog(fmt.Sprintf("[irmago] %s", m))
 	}))
-	irma.Logger.Hooks.Add(&errorReporter{})
 
 	// Initialize the client
 	irmaConfigurationPath := filepath.Join(assetsPath, "irma_configuration")
@@ -155,7 +172,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
 	irma.Logger.SetLevel(logrus.InfoLevel)
-	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy)
+	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy, locale)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
@@ -165,7 +182,22 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		irma.Logger.SetLevel(logrus.ErrorLevel)
 	}
 
-	yiviClient.InitJobs(60 * time.Minute)
+	// The client owns both jobs. Its status sweep runs immediately and then on
+	// the interval, and wakes the app itself through ClientHandler.
+	// CredentialsChanged whenever a status actually moved.
+	yiviClient.InitJobs(eudiCrlUpdateInterval, statusTokenListRefreshInterval)
+}
+
+// useTLSConfigForDefaultTransport gives Go's default HTTP transport the same TLS
+// configuration as the IRMA transport. irma.SetTLSClientConfig only reaches the
+// IRMA and keyshare traffic; the EUDI clients in irmago (OpenID4VCI, OpenID4VP,
+// status lists, did:web) use http clients without a transport of their own, which
+// fall back to http.DefaultTransport. Without this they would accept the weaker
+// TLS 1.2 cipher suites and miss the embedded root certificates.
+func useTLSConfigForDefaultTransport(config *tls.Config) {
+	if transport, ok := http.DefaultTransport.(*http.Transport); ok {
+		transport.TLSClientConfig = config.Clone()
+	}
 }
 
 func dispatchEvent(event any) {

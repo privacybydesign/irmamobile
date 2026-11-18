@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../screens/pin/yivi_pin_screen.dart";
 import "../widgets/irma_app_bar.dart";

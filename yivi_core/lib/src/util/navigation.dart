@@ -1,8 +1,8 @@
 import "dart:convert";
 
-import "package:flutter/material.dart";
 import "package:flutter/widgets.dart";
 import "package:go_router/go_router.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
@@ -42,10 +42,25 @@ extension RoutingHelpers on BuildContext {
     Navigator.of(this).popUntil(ModalRoute.withName("/issue_wizard"));
   }
 
+  /// Pops back to the nearest session screen below the current one.
+  ///
+  /// Treats the first route as a floor, so it can never empty the navigator.
+  /// Callers decide there is an underlying session from repository state
+  /// (`hasActiveSessions`), which can disagree with the actual stack — a stale
+  /// session left in `requestPermission` is enough. Without the floor, that
+  /// mismatch pops every page and trips go_router's "you have popped the last
+  /// page off of the stack" assertion, which corrupts the widget tree for good.
+  /// Landing on the first route instead matches what
+  /// [popToUnderlyingSessionOrHome] would have done without an underlying
+  /// session.
   void popToUnderlyingSession() {
-    // we have to at least do one pop in case the current screen is already a session
-    Navigator.of(this).pop();
-    Navigator.of(this).popUntil((route) {
+    final navigator = Navigator.of(this);
+    // We have to at least do one pop in case the current screen is already a
+    // session — unless it is the only screen left.
+    if (!navigator.canPop()) return;
+    navigator.pop();
+    navigator.popUntil((route) {
+      if (route.isFirst) return true;
       final name = route.settings.name;
       // GoRouter sets the route name to the full URI (including query params),
       // so we match on the path prefix rather than an exact name.
@@ -172,6 +187,11 @@ extension RoutingHelpers on BuildContext {
     push(uri.toString());
   }
 
+  void pushResidencePermitMrzReaderScreen() {
+    final uri = Uri(path: "/mrz/reader/residence_permit");
+    push(uri.toString());
+  }
+
   void pushDrivingLicenceMrzReaderScreen() {
     final uri = Uri(path: "/mrz/reader/driving_licence");
     push(uri.toString());
@@ -184,6 +204,11 @@ extension RoutingHelpers on BuildContext {
 
   void pushIdCardManualEntryScreen() {
     final uri = Uri(path: "/mrz/manual_entry/id_card");
+    push(uri.toString());
+  }
+
+  void pushResidencePermitManualEntryScreen() {
+    final uri = Uri(path: "/mrz/manual_entry/residence_permit");
     push(uri.toString());
   }
 
@@ -208,6 +233,21 @@ extension RoutingHelpers on BuildContext {
   void pushIdCardNfcReadingScreen(PassportNfcReadingRouteParams params) {
     final uri = Uri(
       path: "/nfc/id_card",
+      queryParameters: params.toQueryParams(),
+    ).toString();
+
+    final current = GoRouter.of(this).state.uri.toString();
+
+    if (current != uri) {
+      push(uri);
+    }
+  }
+
+  void pushResidencePermitNfcReadingScreen(
+    PassportNfcReadingRouteParams params,
+  ) {
+    final uri = Uri(
+      path: "/nfc/residence_permit",
       queryParameters: params.toQueryParams(),
     ).toString();
 

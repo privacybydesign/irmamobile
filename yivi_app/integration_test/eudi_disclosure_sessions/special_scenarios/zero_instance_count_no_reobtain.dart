@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
@@ -58,7 +58,12 @@ Future<void> zeroInstanceCountNoReobtainTest(
     if (i == 0) {
       await evaluateIntroduction(tester);
     }
-    await tester.pumpUntilFound(find.byType(DisclosureChoicesOverview));
+    // waitFor, not pumpUntilFound: pumpUntilFound returns on the first frame
+    // the overview exists, which can be part-way through the route
+    // transition. The share button is then still outside the viewport and
+    // tap() fails the hit test. waitFor pumps and settles, so the transition
+    // has finished before we tap.
+    await tester.waitFor(find.byType(DisclosureChoicesOverview));
     await shareAndFinishEudiDisclosure(tester);
   }
 

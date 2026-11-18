@@ -3,7 +3,6 @@ import "package:json_annotation/json_annotation.dart";
 import "event.dart";
 import "protocol.dart";
 import "schemaless/schemaless_events.dart";
-import "translated_value.dart";
 
 part "log_entry.g.dart";
 
@@ -50,6 +49,13 @@ enum CredentialFormat {
 
   @JsonValue("dc+sd-jwt")
   sdjwtvc,
+
+  /// SD-JWT-secured W3C VCDM 2.0 credential.
+  @JsonValue("vc+sd-jwt")
+  sdjwtVcdm,
+
+  @JsonValue("mso_mdoc")
+  msoMdoc,
 }
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
@@ -172,7 +178,7 @@ class LogCredential {
 
   final LogoImage? image;
 
-  final TranslatedValue name;
+  final String name;
 
   final TrustedParty issuer;
 
@@ -186,7 +192,7 @@ class LogCredential {
 
   final bool revocationSupported;
 
-  final TranslatedValue? issueUrl;
+  final String? issueUrl;
 
   factory LogCredential.fromJson(Map<String, dynamic> json) =>
       _$LogCredentialFromJson(json);

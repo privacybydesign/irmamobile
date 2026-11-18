@@ -1,7 +1,7 @@
 import "dart:async";
 import "dart:typed_data";
 
-import "package:flutter/cupertino.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:vcmrtd/extensions.dart";
@@ -98,8 +98,9 @@ Future<void> navigateToPassportNfcReadingScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding,
   FakePassportReader reader,
-  FakePassportIssuer issuer,
-) async {
+  FakePassportIssuer issuer, {
+  RegulaFaceService? regulaFaceService,
+}) async {
   await pumpAndUnlockApp(
     tester,
     binding.repository,
@@ -109,6 +110,8 @@ Future<void> navigateToPassportNfcReadingScreen(
         return reader;
       }),
       passportIssuerProvider.overrideWithValue(issuer),
+      if (regulaFaceService != null)
+        regulaFaceServiceProvider.overrideWithValue(regulaFaceService),
     ],
   );
 
@@ -179,14 +182,34 @@ class FakePassportIssuer implements PassportIssuer {
   int startSessionCount = 0;
   final String? errorToThrowOnIssuance;
 
-  FakePassportIssuer({this.errorToThrowOnIssuance});
+  /// The face verification announcement this issuer makes at session start.
+  /// The shared NFC flow runs the face verification step only when an
+  /// announcement is present (the issuer decides, never the wallet), so it
+  /// defaults to present here to keep the face-path tests on the face path;
+  /// pass null to fake an issuer whose policy disables face verification.
+  final FaceVerificationConfig? faceVerification;
+
+  /// The [RawDocumentData] passed to the most recent
+  /// [startIrmaIssuanceSession] call, so tests can assert the liveness
+  /// transaction id (or its absence) was threaded through.
+  RawDocumentData? lastIssuedData;
+
+  FakePassportIssuer({
+    this.errorToThrowOnIssuance,
+    this.faceVerification = const FaceVerificationConfig(
+      faceApiUrl: "https://faceapi.fake.yivi.app",
+    ),
+  });
 
   @override
-  Future<NonceAndSessionId> startSessionAtPassportIssuer() async {
+  Future<StartValidationResult> startSessionAtPassportIssuer() async {
     startSessionCount += 1;
-    return NonceAndSessionId(
-      nonce: "d4e5f6a7d4e5f6a7",
-      sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+    return StartValidationResult(
+      nonceAndSessionId: NonceAndSessionId(
+        nonce: "d4e5f6a7d4e5f6a7",
+        sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+      ),
+      faceVerification: faceVerification,
     );
   }
 
@@ -195,6 +218,7 @@ class FakePassportIssuer implements PassportIssuer {
     RawDocumentData passportDataResult,
     DocumentType documentType,
   ) async {
+    lastIssuedData = passportDataResult;
     if (errorToThrowOnIssuance != null) {
       throw Exception(errorToThrowOnIssuance);
     }
@@ -217,6 +241,32 @@ class FakePassportIssuer implements PassportIssuer {
     RawDocumentData drivingLicenceDataResult,
   ) {
     throw UnimplementedError();
+  }
+}
+
+// ====================================================================================
+
+/// Fake liveness service that returns a fixed transaction id without touching
+/// the native Regula SDK, so the face-verification threading can be exercised
+/// in tests.
+class FakeRegulaFaceService implements RegulaFaceService {
+  FakeRegulaFaceService({this.transactionId = "fake-txn-id", this.error});
+
+  final String? transactionId;
+  final Object? error;
+
+  int captureCount = 0;
+  String? lastLanguageCode;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<RegulaLivenessResult> captureLiveness({String? languageCode}) async {
+    captureCount += 1;
+    lastLanguageCode = languageCode;
+    if (error != null) throw error!;
+    return RegulaLivenessResult(isLive: true, transactionId: transactionId);
   }
 }
 
@@ -248,6 +298,13 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
 
   @override
   DocumentReaderState build() {
+    // The reading screen stops watching this provider while the face
+    // verification intro is in front, which would auto-dispose it. The real
+    // factory would just build a second reader, but riverpod refuses to
+    // re-associate an already-used Notifier instance, and these fakes are
+    // handed back by the override every time. Pin the element so the one
+    // instance the test asserts on outlives the gap.
+    ref.keepAlive();
     ref.onDispose(cancel);
     if (_initialState != null) {
       return _initialState;
@@ -364,6 +421,13 @@ class FakePassportReader extends DocumentReader<PassportData> {
 
   @override
   DocumentReaderState build() {
+    // The reading screen stops watching this provider while the face
+    // verification intro is in front, which would auto-dispose it. The real
+    // factory would just build a second reader, but riverpod refuses to
+    // re-associate an already-used Notifier instance, and these fakes are
+    // handed back by the override every time. Pin the element so the one
+    // instance the test asserts on outlives the gap.
+    ref.keepAlive();
     ref.onDispose(cancel);
     if (_initialState != null) {
       return _initialState;

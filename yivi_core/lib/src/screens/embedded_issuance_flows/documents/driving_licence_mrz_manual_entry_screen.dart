@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../theme/theme.dart";

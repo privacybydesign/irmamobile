@@ -194,6 +194,11 @@ class _PinIndicator extends StatelessWidget {
     );
 
     return Semantics(
+      // container: the entry state has to be a node of its own. Without it this
+      // annotation has no node boundary and folds into whatever ancestor node
+      // exists, which fused it with the screen's instruction heading and left
+      // the digits-entered label unreachable on its own.
+      container: true,
       label: joinedPin.isEmpty
           ? FlutterI18n.translate(context, "pin_accessibility.empty_pin_input")
           : isPinVisible

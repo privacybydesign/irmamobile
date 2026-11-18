@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:go_router/go_router.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../../sentry/sentry.dart";
 import "../../../../theme/theme.dart";
@@ -60,18 +60,19 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
                     ],
                   ),
                 IconButton(
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(
-                        text: _showSensitiveLogs
-                            ? widget.sensitiveLogs!
-                            : widget.logs,
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Copied to clipboard!")),
-                    );
-                  },
+                  // The sensitive logs hold data from the document's chip and the
+                  // MRZ-derived inputs for its access keys. They are only shown,
+                  // never copied: other apps can read the clipboard, and on some
+                  // devices it is synced to other devices. As with sending to
+                  // Yivi below, copying is off while they are shown.
+                  onPressed: _showSensitiveLogs
+                      ? null
+                      : () {
+                          Clipboard.setData(ClipboardData(text: widget.logs));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Copied to clipboard!")),
+                          );
+                        },
                   icon: Icon(Icons.copy),
                 ),
               ],

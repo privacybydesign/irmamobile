@@ -1,7 +1,7 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
-import "../../../package_name.dart";
+import "package:material_ui/material_ui.dart";
 
+import "../../../package_name.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";

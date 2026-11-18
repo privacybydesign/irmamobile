@@ -1,7 +1,7 @@
 import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
-import "../translated_value.dart";
+import "../log_entry.dart";
 import "schemaless_events.dart";
 
 part "credential_store.g.dart";
@@ -19,14 +19,20 @@ class SchemalessCredentialStoreEvent extends Event {
 @JsonSerializable(fieldRename: .snake)
 class CredentialDescriptor {
   final String credentialId;
-  final TranslatedValue name;
+  final String name;
   final TrustedParty issuer;
-  final TranslatedValue? category;
+  final String? category;
   final LogoImage? image;
   final List<Attribute> attributes;
 
   @JsonKey(name: "issue_url")
-  final TranslatedValue? issueURL;
+  final String? issueURL;
+
+  /// The format the credential is offered or requested in; null when the
+  /// descriptor is not tied to one format, as for an IRMA credential type, or
+  /// when irmago is too old to send it.
+  @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
+  final CredentialFormat? format;
 
   CredentialDescriptor({
     required this.credentialId,
@@ -36,6 +42,7 @@ class CredentialDescriptor {
     required this.attributes,
     required this.issueURL,
     this.image,
+    this.format,
   });
 
   factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
@@ -59,10 +66,10 @@ class CredentialStoreItem {
 
 @JsonSerializable(fieldRename: .snake)
 class Faq {
-  final TranslatedValue intro;
-  final TranslatedValue purpose;
-  final TranslatedValue content;
-  final TranslatedValue howTo;
+  final String? intro;
+  final String? purpose;
+  final String? content;
+  final String? howTo;
 
   Faq({
     required this.intro,

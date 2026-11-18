@@ -1,42 +1,40 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
-
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/translated_value.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 
+import "helpers/test_translation_loader.dart";
+
 CredentialStoreItem _item(String credentialId, String name) =>
     CredentialStoreItem(
       credential: CredentialDescriptor(
         credentialId: credentialId,
-        name: TranslatedValue.fromString(name),
+        name: name,
         issuer: TrustedParty(
           id: "issuer",
-          name: TranslatedValue.fromString("Issuer"),
+          name: "Issuer",
           url: null,
           parent: null,
           verified: true,
         ),
-        category: TranslatedValue.fromString("Personal"),
+        category: "Personal",
         attributes: [],
         issueURL: null,
       ),
       faq: Faq(
-        intro: TranslatedValue.fromString("intro"),
-        purpose: TranslatedValue.fromString("purpose"),
-        content: TranslatedValue.fromString("content"),
-        howTo: TranslatedValue.fromString("howto"),
+        intro: "intro",
+        purpose: "purpose",
+        content: "content",
+        howTo: "howto",
       ),
     );
 
@@ -44,7 +42,7 @@ CredentialStoreItem _item(String credentialId, String name) =>
 // does not need NFC (email), in a single category.
 final _store = [
   CredentialStoreCategory(
-    category: TranslatedValue.fromString("Personal"),
+    category: "Personal",
     items: [
       _item("pbdf.pbdf.passport", "Passport"),
       _item("pbdf.sidn-pbdf.email", "Email"),
@@ -52,14 +50,18 @@ final _store = [
   ),
 ];
 
-/// Builds the add-data screen with the credential store stubbed out and the
-/// NFC-availability result controlled by [nfcAvailable] (pass `null` to keep
-/// the check pending → AsyncLoading, i.e. the "still loading" case).
-Widget _testWidget({required bool? nfcAvailable}) {
+/// Builds the add-data screen with the credential store stubbed out (as [store],
+/// or [_store]) and the NFC-availability result controlled by [nfcAvailable]
+/// (pass `null` to keep the check pending → AsyncLoading, i.e. the "still
+/// loading" case).
+Widget _testWidget({
+  required bool? nfcAvailable,
+  List<CredentialStoreCategory>? store,
+}) {
   return ProviderScope(
     overrides: [
       groupedCredentialStoreProvider.overrideWith(
-        (ref) => Stream.value(_store),
+        (ref) => Stream.value(store ?? _store),
       ),
       nfcAvailableProvider.overrideWith(
         (ref) => nfcAvailable == null
@@ -72,14 +74,12 @@ Widget _testWidget({required bool? nfcAvailable}) {
       builder: (_) => MaterialApp(
         localizationsDelegates: [
           FlutterI18nDelegate(
-            translationLoader: FileTranslationLoader(
+            translationLoader: TestTranslationLoader(
               basePath: "assets/locales",
               forcedLocale: const Locale("en", "US"),
             ),
           ),
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
+          ...GlobalMaterialLocalizations.delegates,
         ],
         home: SchemalessAddDataScreen(),
       ),
@@ -159,4 +159,53 @@ void main() {
       expect(passport.disabled, isFalse);
     },
   );
+
+  testWidgets("shows the staging scheme's credentials under their own header", (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _testWidget(
+        nfcAvailable: true,
+        store: [
+          ..._store,
+          CredentialStoreCategory(
+            category: "",
+            items: [_item("pbdf-staging.sidn-pbdf.email", "Email")],
+            source: CredentialStoreSource.staging,
+          ),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Staging (test environment)"), findsOneWidget);
+    expect(find.text("Demo (example data)"), findsNothing);
+    expect(
+      find.byKey(const Key("pbdf-staging.sidn-pbdf.email_tile")),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("shows demo credentials under their own header", (tester) async {
+    await tester.pumpWidget(
+      _testWidget(
+        nfcAvailable: true,
+        store: [
+          ..._store,
+          CredentialStoreCategory(
+            category: "",
+            items: [_item("irma-demo.gemeente.address", "Address")],
+            source: CredentialStoreSource.demo,
+          ),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Demo (example data)"), findsOneWidget);
+    expect(
+      find.byKey(const Key("irma-demo.gemeente.address_tile")),
+      findsOneWidget,
+    );
+  });
 }

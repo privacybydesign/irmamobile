@@ -1,10 +1,14 @@
-import "package:flutter/material.dart";
+// intl_phone_number_input still takes the core SDK's InputDecoration.
+import "package:flutter/material.dart" as core;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:intl_phone_number_input/intl_phone_number_input.dart";
 // ignore: implementation_imports
 import "package:intl_phone_number_input/src/models/country_list.dart";
+// ignore: implementation_imports
+import "package:intl_phone_number_input/src/models/country_model.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
@@ -242,13 +246,13 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                               spaceBetweenSelectorAndTextField:
                                   theme.smallSpacing,
                               focusNode: _focusNode,
-                              inputDecoration: InputDecoration(
+                              inputDecoration: core.InputDecoration(
                                 hint: TranslatedText(
                                   "sms_issuance.enter_phone.phone_hint",
                                   style: TextStyle(color: Colors.grey),
                                 ),
                               ),
-                              searchBoxDecoration: InputDecoration(
+                              searchBoxDecoration: core.InputDecoration(
                                 label: TranslatedText(
                                   "sms_issuance.enter_phone.search_label",
                                 ),
@@ -383,9 +387,14 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     }
   }
 
-  int countryComparator(a, b) {
-    final indexA = preferredOrder.indexOf(a.alpha2Code);
-    final indexB = preferredOrder.indexOf(b.alpha2Code);
+  int countryComparator(Country a, Country b) {
+    // alpha2Code is nullable on Country; a country without one can never be
+    // preferred and sorts ahead of the rest.
+    final codeA = a.alpha2Code ?? "";
+    final codeB = b.alpha2Code ?? "";
+
+    final indexA = preferredOrder.indexOf(codeA);
+    final indexB = preferredOrder.indexOf(codeB);
 
     // If both are preferred countries
     if (indexA != -1 && indexB != -1) {
@@ -398,8 +407,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     // If only B is preferred
     if (indexB != -1) return 1;
 
-    // Neither preferred → keep original ordering or sort alphabetically
-    return a.alpha2Code.compareTo(b.alpha2Code);
+    // Neither preferred → sort alphabetically.
+    return codeA.compareTo(codeB);
   }
 
   /// Removes countries that should not be available in the phone number input.

@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
@@ -33,6 +33,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: YiviCredentialCard.fromLogCredential(
+                disclosure: true,
                 logCredential: credential,
                 compact: true,
                 hideFooter: true,

@@ -5,7 +5,7 @@
 // providing a TextStyle. If no TextStyle is provided, a default TextStyle is
 // used.
 
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 class Heading extends StatelessWidget {
   final String title;

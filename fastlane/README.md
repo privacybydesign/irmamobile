@@ -55,7 +55,7 @@ remove devices. More information about adding and updating ad-hoc provisioning p
     ```
  8. Convert the .pem to a .p12 and choose the certificate password:
     ```
-    openssl pkcs12 -export -inkey $KEY_NAME.key -in $KEY_NAME.pem -out $KEY_NAME.p12
+    openssl pkcs12 -export -inkey $KEY_NAME.key -in $KEY_NAME.pem -out $KEY_NAME.p12 -legacy
     ```
     If you use OpenSSL 3.x, then you need to add `-legacy` to the command for compatibility with OpenSSL 1.x.
  9. Safely store the certificate password in a password manager or a secret vault for later use

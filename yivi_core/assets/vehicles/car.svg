@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- B: car, side profile facing left -->
+  <path d="M1.5 17H3.5a2.5 2.5 0 0 1 5 0H15.5a2.5 2.5 0 0 1 5 0H22.5V12.6L21 11.8 17.5 8H9.5L6.5 11.3 2.5 12 1.5 13.5Z M9.9 9H12.8V11.1H8Z M13.8 9H17L19 11.1H13.8Z"/>
+  <circle cx="6" cy="17" r="1.9"/>
+  <circle cx="18" cy="17" r="1.9"/>
+</svg>

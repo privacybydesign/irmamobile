@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../widgets/translated_text.dart";
@@ -39,8 +39,11 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
       key: const Key("driving_licence_mrz_input_field"),
       controller: controller,
       keyboardType: .text,
+      autocorrect: false,
+      enableSuggestions: false,
+      // No learning from what is typed (Gboard's incognito mode on Android).
+      enableIMEPersonalizedLearning: false,
       textCapitalization: .characters,
-      autofillHints: const [AutofillHints.creditCardNumber],
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,
       inputFormatters: [

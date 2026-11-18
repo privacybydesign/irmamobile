@@ -12,7 +12,43 @@ SchemalessCredentialsEvent _$SchemalessCredentialsEventFromJson(
   credentials: (json['credentials'] as List<dynamic>)
       .map((e) => Credential.fromJson(e as Map<String, dynamic>))
       .toList(),
+  problematic:
+      (json['problematic'] as List<dynamic>?)
+          ?.map(
+            (e) => ProblematicCredential.fromJson(e as Map<String, dynamic>),
+          )
+          .toList() ??
+      const [],
 );
+
+ProblematicCredential _$ProblematicCredentialFromJson(
+  Map<String, dynamic> json,
+) => ProblematicCredential(
+  credentialInstanceIds:
+      (json['credential_instance_ids'] as Map<String, dynamic>).map(
+        (k, e) =>
+            MapEntry($enumDecode(_$CredentialFormatEnumMap, k), e as String),
+      ),
+  reason: json['reason'] as String,
+  credentialId: json['credential_id'] as String?,
+);
+
+Map<String, dynamic> _$ProblematicCredentialToJson(
+  ProblematicCredential instance,
+) => <String, dynamic>{
+  'credential_instance_ids': instance.credentialInstanceIds.map(
+    (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
+  ),
+  'reason': instance.reason,
+  'credential_id': instance.credentialId,
+};
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.sdjwtVcdm: 'vc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
+};
 
 AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
     AttributeValue(
@@ -22,6 +58,8 @@ AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
       string: json['string'] as String?,
       imagePath: json['image_path'] as String?,
       base64Image: json['base64_image'] as String?,
+      displayHint: json['display_hint'] as String?,
+      mimeType: json['mime_type'] as String?,
     );
 
 Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
@@ -32,6 +70,8 @@ Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
       'string': instance.string,
       'image_path': instance.imagePath,
       'base64_image': instance.base64Image,
+      'mime_type': instance.mimeType,
+      'display_hint': instance.displayHint,
     };
 
 const _$AttributeTypeEnumMap = {
@@ -44,12 +84,8 @@ const _$AttributeTypeEnumMap = {
 
 Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
   claimPath: json['claim_path'] as List<dynamic>,
-  displayName: TranslatedValue.fromJson(
-    json['display_name'] as Map<String, dynamic>?,
-  ),
-  description: json['description'] == null
-      ? null
-      : TranslatedValue.fromJson(json['description'] as Map<String, dynamic>?),
+  displayName: json['display_name'] as String?,
+  description: json['description'] as String?,
   value: json['value'] == null
       ? null
       : AttributeValue.fromJson(json['value'] as Map<String, dynamic>),
@@ -58,6 +94,7 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
       : AttributeValue.fromJson(
           json['requested_value'] as Map<String, dynamic>,
         ),
+  intentToRetain: json['intent_to_retain'] as bool?,
 );
 
 Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
@@ -66,14 +103,13 @@ Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
   'description': instance.description,
   'value': instance.value,
   'requested_value': instance.requestedValue,
+  'intent_to_retain': instance.intentToRetain,
 };
 
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   id: json['id'] as String,
-  name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
-  url: json['url'] == null
-      ? null
-      : TranslatedValue.fromJson(json['url'] as Map<String, dynamic>?),
+  name: json['name'] as String,
+  url: json['url'] as String?,
   parent: json['parent'] == null
       ? null
       : TrustedParty.fromJson(json['parent'] as Map<String, dynamic>),
@@ -108,7 +144,7 @@ Map<String, dynamic> _$LogoImageToJson(LogoImage instance) => <String, dynamic>{
 Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   credentialId: json['credential_id'] as String,
   hash: json['hash'] as String,
-  name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+  name: json['name'] as String,
   issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
   credentialInstanceIds:
       (json['credential_instance_ids'] as Map<String, dynamic>).map(
@@ -127,9 +163,7 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
       .toList(),
   revoked: json['revoked'] as bool,
   revocationSupported: json['revocation_supported'] as bool,
-  issueUrl: TranslatedValue.fromJson(
-    json['issue_url'] as Map<String, dynamic>?,
-  ),
+  issueUrl: json['issue_url'] as String?,
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
@@ -156,8 +190,3 @@ Map<String, dynamic> _$CredentialToJson(Credential instance) =>
       'revocation_supported': instance.revocationSupported,
       'issue_url': instance.issueUrl,
     };
-
-const _$CredentialFormatEnumMap = {
-  CredentialFormat.idemix: 'idemix',
-  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
-};

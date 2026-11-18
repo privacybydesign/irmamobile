@@ -1,11 +1,11 @@
 import "dart:io";
 
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:local_auth/local_auth.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
 import "../../models/session.dart";
@@ -315,7 +315,6 @@ class _PinScreenState extends ConsumerState<PinScreen>
         leading: hasSession ? null : widget.leading,
         // When a session is waiting, offer a trailing ✕ to cancel it and return
         // to the normal unlock screen.
-        // ponytail: ✕ is the only cancel path for a waiting session; wire a
         // PopScope here if hardware-back parity is ever requested.
         actions: hasSession
             ? [

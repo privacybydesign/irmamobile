@@ -1,6 +1,6 @@
 import "package:flutter/widgets.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
-import "package:flutter_markdown/flutter_markdown.dart";
+import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 
 import "irma_markdown.dart";
 

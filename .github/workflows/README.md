@@ -1,10 +1,20 @@
 # GitHub Actions workflows
 
-We currently have two workflows. The workflows use our Fastlane scripts. More details about the functioning of the Fastlane
+The build workflows use our Fastlane scripts. More details about the functioning of the Fastlane
 scripts can be found in the [README](../../fastlane/README.md).
 
 ## Status checks
-This workflow checks whether a change passes all our quality gates.
+This workflow checks whether a change passes all our quality gates. It runs on pull requests, the merge queue, pushes
+to `master`, every Monday and on demand. Next to our own Flutter/Fastlane jobs (lint, unit tests, app builds) it
+calls the shared workflows from [privacybydesign/github-workflows](https://github.com/privacybydesign/github-workflows):
+Go checks for the Go bridge in `yivi_core` (gofmt, go fix, go mod tidy, govulncheck, a race build), dependency review
+and workflow lint (actionlint and zizmor over everything in `.github`). The final job, `Status checks passed`, is the
+one check to require on `master`.
+
+Third-party actions are pinned to a commit SHA; Dependabot keeps them current.
+
+The Firebase Test Lab integration tests are switched off. Set the repository variable `RUN_FIREBASE_INTEGRATION_TESTS`
+to `true` to run them again.
 
 ### Secrets
 Below a list of the secrets that are needed. The secrets should be uploaded as repository secret to both the
@@ -38,6 +48,7 @@ Secrets for the `android-alpha` (Android master builds) and `android-beta` (Andr
 - `ANDROID_SIGNING_KEYSTORE`: Base64 encoded Android signing/upload keystore, check the [Fastlane docs](../../fastlane/README.md#android-signingupload-keys) for generating instructions. For the `android-alpha` environment it concerns a signing keystore and for the `android-beta` environment an upload keystore.
 - `ANDROID_SIGNING_KEYSTORE_PASSWORD`: password of the Android keystore (see above).
 - `SENTRY_DSN`: Sentry DSN for error reporting.
+- `SENTRY_AUTH_TOKEN`: Sentry auth token that may upload debug files. Used to upload the Dart symbols of the obfuscated build, so the Dart frames of its crash reports are readable in Sentry. Needs the variables `SENTRY_ORG` and `SENTRY_PROJECT` (the slugs of the Sentry organisation and project), and `SENTRY_URL` when Sentry is not at sentry.io. They can be set once as repository variables. As long as the token or one of the two slugs is missing, the upload is skipped with a warning and the symbols are only kept as a build artifact.
 
 Secrets for the `ad-hoc-alpha` (iOS master/alpha builds) and the `app-store-beta` (iOS production builds) environments:
 
@@ -46,3 +57,4 @@ should be uploaded, because there only is one. This certificate expires every ye
 - `APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD`: password of the Apple development certificate (see above).
 - `APPLE_PROVISIONING_PROFILE`: Base64 encoded Apple provisioning profile that is linked to the distribution certificate (see above). In the `ad-hoc-alpha` environment the `GitHub Actions ad hoc alpha` ad-hoc provisioning profile should be uploaded (linked to `foundation.privacybydesign.irmamob.alpha`) and in the `app-store-beta` environment the `GitHub Actions app store beta` app store provisioning profile should be uploaded (linked to `foundation.privacybydesign.irmamob`). These should be renewed when the distribution certificate is being renewed.
 - `SENTRY_DSN`: Sentry DSN for error reporting.
+- `SENTRY_AUTH_TOKEN`: Sentry auth token that may upload debug files. Used to upload the Dart symbols of the obfuscated build, so the Dart frames of its crash reports are readable in Sentry. Needs the variables `SENTRY_ORG` and `SENTRY_PROJECT` (the slugs of the Sentry organisation and project), and `SENTRY_URL` when Sentry is not at sentry.io. They can be set once as repository variables. As long as the token or one of the two slugs is missing, the upload is skipped with a warning and the symbols are only kept as a build artifact.

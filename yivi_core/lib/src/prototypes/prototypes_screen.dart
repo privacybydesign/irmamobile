@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../screens/error/blocked_screen.dart";
 import "../screens/error/error_screen.dart";

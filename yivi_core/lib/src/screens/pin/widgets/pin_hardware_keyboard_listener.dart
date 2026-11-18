@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:material_ui/material_ui.dart";
 
 /// Routes physical-keyboard keystrokes into the same PIN entry callbacks the
 /// on-screen [PinKeypad] uses (#530):
@@ -73,8 +73,15 @@ class _PinHardwareKeyboardListenerState
       focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: _onKeyEvent,
+      // Kept out of the semantics tree: re-grabbing keyboard focus is plumbing,
+      // not something a user acts on. Left in, this screen-wide detector became
+      // a node with a tap action covering the whole PIN screen, and — because
+      // the instruction and PIN-dots annotations are not containers — it
+      // swallowed their labels too, so a screen reader announced the heading
+      // and the entry state as one giant tappable item.
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
+        excludeFromSemantics: true,
         onTap: _focusNode.requestFocus,
         child: widget.child,
       ),
