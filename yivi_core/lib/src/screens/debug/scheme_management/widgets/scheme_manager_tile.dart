@@ -1,10 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../../models/irma_configuration.dart";
 import "../../../../widgets/active_indicator.dart";
+import "../../debug_schemes.dart";
 
 class SchemeManagerTile extends StatelessWidget {
-  final SchemeManager schemeManager;
+  final DebugSchemeManager schemeManager;
   final bool? isActive;
   final Function()? onTap;
 

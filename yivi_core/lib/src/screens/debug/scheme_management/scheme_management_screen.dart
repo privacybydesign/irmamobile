@@ -2,19 +2,19 @@ import "dart:async";
 import "dart:convert";
 import "dart:io";
 
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
 
 import "../../../models/enrollment_events.dart";
 import "../../../models/error_event.dart";
-import "../../../models/irma_configuration.dart";
 import "../../../models/scheme_events.dart";
+import "../../../models/scheme_rules.dart";
 import "../../../models/update_schemes_event.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
-import "../../../util/combine.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/action_bar.dart";
 import "../../../widgets/glass/glass_dialog.dart";
@@ -23,18 +23,21 @@ import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "../../error/error_screen.dart";
+import "../debug_schemes.dart";
 import "../util/snackbar.dart";
 import "requestor_scheme_detail_screen.dart";
 import "scheme_manager_detail_screen.dart";
 import "widgets/provide_scheme_url_dialog.dart";
 import "widgets/scheme_manager_tile.dart";
 
-class SchemeManagementScreen extends StatefulWidget {
+class SchemeManagementScreen extends ConsumerStatefulWidget {
   @override
-  State<SchemeManagementScreen> createState() => _SchemeManagementScreenState();
+  ConsumerState<SchemeManagementScreen> createState() =>
+      _SchemeManagementScreenState();
 }
 
-class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
+class _SchemeManagementScreenState
+    extends ConsumerState<SchemeManagementScreen> {
   StreamSubscription? _errorSubscription;
 
   @override
@@ -136,7 +139,8 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     repo.bridgedDispatch(UpdateSchemesEvent());
 
     try {
-      await repo.getEvents().whereType<IrmaConfigurationEvent>().first.timeout(
+      // Go sends new scheme rules after updating the schemes.
+      await repo.getEvents().whereType<SchemeRulesEvent>().first.timeout(
         const Duration(minutes: 1),
       );
     } on TimeoutException {
@@ -185,73 +189,60 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
         ],
       ),
       body: SafeArea(
-        child:
-            StreamBuilder<
-              CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>
-            >(
-              stream: combine2(
-                repo.getEnrollmentStatusEvent(),
-                repo.getIrmaConfiguration(),
-              ),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: YiviSpinner());
-                }
-                final enrollmentStatus = snapshot.data!.a;
-                final irmaConfiguration = snapshot.data!.b;
+        child: StreamBuilder<EnrollmentStatusEvent>(
+          stream: repo.getEnrollmentStatusEvent(),
+          builder: (context, snapshot) {
+            final schemes = ref.watch(debugSchemesProvider).value;
+            if (!snapshot.hasData || schemes == null) {
+              return Center(child: YiviSpinner());
+            }
+            final enrollmentStatus = snapshot.data!;
 
-                return ListView(
-                  padding: const EdgeInsets.fromLTRB(
-                    YiviSpace.x16,
-                    0,
-                    YiviSpace.x16,
-                    YiviSpace.x16,
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(
+                YiviSpace.x16,
+                0,
+                YiviSpace.x16,
+                YiviSpace.x16,
+              ),
+              children: [
+                GlassGroup(
+                  header: context.tr("debug.scheme_management.issuer_schemes"),
+                  children: [
+                    for (final schemeManager in schemes.schemeManagers)
+                      SchemeManagerTile(
+                        schemeManager: schemeManager,
+                        isActive: schemeManager.keyshareServer.isNotEmpty
+                            ? enrollmentStatus.enrolledSchemeManagerIds
+                                  .contains(schemeManager.id)
+                            : null,
+                        onTap: () => _onSchemeManagerTileTap(schemeManager.id),
+                      ),
+                  ],
+                ),
+                GlassGroup(
+                  header: context.tr(
+                    "debug.scheme_management.requestor_schemes",
                   ),
                   children: [
-                    GlassGroup(
-                      header: context.tr(
-                        "debug.scheme_management.issuer_schemes",
-                      ),
-                      children: [
-                        for (final schemeManager
-                            in irmaConfiguration.schemeManagers.values)
-                          SchemeManagerTile(
-                            schemeManager: schemeManager,
-                            isActive: schemeManager.keyshareServer.isNotEmpty
-                                ? enrollmentStatus.enrolledSchemeManagerIds
-                                      .contains(schemeManager.id)
-                                : null,
-                            onTap: () =>
-                                _onSchemeManagerTileTap(schemeManager.id),
-                          ),
-                      ],
-                    ),
-                    GlassGroup(
-                      header: context.tr(
-                        "debug.scheme_management.requestor_schemes",
-                      ),
-                      children: [
-                        for (final schemeId
-                            in irmaConfiguration.requestorSchemes.keys)
-                          ListTile(
-                            title: Text(schemeId),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    RequestorSchemeDetailScreen(
-                                      requestorScheme: irmaConfiguration
-                                          .requestorSchemes[schemeId]!,
-                                    ),
-                              ),
+                    for (final requestorScheme in schemes.requestorSchemes)
+                      ListTile(
+                        title: Text(requestorScheme.id),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => RequestorSchemeDetailScreen(
+                              requestorScheme: requestorScheme,
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
                   ],
-                );
-              },
-            ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
       bottomNavigationBar: ActionBar.single(
         label: context.tr("debug.scheme_management.update"),

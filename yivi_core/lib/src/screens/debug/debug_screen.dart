@@ -6,7 +6,6 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
-import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../widgets/glass/glass_dialog.dart";
 import "../../widgets/glass/glass_group.dart";
@@ -14,6 +13,7 @@ import "../../widgets/irma_app_bar.dart";
 import "../more/widgets/tiles.dart";
 import "cert_management/cert_management_screen.dart";
 import "debug_helper.dart";
+import "debug_schemes.dart";
 import "scheme_management/scheme_management_screen.dart";
 import "session/session_helper_screen.dart";
 import "util/snackbar.dart";
@@ -28,8 +28,6 @@ class DebugScreen extends ConsumerStatefulWidget {
 }
 
 class _DebugScreenState extends ConsumerState<DebugScreen> {
-  late final DebugHelper _debugHelper;
-
   Widget _buildListTile(
     IconData icon,
     String translationKey, {
@@ -48,13 +46,15 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
   @override
   initState() {
     super.initState();
-
-    afterFrame(() async {
-      final repo = repositoryOf(context);
-      final config = await repo.getIrmaConfiguration().first;
-      _debugHelper = DebugHelper(irmaConfig: config);
-    });
+    // Asks for the schemes now, so they are there when a button needs them.
+    ref.listenManual(debugSchemesProvider, (_, _) {});
   }
+
+  /// Builds a debug issuance request from the schemes, once they are there.
+  Future<String> _issuanceRequest(
+    Future<String> Function(DebugHelper helper) build,
+  ) async =>
+      build(DebugHelper(schemes: await ref.read(debugSchemesProvider.future)));
 
   Future<void> _deleteAllDeletableCards(IrmaRepository repo) async {
     final confirmed = await showConfirmDialog(
@@ -147,8 +147,9 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
                   Icons.badge,
                   "debug.issue_digid",
                   onTap: () async {
-                    final digidIssuanceRequest = await _debugHelper
-                        .digidProefIssuanceRequest();
+                    final digidIssuanceRequest = await _issuanceRequest(
+                      (helper) => helper.digidProefIssuanceRequest(),
+                    );
                     await repo.startTestSession(digidIssuanceRequest);
                   },
                 ),
@@ -156,8 +157,9 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
                   Icons.exposure_plus_2,
                   "debug.random_issuance",
                   onTap: () async {
-                    final randomIssuanceRequest = await _debugHelper
-                        .randomIssuanceRequest(2);
+                    final randomIssuanceRequest = await _issuanceRequest(
+                      (helper) => helper.randomIssuanceRequest(2),
+                    );
                     await repo.startTestSession(randomIssuanceRequest);
                   },
                 ),

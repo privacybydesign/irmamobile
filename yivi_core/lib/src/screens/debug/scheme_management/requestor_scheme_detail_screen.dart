@@ -1,6 +1,5 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/irma_configuration.dart";
 import "../../../models/scheme_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
@@ -9,10 +8,11 @@ import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_group.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
+import "../debug_schemes.dart";
 import "../util/snackbar.dart";
 
 class RequestorSchemeDetailScreen extends StatelessWidget {
-  final RequestorScheme requestorScheme;
+  final DebugRequestorScheme requestorScheme;
 
   const RequestorSchemeDetailScreen({super.key, required this.requestorScheme});
 

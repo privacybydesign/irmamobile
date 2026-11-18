@@ -13,6 +13,7 @@ import "package:yivi_core/src/models/error_event.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/native_events.dart";
 import "package:yivi_core/src/models/scheme_events.dart";
+import "package:yivi_core/src/screens/debug/debug_schemes.dart";
 import "package:yivi_core/src/util/security_context_binding.dart";
 
 /// Binding to use the static IrmaClientBridge in integration tests.
@@ -33,6 +34,13 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   final IrmaClientBridge _bridge;
   IrmaRepository? _repository;
   IrmaPreferences? _preferences;
+
+  /// The schemes as the debug screens get them, asked for from the bridge.
+  Future<DebugSchemes> schemes() async {
+    final answer = repository.getEvents().whereType<DebugSchemesEvent>().first;
+    repository.bridgedDispatch(RequestDebugSchemesEvent());
+    return (await answer).schemes;
+  }
 
   IrmaRepository get repository {
     if (_repository == null) {

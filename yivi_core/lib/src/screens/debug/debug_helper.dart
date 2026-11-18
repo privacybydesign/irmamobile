@@ -1,15 +1,13 @@
 import "dart:math";
 
-import "package:collection/collection.dart";
-
-import "../../models/irma_configuration.dart";
+import "debug_schemes.dart";
 import "session/portrait_photo_mock.dart";
 
 class DebugHelper {
   static final _random = Random();
-  final IrmaConfiguration irmaConfig;
+  final DebugSchemes schemes;
 
-  DebugHelper({required this.irmaConfig});
+  DebugHelper({required this.schemes});
 
   static String disclosureSessionRequest() {
     return '''
@@ -58,19 +56,13 @@ class DebugHelper {
     ''';
   }
 
-  Map<String, List<AttributeType>> _attributeTypesByCredentialType(
-    IrmaConfiguration irmaConfiguration,
+  String _credentialRequest(
+    DebugCredentialType credentialType,
+    List<String> attributeValues,
   ) {
-    return groupBy<AttributeType, String>(
-      irmaConfiguration.attributeTypes.values,
-      (attributeType) => attributeType.fullCredentialId,
-    );
-  }
-
-  String _credentialRequest(CredentialType credentialType, attributeValues) {
     return '''
       {
-        "credential": "${credentialType.fullId}",
+        "credential": "${credentialType.id}",
         "attributes": {${attributeValues.join(", ")}}
       }
     ''';
@@ -82,14 +74,12 @@ class DebugHelper {
   }
 
   Future<String> digidProefIssuanceRequest() async {
-    const credentialTypeId =
-        "irma-demo.digidproef.personalData"; // We assume this credential is present.
-    final credentialType = irmaConfig.credentialTypes[credentialTypeId]!;
-    final attributeTypesLookup = _attributeTypesByCredentialType(
-      irmaConfig,
-    )[credentialTypeId]!;
+    // We assume this credential is present.
+    final credentialType = schemes.credentialTypes.firstWhere(
+      (type) => type.id == "irma-demo.digidproef.personalData",
+    );
 
-    final attributeValues = attributeTypesLookup.map((attributeType) {
+    final attributeValues = credentialType.attributes.map((attributeType) {
       final value = attributeType.displayHint == "portraitPhoto"
           ? portraitPhotoMock
           : _randomAttributeValue();
@@ -102,15 +92,14 @@ class DebugHelper {
   }
 
   Future<String> randomIssuanceRequest(int amount) async {
-    final credentialTypes = irmaConfig.credentialTypes.values
+    final credentialTypes = schemes.credentialTypes
         .where((ct) => ct.schemeManagerId == "irma-demo")
         .toList();
-    final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfig);
 
     final credentialsJson = List<String>.generate(amount, (int i) {
       final credentialType =
           credentialTypes[_random.nextInt(credentialTypes.length)];
-      final attributeValues = attributeTypesLookup[credentialType.fullId]!
+      final attributeValues = credentialType.attributes
           .map(
             (attributeType) =>
                 '"${attributeType.id}": "${_randomAttributeValue()}"',

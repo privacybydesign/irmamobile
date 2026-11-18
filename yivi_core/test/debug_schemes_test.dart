@@ -7,8 +7,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/enrollment_events.dart";
-import "package:yivi_core/src/models/irma_configuration.dart";
+import "package:yivi_core/src/models/scheme_rules.dart";
 import "package:yivi_core/src/screens/debug/debug_helper.dart";
+import "package:yivi_core/src/screens/debug/debug_schemes.dart";
 import "package:yivi_core/src/screens/debug/scheme_management/scheme_management_screen.dart";
 import "package:yivi_core/src/screens/debug/scheme_management/scheme_manager_detail_screen.dart";
 import "package:yivi_core/src/screens/debug/session/portrait_photo_mock.dart";
@@ -22,93 +23,63 @@ Map<String, dynamic> _schemeManager(
   String keyshareServer = "",
   String timestampServer = "",
 }) => {
-  "ID": id,
-  "Name": {"en": id},
-  "URL": "https://example.com/$id",
-  "Description": {"en": ""},
-  "MinimumAppVersion": {"Android": 0, "IOS": 0},
-  "KeyshareServer": keyshareServer,
-  "KeyshareWebsite": "",
-  "TimestampServer": timestampServer,
-  "KeyshareAttribute": "",
-  "Timestamp": 1700000000,
-  "Demo": demo,
+  "id": id,
+  "demo": demo,
+  "timestamp": 1700000000,
+  "keyshare_server": keyshareServer,
+  "timestamp_server": timestampServer,
 };
 
-/// A credential type and its attribute types, as Go keys them: the
-/// credential type by its full id, the attribute types by theirs.
-Map<String, Map<String, dynamic>> _credentialType(
-  String fullId,
+Map<String, dynamic> _credentialType(
+  String id,
   List<String> attributes, {
   Map<String, String> displayHints = const {},
-}) {
-  final [scheme, issuer, id] = fullId.split(".");
-  return {
-    "credential": {
-      fullId: {
-        "ID": id,
-        "Name": {"en": id},
-        "IssuerID": issuer,
-        "SchemeManagerID": scheme,
-        "IsSingleton": false,
-        "Description": {"en": ""},
+}) => {
+  "id": id,
+  "scheme_manager_id": id.split(".").first,
+  "name": {"en": id.split(".").last},
+  "attributes": [
+    for (final attribute in attributes)
+      {
+        "id": attribute,
+        "name": {"en": attribute},
+        "display_hint": ?displayHints[attribute],
       },
-    },
-    "attributes": {
-      for (final (index, attribute) in attributes.indexed)
-        "$fullId.$attribute": {
-          "ID": attribute,
-          "Index": index,
-          "CredentialTypeID": id,
-          "IssuerID": issuer,
-          "SchemeManagerID": scheme,
-          "Name": {"en": attribute},
-          "DisplayHint": ?displayHints[attribute],
-        },
-    },
-  };
-}
-
-final _types = [
-  _credentialType(
-    "irma-demo.digidproef.personalData",
-    ["initials", "surname", "photo"],
-    displayHints: {"photo": "portraitPhoto"},
-  ),
-  _credentialType("irma-demo.gemeente.address", ["street", "city"]),
-  _credentialType("pbdf.pbdf.email", ["email", "domain"]),
-];
-
-/// What Go sends after loading the schemes, as JSON.
-final _schemesJson = <String, dynamic>{
-  "irma_configuration": {
-    "SchemeManagers": {
-      "pbdf": _schemeManager(
-        "pbdf",
-        keyshareServer: "https://keyshare.example.com",
-        timestampServer: "https://timestamp.example.com",
-      ),
-      "irma-demo": _schemeManager("irma-demo", demo: true),
-      "pbdf-staging": _schemeManager(
-        "pbdf-staging",
-        keyshareServer: "https://keyshare-staging.example.com",
-      ),
-    },
-    "RequestorSchemes": {
-      "pbdf-requestors": {"id": "pbdf-requestors", "demo": false},
-      "irma-demo-requestors": {"id": "irma-demo-requestors", "demo": true},
-    },
-    "Requestors": <String, dynamic>{},
-    "Issuers": <String, dynamic>{},
-    "CredentialTypes": {for (final t in _types) ...t["credential"]!},
-    "AttributeTypes": {for (final t in _types) ...t["attributes"]!},
-    "Path": "",
-  },
+  ],
 };
 
-DebugHelper _debugHelper() => DebugHelper(
-  irmaConfig: IrmaConfigurationEvent.fromJson(_schemesJson).irmaConfiguration,
-);
+/// What Go answers a request for the schemes with, as JSON; each list
+/// sorted by id.
+final _schemesJson = <String, dynamic>{
+  "scheme_managers": [
+    _schemeManager("irma-demo", demo: true),
+    _schemeManager(
+      "pbdf",
+      keyshareServer: "https://keyshare.example.com",
+      timestampServer: "https://timestamp.example.com",
+    ),
+    _schemeManager(
+      "pbdf-staging",
+      keyshareServer: "https://keyshare-staging.example.com",
+    ),
+  ],
+  "requestor_schemes": [
+    {"id": "irma-demo-requestors", "demo": true},
+    {"id": "pbdf-requestors", "demo": false},
+  ],
+  "credential_types": [
+    _credentialType(
+      "irma-demo.digidproef.personalData",
+      ["initials", "photo", "surname"],
+      displayHints: {"photo": "portraitPhoto"},
+    ),
+    _credentialType("irma-demo.gemeente.address", ["city", "street"]),
+    _credentialType("pbdf.pbdf.email", ["domain", "email"]),
+  ],
+};
+
+DebugHelper _debugHelper() =>
+    DebugHelper(schemes: DebugSchemes.fromJson(_schemesJson));
 
 void main() {
   late RecordingBridge bridge;
@@ -126,7 +97,9 @@ void main() {
         unenrolledSchemeManagerIds: ["pbdf-staging"],
       ),
     );
-    bridge.deliver(IrmaConfigurationEvent.fromJson(_schemesJson));
+    bridge.respond = (event) => event is RequestDebugSchemesEvent
+        ? DebugSchemesEvent.fromJson(_schemesJson)
+        : null;
   });
   tearDown(() => repo.close());
 
@@ -251,6 +224,39 @@ void main() {
       expect(attributes.keys.toSet(), {"initials", "surname", "photo"});
       expect(attributes["photo"], portraitPhotoMock);
       expect(attributes["initials"], isNot(portraitPhotoMock));
+    });
+  });
+
+  group("the schemes provider", () {
+    testWidgets("asks again after every scheme change", (tester) async {
+      await pump(tester, SchemeManagementScreen());
+      int asked() =>
+          bridge.dispatched.whereType<RequestDebugSchemesEvent>().length;
+      expect(asked(), 1);
+
+      // Go sends new rules after updating, installing or removing a scheme.
+      bridge.deliver(
+        SchemeRulesEvent.fromJson({
+          "minimum_app_version": {"android": 0, "ios": 0},
+          "ul_issue_credential_ids": <String>[],
+        }),
+      );
+      await settle(tester);
+      await tester.pumpAndSettle();
+      expect(asked(), 2);
+    });
+
+    test("a revocation attribute without a name is read", () {
+      final type = DebugCredentialType.fromJson({
+        "id": "irma-demo.example.card",
+        "scheme_manager_id": "irma-demo",
+        "name": {"en": "Card"},
+        "attributes": [
+          {"id": "revocation", "name": null},
+        ],
+      });
+      expect(type.attributes.single.name, isEmpty);
+      expect(type.attributes.single.displayHint, isNull);
     });
   });
 }

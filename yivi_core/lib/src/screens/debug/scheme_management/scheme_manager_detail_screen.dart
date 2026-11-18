@@ -1,14 +1,13 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
 
 import "../../../models/authentication_events.dart";
 import "../../../models/enrollment_events.dart";
-import "../../../models/irma_configuration.dart";
 import "../../../models/scheme_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../util/combine.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/action_bar.dart";
 import "../../../widgets/active_indicator.dart";
@@ -18,9 +17,10 @@ import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/yivi_spinner.dart";
 import "../../error/error_screen.dart";
 import "../../pin/yivi_pin_screen.dart";
+import "../debug_schemes.dart";
 import "../util/snackbar.dart";
 
-class SchemeManagerDetailScreen extends StatelessWidget {
+class SchemeManagerDetailScreen extends ConsumerWidget {
   final String schemeManagerId;
 
   const SchemeManagerDetailScreen(this.schemeManagerId);
@@ -157,26 +157,22 @@ class SchemeManagerDetailScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final repo = repositoryOf(context);
 
-    return StreamBuilder<
-      CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>
-    >(
-      stream: combine2(
-        repo.getEnrollmentStatusEvent(),
-        repo.getIrmaConfiguration(),
-      ),
+    return StreamBuilder<EnrollmentStatusEvent>(
+      stream: repo.getEnrollmentStatusEvent(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        final schemes = ref.watch(debugSchemesProvider).value;
+        if (!snapshot.hasData || schemes == null) {
           return Scaffold(body: Center(child: YiviSpinner()));
         }
 
-        final enrollmentStatus = snapshot.data!.a;
-        final irmaConfiguration = snapshot.data!.b;
+        final enrollmentStatus = snapshot.data!;
 
-        // Grab the scheme manager from the configuration.
-        final schemeManager = irmaConfiguration.schemeManagers[schemeManagerId];
+        final schemeManager = schemes.schemeManagers
+            .where((scheme) => scheme.id == schemeManagerId)
+            .firstOrNull;
         if (schemeManager == null) {
           throw Exception("Scheme manager $schemeManagerId not found");
         }

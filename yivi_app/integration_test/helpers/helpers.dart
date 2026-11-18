@@ -24,6 +24,7 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dar
 import "package:yivi_core/src/screens/add_data/add_data_details_content.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/debug/debug_schemes.dart";
 import "package:yivi_core/src/screens/loading/loading_screen.dart";
 import "package:yivi_core/src/screens/notifications/notifications_provider.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
@@ -337,18 +338,22 @@ Future<void> issueCredentials(
     }
   }
 
+  // The expected names come from the schemes, in the test's language.
+  final schemes = await irmaBinding.schemes();
+  final languageCode = locale.languageCode;
+  String translate(Map<String, String> name) =>
+      name[languageCode] ?? name["en"] ?? "[translation missing]";
+  DebugCredentialType? credentialType(String id) =>
+      schemes.credentialTypes.where((type) => type.id == id).firstOrNull;
+
   // Check whether all credential type names are displayed. A built-in card
   // design draws the name inside its picture, not as a text widget.
   for (final credTypeId in groupedAttributes.keys) {
     if (builtinCardTemplate(credTypeId) != null) continue;
-    final credType =
-        irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
+    final credType = credentialType(credTypeId)!;
     // findsWidgets, not `.last` + findsOneWidget: `.last` throws an opaque
     // "Bad state: No element" when nothing matches, hiding the real mismatch.
-    expect(
-      find.text(credType.name.translate(locale.languageCode)),
-      findsWidgets,
-    );
+    expect(find.text(translate(credType.name)), findsWidgets);
   }
 
   // Check whether all attributes are displayed (order-independent).
@@ -366,12 +371,12 @@ Future<void> issueCredentials(
   final expectedAttributes = <String, String>{};
   for (final entry in attributes.entries) {
     if (attributesInGroups.contains(entry.key)) continue;
-    final attrName = irmaBinding
-        .repository
-        .irmaConfiguration
-        .attributeTypes[entry.key]
-        ?.name
-        .translate(locale.languageCode);
+    final credTypeId = entry.key.substring(0, entry.key.lastIndexOf("."));
+    final attrId = entry.key.substring(entry.key.lastIndexOf(".") + 1);
+    final attrType = credentialType(
+      credTypeId,
+    )?.attributes.where((attribute) => attribute.id == attrId).firstOrNull;
+    final attrName = attrType == null ? null : translate(attrType.name);
     if (attrName != null) {
       expectedAttributes[attrName] = entry.value;
     }
