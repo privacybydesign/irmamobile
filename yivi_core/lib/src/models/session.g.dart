@@ -66,31 +66,3 @@ Map<String, dynamic> _$RemoteErrorToJson(RemoteError instance) =>
       'message': instance.message,
       'stacktrace': instance.stacktrace,
     };
-
-RequestorInfo _$RequestorInfoFromJson(Map<String, dynamic> json) =>
-    RequestorInfo(
-      name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
-      unverified: json['unverified'] as bool? ?? true,
-      hostnames:
-          (json['hostnames'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      industry: json['industry'] == null
-          ? const TranslatedValue.empty()
-          : TranslatedValue.fromJson(json['industry'] as Map<String, dynamic>?),
-      id: json['id'] as String?,
-      logo: json['logo'] as String?,
-      logoPath: json['logo_path'] as String?,
-    );
-
-Map<String, dynamic> _$RequestorInfoToJson(RequestorInfo instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'industry': instance.industry,
-      'logo': instance.logo,
-      'logo_path': instance.logoPath,
-      'unverified': instance.unverified,
-      'hostnames': instance.hostnames,
-    };

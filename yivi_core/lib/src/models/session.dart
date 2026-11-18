@@ -2,9 +2,7 @@ import "dart:convert";
 
 import "package:json_annotation/json_annotation.dart";
 
-import "../data/irma_repository.dart";
 import "protocol.dart";
-import "translated_value.dart";
 
 part "session.g.dart";
 
@@ -27,11 +25,6 @@ const universalLinkHosts = {"open.yivi.app", "open.staging.yivi.app"};
 
 /// Interface for all pointers referring to new sessions.
 abstract class Pointer {
-  Future<void> validate({
-    required IrmaRepository irmaRepository,
-    RequestorInfo? requestor,
-  });
-
   factory Pointer.fromString(String content) {
     // OAuth `redirect_uri` for OpenID4VCI auth-code / pre-auth-code flows.
     // Default to production; if the inbound URL is a universal link on a
@@ -181,12 +174,6 @@ class SessionPointer implements Pointer {
   factory SessionPointer.fromJson(Map<String, dynamic> json) =>
       _$SessionPointerFromJson(json);
   Map<String, dynamic> toJson() => _$SessionPointerToJson(this);
-
-  @override
-  Future<void> validate({
-    required IrmaRepository irmaRepository,
-    RequestorInfo? requestor,
-  }) async {}
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
@@ -273,35 +260,4 @@ class RemoteError {
 
   @override
   String toString() => jsonEncode(copyWithoutStacktrace());
-}
-
-@JsonSerializable(fieldRename: FieldRename.snake)
-class RequestorInfo {
-  final String? id;
-
-  final TranslatedValue name;
-
-  // Default value is set by fromJson of TranslatedValue
-  final TranslatedValue industry;
-
-  final String? logo;
-
-  final String? logoPath;
-
-  final bool unverified;
-
-  final List<String> hostnames;
-
-  RequestorInfo({
-    required this.name,
-    this.unverified = true,
-    this.hostnames = const [],
-    this.industry = const TranslatedValue.empty(),
-    this.id,
-    this.logo,
-    this.logoPath,
-  });
-  factory RequestorInfo.fromJson(Map<String, dynamic> json) =>
-      _$RequestorInfoFromJson(json);
-  Map<String, dynamic> toJson() => _$RequestorInfoToJson(this);
 }

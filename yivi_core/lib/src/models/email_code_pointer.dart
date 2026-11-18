@@ -1,4 +1,3 @@
-import "../data/irma_repository.dart";
 import "session.dart";
 
 const _emailLinkPath = "/-/email";
@@ -46,10 +45,4 @@ class EmailCodePointer implements Pointer {
     if (code == null || !_codePattern.hasMatch(code)) return null;
     return EmailCodePointer(email: email, code: code.toUpperCase());
   }
-
-  @override
-  Future<void> validate({
-    required IrmaRepository irmaRepository,
-    RequestorInfo? requestor,
-  }) async {}
 }

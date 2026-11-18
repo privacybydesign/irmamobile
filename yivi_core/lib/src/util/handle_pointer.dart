@@ -25,26 +25,6 @@ Future<int?> handlePointer(
     return null;
   }
 
-  try {
-    await pointer.validate(
-      irmaRepository: ProviderScope.containerOf(
-        context,
-        listen: false,
-      ).read(irmaRepositoryProvider),
-    );
-  } catch (e) {
-    if (!context.mounted) {
-      return null;
-    }
-    final message = "error starting session: $e";
-    if (pushReplacement) {
-      context.pushReplacementErrorScreen(message: message);
-    } else {
-      context.pushErrorScreen(message: message);
-    }
-    return null;
-  }
-
   if (pointer is SessionPointer && context.mounted) {
     return _startSession(context, pointer, pushReplacement: pushReplacement);
   }
