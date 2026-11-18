@@ -505,6 +505,8 @@ jobs:
           curl -sSfL -o /tmp/jadx.zip "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip"
           echo "${JADX_SHA256}  /tmp/jadx.zip" | sha256sum -c -
           unzip -q /tmp/jadx.zip -d "$HOME/jadx"
+          # The zip stores the launcher without the executable bit.
+          chmod +x "$HOME/jadx/bin/jadx"
           echo "$HOME/jadx/bin" >> "$GITHUB_PATH"
       - name: Run the test bed
         run: |
