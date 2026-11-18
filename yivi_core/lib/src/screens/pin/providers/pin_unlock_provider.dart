@@ -48,12 +48,12 @@ class PinUnlockState {
 class PinUnlockNotifier extends Notifier<PinUnlockState> {
   @override
   PinUnlockState build() {
-    final repo = ref.watch(irmaRepositoryProvider);
+    final lock = ref.watch(appLockProvider);
 
     // Reset to a clean locked state whenever irmago reports the app locked,
     // but keep any active server-side block (so locking can't race the
-    // getBlockTime() seed below into clearing a real block).
-    final sub = repo.getLocked().listen((locked) {
+    // blockedUntil seed below into clearing a real block).
+    final sub = lock.locked.listen((locked) {
       if (locked) {
         state = PinUnlockState(
           blockedUntil: state.blockedUntil,
@@ -65,12 +65,12 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
 
     // Seed blocked-until if the keyshare server already has us blocked.
     // A cancel-on-dispose subscription (cancelled after the first value),
-    // not a fire-and-forget `.first`: getBlockTime() is an unseeded subject
+    // not a fire-and-forget `.first`: blockedUntil is an unseeded subject
     // that never emits during enrollment, so a pending `.first` throws
     // "Bad state: No element" when the repo is closed (test teardown) before
     // any block arrives.
     StreamSubscription<DateTime?>? blockSub;
-    blockSub = repo.getBlockTime().listen((blockedUntil) {
+    blockSub = lock.blockedUntil.listen((blockedUntil) {
       blockSub?.cancel();
       blockSub = null;
       if (blockedUntil != null) {
@@ -87,7 +87,7 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
 
   Future<void> unlock(String pin) async {
     if (state.authenticateInProgress) return;
-    final repo = ref.read(irmaRepositoryProvider);
+    final lock = ref.read(appLockProvider);
 
     final wrongCount = state.wrongCount;
     state = PinUnlockState(
@@ -95,7 +95,7 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
       wrongCount: wrongCount,
     );
 
-    final event = await repo.unlock(pin);
+    final event = await lock.unlock(pin);
     state = switch (event) {
       AuthenticationSuccessEvent() => PinUnlockState(
         authenticated: true,

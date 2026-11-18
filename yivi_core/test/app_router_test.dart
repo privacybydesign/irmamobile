@@ -158,7 +158,7 @@ void main() {
       expect(app.location, "/home");
       expect(find.byType(PinScreen), findsOneWidget);
 
-      app.repo.unlockAppLocally();
+      app.repo.appLock.unlockLocally();
       await app.run(tester);
       expect(find.byType(PinScreen), findsNothing);
       await app.unmount(tester);
@@ -169,7 +169,7 @@ void main() {
       app.unenrolled();
       app.schemes();
       await app.run(tester);
-      app.repo.lock();
+      app.repo.appLock.lock();
       await app.run(tester);
 
       expect(app.location, "/enrollment");
@@ -223,7 +223,7 @@ void main() {
       app.enrolled();
       app.schemes();
       await app.run(tester);
-      app.repo.unlockAppLocally();
+      app.repo.appLock.unlockLocally();
       await app.run(tester);
     }
 

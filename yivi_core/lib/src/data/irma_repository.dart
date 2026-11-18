@@ -14,14 +14,12 @@ import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
-import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credential.dart";
 import "../models/credential_events.dart";
 import "../models/credential_store.dart";
-import "../models/delete_keyshare_tokens_event.dart";
 import "../models/email_code_pointer.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
@@ -44,6 +42,7 @@ import "../sentry/sentry.dart";
 import "../util/nfc_credentials.dart";
 import "activity_log_client.dart";
 import "app_language.dart";
+import "app_lock.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -100,6 +99,13 @@ class IrmaRepository {
   /// each event after the repository did.
   late final SessionRepository sessions;
 
+  /// Whether the lock screen shows, and the PIN that unlocks it.
+  late final AppLock appLock = AppLock(
+    dispatch: bridgedDispatch,
+    preferences: preferences,
+    defaultKeyshareScheme: defaultKeyshareScheme,
+  );
+
   /// Questions about the activity log.
   late final ActivityLogClient activityLog = ActivityLogClient(
     send: (event) => _bridge.dispatch(event),
@@ -114,10 +120,7 @@ class IrmaRepository {
   final _enrollmentStatusEventSubject =
       BehaviorSubject<EnrollmentStatusEvent>();
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
-  final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
-  final _lockedSubject = BehaviorSubject<bool>.seeded(true);
-  final _blockedSubject = BehaviorSubject<DateTime?>();
   final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _credentialObtainState = BehaviorSubject<_CredentialObtainState>();
@@ -160,10 +163,8 @@ class IrmaRepository {
       _credentialStoreSubject.close(),
       _enrollmentStatusEventSubject.close(),
       _enrollmentEventSubject.close(),
-      _authenticationEventSubject.close(),
       _changePinEventSubject.close(),
-      _lockedSubject.close(),
-      _blockedSubject.close(),
+      appLock.close(),
       _pendingPointerSubject.close(),
       _preferencesSubject.close(),
       _credentialObtainState.close(),
@@ -184,7 +185,6 @@ class IrmaRepository {
     } else if (event is ErrorEvent) {
       if (event.fatal) {
         _fatalErrorSubject.add(event);
-        _lockedSubject.add(false);
       } else {
         // Only fatal errors on start-up are caught at the moment, so we have to report other errors manually.
         reportError(event.exception, event.stack);
@@ -200,21 +200,12 @@ class IrmaRepository {
       ));
     } else if (event is CredentialStoreEvent) {
       _credentialStoreSubject.add(event.credentials);
-    } else if (event is AuthenticationEvent) {
-      _authenticationEventSubject.add(event);
-      if (event is AuthenticationSuccessEvent) {
-        _lockedSubject.add(false);
-        _blockedSubject.add(null);
-      }
     } else if (event is ChangePinBaseEvent) {
       _changePinEventSubject.add(event);
     } else if (event is EnrollmentStatusEvent) {
       _enrollmentStatusEventSubject.add(event);
-      if (event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
-        _lockedSubject.add(false);
-      } else if (!event.enrolledSchemeManagerIds.contains(
-        defaultKeyshareScheme,
-      )) {
+      if (!event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme) &&
+          !event.enrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
         dispatch(
           ErrorEvent(
             exception:
@@ -252,12 +243,13 @@ class IrmaRepository {
     } else if (event is NewSessionEvent) {
       _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {
-      _lockedSubject.add(false);
-      _blockedSubject.add(null);
       preferences.clearAll();
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
     }
+    // After the repository's own subjects, as before the lock had a class of
+    // its own: a fatal error is known before the app unlocks for it.
+    appLock.onEvent(event);
   }
 
   Stream<Event> getEvents() {
@@ -336,8 +328,7 @@ class IrmaRepository {
     required String pin,
     required String language,
   }) {
-    _lockedSubject.add(false);
-    _blockedSubject.add(null);
+    appLock.clear();
 
     bridgedDispatch(
       EnrollEvent(
@@ -349,11 +340,11 @@ class IrmaRepository {
     );
 
     return _enrollmentEventSubject.where((event) {
-      switch (event.runtimeType) {
-        case const (EnrollmentSuccessEvent):
+      switch (event) {
+        case EnrollmentSuccessEvent():
           preferences.longPin.set(pin.length != 5);
           return true;
-        case const (EnrollmentFailureEvent):
+        case EnrollmentFailureEvent():
           return true;
         default:
           return false;
@@ -382,41 +373,6 @@ class IrmaRepository {
   Stream<EnrollmentStatusEvent> getEnrollmentStatusEvent() =>
       _enrollmentStatusEventSubject.stream;
 
-  // -- Authentication
-
-  // Set when the user explicitly locks (e.g. "Log out" on the More tab), so the
-  // next lock screen shows the PIN pad instead of auto-firing biometrics. A
-  // one-shot consumed by the lock screen — an idle-timeout lock leaves it false
-  // and still auto-scans.
-  bool _biometricAutoUnlockSuppressed = false;
-
-  /// Returns whether the next biometric auto-unlock should be skipped, clearing
-  /// the flag so only the lock appearance that directly follows an explicit
-  /// logout is suppressed.
-  bool consumeBiometricAutoUnlockSuppressed() {
-    final suppressed = _biometricAutoUnlockSuppressed;
-    _biometricAutoUnlockSuppressed = false;
-    return suppressed;
-  }
-
-  void lock({DateTime? unblockTime, bool userInitiated = false}) {
-    if (userInitiated) _biometricAutoUnlockSuppressed = true;
-    // Drop irmago's in-memory keyshare token so the next session must
-    // re-authenticate with the PIN. A biometric unlock alone won't restore it
-    // (only KeyshareVerifyPin does), closing the biometric-bypass window.
-    bridgedDispatch(DeleteKeyshareTokensEvent());
-    _lockedSubject.add(true);
-    _blockedSubject.add(unblockTime);
-  }
-
-  /// Unlocks the app shell locally (e.g. after biometric authentication)
-  /// WITHOUT authenticating against the keyshare server. Unlike [unlock] this
-  /// does not refresh the keyshare session token, so the first session started
-  /// afterwards still hits `SessionStatus.requestPin` and requires the PIN.
-  void unlockAppLocally() {
-    _lockedSubject.add(false);
-  }
-
   void setDeveloperMode(bool enabled) {
     bridgedDispatch(
       ClientPreferencesEvent(
@@ -425,49 +381,21 @@ class IrmaRepository {
     );
   }
 
-  Future<AuthenticationEvent> unlock(String pin) {
-    bridgedDispatch(
-      AuthenticateEvent(pin: pin, schemeId: defaultKeyshareScheme),
-    );
-
-    return _authenticationEventSubject.where((event) {
-      switch (event.runtimeType) {
-        case const (AuthenticationSuccessEvent):
-          preferences.longPin.set(pin.length != 5);
-          return true;
-        case const (AuthenticationFailedEvent):
-        case const (AuthenticationErrorEvent):
-          return true;
-        default:
-          return false;
-      }
-    }).first;
-  }
-
   Future<ChangePinBaseEvent> changePin(String oldPin, String newPin) {
     bridgedDispatch(ChangePinEvent(oldPin: oldPin, newPin: newPin));
 
     return _changePinEventSubject.where((event) {
-      switch (event.runtimeType) {
-        case const (ChangePinSuccessEvent):
+      switch (event) {
+        case ChangePinSuccessEvent():
           // Change pin length
           preferences.longPin.set(newPin.length != 5);
           return true;
-        case const (ChangePinFailedEvent):
-        case const (ChangePinErrorEvent):
+        case ChangePinFailedEvent() || ChangePinErrorEvent():
           return true;
         default:
           return false;
       }
     }).first;
-  }
-
-  Stream<bool> getLocked() {
-    return _lockedSubject.distinct().asBroadcastStream();
-  }
-
-  Stream<DateTime?> getBlockTime() {
-    return _blockedSubject;
   }
 
   // -- Version information

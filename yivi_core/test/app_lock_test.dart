@@ -36,13 +36,13 @@ void main() {
       preferences: await freshPreferences(),
     );
     lockedValues = [];
-    repo.getLocked().listen(lockedValues.add);
+    repo.appLock.locked.listen(lockedValues.add);
     await pumpEventQueue();
   });
   tearDown(() => repo.close());
 
-  Future<bool> locked() => repo.getLocked().first;
-  Future<DateTime?> blockedUntil() => repo.getBlockTime().first;
+  Future<bool> locked() => repo.appLock.locked.first;
+  Future<DateTime?> blockedUntil() => repo.appLock.blockedUntil.first;
 
   /// Sends [event] as Go would and lets it reach every listener.
   Future<void> deliver(Event event) async {
@@ -77,17 +77,17 @@ void main() {
 
   group("2. lock()", () {
     test("drops the keyshare token before the lock is announced", () async {
-      repo.unlockAppLocally();
+      repo.appLock.unlockLocally();
       await pumpEventQueue();
       final order = <String>[];
       bridge.respond = (event) {
         if (event is DeleteKeyshareTokensEvent) order.add("token");
         return null;
       };
-      repo.getLocked().skip(1).listen((value) => order.add("locked $value"));
+      repo.appLock.locked.skip(1).listen((value) => order.add("locked $value"));
       await pumpEventQueue();
 
-      repo.lock();
+      repo.appLock.lock();
       // The token is dropped at once, the lock reaches listeners later.
       expect(order, ["token"]);
       await pumpEventQueue();
@@ -97,15 +97,15 @@ void main() {
 
     test("with an unblock time: blocked until then", () async {
       final until = DateTime(2030);
-      repo.lock(unblockTime: until);
+      repo.appLock.lock(unblockTime: until);
       await pumpEventQueue();
       expect(await blockedUntil(), until);
     });
 
     test("the same value twice is announced once", () async {
-      repo.unlockAppLocally();
-      repo.lock();
-      repo.lock();
+      repo.appLock.unlockLocally();
+      repo.appLock.lock();
+      repo.appLock.lock();
       await pumpEventQueue();
       expect(lockedValues, [true, false, true]);
     });
@@ -115,11 +115,11 @@ void main() {
     test("a success unlocks, clears the block and remembers a short "
         "PIN", () async {
       await repo.preferences.longPin.set(true);
-      repo.lock(unblockTime: DateTime(2030));
+      repo.appLock.lock(unblockTime: DateTime(2030));
       bridge.respond = (event) =>
           event is AuthenticateEvent ? AuthenticationSuccessEvent() : null;
 
-      final result = await repo.unlock("12345");
+      final result = await repo.appLock.unlock("12345");
 
       expect(result, isA<AuthenticationSuccessEvent>());
       final sent = bridge.dispatched.whereType<AuthenticateEvent>().single;
@@ -136,7 +136,7 @@ void main() {
       bridge.respond = (event) =>
           event is AuthenticateEvent ? AuthenticationSuccessEvent() : null;
 
-      await repo.unlock("1234567");
+      await repo.appLock.unlock("1234567");
       await pumpEventQueue();
 
       expect(repo.preferences.longPin.value, isTrue);
@@ -147,7 +147,7 @@ void main() {
           ? AuthenticationFailedEvent(remainingAttempts: 2, blockedDuration: 0)
           : null;
 
-      final result = await repo.unlock("12345");
+      final result = await repo.appLock.unlock("12345");
       await pumpEventQueue();
 
       expect(result, isA<AuthenticationFailedEvent>());
@@ -161,7 +161,7 @@ void main() {
             )
           : null;
 
-      final result = await repo.unlock("12345");
+      final result = await repo.appLock.unlock("12345");
       await pumpEventQueue();
 
       expect(result, isA<AuthenticationErrorEvent>());
@@ -169,9 +169,9 @@ void main() {
     });
   });
 
-  test("4. unlockAppLocally() unlocks without asking the bridge", () async {
+  test("4. unlockLocally() unlocks without asking the bridge", () async {
     final before = bridge.dispatched.length;
-    repo.unlockAppLocally();
+    repo.appLock.unlockLocally();
     await pumpEventQueue();
 
     expect(await locked(), isFalse);
@@ -185,7 +185,7 @@ void main() {
     });
 
     test("clearing all data unlocks and clears the block", () async {
-      repo.lock(unblockTime: DateTime(2030));
+      repo.appLock.lock(unblockTime: DateTime(2030));
       repo.bridgedDispatch(ClearAllDataEvent());
       await pumpEventQueue();
 
@@ -194,16 +194,27 @@ void main() {
     });
   });
 
-  group("6. a logout skips the next automatic biometric scan", () {
-    test("once, after a user-initiated lock", () async {
-      repo.lock(userInitiated: true);
-      expect(repo.consumeBiometricAutoUnlockSuppressed(), isTrue);
-      expect(repo.consumeBiometricAutoUnlockSuppressed(), isFalse);
+  group("6. a logout skips the next automatic biometric scan and is "
+      "confirmed", () {
+    test("once each, after a logout, which locks", () async {
+      repo.appLock.unlockLocally();
+      repo.appLock.logOut();
+      await pumpEventQueue();
+      expect(await locked(), isTrue);
+      expect(
+        bridge.dispatched.whereType<DeleteKeyshareTokensEvent>(),
+        isNotEmpty,
+      );
+      expect(repo.appLock.consumeLogoutAutoScanSuppressed(), isTrue);
+      expect(repo.appLock.consumeLogoutAutoScanSuppressed(), isFalse);
+      expect(repo.appLock.consumeLogoutConfirmation(), isTrue);
+      expect(repo.appLock.consumeLogoutConfirmation(), isFalse);
     });
 
     test("not after a plain lock", () async {
-      repo.lock();
-      expect(repo.consumeBiometricAutoUnlockSuppressed(), isFalse);
+      repo.appLock.lock();
+      expect(repo.appLock.consumeLogoutAutoScanSuppressed(), isFalse);
+      expect(repo.appLock.consumeLogoutConfirmation(), isFalse);
     });
   });
 }

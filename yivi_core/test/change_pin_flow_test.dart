@@ -113,11 +113,11 @@ void main() {
     left = 1;
     final router = await pump(tester);
     final blocks = <DateTime?>[];
-    final sub = repo.getBlockTime().listen(blocks.add);
+    final sub = repo.appLock.blockedUntil.listen(blocks.add);
     addTearDown(sub.cancel);
     await type(tester, "11111");
     expect(currentLocation(router), "/home");
-    expect(await repo.getLocked().first, isTrue);
+    expect(await repo.appLock.locked.first, isTrue);
     expect(
       bridge.dispatched.where(
         (e) => e.runtimeType.toString() == "DeleteKeyshareTokensEvent",

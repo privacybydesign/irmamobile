@@ -28,7 +28,7 @@ void main() {
     );
     addTearDown(repo.close);
 
-    repo.lock();
+    repo.appLock.lock();
 
     expect(
       bridge.dispatched.whereType<DeleteKeyshareTokensEvent>(),

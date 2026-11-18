@@ -94,7 +94,7 @@ void main() {
     expect(pushed, isEmpty);
     expect(repo.pendingPointer, isNotNull);
 
-    repo.unlockAppLocally();
+    repo.appLock.unlockLocally();
     await settle(tester);
     await settle(tester);
 
@@ -105,9 +105,9 @@ void main() {
     expect(find.text("session ${started().single.sessionId}"), findsOneWidget);
 
     // Locking and unlocking again starts nothing more.
-    repo.lock();
+    repo.appLock.lock();
     await settle(tester);
-    repo.unlockAppLocally();
+    repo.appLock.unlockLocally();
     await settle(tester);
     expect(started(), hasLength(1));
   });
@@ -117,7 +117,7 @@ void main() {
     await pump(tester);
     final host = _Host();
     container(tester).read(nestedIssuanceHostProvider.notifier).register(host);
-    repo.unlockAppLocally();
+    repo.appLock.unlockLocally();
     await settle(tester);
 
     repo.setPendingPointer(_pointer("a"));
@@ -141,7 +141,7 @@ void main() {
         (_, _) {},
       );
       addTearDown(keep.close);
-      repo.unlockAppLocally();
+      repo.appLock.unlockLocally();
       await settle(tester);
 
       repo.setPendingPointer(link);
@@ -162,7 +162,7 @@ void main() {
         (_, _) {},
       );
       addTearDown(keep.close);
-      repo.unlockAppLocally();
+      repo.appLock.unlockLocally();
       await settle(tester);
 
       repo.setPendingPointer(link);
@@ -178,7 +178,7 @@ void main() {
   testWidgets("18. a second pointer queued after the first started starts "
       "too", (tester) async {
     await pump(tester);
-    repo.unlockAppLocally();
+    repo.appLock.unlockLocally();
     await settle(tester);
 
     // A second link arrives as soon as the first one's session started.

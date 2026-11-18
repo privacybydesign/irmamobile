@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../routing.dart";
 import "../../providers/app_locked_provider.dart";
+import "../../providers/irma_repository_provider.dart";
 import "../../providers/preferences_provider.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
@@ -31,14 +32,6 @@ const _unlockedPathPrefixes = {
   "/update_required",
   "/error",
 };
-
-/// One-shot: set by the More tab's Log out button so the lock overlay that
-/// follows can confirm the logout. Read and cleared on the overlay's first
-/// build.
-///
-/// A top-level bool rather than app state: one writer, one reader, alive for one
-/// frame. Promote to repository state if a second caller ever needs it.
-bool confirmLogoutOnNextLock = false;
 
 /// Top-level overlay-style lock. Sits inside `MaterialApp.router`'s
 /// `builder` so it wraps every route the router renders. When the app
@@ -190,23 +183,24 @@ class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
   }
 }
 
-/// Shows the logout confirmation once, on the [ScaffoldMessenger] above it, when
-/// [confirmLogoutOnNextLock] is set. Lives inside the overlay so the message
-/// appears on the PIN screen the user is actually looking at — and only there.
-class _LogoutConfirmation extends StatefulWidget {
+/// Shows the logout confirmation once, on the [ScaffoldMessenger] above it,
+/// after the More tab's Log out ([AppLock.consumeLogoutConfirmation]). Lives
+/// inside the overlay so the message appears on the PIN screen the user is
+/// actually looking at — and only there.
+class _LogoutConfirmation extends ConsumerStatefulWidget {
   final Widget child;
   const _LogoutConfirmation({required this.child});
 
   @override
-  State<_LogoutConfirmation> createState() => _LogoutConfirmationState();
+  ConsumerState<_LogoutConfirmation> createState() =>
+      _LogoutConfirmationState();
 }
 
-class _LogoutConfirmationState extends State<_LogoutConfirmation> {
+class _LogoutConfirmationState extends ConsumerState<_LogoutConfirmation> {
   @override
   void initState() {
     super.initState();
-    if (!confirmLogoutOnNextLock) return;
-    confirmLogoutOnNextLock = false;
+    if (!ref.read(appLockProvider).consumeLogoutConfirmation()) return;
     // Post-frame: the messenger's State is only reachable once this subtree is
     // mounted.
     afterFrame(() {

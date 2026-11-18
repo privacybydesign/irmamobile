@@ -46,7 +46,7 @@ final biometricTypeProvider = FutureProvider<BiometricType?>((ref) async {
 });
 
 /// Biometric actions. A successful prompt only flips the local `appLocked`
-/// flag via [IrmaRepository.unlockAppLocally] — it never authenticates against
+/// flag via [AppLock.unlockLocally] — it never authenticates against
 /// the keyshare server, so the first session afterwards still requires the
 /// PIN. (Storing the PIN for a biometric-gated keyshare unlock is deliberately
 /// not done.)
@@ -100,7 +100,7 @@ class BiometricService {
       if (repo.pendingPointer != null || repo.sessions.hasInFlightSession) {
         return didAuthenticate;
       }
-      repo.unlockAppLocally();
+      _ref.read(appLockProvider).unlockLocally();
     }
     return didAuthenticate;
   }

@@ -115,10 +115,10 @@ void main() {
     "a first block time from irmago seeds the block; locking keeps it",
     () async {
       final until = DateTime.now().add(const Duration(minutes: 5));
-      repo.lock(unblockTime: until);
+      repo.appLock.lock(unblockTime: until);
       await Future<void>.delayed(Duration.zero);
       expect(state().blockedUntil, until);
-      repo.lock();
+      repo.appLock.lock();
       await Future<void>.delayed(Duration.zero);
       expect(state().blockedUntil, until);
     },
@@ -130,7 +130,9 @@ void main() {
     await notifier().unlock("12345");
     // The PIN unlock emitted a null block time: that was the one value the
     // notifier takes.
-    repo.lock(unblockTime: DateTime.now().add(const Duration(minutes: 5)));
+    repo.appLock.lock(
+      unblockTime: DateTime.now().add(const Duration(minutes: 5)),
+    );
     await Future<void>.delayed(Duration.zero);
     expect(state().blockedUntil, isNull);
   });
@@ -157,7 +159,9 @@ void main() {
     await tester.pump();
     expect(seen, [Duration.zero]);
 
-    repo.lock(unblockTime: DateTime.now().add(const Duration(hours: 1)));
+    repo.appLock.lock(
+      unblockTime: DateTime.now().add(const Duration(hours: 1)),
+    );
     await tester.pump();
     for (var i = 0; i < 3; i++) {
       await tester.pump(const Duration(seconds: 1));

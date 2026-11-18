@@ -87,7 +87,7 @@ void main() {
         .setMockMethodCallHandler(const MethodChannel("privacy_screen"), null);
   });
 
-  Future<bool> locked() => repo.getLocked().first;
+  Future<bool> locked() => repo.appLock.locked.first;
 
   /// The lock screen, after native acknowledged the launch ([resolved]).
   Future<void> pump(WidgetTester tester, {bool resolved = true}) async {
@@ -150,7 +150,9 @@ void main() {
     });
 
     testWidgets("not while blocked after wrong PINs", (tester) async {
-      repo.lock(unblockTime: DateTime.now().add(const Duration(minutes: 1)));
+      repo.appLock.lock(
+        unblockTime: DateTime.now().add(const Duration(minutes: 1)),
+      );
       await pump(tester);
 
       expect(_biometricButton, findsNothing);
@@ -240,7 +242,7 @@ void main() {
 
   testWidgets("14. no scan after a logout; going to the background re-arms "
       "it", (tester) async {
-    repo.lock(userInitiated: true);
+    repo.appLock.logOut();
     await pump(tester);
 
     expect(_biometricButton, findsOneWidget);

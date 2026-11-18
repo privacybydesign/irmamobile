@@ -19,7 +19,7 @@ void main() {
   int schemeUpdates() =>
       app.bridge.dispatched.whereType<UpdateSchemesEvent>().length;
 
-  Future<bool> locked() => app.repo.getLocked().first;
+  Future<bool> locked() => app.repo.appLock.locked.first;
 
   group("25. the privacy screen follows the screenshot setting", () {
     testWidgets("screenshots off: on; then switched on: off", (tester) async {
@@ -96,7 +96,7 @@ void main() {
       app.enrolled();
       app.schemes();
       await app.run(tester);
-      app.repo.unlockAppLocally();
+      app.repo.appLock.unlockLocally();
       await app.run(tester);
     }
 

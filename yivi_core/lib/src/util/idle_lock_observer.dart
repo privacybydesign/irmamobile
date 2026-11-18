@@ -63,10 +63,11 @@ class _IdleLockObserverState extends ConsumerState<IdleLockObserver>
     if (!mounted) return;
     if (status != EnrollmentStatus.enrolled) return;
 
-    if (await repo.getLocked().first) return;
+    final lock = ref.read(appLockProvider);
+    if (await lock.locked.first) return;
     if (!mounted) return;
 
-    repo.lock();
+    lock.lock();
   }
 
   @override

@@ -3,6 +3,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/activity_log_client.dart";
+import "../data/app_lock.dart";
 import "../data/irma_client_bridge.dart";
 import "../data/irma_repository.dart";
 import "../data/session_repository.dart";
@@ -31,4 +32,9 @@ final sessionRepositoryProvider = Provider<SessionRepository>(
 /// Questions to irmago about the activity log.
 final activityLogClientProvider = Provider<ActivityLogClient>(
   (ref) => ref.watch(irmaRepositoryProvider).activityLog,
+);
+
+/// Whether the lock screen shows, and the PIN that unlocks it.
+final appLockProvider = Provider<AppLock>(
+  (ref) => ref.watch(irmaRepositoryProvider).appLock,
 );

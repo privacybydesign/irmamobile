@@ -60,11 +60,11 @@ class ChangePinFlow extends Notifier<ChangePinStep> {
   ChangePinStep build() => const EnterOldPin();
 
   Future<void> submitOld(String pin) async {
-    final repo = ref.read(irmaRepositoryProvider);
+    final lock = ref.read(appLockProvider);
     final before = state is EnterOldPin
         ? (state as EnterOldPin).feedback
         : const PinFeedback();
-    final event = await repo.unlock(pin);
+    final event = await lock.unlock(pin);
     if (!ref.mounted) return;
     switch (event) {
       case AuthenticationSuccessEvent():
@@ -79,7 +79,7 @@ class ChangePinFlow extends Notifier<ChangePinStep> {
         if (remainingAttempts <= 0) {
           final until = DateTime.now().add(Duration(seconds: blockedDuration));
           state = ChangePinBlocked(until);
-          repo.lock(unblockTime: until);
+          lock.lock(unblockTime: until);
         } else {
           // The enter page again, saying it was wrong.
           state = EnterOldPin(

@@ -18,7 +18,6 @@ import "../../widgets/title_scroll_edge.dart";
 import "../../widgets/two_pane.dart";
 import "../help/help_screen.dart";
 import "../home/widgets/home_tab.dart";
-import "../pin/lock_gate.dart";
 import "../settings/settings_screen.dart";
 import "widgets/tiles.dart";
 import "widgets/tiles_card.dart";
@@ -136,10 +135,9 @@ class _MoreTabState extends ConsumerState<MoreTab> {
                   // order to log out. Shown by the lock overlay rather than from
                   // here: on this tab's ScaffoldMessenger the snackbar also paints
                   // in this Scaffold, which stays mounted under the overlay.
-                  confirmLogoutOnNextLock = true;
-                  // userInitiated: skip the "scan on launch" auto-biometric on
-                  // the lock screen that follows an explicit logout.
-                  ref.read(irmaRepositoryProvider).lock(userInitiated: true);
+                  // It also skips the "scan on launch" auto-biometric on the
+                  // lock screen that follows an explicit logout.
+                  ref.read(appLockProvider).logOut();
                   widget.onChangeTab(HomeTab.data);
                 },
               ),

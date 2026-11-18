@@ -88,7 +88,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
       // A re-open is fresh intent to use the app, so drop the logout
       // suppression too: it only covers the lock screen shown directly after an
       // explicit logout, not a later re-open. No-op if already consumed.
-      ref.read(irmaRepositoryProvider).consumeBiometricAutoUnlockSuppressed();
+      ref.read(appLockProvider).consumeLogoutAutoScanSuppressed();
     } else if (state == AppLifecycleState.resumed) {
       setState(() {});
     }
@@ -219,11 +219,11 @@ class _PinScreenState extends ConsumerState<PinScreen>
     final biometricImmediate = ref.watch(biometricImmediateProvider);
     if (showBiometric && biometricImmediate && !_autoTriggered) {
       _autoTriggered = true;
-      final repo = ref.read(irmaRepositoryProvider);
+      final lock = ref.read(appLockProvider);
       afterFrame(() {
         // Skip the auto-scan if this lock followed an explicit logout; the
         // one-shot flag is consumed so a later idle-lock auto-scans normally.
-        if (repo.consumeBiometricAutoUnlockSuppressed()) return;
+        if (lock.consumeLogoutAutoScanSuppressed()) return;
         _biometricUnlock();
       });
     }
