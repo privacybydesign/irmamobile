@@ -8,6 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/irma_configuration.dart";
+import "package:yivi_core/src/models/scheme_rules.dart";
 import "package:yivi_core/src/providers/contact_issuer_api.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
@@ -21,11 +22,7 @@ const _plainUrl = "https://example.com/plain";
 const _pubHubsUrl = "https://pubhubs.example.com/issue";
 const _demoPubHubsUrl = "https://demo-pubhubs.example.com/issue";
 
-Map<String, dynamic> _credentialType(
-  String fullId,
-  String issueUrl, {
-  bool universalLink = false,
-}) {
+Map<String, dynamic> _credentialType(String fullId, String issueUrl) {
   final [scheme, issuer, id] = fullId.split(".");
   return {
     "ID": id,
@@ -35,12 +32,18 @@ Map<String, dynamic> _credentialType(
     "IsSingleton": false,
     "Description": {"en": ""},
     "IssueURL": {"en": issueUrl, "nl": issueUrl},
-    "IsULIssueURL": universalLink,
   };
 }
 
-/// What Go sends after loading the schemes, as JSON: here only the credential
-/// types, their issue URLs and whether those are universal links matter.
+/// What Go sends after loading the schemes, as JSON: which credential types
+/// have a universal link as their issue URL.
+final Event _rules = SchemeRulesEvent.fromJson({
+  "minimum_app_version": {"android": 0, "ios": 0},
+  "ul_issue_credential_ids": [_ulType],
+});
+
+/// The configuration Go also still sends, as JSON: here only the credential
+/// types and their issue URLs matter.
 final Event _schemes = IrmaConfigurationEvent.fromJson({
   "irma_configuration": {
     "SchemeManagers": <String, dynamic>{},
@@ -48,7 +51,7 @@ final Event _schemes = IrmaConfigurationEvent.fromJson({
     "Requestors": <String, dynamic>{},
     "Issuers": <String, dynamic>{},
     "CredentialTypes": {
-      _ulType: _credentialType(_ulType, _ulUrl, universalLink: true),
+      _ulType: _credentialType(_ulType, _ulUrl),
       _plainType: _credentialType(_plainType, _plainUrl),
       "pbdf.PubHubs.account": _credentialType(
         "pbdf.PubHubs.account",
@@ -85,7 +88,7 @@ void main() {
 
   /// Pumps a widget for its context and ref, records url_launcher's calls
   /// (its default platform channel; no platform plugin is registered in
-  /// tests) and delivers the schemes.
+  /// tests) and delivers the scheme rules and the configuration.
   Future<({BuildContext context, WidgetRef ref})> setUpApp(
     WidgetTester tester,
   ) async {
@@ -119,6 +122,7 @@ void main() {
         ),
       ),
     );
+    bridge.deliver(_rules);
     bridge.deliver(_schemes);
     await settle(tester);
     return (context: context, ref: ref);

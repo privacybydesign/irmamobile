@@ -32,6 +32,7 @@ import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/native_events.dart";
+import "../models/scheme_rules.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_preview.dart";
@@ -105,6 +106,7 @@ class IrmaRepository {
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
+  final _schemeRulesSubject = BehaviorSubject<SchemeRulesEvent>();
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<WalletCredentials>();
   final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
@@ -152,6 +154,7 @@ class IrmaRepository {
     await Future.wait([
       _eventSubject.close(),
       _irmaConfigurationSubject.close(),
+      _schemeRulesSubject.close(),
       _eudiConfigurationSubject.close(),
       _credentialsSubject.close(),
       _credentialStoreSubject.close(),
@@ -201,6 +204,8 @@ class IrmaRepository {
       }
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
+    } else if (event is SchemeRulesEvent) {
+      _schemeRulesSubject.add(event);
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is CredentialsEvent) {
@@ -526,23 +531,14 @@ class IrmaRepository {
   Stream<VersionInformation> getVersionInformation() async* {
     final packageInfo = await PackageInfo.fromPlatform();
 
-    yield* _irmaConfigurationSubject
-        .map((irmaConfiguration) {
-          int minimumBuild = 0;
-          for (final scheme in irmaConfiguration.schemeManagers.values) {
-            // defaultTargetPlatform is the phone's platform in the app and
-            // can be set in tests. Off Android and iOS (only in tests) no
-            // scheme asks for a minimum.
-            final thisRequirement = switch (defaultTargetPlatform) {
-              TargetPlatform.android => scheme.minimumAppVersion.android,
-              TargetPlatform.iOS => scheme.minimumAppVersion.iOS,
-              _ => 0,
-            };
-            if (thisRequirement > minimumBuild) {
-              minimumBuild = thisRequirement;
-            }
-          }
-
+    yield* _schemeRulesSubject
+        .map((rules) {
+          // defaultTargetPlatform is the phone's platform in the app and can
+          // be set in tests. Off Android and iOS (only in tests) no scheme
+          // asks for a minimum.
+          final minimumBuild = rules.minimumAppVersion.forPlatform(
+            defaultTargetPlatform,
+          );
           final currentBuild =
               int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
 
@@ -552,7 +548,7 @@ class IrmaRepository {
             currentVersion: currentBuild,
           );
         })
-        // When a fatal error occurs, no new IrmaConfiguration will be found anymore. This means we can close the stream.
+        // When a fatal error occurs, no new scheme rules will come anymore. This means we can close the stream.
         .takeUntil(_fatalErrorSubject);
   }
 
@@ -874,19 +870,16 @@ class IrmaRepository {
   /// Whether the issue URL of [credentialId] is a universal link, which the
   /// OS hands to a registered native app (UZI register, Belastingdienst).
   // TODO: surface `isULIssueUrl` on the credential models
-  // (CredentialDescriptor / Credential) so we can drop the legacy
-  // `_irmaConfigurationSubject` lookup here. Today there's no other
-  // place that information lives on the wallet side. Affected
-  // credentials (none overlap with the embedded flows):
-  //   pbdf.minvws-cibg.pilot-2, pbdf.bzkpilot.personalData/.address,
-  //   plus several irma-demo demo creds (digidproef.*, uzipoc-cibg.*).
-  // Credentials that aren't in legacy irmaConfiguration are
-  // treated as non-universal-link.
+  // (CredentialDescriptor / Credential), so the bridge need not send the
+  // list in the scheme rules. Affected credentials (none overlap with the
+  // embedded flows): pbdf.minvws-cibg.pilot-2,
+  // pbdf.bzkpilot.personalData/.address, plus several irma-demo demo creds
+  // (digidproef.*, uzipoc-cibg.*). Before the first scheme rules, and for
+  // credentials not in them, false.
   bool _issuesViaUniversalLink(String credentialId) =>
-      _irmaConfigurationSubject
-          .valueOrNull
-          ?.credentialTypes[credentialId]
-          ?.isULIssueUrl ??
+      _schemeRulesSubject.valueOrNull?.ulIssueCredentialIds.contains(
+        credentialId,
+      ) ??
       false;
 
   /// Unified entry point for "user tapped Get / Reobtain inside the app

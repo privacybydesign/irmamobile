@@ -127,7 +127,9 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 }
 
 func dispatchConfigurationEvent() {
-	t := WrappedConfiguration(*yiviClient.GetIrmaConfiguration())
+	conf := yiviClient.GetIrmaConfiguration()
+	dispatchEvent(schemeRules(conf))
+	t := WrappedConfiguration(*conf)
 	dispatchEvent(&irmaConfigurationEvent{
 		IrmaConfiguration: &t,
 	})

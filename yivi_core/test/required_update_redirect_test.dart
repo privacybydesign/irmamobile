@@ -1,5 +1,7 @@
 // The required-update redirect: which build the schemes ask for, read from
 // what the bridge sends, and where the router sends the user.
+import "dart:math";
+
 import "package:flutter/foundation.dart" show defaultTargetPlatform;
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -12,7 +14,7 @@ import "package:yivi_core/src/models/enrollment_events.dart";
 import "package:yivi_core/src/models/enrollment_status.dart";
 import "package:yivi_core/src/models/error_event.dart";
 import "package:yivi_core/src/models/event.dart";
-import "package:yivi_core/src/models/irma_configuration.dart";
+import "package:yivi_core/src/models/scheme_rules.dart";
 import "package:yivi_core/src/models/version_information.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
@@ -29,33 +31,15 @@ class _NotRooted implements RootedDeviceDetector {
 /// The minimum app build one scheme asks for, per platform.
 typedef _Minimum = ({int android, int ios});
 
-/// What Go sends after loading the schemes, as JSON: here only the scheme
-/// managers' minimum app builds matter.
-Event _schemes(List<_Minimum> minimums) => IrmaConfigurationEvent.fromJson({
-  "irma_configuration": {
-    "SchemeManagers": {
-      for (final (i, minimum) in minimums.indexed)
-        "scheme$i": {
-          "ID": "scheme$i",
-          "Name": {"en": "Scheme $i"},
-          "URL": "https://example.com/scheme$i",
-          "Description": {"en": ""},
-          "MinimumAppVersion": {"Android": minimum.android, "IOS": minimum.ios},
-          "KeyshareServer": "",
-          "KeyshareWebsite": "",
-          "TimestampServer": "",
-          "KeyshareAttribute": "",
-          "Timestamp": 1700000000,
-          "Demo": false,
-        },
-    },
-    "RequestorSchemes": <String, dynamic>{},
-    "Requestors": <String, dynamic>{},
-    "Issuers": <String, dynamic>{},
-    "CredentialTypes": <String, dynamic>{},
-    "AttributeTypes": <String, dynamic>{},
-    "Path": "",
+/// What Go sends after loading the schemes, as JSON: the highest minimum
+/// per platform over the scheme managers (Go's schemes_test checks that it
+/// takes the highest).
+Event _schemes(List<_Minimum> minimums) => SchemeRulesEvent.fromJson({
+  "minimum_app_version": {
+    "android": minimums.map((m) => m.android).fold(0, max),
+    "ios": minimums.map((m) => m.ios).fold(0, max),
   },
+  "ul_issue_credential_ids": <String>[],
 });
 
 _Minimum _both(int build) => (android: build, ios: build);
