@@ -2,8 +2,6 @@
 // (AppDocument: instruction, camera, manual entry, the NFC stages, the face
 // check intro and the permission; numbered G1 to G9 after the earlier boards
 // they replace). Each test names the board it follows.
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -18,12 +16,12 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_view.dart";
 import "package:yivi_core/src/screens/session/issuance/document_issuance_permission.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/feedback/done_check.dart";
 
 import "support/document_screen_host.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 /// Whether the animations that loop on a timer run.
 enum _Ticker { stopped, running }
@@ -49,19 +47,9 @@ Future<void> _pump(
     ..devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 
-  Widget app = IrmaTheme(
-    builder: (_) => MaterialApp(
-      localizationsDelegates: [
-        FlutterI18nDelegate(
-          translationLoader: FileTranslationLoader(
-            basePath: "assets/locales",
-            forcedLocale: locale,
-          ),
-        ),
-        ...GlobalMaterialLocalizations.delegates,
-      ],
-      home: ticker == .running ? home : DocumentScreenHost(home),
-    ),
+  Widget app = testApp(
+    ticker == .running ? home : DocumentScreenHost(home),
+    locale: locale,
   );
   // TestContext stops the animations that loop on a timer, so that
   // pumpAndSettle can finish.

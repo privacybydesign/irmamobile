@@ -1,6 +1,5 @@
 import "dart:io";
 
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -9,33 +8,23 @@ import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/driving_licence/driving_licence_categories_renderer.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/driving_licence/driving_licence_categories_table.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 Widget _wrap(
   Widget child, {
   Locale locale = const Locale("en", "US"),
   bool disclosure = false,
-}) => IrmaTheme(
-  builder: (_) => MaterialApp(
-    localizationsDelegates: [
-      FlutterI18nDelegate(
-        translationLoader: TestTranslationLoader(
-          basePath: "assets/locales",
-          forcedLocale: locale,
-        ),
-      ),
-      ...GlobalMaterialLocalizations.delegates,
-    ],
-    home: Scaffold(
-      body: SingleChildScrollView(
-        child: AttributeGroupScope(
-          isFirst: false,
-          isDisclosure: disclosure,
-          child: child,
-        ),
+}) => testApp(
+  Scaffold(
+    body: SingleChildScrollView(
+      child: AttributeGroupScope(
+        isFirst: false,
+        isDisclosure: disclosure,
+        child: child,
       ),
     ),
   ),
+  locale: locale,
 );
 
 const _toggleKey = Key("driving_licence_categories_toggle");

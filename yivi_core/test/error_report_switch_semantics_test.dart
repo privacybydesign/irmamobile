@@ -1,6 +1,4 @@
 import "package:flutter/semantics.dart";
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -11,9 +9,8 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/widgets/error_report_switch.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 // Companion to terms_check_box_semantics_test.dart (#638): the error reporting
 // switch on the welcome page has the same shape — its label lives in a sibling
@@ -49,25 +46,13 @@ void main() {
     required IrmaRepository repo,
     Locale locale = const Locale("en", "US"),
   }) async {
-    final widget = ProviderScope(
+    final widget = testApp(
+      const Scaffold(body: ErrorReportSwitch()),
+      locale: locale,
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
       ],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: TestTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: locale,
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: const Scaffold(body: ErrorReportSwitch()),
-        ),
-      ),
     );
 
     // FileTranslationLoader reads the locale JSON with real IO, which the test

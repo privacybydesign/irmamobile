@@ -1,14 +1,12 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
 import "support/document_screen_host.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 Widget _wrap({
   required DocumentType documentType,
@@ -18,24 +16,11 @@ Widget _wrap({
   // TestContext disables the instruction animation's repeating ticker so
   // pumpAndSettle does not hang.
   return TestContext(
-    child: IrmaTheme(
-      builder: (_) => MaterialApp(
-        localizationsDelegates: [
-          FlutterI18nDelegate(
-            translationLoader: FileTranslationLoader(
-              basePath: "assets/locales",
-              forcedLocale: locale,
-            ),
-          ),
-          ...GlobalMaterialLocalizations.delegates,
-        ],
-        home: DocumentScreenHost(
-          DocumentInstructionScreen(
-            documentType: documentType,
-            onStart: onStart,
-          ),
-        ),
+    child: testApp(
+      DocumentScreenHost(
+        DocumentInstructionScreen(documentType: documentType, onStart: onStart),
       ),
+      locale: locale,
     ),
   );
 }
@@ -131,22 +116,11 @@ void main() {
     // No TestContext here: it would stop the ticker whatever the setting.
     Future<void> pumpAnimating(WidgetTester tester) => pumpTranslated(
       tester,
-      IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: DocumentScreenHost(
-            DocumentInstructionScreen(
-              documentType: DocumentType.passport,
-              onStart: () {},
-            ),
+      testApp(
+        DocumentScreenHost(
+          DocumentInstructionScreen(
+            documentType: DocumentType.passport,
+            onStart: () {},
           ),
         ),
       ),

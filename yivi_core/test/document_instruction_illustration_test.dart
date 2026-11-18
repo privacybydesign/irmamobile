@@ -4,8 +4,10 @@ import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_face.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_instruction_illustration.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/document_scan_scene.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
+
+import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 void main() {
   Future<void> pump(
@@ -14,28 +16,25 @@ void main() {
     bool still = true,
     ThemeMode mode = ThemeMode.light,
   }) async {
-    await tester.pumpWidget(
-      IrmaTheme(
-        builder: (context) => MaterialApp(
-          theme: IrmaTheme.variantsOf(context).data.themeData,
-          darkTheme: IrmaTheme.variantsOf(context).darkData.themeData,
-          themeMode: mode,
-          home: MediaQuery(
-            data: MediaQueryData(
-              size: const Size(390, 844),
-              disableAnimations: still,
-            ),
-            child: Scaffold(
-              body: Center(
-                child: SizedBox(
-                  width: 320,
-                  height: 256,
-                  child: DocumentInstructionIllustration(documentType: type),
-                ),
+    await pumpTranslated(
+      tester,
+      testApp(
+        MediaQuery(
+          data: MediaQueryData(
+            size: const Size(390, 844),
+            disableAnimations: still,
+          ),
+          child: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 320,
+                height: 256,
+                child: DocumentInstructionIllustration(documentType: type),
               ),
             ),
           ),
         ),
+        brightness: mode == ThemeMode.dark ? Brightness.dark : Brightness.light,
       ),
     );
   }

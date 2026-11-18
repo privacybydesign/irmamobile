@@ -2,6 +2,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/widgets/flight/flight.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 const _copy = Key("flight_copy");
 
 void main() {
@@ -15,9 +18,10 @@ void main() {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(400, 800);
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      MaterialApp(
-        home: MediaQuery(
+    await pumpTranslated(
+      tester,
+      testApp(
+        MediaQuery(
           data: MediaQueryData(
             size: const Size(400, 800),
             disableAnimations: reduceMotion,

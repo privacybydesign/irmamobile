@@ -1,7 +1,5 @@
 import "dart:async";
 
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
@@ -22,10 +20,10 @@ import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart"
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/screens/session/result/card_pile.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
 import "missing_data_fixtures.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 // The issuance permission: one card or a pile of several, and what it says
 // when the issuance runs inside a request.
@@ -101,23 +99,7 @@ Future<void> _pump(
   final env = (await tester.runAsync(_env))!;
   await pumpTranslated(
     tester,
-    ProviderScope(
-      overrides: [...env, ...overrides],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: home,
-        ),
-      ),
-    ),
+    testApp(home, overrides: [...env, ...overrides]),
   );
   await tester.pumpAndSettle();
 }

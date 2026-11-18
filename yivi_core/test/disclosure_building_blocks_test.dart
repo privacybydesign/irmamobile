@@ -1,6 +1,3 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
@@ -11,13 +8,13 @@ import "package:yivi_core/src/screens/session/disclosure/shared_card_tile.dart";
 import "package:yivi_core/src/screens/session/layout/session_scaffold.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/screens/session/result/card_pile.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
 import "helpers/credential_factory.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 class _NoWallet extends CredentialOrderController {
   @override
@@ -31,24 +28,11 @@ Future<void> _pump(WidgetTester tester, Widget home) async {
   addTearDown(tester.view.reset);
   await pumpTranslated(
     tester,
-    ProviderScope(
+    testApp(
+      home,
       overrides: [
         credentialOrderControllerProvider.overrideWith(_NoWallet.new),
       ],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: home,
-        ),
-      ),
     ),
   );
   await tester.pumpAndSettle();

@@ -1,5 +1,4 @@
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -13,13 +12,12 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/session/issuance/issue_sheet_progress.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
-import "helpers/test_translation_loader.dart";
 import "support/document_fakes.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 /// Adding a passport in a sheet as it works today: which screen is on top,
 /// the step and the total in the progress, the bar's title, back, the face
@@ -69,23 +67,12 @@ void main() {
           nfcDoneHoldProvider.overrideWithValue(Duration.zero),
         ],
         child: TestContext(
-          child: IrmaTheme(
-            builder: (_) => MaterialApp(
-              localizationsDelegates: [
-                FlutterI18nDelegate(
-                  translationLoader: TestTranslationLoader(
-                    basePath: "assets/locales",
-                    forcedLocale: const Locale("en", "US"),
-                  ),
-                ),
-                ...GlobalMaterialLocalizations.delegates,
-              ],
-              home: Builder(
-                builder: (context) {
-                  home = context;
-                  return const Scaffold(body: Text("home"));
-                },
-              ),
+          child: testApp(
+            Builder(
+              builder: (context) {
+                home = context;
+                return const Scaffold(body: Text("home"));
+              },
             ),
           ),
         ),

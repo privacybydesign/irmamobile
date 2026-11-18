@@ -1,35 +1,18 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_frame_illustration.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 
-import "helpers/test_translation_loader.dart";
 import "support/document_screen_host.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 Widget _wrap({required VoidCallback onStart, bool inWideSheet = false}) {
   final screen = FaceVerificationIntroScreen(onStart: onStart);
   // TestContext disables the intro animation's repeating ticker so
   // pumpAndSettle does not hang.
-  return TestContext(
-    child: IrmaTheme(
-      builder: (_) => MaterialApp(
-        localizationsDelegates: [
-          FlutterI18nDelegate(
-            translationLoader: TestTranslationLoader(
-              basePath: "assets/locales",
-              forcedLocale: const Locale("en", "US"),
-            ),
-          ),
-          ...GlobalMaterialLocalizations.delegates,
-        ],
-        home: DocumentScreenHost(screen),
-      ),
-    ),
-  );
+  return TestContext(child: testApp(DocumentScreenHost(screen)));
 }
 
 /// A phone held upright.
