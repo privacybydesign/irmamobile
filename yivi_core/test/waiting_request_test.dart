@@ -67,7 +67,7 @@ void main() {
 
   Future<void> pump(WidgetTester tester, Pointer? pointer) async {
     await pumpHome(tester, repo: repo, home: const _Waiting());
-    repo.setPendingPointer(pointer);
+    if (pointer != null) repo.pendingPointers.put(pointer);
     // irmago's answer comes back on the real event loop.
     for (var i = 0; i < 3; i++) {
       await tester.runAsync(() => Future<void>.delayed(Duration.zero));

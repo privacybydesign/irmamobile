@@ -39,7 +39,7 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
 
     afterFrame(() {
       final repo = repositoryOf(context);
-      _pointerSubscription = repo.getPendingPointer().listen((pointer) {
+      _pointerSubscription = repo.pendingPointers.pending.listen((pointer) {
         _pointer = pointer;
         _maybeHandle();
       });

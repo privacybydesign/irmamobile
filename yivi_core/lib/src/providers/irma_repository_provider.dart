@@ -6,6 +6,7 @@ import "../data/activity_log_client.dart";
 import "../data/app_lock.dart";
 import "../data/irma_client_bridge.dart";
 import "../data/irma_repository.dart";
+import "../data/pending_pointer_queue.dart";
 import "../data/session_repository.dart";
 import "preferences_provider.dart";
 
@@ -37,4 +38,9 @@ final activityLogClientProvider = Provider<ActivityLogClient>(
 /// Whether the lock screen shows, and the PIN that unlocks it.
 final appLockProvider = Provider<AppLock>(
   (ref) => ref.watch(irmaRepositoryProvider).appLock,
+);
+
+/// The session or e-mail link waiting to be started.
+final pendingPointerQueueProvider = Provider<PendingPointerQueue>(
+  (ref) => ref.watch(irmaRepositoryProvider).pendingPointers,
 );

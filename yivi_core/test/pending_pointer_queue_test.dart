@@ -61,10 +61,10 @@ void main() {
   test("7. a cold start from a link: the pointer is queued by the time the "
       "launch handshake is over", () async {
     final pendingWhenResolved = <Pointer?>[];
-    repo.getStartupUrlResolved().listen((resolved) {
-      if (resolved) pendingWhenResolved.add(repo.pendingPointer);
+    repo.pendingPointers.startupResolved.listen((resolved) {
+      if (resolved) pendingWhenResolved.add(repo.pendingPointers.current);
     });
-    expect(await repo.getStartupUrlResolved().first, isFalse);
+    expect(await repo.pendingPointers.startupResolved.first, isFalse);
 
     // Native sends the launch URL, then the acknowledgement as a message of
     // its own.
@@ -85,27 +85,28 @@ void main() {
       bridge.deliver(AppReadyAckEvent());
       await _settle();
 
-      expect(await repo.getStartupUrlResolved().first, isTrue);
-      expect(repo.pendingPointer, isNull);
+      expect(await repo.pendingPointers.startupResolved.first, isTrue);
+      expect(repo.pendingPointers.current, isNull);
     },
   );
 
   test("8. starting a session clears the queue in the same delivery that "
       "marks it in flight", () async {
-    repo.setPendingPointer(_pointer());
+    repo.pendingPointers.put(_pointer());
     await _settle();
 
     // Whenever either signal changes, a session must still be known to be
     // waiting: the lock screen's biometric backstop reads both.
     final gaps = <String>[];
     void check(String what) {
-      if (repo.pendingPointer == null && !repo.sessions.hasInFlightSession) {
+      if (repo.pendingPointers.current == null &&
+          !repo.sessions.hasInFlightSession) {
         gaps.add(what);
       }
     }
 
     final subs = [
-      repo.getPendingPointer().listen((_) => check("pointer")),
+      repo.pendingPointers.pending.listen((_) => check("pointer")),
       repo.sessions.hasInFlightSessionStream.listen((_) => check("in flight")),
     ];
     addTearDown(() => Future.wait(subs.map((s) => s.cancel())));
@@ -114,11 +115,11 @@ void main() {
     repo.bridgedDispatch(NewSessionEvent(sessionId: 1, request: _pointer()));
     check("dispatched");
     // Both happen a microtask later, together.
-    expect(repo.pendingPointer, isNotNull);
+    expect(repo.pendingPointers.current, isNotNull);
     expect(repo.sessions.hasInFlightSession, isFalse);
 
     await Future<void>.microtask(() {});
-    expect(repo.pendingPointer, isNull);
+    expect(repo.pendingPointers.current, isNull);
     expect(repo.sessions.hasInFlightSession, isTrue);
 
     await _settle();
@@ -133,7 +134,7 @@ void main() {
       );
       await _settle();
 
-      final pending = repo.pendingPointer;
+      final pending = repo.pendingPointers.current;
       expect(pending, isA<EmailCodePointer>());
       expect((pending! as EmailCodePointer).code, "ABC123");
       expect((pending as EmailCodePointer).email, isNull);
@@ -166,7 +167,7 @@ void main() {
       bridge.deliver(HandleURLEvent(url: callback));
       await _settle();
 
-      expect(repo.pendingPointer, isNull);
+      expect(repo.pendingPointers.current, isNull);
       final sent = bridge.dispatched
           .whereType<SessionUserInteractionEvent>()
           .single;
@@ -184,7 +185,7 @@ void main() {
       bridge.deliver(HandleURLEvent(url: "https://example.com/nothing"));
       await _settle();
 
-      expect(repo.pendingPointer, isNull);
+      expect(repo.pendingPointers.current, isNull);
       expect(reported.single, isA<MissingPointer>());
     });
   });
@@ -193,7 +194,7 @@ void main() {
       "pointer", () async {
     repo.startTestSessionFromUrl(_sessionLink);
 
-    final pending = repo.pendingPointer;
+    final pending = repo.pendingPointers.current;
     expect(pending, isA<SessionPointer>());
     expect((pending! as SessionPointer).u, _sessionUrl);
     expect((pending as SessionPointer).continueOnSecondDevice, isTrue);

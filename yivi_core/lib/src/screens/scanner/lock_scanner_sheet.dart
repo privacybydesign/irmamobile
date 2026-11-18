@@ -71,7 +71,7 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet> {
   // ---------- the scan and the PIN ----------
 
   void _onScanned(Pointer pointer) {
-    ref.read(irmaRepositoryProvider).setPendingPointer(pointer);
+    ref.read(pendingPointerQueueProvider).put(pointer);
     setState(() => _scanned = pointer);
     if (_issuance) {
       // Takes the session that starts on unlock, and keeps the lock
@@ -83,7 +83,7 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet> {
 
   /// Back to the scanner: the scan is dropped, so nothing starts.
   void _back() {
-    ref.read(irmaRepositoryProvider).setPendingPointer(null);
+    ref.read(pendingPointerQueueProvider).clear();
     _letGo();
     setState(() => _scanned = null);
   }
@@ -113,7 +113,7 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet> {
         );
     if (stop && mounted) {
       if (ref.read(appLockedProvider)) {
-        ref.read(irmaRepositoryProvider).setPendingPointer(null);
+        ref.read(pendingPointerQueueProvider).clear();
       }
       _letGo();
     }

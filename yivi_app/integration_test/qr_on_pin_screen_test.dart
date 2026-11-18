@@ -316,7 +316,7 @@ Future<void> testLinkWhileLockedShowsCard(
   final session = await createIssuanceSession(
     attributes: createMunicipalityPersonalDataAttributes(Locale("en", "EN")),
   );
-  repo.setPendingPointer(session);
+  repo.pendingPointers.put(session);
   await tester.pumpAndSettle(const Duration(seconds: 2));
 
   final card = find.descendant(

@@ -55,9 +55,9 @@ class ScannerScreenState extends ConsumerState<ScannerScreen> {
       return;
     }
 
-    final repo = ref.read(irmaRepositoryProvider);
+    final pointers = ref.read(pendingPointerQueueProvider);
     Navigator.of(context).pop();
-    repo.setPendingPointer(pointer);
+    pointers.put(pointer);
   }
 
   @override

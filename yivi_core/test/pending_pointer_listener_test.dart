@@ -87,12 +87,12 @@ void main() {
   testWidgets("15. a pointer waits while locked and starts once on "
       "unlock", (tester) async {
     await pump(tester);
-    repo.setPendingPointer(_pointer("a"));
+    repo.pendingPointers.put(_pointer("a"));
     await settle(tester);
 
     expect(started(), isEmpty);
     expect(pushed, isEmpty);
-    expect(repo.pendingPointer, isNotNull);
+    expect(repo.pendingPointers.current, isNotNull);
 
     repo.appLock.unlockLocally();
     await settle(tester);
@@ -100,7 +100,7 @@ void main() {
 
     expect(started(), hasLength(1));
     expect(started().single.request.u, "https://example.com/irma/session/a");
-    expect(repo.pendingPointer, isNull);
+    expect(repo.pendingPointers.current, isNull);
     expect(pushed, [started().single.sessionId]);
     expect(find.text("session ${started().single.sessionId}"), findsOneWidget);
 
@@ -120,7 +120,7 @@ void main() {
     repo.appLock.unlockLocally();
     await settle(tester);
 
-    repo.setPendingPointer(_pointer("a"));
+    repo.pendingPointers.put(_pointer("a"));
     await settle(tester);
     await settle(tester);
 
@@ -144,12 +144,12 @@ void main() {
       repo.appLock.unlockLocally();
       await settle(tester);
 
-      repo.setPendingPointer(link);
+      repo.pendingPointers.put(link);
       await settle(tester);
       await settle(tester);
 
       expect(c.read(emailLinkingProvider).link, same(link));
-      expect(repo.pendingPointer, isNull);
+      expect(repo.pendingPointers.current, isNull);
       expect(started(), isEmpty);
     });
 
@@ -165,12 +165,12 @@ void main() {
       repo.appLock.unlockLocally();
       await settle(tester);
 
-      repo.setPendingPointer(link);
+      repo.pendingPointers.put(link);
       await settle(tester);
       await settle(tester);
 
       expect(c.read(emailLinkingProvider).link, isNull);
-      expect(repo.pendingPointer, isNull);
+      expect(repo.pendingPointers.current, isNull);
       expect(started(), isEmpty);
     });
   });
@@ -182,9 +182,9 @@ void main() {
     await settle(tester);
 
     // A second link arrives as soon as the first one's session started.
-    repo.setPendingPointer(_pointer("a"));
+    repo.pendingPointers.put(_pointer("a"));
     await settle(tester);
-    repo.setPendingPointer(_pointer("b"));
+    repo.pendingPointers.put(_pointer("b"));
     await settle(tester);
     await settle(tester);
 
@@ -193,6 +193,6 @@ void main() {
       "https://example.com/irma/session/b",
     ]);
     expect(pushed, started().map((e) => e.sessionId));
-    expect(repo.pendingPointer, isNull);
+    expect(repo.pendingPointers.current, isNull);
   });
 }

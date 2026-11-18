@@ -289,8 +289,7 @@ void main() {
               "https://open.yivi.app/-/email#code=ABC123&email=jan%40example.com",
         ),
       );
-      final pointer = await repo
-          .getPendingPointer()
+      final pointer = await repo.pendingPointers.pending
           .firstWhere((p) => p != null)
           .timeout(const Duration(seconds: 2));
 
@@ -420,11 +419,11 @@ void main() {
       final link = EmailCodePointer(email: "jan@example.com", code: "XYZ789");
       issuerApi.verifyFailsWith = const ContactWrongCode();
 
-      repo.setPendingPointer(link);
+      repo.pendingPointers.put(link);
       handlePointer(context, link);
       await settle(tester);
 
-      expect(repo.pendingPointer, isNull);
+      expect(repo.pendingPointers.current, isNull);
     });
 
     testWidgets("for another address waits for a tap on Check code", (

@@ -97,9 +97,10 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         repo.prepareEmbeddedFlow(type.credentialId, type.issueURL, ref.read);
       }
     }, onError: (_) {});
-    _links = repo.getPendingPointer().listen((pointer) {
+    final pointers = ref.read(pendingPointerQueueProvider);
+    _links = pointers.pending.listen((pointer) {
       if (pointer is! EmailCodePointer) return;
-      repo.setPendingPointer(null);
+      pointers.clear();
       _applyLink(pointer);
     });
   }

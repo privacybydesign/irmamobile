@@ -162,7 +162,7 @@ void main() {
     });
 
     testWidgets("not while a pointer is queued", (tester) async {
-      repo.setPendingPointer(_pointer());
+      repo.pendingPointers.put(_pointer());
       await pump(tester);
 
       expect(_biometricButton, findsNothing);
@@ -197,7 +197,7 @@ void main() {
       "stops it", (tester) async {
     repo.dispatch(NewSessionEvent(sessionId: 1, request: _pointer()));
     await settle(tester);
-    repo.setPendingPointer(_pointer());
+    repo.pendingPointers.put(_pointer());
     await pump(tester);
 
     expect(_biometricButton, findsNothing);
@@ -209,7 +209,7 @@ void main() {
     await settle(tester);
     await tester.pump(const Duration(milliseconds: 500));
 
-    expect(repo.pendingPointer, isNull);
+    expect(repo.pendingPointers.current, isNull);
     final dismissed = bridge.dispatched
         .whereType<SessionUserInteractionEvent>()
         .where((e) => e.type == UserInteractionType.dismiss)
@@ -221,7 +221,7 @@ void main() {
   group("13. the backstop: a prompt that succeeds while a request arrived "
       "leaves the app locked", () {
     testWidgets("a pointer queued during the prompt", (tester) async {
-      auth.onPrompt = () => repo.setPendingPointer(_pointer());
+      auth.onPrompt = () => repo.pendingPointers.put(_pointer());
       await pump(tester);
 
       expect(auth.prompts, 1);

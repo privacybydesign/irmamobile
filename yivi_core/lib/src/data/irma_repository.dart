@@ -20,7 +20,6 @@ import "../models/client_preferences.dart";
 import "../models/credential.dart";
 import "../models/credential_events.dart";
 import "../models/credential_store.dart";
-import "../models/email_code_pointer.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
@@ -45,6 +44,7 @@ import "app_language.dart";
 import "app_lock.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
+import "pending_pointer_queue.dart";
 import "session_repository.dart";
 
 class _CredentialObtainState {
@@ -106,6 +106,12 @@ class IrmaRepository {
     defaultKeyshareScheme: defaultKeyshareScheme,
   );
 
+  /// The session or e-mail link waiting to be started.
+  late final PendingPointerQueue pendingPointers = PendingPointerQueue(
+    onAuthCallback: handleOpenID4VCIAuthCallback,
+    closeInAppBrowser: closeInAppWebView,
+  );
+
   /// Questions about the activity log.
   late final ActivityLogClient activityLog = ActivityLogClient(
     send: (event) => _bridge.dispatch(event),
@@ -121,14 +127,8 @@ class IrmaRepository {
       BehaviorSubject<EnrollmentStatusEvent>();
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
-  final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _credentialObtainState = BehaviorSubject<_CredentialObtainState>();
-  // Flips true once native acknowledges the launch handshake (AppReadyAckEvent),
-  // by which point any initial-URL pointer has already been queued. Seeded false
-  // so the lock screen holds off its cold-start biometric auto-scan until the
-  // launch URL (if any) is known — see the AppReadyAckEvent handler.
-  final _startupUrlResolvedSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
   late final AppLanguage _appLanguage = AppLanguage(preferences);
@@ -165,10 +165,9 @@ class IrmaRepository {
       _enrollmentEventSubject.close(),
       _changePinEventSubject.close(),
       appLock.close(),
-      _pendingPointerSubject.close(),
       _preferencesSubject.close(),
       _credentialObtainState.close(),
-      _startupUrlResolvedSubject.close(),
+      pendingPointers.close(),
       sessions.close(),
       _fatalErrorSubject.close(),
       activityLogClosed,
@@ -217,31 +216,10 @@ class IrmaRepository {
       }
     } else if (event is EnrollmentEvent) {
       _enrollmentEventSubject.add(event);
-    } else if (event is HandleURLEvent) {
-      try {
-        if (event.url.startsWith("app.yivi.open://auth-callback") ||
-            event.url.startsWith("https://open.yivi.app/-/auth-callback")) {
-          await handleOpenID4VCIAuthCallback(event.url);
-          return;
-        }
-
-        final pointer =
-            await _emailCodePointer(event.url) ?? Pointer.fromString(event.url);
-        _pendingPointerSubject.add(pointer);
-        closeInAppWebView();
-      } on MissingPointer catch (e, stackTrace) {
-        reportError(e, stackTrace);
-      }
-    } else if (event is AppReadyAckEvent) {
-      // Native's acknowledgement that the launch handshake is done. It is sent
-      // right AFTER any initial-URL `HandleURLEvent`, so on a cold start started
-      // by a universal link the pending pointer above has already been queued by
-      // the time this flips `startupUrlResolved` true. The lock screen gates its
-      // biometric auto-scan on this, so biometric can never win the race against
-      // the link and unlock the app before the session pointer is known.
-      _startupUrlResolvedSubject.add(true);
-    } else if (event is NewSessionEvent) {
-      _pendingPointerSubject.add(null);
+    } else if (event is HandleURLEvent ||
+        event is AppReadyAckEvent ||
+        event is NewSessionEvent) {
+      await pendingPointers.onEvent(event);
     } else if (event is ClearAllDataEvent) {
       preferences.clearAll();
     } else if (event is ClientPreferencesEvent) {
@@ -438,37 +416,6 @@ class IrmaRepository {
       _bridge.dispatch(PreviewSessionEvent(key: pointer.u, request: pointer));
     }
     return preview.stream;
-  }
-
-  /// The e-mail code link in [url], or null when it is not one. Only a user
-  /// who asked for a code gets such a link.
-  Future<EmailCodePointer?> _emailCodePointer(String url) async =>
-      EmailCodePointer.tryParse(url);
-
-  Stream<Pointer?> getPendingPointer() {
-    return _pendingPointerSubject.stream;
-  }
-
-  /// The currently queued session pointer, if any. Synchronous companion to
-  /// [getPendingPointer] for callers that must read the latest value without
-  /// awaiting the stream — used by the biometric backstop to refuse an unlock
-  /// when a session is pending.
-  Pointer? get pendingPointer => _pendingPointerSubject.value;
-
-  /// Whether the native launch handshake has completed, so any universal-link
-  /// pointer the app was opened with is already queued (see [getPendingPointer]).
-  /// The lock screen waits for this before auto-firing biometric on a cold start.
-  Stream<bool> getStartupUrlResolved() {
-    return _startupUrlResolvedSubject.stream;
-  }
-
-  /// Queue a pointer for [PendingPointerListener] to pick up. Used by
-  /// the lock-screen QR scanner sheet: it dismisses with the scanned
-  /// pointer queued, and the listener (mounted on `/home`) processes
-  /// it once the app is unlocked. Pass `null` to clear a queued pointer
-  /// (e.g. the user cancels a pending session from the lock screen).
-  void setPendingPointer(Pointer? pointer) {
-    _pendingPointerSubject.add(pointer);
   }
 
   Stream<bool> getDeveloperMode() {
@@ -741,7 +688,7 @@ class IrmaRepository {
   void startTestSessionFromUrl(String url) {
     final sessionPtr = Pointer.fromString(url) as SessionPointer;
     sessionPtr.continueOnSecondDevice = true;
-    _pendingPointerSubject.add(sessionPtr);
+    pendingPointers.put(sessionPtr);
   }
 
   /// Only meant for testing and debug purposes.
@@ -753,7 +700,7 @@ class IrmaRepository {
       requestBody,
       continueOnSecondDevice: continueOnSecondDevice,
     );
-    _pendingPointerSubject.add(sessionPtr);
+    pendingPointers.put(sessionPtr);
   }
 }
 

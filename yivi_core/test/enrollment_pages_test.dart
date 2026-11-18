@@ -435,20 +435,20 @@ void main() {
       testWidgets("for the typed address: filled in and checked, and taken "
           "from the queue", (tester) async {
         await atCode(tester);
-        repo.setPendingPointer(
+        repo.pendingPointers.put(
           EmailCodePointer(email: "Jan@Example.com", code: "XYZ789"),
         );
         await settle(tester);
         expect(issuer.verified, ["XYZ789"]);
         expect(
-          await tester.runAsync(() => repo.getPendingPointer().first),
+          await tester.runAsync(() => repo.pendingPointers.pending.first),
           isNull,
         );
       });
 
       testWidgets("for another address: ignored", (tester) async {
         await atCode(tester);
-        repo.setPendingPointer(
+        repo.pendingPointers.put(
           EmailCodePointer(email: "evil@example.com", code: "XYZ789"),
         );
         await settle(tester);
@@ -462,7 +462,7 @@ void main() {
           _sizes["phone upright"]!.$2,
         );
         await pumpStep(tester);
-        repo.setPendingPointer(
+        repo.pendingPointers.put(
           EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
         );
         await settle(tester);

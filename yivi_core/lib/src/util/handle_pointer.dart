@@ -39,7 +39,7 @@ void _showEmailLinkScreen(BuildContext context, EmailCodePointer link) {
 
   // A link that stays queued is handled again after every unlock, and keeps
   // the biometric unlock disabled.
-  container.read(irmaRepositoryProvider).setPendingPointer(null);
+  container.read(pendingPointerQueueProvider).clear();
 
   final linkingOpen = container.exists(
     contactIssuanceProvider(ContactFlow.linkEmail),
