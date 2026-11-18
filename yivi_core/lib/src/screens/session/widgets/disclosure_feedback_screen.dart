@@ -273,9 +273,8 @@ class DisclosureFeedbackScreenState
             start: _handOverAt(cards.length),
           );
 
-    // Held sideways, and on a tablet: the pile (or the paper) at the left,
-    // staying put; the words at the right, scrolling; the button at the
-    // bottom of the right column.
+    // Held sideways, and on a tablet: the pile (or the paper) at the left
+    // with the button under it; the words at the right, scrolling.
     return SessionResult(
       onClose: () => widget.onDismiss(context),
       hero: hero,

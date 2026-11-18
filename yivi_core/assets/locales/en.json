@@ -270,12 +270,7 @@
   },
   "disclosure": {
     "title": "Data request",
-    "logo_semantic": "Logo of {otherParty}",
-    "feedback": {
-      "header": {
-        "success": "Success"
-      }
-    }
+    "logo_semantic": "Logo of {otherParty}"
   },
   "disclosure_permission": {
     "confirm_close_dialog": {

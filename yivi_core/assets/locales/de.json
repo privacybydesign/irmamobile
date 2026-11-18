@@ -270,12 +270,7 @@
   },
   "disclosure": {
     "title": "Datenanfrage",
-    "logo_semantic": "Logo von {otherParty}",
-    "feedback": {
-      "header": {
-        "success": "Erfolg"
-      }
-    }
+    "logo_semantic": "Logo von {otherParty}"
   },
   "disclosure_permission": {
     "confirm_close_dialog": {

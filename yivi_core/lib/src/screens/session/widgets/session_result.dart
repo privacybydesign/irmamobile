@@ -13,8 +13,9 @@ import "session_scaffold.dart";
 /// shared, signed, e-mail linked, call now.
 ///
 /// Upright: the hero, the words under it, the button in the bar at the
-/// bottom. Held sideways, and on a tablet: the hero at the left, staying
-/// put; the words at the right, scrolling, with the button at their foot.
+/// bottom. Held sideways, and on a tablet: the hero at the top of the
+/// panel at the left with the button at its foot ([SessionPanel], as on the
+/// share and permission screens); the words at the right, scrolling.
 class SessionResult extends StatelessWidget {
   final Widget hero;
   final String title;
@@ -107,37 +108,20 @@ class SessionResult extends StatelessWidget {
         wide: true,
         scrollsUnderBars: true,
         cornerClose: true,
+        // The body's own context sees the bars.
         body: Builder(
-          builder: (context) {
-            final media = MediaQuery.paddingOf(context);
-            return SidewaysLayout(
-              panel: Padding(
-                key: const Key("result_panel"),
-                padding: EdgeInsets.only(top: 48 + media.top),
-                child: Align(alignment: Alignment.topCenter, child: hero),
-              ),
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      key: const Key("share_done_scroll"),
-                      padding: EdgeInsets.only(top: 48 + media.top),
-                      child: shown,
-                    ),
-                  ),
-                  if (action case final action?)
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: YiviSpace.x12,
-                        bottom: 21 + media.bottom,
-                      ),
-                      child: action,
-                    ),
-                ],
-              ),
-            );
-          },
+          builder: (context) => SidewaysLayout(
+            panel: SessionPanel(
+              key: const Key("result_panel"),
+              top: Center(child: hero),
+              action: action,
+              fitTop: true,
+            ),
+            content: SessionPanelContent(
+              scrollKey: const Key("share_done_scroll"),
+              children: [shown],
+            ),
+          ),
         ),
       );
     } else {

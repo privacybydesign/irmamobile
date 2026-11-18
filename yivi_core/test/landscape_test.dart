@@ -99,7 +99,7 @@ void main() {
       expect(close.top, 24);
     });
 
-    testWidgets("success: the card at the left, the words and OK at the "
+    testWidgets("success: the card and OK at the left, the words at the "
         "right", (tester) async {
       await pump(
         tester,
@@ -114,11 +114,12 @@ void main() {
       final title = tester.getRect(find.text("Success"));
       expect(title.left, greaterThan(card.right));
       final ok = tester.getRect(find.byKey(const Key("ok_button")));
-      expect(ok.left, greaterThan(card.right));
+      expect(ok.right, lessThan(title.left));
+      expect(ok.top, greaterThan(card.bottom));
     });
   });
 
-  testWidgets("shared: their logo with the check left, the words and Done "
+  testWidgets("shared: their logo with the check and Done left, the words "
       "right", (tester) async {
     await pump(
       tester,
@@ -148,15 +149,11 @@ void main() {
     final ok = tester.getRect(find.byKey(const Key("ok_button")));
     // The check on the logo, in the left column.
     expect(hero.contains(check.center), isTrue);
-    // The words and the button in the right column, the button under them.
+    // The words in the right column; the button at the foot of the left
+    // one, under the logo.
     expect(title.left, greaterThan(hero.right));
-    expect(ok.left, title.left);
-    expect(
-      ok.top,
-      greaterThan(
-        tester.getRect(find.byKey(const Key("share_done_text"))).bottom,
-      ),
-    );
+    expect(ok.right, lessThan(title.left));
+    expect(ok.top, greaterThan(check.bottom));
   });
 
   testWidgets("a dialog: wider, its buttons side by side, the first right", (

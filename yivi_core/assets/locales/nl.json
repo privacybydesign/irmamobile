@@ -270,12 +270,7 @@
   },
   "disclosure": {
     "title": "Gegevens delen",
-    "logo_semantic": "Logo van {otherParty}",
-    "feedback": {
-      "header": {
-        "success": "Gelukt"
-      }
-    }
+    "logo_semantic": "Logo van {otherParty}"
   },
   "disclosure_permission": {
     "confirm_close_dialog": {

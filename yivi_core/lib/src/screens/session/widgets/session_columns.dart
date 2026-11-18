@@ -95,24 +95,34 @@ enum SessionLayout {
 }
 
 /// The left column of a split session screen ([SidewaysLayout.panel]): [top]
-/// (the title, who asks) scrolls if it doesn't fit; [action] (the button,
-/// with [above] it a reason) stays at the bottom, as low as a full screen's
-/// buttons.
+/// (the title, who asks, the result's picture) scrolls if it doesn't fit;
+/// [action] (the button, with [above] it a reason) stays at the bottom, as
+/// low as a full screen's buttons. One rule for every session screen: from
+/// [sidewaysPanelTop], no inset at the start, down to
+/// [FloatingBarPlacement.buttonBottom].
 class SessionPanel extends StatelessWidget {
   final Widget? top;
-  final Widget action;
+
+  /// None: iOS after sharing on the same phone, where the way back is ◀.
+  final Widget? action;
   final Widget? above;
+
+  /// [top] is a picture (a result's cards, paper or disc): it shrinks to
+  /// fit the room above [action], keeping its shape, instead of scrolling.
+  final bool fitTop;
 
   const SessionPanel({
     super.key,
     required this.top,
     required this.action,
     this.above,
+    this.fitTop = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final above = this.above;
+    final action = this.action;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         0,
@@ -123,10 +133,27 @@ class SessionPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(child: SingleChildScrollView(child: top)),
-          const SizedBox(height: YiviSpace.x16),
-          if (above != null) ...[above, const SizedBox(height: YiviSpace.x12)],
-          action,
+          Expanded(
+            child: fitTop
+                ? LayoutBuilder(
+                    // As wide as the column, as high as it needs; scaled
+                    // down when that is higher than the room.
+                    builder: (context, room) => FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.topCenter,
+                      child: SizedBox(width: room.maxWidth, child: top),
+                    ),
+                  )
+                : SingleChildScrollView(child: top),
+          ),
+          if (action != null) ...[
+            const SizedBox(height: YiviSpace.x16),
+            if (above != null) ...[
+              above,
+              const SizedBox(height: YiviSpace.x12),
+            ],
+            action,
+          ],
         ],
       ),
     );
