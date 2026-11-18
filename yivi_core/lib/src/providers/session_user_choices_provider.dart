@@ -1,6 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/session_state.dart";
+import "../screens/session/models/disclosure_view_model.dart";
+import "last_shared_provider.dart";
 import "session_state_provider.dart";
 
 class SessionUserChoices {
@@ -150,3 +152,24 @@ final sessionUserChoicesProvider =
       SessionUserChoices,
       int
     >((sessionId) => SessionUserChoicesNotifier(sessionId));
+
+/// The owned option in use per pick-one of session [sessionId]
+/// ([selectionsFrom]): what the user picked, else what was shared before,
+/// else the default. The share screen and the Change sheet both read it.
+final sessionSelectionsProvider = Provider.autoDispose
+    .family<Map<int, int>, int>((ref, sessionId) {
+      final pickOnes =
+          ref
+              .watch(sessionStateProvider(sessionId))
+              .value
+              ?.disclosurePlan
+              ?.disclosureChoicesOverview ??
+          const <DisclosurePickOne>[];
+      final choices = ref.watch(sessionUserChoicesProvider(sessionId));
+      return selectionsFrom(
+        pickOnes,
+        choices.disclosureChoices,
+        choices.addedOptionalIndices,
+        preferred: ref.watch(lastSharedBundlesProvider(sessionId)),
+      );
+    });

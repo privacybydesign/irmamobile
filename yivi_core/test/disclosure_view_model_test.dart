@@ -700,6 +700,167 @@ void main() {
     });
   });
 
+  group("the share screen's rules", () {
+    final ready = _pickOne(
+      owned: [
+        _bundle([_instance("email", hash: "e")]),
+      ],
+    );
+    final toAdd = _pickOne(obtainable: [_descriptor("passport")]);
+
+    test("what the screen asks", () {
+      expect(shareKindOf(_session([ready])), ShareKind.share);
+      expect(
+        shareKindOf(_session([ready], type: SessionType.signature)),
+        ShareKind.sign,
+      );
+      expect(
+        shareKindOf(
+          _session([ready], offered: [_offered("student", const [])]),
+        ),
+        ShareKind.shareReceive,
+      );
+    });
+
+    test("all ready: share, the parts full, the ready line", () {
+      final bar = shareBarOf(
+        shareButton(_session([ready]), const {}),
+        requestorRisky: false,
+      );
+      expect(bar.risky, isFalse);
+      expect(bar.reason, isNull);
+      expect(bar.line, isA<ShareLineReady>());
+      expect(bar.tap, isA<ShareTapShare>());
+      expect(bar.parts, (total: 1, filled: 1));
+      expect(bar.primary, isTrue);
+      expect(bar.notCounted, isFalse);
+    });
+
+    test("nobody vouches: share after asking, no line, no parts", () {
+      final bar = shareBarOf(
+        shareButton(_session([ready]), const {}),
+        requestorRisky: true,
+      );
+      expect(bar.risky, isTrue);
+      expect(bar.reason, isA<ShareRisky>());
+      expect(bar.line, isNull);
+      expect(bar.parts, isNull);
+      expect(bar.tap, isA<ShareTapShareAfterConfirm>());
+      expect(bar.primary, isFalse);
+    });
+
+    test("a card to add: the next step, what is left", () {
+      final bar = shareBarOf(
+        shareButton(_session([ready, toAdd]), const {}),
+        requestorRisky: true,
+      );
+      // Not risky while it can't share yet.
+      expect(bar.risky, isFalse);
+      expect(bar.tap, isA<ShareTapNext>());
+      expect((bar.line! as ShareLineAdd).count, 1);
+      expect(bar.parts, (total: 2, filled: 1));
+    });
+
+    test("nothing can be added from Yivi: close, why, no parts", () {
+      final cant = _pickOne(obtainable: [_descriptor("diploma", url: null)]);
+      final bar = shareBarOf(
+        shareButton(_session([cant]), const {}),
+        requestorRisky: false,
+      );
+      expect(bar.reason, isA<ShareCantAdd>());
+      expect((bar.reason! as ShareCantAdd).issuers, ["Issuer"]);
+      expect(bar.line, isNull);
+      expect(bar.parts, isNull);
+      expect(bar.tap, isA<ShareTapClose>());
+      expect(bar.primary, isFalse);
+    });
+
+    test("the subtitle of an empty spot", () {
+      expect(spotSubtitleOf(toAdd, null, inApp: const {}), isA<SpotIssuer>());
+      expect(
+        spotSubtitleOf(
+          _pickOne(
+            obtainable: [_descriptor("passport"), _descriptor("idcard")],
+          ),
+          null,
+          inApp: const {},
+        ),
+        isA<SpotMany>(),
+      );
+      expect(
+        (spotSubtitleOf(
+                  _pickOne(obtainable: [_descriptor("diploma", url: null)]),
+                  null,
+                  inApp: const {},
+                )
+                as SpotCant)
+            .issuers,
+        ["Issuer"],
+      );
+      expect(
+        spotSubtitleOf(
+          _pickOne(obtainable: [_descriptor("diploma", url: null, issuer: "")]),
+          null,
+          inApp: const {},
+        ),
+        isA<SpotCantUnknown>(),
+      );
+      final set = _pickOne(
+        obtainable: [_descriptor("root"), _descriptor("name")],
+      );
+      final plan = IssueDuringDisclosure(
+        steps: [
+          IssuanceStep(
+            options: [
+              IssuanceBundle(
+                credentials: [_descriptor("root"), _descriptor("name")],
+              ),
+            ],
+          ),
+        ],
+      );
+      expect(
+        spotSubtitleOf(set, plan, inApp: const {}),
+        isA<SpotTogetherBoth>(),
+      );
+      final left = spotSubtitleOf(set, plan, inApp: const {"root"});
+      expect((left as SpotTogetherOneLeft).have.credentialId, "root");
+      expect(left.other.credentialId, "name");
+    });
+
+    test("the order: ready first, kept while the pick-ones stay", () {
+      final required = [(0, toAdd), (1, ready)];
+      final order = shareOrderOf(required, const {});
+      expect(order, [1, 0]);
+      // The card is added: it stays where it was.
+      expect(shareOrderOf(required, const {0: 0}, previous: order), [1, 0]);
+      // Other pick-ones: a new order.
+      expect(shareOrderOf([(1, ready)], const {}, previous: order), [1]);
+    });
+
+    test("the instances shared: the bundle in use per pick-one", () {
+      final two = _pickOne(
+        owned: [
+          _bundle([_instance("a", hash: "a1")]),
+          _bundle([_instance("a", hash: "a2"), _instance("b", hash: "b2")]),
+        ],
+      );
+      final optional = _pickOne(
+        optional: true,
+        owned: [
+          _bundle([_instance("c", hash: "c1")]),
+        ],
+      );
+      expect(
+        [
+          for (final c in sharedInstancesOf([two, optional], const {0: 1}))
+            c.hash,
+        ],
+        ["a2", "b2"],
+      );
+    });
+  });
+
   group("is_singleton from irmago", () {
     Map<String, dynamic> party() => {"id": "x", "name": "X", "verified": true};
     Map<String, dynamic> descriptor([bool? single]) => {

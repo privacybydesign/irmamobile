@@ -1,4 +1,5 @@
 import "package:collection/collection.dart";
+import "package:flutter/foundation.dart";
 
 import "../../../models/credential.dart";
 import "../../../models/credential_store.dart";
@@ -665,6 +666,288 @@ ShareButtonState shareButton(
     ready: ready,
   );
 }
+
+// --- The share screen ------------------------------------------------------
+
+/// What the share screen asks: to share, to share and get a card in
+/// return, or to sign.
+enum ShareKind { share, shareReceive, sign }
+
+ShareKind shareKindOf(SessionState s) => s.type == SessionType.signature
+    ? ShareKind.sign
+    : (s.offeredCredentials ?? const []).isNotEmpty
+    ? ShareKind.shareReceive
+    : ShareKind.share;
+
+/// Why the share button can't share, alone above it.
+sealed class ShareReason {
+  const ShareReason();
+}
+
+/// Nobody vouches for the requestor: share only if you trust them.
+final class ShareRisky extends ShareReason {
+  const ShareRisky();
+}
+
+/// An empty spot nothing can be added for from Yivi: get it from [issuers]
+/// first (none known: from wherever it comes).
+final class ShareCantAdd extends ShareReason {
+  final DisclosurePickOne pickOne;
+  final List<String> issuers;
+
+  const ShareCantAdd(this.pickOne, this.issuers);
+}
+
+/// A required card can't be used and Yivi can't renew it: ask [issuer].
+final class ShareCantRenew extends ShareReason {
+  final String issuer;
+
+  const ShareCantRenew(this.issuer);
+}
+
+/// The line under the progress: what is left, or that all is set.
+sealed class ShareLine {
+  const ShareLine();
+}
+
+/// A card in the app does not count for the request (in red).
+final class ShareLineNotCounted extends ShareLine {
+  const ShareLineNotCounted();
+}
+
+/// [count] cards still to add.
+final class ShareLineAdd extends ShareLine {
+  final int count;
+
+  const ShareLineAdd(this.count);
+}
+
+/// [count] cards still to fix.
+final class ShareLineFix extends ShareLine {
+  final int count;
+
+  const ShareLineFix(this.count);
+}
+
+final class ShareLineReady extends ShareLine {
+  const ShareLineReady();
+}
+
+/// What a tap on the share button does.
+sealed class ShareTap {
+  const ShareTap();
+}
+
+/// The step before it can share ([ShareButtonState.next]).
+final class ShareTapNext extends ShareTap {
+  final NextStep step;
+
+  const ShareTapNext(this.step);
+}
+
+/// Ends the session: nothing can be done in Yivi.
+final class ShareTapClose extends ShareTap {
+  const ShareTapClose();
+}
+
+final class ShareTapShare extends ShareTap {
+  const ShareTapShare();
+}
+
+/// Shares after asking once more (nobody vouches for the requestor).
+final class ShareTapShareAfterConfirm extends ShareTap {
+  const ShareTapShareAfterConfirm();
+}
+
+/// Nothing (disabled).
+final class ShareTapNone extends ShareTap {
+  const ShareTapNone();
+}
+
+/// The bottom of the share screen, from the button's state and the trust.
+@immutable
+final class ShareBarState {
+  /// Share becomes "Share anyway", asks once more, and says above it to
+  /// share only if you trust them.
+  final bool risky;
+  final ShareReason? reason;
+  final ShareLine? line;
+  final ShareTap tap;
+
+  /// The progress: a part per asked card, filled by how many are ready.
+  final ({int total, int filled})? parts;
+
+  /// The line is a warning: a card in the app does not count; then there
+  /// is also a quiet "Don't share".
+  final bool notCounted;
+
+  /// The big coloured button (not for Close, nor for "Share anyway").
+  final bool primary;
+
+  const ShareBarState({
+    required this.risky,
+    required this.reason,
+    required this.line,
+    required this.tap,
+    required this.parts,
+    required this.notCounted,
+    required this.primary,
+  });
+}
+
+/// The bar for [b]; [requestorRisky]: nobody vouches for the requestor.
+ShareBarState shareBarOf(ShareButtonState b, {required bool requestorRisky}) {
+  final risky =
+      requestorRisky &&
+      b.enabled &&
+      b.label != ShareLabel.close &&
+      b.label != ShareLabel.shareWithoutData;
+  final ShareReason? cannot = switch (b) {
+    ShareButtonState(cannotAdd: final p?) => ShareCantAdd(p, issuersOf(p)),
+    ShareButtonState(cannotRenewFrom: final issuer?) => ShareCantRenew(issuer),
+    _ => null,
+  };
+  final notReady = b.ready.where((r) => !r).length;
+  final quiet = risky || cannot != null;
+  final next = b.next;
+  return ShareBarState(
+    risky: risky,
+    reason: risky ? const ShareRisky() : cannot,
+    line: quiet
+        ? null
+        : switch (b) {
+            ShareButtonState(mismatch: _?) => const ShareLineNotCounted(),
+            ShareButtonState(missing: _?) => ShareLineAdd(notReady),
+            ShareButtonState(blockedCard: _?) => ShareLineFix(b.toDo),
+            _ => const ShareLineReady(),
+          },
+    tap: next != null
+        ? ShareTapNext(next)
+        : !b.enabled
+        ? const ShareTapNone()
+        : b.label == ShareLabel.close
+        ? const ShareTapClose()
+        : risky
+        ? const ShareTapShareAfterConfirm()
+        : const ShareTapShare(),
+    parts: quiet || b.ready.isEmpty
+        ? null
+        : (total: b.ready.length, filled: b.ready.length - notReady),
+    notCounted: b.mismatch != null,
+    primary: b.label != ShareLabel.close && !risky,
+  );
+}
+
+/// Who gives the cards of [p], each once, without nameless ones.
+List<String> issuersOf(DisclosurePickOne p) => [
+  ...{
+    for (final d in p.obtainableOptions ?? const <CredentialDescriptor>[])
+      if (d.issuer.name.isNotEmpty) d.issuer.name,
+  },
+];
+
+/// The line under the name of an empty spot.
+sealed class SpotSubtitle {
+  const SpotSubtitle();
+}
+
+/// Nothing can be added from Yivi, and nobody is known to give it.
+final class SpotCantUnknown extends SpotSubtitle {
+  const SpotCantUnknown();
+}
+
+/// Nothing can be added from Yivi: get it from [issuers].
+final class SpotCant extends SpotSubtitle {
+  final List<String> issuers;
+
+  const SpotCant(this.issuers);
+}
+
+/// A set of two, one of which ([have]) is in the app: [other] is left.
+final class SpotTogetherOneLeft extends SpotSubtitle {
+  final CredentialDescriptor have;
+  final CredentialDescriptor other;
+
+  const SpotTogetherOneLeft(this.have, this.other);
+}
+
+/// A set only accepted as a whole.
+final class SpotTogetherBoth extends SpotSubtitle {
+  const SpotTogetherBoth();
+}
+
+/// One kind: who gives it.
+final class SpotIssuer extends SpotSubtitle {
+  final String name;
+
+  const SpotIssuer(this.name);
+}
+
+/// Several kinds to choose from.
+final class SpotMany extends SpotSubtitle {
+  const SpotMany();
+}
+
+/// The subtitle of the empty spot of [p]; [inApp] holds the card types in
+/// the app (only read for a set).
+SpotSubtitle spotSubtitleOf(
+  DisclosurePickOne p,
+  IssueDuringDisclosure? plan, {
+  required Set<String> inApp,
+}) {
+  final addable = addableOptions(p);
+  if (addable.isEmpty) {
+    final issuers = issuersOf(p);
+    return issuers.isEmpty ? const SpotCantUnknown() : SpotCant(issuers);
+  }
+  if (spotTogether(p, plan)) {
+    final missing = [
+      for (final d in addable)
+        if (!inApp.contains(d.credentialId)) d,
+    ];
+    return missing.length == 1 && addable.length == 2
+        ? SpotTogetherOneLeft(
+            addable.firstWhere((d) => inApp.contains(d.credentialId)),
+            missing.single,
+          )
+        : const SpotTogetherBoth();
+  }
+  return addable.length == 1
+      ? SpotIssuer(addable.single.issuer.name)
+      : const SpotMany();
+}
+
+/// The order of the [required] pick-ones (index, pick-one) on screen: as
+/// they were when it opened ([previous]), the ready ones first and the ones
+/// to add after; a card that is added stays where it was. A new order only
+/// when the pick-ones themselves changed.
+List<int> shareOrderOf(
+  List<(int, DisclosurePickOne)> required,
+  Map<int, int> selections, {
+  List<int>? previous,
+}) {
+  final ids = [for (final (i, _) in required) i];
+  if (previous != null &&
+      const ListEquality<int>().equals([...previous]..sort(), ids)) {
+    return previous;
+  }
+  final ready = [
+    for (final (i, p) in required)
+      if (selectionOf(p, selections[i]) >= 0) i,
+  ];
+  return [...ready, ...ids.where((i) => !ready.contains(i))];
+}
+
+/// The cards that are shared with [selections]: the instances of the
+/// bundle in use per pick-one, each carrying only what it discloses.
+List<SelectableCredentialInstance> sharedInstancesOf(
+  List<DisclosurePickOne> pickOnes,
+  Map<int, int> selections,
+) => [
+  for (final (i, p) in pickOnes.indexed)
+    if (selectionOf(p, selections[i]) case final k when k >= 0)
+      ...p.ownedOptions![k].credentials,
+];
 
 /// Whether [a] holds the same value as [b] (type and content).
 bool sameValue(AttributeValue? a, AttributeValue b) =>

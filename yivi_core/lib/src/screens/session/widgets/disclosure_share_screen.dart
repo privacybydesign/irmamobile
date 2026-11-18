@@ -1,6 +1,5 @@
 import "dart:async";
 
-import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -357,21 +356,16 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final session = widget.session;
     final requestor = session.requestor.name;
     final pickOnes = _pickOnes;
-    final selections = sessionSelections(
-      ref,
-      _sessionId,
-      pickOnes,
-      listen: true,
-    );
+    final selections = ref.watch(sessionSelectionsProvider(_sessionId));
     final wallet = ref.watch(walletCardsProvider);
     final button = shareButton(session, selections, wallet: wallet);
     final offered = session.offeredCredentials ?? const [];
     final isSignature = session.type == SessionType.signature;
-    final kind = isSignature
-        ? "sign"
-        : offered.isNotEmpty
-        ? "share_receive"
-        : "share";
+    final kind = switch (shareKindOf(session)) {
+      ShareKind.sign => "sign",
+      ShareKind.shareReceive => "share_receive",
+      ShareKind.share => "share",
+    };
     final t = context.tr;
     final columns = useSessionColumns(context);
     final landscape = !columns && useSheetColumns(context);
@@ -399,7 +393,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       onDontShare: widget.onClose,
       technicalDetails: technicalDetailsOf(
         session,
-        _sharedCredentials(pickOnes, selections),
+        sharedInstancesOf(pickOnes, selections),
         t,
       ),
     );
@@ -502,11 +496,8 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
 
     // Nobody vouches for the requestor: Share becomes "Share anyway", asks
     // once more, and says above it to share only if you trust them.
-    final risky =
-        trust.risky &&
-        button.enabled &&
-        button.label != ShareLabel.close &&
-        button.label != ShareLabel.shareWithoutData;
+    final state = shareBarOf(button, requestorRisky: trust.risky);
+    final risky = state.risky;
     void share() {
       _captureForDone();
       widget.onShare(disclosureChoicesFor(pickOnes, selections));
@@ -514,60 +505,54 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
 
     final next = button.next;
     final verb = isSignature ? "_sign" : "";
-    final notReady = button.ready.where((r) => !r).length;
     // The line under the parts: what is left, or that all is set; a card
     // that does not count in red. Why it can't be done in Yivi stands alone.
-    final String? cannot = switch (button) {
-      ShareButtonState(cannotAdd: final p?) =>
-        _issuersOf(p).isEmpty
+    final reason = switch (state.reason) {
+      ShareRisky() => t(
+        isSignature
+            ? "share.trust.risky.reason_sign"
+            : "share.trust.risky.reason",
+        {"requestor": requestor},
+      ),
+      ShareCantAdd(:final pickOne, :final issuers) =>
+        issuers.isEmpty
             ? t("share.reason.cant_add_unknown", {
-                "name": inSentenceAt(context, _spotName(p)),
+                "name": inSentenceAt(context, _spotName(pickOne)),
               })
             : t("share.reason.cant_add", {
-                "name": inSentenceAt(context, _spotName(p)),
-                "issuer": _issuersOf(p),
+                "name": inSentenceAt(context, _spotName(pickOne)),
+                "issuer": issuers.join(", "),
               }),
-      ShareButtonState(cannotRenewFrom: final issuer?) => t(
-        "share.reason.cant_renew",
-        {"requestor": requestor, "issuer": issuer},
-      ),
-      _ => null,
+      ShareCantRenew(:final issuer) => t("share.reason.cant_renew", {
+        "requestor": requestor,
+        "issuer": issuer,
+      }),
+      null => null,
     };
-    final line = switch (button) {
-      ShareButtonState(mismatch: _?) => t("share.progress.not_counted"),
-      ShareButtonState(missing: _?) =>
-        notReady == 1
-            ? t("share.progress.add_one$verb")
-            : t("share.progress.add_many$verb", {"count": "$notReady"}),
-      ShareButtonState(blockedCard: _?) =>
-        button.toDo == 1
-            ? t("share.reason.fix_one")
-            : t("share.reason.fix_many", {"count": "${button.toDo}"}),
-      _ => t("share.progress.ready"),
+    final line = switch (state.line) {
+      ShareLineNotCounted() => t("share.progress.not_counted"),
+      ShareLineAdd(count: 1) => t("share.progress.add_one$verb"),
+      ShareLineAdd(:final count) => t("share.progress.add_many$verb", {
+        "count": "$count",
+      }),
+      ShareLineFix(count: 1) => t("share.reason.fix_one"),
+      ShareLineFix(:final count) => t("share.reason.fix_many", {
+        "count": "$count",
+      }),
+      ShareLineReady() => t("share.progress.ready"),
+      null => null,
     };
     final bar = _ShareBar(
       inBar: !landscape,
-      parts: risky || cannot != null || button.ready.isEmpty
-          ? null
-          : (
-              total: button.ready.length,
-              filled: button.ready.length - notReady,
-            ),
-      line: risky || cannot != null ? null : line,
-      warn: button.mismatch != null,
-      reason: risky
-          ? t(
-              isSignature
-                  ? "share.trust.risky.reason_sign"
-                  : "share.trust.risky.reason",
-              {"requestor": requestor},
-            )
-          : cannot,
+      parts: state.parts,
+      line: line,
+      warn: state.notCounted,
+      reason: reason,
       arriving: _arriving,
       isNext: next != null,
-      decline: button.mismatch == null
-          ? null
-          : (label: t("share.trust.confirm.dont_share"), onTap: widget.onClose),
+      decline: state.notCounted
+          ? (label: t("share.trust.confirm.dont_share"), onTap: widget.onClose)
+          : null,
       label: next != null
           ? _nextLabel(next)
           : risky
@@ -578,19 +563,17 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             )
           : t("share.button.${_labelName(button.label)}"),
       shortLabel: next?.kind == NextKind.add ? t("share.next.add_short") : null,
-      primary: button.label != ShareLabel.close && !risky,
+      primary: state.primary,
       risky: risky,
-      onPressed: next != null
-          ? () => _doNext(next)
-          : !button.enabled
-          ? null
-          : button.label == ShareLabel.close
-          ? widget.onClose
-          : risky
-          ? () async {
-              if (await _confirmShareAnyway(requestor)) share();
-            }
-          : share,
+      onPressed: switch (state.tap) {
+        ShareTapNext(:final step) => () => _doNext(step),
+        ShareTapNone() => null,
+        ShareTapClose() => widget.onClose,
+        ShareTapShareAfterConfirm() => () async {
+          if (await _confirmShareAnyway(requestor)) share();
+        },
+        ShareTapShare() => share,
+      },
     );
 
     // Held sideways, and on a tablet: the title, who asks and the button in
@@ -696,12 +679,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
   /// into the done screen (see [DoneFlight]).
   void _captureForDone() {
     final pickOnes = _pickOnes;
-    final selections = sessionSelections(
-      ref,
-      _sessionId,
-      pickOnes,
-      listen: false,
-    );
+    final selections = ref.read(sessionSelectionsProvider(_sessionId));
     DoneFlight.capture(
       context,
       messageKey: _messageKey,
@@ -723,16 +701,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     List<(int, DisclosurePickOne)> required,
     Map<int, int> selections,
   ) {
-    final ids = [for (final (i, _) in required) i];
-    if (_order == null || !listEquals([..._order!]..sort(), ids)) {
-      final ready = [
-        for (final (i, p) in required)
-          if (selectionOf(p, selections[i]) >= 0) i,
-      ];
-      _order = [...ready, ...ids.where((i) => !ready.contains(i))];
-    }
+    final order = _order = shareOrderOf(required, selections, previous: _order);
     final byIndex = {for (final r in required) r.$1: r};
-    return [for (final i in _order!) byIndex[i]!];
+    return [for (final i in order) byIndex[i]!];
   }
 
   /// [items] with their gaps above them; the first item's gap is dropped
@@ -747,16 +718,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         ),
       item.child,
     ],
-  ];
-
-  /// The cards that would be shared with the current selection.
-  static List<SelectableCredentialInstance> _sharedCredentials(
-    List<DisclosurePickOne> pickOnes,
-    Map<int, int> selections,
-  ) => [
-    for (final (i, p) in pickOnes.indexed)
-      if (selectionOf(p, selections[i]) case final k when k >= 0)
-        ...p.ownedOptions![k].credentials,
   ];
 
   /// "Share with a party Yivi doesn't know?": the safe answer is the big
@@ -803,11 +764,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     ),
     inList: (name) => inSentenceAt(context, name),
   );
-
-  static String _issuersOf(DisclosurePickOne p) => {
-    for (final d in p.obtainableOptions ?? const <CredentialDescriptor>[])
-      if (d.issuer.name.isNotEmpty) d.issuer.name,
-  }.join(", ");
 
   /// "You can also choose another card" (or "add another card"), with
   /// "Change choice": the strip at the foot of a card with other choices.
@@ -857,7 +813,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final addable = addableOptions(p);
     final plan = widget.session.disclosurePlan?.issueDuringDisclosure;
     final together = spotTogether(p, plan);
-    final issuers = _issuersOf(p);
     final single = addable.length == 1 && !together ? addable.single : null;
     final several = !together && addable.length > 1;
     // Cards only accepted together: which of the set are in the app already.
@@ -869,23 +824,23 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
         if (!inApp.contains(d.credentialId)) d,
     ];
     final requestor = widget.session.requestor.name;
-    final subtitle = addable.isEmpty
-        ? issuers.isEmpty
-              ? t("share.spot.cant_unknown")
-              : t("share.spot.cant", {"issuer": issuers})
-        : together
-        ? (missing.length == 1 && addable.length == 2
-              ? t("share.spot.together_one_left", {
-                  "name": addable
-                      .firstWhere((d) => inApp.contains(d.credentialId))
-                      .name,
-                  "other": inSentenceAt(context, missing.single.name),
-                  "requestor": requestor,
-                })
-              : t("share.spot.together_both", {"requestor": requestor}))
-        : single != null
-        ? single.issuer.name
-        : t("share.spot.many");
+    final subtitle = switch (spotSubtitleOf(p, plan, inApp: inApp)) {
+      SpotCantUnknown() => t("share.spot.cant_unknown"),
+      SpotCant(:final issuers) => t("share.spot.cant", {
+        "issuer": issuers.join(", "),
+      }),
+      SpotTogetherOneLeft(:final have, :final other) =>
+        t("share.spot.together_one_left", {
+          "name": have.name,
+          "other": inSentenceAt(context, other.name),
+          "requestor": requestor,
+        }),
+      SpotTogetherBoth() => t("share.spot.together_both", {
+        "requestor": requestor,
+      }),
+      SpotIssuer(:final name) => name,
+      SpotMany() => t("share.spot.many"),
+    };
     // With one card to add, its rows show what the request asks for, as the
     // card will once it is there; a set shows the fields of each of its
     // cards, "In your app" for one that is there already.

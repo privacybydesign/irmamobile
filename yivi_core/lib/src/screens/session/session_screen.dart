@@ -13,6 +13,7 @@ import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_flow_provider.dart";
 import "../../providers/session_state_provider.dart";
+import "../../providers/session_user_choices_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
@@ -22,6 +23,7 @@ import "../../widgets/yivi_spinner.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
+import "models/disclosure_view_model.dart";
 import "models/session_outcome.dart";
 import "models/session_view.dart";
 import "widgets/arrow_back_screen.dart";
@@ -286,7 +288,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _grantPermission(List<DisclosureDisconSelection> disclosureChoices) {
-    _sharedInstances = _instancesFor(disclosureChoices);
+    // What the share screen shared: the bundles in use, as it chose them.
+    _sharedInstances = sharedInstancesOf(
+      _lastState?.disclosurePlan?.disclosureChoicesOverview ??
+          const <DisclosurePickOne>[],
+      ref.read(sessionSelectionsProvider(widget.sessionId)),
+    );
     _flow.grant(disclosureChoices);
   }
 
@@ -361,25 +368,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       OpenReturnUrl() || IssuedToBackground() => _buildLoadingScreen(session),
       IssuedArrowBack() => const ArrowBack(type: .issuance),
     };
-  }
-
-  /// The candidate instances of the last disclosure plan the user picked in
-  /// [choices], each carrying only the attributes that are disclosed.
-  List<SelectableCredentialInstance> _instancesFor(
-    List<DisclosureDisconSelection> choices,
-  ) {
-    final candidates = <String, SelectableCredentialInstance>{
-      for (final pickOne
-          in _lastState?.disclosurePlan?.disclosureChoicesOverview ??
-              const <DisclosurePickOne>[])
-        for (final bundle in pickOne.ownedOptions ?? const <DisclosureBundle>[])
-          for (final instance in bundle.credentials) instance.hash: instance,
-    };
-    return [
-      for (final choice in choices)
-        for (final selected in choice.credentials)
-          ?candidates[selected.credentialHash],
-    ];
   }
 
   Future<void> _closeSession() async {

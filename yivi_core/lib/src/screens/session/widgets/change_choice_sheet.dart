@@ -7,7 +7,6 @@ import "../../../models/credential.dart";
 import "../../../models/credential_store.dart";
 import "../../../models/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
-import "../../../providers/last_shared_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
@@ -91,29 +90,6 @@ Future<void> showChangeChoiceSheet({
       tileCopy: tileCopy,
       onLanded: onLanded,
     ),
-  );
-}
-
-/// The owned option in use per pick-one of [pickOnes] in session
-/// [sessionId] ([selectionsFrom]): what the user picked, else what was
-/// shared before, else the default. Watched with [listen], else read once.
-Map<int, int> sessionSelections(
-  WidgetRef ref,
-  int sessionId,
-  List<DisclosurePickOne> pickOnes, {
-  required bool listen,
-}) {
-  final choices = listen
-      ? ref.watch(sessionUserChoicesProvider(sessionId))
-      : ref.read(sessionUserChoicesProvider(sessionId));
-  final preferred = listen
-      ? ref.watch(lastSharedBundlesProvider(sessionId))
-      : ref.read(lastSharedBundlesProvider(sessionId));
-  return selectionsFrom(
-    pickOnes,
-    choices.disclosureChoices,
-    choices.addedOptionalIndices,
-    preferred: preferred,
   );
 }
 
@@ -208,12 +184,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   DisclosureBundle? get _current {
     final pickOne = _pickOne;
     if (pickOne == null) return null;
-    final selections = sessionSelections(
-      ref,
-      widget.sessionId,
-      issueRequest?.disclosurePlan?.disclosureChoicesOverview ?? const [],
-      listen: false,
-    );
+    final selections = ref.read(sessionSelectionsProvider(widget.sessionId));
     final k = selectionOf(pickOne, selections[widget.index]);
     final owned = pickOne.ownedOptions ?? const <DisclosureBundle>[];
     return k >= 0 && k < owned.length ? owned[k] : null;
@@ -867,12 +838,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     // Optional data left out is -1.
     final selected = selectionOf(
       pickOne,
-      sessionSelections(
-        ref,
-        widget.sessionId,
-        plan?.disclosureChoicesOverview ?? const [],
-        listen: true,
-      )[widget.index],
+      ref.watch(sessionSelectionsProvider(widget.sessionId))[widget.index],
     );
     final landscape = useSheetColumns(context);
 
