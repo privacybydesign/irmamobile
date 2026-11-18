@@ -14,8 +14,10 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../data/wallet/issuance_flight.dart";
+import "../models/issuance_view_model.dart";
 import "action_feedback.dart";
 import "issuance_permission.dart";
+import "received_card_tile.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
 
@@ -128,7 +130,10 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
                   YiviSpace.x8,
                 ),
               ),
-              ...IssuanceOffer(cards: cards).receives(context),
+              ...receivedCardTiles(
+                context,
+                issuanceOfferOf(cards, retryOnMismatch: false),
+              ),
             ],
             actions: FancyPillButton(
               key: const Key("ok_button"),

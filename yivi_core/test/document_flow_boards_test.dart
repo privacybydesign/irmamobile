@@ -561,12 +561,12 @@ void main() {
       await pumpPermission(tester);
 
       expect(find.byType(DocumentIssuanceData), findsOneWidget);
-      expect(find.byType(IssuerHeading), findsOneWidget);
+      expect(find.byKey(const Key("issuance_heading")), findsOneWidget);
     });
 
     testWidgets("a credential that is no document: its values", (tester) async {
       await pumpPermission(tester, id: "pbdf.pbdf.email");
-      expect(find.byType(IssuerHeading), findsOneWidget);
+      expect(find.byKey(const Key("issuance_heading")), findsOneWidget);
       expect(find.byType(DocumentIssuanceData), findsNothing);
     });
 

@@ -666,66 +666,6 @@ ShareButtonState shareButton(
   );
 }
 
-// --- The issuance permission inside a request -------------------------------
-
-/// A value on an offered card that does not satisfy the request waiting
-/// underneath: shown in red, with a note before the user adds the card.
-class IssuanceMismatch {
-  final String credentialId;
-  final List<dynamic> claimPath;
-  final String attributeName;
-  final AttributeValue? offered;
-  final AttributeValue required;
-
-  const IssuanceMismatch({
-    required this.credentialId,
-    required this.claimPath,
-    required this.attributeName,
-    required this.offered,
-    required this.required,
-  });
-}
-
-/// The values of [offered] that differ from a `requested_value` in the
-/// missing-data [steps] of the request waiting underneath.
-List<IssuanceMismatch> issuanceMismatches(
-  List<Credential> offered,
-  List<IssuanceStep> steps,
-) {
-  final out = <IssuanceMismatch>[];
-  for (final card in offered) {
-    final templates = [
-      for (final step in steps)
-        for (final bundle in step.options)
-          for (final d in bundle.credentials)
-            if (d.credentialId == card.credentialId) d,
-    ];
-    for (final template in templates) {
-      for (final wanted in template.attributes) {
-        final requiredValue = wanted.requestedValue;
-        if (requiredValue == null || !requiredValue.hasConcreteValue) continue;
-        final got = card.attributes.firstWhereOrNull(
-          (a) => const ListEquality<dynamic>().equals(
-            a.claimPath,
-            wanted.claimPath,
-          ),
-        );
-        if (sameValue(got?.value, requiredValue)) continue;
-        out.add(
-          IssuanceMismatch(
-            credentialId: card.credentialId,
-            claimPath: wanted.claimPath,
-            attributeName: wanted.effectiveDisplayName,
-            offered: got?.value,
-            required: requiredValue,
-          ),
-        );
-      }
-    }
-  }
-  return out;
-}
-
 /// Whether [a] holds the same value as [b] (type and content).
 bool sameValue(AttributeValue? a, AttributeValue b) =>
     a != null &&

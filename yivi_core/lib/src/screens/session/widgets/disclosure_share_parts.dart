@@ -44,32 +44,6 @@ class _ChoiceStrip extends StatelessWidget {
   }
 }
 
-/// A card the requestor gives in return (an issuance with disclosure): a
-/// tile like the cards that are shared, with its name, who gives it and
-/// every value it holds.
-class _OfferedCard extends StatelessWidget {
-  final Credential card;
-
-  const _OfferedCard({required this.card});
-
-  @override
-  Widget build(BuildContext context) => CardTile(
-    key: const Key("share_offered_card"),
-    art: CredentialCardArt(credential: card, width: CardTile.miniWidth),
-    title: card.name,
-    subtitle: card.issuer.name,
-    body: [
-      if (card.attributes.isNotEmpty)
-        YiviCredentialCardAttributeList(
-          card.attributes,
-          credentialId: card.credentialId,
-          namespaced: card.isMdoc,
-          showDividers: true,
-        ),
-    ],
-  );
-}
-
 /// The bottom of the share screen: why it can't go on (red when nobody
 /// vouches for the requestor), the progress (a part per asked card, filled
 /// by how many are ready, and a line: what is left, or that all is set), the
@@ -407,18 +381,16 @@ class _MismatchTile extends StatelessWidget {
 }
 
 /// The panel at the left held sideways (and on a tablet): the title and who
-/// asks at the top, the progress and the button at its bottom. It scrolls
-/// only when it doesn't fit (a large text size).
+/// asks at the top ([heading]), the progress and the button at its bottom.
+/// It scrolls only when it doesn't fit (a large text size).
 class _LandscapePanel extends StatelessWidget {
   final double top;
-  final Widget title;
-  final Widget card;
+  final Widget heading;
   final Widget action;
 
   const _LandscapePanel({
     required this.top,
-    required this.title,
-    required this.card,
+    required this.heading,
     required this.action,
   });
 
@@ -432,14 +404,7 @@ class _LandscapePanel extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              title,
-              const SizedBox(height: YiviSpace.x16),
-              card,
-            ],
-          ),
+          heading,
           Padding(
             padding: const EdgeInsets.only(top: YiviSpace.x16),
             child: action,

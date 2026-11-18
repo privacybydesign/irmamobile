@@ -41,9 +41,11 @@ import "../models/technical_details.dart";
 import "change_choice_sheet.dart";
 import "done_flight.dart";
 import "empty_card_spot.dart";
+import "received_card_tile.dart";
 import "requestor_card.dart";
 import "requestor_trust_sheet.dart";
 import "session_columns.dart";
+import "session_heading.dart";
 import "session_scaffold.dart";
 import "shared_card_tile.dart";
 
@@ -426,31 +428,20 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             ),
           );
 
-    final title = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
-      child: Semantics(
-        header: true,
-        child: Text(
-          t("share.title.$kind"),
-          key: const Key("share_title"),
-          style: palette.titleStep.copyWith(color: palette.text),
-        ),
-      ),
-    );
-    final card = KeyedSubtree(
-      key: _headerKey,
-      child: RequestorCard.compact(
-        requestor: session.requestor,
-        onInfo: openTrust,
-        logoHeroTag: requestorLogoHeroTag(session.requestor),
-        logoKey: _logoKey,
-      ),
+    // The title says what is going on; the card under it says with whom.
+    SessionHeading heading({required double gap}) => SessionHeading(
+      title: t("share.title.$kind"),
+      titleKey: const Key("share_title"),
+      party: session.requestor,
+      onInfo: openTrust,
+      cardKey: _headerKey,
+      logoKey: _logoKey,
+      logoHeroTag: requestorLogoHeroTag(session.requestor),
+      gap: gap,
     );
 
-    // The title says what is going on; the card under it says with whom.
     final requestorPart = <_Spaced>[
-      _Spaced(0, title),
-      _Spaced(18, card),
+      _Spaced(0, heading(gap: 18)),
       if (required.isEmpty && optional.isNotEmpty)
         _Spaced(
           12,
@@ -496,7 +487,16 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       ],
       if (offered.isNotEmpty) ...[
         _Spaced(24, _SectionLabel(t("share.section.you_receive"))),
-        for (final card in offered) _Spaced(8, _OfferedCard(card: card)),
+        for (final (n, card) in offered.indexed)
+          _Spaced(
+            8,
+            ReceivedCardTile(
+              key: Key("share_offered_card_$n"),
+              card: card,
+              subtitle: card.issuer.name,
+              disclosure: false,
+            ),
+          ),
       ],
     ];
 
@@ -617,8 +617,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               return SidewaysLayout(
                 panel: _LandscapePanel(
                   top: sidewaysPanelTop(context),
-                  title: title,
-                  card: card,
+                  heading: heading(gap: YiviSpace.x16),
                   action: bar,
                 ),
                 content: _SidewaysCards(

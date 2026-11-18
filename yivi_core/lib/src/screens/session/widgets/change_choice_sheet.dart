@@ -32,6 +32,7 @@ import "../../../widgets/glass/sheet_heading.dart";
 import "../../../widgets/press_scale.dart";
 import "../../../widgets/surface_card.dart";
 import "../models/disclosure_view_model.dart";
+import "../models/issuance_view_model.dart";
 import "empty_card_spot.dart";
 import "issue_flow.dart";
 import "issue_sheet_progress.dart";

@@ -1,34 +1,28 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
-import "../../../models/requestor_trust.dart";
 import "../../../models/session_state.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../util/nfc_credentials.dart";
 import "../../../widgets/action_bar.dart";
 import "../../../widgets/caps_label.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/compact_bar.dart";
-import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
-import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/credential_card/card_tile.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/status_chip.dart";
-import "../models/disclosure_view_model.dart";
+import "../models/issuance_view_model.dart";
 import "../models/technical_details.dart";
 import "document_issuance_permission.dart";
+import "received_card_tile.dart";
 import "requestor_card.dart";
 import "requestor_trust_sheet.dart";
 import "session_columns.dart";
+import "session_heading.dart";
 import "session_scaffold.dart";
 
 /// The button that adds an offer of [count] cards.
@@ -82,9 +76,12 @@ class _IssuancePermissionState extends State<IssuancePermission> {
 
   List<Credential> get _cards => widget.issuedCredentials;
 
-  IssuanceOffer get _offer => IssuanceOffer(
-    cards: widget.issuedCredentials,
+  /// The full screen keeps "Add" for a card that does not count: it has
+  /// no step to go back to.
+  IssuanceOfferState get _offer => issuanceOfferOf(
+    widget.issuedCredentials,
     forRequest: widget.forRequest,
+    retryOnMismatch: false,
   );
 
   @override
@@ -112,16 +109,14 @@ class _IssuancePermissionState extends State<IssuancePermission> {
     final isDocument =
         _cards.isNotEmpty &&
         _cards.every((c) => credentialRequiresNfc(c.credentialId));
-    final note = offer.note(context);
-    final issuer = _cards.firstOrNull?.issuer;
-    final risky =
-        note == null &&
-        issuer != null &&
-        requestorTrustOf(issuer) == RequestorTrust.unknown;
+    final note = IssuanceMismatchNote.maybe(offer);
+    final issuer = offer.issuer;
+    final risky = offer.risky;
     final count = _cards.length;
     final heading = issuer == null
         ? null
-        : IssuerHeading(
+        : issuanceHeading(
+            context,
             issuer: issuer,
             count: count,
             onTrust: () => _openIssuer(issuer),
@@ -134,9 +129,9 @@ class _IssuancePermissionState extends State<IssuancePermission> {
       if (isDocument)
         for (final card in _cards) DocumentIssuanceData(credential: card)
       else
-        ...offer.receives(context),
+        ...receivedCardTiles(context, offer),
     ];
-    final reason = risky ? IssuanceRiskyReason(issuer: issuer) : null;
+    final reason = risky ? IssuanceRiskyReason(issuer: issuer!) : null;
     final button = _button(risky: risky);
 
     // Held sideways, and on a tablet: who gives it at the left with the
@@ -281,123 +276,6 @@ class _IssuancePermissionState extends State<IssuancePermission> {
   }
 }
 
-/// What an issuer offers, for the screens that ask whether to add it: the
-/// mismatch note ([note]) and every value, a group per card ([receives]).
-/// The permission screen lays them out full-screen; the Change sheet shows
-/// them as the last step of adding a card.
-class IssuanceOffer {
-  final List<Credential> cards;
-
-  /// The request waiting underneath this issuance, if any.
-  final SessionState? forRequest;
-
-  const IssuanceOffer({required this.cards, this.forRequest});
-
-  List<IssuanceStep> get _steps =>
-      forRequest?.disclosurePlan?.issueDuringDisclosure?.steps ??
-      const <IssuanceStep>[];
-
-  /// "This card doesn't count for {requestor}": inside a request, when an
-  /// offered card won't do for it, what they ask next to what the card has.
-  Widget? note(BuildContext context) {
-    final miss = issuanceMismatches(cards, _steps).firstOrNull;
-    final request = forRequest;
-    if (miss == null || request == null) return null;
-    final requestor = request.requestor.name;
-    return _MismatchBox(
-      key: const Key("issuance_mismatch"),
-      head: context.tr("share.offer.not_counted", {"requestor": requestor}),
-      asks: context.tr("share.offer.asks", {"requestor": requestor}),
-      asked:
-          "${miss.attributeName} ${localizedAttributeText(context, miss.required) ?? ""}",
-      has: context.tr("share.offer.has"),
-      got:
-          "${miss.attributeName} ${localizedAttributeText(context, miss.offered) ?? "–"}",
-    );
-  }
-
-  /// The chip of [card] inside a request: what doesn't count, and with
-  /// several cards which one the request asks for ("Asked") and which comes
-  /// along ("Comes too"). One card that counts has none.
-  (String, YiviTone)? _tagOf(
-    BuildContext context,
-    Credential card, {
-    required bool mismatched,
-  }) {
-    final request = forRequest;
-    if (request == null) return null;
-    if (mismatched) {
-      return (context.tr("share.offer.tag_not_counted"), YiviTone.danger);
-    }
-    if (cards.length == 1) return null;
-    final used = {
-      for (final step in _steps)
-        for (final b in step.options)
-          for (final d in b.credentials) d.credentialId,
-    };
-    return used.contains(card.credentialId)
-        ? (context.tr("share.spot.asked"), YiviTone.info)
-        : (context.tr("share.offer.tag_extra"), YiviTone.neutral);
-  }
-
-  String? _validUntil(BuildContext context, Credential card) {
-    final expiry = card.expiryDate ?? 0;
-    if (expiry <= 0) return null;
-    final lang = context.lang;
-    return context.tr("wallet.detail.valid_until", {
-      "date": printableDate(
-        DateTime.fromMillisecondsSinceEpoch(expiry * 1000),
-        lang,
-      ),
-    });
-  }
-
-  /// What comes in the app: a tile per card, as on the share screen (its
-  /// picture, name, and how long it is valid, or who gives it), with every
-  /// value under it and a chip in its head when it matters ([_tagOf]).
-  List<Widget> receives(BuildContext context) {
-    final mismatches = issuanceMismatches(cards, _steps);
-    Set<String> mismatchedIn(Credential card) => {
-      for (final m in mismatches)
-        if (m.credentialId == card.credentialId) claimPathKey(m.claimPath),
-    };
-    return [
-      for (final (i, card) in cards.indexed)
-        Padding(
-          padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
-          child: Builder(
-            builder: (context) {
-              final bad = issuanceMismatches([card], _steps).isNotEmpty;
-              final tag = _tagOf(context, card, mismatched: bad);
-              return CardTile(
-                key: Key("issuance_card_$i"),
-                art: CredentialCardArt(
-                  credential: card,
-                  width: CardTile.miniWidth,
-                ),
-                title: card.name,
-                subtitle: _validUntil(context, card) ?? card.issuer.name,
-                chip: tag == null
-                    ? null
-                    : StatusChip(label: tag.$1, tone: tag.$2),
-                body: [
-                  YiviCredentialCardAttributeList(
-                    card.attributes,
-                    credentialId: card.credentialId,
-                    namespaced: card.isMdoc,
-                    disclosure: true,
-                    showDividers: true,
-                    mismatched: mismatchedIn(card),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-    ];
-  }
-}
-
 /// "Success" after adding cards, on a phone held sideways: a panel at the
 /// left with [overview] (the card or pile with its check) in the middle of
 /// the room above [actions]; the [title], the [note] and [receives] at the
@@ -481,6 +359,42 @@ class IssuanceLandscape extends StatelessWidget {
   }
 }
 
+/// "This card doesn't count for {requestor}": inside a request, when an
+/// offered card won't do for it, what they ask next to what the card has.
+class IssuanceMismatchNote extends StatelessWidget {
+  final IssuanceMismatch miss;
+  final String requestor;
+
+  const IssuanceMismatchNote({
+    super.key,
+    required this.miss,
+    required this.requestor,
+  });
+
+  /// The note of [offer], if a card does not count for its request.
+  static Widget? maybe(IssuanceOfferState offer) {
+    final miss = offer.note;
+    final requestor = offer.requestor;
+    if (miss == null || requestor == null) return null;
+    return IssuanceMismatchNote(
+      key: const Key("issuance_mismatch"),
+      miss: miss,
+      requestor: requestor.name,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => _MismatchBox(
+    head: context.tr("share.offer.not_counted", {"requestor": requestor}),
+    asks: context.tr("share.offer.asks", {"requestor": requestor}),
+    asked:
+        "${miss.attributeName} ${localizedAttributeText(context, miss.required) ?? ""}",
+    has: context.tr("share.offer.has"),
+    got:
+        "${miss.attributeName} ${localizedAttributeText(context, miss.offered) ?? "–"}",
+  );
+}
+
 /// "This card doesn't count for {requestor}", with what they ask and what
 /// the card has under it, the card's value in red.
 class _MismatchBox extends StatelessWidget {
@@ -491,7 +405,6 @@ class _MismatchBox extends StatelessWidget {
   final String got;
 
   const _MismatchBox({
-    super.key,
     required this.head,
     required this.asks,
     required this.asked,
@@ -561,72 +474,29 @@ class _MismatchBox extends StatelessWidget {
 
 /// Who gives the card, at the top of the question whether to add it: "You
 /// get a card from" (or "{n} cards"), and the issuer as a card under it, as
-/// the share screen's requestor ([RequestorCard.compact]): its logo and
-/// badge, its name, who vouches for it, and an ⓘ ([onTrust], the issuer's
-/// page).
-class IssuerHeading extends StatelessWidget {
-  final TrustedParty issuer;
-  final int count;
-  final VoidCallback onTrust;
-
-  /// The heading, for the bar's title once it has scrolled under the bar.
-  final GlobalKey? titleKey;
-
-  /// Where the issuer's logo is: it flies into the issuer's page.
-  final GlobalKey? logoKey;
-
-  /// The issuer's card, to see when it goes under the bar.
-  final GlobalKey? cardKey;
-
-  /// The logo is a hero into the trust sheet ([RequestorLogo.heroTag]), on the
-  /// permission as a screen of its own.
-  final Object? logoHeroTag;
-
-  const IssuerHeading({
-    super.key,
-    required this.issuer,
-    required this.count,
-    required this.onTrust,
-    this.titleKey,
-    this.logoKey,
-    this.cardKey,
-    this.logoHeroTag,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Column(
-      key: const Key("issuance_heading"),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x4),
-          child: Semantics(
-            header: true,
-            child: Text(
-              count > 1
-                  ? context.tr("issuance.heading.many", {"count": "$count"})
-                  : context.tr("issuance.heading.one"),
-              key: titleKey ?? const Key("issuance_question"),
-              style: palette.titleStep.copyWith(color: palette.text),
-            ),
-          ),
-        ),
-        const SizedBox(height: YiviSpace.x16),
-        KeyedSubtree(
-          key: cardKey,
-          child: RequestorCard.compact(
-            requestor: issuer,
-            onInfo: onTrust,
-            logoKey: logoKey,
-            logoHeroTag: logoHeroTag,
-          ),
-        ),
-      ],
-    );
-  }
-}
+/// the share screen's requestor: its logo and badge, its name, who vouches
+/// for it, and an ⓘ ([onTrust], the issuer's page).
+Widget issuanceHeading(
+  BuildContext context, {
+  required TrustedParty issuer,
+  required int count,
+  required VoidCallback onTrust,
+  Key? titleKey,
+  GlobalKey? logoKey,
+  GlobalKey? cardKey,
+  Object? logoHeroTag,
+}) => SessionHeading(
+  key: const Key("issuance_heading"),
+  title: count > 1
+      ? context.tr("issuance.heading.many", {"count": "$count"})
+      : context.tr("issuance.heading.one"),
+  titleKey: titleKey ?? const Key("issuance_question"),
+  party: issuer,
+  onInfo: onTrust,
+  logoKey: logoKey,
+  cardKey: cardKey,
+  logoHeroTag: logoHeroTag,
+);
 
 /// "This goes in your app", above the cards of an offer.
 class YouGetLabel extends StatelessWidget {

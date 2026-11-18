@@ -5,7 +5,6 @@ import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 import "../../../data/irma_repository.dart";
 import "../../../models/credential.dart";
 import "../../../models/credential_store.dart";
-import "../../../models/requestor_trust.dart";
 import "../../../models/session_state.dart";
 import "../../../providers/contact_issuance_provider.dart";
 import "../../../providers/credential_store_provider.dart";
@@ -34,6 +33,7 @@ import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
 import "../../error/session_error_screen.dart";
 import "../../error/tx_code_lockout_screen.dart";
 import "../models/disclosure_view_model.dart";
+import "../models/issuance_view_model.dart";
 import "../models/session_view.dart";
 import "../models/technical_details.dart";
 import "issuance_permission.dart";
@@ -42,6 +42,7 @@ import "issue_island.dart";
 import "issue_sheet_progress.dart";
 import "issue_website_step.dart";
 import "openid4vci_preauth_txcode_screen.dart";
+import "received_card_tile.dart";
 import "requestor_card.dart";
 import "requestor_trust_sheet.dart";
 import "session_pin_entry_screen.dart";
@@ -443,21 +444,18 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
   void _dismissNested(int sessionId) => _repo.dismissSession(sessionId);
 
-  /// How many steps adding [d] takes, for the progress: the details, the
-  /// steps that prove it, and adding it. A website is one step (3 in all);
-  /// an e-mail address or phone number two, the address and the code (4); a
-  /// document three, how to hold it, scanning or typing it in, and the chip
-  /// (5), and a fourth once the issuer asks for a face check (6).
-  int _stepsOf(CredentialDescriptor d) =>
-      switch (_repo.embeddedFlowOf(d.credentialId)) {
-        EmbeddedFlow.email || EmbeddedFlow.phone => 4,
-        EmbeddedFlow.document when documentTypeOf(d.credentialId) != null =>
-          switch (_document) {
-            final type? => ref.watch(documentFlowProvider(type)).total,
-            null => 5,
-          },
-        _ => 3,
-      };
+  /// How adding [d] goes: Yivi's own steps or the issuer's website.
+  IssuePlan _planOf(CredentialDescriptor d) =>
+      issuePlanOf(d, _repo.embeddedFlowOf(d.credentialId));
+
+  /// How many steps adding [d] takes, for the progress ([IssuePlan.total]);
+  /// a document's own count once its flow has started.
+  int _stepsOf(CredentialDescriptor d) => _planOf(d).total(
+    documentTotal: switch (_document) {
+      final type? => ref.watch(documentFlowProvider(type)).total,
+      null => null,
+    },
+  );
 
   /// "Add" on the details: Yivi's own e-mail, phone or document steps in the
   /// sheet, or the issuer's website with the sheet waiting for what comes
@@ -1061,12 +1059,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       label: context.tr("data.add.details.get_button"),
       onTap: () => _add(d),
     );
-    final howIntro = switch (_repo.embeddedFlowOf(d.credentialId)) {
-      EmbeddedFlow.email => context.tr("data.add.details.how_email"),
-      EmbeddedFlow.phone => context.tr("data.add.details.how_phone"),
-      EmbeddedFlow.document when documentTypeOf(d.credentialId) != null =>
-        context.tr("data.add.details.how_document"),
-      _ => null,
+    final howIntro = switch (_planOf(d).howIntroKey) {
+      final key? => context.tr(key),
+      null => null,
     };
     Widget part(AddDataDetailsPart part) => AddDataDetailsContent(
       credential: d,
@@ -1170,70 +1165,70 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
 
     // Inside a request, a card whose value is not what the request needs
     // does not count: trying again comes first, adding it anyway second.
-    final request = issueRequest;
-    final mismatched =
-        request != null &&
-        issuanceMismatches(
-          cards,
-          request.disclosurePlan?.issueDuringDisclosure?.steps ?? const [],
-        ).isNotEmpty;
-    final single = cards.any((c) => c.isSingleton);
-    final grant = offer == null || nestedId == null
-        ? null
-        : () => _grant(nestedId);
     // Nobody vouches for the issuer: adding becomes "Add anyway", neutral,
     // with the reason above it and a red wash at the top, as sharing with a
     // requestor nobody vouches for.
-    final issuer = cards.firstOrNull?.issuer;
-    final risky =
-        !mismatched &&
-        issuer != null &&
-        requestorTrustOf(issuer) == RequestorTrust.unknown;
-    final action = mismatched
-        ? SheetAction(
-            key: const Key("sheet_issue_retry"),
-            label: context.tr(
-              single ? "share.offer.dont_replace" : "share.offer.retry",
-            ),
-            onTap: single ? issueClose : _retry,
-          )
-        : SheetAction(
-            key: const Key("sheet_issue_add"),
-            label: risky
-                ? context.tr("issuance.question.add_anyway")
-                : issuanceAddLabel(context, cards.length),
-            neutral: risky,
-            // Under way once tapped, until "Success" comes in.
-            busy: awaiting,
-            onTap: grant,
-          );
-    final anyway = mismatched
-        ? Center(
-            child: TextLink(
-              key: const Key("sheet_issue_add"),
-              label: context.tr(
-                single
-                    ? "share.offer.replace_anyway"
-                    : "share.offer.add_anyway",
-              ),
-              onPressed: awaiting ? null : grant,
-            ),
-          )
-        : null;
+    final state = issuanceOfferOf(
+      cards,
+      forRequest: issueRequest,
+      retryOnMismatch: true,
+    );
+    final grant = offer == null || nestedId == null
+        ? null
+        : () => _grant(nestedId);
+    final issuer = state.issuer;
+    final risky = state.risky;
+    final action = switch (state.primary) {
+      IssuancePrimary.retry || IssuancePrimary.dontReplace => SheetAction(
+        key: const Key("sheet_issue_retry"),
+        label: context.tr(
+          state.primary == IssuancePrimary.dontReplace
+              ? "share.offer.dont_replace"
+              : "share.offer.retry",
+        ),
+        onTap: state.primary == IssuancePrimary.dontReplace
+            ? issueClose
+            : _retry,
+      ),
+      IssuancePrimary.add || IssuancePrimary.addAnyway => SheetAction(
+        key: const Key("sheet_issue_add"),
+        label: risky
+            ? context.tr("issuance.question.add_anyway")
+            : issuanceAddLabel(context, cards.length),
+        neutral: risky,
+        // Under way once tapped, until "Success" comes in.
+        busy: awaiting,
+        onTap: grant,
+      ),
+    };
+    final anyway = switch (state.link) {
+      final link? => Center(
+        child: TextLink(
+          key: const Key("sheet_issue_add"),
+          label: context.tr(switch (link) {
+            IssuanceLink.replaceAnyway => "share.offer.replace_anyway",
+            IssuanceLink.addAnyway => "share.offer.add_anyway",
+          }),
+          onPressed: awaiting ? null : grant,
+        ),
+      ),
+      null => null,
+    };
     // Above the button: why it says "anyway" for an issuer nobody vouches
     // for (no progress then: it is the last step anyway); else the progress.
     final bottom = risky
         ? IssuanceRiskyReason(
-            issuer: issuer,
+            issuer: issuer!,
             textAlign: useSheetColumns(context)
                 ? TextAlign.start
                 : TextAlign.center,
           )
         : IssueSheetProgress.lastStep(total);
-    final content = offer == null ? null : _offerContent(offer);
+    final content = offer == null ? null : state;
     final question = issuer == null
         ? null
-        : IssuerHeading(
+        : issuanceHeading(
+            context,
             issuer: issuer,
             count: cards.length,
             titleKey: _titleKey("issuance"),
@@ -1243,10 +1238,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           );
     final loading = _loading();
     // The cards: their values in tiles, the mismatch note above them.
-    List<Widget> cardsAndValues(IssuanceOffer content) => [
+    List<Widget> cardsAndValues(IssuanceOfferState content) => [
       const YouGetLabel(),
-      ?content.note(context),
-      ...content.receives(context),
+      ?IssuanceMismatchNote.maybe(content),
+      ...receivedCardTiles(context, content),
       ?anyway,
     ];
     final sideways = useSheetColumns(context);
@@ -1351,10 +1346,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     padding: const EdgeInsets.symmetric(vertical: 80),
     child: Center(child: YiviSpinner()),
   );
-
-  /// What the offer holds: the card(s) and their values.
-  IssuanceOffer _offerContent(SessionState offer) =>
-      IssuanceOffer(cards: offer.offeredCredentials!, forRequest: issueRequest);
 
   /// Back to the step before the issuance (the website, the code), to try
   /// again after a card that does not count came back.

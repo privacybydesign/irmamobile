@@ -539,47 +539,6 @@ void main() {
     });
   });
 
-  group("issuance inside a request", () {
-    final steps = [
-      IssuanceStep(
-        options: [
-          IssuanceBundle(credentials: [_descriptor("idin")]),
-        ],
-      ),
-      IssuanceStep(
-        options: [
-          IssuanceBundle(
-            credentials: [
-              _descriptor(
-                "ideal",
-                attributes: [_string("bic", "", requested: "RABONL2U")],
-              ),
-            ],
-          ),
-        ],
-      ),
-    ];
-
-    test("an offered value that differs from the requested one", () {
-      final mismatches = issuanceMismatches([
-        _offered("ideal", [_string("bic", "INGBNL2A")]),
-      ], steps);
-      expect(mismatches, hasLength(1));
-      expect(mismatches.single.attributeName, "bic");
-      expect(mismatches.single.offered?.string, "INGBNL2A");
-      expect(mismatches.single.required.string, "RABONL2U");
-    });
-
-    test("a matching value is no mismatch", () {
-      expect(
-        issuanceMismatches([
-          _offered("ideal", [_string("bic", "RABONL2U")]),
-        ], steps),
-        isEmpty,
-      );
-    });
-  });
-
   test("names inside a sentence keep abbreviations", () {
     expect(inSentence("Email address"), "email address");
     expect(inSentence("ID card"), "ID card");
