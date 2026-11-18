@@ -5,12 +5,12 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../widgets/centred_max_width.dart";
-import "../../../widgets/fill_scroll_view.dart";
-import "../../../widgets/floating_bar_placement.dart";
-import "../../../widgets/glass/glass_surface.dart";
-import "../../../widgets/press_scale.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/bars/floating_bar_placement.dart";
+import "../../../widgets/buttons/press_scale.dart";
+import "../../../widgets/layout/centred_max_width.dart";
+import "../../../widgets/layout/fill_scroll_view.dart";
+import "../../../widgets/surfaces/glass_surface.dart";
+import "../../../widgets/text/translated_text.dart";
 
 /// Whether an enrollment page lays out in two columns: whenever the screen
 /// is wider than high, on a phone and on a tablet.

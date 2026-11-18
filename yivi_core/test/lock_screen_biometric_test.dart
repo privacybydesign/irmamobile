@@ -11,7 +11,7 @@ import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
-import "package:yivi_core/src/widgets/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
 
 import "support/onboarding_v2_harness.dart";
 

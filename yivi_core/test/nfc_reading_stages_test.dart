@@ -20,7 +20,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/nfc_settings.dart";
 import "package:yivi_core/src/util/test_detection.dart";
-import "package:yivi_core/src/widgets/done_check.dart";
+import "package:yivi_core/src/widgets/feedback/done_check.dart";
 
 import "support/document_screen_host.dart";
 import "support/pump_translated.dart";

@@ -6,8 +6,8 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
-import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
-import "package:yivi_core/src/widgets/glass/glass_group.dart";
+import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/surfaces/glass_group.dart";
 
 import "support/onboarding_v2_harness.dart";
 

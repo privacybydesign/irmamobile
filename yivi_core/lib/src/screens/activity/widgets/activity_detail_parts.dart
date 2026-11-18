@@ -10,18 +10,18 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/centred_max_width.dart";
-import "../../../widgets/compact_bar.dart";
-import "../../../widgets/corner_badge.dart";
+import "../../../widgets/bars/compact_bar.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/list_row.dart";
-import "../../../widgets/party_avatar.dart";
-import "../../../widgets/section_header.dart";
-import "../../../widgets/status_chip.dart";
-import "../../../widgets/surface_card.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/layout/centred_max_width.dart";
+import "../../../widgets/surfaces/corner_badge.dart";
+import "../../../widgets/surfaces/list_row.dart";
+import "../../../widgets/surfaces/party_avatar.dart";
+import "../../../widgets/surfaces/status_chip.dart";
+import "../../../widgets/surfaces/surface_card.dart";
+import "../../../widgets/text/section_header.dart";
+import "../../../widgets/text/translated_text.dart";
 import "../activity_entry.dart";
 
 /// The text colour of [kind] on a surface, in both themes.

@@ -4,9 +4,9 @@ import "package:material_ui/material_ui.dart";
 import "../../../providers/local_backends_provider.dart";
 import "../../../providers/preferences_provider.dart";
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/input/pill_text_field.dart";
 import "../../more/widgets/tiles.dart";
 
 /// Points the app at a backend setup on a developer's machine. With

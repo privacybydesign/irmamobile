@@ -14,7 +14,7 @@ import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/status_chip.dart";
+import "../../../widgets/surfaces/status_chip.dart";
 import "../models/disclosure_view_model.dart";
 
 /// One requested item on the share screen: the selected card (or set of

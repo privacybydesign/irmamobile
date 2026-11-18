@@ -5,7 +5,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
-import "package:yivi_core/src/widgets/pull_to_dismiss_physics.dart";
+import "package:yivi_core/src/widgets/sheet/pull_to_dismiss_physics.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";

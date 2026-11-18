@@ -6,7 +6,7 @@ import "../../../../theme/yivi_motion.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/corner_brackets.dart";
+import "../../../../widgets/surfaces/corner_brackets.dart";
 import "dark_glass.dart";
 
 /// Behind and around the document camera: the darkest stop of its frame.

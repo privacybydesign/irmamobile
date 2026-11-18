@@ -21,7 +21,7 @@ import "src/sentry/sentry.dart";
 import "src/util/card_font_licenses.dart";
 import "src/util/navigation.dart";
 import "src/util/security_context_binding.dart";
-import "src/widgets/preferred_language_builder.dart";
+import "src/widgets/text/preferred_language_builder.dart";
 
 export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";

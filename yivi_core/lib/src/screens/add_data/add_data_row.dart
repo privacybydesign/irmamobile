@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/credential_store.dart";
 import "../../util/i18n.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
-import "../../widgets/list_row.dart";
+import "../../widgets/surfaces/list_row.dart";
 
 /// One credential type to add: its card, small (with a check when the user
 /// has one already, [owned]), its name, and the issuer, after "Needs NFC"

@@ -4,7 +4,7 @@ import "../../../models/credential_store.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/count_badge.dart";
+import "../../../widgets/buttons/press_scale.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
 import "../../../widgets/credential_card/attribute_list/value_tag.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
@@ -13,7 +13,7 @@ import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/credential_card/faded_card_art.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/press_scale.dart";
+import "../../../widgets/surfaces/count_badge.dart";
 
 /// A row of an [EmptyCardSpot]: a field, its value, and whether that value
 /// is what the request asks of the card ("Asked").

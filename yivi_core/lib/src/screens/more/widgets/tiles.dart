@@ -6,9 +6,9 @@ import "../../../sentry/sentry.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/icon_square.dart";
-import "../../../widgets/link.dart";
-import "../../../widgets/list_row.dart";
+import "../../../widgets/buttons/link.dart";
+import "../../../widgets/surfaces/icon_square.dart";
+import "../../../widgets/surfaces/list_row.dart";
 
 class ContactLinkTile extends StatelessWidget {
   final IconData? iconData;

@@ -6,7 +6,7 @@ import "package:yivi_core/src/models/enrollment_events.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
-import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
 
 import "support/onboarding_v2_harness.dart";
 

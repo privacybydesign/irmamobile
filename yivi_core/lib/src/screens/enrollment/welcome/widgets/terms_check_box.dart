@@ -5,7 +5,7 @@ import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/text/translated_text.dart";
 
 /// Rewrites `[text](url)` to `text`. The accept label is markdown so it can
 /// link to the terms, but a screen reader label has to be plain text. Deriving

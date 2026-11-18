@@ -5,11 +5,11 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/app_toast.dart";
-import "../../../widgets/caps_label.dart";
-import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/surface_card.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/feedback/app_toast.dart";
+import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/surfaces/surface_card.dart";
+import "../../../widgets/text/caps_label.dart";
 import "../models/technical_details.dart";
 
 /// The technical details of a request, for the curious: a subpage of the

@@ -7,7 +7,7 @@ import "../../../models/credential.dart";
 import "../../../util/i18n.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/entrance.dart";
+import "../../../widgets/layout/entrance.dart";
 
 /// The welcome page's picture: three example cards fanning out, in a band of
 /// their own so the tilted cards never reach the title. The band holds the

@@ -9,9 +9,9 @@ import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/widgets/error_report_switch.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
-import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
-import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
+import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
+import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";

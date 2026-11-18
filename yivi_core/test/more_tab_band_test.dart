@@ -2,7 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/more/more_tab.dart";
-import "package:yivi_core/src/widgets/title_scroll_edge.dart";
+import "package:yivi_core/src/widgets/bars/title_scroll_edge.dart";
 
 import "support/onboarding_v2_harness.dart";
 

@@ -11,7 +11,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/
 import "package:yivi_core/src/screens/scanner/util/camera_access.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";

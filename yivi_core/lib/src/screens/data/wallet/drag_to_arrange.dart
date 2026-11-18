@@ -6,7 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_corners.dart";
 import "../../../util/haptics.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/tab_layout.dart";
+import "../../../widgets/layout/tab_layout.dart";
 
 /// Cards at fixed places (the stack's strips, the grid's cells) that can be
 /// picked up and dragged to another place: press and hold a card, it lifts,

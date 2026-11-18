@@ -3,9 +3,9 @@ import "package:material_ui/material_ui.dart";
 
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
-import "../../widgets/app_toast.dart";
-import "../../widgets/glass/glass_dialog.dart";
-import "../../widgets/irma_app_bar.dart";
+import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/feedback/app_toast.dart";
+import "../../widgets/feedback/glass_dialog.dart";
 import "../enrollment/choose_pin/choose_pin_screen.dart";
 import "../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
 import "../error/session_error_screen.dart";

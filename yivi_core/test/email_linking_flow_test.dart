@@ -32,7 +32,7 @@ import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/email_linking.dart";
 import "package:yivi_core/src/util/navigation.dart";
-import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 class _SilentBridge extends IrmaBridge {
   @override

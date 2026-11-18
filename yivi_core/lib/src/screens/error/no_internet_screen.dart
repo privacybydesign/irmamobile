@@ -2,9 +2,9 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
-import "../../widgets/action_bar.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/status_screen.dart";
+import "../../widgets/bars/action_bar.dart";
+import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/feedback/status_screen.dart";
 
 class NoInternetScreen extends StatelessWidget {
   final VoidCallback onTapClose;

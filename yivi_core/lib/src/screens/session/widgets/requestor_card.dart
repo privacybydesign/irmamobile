@@ -6,13 +6,13 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/compact_bar.dart";
-import "../../../widgets/corner_badge.dart";
+import "../../../widgets/bars/compact_bar.dart";
+import "../../../widgets/buttons/press_scale.dart";
+import "../../../widgets/feedback/glass_dialog.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/party_avatar.dart";
-import "../../../widgets/press_scale.dart";
-import "../../../widgets/surface_card.dart";
+import "../../../widgets/surfaces/corner_badge.dart";
+import "../../../widgets/surfaces/party_avatar.dart";
+import "../../../widgets/surfaces/surface_card.dart";
 
 /// The colours and words of a [RequestorTrust] tier, in one place: the badge
 /// on the logo, the pill under the name, and the trust sheet.

@@ -2,8 +2,8 @@ import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_close_button.dart";
+import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/buttons/irma_close_button.dart";
 
 class SessionScaffold extends StatelessWidget {
   final Widget? body, bottomNavigationBar;

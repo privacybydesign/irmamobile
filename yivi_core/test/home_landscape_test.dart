@@ -21,7 +21,7 @@ import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
+import "package:yivi_core/src/widgets/input/glass_search_field.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";

@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../widgets/corner_brackets.dart";
+import "../../../widgets/surfaces/corner_brackets.dart";
 
 /// The dimmed camera around the scan window and the window's corner
 /// brackets: dimmed in dark grey, or green after a Yivi QR code and red

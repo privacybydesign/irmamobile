@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
-import "../../../../widgets/dashed_outline_painter.dart";
+import "../../../../widgets/surfaces/dashed_outline_painter.dart";
 import "document_colors.dart";
 
 /// A document as drawn in the instruction picture, flat and front-on: the

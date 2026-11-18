@@ -6,9 +6,9 @@ import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/adaptive_layout.dart";
-import "../../../../widgets/glass/sheet_actions.dart";
-import "../../../../widgets/glass/sheet_layout.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/sheet/sheet_actions.dart";
+import "../../../../widgets/sheet/sheet_layout.dart";
+import "../../../../widgets/text/translated_text.dart";
 import "../document_step_in_sheet.dart";
 import "document_flow_footer.dart";
 

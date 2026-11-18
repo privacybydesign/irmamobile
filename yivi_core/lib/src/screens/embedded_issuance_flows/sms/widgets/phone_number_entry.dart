@@ -19,8 +19,8 @@ import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/pill_text_field.dart";
-import "../../../../widgets/press_scale.dart";
+import "../../../../widgets/buttons/press_scale.dart";
+import "../../../../widgets/input/pill_text_field.dart";
 import "country_picker_sheet.dart";
 
 /// Alpha-2 codes of countries excluded from the phone number input. Most are

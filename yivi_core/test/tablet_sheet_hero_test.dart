@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 
 void main() {
   for (final (name, size) in [
@@ -38,10 +38,7 @@ void main() {
         builder: (context) {
           inSheet = context;
           return const Center(
-            child: Hero(
-              tag: "card",
-              child: SizedBox(width: 200, height: 120),
-            ),
+            child: Hero(tag: "card", child: SizedBox(width: 200, height: 120)),
           );
         },
       );

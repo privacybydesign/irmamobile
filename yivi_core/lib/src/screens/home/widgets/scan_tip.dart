@@ -7,9 +7,9 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_surface.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/surfaces/glass_surface.dart";
+import "../../../widgets/text/translated_text.dart";
 
 /// Whether the tip on the Scan button shows: on the first visit after the
 /// enrollment, until "Got it" or until there is data.

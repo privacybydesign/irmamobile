@@ -1,7 +1,7 @@
 import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/scroll_to_top.dart";
+import "package:yivi_core/src/widgets/bars/scroll_to_top.dart";
 
 Widget _list(ScrollController controller, {Axis axis = Axis.vertical}) =>
     ListView.builder(

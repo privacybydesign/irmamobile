@@ -1,9 +1,9 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/glass_dialog.dart";
-import "../../../../widgets/glass/pill_buttons.dart";
-import "../../../../widgets/pill_text_field.dart";
+import "../../../../widgets/buttons/pill_buttons.dart";
+import "../../../../widgets/feedback/glass_dialog.dart";
+import "../../../../widgets/input/pill_text_field.dart";
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
   const ProvideSchemeUrlDialog({super.key});

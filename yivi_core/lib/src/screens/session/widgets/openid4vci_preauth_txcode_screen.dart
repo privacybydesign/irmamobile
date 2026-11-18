@@ -9,10 +9,10 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/action_bar.dart";
-import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/glass/sheet_actions.dart";
-import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/bars/action_bar.dart";
+import "../../../widgets/input/pill_text_field.dart";
+import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet_actions.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
 import "session_scaffold.dart";
 

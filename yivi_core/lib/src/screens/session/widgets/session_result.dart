@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/action_bar.dart";
-import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/bars/action_bar.dart";
+import "../../../widgets/bars/irma_app_bar.dart";
 import "session_columns.dart";
 import "session_scaffold.dart";
 

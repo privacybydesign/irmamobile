@@ -6,8 +6,8 @@ import "package:yivi_core/src/providers/qr_scanner_factory_provider.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
 import "package:yivi_core/src/screens/scanner/util/camera_access.dart";
 import "package:yivi_core/src/screens/scanner/widgets/qr_scanner.dart";
-import "package:yivi_core/src/widgets/irma_close_button.dart";
-import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "support/onboarding_v2_harness.dart";
 

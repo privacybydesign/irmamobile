@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/unfocus_on_tap_outside.dart";
+import "package:yivi_core/src/widgets/input/unfocus_on_tap_outside.dart";
 
 void main() {
   final one = FocusNode();

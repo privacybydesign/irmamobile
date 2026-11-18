@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/two_pane.dart";
+import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/layout/two_pane.dart";
 
 /// A page the More tab opens (Instellingen, Veelgestelde vragen): in the
 /// tab's detail pane ([embedded]) with its title on the page, else on a

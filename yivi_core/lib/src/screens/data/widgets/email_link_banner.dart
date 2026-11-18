@@ -8,11 +8,11 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/email_linking.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_close_button.dart";
-import "../../../widgets/link.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/buttons/irma_close_button.dart";
+import "../../../widgets/buttons/link.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/text/translated_text.dart";
 
 /// Banner at the top of the Data tab that asks the user to link an e-mail
 /// address, so the app can be blocked remotely.

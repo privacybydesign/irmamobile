@@ -9,9 +9,9 @@ import "package:webview_flutter_android/webview_flutter_android.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/theme/yivi_space.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/translated_text.dart";
-import "package:yivi_core/src/widgets/yivi_spinner.dart";
+import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
+import "package:yivi_core/src/widgets/text/translated_text.dart";
 
 import "face_liveness_message.dart";
 

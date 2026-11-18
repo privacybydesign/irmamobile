@@ -4,7 +4,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/widgets/yivi_spinner.dart";
+import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";

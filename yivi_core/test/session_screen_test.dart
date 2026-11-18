@@ -20,7 +20,7 @@ import "package:yivi_core/src/screens/session/widgets/issue_website_step.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/pairing_required.dart";
 import "package:yivi_core/src/screens/session/widgets/session_pin_entry_screen.dart";
-import "package:yivi_core/src/widgets/yivi_spinner.dart";
+import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
 
 import "missing_data_fixtures.dart";
 import "support/session_harness.dart";

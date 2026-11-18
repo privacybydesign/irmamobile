@@ -7,8 +7,8 @@ import "../theme/yivi_space.dart";
 import "../util/i18n.dart";
 import "../util/signature_message_text.dart";
 import "flight/yivi_flight.dart";
-import "glass/glass_sheet.dart";
-import "glass/sheet_heading.dart";
+import "sheet/glass_sheet.dart";
+import "sheet/sheet_heading.dart";
 
 /// The message to sign as a quote: a white card, the text in Georgia 17/27
 /// between big brand-red marks (“ top left, ” bottom right).

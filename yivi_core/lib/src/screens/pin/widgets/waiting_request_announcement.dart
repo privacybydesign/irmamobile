@@ -7,8 +7,8 @@ import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/corner_badge.dart";
-import "../../../widgets/glass/glass_dialog.dart";
+import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/surfaces/corner_badge.dart";
 import "../../session/widgets/requestor_card.dart";
 
 /// The request waiting behind the lock screen, above the PIN, as one

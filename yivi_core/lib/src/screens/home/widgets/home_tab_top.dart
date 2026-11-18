@@ -6,12 +6,12 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/glass/glass_search_field.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/scroll_edge.dart";
-import "../../../widgets/tab_layout.dart";
-import "../../../widgets/title_scroll_edge.dart";
+import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/scroll_edge.dart";
+import "../../../widgets/bars/title_scroll_edge.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/input/glass_search_field.dart";
+import "../../../widgets/layout/tab_layout.dart";
 import "../../data/card_transition/card_transition.dart";
 import "../../data/card_transition/card_transition_layer.dart";
 import "../../data/wallet/wallet_transition.dart";

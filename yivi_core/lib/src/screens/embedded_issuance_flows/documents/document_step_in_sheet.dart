@@ -3,9 +3,9 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../widgets/glass/sheet_layout.dart";
-import "../../../widgets/surface_card.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/sheet/sheet_layout.dart";
+import "../../../widgets/surfaces/surface_card.dart";
+import "../../../widgets/text/translated_text.dart";
 
 /// The page of a document screen, a step of adding a document in a sheet:
 /// no bar of its own (the sheet's has the title, back and close) and the

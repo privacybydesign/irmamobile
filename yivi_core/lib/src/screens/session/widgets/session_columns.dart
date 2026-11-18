@@ -2,9 +2,9 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../widgets/centred_max_width.dart";
-import "../../../widgets/floating_bar_placement.dart";
-import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/bars/floating_bar_placement.dart";
+import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/layout/centred_max_width.dart";
 
 /// The most each column of a session screen's sideways layout is wide (on
 /// a phone held sideways about this: the screen less the safe areas, halved).

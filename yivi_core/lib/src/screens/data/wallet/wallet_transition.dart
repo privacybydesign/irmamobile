@@ -1,10 +1,10 @@
 import "package:flutter/rendering.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../routing/pane_handoff.dart";
 import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/pane_handoff.dart";
-import "../../../widgets/slot_registry.dart";
+import "../../../widgets/flight/slot_registry.dart";
 import "../card_transition/card_transition.dart";
 import "../card_transition/repaints_with.dart";
 

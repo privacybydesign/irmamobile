@@ -4,9 +4,9 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/refresh_credential_statuses_event.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
+import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "helpers/eudi_issuance_helpers.dart";
 import "helpers/helpers.dart";

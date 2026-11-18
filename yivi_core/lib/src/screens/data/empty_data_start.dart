@@ -7,10 +7,10 @@ import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../util/navigation.dart";
-import "../../widgets/caps_label.dart";
-import "../../widgets/icon_square.dart";
-import "../../widgets/surface_card.dart";
-import "../../widgets/translated_text.dart";
+import "../../widgets/surfaces/icon_square.dart";
+import "../../widgets/surfaces/surface_card.dart";
+import "../../widgets/text/caps_label.dart";
+import "../../widgets/text/translated_text.dart";
 import "../add_data/add_data_sheet.dart";
 import "../home/widgets/open_qr_scanner.dart";
 

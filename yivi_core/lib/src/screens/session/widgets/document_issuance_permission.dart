@@ -8,7 +8,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/surface_card.dart";
+import "../../../widgets/surfaces/surface_card.dart";
 
 /// The data of a document read from its chip, for the question whether
 /// to add it ([IssuancePermission]), in one group: a row per attribute, the ages

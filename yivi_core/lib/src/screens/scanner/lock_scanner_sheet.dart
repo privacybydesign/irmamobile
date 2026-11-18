@@ -8,7 +8,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/glass_sheet.dart";
+import "../../widgets/sheet/glass_sheet.dart";
 import "../pin/pin_entry.dart";
 import "../pin/providers/pin_unlock_provider.dart";
 import "../pin/widgets/waiting_request_announcement.dart";

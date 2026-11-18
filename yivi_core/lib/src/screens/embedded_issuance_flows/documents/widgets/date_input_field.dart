@@ -3,7 +3,7 @@ import "package:mask_text_input_formatter/mask_text_input_formatter.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_palette.dart";
-import "../../../../widgets/glass/pill_buttons.dart";
+import "../../../../widgets/buttons/pill_buttons.dart";
 import "manual_entry_layout.dart";
 
 class DateInputField extends StatefulWidget {

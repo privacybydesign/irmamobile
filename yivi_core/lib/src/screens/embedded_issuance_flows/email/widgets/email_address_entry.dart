@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../util/after_frame.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/pill_text_field.dart";
+import "../../../../widgets/input/pill_text_field.dart";
 
 final _emailPattern = RegExp(
   r"^(?:[a-zA-Z0-9_+-])+(?:[\.+](?:[a-zA-Z0-9_-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$",

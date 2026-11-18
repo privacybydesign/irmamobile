@@ -1,8 +1,8 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../util/adaptive_layout.dart";
-import "../../../widgets/centred_max_width.dart";
-import "../../../widgets/scroll_edge.dart";
+import "../../../widgets/bars/scroll_edge.dart";
+import "../../../widgets/layout/centred_max_width.dart";
 import "../../data/wallet/wallet_transition.dart";
 
 /// The top of a home tab with a floating search row (Data, Activity): the

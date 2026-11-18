@@ -7,6 +7,7 @@ import "src/providers/pane_selection_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/providers/redirect_state_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
+import "src/routing/adaptive_page.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/back_to_website/back_to_website_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
@@ -28,7 +29,6 @@ import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/session/session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
 import "src/util/navigation.dart";
-import "src/widgets/adaptive_page.dart";
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 

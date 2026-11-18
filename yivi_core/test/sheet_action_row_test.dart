@@ -4,8 +4,8 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
-import "package:yivi_core/src/widgets/glass/sheet_actions.dart";
+import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
+import "package:yivi_core/src/widgets/sheet/sheet_actions.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";

@@ -12,8 +12,8 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
-import "../../../widgets/corner_badge.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/surfaces/corner_badge.dart";
 import "../activity_entry.dart";
 import "activity_detail_parts.dart";
 

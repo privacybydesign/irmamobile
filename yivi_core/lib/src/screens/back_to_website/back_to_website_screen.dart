@@ -5,10 +5,10 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/numbered_step.dart";
-import "../../widgets/surface_card.dart";
-import "../../widgets/translated_text.dart";
+import "../../widgets/buttons/pill_buttons.dart";
+import "../../widgets/surfaces/numbered_step.dart";
+import "../../widgets/surfaces/surface_card.dart";
+import "../../widgets/text/translated_text.dart";
 import "../enrollment/widgets/enrollment_page.dart";
 
 /// From the empty Data tab ("On a website on this phone?"): how to go back

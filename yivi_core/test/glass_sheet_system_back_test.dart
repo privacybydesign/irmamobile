@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 
 import "helpers/test_translation_loader.dart";
 

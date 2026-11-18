@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
+import "package:yivi_core/src/widgets/input/glass_search_field.dart";
 
 import "support/onboarding_v2_harness.dart";
 

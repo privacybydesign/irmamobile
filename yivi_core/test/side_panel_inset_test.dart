@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/side_panel_inset.dart";
+import "package:yivi_core/src/widgets/layout/side_panel_inset.dart";
 
 void main() {
   /// Pumps the inset with a child that reports what it gets, and returns

@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../util/i18n.dart";
-import "../../../widgets/faq_fold.dart";
+import "../../../widgets/surfaces/faq_fold.dart";
 
 class HelpItem extends StatelessWidget {
   final String headerTranslationKey;

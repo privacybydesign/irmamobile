@@ -22,7 +22,7 @@ import "package:yivi_core/src/screens/session/widgets/done_flight.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
-import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "onboarding_v2_harness.dart";
 import "pump_translated.dart";

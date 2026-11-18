@@ -6,8 +6,8 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/app_toast.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/feedback/app_toast.dart";
+import "../../../widgets/text/translated_text.dart";
 
 class VersionButton extends StatefulWidget {
   const VersionButton({super.key});

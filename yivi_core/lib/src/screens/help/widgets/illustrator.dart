@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/yivi_progress_indicator.dart";
+import "../../../widgets/feedback/yivi_progress_indicator.dart";
 
 class Illustrator extends StatefulWidget {
   final List<Widget> imageSet;

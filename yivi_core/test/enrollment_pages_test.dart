@@ -21,9 +21,9 @@ import "package:yivi_core/src/screens/enrollment/email/enrollment_email_link.dar
 import "package:yivi_core/src/screens/enrollment/email/enrollment_email_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
+import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
-import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "support/onboarding_v2_harness.dart";
 

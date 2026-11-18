@@ -5,7 +5,7 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
 import "package:yivi_core/src/util/signature_message_text.dart";
-import "package:yivi_core/src/widgets/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
 import "helpers/helpers.dart";

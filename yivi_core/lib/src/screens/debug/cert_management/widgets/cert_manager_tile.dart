@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../models/eudi_configuration.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/pill_buttons.dart";
+import "../../../../widgets/buttons/pill_buttons.dart";
 
 class CertManagerTile extends StatelessWidget {
   final Cert cert;

@@ -6,9 +6,9 @@ import "package:yivi_core/src/screens/session/call_info_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/session_columns.dart";
-import "package:yivi_core/src/widgets/glass/form_sheet_frame.dart";
-import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
-import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/sheet/form_sheet_frame.dart";
+import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";

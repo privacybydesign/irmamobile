@@ -4,7 +4,7 @@ import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/press_scale.dart";
+import "../../../widgets/buttons/press_scale.dart";
 
 /// The Flashlight button, in the middle of the panel under the camera: a grey
 /// disc, filled while the torch is on, its label under it. Not shown when

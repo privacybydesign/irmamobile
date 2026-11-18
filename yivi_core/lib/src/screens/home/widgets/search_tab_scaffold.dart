@@ -4,9 +4,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/floating_bar_placement.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/two_pane.dart";
+import "../../../widgets/bars/floating_bar_placement.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/layout/two_pane.dart";
 import "home_tab_top.dart";
 import "search_scroll_edge.dart";
 

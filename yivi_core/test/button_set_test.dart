@@ -2,7 +2,7 @@ import "package:flutter/rendering.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
-import "package:yivi_core/src/widgets/glass/pill_buttons.dart";
+import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 
 Future<void> _pump(
   WidgetTester tester,

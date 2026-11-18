@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_space.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/text/translated_text.dart";
 
 class ErrorReportingInfoBottomSheet extends StatelessWidget {
   const ErrorReportingInfoBottomSheet();

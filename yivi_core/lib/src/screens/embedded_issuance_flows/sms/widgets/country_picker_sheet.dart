@@ -8,10 +8,10 @@ import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/adaptive_layout.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/glass_group.dart";
-import "../../../../widgets/glass/glass_search_field.dart";
-import "../../../../widgets/glass/glass_sheet.dart";
-import "../../../../widgets/list_row.dart";
+import "../../../../widgets/input/glass_search_field.dart";
+import "../../../../widgets/sheet/glass_sheet.dart";
+import "../../../../widgets/surfaces/glass_group.dart";
+import "../../../../widgets/surfaces/list_row.dart";
 
 /// The name of [country] in [languageCode], else its English name.
 String countryName(Country country, String? languageCode) =>

@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/widgets/contact_widgets.dart";
-import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "support/onboarding_v2_harness.dart";
 

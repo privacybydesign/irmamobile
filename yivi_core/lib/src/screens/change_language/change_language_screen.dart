@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/preferred_language_builder.dart";
+import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/text/preferred_language_builder.dart";
 import "widgets/change_language_radio.dart";
 import "widgets/system_language_toggle.dart";
 

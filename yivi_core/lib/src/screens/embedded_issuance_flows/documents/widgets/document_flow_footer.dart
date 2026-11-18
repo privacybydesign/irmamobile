@@ -3,11 +3,11 @@ import "package:material_ui/material_ui.dart";
 import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/floating_bar_placement.dart";
-import "../../../../widgets/glass/glass_sheet.dart";
-import "../../../../widgets/glass/pill_buttons.dart";
-import "../../../../widgets/glass/sheet_actions.dart";
-import "../../../../widgets/glass/sheet_layout.dart";
+import "../../../../widgets/bars/floating_bar_placement.dart";
+import "../../../../widgets/buttons/pill_buttons.dart";
+import "../../../../widgets/sheet/glass_sheet.dart";
+import "../../../../widgets/sheet/sheet_actions.dart";
+import "../../../../widgets/sheet/sheet_layout.dart";
 
 /// Button look in the document flow screens: 56 high pills, 16 bold.
 enum DocumentFlowButtonStyle {

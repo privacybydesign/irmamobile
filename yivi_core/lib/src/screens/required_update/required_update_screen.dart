@@ -5,8 +5,8 @@ import "package:url_launcher/url_launcher.dart";
 
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
-import "../../widgets/action_bar.dart";
-import "../../widgets/status_screen.dart";
+import "../../widgets/bars/action_bar.dart";
+import "../../widgets/feedback/status_screen.dart";
 
 class RequiredUpdateScreen extends StatelessWidget {
   const RequiredUpdateScreen({super.key});

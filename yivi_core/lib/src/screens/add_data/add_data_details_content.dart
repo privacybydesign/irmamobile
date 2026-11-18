@@ -6,14 +6,14 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
-import "../../widgets/caps_label.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
-import "../../widgets/faq_fold.dart";
 import "../../widgets/flight/yivi_flight.dart";
-import "../../widgets/glass/glass_group.dart";
-import "../../widgets/glass/sheet_layout.dart";
-import "../../widgets/irma_markdown.dart";
-import "../../widgets/numbered_step.dart";
+import "../../widgets/sheet/sheet_layout.dart";
+import "../../widgets/surfaces/faq_fold.dart";
+import "../../widgets/surfaces/glass_group.dart";
+import "../../widgets/surfaces/numbered_step.dart";
+import "../../widgets/text/caps_label.dart";
+import "../../widgets/text/irma_markdown.dart";
 import "../session/widgets/requestor_card.dart";
 
 /// Which part of the details to show: all of it, or (in the two columns of a

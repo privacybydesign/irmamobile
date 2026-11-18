@@ -12,10 +12,10 @@ import "src/screens/data/card_transition/card_transition.dart";
 import "src/screens/home/widgets/system_navigation_bar.dart";
 import "src/screens/pin/lock_gate.dart";
 import "src/screens/review/store_review_gate.dart";
-import "src/widgets/legacy_material_bridge.dart";
-import "src/widgets/scroll_to_top.dart";
-import "src/widgets/side_panel_inset.dart";
-import "src/widgets/unfocus_on_tap_outside.dart";
+import "src/widgets/bars/scroll_to_top.dart";
+import "src/widgets/input/unfocus_on_tap_outside.dart";
+import "src/widgets/layout/legacy_material_bridge.dart";
+import "src/widgets/layout/side_panel_inset.dart";
 
 class App extends ConsumerStatefulWidget {
   final Locale? forcedLocale;

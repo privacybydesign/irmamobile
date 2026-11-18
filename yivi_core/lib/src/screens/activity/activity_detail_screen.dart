@@ -8,9 +8,9 @@ import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
-import "../../widgets/compact_bar.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/two_pane.dart";
+import "../../widgets/bars/compact_bar.dart";
+import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/layout/two_pane.dart";
 import "activity_entry.dart";
 import "widgets/activity_detail_parts.dart";
 

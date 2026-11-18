@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/sheet/glass_sheet.dart";
 import "../../scanner/lock_scanner_sheet.dart";
 import "../../scanner/scanner_screen.dart";
 

@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../theme/yivi_tone.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/glass_dialog.dart";
-import "../../../../widgets/glass/pill_buttons.dart";
+import "../../../../widgets/buttons/pill_buttons.dart";
+import "../../../../widgets/feedback/glass_dialog.dart";
 
 /// Says that the two PINs differ. Its one button runs [onPressed] with the
 /// dialog's context; there is no other way out.

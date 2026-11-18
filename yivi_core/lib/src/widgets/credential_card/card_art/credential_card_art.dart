@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../../package_name.dart";
 import "../../../models/credential.dart";
 import "../../../theme/yivi_edges.dart";
-import "../../base64_image.dart";
+import "../../surfaces/base64_image.dart";
 import "builtin_card_svgs.dart";
 import "builtin_card_templates.dart";
 import "card_art_support.dart";

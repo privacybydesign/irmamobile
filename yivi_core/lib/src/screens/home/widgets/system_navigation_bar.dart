@@ -2,8 +2,8 @@ import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/floating_bar_placement.dart";
-import "../../../widgets/glass/glass_sheet.dart";
+import "../../../widgets/bars/floating_bar_placement.dart";
+import "../../../widgets/sheet/glass_sheet.dart";
 import "home_navigation.dart";
 
 /// The system bars for the whole app: the status bar's icons and Android's

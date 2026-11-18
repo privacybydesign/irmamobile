@@ -1,15 +1,15 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/routing/adaptive_page.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_corners.dart";
-import "package:yivi_core/src/widgets/adaptive_page.dart";
-import "package:yivi_core/src/widgets/app_toast.dart";
-import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/irma_close_button.dart";
-import "package:yivi_core/src/widgets/status_body.dart";
-import "package:yivi_core/src/widgets/status_screen.dart";
+import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/feedback/app_toast.dart";
+import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/status_body.dart";
+import "package:yivi_core/src/widgets/feedback/status_screen.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";

@@ -3,9 +3,9 @@ import "package:material_ui/material_ui.dart";
 import "../../models/error_event.dart";
 import "../../sentry/sentry.dart";
 import "../../util/i18n.dart";
-import "../../widgets/action_bar.dart";
-import "../../widgets/error_status_screen.dart";
-import "../../widgets/irma_app_bar.dart";
+import "../../widgets/bars/action_bar.dart";
+import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/feedback/error_status_screen.dart";
 
 class ErrorScreen extends StatefulWidget {
   final VoidCallback? onTapClose;

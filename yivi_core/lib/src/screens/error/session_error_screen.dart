@@ -1,7 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../models/session.dart";
-import "../../widgets/error_status_screen.dart";
+import "../../widgets/feedback/error_status_screen.dart";
 import "blocked_screen.dart";
 import "error_screen.dart";
 import "no_internet_screen.dart";

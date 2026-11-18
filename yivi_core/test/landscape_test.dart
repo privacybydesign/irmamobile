@@ -7,11 +7,11 @@ import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/widgets/bars/irma_bottom_bar_base.dart";
+import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/glass/glass_dialog.dart";
-import "package:yivi_core/src/widgets/irma_bottom_bar_base.dart";
-import "package:yivi_core/src/widgets/irma_close_button.dart";
-import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
 import "missing_data_fixtures.dart" show testParty;

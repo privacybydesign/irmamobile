@@ -1,5 +1,5 @@
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/glass/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 
 /// A document screen as the sheet's document step shows it, for tests of
 /// one screen: as `home`, it opens a glass sheet with [screen] on a page

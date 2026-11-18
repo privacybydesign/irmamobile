@@ -7,7 +7,7 @@ import "../../../models/credential.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
-import "../../base64_image.dart";
+import "../../surfaces/base64_image.dart";
 import "../models/credential_card_layout.dart";
 
 // Text styles and value formatting shared by the attribute list and by

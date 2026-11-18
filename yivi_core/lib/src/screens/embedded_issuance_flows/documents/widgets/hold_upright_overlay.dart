@@ -8,7 +8,7 @@ import "../../../../theme/theme.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/test_detection.dart";
-import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/text/translated_text.dart";
 
 /// Covers [child] with a full-screen prompt to hold the phone upright for as long
 /// as the phone is turned sideways or upside down.

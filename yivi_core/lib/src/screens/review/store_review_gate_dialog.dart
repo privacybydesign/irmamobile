@@ -6,8 +6,8 @@ import "package:material_ui/material_ui.dart";
 import "../../providers/preferences_provider.dart";
 import "../../providers/store_review_provider.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/glass_dialog.dart";
-import "../../widgets/glass/pill_buttons.dart";
+import "../../widgets/buttons/pill_buttons.dart";
+import "../../widgets/feedback/glass_dialog.dart";
 import "store_review_feedback_dialog.dart";
 
 /// Sentiment pre-gate shown after enough successful sessions. Happy users are

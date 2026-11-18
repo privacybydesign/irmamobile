@@ -6,7 +6,7 @@ import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/glass/glass_sheet.dart";
+import "../../../../widgets/sheet/glass_sheet.dart";
 import "error_reporting_info_bottom_sheet.dart";
 
 /// "Share error messages and app status with Yivi", as a switch. The first

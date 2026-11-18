@@ -19,20 +19,20 @@ import "../../util/adaptive_layout.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/scale.dart";
-import "../../widgets/glass/glass_dialog.dart";
-import "../../widgets/glass/glass_sheet.dart";
-import "../../widgets/glass/glass_surface.dart";
-import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/link.dart";
-import "../../widgets/yivi_spinner.dart";
+import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/buttons/link.dart";
+import "../../widgets/buttons/pill_buttons.dart";
+import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/sheet/glass_sheet.dart";
+import "../../widgets/surfaces/glass_surface.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
 import "widgets/pin_keypad.dart";
 
 export "pin_attempts.dart";
 
-part "pin_quality.dart";
 part "pin_indicator.dart";
+part "pin_quality.dart";
 part "secure_pin.dart";
 part "unsecure_pin_description_tile.dart";
 part "unsecure_pin_full_screen.dart";

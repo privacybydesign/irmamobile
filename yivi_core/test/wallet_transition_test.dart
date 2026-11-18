@@ -3,8 +3,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
-import "package:yivi_core/src/widgets/base64_image.dart";
-import "package:yivi_core/src/widgets/glass/glass_surface.dart";
+import "package:yivi_core/src/widgets/surfaces/base64_image.dart";
+import "package:yivi_core/src/widgets/surfaces/glass_surface.dart";
 
 // A 1x1 PNG.
 const _png =

@@ -15,8 +15,8 @@ import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_query_chips.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab_top.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
-import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
-import "package:yivi_core/src/widgets/scroll_edge.dart";
+import "package:yivi_core/src/widgets/bars/scroll_edge.dart";
+import "package:yivi_core/src/widgets/input/glass_search_field.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";

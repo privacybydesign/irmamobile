@@ -5,9 +5,9 @@ import "../../sentry/sentry.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../widgets/glass/glass_dialog.dart";
-import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/pill_text_field.dart";
+import "../../widgets/buttons/pill_buttons.dart";
+import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/input/pill_text_field.dart";
 
 /// Private feedback box shown to users who tapped "Not really" on the sentiment
 /// gate. Their message is sent to Sentry with `userInitiated: true` (so it goes

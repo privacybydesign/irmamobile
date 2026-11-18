@@ -4,7 +4,7 @@ import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/reset_pin/reset_pin_screen.dart";
-import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";

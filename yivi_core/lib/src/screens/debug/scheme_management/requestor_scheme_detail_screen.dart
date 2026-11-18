@@ -5,9 +5,9 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_group.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/surfaces/glass_group.dart";
 import "../debug_schemes.dart";
 import "../util/snackbar.dart";
 

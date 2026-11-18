@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/bars/irma_app_bar.dart";
 import "../../pin/pin_entry.dart";
 import "../../pin/yivi_pin_screen.dart";
 

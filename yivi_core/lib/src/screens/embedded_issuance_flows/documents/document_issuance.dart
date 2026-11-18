@@ -14,7 +14,7 @@ import "../../../providers/regula_face_service_provider.dart";
 import "../../../providers/session_launcher.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
-import "../../../widgets/done_check.dart";
+import "../../../widgets/feedback/done_check.dart";
 import "document_flow.dart";
 
 /// The card [document] turns out to be when it is not the [picked] one: a

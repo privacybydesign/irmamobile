@@ -4,8 +4,8 @@ import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/irma_markdown.dart";
-import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
+import "package:yivi_core/src/widgets/text/irma_markdown.dart";
 
 // Flutter 3.47 unbundled the Material and Cupertino widget libraries and the app
 // moved to package:material_ui, so a material_ui MaterialApp no longer installs

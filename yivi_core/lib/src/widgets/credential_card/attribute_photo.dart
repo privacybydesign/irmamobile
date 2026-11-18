@@ -6,10 +6,10 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
-import "../glass/pill_buttons.dart";
-import "../irma_app_bar.dart";
-import "../irma_close_button.dart";
-import "../pull_to_dismiss_physics.dart";
+import "../bars/irma_app_bar.dart";
+import "../buttons/irma_close_button.dart";
+import "../buttons/pill_buttons.dart";
+import "../sheet/pull_to_dismiss_physics.dart";
 
 /// A photo in a credential's values: a small picture with slightly rounded
 /// corners that opens full screen, as in WhatsApp. The photo flies there (and

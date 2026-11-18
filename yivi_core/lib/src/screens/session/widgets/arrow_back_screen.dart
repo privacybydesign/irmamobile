@@ -7,10 +7,10 @@ import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
-import "../../../widgets/done_check.dart";
-import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/irma_close_button.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/buttons/irma_close_button.dart";
+import "../../../widgets/feedback/done_check.dart";
+import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/text/translated_text.dart";
 
 enum ArrowBackType { issuance, error }
 

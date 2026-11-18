@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/glass/glass_group.dart";
+import "../../../widgets/surfaces/glass_group.dart";
 import "tiles.dart";
 
 class RadioTilesCard extends StatefulWidget {

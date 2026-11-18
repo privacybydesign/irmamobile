@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../models/credential.dart";
 import "../../models/credential_store.dart";
 import "../../theme/yivi_palette.dart";
-import "../corner_badge.dart";
+import "../surfaces/corner_badge.dart";
 import "card_art/credential_card_art.dart";
 
 /// The card of [descriptor] as an example, drawn from the type alone: no

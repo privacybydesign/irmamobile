@@ -7,11 +7,11 @@ import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/card_pile.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";
-import "../../../widgets/glass/glass_dialog.dart";
-import "../../../widgets/glass/pill_buttons.dart";
+import "../../../widgets/feedback/glass_dialog.dart";
 import "../../data/wallet/issuance_flight.dart";
 import "session_result.dart";
 

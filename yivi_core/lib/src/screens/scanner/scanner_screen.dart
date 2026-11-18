@@ -9,9 +9,9 @@ import "../../theme/yivi_space.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
-import "../../widgets/glass/glass_sheet.dart";
-import "../../widgets/glass/pill_buttons.dart";
-import "../../widgets/icon_square.dart";
+import "../../widgets/buttons/pill_buttons.dart";
+import "../../widgets/sheet/glass_sheet.dart";
+import "../../widgets/surfaces/icon_square.dart";
 import "util/camera_access.dart";
 import "widgets/qr_scanner.dart";
 

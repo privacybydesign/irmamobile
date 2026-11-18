@@ -7,9 +7,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/glass_sheet.dart";
-import "../../../widgets/press_scale.dart";
-import "../../../widgets/progress_part.dart";
+import "../../../widgets/buttons/press_scale.dart";
+import "../../../widgets/feedback/progress_part.dart";
+import "../../../widgets/sheet/glass_sheet.dart";
 import "requestor_card.dart";
 
 /// What a card is added for: the request behind the sheet ("For

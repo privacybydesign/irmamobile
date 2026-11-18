@@ -7,13 +7,13 @@ import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/glass/sheet_layout.dart";
-import "../../../widgets/icon_square.dart";
-import "../../../widgets/pill_text_field.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/input/pill_text_field.dart";
 import "../../../widgets/resend_countdown.dart";
-import "../../../widgets/surface_card.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/sheet/sheet_layout.dart";
+import "../../../widgets/surfaces/icon_square.dart";
+import "../../../widgets/surfaces/surface_card.dart";
+import "../../../widgets/text/translated_text.dart";
 
 /// The label above a field on the e-mail and phone screens.
 class ContactFieldLabel extends StatelessWidget {

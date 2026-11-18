@@ -5,7 +5,7 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
-import "../dashed_outline_painter.dart";
+import "../surfaces/dashed_outline_painter.dart";
 import "card_art/credential_card_art.dart";
 
 /// A card as a tile, the way the share screen shows what is shared: small

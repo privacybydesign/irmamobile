@@ -7,7 +7,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/status_chip.dart";
+import "../../../widgets/surfaces/status_chip.dart";
 import "../models/issuance_view_model.dart";
 
 /// A card that comes into the app: its picture, name and [subtitle], a

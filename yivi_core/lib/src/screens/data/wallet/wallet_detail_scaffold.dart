@@ -7,11 +7,11 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_close_button.dart";
-import "../../../widgets/pull_to_dismiss_physics.dart";
-import "../../../widgets/scroll_edge.dart";
+import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/scroll_edge.dart";
+import "../../../widgets/buttons/irma_close_button.dart";
+import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/sheet/pull_to_dismiss_physics.dart";
 import "../card_transition/card_transition.dart";
 import "wallet_transition.dart";
 

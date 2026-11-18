@@ -4,9 +4,9 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/i18n.dart";
-import "../../widgets/action_bar.dart";
-import "../../widgets/irma_app_bar.dart";
-import "../../widgets/status_screen.dart";
+import "../../widgets/bars/action_bar.dart";
+import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/feedback/status_screen.dart";
 import "../settings/settings_screen.dart";
 
 /// Forgot your PIN: the only way on is to delete everything and start
