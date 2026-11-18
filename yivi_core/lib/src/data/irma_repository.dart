@@ -60,13 +60,6 @@ class _CredentialObtainState {
   });
 }
 
-class _ExternalBrowserCredtype {
-  final String cred;
-  final List<String> oses;
-
-  const _ExternalBrowserCredtype({required this.cred, required this.oses});
-}
-
 class IrmaRepository {
   IrmaRepository({
     required IrmaBridge client,
@@ -739,44 +732,30 @@ class IrmaRepository {
     );
   }
 
-  // https://api.flutter.dev/flutter/dart-io/Platform/operatingSystem.html
-  static const List<String> allOperatingSystems = [
-    "android",
-    "fuchsia",
-    "ios",
-    "linux",
-    "macos",
-    "windows",
-  ];
-
-  final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", oses: ["ios"]),
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", oses: ["ios"]),
-    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", oses: ["android"]),
-    _ExternalBrowserCredtype(
-      cred: "pbdf.PubHubs.account",
-      oses: allOperatingSystems,
-    ),
-    _ExternalBrowserCredtype(
-      cred: "irma-demo.PubHubs.account",
-      oses: allOperatingSystems,
-    ),
-  ];
-
+  /// Credential types whose issuer website breaks in the in-app browser, per
+  /// platform: their issue URL opens in the browser outside the app.
   // TODO Remove when disclosure sessions can be started from custom tabs
-  Stream<List<String>> getExternalBrowserURLs() {
-    return _irmaConfigurationSubject.map(
-      (irmaConfiguration) => _externalBrowserCredtypes
-          .where((type) => type.oses.contains(Platform.operatingSystem))
-          .map(
-            (type) =>
-                irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ??
-                [],
-          )
-          .expand((v) => v)
-          .toList(),
-    );
-  }
+  static const _externalBrowserTypes = <TargetPlatform, Set<String>>{
+    TargetPlatform.iOS: {
+      "pbdf.gemeente.address",
+      "pbdf.gemeente.personalData",
+      "pbdf.PubHubs.account",
+      "irma-demo.PubHubs.account",
+    },
+    TargetPlatform.android: {
+      "pbdf.pbdf.idin",
+      // Shares iDIN's issuer website.
+      "pbdf.pbdf.ageLimits",
+      "pbdf.PubHubs.account",
+      "irma-demo.PubHubs.account",
+    },
+  };
+
+  /// Whether the issue URL of [credentialId] opens in the browser outside
+  /// the app on this platform.
+  static bool _issuesInExternalBrowser(String credentialId) =>
+      _externalBrowserTypes[defaultTargetPlatform]?.contains(credentialId) ??
+      false;
 
   Stream<ErrorEvent> getFatalErrors() {
     return _fatalErrorSubject.stream;
@@ -899,9 +878,10 @@ class IrmaRepository {
   ///   `IssuanceSuccessScreen` instead of `clientReturnUrl` / ArrowBack /
   ///   send-to-background) and open the URL. Universal-link credential
   ///   types go through `openURLExternally` so the OS can dispatch the
-  ///   link to a registered native app (UZI register, Belastingdienst);
-  ///   everything else goes through `openURL` (in-app browser, falling
-  ///   back to external for opted-in URLs).
+  ///   link to a registered native app (UZI register, Belastingdienst),
+  ///   as do the types whose website breaks in the in-app browser on this
+  ///   platform ([_externalBrowserTypes]); everything else opens in the
+  ///   in-app browser.
   Future<void> openIssueURL(
     BuildContext context,
     String credentialId,
@@ -922,20 +902,17 @@ class IrmaRepository {
 
     markInAppLaunched([credentialId]);
 
-    if (_issuesViaUniversalLink(credentialId)) {
+    if (_issuesViaUniversalLink(credentialId) ||
+        _issuesInExternalBrowser(credentialId)) {
       return openURLExternally(url);
     }
 
-    return openURL(url);
+    return openURLinAppBrowser(url);
   }
 
-  Future<void> openURL(String url) async {
-    if ((await getExternalBrowserURLs().first).contains(url)) {
-      return openURLExternally(url);
-    } else {
-      return openURLinAppBrowser(url);
-    }
-  }
+  /// Opens a link (a markdown link, a More tile, the trust sheet) in the
+  /// in-app browser.
+  Future<void> openURL(String url) => openURLinAppBrowser(url);
 
   Future<void> openURLinAppBrowser(String url) async {
     if (Platform.isAndroid) {

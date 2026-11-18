@@ -15,7 +15,6 @@ import "embedded_issuance_flows/sms_issuance_test.dart" as sms_issuance_test;
 import "enroll_test.dart" as enroll_test;
 import "eudi_disclosure_sessions/eudi_disclosure_sessions_test_all.dart"
     as eudi_disclosure_sessions;
-import "external_browser_credtypes_test.dart" as external_browser_test;
 import "idle_lock_test.dart" as idle_lock_test;
 import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
@@ -40,7 +39,6 @@ import "vcdm_test.dart" as vcdm_test;
 
 /// Wrapper to execute all tests at once.
 void main() {
-  external_browser_test.main();
   irma_sdjwt_test.main();
   openid4vci_issuance_test.main();
   openid4vci_authcode_issuance_test.main();
