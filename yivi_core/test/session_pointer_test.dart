@@ -1,6 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/models/session_preview.dart";
+import "package:yivi_core/src/models/session_state.dart";
 
 void main() {
   test("Create session pointer from URI", () {
@@ -265,6 +267,59 @@ void main() {
               )
               as SessionPointer;
       expect(pointer.continueOnSecondDevice, isFalse);
+    });
+  });
+
+  // irmaqr goes back to Go in NewSessionEvent and PreviewSessionEvent as the
+  // QR had it, also a value the app does not know.
+  group("irmaqr", () {
+    for (final irmaqr in [
+      "disclosing",
+      "issuing",
+      "signing",
+      "redirect",
+      "something-new",
+    ]) {
+      test("$irmaqr goes back unchanged", () {
+        final pointer =
+            Pointer.fromString(
+                  '{"u":"https://example.com/session/abc","irmaqr":"$irmaqr"}',
+                )
+                as SessionPointer;
+        expect(pointer.irmaqr, irmaqr);
+        expect(pointer.toJson()["irmaqr"], irmaqr);
+      });
+    }
+
+    test("the kind a preview reads from it", () {
+      SessionPreviewKind kind(String irmaqr) => SessionPreview.ofPointer(
+        SessionPointer(u: "u", irmaqr: irmaqr, protocol: Protocol.irma),
+      ).kind;
+      expect(kind("disclosing"), SessionPreviewKind.disclosure);
+      expect(kind("issuing"), SessionPreviewKind.issuance);
+      expect(kind("signing"), SessionPreviewKind.signature);
+      expect(kind("redirect"), SessionPreviewKind.unknown);
+      expect(kind("something-new"), SessionPreviewKind.unknown);
+    });
+  });
+
+  group("SessionState.protocol", () {
+    SessionState parse(String protocol) => SessionState.fromJson({
+      "id": 1,
+      "protocol": protocol,
+      "type": "disclosure",
+      "status": "request_permission",
+      "requestor": {"id": "r", "name": "R"},
+    });
+
+    test("the protocols irmago sends", () {
+      for (final p in ["irma", "openid4vp", "openid4vci"]) {
+        expect(parse(p).protocol, p);
+      }
+    });
+
+    test("one the app does not know does not stop the session", () {
+      expect(() => parse("future"), returnsNormally);
     });
   });
 }

@@ -205,4 +205,110 @@ void main() {
       expect(text, isNot(contains("sanne@devries.example")));
     });
   });
+
+  // The wire values of the trust fields, every one of them and what an
+  // unknown one does.
+  group("the trust fields' values", () {
+    test("read from irmago's JSON keys", () {
+      final party = TrustedParty.fromJson({
+        "id": "p",
+        "name": "P",
+        "trust_level": "medium",
+        "trust_source": "eu_trusted_list",
+        "trust_anchor": "QTSP",
+      });
+      expect(party.trustLevel, "medium");
+      expect(party.trustSource, "eu_trusted_list");
+      expect(party.trustAnchor, "QTSP");
+      expect(party.verified, isFalse);
+      expect(requestorTrustOf(party), RequestorTrust.elsewhere);
+    });
+
+    test("every source of a verified party before the ladder", () {
+      RequestorTrust of(String? source) =>
+          requestorTrustOf(_party(verified: true, source: source));
+      expect(of("yivi_scheme"), RequestorTrust.yivi);
+      expect(of("yivi_trust_list"), RequestorTrust.yivi);
+      expect(of("eu_trusted_list"), RequestorTrust.elsewhere);
+      expect(of("other"), RequestorTrust.elsewhere);
+      expect(of(null), RequestorTrust.yivi);
+      // A source this app does not know: Yivi's reading, as today.
+      expect(of("somewhere"), RequestorTrust.yivi);
+    });
+
+    test("the rung decides, whatever the source", () {
+      for (final source in [
+        "yivi_scheme",
+        "yivi_trust_list",
+        "eu_trusted_list",
+        "other",
+        null,
+      ]) {
+        expect(
+          requestorTrustOf(_party(level: "high", source: source)),
+          RequestorTrust.yivi,
+        );
+        expect(
+          requestorTrustOf(_party(level: "low", source: source)),
+          RequestorTrust.unknown,
+        );
+      }
+    });
+
+    test("an unknown source names no EU list", () {
+      expect(
+        elsewhereSourceOf(_party(source: "somewhere")),
+        ElsewhereSource.unspecified,
+      );
+    });
+
+    test("the technical details: every rung, every source", () {
+      Map<String, String?> who(TrustedParty party) => {
+        for (final r in technicalDetailsOf(
+          _session(party),
+          const [],
+          _t,
+        )[0].rows)
+          r.label: r.value,
+      };
+      String? level(String? rung, {bool verified = false}) => who(
+        _party(level: rung, verified: verified),
+      )["share.tech.row.trust_level"];
+      expect(level("high"), "share.tech.level.high");
+      expect(level("medium"), "share.tech.level.medium");
+      expect(level("low"), "share.tech.level.low");
+      expect(level(""), "share.tech.level.unevaluated");
+      // Unlike requestorTrustOf, an unknown rung reads as not evaluated here.
+      expect(level("ultra"), "share.tech.level.unevaluated");
+      expect(level(null, verified: true), "share.tech.level.verified");
+      expect(level(null), "share.tech.level.not_verified");
+
+      String? source(String? source) => who(
+        _party(verified: true, source: source, anchor: "Anchor"),
+      )["share.tech.row.trust_source"];
+      expect(source("yivi_scheme"), "share.tech.source.yivi_scheme");
+      expect(source("yivi_trust_list"), "share.tech.source.yivi_trust_list");
+      expect(source("eu_trusted_list"), "share.tech.source.eu_trusted_list");
+      expect(source("other"), "Anchor");
+      expect(source("somewhere"), isNull);
+      expect(source(null), isNull);
+    });
+
+    test("the technical details: every protocol, and one it does not "
+        "know", () {
+      String? protocol(String protocol) => {
+        for (final r in technicalDetailsOf(
+          _session(_party(verified: true), protocol: protocol),
+          const [],
+          _t,
+        )[1].rows)
+          r.label: r.value,
+      }["share.tech.row.protocol"];
+      expect(protocol("irma"), "share.tech.protocol.irma");
+      expect(protocol("openid4vp"), "share.tech.protocol.openid4vp");
+      expect(protocol("openid4vci"), "share.tech.protocol.openid4vci");
+      // Shown as irmago sent it.
+      expect(protocol("future"), "future");
+    });
+  });
 }

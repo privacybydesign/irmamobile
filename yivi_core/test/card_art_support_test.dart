@@ -71,6 +71,71 @@ void main() {
       );
     });
 
+    test("the issuer's values as irmago sends them", () {
+      final t = SvgCardTemplate.fromJson({
+        "svg": "s",
+        "orientation": "landscape",
+        "color_scheme": "dark",
+        "contrast": "high",
+      });
+      expect(t.orientation, "landscape");
+      expect(t.colorScheme, "dark");
+      expect(t.contrast, "high");
+    });
+
+    String pick(
+      List<SvgCardTemplate> templates, {
+      Brightness brightness = Brightness.light,
+      bool highContrast = false,
+    }) => pickSvgTemplate(
+      templates,
+      brightness: brightness,
+      highContrast: highContrast,
+    )!.svg;
+
+    test("a template that does not say its orientation sits between "
+        "landscape and portrait", () {
+      final unsaid = SvgCardTemplate(svg: "u");
+      final portrait = SvgCardTemplate(svg: "p", orientation: "portrait");
+      final landscape = SvgCardTemplate(svg: "l", orientation: "landscape");
+      expect(pick([portrait, unsaid]), "u");
+      expect(pick([unsaid, landscape]), "l");
+    });
+
+    test("a colour scheme that does not say beats the other scheme", () {
+      final unsaid = SvgCardTemplate(svg: "u");
+      final dark = SvgCardTemplate(svg: "d", colorScheme: "dark");
+      expect(pick([dark, unsaid]), "u");
+      expect(pick([unsaid, dark], brightness: Brightness.dark), "d");
+    });
+
+    test("the contrast the platform asks for wins a tie", () {
+      final normal = SvgCardTemplate(svg: "n", contrast: "normal");
+      final high = SvgCardTemplate(svg: "h", contrast: "high");
+      final unsaid = SvgCardTemplate(svg: "u");
+      expect(pick([high, normal]), "n");
+      expect(pick([normal, high], highContrast: true), "h");
+      // Not saying counts as normal contrast.
+      expect(pick([high, unsaid]), "u");
+      expect(pick([unsaid, high], highContrast: true), "h");
+    });
+
+    test("values it does not know count as not said", () {
+      final odd = SvgCardTemplate(
+        svg: "o",
+        orientation: "square",
+        colorScheme: "sepia",
+        contrast: "extra",
+      );
+      final unsaid = SvgCardTemplate(svg: "u");
+      final portrait = SvgCardTemplate(svg: "p", orientation: "portrait");
+      // An unknown orientation is not portrait.
+      expect(pick([portrait, odd]), "o");
+      // An unknown colour scheme is another scheme than the app's.
+      expect(pick([odd, unsaid]), "u");
+      expect(pick([odd]), "o");
+    });
+
     test("returns null without templates", () {
       expect(
         pickSvgTemplate(
