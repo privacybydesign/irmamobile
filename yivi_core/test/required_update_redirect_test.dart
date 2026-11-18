@@ -18,6 +18,7 @@ import "package:yivi_core/src/models/scheme_rules.dart";
 import "package:yivi_core/src/models/version_information.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/providers/redirect_state_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
 import "package:yivi_core/src/screens/rooted_warning/rooted_device_detector.dart";
 
@@ -78,6 +79,8 @@ void main() {
   });
   tearDown(() => repo.close());
 
+  late ProviderContainer container;
+
   /// The app's router, built as the app builds it, and a way to ask its
   /// top-level redirect where a visit to the home screen goes.
   Future<String? Function()> pumpRouter(WidgetTester tester) async {
@@ -93,13 +96,13 @@ void main() {
         child: Consumer(
           builder: (context, ref, _) {
             routerContext = context;
-            router = createRouter(context, ref);
+            container = ProviderScope.containerOf(context);
+            router = ref.watch(routerProvider);
             return const SizedBox();
           },
         ),
       ),
     );
-    addTearDown(router.dispose);
     await settle(tester);
     return () =>
         router.configuration.topRedirect(
@@ -123,26 +126,22 @@ void main() {
     await settle(tester);
   }
 
-  /// The redirect triggers, followed from now on.
-  RedirectionListenable triggers() {
-    final listenable = RedirectionListenable(repo, _NotRooted());
-    addTearDown(listenable.dispose);
-    return listenable;
-  }
+  /// What the redirect goes by, as the router has it.
+  RedirectState state() =>
+      container.read(redirectStateProvider).value ?? RedirectState.initial;
 
   testWidgets(
     "1. before the first scheme event the triggers keep their defaults",
     (tester) async {
       final redirect = await pumpRouter(tester);
-      final listenable = triggers();
       await deliver(tester, _unenrolled);
 
-      expect(listenable.value, RedirectionTriggers.withDefaults());
+      expect(state(), RedirectState.initial);
       expect(redirect(), isNull);
 
       // The scheme event opens the gate: enrollment status and all.
       await deliver(tester, _schemes([_both(101)]));
-      expect(listenable.value.enrollmentStatus, EnrollmentStatus.unenrolled);
+      expect(state().enrollment, EnrollmentStatus.unenrolled);
       expect(redirect(), "/enrollment");
     },
   );
@@ -151,19 +150,18 @@ void main() {
     tester,
   ) async {
     final redirect = await pumpRouter(tester);
-    final listenable = triggers();
     await deliver(tester, _enrolled);
     await deliver(tester, _schemes([_both(101)]));
 
     expect(
-      listenable.value.versionInformation,
+      state().version,
       VersionInformation(
         availableVersion: 101,
         requiredVersion: 101,
         currentVersion: 100,
       ),
     );
-    expect(listenable.value.versionInformation!.updateRequired(), isTrue);
+    expect(state().version!.updateRequired(), isTrue);
     expect(redirect(), "/update_required");
   });
 
@@ -172,23 +170,21 @@ void main() {
       tester,
     ) async {
       final redirect = await pumpRouter(tester);
-      final listenable = triggers();
       await deliver(tester, _enrolled);
       await deliver(tester, _schemes([_both(minimum)]));
 
-      expect(listenable.value.versionInformation!.requiredVersion, minimum);
-      expect(listenable.value.versionInformation!.updateRequired(), isFalse);
+      expect(state().version!.requiredVersion, minimum);
+      expect(state().version!.updateRequired(), isFalse);
       expect(redirect(), isNull);
     });
   }
 
   testWidgets("4. the highest minimum over all schemes counts", (tester) async {
     final redirect = await pumpRouter(tester);
-    final listenable = triggers();
     await deliver(tester, _enrolled);
     await deliver(tester, _schemes([_both(90), _both(101)]));
 
-    expect(listenable.value.versionInformation!.requiredVersion, 101);
+    expect(state().version!.requiredVersion, 101);
     expect(redirect(), "/update_required");
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
@@ -196,15 +192,11 @@ void main() {
     "4. each platform reads its own minimum",
     (tester) async {
       final redirect = await pumpRouter(tester);
-      final listenable = triggers();
       await deliver(tester, _enrolled);
       await deliver(tester, _schemes([(android: 101, ios: 90)]));
 
       final android = defaultTargetPlatform == TargetPlatform.android;
-      expect(
-        listenable.value.versionInformation!.requiredVersion,
-        android ? 101 : 90,
-      );
+      expect(state().version!.requiredVersion, android ? 101 : 90);
       expect(redirect(), android ? "/update_required" : isNull);
     },
     variant: TargetPlatformVariant({
@@ -228,12 +220,11 @@ void main() {
   ) async {
     _installedBuild("abc");
     final redirect = await pumpRouter(tester);
-    final listenable = triggers();
     await deliver(tester, _enrolled);
     await deliver(tester, _schemes([_both(101)]));
 
     expect(
-      listenable.value.versionInformation,
+      state().version,
       VersionInformation(
         availableVersion: 101,
         requiredVersion: 101,
@@ -248,15 +239,14 @@ void main() {
     "still redirects",
     (tester) async {
       final redirect = await pumpRouter(tester);
-      final listenable = triggers();
       await deliver(
         tester,
         ErrorEvent(exception: "start-up failed", stack: "", fatal: true),
       );
       await deliver(tester, _unenrolled);
 
-      expect(listenable.value.versionInformation, isNull);
-      expect(listenable.value.enrollmentStatus, EnrollmentStatus.unenrolled);
+      expect(state().version, isNull);
+      expect(state().enrollment, EnrollmentStatus.unenrolled);
       expect(redirect(), "/enrollment");
     },
   );
@@ -267,28 +257,26 @@ void main() {
     // The new build starts with the schemes the old build left on disk.
     _installedBuild("200");
     final redirect = await pumpRouter(tester);
-    final listenable = triggers();
     await deliver(tester, _enrolled);
     await deliver(tester, _schemes([_both(150)]));
 
-    expect(listenable.value.versionInformation!.currentVersion, 200);
-    expect(listenable.value.versionInformation!.updateRequired(), isFalse);
+    expect(state().version!.currentVersion, 200);
+    expect(state().version!.updateRequired(), isFalse);
     expect(redirect(), isNull, reason: "home, no update screen");
 
     // A scheme update while the app runs raises the minimum.
     await deliver(tester, _schemes([_both(201)]));
 
-    expect(listenable.value.versionInformation!.requiredVersion, 201);
+    expect(state().version!.requiredVersion, 201);
     expect(redirect(), "/update_required", reason: "without a restart");
   });
 
   testWidgets("9. without scheme managers no update is needed", (tester) async {
     final redirect = await pumpRouter(tester);
-    final listenable = triggers();
     await deliver(tester, _enrolled);
     await deliver(tester, _schemes([]));
 
-    expect(listenable.value.versionInformation!.requiredVersion, 0);
+    expect(state().version!.requiredVersion, 0);
     expect(redirect(), isNull);
   });
 }

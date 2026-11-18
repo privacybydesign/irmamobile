@@ -18,12 +18,11 @@ const _homePath = "/home";
 /// Watches for the moment the user is back on an idle home screen with enough
 /// successful sessions behind them, then shows the sentiment gate once. Sits in
 /// `MaterialApp.router`'s builder next to [LockGate] and, like it, listens to
-/// the router so it re-checks on every navigation. Does nothing when no
-/// store-review service is injected (the F-Droid build).
+/// the router ([routerProvider]) so it re-checks on every navigation. Does
+/// nothing when no store-review service is injected (the F-Droid build).
 class StoreReviewGate extends ConsumerStatefulWidget {
-  final GoRouter router;
   final Widget child;
-  const StoreReviewGate({super.key, required this.router, required this.child});
+  const StoreReviewGate({super.key, required this.child});
 
   @override
   ConsumerState<StoreReviewGate> createState() => _StoreReviewGateState();
@@ -35,15 +34,17 @@ class _StoreReviewGateState extends ConsumerState<StoreReviewGate>
   // (the async availability check and the dialog span multiple frames).
   bool _asking = false;
 
+  late final GoRouter _router = ref.read(routerProvider);
+
   @override
   void initState() {
     super.initState();
-    widget.router.routerDelegate.addListener(rebuildWhenSafe);
+    _router.routerDelegate.addListener(rebuildWhenSafe);
   }
 
   @override
   void dispose() {
-    widget.router.routerDelegate.removeListener(rebuildWhenSafe);
+    _router.routerDelegate.removeListener(rebuildWhenSafe);
     super.dispose();
   }
 
@@ -91,7 +92,7 @@ class _StoreReviewGateState extends ConsumerState<StoreReviewGate>
     // where the prompt is meant to appear anyway.
     final locked = ref.watch(appLockedProvider);
 
-    final path = widget.router.routerDelegate.currentConfiguration.uri.path;
+    final path = _router.routerDelegate.currentConfiguration.uri.path;
     if (!locked && path == _homePath) {
       afterFrame(() => _maybeAsk());
     }

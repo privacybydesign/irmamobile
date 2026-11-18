@@ -1,17 +1,12 @@
-import "dart:async";
-
 import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
-import "package:rxdart/rxdart.dart";
 
-import "src/data/irma_repository.dart";
-import "src/models/enrollment_status.dart";
 import "src/models/log_entry.dart";
-import "src/models/version_information.dart";
-import "src/providers/irma_repository_provider.dart";
 import "src/providers/pane_selection_provider.dart";
+import "src/providers/preferences_provider.dart";
+import "src/providers/redirect_state_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/back_to_website/back_to_website_screen.dart";
@@ -30,7 +25,6 @@ import "src/screens/name_changed/name_changed_screen.dart";
 import "src/screens/required_update/required_update_screen.dart";
 import "src/screens/reset_pin/reset_pin_screen.dart";
 import "src/screens/rooted_warning/repository.dart";
-import "src/screens/rooted_warning/rooted_device_detector.dart";
 import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/session/session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
@@ -61,16 +55,27 @@ GoRoute _adaptive({
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
-  final repo = ref.read(irmaRepositoryProvider);
-  final rootedDeviceDetector = ref.read(rootedDeviceDetectorProvider);
-  final redirectionTriggers = RedirectionListenable(repo, rootedDeviceDetector);
+/// The app's router. It goes where [redirectStateProvider] says, again on
+/// every change of it.
+final routerProvider = Provider<GoRouter>((ref) {
+  final redirectState = ValueNotifier(RedirectState.initial);
+  ref.listen(redirectStateProvider, (_, next) {
+    if (next.value case final state?) redirectState.value = state;
+  });
+  final router = _createRouter(ref, redirectState);
+  ref.onDispose(() {
+    router.dispose();
+    redirectState.dispose();
+  });
+  return router;
+});
 
+GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     observers: [routeObserver],
     initialLocation: "/loading",
-    refreshListenable: redirectionTriggers,
+    refreshListenable: redirectState,
     errorBuilder: (context, state) => RouteNotFoundScreen(),
     routes: [
       _adaptive(
@@ -213,8 +218,8 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           return RootedWarningScreen(
             onAcceptRiskButtonPressed: () {
               DetectRootedDeviceIrmaPrefsRepository(
-                preferences: repo.preferences,
-                detector: rootedDeviceDetector,
+                preferences: ref.read(preferencesProvider),
+                detector: ref.read(rootedDeviceDetectorProvider),
               ).setHasAcceptedRootedDeviceRisk();
             },
           );
@@ -225,8 +230,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: "/name_changed",
         builder: (context, state) {
           return NameChangedScreen(
-            onContinuePressed: () =>
-                repo.preferences.showNameChangedNotification.set(false),
+            onContinuePressed: () => ref
+                .read(preferencesProvider)
+                .showNameChangedNotification
+                .set(false),
           );
         },
       ),
@@ -236,22 +243,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         builder: (context, state) => RequiredUpdateScreen(),
       ),
     ],
-    redirect: (context, state) {
-      if (redirectionTriggers.value.showDeviceRootedWarning) {
-        return "/rooted_warning";
-      }
-      if (redirectionTriggers.value.enrollmentStatus == .unenrolled) {
-        return "/enrollment";
-      }
-      if (redirectionTriggers.value.showNameChangedMessage) {
-        return "/name_changed";
-      }
-      if (redirectionTriggers.value.versionInformation != null &&
-          redirectionTriggers.value.versionInformation!.updateRequired()) {
-        return "/update_required";
-      }
-      return null;
-    },
+    redirect: (context, state) => redirectState.value.redirect(),
   );
 }
 
@@ -271,112 +263,6 @@ class RouteNotFoundScreen extends StatelessWidget {
       body: const Center(child: Text("")),
     );
   }
-}
-
-class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
-  late final Stream<RedirectionTriggers> _streamSubscription;
-
-  RedirectionListenable(IrmaRepository repo, RootedDeviceDetector detector)
-    : super(RedirectionTriggers.withDefaults()) {
-    final warningStream = _displayDeviceIsRootedWarning(repo, detector);
-    final infoStream = repo
-        .getVersionInformation()
-        .map<VersionInformation?>((version) => version)
-        .defaultIfEmpty(null);
-    final nameChangedStream =
-        repo.preferences.showNameChangedNotification.stream;
-    final enrollmentStream = repo.getEnrollmentStatus();
-
-    // combine the streams into one
-    _streamSubscription = Rx.combineLatest4(
-      warningStream,
-      infoStream,
-      nameChangedStream,
-      enrollmentStream,
-      (deviceRootedWarning, versionInfo, nameChangedWarning, enrollment) {
-        return RedirectionTriggers(
-          showDeviceRootedWarning: deviceRootedWarning,
-          showNameChangedMessage: nameChangedWarning,
-          versionInformation: versionInfo,
-          enrollmentStatus: enrollment,
-        );
-      },
-    );
-
-    // listen for updates from the streams
-    _streamSubscription.listen((triggers) {
-      if (value != triggers) {
-        value = triggers;
-      }
-    });
-  }
-}
-
-class RedirectionTriggers {
-  final bool showDeviceRootedWarning;
-  final bool showNameChangedMessage;
-  final VersionInformation? versionInformation;
-  final EnrollmentStatus enrollmentStatus;
-
-  RedirectionTriggers({
-    required this.showDeviceRootedWarning,
-    required this.showNameChangedMessage,
-    required this.versionInformation,
-    required this.enrollmentStatus,
-  });
-
-  RedirectionTriggers.withDefaults()
-    : enrollmentStatus = .undetermined,
-      showDeviceRootedWarning = false,
-      showNameChangedMessage = false,
-      versionInformation = null;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    return other is RedirectionTriggers &&
-        showDeviceRootedWarning == other.showDeviceRootedWarning &&
-        showNameChangedMessage == other.showNameChangedMessage &&
-        versionInformation == other.versionInformation &&
-        enrollmentStatus == other.enrollmentStatus;
-  }
-
-  @override
-  String toString() {
-    return "enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation";
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    showNameChangedMessage,
-    showDeviceRootedWarning,
-    versionInformation,
-    enrollmentStatus,
-  );
-}
-
-Stream<bool> _displayDeviceIsRootedWarning(
-  IrmaRepository irmaRepo,
-  RootedDeviceDetector detector,
-) {
-  final repo = DetectRootedDeviceIrmaPrefsRepository(
-    preferences: irmaRepo.preferences,
-    detector: detector,
-  );
-  final streamController = StreamController<bool>();
-  repo.isDeviceRooted().then((isRooted) {
-    if (isRooted) {
-      repo
-          .hasAcceptedRootedDeviceRisk()
-          .map((acceptedRisk) => !acceptedRisk)
-          .pipe(streamController);
-    } else {
-      streamController.add(false);
-    }
-  });
-  return streamController.stream;
 }
 
 /// The home page: comes in at once ([instant], after loading, a PIN

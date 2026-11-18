@@ -3,7 +3,6 @@ import "dart:async";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../routing.dart";
@@ -49,11 +48,6 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
   bool _privacyScreenLoaded = false;
   var _appearance = Appearance.system;
-
-  // TODO: When switching to Riverpod we should add a provider for the
-  // router, as that will automatically preserve its state during rebuilds.
-  // This method is kind of a workaround for now.
-  late final GoRouter _router;
 
   AppState();
 
@@ -138,17 +132,6 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // only init the router once...
-    try {
-      _router;
-    } catch (_) {
-      _router = createRouter(context, ref);
-    }
-  }
-
-  @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     final repo = ref.read(irmaRepositoryProvider);
     repo.dispatch(AppLifecycleChangedEvent(state));
@@ -183,6 +166,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    final router = ref.watch(routerProvider);
     return IrmaTheme(
       builder: (BuildContext context) {
         return IdleLockObserver(
@@ -202,7 +186,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             ),
             supportedLocales: defaultSupportedLocales(),
             showSemanticsDebugger: false,
-            routerConfig: _router,
+            routerConfig: router,
             // Beside a panel down the side of an upright screen; a tap
             // outside a text field puts the keyboard away.
             // Above the navigator: a card opening from the stack runs over
@@ -213,9 +197,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
                   child: UnfocusOnTapOutside(
                     child: LegacyMaterialBridge(
                       child: LockGate(
-                        router: _router,
                         child: StoreReviewGate(
-                          router: _router,
                           child: SystemNavigationBarStyle(
                             child: child ?? const SizedBox.shrink(),
                           ),

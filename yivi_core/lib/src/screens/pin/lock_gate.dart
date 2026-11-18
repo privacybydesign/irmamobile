@@ -39,13 +39,12 @@ const _unlockedPathPrefixes = {
 /// `PinScreen` is drawn over [child]. The router's pages stay mounted
 /// across lock/unlock — no dispose/dismiss cascade.
 ///
-/// [router] is passed in explicitly because `GoRouter.of(context)`
+/// The router comes from [routerProvider] because `GoRouter.of(context)`
 /// doesn't resolve inside `MaterialApp.router`'s `builder` (the
 /// inherited widget lives further down, inside the Router).
 class LockGate extends ConsumerStatefulWidget {
-  final GoRouter router;
   final Widget child;
-  const LockGate({super.key, required this.router, required this.child});
+  const LockGate({super.key, required this.child});
 
   @override
   ConsumerState<LockGate> createState() => _LockGateState();
@@ -56,16 +55,18 @@ class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
   // detect the unlock transition (overlay dismissed) and offer biometric.
   bool _overlayShown = false;
 
+  late final GoRouter _router = ref.read(routerProvider);
+
   @override
   void initState() {
     super.initState();
-    widget.router.routerDelegate.addListener(rebuildWhenSafe);
+    _router.routerDelegate.addListener(rebuildWhenSafe);
     lockScannerSheetHolds.addListener(rebuildWhenSafe);
   }
 
   @override
   void dispose() {
-    widget.router.routerDelegate.removeListener(rebuildWhenSafe);
+    _router.routerDelegate.removeListener(rebuildWhenSafe);
     lockScannerSheetHolds.removeListener(rebuildWhenSafe);
     super.dispose();
   }
@@ -93,7 +94,7 @@ class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
     ref.watch(biometricAvailableProvider);
     ref.watch(biometricEnabledProvider);
     ref.watch(biometricPromptDismissedProvider);
-    final path = widget.router.routerDelegate.currentConfiguration.uri.path;
+    final path = _router.routerDelegate.currentConfiguration.uri.path;
     final isUnlockedRoute = _unlockedPathPrefixes.any(
       (prefix) => path == prefix || path.startsWith("$prefix/"),
     );
