@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:convert";
 import "dart:io";
 
+import "package:flutter/foundation.dart" show defaultTargetPlatform;
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -529,17 +530,14 @@ class IrmaRepository {
         .map((irmaConfiguration) {
           int minimumBuild = 0;
           for (final scheme in irmaConfiguration.schemeManagers.values) {
-            int thisRequirement = 0;
-            switch (Platform.operatingSystem) {
-              case "android":
-                thisRequirement = scheme.minimumAppVersion.android;
-                break;
-              case "ios":
-                thisRequirement = scheme.minimumAppVersion.iOS;
-                break;
-              default:
-                throw Exception("Unsupported Platform.operatingSystem");
-            }
+            // defaultTargetPlatform is the phone's platform in the app and
+            // can be set in tests. Off Android and iOS (only in tests) no
+            // scheme asks for a minimum.
+            final thisRequirement = switch (defaultTargetPlatform) {
+              TargetPlatform.android => scheme.minimumAppVersion.android,
+              TargetPlatform.iOS => scheme.minimumAppVersion.iOS,
+              _ => 0,
+            };
             if (thisRequirement > minimumBuild) {
               minimumBuild = thisRequirement;
             }
