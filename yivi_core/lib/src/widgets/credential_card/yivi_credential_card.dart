@@ -35,6 +35,13 @@ class YiviCredentialCard extends ConsumerWidget {
   final bool hideFooter;
   final bool hideNotObtainable;
 
+  /// The card shows attributes being shared (a disclosure) rather than the
+  /// whole credential; attribute groups lay themselves out accordingly.
+  final bool disclosure;
+
+  /// The attributes' claim paths start with an mso_mdoc namespace.
+  final bool namespaced;
+
   const YiviCredentialCard({
     super.key,
     required this.credentialName,
@@ -51,6 +58,8 @@ class YiviCredentialCard extends ConsumerWidget {
     this.padding,
     this.hideFooter = false,
     this.hideNotObtainable = false,
+    this.disclosure = false,
+    this.namespaced = false,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -68,6 +77,9 @@ class YiviCredentialCard extends ConsumerWidget {
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   }) : this(
          key: key,
+         namespaced: credential.credentialInstanceIds.containsKey(
+           CredentialFormat.msoMdoc,
+         ),
          credentialName: credential.name,
          issuerName: credential.issuer.name,
          image: credential.image != null
@@ -108,6 +120,7 @@ class YiviCredentialCard extends ConsumerWidget {
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   }) : this(
          key: key,
+         namespaced: instance.format == CredentialFormat.msoMdoc,
          credentialName: instance.name,
          issuerName: instance.issuer.name,
          imagePath: instance.imagePath,
@@ -135,6 +148,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         disclosure: true,
        );
 
   YiviCredentialCard.fromDescriptor({
@@ -148,6 +162,7 @@ class YiviCredentialCard extends ConsumerWidget {
     bool hideNotObtainable = false,
   }) : this(
          key: key,
+         namespaced: descriptor.format == CredentialFormat.msoMdoc,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          image: descriptor.image != null
@@ -200,6 +215,7 @@ class YiviCredentialCard extends ConsumerWidget {
          padding: padding,
          hideFooter: true,
          hideNotObtainable: hideNotObtainable,
+         disclosure: true,
        );
 
   YiviCredentialCard.fromDescriptorWithEmptyAttributeValues({
@@ -212,6 +228,7 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
   }) : this(
          key: key,
+         namespaced: descriptor.format == CredentialFormat.msoMdoc,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          image: descriptor.image != null
@@ -235,6 +252,7 @@ class YiviCredentialCard extends ConsumerWidget {
          padding: padding,
          hideFooter: true,
          hideNotObtainable: true,
+         disclosure: true,
        );
 
   YiviCredentialCard.fromLogCredential({
@@ -248,8 +266,10 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+    bool disclosure = false,
   }) : this(
          key: key,
+         namespaced: logCredential.formats.contains(CredentialFormat.msoMdoc),
          credentialName: logCredential.name,
          issuerName: logCredential.issuer.name,
          image: logCredential.image != null
@@ -273,6 +293,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         disclosure: disclosure,
        );
 
   @override
@@ -312,7 +333,13 @@ class YiviCredentialCard extends ConsumerWidget {
                 bottom: theme.smallSpacing,
               ),
             ),
-            YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
+            YiviCredentialCardAttributeList(
+              attributes,
+              compareTo: compareTo,
+              credentialId: status.credentialId,
+              disclosure: disclosure,
+              namespaced: namespaced,
+            ),
           ],
           if (!hideFooter && !status.revoked)
             Column(

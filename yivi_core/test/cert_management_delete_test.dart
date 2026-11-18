@@ -1,5 +1,4 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -12,6 +11,8 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/screens/debug/cert_management/cert_management_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+
+import "helpers/test_translation_loader.dart";
 
 // Regression test for #700: the debug certificate management screen could
 // install certificates but had no way to remove them. Deleteable certificates
@@ -48,7 +49,7 @@ void main() {
         builder: (_) => MaterialApp(
           localizationsDelegates: [
             FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
+              translationLoader: TestTranslationLoader(
                 basePath: "assets/locales",
                 forcedLocale: const Locale("en", "US"),
               ),

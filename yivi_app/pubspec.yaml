@@ -2,7 +2,7 @@ name: yivi
 description: "Yivi App"
 
 # A build number cannot be reused once a build is in use on Android.
-version: 8.2.1+4194519
+version: 8.4.0+4194524
 
 publish_to: none
 
@@ -30,8 +30,8 @@ dependencies:
   # yivi_core so the FOSS yivi_fdroid build does not depend on it. The concrete
   # RegulaFaceService implementation lives in lib/regula_face_service.dart and
   # is injected via runYiviApp(regulaFaceService: ...).
-  flutter_face_api: ^8.2.1149
-  flutter_face_core_basic: ^8.2.461
+  flutter_face_api: ^8.4.1655
+  flutter_face_core_basic: ^8.4.761
 
   flutter_i18n: any
   flutter_svg: any
@@ -55,7 +55,7 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v4.1.0
+      ref: v5.0.0
       path: vcmrtd
   package_info_plus: ^10.1.0
   collection: ^1.18.0
@@ -82,7 +82,10 @@ dependency_overrides:
   pointycastle:
     git:
       url: https://github.com/privacybydesign/pc-dart.git
-      ref: master
+      # Pinned to a commit: the fork has no tags, and following master would pick
+      # up whatever is pushed there next. 47302073 is master minus its last commit
+      # (0f361ed6), which only adds debug prints to CMac.init.
+      ref: 47302073aa8d60d71d98717ffeafc2afa9cb9389
 
 flutter:
   uses-material-design: true

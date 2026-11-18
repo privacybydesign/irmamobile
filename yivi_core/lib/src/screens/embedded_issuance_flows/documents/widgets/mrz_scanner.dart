@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:camera/camera.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
@@ -8,7 +9,11 @@ import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../../routing.dart";
 import "../../../../providers/ocr_processor_provider.dart";
+import "../../../../theme/theme.dart";
+import "../../../../util/mrz_glare.dart";
+import "../../../../util/mrz_reading.dart";
 import "../../../../util/test_detection.dart";
+import "../../../../widgets/translated_text.dart";
 
 typedef CameraOverlayBuilder =
     Widget Function({required bool success, required Widget child});
@@ -40,6 +45,9 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   CameraController? _controller;
   int _cameraIndex = 1;
   List<CameraDescription> cameras = [];
+  final _confirmation = MrzReadingConfirmation();
+  final _glareHint = GlareHint();
+  bool _showGlareHint = false;
 
   @override
   void dispose() async {
@@ -83,7 +91,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
         );
       }
     } catch (e) {
-      debugPrint(e.toString());
+      if (kDebugMode) debugPrint(e.toString());
     }
 
     _startLiveFeed();
@@ -119,7 +127,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     try {
       await _startLiveFeed();
     } catch (e) {
-      debugPrint("error while starting live feed: $e");
+      if (kDebugMode) debugPrint("error while starting live feed: $e");
     }
   }
 
@@ -132,9 +140,15 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.overlayBuilder(
-        success: _showSuccessCheck,
-        child: _liveFeedBody(),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          widget.overlayBuilder(
+            success: _showSuccessCheck,
+            child: _liveFeedBody(),
+          ),
+          if (_showGlareHint && !_showSuccessCheck) const _GlareHintBanner(),
+        ],
       ),
     );
   }
@@ -181,6 +195,9 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   }
 
   Future _startLiveFeed() async {
+    _confirmation.reset();
+    _glareHint.reset();
+    _showGlareHint = false;
     if (cameras.isEmpty) return;
 
     if (_controller != null && _controller!.value.isInitialized) {
@@ -193,7 +210,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     final camera = cameras[_cameraIndex];
     _controller = CameraController(
       camera,
-      .high,
+      .veryHigh,
       enableAudio: false,
       imageFormatGroup: Platform.isAndroid ? .nv21 : .bgra8888,
     );
@@ -231,7 +248,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
         await c?.stopImageStream();
       }
     } catch (e) {
-      debugPrint("failed to stop image stream: $e");
+      if (kDebugMode) debugPrint("failed to stop image stream: $e");
     }
     await c?.dispose();
   }
@@ -249,8 +266,11 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     if (Platform.isIOS) {
       return sensorOrientation;
     } else if (Platform.isAndroid) {
+      // A frame can still arrive after _stopLiveFeed has dropped the controller.
+      final controller = _controller;
+      if (controller == null) return null;
       var rotationCompensation =
-          _orientations[_controller!.value.deviceOrientation];
+          _orientations[controller.value.deviceOrientation];
       if (rotationCompensation == null) return null;
       if (camera.lensDirection == .front) {
         // front-facing
@@ -276,11 +296,20 @@ class MrzScannerState extends ConsumerState<MrzScanner>
         return false;
       }
 
-      final lines = await ref
+      final ocr = await ref
           .read(ocrProcessorProvider)!
           .processImage(inputImage: inputImage, imageRotation: rotation);
+      final lines = ocr.lines;
 
-      final result = widget.mrzParser.tryParse(lines);
+      final showGlareHint = _glareHint.update(ocr.reflection);
+      if (showGlareHint != _showGlareHint && mounted) {
+        setState(() => _showGlareHint = showGlareHint);
+      }
+
+      final parsed = widget.mrzParser.tryParse(
+        lines == null ? null : correctDocumentNumber(lines),
+      );
+      final result = parsed == null ? null : _confirmation.confirm(parsed);
 
       if (result != null) {
         // show success checkmark for a second and then call the onSuccess callback
@@ -296,5 +325,42 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     } finally {
       _isBusy = false;
     }
+  }
+}
+
+/// Tells the user to tilt the document when a reflection washes out the MRZ, which
+/// stalls a scan until the reflection moves off it.
+class _GlareHintBanner extends StatelessWidget {
+  const _GlareHintBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: Semantics(
+          liveRegion: true,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.black.withAlpha(180),
+              borderRadius: theme.borderRadius,
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: theme.defaultSpacing,
+                vertical: theme.smallSpacing,
+              ),
+              child: TranslatedText(
+                "mrz_scanner.glare_hint",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

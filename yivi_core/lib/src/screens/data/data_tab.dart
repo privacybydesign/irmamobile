@@ -40,6 +40,12 @@ class _DataTabState extends ConsumerState<DataTab> {
   final _addDataButtonKey = GlobalKey(debugLabel: "add_data_button_key");
 
   @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
@@ -67,12 +73,14 @@ class _DataTabState extends ConsumerState<DataTab> {
             key: const Key("search_button"),
             icon: CupertinoIcons.search,
             size: 28,
+            semanticsLabelKey: "accessibility.search_data",
             onTap: _openSearch,
           ),
           IrmaIconButton(
             key: _addDataButtonKey,
             icon: CupertinoIcons.add_circled_solid,
             size: 28,
+            semanticsLabelKey: "accessibility.obtain_data",
             onTap: context.pushAddDataScreen,
           ),
         ],

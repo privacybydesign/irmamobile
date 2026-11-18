@@ -4,6 +4,19 @@ import "package:material_ui/material_ui.dart";
 extension WidgetTesterUtil on WidgetTester {
   /// Renders the given widget and waits until it settles.
   Future<void> pumpWidgetAndSettle(Widget w) async {
+    // Unmount the tree before flutter_test disposes the FocusManager.
+    //
+    // flutter_test registers `binding.postTest` (which calls
+    // `focusManager.dispose()`) with addTearDown before the test body runs,
+    // and teardowns run last-in-first-out, so this one runs first. Without it
+    // the group's `tearDown` — which dismisses active sessions and clears all
+    // data — keeps driving a still-mounted app after the FocusManager is
+    // gone. Route focus scopes then schedule a focus update on the disposed
+    // manager and it throws "A FocusManager was used after being disposed".
+    // That error arrives with no test to attach it to, so the reporter charges
+    // it to a test that already passed and flips it to failed, which hides the
+    // real failure behind an unrelated one.
+    addTearDown(() => pumpWidget(const SizedBox()));
     await pumpWidget(w, duration: const Duration(seconds: 2));
     await waitFor(find.byWidget(w));
   }

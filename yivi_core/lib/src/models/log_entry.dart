@@ -49,6 +49,13 @@ enum CredentialFormat {
 
   @JsonValue("dc+sd-jwt")
   sdjwtvc,
+
+  /// SD-JWT-secured W3C VCDM 2.0 credential.
+  @JsonValue("vc+sd-jwt")
+  sdjwtVcdm,
+
+  @JsonValue("mso_mdoc")
+  msoMdoc,
 }
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)

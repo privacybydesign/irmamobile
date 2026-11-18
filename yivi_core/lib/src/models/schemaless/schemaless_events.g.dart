@@ -46,6 +46,8 @@ Map<String, dynamic> _$ProblematicCredentialToJson(
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.sdjwtVcdm: 'vc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };
 
 AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
@@ -56,6 +58,8 @@ AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
       string: json['string'] as String?,
       imagePath: json['image_path'] as String?,
       base64Image: json['base64_image'] as String?,
+      displayHint: json['display_hint'] as String?,
+      mimeType: json['mime_type'] as String?,
     );
 
 Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
@@ -66,6 +70,8 @@ Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
       'string': instance.string,
       'image_path': instance.imagePath,
       'base64_image': instance.base64Image,
+      'mime_type': instance.mimeType,
+      'display_hint': instance.displayHint,
     };
 
 const _$AttributeTypeEnumMap = {
@@ -88,6 +94,7 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
       : AttributeValue.fromJson(
           json['requested_value'] as Map<String, dynamic>,
         ),
+  intentToRetain: json['intent_to_retain'] as bool?,
 );
 
 Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
@@ -96,6 +103,7 @@ Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
   'description': instance.description,
   'value': instance.value,
   'requested_value': instance.requestedValue,
+  'intent_to_retain': instance.intentToRetain,
 };
 
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(

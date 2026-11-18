@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000" fill-rule="evenodd">
+  <!-- Trailer for the E categories; drawbar points left toward the towing vehicle -->
+  <path d="M5 8H22.5V14.6H5Z"/>
+  <path d="M1 13.4H5V14.6H1Z"/>
+  <circle cx="14" cy="17" r="1.9"/>
+</svg>

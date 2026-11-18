@@ -7,6 +7,8 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -78,11 +80,14 @@ public class TesseractOcrPlugin implements FlutterPlugin, MethodChannel.MethodCa
 
         ocrExecutor.execute(() -> {
             try {
-                String text = ocrEngine.ocrYPlane(
+                TesseractOcrEngine.Result reading = ocrEngine.ocrYPlane(
                         bytes, width, height, stride, rotation,
                         lang, roiLeft, roiTop, roiWidth, roiHeight
                 );
-                mainThreadHandler.post(() -> result.success(text));
+                Map<String, Object> response = new HashMap<>();
+                response.put("text", reading.text);
+                response.put("clippedShare", reading.clippedShare);
+                mainThreadHandler.post(() -> result.success(response));
             } catch (Exception e) {
                 mainThreadHandler.post(() -> result.error("OCR", e.getMessage(), null));
             }

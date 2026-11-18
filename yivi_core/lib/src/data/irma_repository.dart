@@ -146,13 +146,27 @@ class IrmaRepository {
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
+  // Set by a wipe and read once by the enrollment screen it lands on, which
+  // confirms the deletion to the user.
+  bool _walletDeleted = false;
 
   late final AppLanguage _appLanguage = AppLanguage(preferences);
 
   late StreamSubscription<Event> _bridgeEventSubscription;
   late final StreamSubscription<String> _localeSubscription;
 
+  /// Whether [close] has been called. A closed repository accepts no further
+  /// events — see [dispatch].
+  bool get isClosed => _closed;
+  bool _closed = false;
+
   Future<void> close() async {
+    // Refuse events for the whole of teardown rather than only once the
+    // subjects are actually closed: close() is asynchronous, and a widget
+    // disposed while it is in flight would otherwise still reach a subject
+    // that is about to close.
+    _closed = true;
+
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
     await _localeSubscription.cancel();
@@ -269,6 +283,7 @@ class IrmaRepository {
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
       _lockedSubject.add(false);
       _blockedSubject.add(null);
+      _walletDeleted = true;
       preferences.clearAll();
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
@@ -283,11 +298,28 @@ class IrmaRepository {
     return _eventSubject.stream;
   }
 
+  /// Dispatches [event] to the repository's listeners.
+  ///
+  /// Silently drops the event once the repository is closed. Widgets outlive
+  /// the repository during teardown — a State.dispose that dismisses a session
+  /// runs while Flutter finalizes the tree, which is after close() — and
+  /// adding to a closed subject throws from inside that finalization, which
+  /// aborts it and corrupts the element tree.
   void dispatch(Event event) {
+    if (_closed) return;
     _eventSubject.add(event);
   }
 
+  /// Whether a wipe happened since the last call. Clears the flag, so the
+  /// confirmation is shown once.
+  bool consumeWalletDeleted() {
+    final deleted = _walletDeleted;
+    _walletDeleted = false;
+    return deleted;
+  }
+
   void bridgedDispatch(Event event) {
+    if (_closed) return;
     dispatch(event);
     _bridge.dispatch(event);
   }
@@ -808,6 +840,31 @@ class IrmaRepository {
     }
   }
 
+  void _startResidencePermitIssuance(
+    BuildContext context,
+    String url,
+    WidgetRef ref,
+  ) {
+    if (url.isNotEmpty) {
+      final uri = Uri.parse(url);
+
+      final baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
+
+      if (ref.read(ocrProcessorProvider) != null) {
+        context.pushResidencePermitMrzReaderScreen();
+      } else {
+        context.pushResidencePermitManualEntryScreen();
+      }
+    }
+  }
+
   void _startDrivingLicenceIssuance(
     BuildContext context,
     String url,
@@ -910,12 +967,14 @@ class IrmaRepository {
       "pbdf.pbdf.passport": _startPassportIssuance,
       "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
       "pbdf.pbdf.idcard": _startIdCardIssuance,
+      "pbdf.pbdf.residencepermit": _startResidencePermitIssuance,
       "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
       "pbdf.sidn-pbdf.email": _startEmailIssuance,
       //----------- staging
       "pbdf-staging.pbdf.passport": _startPassportIssuance,
       "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
       "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
+      "pbdf-staging.pbdf.residencepermit": _startResidencePermitIssuance,
       "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
       "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
     };
@@ -953,6 +1012,11 @@ class IrmaRepository {
   }
 
   Future<void> openURLinAppBrowser(String url) async {
+    // The in-app browser only gets https pages; anything else goes to the
+    // user's own browser or the app that handles the scheme.
+    if (!Uri.parse(url).isScheme("https")) {
+      return openURLExternally(url, suppressQrScanner: true);
+    }
     _resumedFromBrowserSubject.add(true);
     if (Platform.isAndroid) {
       await _iiabchannel.invokeMethod("open_browser", url);

@@ -146,6 +146,17 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
       "hint.stayStill": "Halten Sie den Kopf still",
       "hint.turnHead": "Drehen Sie den Kopf leicht",
     },
+    "fr": {
+      "livenessProcessing.title.processing": "Vérification en cours…",
+      "livenessDone.status": "Réussi",
+      "livenessRetry.title.tryAgain": "Échec de la vérification",
+      "livenessRetry.action.retry": "Réessayer",
+      "hint.lookStraight": "Regardez droit dans la caméra",
+      "hint.moveCloser": "Rapprochez-vous",
+      "hint.moveAway": "Éloignez-vous un peu",
+      "hint.stayStill": "Ne bougez pas la tête",
+      "hint.turnHead": "Tournez légèrement la tête",
+    },
   };
 
   LivenessConfig _livenessConfig() => LivenessConfig(
@@ -156,8 +167,12 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
     // passive selfie and clutters the otherwise minimal Yivi camera screen.
     torchButtonEnabled: false,
     livenessType: livenessType,
-    // The app is portrait-only.
-    screenOrientation: const [ScreenOrientation.PORTRAIT],
+    // Landscape as well as portrait, so that people who can only hold their
+    // phone sideways can do the face check too.
+    screenOrientation: const [
+      ScreenOrientation.PORTRAIT,
+      ScreenOrientation.LANDSCAPE,
+    ],
     // Always skip Regula's success ("checkmark") screen: liveness passing only
     // means a live face was captured, not that it matches the document. The
     // actual match happens server-side during issuance, so a client-side

@@ -68,16 +68,25 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                   crossAxisAlignment: .start,
                   spacing: theme.largeSpacing,
                   children: [
-                    for (final CredentialStoreCategory(:category, :items)
+                    for (final CredentialStoreCategory(
+                          :category,
+                          :items,
+                          :source,
+                        )
                         in value)
                       Column(
                         crossAxisAlignment: .start,
                         spacing: theme.smallSpacing,
                         children: [
+                          if (source == CredentialStoreSource.staging)
+                            const SectionHeader("data.add.staging")
+                          else if (source == CredentialStoreSource.demo)
+                            const SectionHeader("data.add.demo")
                           // A credential without a category (irmago marshals
                           // it `omitempty`) groups under "", which would
                           // otherwise render as a blank gap above the cards.
-                          if (category.isNotEmpty) SectionHeader.text(category),
+                          else if (category.isNotEmpty)
+                            SectionHeader.text(category),
                           Column(
                             spacing: theme.smallSpacing,
                             children: [

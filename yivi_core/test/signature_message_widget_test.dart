@@ -1,11 +1,12 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/signature_message_text.dart";
 import "package:yivi_core/src/widgets/irma_quote.dart";
 import "package:yivi_core/src/widgets/signature_message.dart";
+
+import "helpers/test_translation_loader.dart";
 
 class _Host extends StatelessWidget {
   final String message;
@@ -18,7 +19,7 @@ class _Host extends StatelessWidget {
     builder: (_) => MaterialApp(
       localizationsDelegates: [
         FlutterI18nDelegate(
-          translationLoader: FileTranslationLoader(
+          translationLoader: TestTranslationLoader(
             basePath: "assets/locales",
             forcedLocale: locale,
           ),
