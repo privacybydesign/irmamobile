@@ -159,7 +159,7 @@ class MissingDataHarness {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: IrmaTheme(
+          child: YiviTheme(
             builder: (_) => MaterialApp.router(
               routerConfig: router,
               localizationsDelegates: [

@@ -91,9 +91,9 @@ void main() {
 /// asserted copy is deterministic.
 Future<void> _pumpRequiredUpdateScreen(WidgetTester tester) async {
   await tester.pumpWidgetAndSettle(
-    IrmaTheme(
+    YiviTheme(
       builder: (context) => MaterialApp(
-        theme: IrmaTheme.of(context).themeData,
+        theme: YiviTheme.of(context).themeData,
         localizationsDelegates: AppState.defaultLocalizationsDelegates(),
         supportedLocales: AppState.defaultSupportedLocales(),
         locale: const Locale("en", "US"),

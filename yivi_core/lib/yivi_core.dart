@@ -38,7 +38,7 @@ export "src/screens/embedded_issuance_flows/documents/mrz/mrz_reading.dart"
     show fixMrzLineLength, fixMrzLineLengths, minMrzLineLength, mrzLineCount;
 export "src/screens/embedded_issuance_flows/documents/widgets/hold_upright_overlay.dart"
     show HoldUprightOverlay;
-export "src/theme/theme.dart" show IrmaTheme;
+export "src/theme/theme.dart" show YiviTheme;
 export "src/theme/yivi_palette.dart" show YiviPalette;
 export "src/theme/yivi_space.dart" show YiviSpace;
 export "src/widgets/bars/app_bar.dart" show YiviAppBar, YiviBackButton;

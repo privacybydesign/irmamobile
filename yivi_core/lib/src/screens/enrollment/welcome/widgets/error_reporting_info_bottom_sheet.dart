@@ -9,7 +9,7 @@ class ErrorReportingInfoBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
 
     return Padding(
       padding: const EdgeInsets.all(YiviSpace.x16),

@@ -66,7 +66,7 @@ FlutterI18nDelegate _buildI18nDelegate() => FlutterI18nDelegate(
   ),
 );
 
-/// `IrmaTheme` uses the unqualified family names `Alexandria` / `Open Sans`;
+/// `YiviTheme` uses the unqualified family names `Alexandria` / `Open Sans`;
 /// the widget-preview scaffold doesn't reliably resolve the bundled fonts, so
 /// we register them via Google Fonts (CDN) under those exact names. Failures
 /// are swallowed so the previews still render (in the system font) when offline.
@@ -101,7 +101,7 @@ Widget pinPreviewWrapper(Widget child) => ProviderScope(
       ...GlobalMaterialLocalizations.delegates,
     ],
     supportedLocales: const [Locale("en", "US")],
-    home: IrmaTheme(
+    home: YiviTheme(
       builder: (context) => MediaQuery(
         // Force portrait so the screen takes the `_bodyPortrait` path.
         data: const MediaQueryData(size: pinPreviewSize),

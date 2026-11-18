@@ -10,7 +10,7 @@ enum IrmaCardStyle { normal, highlighted, danger }
 /// The expiry/validity state of a credential property (time-based or instance-based).
 enum ExpireState { notExpired, almostExpired, expired }
 
-/// Pre-computed display status for a [YiviCredentialCard].
+/// Pre-computed display status for a credential card.
 ///
 /// Encapsulates all the expiry, revocation, and instance-count logic
 /// so the card widget itself is a pure presentation component.

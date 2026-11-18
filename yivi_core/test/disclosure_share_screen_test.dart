@@ -251,7 +251,7 @@ Future<_Calls> _pump(
           (d) async => calls.obtained.add(d.credentialId),
         ),
       ],
-      child: IrmaTheme(
+      child: YiviTheme(
         builder: (_) => MaterialApp.router(
           routerConfig: router,
           // As the app does: the core Material that the code fields (pinput)

@@ -10,7 +10,7 @@ import "helpers/test_translation_loader.dart";
 late BuildContext _page;
 
 /// As the app: under a Router, which hands the system back on.
-Widget _app() => IrmaTheme(
+Widget _app() => YiviTheme(
   builder: (_) => MaterialApp.router(
     localizationsDelegates: [
       FlutterI18nDelegate(

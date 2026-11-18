@@ -68,7 +68,7 @@ Widget _app({
     preferencesProvider.overrideWithValue(repo.preferences),
     ...overrides,
   ],
-  child: IrmaTheme(
+  child: YiviTheme(
     builder: (_) => builder([
       FlutterI18nDelegate(
         translationLoader: FileTranslationLoader(

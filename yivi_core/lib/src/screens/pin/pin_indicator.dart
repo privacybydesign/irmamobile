@@ -97,7 +97,7 @@ class _PinIndicator extends StatelessWidget {
   }
 
   Widget _togglePinIndicators(BuildContext context, bool isPinVisible) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
     // Black (white in dark mode), like the keypad's digits.
     final palette = YiviPalette.of(context);
 

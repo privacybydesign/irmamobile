@@ -65,7 +65,7 @@ void main() {
       tester,
       ProviderScope(
         overrides: overrides,
-        child: IrmaTheme(
+        child: YiviTheme(
           builder: (_) => MaterialApp(
             navigatorKey: navigator,
             localizationsDelegates: [

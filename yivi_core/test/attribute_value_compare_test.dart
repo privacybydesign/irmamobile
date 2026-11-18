@@ -57,7 +57,7 @@ void main() {
 
     testWidgets("draws a differing integer as a mismatch", (tester) async {
       final color = await valueColor(tester, [_age(4)]);
-      final theme = IrmaTheme.of(tester.element(find.text("3")));
+      final theme = YiviTheme.of(tester.element(find.text("3")));
       expect(color, theme.error);
     });
 

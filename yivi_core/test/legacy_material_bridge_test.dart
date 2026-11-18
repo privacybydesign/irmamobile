@@ -17,9 +17,9 @@ import "package:yivi_core/src/widgets/text/markdown.dart";
 /// The app tree around [child], as [App] builds it: a `material_ui`
 /// [MaterialApp] carrying the Yivi theme, bridged for legacy widgets.
 Widget _app({required Widget child, required bool bridge}) {
-  return IrmaTheme(
+  return YiviTheme(
     builder: (context) => MaterialApp(
-      theme: IrmaTheme.of(context).themeData,
+      theme: YiviTheme.of(context).themeData,
       localizationsDelegates: AppState.defaultLocalizationsDelegates(
         const Locale("en", "US"),
       ),
@@ -78,9 +78,9 @@ void main() {
       ),
     );
 
-    final yiviFontFamily = IrmaThemeData().textTheme.bodyMedium?.fontFamily;
+    final yiviFontFamily = YiviThemeData().textTheme.bodyMedium?.fontFamily;
     expect(yiviFontFamily, isNotNull);
-    expect(coreTheme.colorScheme.primary, IrmaThemeData().primary);
+    expect(coreTheme.colorScheme.primary, YiviThemeData().primary);
     expect(coreTheme.textTheme.bodyMedium?.fontFamily, yiviFontFamily);
   });
 
@@ -96,7 +96,7 @@ void main() {
     // feeds: the span above it carries the ambient DefaultTextStyle that the
     // bridge's own Material installs, and that one looks right whatever
     // MarkdownStyleSheet.p says.
-    final bodyMedium = IrmaThemeData().textTheme.bodyMedium!;
+    final bodyMedium = YiviThemeData().textTheme.bodyMedium!;
     final style = _styleOfText(tester, "hello world");
     expect(style?.fontFamily, bodyMedium.fontFamily);
     expect(style?.fontSize, bodyMedium.fontSize);

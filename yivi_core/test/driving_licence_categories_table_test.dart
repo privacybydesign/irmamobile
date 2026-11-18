@@ -115,7 +115,7 @@ void main() {
       FontWeight.w400,
       reason: "not bold",
     );
-    final linkColor = IrmaTheme.of(tester.element(summary)).link;
+    final linkColor = YiviTheme.of(tester.element(summary)).link;
     expect(tester.widget<Text>(summary).style?.color, linkColor);
     expect(
       tester.widget<Icon>(find.byIcon(Icons.expand_more)).color,

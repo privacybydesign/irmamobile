@@ -57,13 +57,13 @@ class AppState extends ConsumerState<App> {
     ref.watch(idleLockProvider);
     final appearance = ref.watch(appearanceProvider);
     final router = ref.watch(routerProvider);
-    return IrmaTheme(
+    return YiviTheme(
       builder: (BuildContext context) {
         return MaterialApp.router(
           key: const Key("app"),
           title: "Yivi",
-          theme: IrmaTheme.variantsOf(context).data.themeData,
-          darkTheme: IrmaTheme.variantsOf(context).darkData.themeData,
+          theme: YiviTheme.variantsOf(context).data.themeData,
+          darkTheme: YiviTheme.variantsOf(context).darkData.themeData,
           themeMode: switch (appearance) {
             Appearance.system => ThemeMode.system,
             Appearance.light => ThemeMode.light,

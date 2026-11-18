@@ -102,7 +102,7 @@ class _HoldUprightPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
     final motion = motionStill(context) ? _Motion.still : _Motion.animated;
     return Material(
       color: YiviPalette.of(context).surface,

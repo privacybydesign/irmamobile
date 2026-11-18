@@ -26,7 +26,7 @@ void main() {
   testWidgets("Spinner paints in the primary red", (tester) async {
     await pumpTranslated(tester, host(Spinner()));
 
-    expect(paintedSpinnerColor(tester), IrmaThemeData().primary);
+    expect(paintedSpinnerColor(tester), YiviThemeData().primary);
   });
 
   testWidgets("a bare CircularProgressIndicator paints in the primary red", (
@@ -34,6 +34,6 @@ void main() {
   ) async {
     await pumpTranslated(tester, host(const CircularProgressIndicator()));
 
-    expect(paintedSpinnerColor(tester), IrmaThemeData().primary);
+    expect(paintedSpinnerColor(tester), YiviThemeData().primary);
   });
 }

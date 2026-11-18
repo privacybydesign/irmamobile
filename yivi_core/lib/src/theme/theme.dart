@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "page_transitions.dart";
 
-class IrmaThemeData {
+class YiviThemeData {
   /// Light or dark. The colour fields below keep their names in both
   /// variants and mean the same role (`light` is the plain surface behind
   /// content, `dark` the plain text colour), so screens built on them follow
@@ -68,13 +68,13 @@ class IrmaThemeData {
   // A heading above body text, on screens that have no app bar title for it.
   TextStyle? get bodyHeading => textTheme.bodyLarge?.copyWith(fontSize: 20);
 
-  /// The light theme. [IrmaThemeData.dark] has the same fields with the
+  /// The light theme. [YiviThemeData.dark] has the same fields with the
   /// colours of the dark palette of the redesign.
-  IrmaThemeData() : this._(Brightness.light);
+  YiviThemeData() : this._(Brightness.light);
 
-  IrmaThemeData.dark() : this._(Brightness.dark);
+  YiviThemeData.dark() : this._(Brightness.dark);
 
-  IrmaThemeData._(this.brightness)
+  YiviThemeData._(this.brightness)
     : tertiary = _pick(brightness, 0xFFCFE4EF, 0xFF3A3A3C),
       backgroundPrimary = _pick(brightness, 0xFFFFFFFF, 0xFF000000),
       backgroundSecondary = _pick(brightness, 0xFFFAFAFA, 0xFF000000),
@@ -278,33 +278,33 @@ class IrmaThemeData {
   }
 }
 
-class IrmaTheme extends InheritedWidget {
-  final IrmaThemeData data = IrmaThemeData();
-  final IrmaThemeData darkData = IrmaThemeData.dark();
+class YiviTheme extends InheritedWidget {
+  final YiviThemeData data = YiviThemeData();
+  final YiviThemeData darkData = YiviThemeData.dark();
 
-  // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
+  // YiviTheme provides the IRMA ThemeData to descendents. Therefore descendents
   // must be wrapped in a Builder.
-  IrmaTheme({super.key, required WidgetBuilder builder})
+  YiviTheme({super.key, required WidgetBuilder builder})
     : super(child: Builder(builder: builder));
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {
-    return (oldWidget as IrmaTheme).data != data;
+    return (oldWidget as YiviTheme).data != data;
   }
 
   /// The variant matching the brightness of the nearest [Theme]: dark below a
   /// MaterialApp in dark mode, light everywhere else (including above the
   /// MaterialApp, where the app picks its `theme` and `darkTheme`).
-  static IrmaThemeData of(BuildContext context) {
-    final theme = context.dependOnInheritedWidgetOfExactType<IrmaTheme>()!;
+  static YiviThemeData of(BuildContext context) {
+    final theme = context.dependOnInheritedWidgetOfExactType<YiviTheme>()!;
     return Theme.of(context).brightness == Brightness.dark
         ? theme.darkData
         : theme.data;
   }
 
   /// Both variants, for the MaterialApp's `theme` and `darkTheme`.
-  static IrmaTheme variantsOf(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<IrmaTheme>()!;
+  static YiviTheme variantsOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<YiviTheme>()!;
 }
 
 Color _pick(Brightness brightness, int light, int dark) =>

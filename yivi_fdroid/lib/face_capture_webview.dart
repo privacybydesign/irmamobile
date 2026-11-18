@@ -125,7 +125,7 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
     return PopScope(
       // Intercept the hardware/gesture back so it resolves as a cancel (which
       // the service turns into a throw), matching the native build.

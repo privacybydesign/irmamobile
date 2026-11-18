@@ -215,7 +215,7 @@ void main() {
 
     final widget = UncontrolledProviderScope(
       container: container,
-      child: IrmaTheme(
+      child: YiviTheme(
         builder: (_) => MaterialApp.router(
           localizationsDelegates: [
             FlutterI18nDelegate(

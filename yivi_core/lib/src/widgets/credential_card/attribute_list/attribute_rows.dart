@@ -71,7 +71,7 @@ class _LeafContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
     final attribute = node.attribute;
     final found = node.found;
     final label = attribute.effectiveDisplayName;
@@ -106,7 +106,7 @@ class _LeafContent extends StatelessWidget {
   Color _valueColor(
     BuildContext context,
     AttributeValue? val,
-    IrmaThemeData theme,
+    YiviThemeData theme,
   ) {
     if (node.mismatch) return YiviPalette.of(context).danger;
     if (node.match) return YiviPalette.of(context).successText;
@@ -116,7 +116,7 @@ class _LeafContent extends StatelessWidget {
         : YiviPalette.of(context).danger;
   }
 
-  Widget _buildValue(BuildContext context, IrmaThemeData theme) {
+  Widget _buildValue(BuildContext context, YiviThemeData theme) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
     if (isImageAttribute(node.attribute)) return _tappableImage();

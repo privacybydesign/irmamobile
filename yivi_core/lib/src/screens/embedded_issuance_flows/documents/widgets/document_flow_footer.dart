@@ -147,5 +147,5 @@ class DocumentFlowFooter extends StatelessWidget {
 /// Title above a line of text on the document flow screens: the display face
 /// of the redesign. Takes [theme] for the callers; the colours follow the
 /// app brightness through the palette.
-TextStyle documentFlowTitleStyle(IrmaThemeData theme) =>
+TextStyle documentFlowTitleStyle(YiviThemeData theme) =>
     YiviPalette.forBrightness(theme.brightness).titleStep;

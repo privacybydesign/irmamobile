@@ -21,7 +21,7 @@ class YiviDismissible extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
 
     final dismissedText = TranslatedText(
       "ui.delete",

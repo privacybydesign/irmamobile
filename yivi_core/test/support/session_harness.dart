@@ -212,7 +212,7 @@ Future<SessionHarness> pumpSessionScreen(
         ),
         ...overrides,
       ],
-      child: IrmaTheme(
+      child: YiviTheme(
         builder: (_) => MaterialApp.router(
           routerConfig: router,
           builder: (context, child) =>
@@ -247,7 +247,7 @@ Future<SessionHarness> pumpSessionScreen(
     router,
     observer,
     () => ProviderScope.containerOf(
-      tester.element(find.byType(IrmaTheme)),
+      tester.element(find.byType(YiviTheme)),
       listen: false,
     ),
   );

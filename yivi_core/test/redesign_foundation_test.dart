@@ -19,11 +19,11 @@ Widget _app({
   required Widget home,
   ThemeMode mode = ThemeMode.light,
   GlobalKey<NavigatorState>? navigatorKey,
-}) => IrmaTheme(
+}) => YiviTheme(
   builder: (context) => MaterialApp(
     navigatorKey: navigatorKey,
-    theme: IrmaTheme.variantsOf(context).data.themeData,
-    darkTheme: IrmaTheme.variantsOf(context).darkData.themeData,
+    theme: YiviTheme.variantsOf(context).data.themeData,
+    darkTheme: YiviTheme.variantsOf(context).darkData.themeData,
     themeMode: mode,
     localizationsDelegates: [
       FlutterI18nDelegate(
@@ -45,18 +45,18 @@ void _setWindow(WidgetTester tester, Size size) {
 }
 
 void main() {
-  group("IrmaTheme", () {
+  group("YiviTheme", () {
     testWidgets("hands out the dark variant under a dark theme", (
       tester,
     ) async {
-      late IrmaThemeData seen;
+      late YiviThemeData seen;
       await pumpTranslated(
         tester,
         _app(
           mode: ThemeMode.dark,
           home: Builder(
             builder: (context) {
-              seen = IrmaTheme.of(context);
+              seen = YiviTheme.of(context);
               return const SizedBox();
             },
           ),

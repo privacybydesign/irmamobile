@@ -19,10 +19,10 @@ Widget testApp(
   List<NavigatorObserver> navigatorObservers = const [],
 }) => ProviderScope(
   overrides: overrides,
-  child: IrmaTheme(
+  child: YiviTheme(
     builder: (context) => MaterialApp(
-      theme: IrmaTheme.variantsOf(context).data.themeData,
-      darkTheme: IrmaTheme.variantsOf(context).darkData.themeData,
+      theme: YiviTheme.variantsOf(context).data.themeData,
+      darkTheme: YiviTheme.variantsOf(context).darkData.themeData,
       themeMode: brightness == Brightness.dark
           ? ThemeMode.dark
           : ThemeMode.light,

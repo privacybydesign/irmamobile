@@ -111,7 +111,7 @@ class _DrivingLicenceCategoriesTableState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
     String t(String key) => context.tr("$_prefix.$key");
 
     return Column(
@@ -159,7 +159,7 @@ class _DrivingLicenceCategoriesTableState
   /// offers to hide them again. The whole row is the tap target.
   Widget _summaryRow(
     BuildContext context,
-    IrmaThemeData theme,
+    YiviThemeData theme,
     String Function(String) t,
   ) {
     final hidden = view.rows.where((r) => r.notHeld).length;
@@ -209,7 +209,7 @@ class _DrivingLicenceCategoriesTableState
 
   /// The width of the widest category code in the whole table, hidden rows
   /// included, so the columns do not shift when the table expands.
-  double _codeWidth(BuildContext context, IrmaThemeData theme) {
+  double _codeWidth(BuildContext context, YiviThemeData theme) {
     // The style the code's Text actually renders with: the inherited default
     // text style (font fallback, letter spacing, ...) merged with ours.
     final style = DefaultTextStyle.of(context).style.merge(
@@ -231,7 +231,7 @@ class _DrivingLicenceCategoriesTableState
 
   Widget _table(
     BuildContext context,
-    IrmaThemeData theme,
+    YiviThemeData theme,
     String Function(String) t,
   ) {
     final codeWidth = _codeWidth(context, theme);
@@ -346,7 +346,7 @@ class _CategoryCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
     final (vehicle, trailer) = vehicleIcons(row.code);
 
     return Row(
@@ -421,7 +421,7 @@ Widget _icon(String asset, BuildContext context) => SvgPicture.asset(
 
 Color _comparisonColor(
   BuildContext context,
-  IrmaThemeData theme,
+  YiviThemeData theme,
   AttributeComparison comparison,
 ) => switch (comparison) {
   AttributeComparison.none => AttributeColors.of(context).value,

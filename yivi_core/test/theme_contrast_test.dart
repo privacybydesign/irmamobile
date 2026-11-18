@@ -19,11 +19,11 @@ void main() {
   // Large text (24 px, or 18.66 px bold) and icons.
   const large = 3.0;
 
-  for (final theme in [IrmaThemeData(), IrmaThemeData.dark()]) {
+  for (final theme in [YiviThemeData(), YiviThemeData.dark()]) {
     final palette = theme.isDark ? YiviPalette.dark : YiviPalette.light;
     final name = theme.isDark ? "dark" : "light";
 
-    group("IrmaThemeData $name", () {
+    group("YiviThemeData $name", () {
       test("body text on scaffolds, cards and sheets", () {
         for (final bg in [
           theme.backgroundPrimary,
@@ -159,7 +159,7 @@ void main() {
 
     test("pages are black", () {
       expect(p.background, const Color(0xFF000000));
-      expect(IrmaThemeData.dark().backgroundPrimary, p.background);
+      expect(YiviThemeData.dark().backgroundPrimary, p.background);
     });
 
     test("cards on the page, chips on cards", () {

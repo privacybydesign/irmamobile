@@ -5,7 +5,7 @@ import "yivi_tone.dart";
 
 /// Colours and text styles of the redesign, in a light and a dark
 /// variant. New screens read these through [YiviPalette.of] so they follow the
-/// app brightness; the older screens still use [IrmaThemeData] directly.
+/// app brightness; the older screens still use [YiviThemeData] directly.
 @immutable
 class YiviPalette {
   final Brightness brightness;

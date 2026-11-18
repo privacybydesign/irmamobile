@@ -55,7 +55,7 @@ TextStyle attributeLabelStyle(
   BuildContext context, {
   CredentialCardLayout layout = CredentialCardLayout.standard,
 }) => TextStyle(
-  fontFamily: IrmaTheme.of(context).secondaryFontFamily,
+  fontFamily: YiviTheme.of(context).secondaryFontFamily,
   fontSize: 14,
   height: layout == .document ? CredentialCardLayout.smallLineHeight : null,
   fontWeight: FontWeight.w400,
@@ -67,7 +67,7 @@ TextStyle attributeValueStyle(
   Color color, {
   CredentialCardLayout layout = CredentialCardLayout.standard,
 }) => TextStyle(
-  fontFamily: IrmaTheme.of(context).primaryFontFamily,
+  fontFamily: YiviTheme.of(context).primaryFontFamily,
   fontSize: 16,
   height: layout == .document ? CredentialCardLayout.bodyLineHeight : null,
   fontWeight: layout == .document ? FontWeight.w700 : FontWeight.w600,
@@ -76,7 +76,7 @@ TextStyle attributeValueStyle(
 
 // Small uppercase Open Sans label.
 TextStyle attributeEyebrowStyle(BuildContext context) => TextStyle(
-  fontFamily: IrmaTheme.of(context).secondaryFontFamily,
+  fontFamily: YiviTheme.of(context).secondaryFontFamily,
   fontSize: 12,
   fontWeight: FontWeight.w700,
   color: AttributeColors.of(context).eyebrow,

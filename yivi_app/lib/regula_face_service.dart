@@ -6,7 +6,7 @@ import "package:flutter_face_api/flutter_face_api.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/yivi_core.dart";
 
-/// Yivi brand palette, mirrored from `IrmaThemeData` (yivi_core theme.dart) so
+/// Yivi brand palette, mirrored from `YiviThemeData` (yivi_core theme.dart) so
 /// the Regula liveness UI matches the rest of the app. Kept as plain constants
 /// because the Regula customization is applied at SDK-init time, without a
 /// BuildContext.

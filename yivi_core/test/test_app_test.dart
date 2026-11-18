@@ -19,7 +19,7 @@ class _Probe extends ConsumerWidget {
     seen
       ..clear()
       ..addAll([
-        IrmaTheme.of(context),
+        YiviTheme.of(context),
         FlutterI18n.translate(context, "ui.cancel"),
         ref.watch(_word),
       ]);
@@ -28,12 +28,12 @@ class _Probe extends ConsumerWidget {
 }
 
 void main() {
-  testWidgets("light gives the light IrmaThemeData and the app's theme", (
+  testWidgets("light gives the light YiviThemeData and the app's theme", (
     tester,
   ) async {
     final seen = <Object>[];
     await pumpTestApp(tester, _Probe(seen));
-    final data = seen[0] as IrmaThemeData;
+    final data = seen[0] as YiviThemeData;
     expect(data.isDark, isFalse);
     final context = tester.element(find.byType(_Probe));
     expect(Theme.of(context).brightness, Brightness.light);
@@ -43,10 +43,10 @@ void main() {
     );
   });
 
-  testWidgets("dark gives the dark IrmaThemeData", (tester) async {
+  testWidgets("dark gives the dark YiviThemeData", (tester) async {
     final seen = <Object>[];
     await pumpTestApp(tester, _Probe(seen), brightness: Brightness.dark);
-    expect((seen[0] as IrmaThemeData).isDark, isTrue);
+    expect((seen[0] as YiviThemeData).isDark, isTrue);
     final context = tester.element(find.byType(_Probe));
     expect(Theme.of(context).brightness, Brightness.dark);
   });

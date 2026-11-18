@@ -21,7 +21,7 @@ class EmailLinkBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -111,7 +111,7 @@ class EmailLinkBanner extends ConsumerWidget {
 
 /// Asks what to do with the banner: show it again later, or never.
 Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
-  final theme = IrmaTheme.of(context);
+  final theme = YiviTheme.of(context);
   final linking = ref.read(emailLinkingProvider.notifier);
   // The banner leaves the tree as soon as it is snoozed or dismissed, so take
   // the navigator now instead of looking it up from the banner's context.

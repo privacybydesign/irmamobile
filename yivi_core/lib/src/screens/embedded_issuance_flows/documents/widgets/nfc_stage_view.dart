@@ -65,7 +65,7 @@ class NfcStageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
     final size = MediaQuery.sizeOf(context);
     final isLandscape = MediaQuery.orientationOf(context) == .landscape;
 

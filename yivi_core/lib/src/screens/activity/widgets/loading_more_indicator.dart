@@ -13,7 +13,7 @@ class LoadingMoreIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
 
     final expandedDividerWidget = Expanded(
       child: Container(height: 1, color: YiviPalette.of(context).outline),

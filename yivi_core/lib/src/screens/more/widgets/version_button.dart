@@ -34,7 +34,7 @@ class _VersionButtonState extends State<VersionButton> {
   @override
   Widget build(BuildContext context) {
     final repo = repositoryOf(context);
-    final theme = IrmaTheme.of(context);
+    final theme = YiviTheme.of(context);
 
     final textStyle = theme.textTheme.titleLarge!.copyWith(
       fontWeight: FontWeight.w600,

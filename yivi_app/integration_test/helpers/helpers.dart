@@ -571,7 +571,7 @@ Element _cardRoot(Finder finder) {
   return art.first;
 }
 
-/// The status a [YiviCredentialCard] header would show for [status]:
+/// The status a card shows for [status]:
 /// revoked over expired over expiring soon.
 String? _statusName(CredentialCardStatus status) => status.revoked
     ? "revoked"
@@ -582,7 +582,7 @@ String? _statusName(CredentialCardStatus status) => status.revoked
     : null;
 
 /// Checks a credential card. Works on every way the app draws a credential:
-/// - [YiviCredentialCard] (activity details, obtainable options in a choice);
+/// - [ActivityCredentialTile] (activity details);
 /// - [SharedCardTile] (owned candidates in a disclosure);
 /// - [CredentialDetailScreen] (the data tab's card detail; see
 ///   [navigateToCredentialDetailsPage] and [findCredentialDetail]);
@@ -626,9 +626,7 @@ Future<void> evaluateCredentialCard(
   final widget = root.widget;
 
   if (footerText != null) {
-    throw ArgumentError(
-      "footerText only applies to a YiviCredentialCard, not ${widget.runtimeType}",
-    );
+    throw ArgumentError("footerText does not apply to ${widget.runtimeType}");
   }
 
   // The header (name + issuer), the selection and the style.

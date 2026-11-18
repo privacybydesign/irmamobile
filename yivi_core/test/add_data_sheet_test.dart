@@ -227,7 +227,7 @@ Future<_Calls> _pump(
           (d) async => calls.obtained.add(d.credentialId),
         ),
       ],
-      child: IrmaTheme(
+      child: YiviTheme(
         builder: (_) => MaterialApp.router(
           routerConfig: router,
           // As the app: a tap outside a text field puts the keyboard away.

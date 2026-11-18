@@ -115,7 +115,7 @@ class DocumentSheetHarness {
         ],
         // The pictures stand still, and the camera shows its fallback.
         child: TestContext(
-          child: IrmaTheme(
+          child: YiviTheme(
             builder: (_) => MaterialApp.router(
               routerConfig: router,
               localizationsDelegates: [

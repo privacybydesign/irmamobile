@@ -25,7 +25,7 @@ void main() {
     final navigator = GlobalKey<NavigatorState>();
     await tester.pumpWidget(
       ProviderScope(
-        child: IrmaTheme(
+        child: YiviTheme(
           builder: (_) => MaterialApp(
             navigatorKey: navigator,
             localizationsDelegates: [
