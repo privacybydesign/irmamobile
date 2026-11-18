@@ -9,7 +9,7 @@ import "../../theme/yivi_palette.dart";
 /// a round button) or holds a sheet: solid, in the surface colour, with a
 /// thin edge and, as it floats, a soft shadow. No glass: the same on iOS and
 /// Android, and nothing to blur on every frame.
-class GlassSurface extends StatelessWidget {
+class Surface extends StatelessWidget {
   final Widget child;
   final ShapeBorder shape;
   final EdgeInsetsGeometry? padding;
@@ -20,7 +20,7 @@ class GlassSurface extends StatelessWidget {
   /// Fades the surface in or out: its fill, edge and shadow, and [child].
   final double opacity;
 
-  const GlassSurface({
+  const Surface({
     super.key,
     required this.child,
     this.shape = const StadiumBorder(),

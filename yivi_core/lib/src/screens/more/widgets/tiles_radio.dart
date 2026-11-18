@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/surfaces/glass_group.dart";
+import "../../../widgets/surfaces/inset_group.dart";
 import "tiles.dart";
 
 class RadioTilesCard extends StatefulWidget {
@@ -46,7 +46,7 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return GlassGroup(
+    return InsetGroup(
       header: widget.header,
       children: widget.options
           .mapIndexed(

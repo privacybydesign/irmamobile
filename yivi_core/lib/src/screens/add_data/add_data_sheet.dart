@@ -16,11 +16,11 @@ import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
-import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/feedback/dialog.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
-import "../../widgets/input/glass_search_field.dart";
+import "../../widgets/input/search_input.dart";
 import "../../widgets/sheet/sheet.dart";
-import "../../widgets/surfaces/glass_group.dart";
+import "../../widgets/surfaces/inset_group.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../embedded_issuance_flows/documents/nfc_credentials.dart";
 import "../home/widgets/home_tab_top.dart";
@@ -226,7 +226,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet> {
   void _showNfcUnsupportedDialog() {
     showDialog<void>(
       context: context,
-      builder: (context) => GlassDialog(
+      builder: (context) => YiviDialog(
         icon: const ToneDisc(icon: Icons.nfc_rounded, tone: YiviTone.warning),
         title: context.tr("data.add.nfc_unsupported.title"),
         message: context.tr("data.add.nfc_unsupported.body"),
@@ -417,7 +417,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                 SliverMainAxisGroup(
                   slivers: [
                     if (title(group).isNotEmpty)
-                      SliverToBoxAdapter(child: GlassTileHeader(title(group))),
+                      SliverToBoxAdapter(child: InsetGroupHeader(title(group))),
                     SliverPadding(
                       padding: const EdgeInsets.only(bottom: YiviSpace.x12),
                       sliver: SliverList.builder(
@@ -432,7 +432,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
                                 for (final i in [2 * r, 2 * r + 1])
                                   Expanded(
                                     child: i < items.length
-                                        ? GlassTile(child: row(items[i]))
+                                        ? InsetGroupTile(child: row(items[i]))
                                         : const SizedBox.shrink(),
                                   ),
                               ],
@@ -446,7 +446,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
               )
           else
             for (final (group, items) in groups)
-              SliverGlassGroup(
+              SliverInsetGroup(
                 // A credential without a category (irmago marshals it
                 // `omitempty`) gets no header.
                 header: title(group).isEmpty ? null : title(group),
@@ -464,7 +464,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
       title: SheetTitle(
         context.tr("data.add.title"),
         widget: _inBar
-            ? GlassSearchField(
+            ? SearchInput(
                 fieldKey: const Key("add_data_search_bar"),
                 hintKey: "data.add.search",
                 controller: _search,

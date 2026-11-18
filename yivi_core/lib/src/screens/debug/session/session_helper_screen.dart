@@ -5,7 +5,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/surfaces/glass_group.dart";
+import "../../../widgets/surfaces/inset_group.dart";
 
 class SessionHelperScreen extends StatefulWidget {
   final String initialRequest;
@@ -47,7 +47,7 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
           YiviSpace.x16,
           YiviSpace.x16,
         ),
-        child: GlassGroup(
+        child: InsetGroup(
           children: [
             SizedBox(
               height: 480,

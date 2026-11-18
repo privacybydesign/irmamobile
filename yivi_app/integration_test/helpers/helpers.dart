@@ -43,7 +43,7 @@ import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_temp
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
@@ -1351,7 +1351,7 @@ Future<void> deleteCredentialFromDetail(WidgetTester tester) async {
   );
   await tester.tapAndSettle(deleteButton);
 
-  final dialog = find.byType(GlassDialog);
+  final dialog = find.byType(YiviDialog);
   expect(dialog, findsOneWidget);
   await tester.tapAndSettle(
     find.descendant(of: dialog, matching: find.text("Delete")),

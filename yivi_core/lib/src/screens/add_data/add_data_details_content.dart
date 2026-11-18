@@ -10,7 +10,7 @@ import "../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../widgets/flight/yivi_flight.dart";
 import "../../widgets/sheet/sheet_layout.dart";
 import "../../widgets/surfaces/faq_fold.dart";
-import "../../widgets/surfaces/glass_group.dart";
+import "../../widgets/surfaces/inset_group.dart";
 import "../../widgets/surfaces/numbered_step.dart";
 import "../../widgets/text/caps_label.dart";
 import "../../widgets/text/markdown.dart";
@@ -132,7 +132,7 @@ class AddDataDetailsContent extends StatelessWidget {
         if (attributeNames.isNotEmpty)
           _YouGet(names: attributeNames)
         else
-          GlassGroup(
+          InsetGroup(
             key: const Key("add_data_you_get"),
             children: [
               Padding(
@@ -144,7 +144,7 @@ class AddDataDetailsContent extends StatelessWidget {
       ],
       if (purpose.isNotEmpty || howTo.isNotEmpty) ...[
         _SectionLabel(context.tr("data.add.details.good_to_know")),
-        GlassGroup(
+        InsetGroup(
           children: [
             if (purpose.isNotEmpty)
               FaqFold(
@@ -277,7 +277,7 @@ class _YouGet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return GlassGroup(
+    return InsetGroup(
       key: const Key("add_data_you_get"),
       children: [
         Padding(

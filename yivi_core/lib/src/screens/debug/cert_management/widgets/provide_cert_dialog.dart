@@ -4,7 +4,7 @@ import "../../../../models/eudi_configuration.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/buttons/pill_buttons.dart";
-import "../../../../widgets/feedback/glass_dialog.dart";
+import "../../../../widgets/feedback/dialog.dart";
 
 class ProvideCertDialog extends StatefulWidget {
   const ProvideCertDialog({super.key});
@@ -29,7 +29,7 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
       "debug.cert_management.install_cert_dialog.content",
     );
 
-    return GlassDialog(
+    return YiviDialog(
       title: translatedTitle,
       message: translatedContent,
       body: Column(

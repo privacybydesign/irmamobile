@@ -2,7 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -49,7 +49,7 @@ Future<void> declineDisclosureTest(
   // Close the session.
   await tester.tapAndSettle(find.byType(YiviCloseButton));
 
-  final disclosureCloseDialogFinder = find.byType(GlassDialog);
+  final disclosureCloseDialogFinder = find.byType(YiviDialog);
   expect(disclosureCloseDialogFinder, findsOneWidget);
 
   await tester.tapAndSettle(find.text("Yes"));

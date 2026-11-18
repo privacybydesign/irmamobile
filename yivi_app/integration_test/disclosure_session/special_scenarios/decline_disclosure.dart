@@ -2,7 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -37,7 +37,7 @@ Future<void> declineDisclosure(
   await tester.tapAndSettle(find.byType(YiviCloseButton));
 
   // Expect the close dialog
-  final disclosureCloseDialogFinder = find.byType(GlassDialog);
+  final disclosureCloseDialogFinder = find.byType(YiviDialog);
   expect(disclosureCloseDialogFinder, findsOneWidget);
 
   // Press close and dialog should disappear

@@ -11,7 +11,7 @@ import "surface_card.dart";
 /// like the groups in Settings and More. Flat: its colour sets it off from
 /// the page, an outline too with Increase Contrast ([YiviEdges.block]). An optional [header] sits above the
 /// group, outside it.
-class GlassGroup extends StatelessWidget {
+class InsetGroup extends StatelessWidget {
   final List<Widget> children;
 
   /// Where the dividers start: 16 for plain rows, 68 for rows with an icon
@@ -20,7 +20,7 @@ class GlassGroup extends StatelessWidget {
 
   final String? header;
 
-  const GlassGroup({
+  const InsetGroup({
     super.key,
     required this.children,
     this.dividerIndent = 16,
@@ -63,11 +63,11 @@ class GlassGroup extends StatelessWidget {
   }
 }
 
-/// [GlassGroup] for a long list in a [CustomScrollView]: the same group, but
+/// [InsetGroup] for a long list in a [CustomScrollView]: the same group, but
 /// its rows are built as they scroll into view. The group's fill is drawn
 /// behind the rows ([DecoratedSliver]); each row is on a
 /// transparent [Material], so its ink shows on the fill.
-class SliverGlassGroup extends StatelessWidget {
+class SliverInsetGroup extends StatelessWidget {
   final String? header;
   final int itemCount;
   final IndexedWidgetBuilder itemBuilder;
@@ -79,7 +79,7 @@ class SliverGlassGroup extends StatelessWidget {
   /// edge.
   final bool fullWidth;
 
-  const SliverGlassGroup({
+  const SliverInsetGroup({
     super.key,
     this.header,
     required this.itemCount,
@@ -110,7 +110,7 @@ class SliverGlassGroup extends StatelessWidget {
                 )
               : ShapeDecoration(
                   color: palette.surface,
-                  shape: GlassGroup._shape(context),
+                  shape: InsetGroup._shape(context),
                 ),
           sliver: SliverList.separated(
             itemCount: itemCount,
@@ -126,9 +126,9 @@ class SliverGlassGroup extends StatelessWidget {
                     type: MaterialType.transparency,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
-                        top: i == 0 ? GlassGroup.radius.topLeft : Radius.zero,
+                        top: i == 0 ? InsetGroup.radius.topLeft : Radius.zero,
                         bottom: i == itemCount - 1
-                            ? GlassGroup.radius.bottomLeft
+                            ? InsetGroup.radius.bottomLeft
                             : Radius.zero,
                       ),
                     ),
@@ -136,7 +136,7 @@ class SliverGlassGroup extends StatelessWidget {
                     child: itemBuilder(context, i),
                   ),
             separatorBuilder: (_, _) =>
-                GlassGroup._divider(palette, dividerIndent),
+                InsetGroup._divider(palette, dividerIndent),
           ),
         ),
       ],
@@ -160,25 +160,25 @@ class _GroupHeader extends StatelessWidget {
 /// A row of a list held sideways as a card of its own, in a grid of them
 /// (Add data, the country picker): the group's surface and outline, and its
 /// corners.
-class GlassTile extends StatelessWidget {
+class InsetGroupTile extends StatelessWidget {
   final Widget child;
 
-  const GlassTile({super.key, required this.child});
+  const InsetGroupTile({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) => Material(
     color: YiviPalette.of(context).surface,
-    shape: GlassGroup._shape(context),
+    shape: InsetGroup._shape(context),
     clipBehavior: Clip.antiAlias,
     child: Center(child: child),
   );
 }
 
-/// The name above a grid of [GlassTile]s.
-class GlassTileHeader extends StatelessWidget {
+/// The name above a grid of [InsetGroupTile]s.
+class InsetGroupHeader extends StatelessWidget {
   final String text;
 
-  const GlassTileHeader(this.text, {super.key});
+  const InsetGroupHeader(this.text, {super.key});
 
   @override
   Widget build(BuildContext context) => Padding(

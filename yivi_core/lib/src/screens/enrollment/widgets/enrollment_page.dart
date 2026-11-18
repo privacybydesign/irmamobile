@@ -9,7 +9,7 @@ import "../../../widgets/bars/floating_bar_placement.dart";
 import "../../../widgets/buttons/press_scale.dart";
 import "../../../widgets/layout/centred_max_width.dart";
 import "../../../widgets/layout/fill_scroll_view.dart";
-import "../../../widgets/surfaces/glass_surface.dart";
+import "../../../widgets/surfaces/surface.dart";
 import "../../../widgets/text/translated_text.dart";
 
 /// Whether an enrollment page lays out in two columns: whenever the screen
@@ -335,7 +335,7 @@ class EnrollmentBarTextButton extends StatelessWidget {
       excludeSemantics: true,
       child: PressScale(
         scale: PressScale.glass,
-        child: GlassSurface(
+        child: Surface(
           shape: const StadiumBorder(),
           child: Material(
             type: MaterialType.transparency,

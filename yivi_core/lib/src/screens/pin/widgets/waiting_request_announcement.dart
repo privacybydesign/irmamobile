@@ -7,7 +7,7 @@ import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/feedback/dialog.dart";
 import "../../../widgets/surfaces/corner_badge.dart";
 import "../../session/requestor/requestor_card.dart";
 

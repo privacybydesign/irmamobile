@@ -5,7 +5,7 @@ import "../../theme/yivi_space.dart";
 import "../buttons/press_scale.dart";
 import "../layout/centred_max_width.dart";
 import "../layout/tab_layout.dart";
-import "../surfaces/glass_surface.dart";
+import "../surfaces/surface.dart";
 
 /// Shows [message] as a pill for 2.6 seconds, like "You have been
 /// logged out": just above the bottom of the screen, or above the tab bar
@@ -69,7 +69,7 @@ void Function(String message, {Key? key, ToastAction? action}) appToastFor(
       content: CentredMaxWidth(
         maxWidth: 440,
         // What floats over the page, as the tab bar and the menus.
-        child: GlassSurface(
+        child: Surface(
           padding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: YiviSpace.x12,

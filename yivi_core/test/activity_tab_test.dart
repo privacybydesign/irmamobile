@@ -16,7 +16,7 @@ import "package:yivi_core/src/screens/activity/widgets/activity_query_chips.dart
 import "package:yivi_core/src/screens/home/widgets/home_tab_top.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/bars/scroll_edge.dart";
-import "package:yivi_core/src/widgets/input/glass_search_field.dart";
+import "package:yivi_core/src/widgets/input/search_input.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -347,13 +347,13 @@ void main() {
     // Cleared, with no tags either: the search is over.
     await tester.tap(
       find.descendant(
-        of: find.byType(GlassSearchField),
+        of: find.byType(SearchInput),
         matching: find.byIcon(Icons.close),
       ),
     );
     await _settle(tester);
     expect(queries().last.filter.text, isNull);
-    expect(find.byType(GlassSearchField), findsNothing);
+    expect(find.byType(SearchInput), findsNothing);
     expect(find.byKey(const Key("activity_filter_button")), findsOneWidget);
   });
 
@@ -779,7 +779,7 @@ void main() {
   });
 
   group("search ends and comes back (phase 13 pins)", () {
-    bool searching() => find.byType(GlassSearchField).evaluate().isNotEmpty;
+    bool searching() => find.byType(SearchInput).evaluate().isNotEmpty;
 
     testWidgets("after Enter, the field's clear button with no tags ends "
         "the search", (tester) async {
@@ -791,7 +791,7 @@ void main() {
       expect(searching(), isTrue);
       await tester.tap(
         find.descendant(
-          of: find.byType(GlassSearchField),
+          of: find.byType(SearchInput),
           matching: find.byIcon(Icons.close),
         ),
       );

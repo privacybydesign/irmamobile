@@ -10,7 +10,7 @@ import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/bars/scroll_edge.dart";
 import "../../../widgets/bars/title_scroll_edge.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/input/glass_search_field.dart";
+import "../../../widgets/input/search_input.dart";
 import "../../../widgets/layout/tab_layout.dart";
 import "../../data/card_transition/card_transition.dart";
 import "../../data/card_transition/card_transition_layer.dart";
@@ -558,17 +558,17 @@ class HomeTabSearchField extends StatelessWidget {
         child: Container(
           height: height,
           padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-          decoration: GlassSearchField.decoration(palette),
+          decoration: SearchInput.decoration(palette),
           child: Row(
             spacing: YiviSpace.x8,
             children: [
-              GlassSearchField.icon(palette),
+              SearchInput.icon(palette),
               Expanded(
                 child: Text(
                   hint,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GlassSearchField.hintStyle(palette),
+                  style: SearchInput.hintStyle(palette),
                 ),
               ),
             ],

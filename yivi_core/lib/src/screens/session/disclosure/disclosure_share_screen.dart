@@ -26,7 +26,7 @@ import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/feedback/dialog.dart";
 import "../../../widgets/feedback/progress_part.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/layout/fill_scroll_view.dart";
@@ -724,7 +724,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     String t(String key) => context.tr(key, {"requestor": requestor});
     return await showDialog<bool>(
           context: context,
-          builder: (dialogContext) => GlassDialog(
+          builder: (dialogContext) => YiviDialog(
             cardKey: const Key("share_anyway_dialog"),
             icon: const ToneDisc(
               icon: Icons.warning_rounded,

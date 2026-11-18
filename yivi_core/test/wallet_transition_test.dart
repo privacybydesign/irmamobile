@@ -4,7 +4,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/widgets/surfaces/base64_image.dart";
-import "package:yivi_core/src/widgets/surfaces/glass_surface.dart";
+import "package:yivi_core/src/widgets/surfaces/surface.dart";
 
 // A 1x1 PNG.
 const _png =
@@ -290,7 +290,7 @@ void main() {
           MaterialApp(
             home: Scaffold(
               body: Center(
-                child: GlassSurface(
+                child: Surface(
                   shape: const CircleBorder(),
                   opacity: opacity,
                   child: const SizedBox.square(
@@ -332,16 +332,14 @@ void main() {
       MaterialApp(
         theme: ThemeData(brightness: Brightness.dark),
         home: const Scaffold(
-          body: Center(
-            child: GlassSurface(child: SizedBox(width: 100, height: 44)),
-          ),
+          body: Center(child: Surface(child: SizedBox(width: 100, height: 44))),
         ),
       ),
     );
     final decorations = tester
         .widgetList<DecoratedBox>(
           find.descendant(
-            of: find.byType(GlassSurface),
+            of: find.byType(Surface),
             matching: find.byType(DecoratedBox),
           ),
         )

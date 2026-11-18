@@ -5,7 +5,7 @@ import "../../routing/navigation.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/app_toast.dart";
-import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/feedback/dialog.dart";
 import "../enrollment/choose_pin/choose_pin_screen.dart";
 import "../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
 import "../error/session_error_screen.dart";

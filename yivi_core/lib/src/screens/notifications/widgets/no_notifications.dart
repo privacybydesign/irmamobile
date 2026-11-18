@@ -4,7 +4,7 @@ import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
-import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/feedback/dialog.dart";
 import "../../../widgets/text/translated_text.dart";
 import "../models/credential_status_notification.dart";
 import "notification_card.dart";

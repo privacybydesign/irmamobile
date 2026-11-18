@@ -10,7 +10,7 @@ import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/bars/app_bar.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -157,7 +157,7 @@ void main() {
       await tester.tapAndSettle(nextButtonFinder);
 
       // Expect confirm change pin dialog
-      final confirmPinResetDialogFinder = find.byType(GlassDialog);
+      final confirmPinResetDialogFinder = find.byType(YiviDialog);
       await tester.waitFor(confirmPinResetDialogFinder);
 
       // Confirm it

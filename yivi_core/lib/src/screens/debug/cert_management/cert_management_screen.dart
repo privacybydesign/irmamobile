@@ -15,7 +15,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/yivi_spinner.dart";
-import "../../../widgets/surfaces/glass_group.dart";
+import "../../../widgets/surfaces/inset_group.dart";
 import "../../error/error_screen.dart";
 import "../util/snackbar.dart";
 import "widgets/cert_manager_tile.dart";
@@ -134,7 +134,7 @@ class _CertificateManagementScreenState
                 YiviSpace.x16,
               ),
               children: [
-                GlassGroup(
+                InsetGroup(
                   header: context.tr("debug.cert_management.issuer_certs"),
                   children: [
                     for (final cert
@@ -146,7 +146,7 @@ class _CertificateManagementScreenState
                       ),
                   ],
                 ),
-                GlassGroup(
+                InsetGroup(
                   header: context.tr("debug.cert_management.verifier_certs"),
                   children: [
                     for (final cert

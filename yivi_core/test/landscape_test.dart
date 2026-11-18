@@ -10,7 +10,7 @@ import "package:yivi_core/src/screens/session/result/issuance_success_screen.dar
 import "package:yivi_core/src/widgets/bars/bottom_bar_base.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
@@ -161,7 +161,7 @@ void main() {
   ) async {
     await pump(
       tester,
-      const GlassDialog(
+      const YiviDialog(
         title: "Share with a party Yivi doesn't know?",
         message: "They get the data on this page.",
         actions: [

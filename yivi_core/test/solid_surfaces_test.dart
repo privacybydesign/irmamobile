@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
-import "package:yivi_core/src/widgets/surfaces/glass_surface.dart";
+import "package:yivi_core/src/widgets/surfaces/surface.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -26,7 +26,7 @@ Widget _app() => IrmaTheme(
         _page = context;
         return const Scaffold(
           body: Center(
-            child: GlassSurface(
+            child: Surface(
               key: Key("page_glass"),
               child: SizedBox(width: 200, height: 48),
             ),
@@ -43,7 +43,7 @@ void _open() => showSheet<void>(
     title: SheetTitle("Sheet"),
     child: Column(
       children: [
-        const GlassSurface(
+        const Surface(
           key: Key("sheet_glass"),
           child: SizedBox(width: 200, height: 48),
         ),

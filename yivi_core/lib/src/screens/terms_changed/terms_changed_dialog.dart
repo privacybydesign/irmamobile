@@ -6,7 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../providers/preferences_provider.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
-import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/feedback/dialog.dart";
 import "../../widgets/text/translated_text.dart";
 
 class TermsChangedListener extends ConsumerStatefulWidget {
@@ -84,7 +84,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
     // `Navigator.of` (not GoRouter's `context.pop`) because the dialog
     // may be hosted in a local Navigator (e.g. `LockGate`'s overlay) that
     // sits above the GoRouter scope.
-    return GlassDialog(
+    return YiviDialog(
       key: const Key("terms_changed_dialog"),
       title: context.tr("new_terms_and_conditions.title"),
       body: TranslatedText(

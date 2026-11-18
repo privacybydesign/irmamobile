@@ -8,7 +8,7 @@ import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/compact_bar.dart";
 import "../../../widgets/buttons/press_scale.dart";
-import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/feedback/dialog.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/surfaces/corner_badge.dart";
 import "../../../widgets/surfaces/party_avatar.dart";

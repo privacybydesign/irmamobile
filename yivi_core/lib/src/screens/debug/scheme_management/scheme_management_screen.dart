@@ -19,9 +19,9 @@ import "../../../util/i18n.dart";
 import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/feedback/dialog.dart";
 import "../../../widgets/feedback/yivi_spinner.dart";
-import "../../../widgets/surfaces/glass_group.dart";
+import "../../../widgets/surfaces/inset_group.dart";
 import "../../error/error_screen.dart";
 import "../debug_schemes.dart";
 import "../util/snackbar.dart";
@@ -206,7 +206,7 @@ class _SchemeManagementScreenState
                 YiviSpace.x16,
               ),
               children: [
-                GlassGroup(
+                InsetGroup(
                   header: context.tr("debug.scheme_management.issuer_schemes"),
                   children: [
                     for (final schemeManager in schemes.schemeManagers)
@@ -220,7 +220,7 @@ class _SchemeManagementScreenState
                       ),
                   ],
                 ),
-                GlassGroup(
+                InsetGroup(
                   header: context.tr(
                     "debug.scheme_management.requestor_schemes",
                   ),

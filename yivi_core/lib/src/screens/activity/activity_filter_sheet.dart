@@ -13,10 +13,10 @@ import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
-import "../../widgets/input/glass_search_field.dart";
+import "../../widgets/input/search_input.dart";
 import "../../widgets/sheet/sheet.dart";
 import "../../widgets/sheet/sheet_actions.dart";
-import "../../widgets/surfaces/glass_group.dart";
+import "../../widgets/surfaces/inset_group.dart";
 import "../../widgets/surfaces/list_row.dart";
 import "../../widgets/text/section_header.dart";
 import "activity_entry.dart";
@@ -336,7 +336,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   /// page of their own.
   Widget _cardRow(YiviPalette palette) {
     final card = _q.card;
-    return GlassGroup(
+    return InsetGroup(
       dividerIndent: 14 + 46 + 12,
       children: [
         _pickRow(
@@ -411,7 +411,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
             YiviSpace.x12,
           ),
           sliver: SliverToBoxAdapter(
-            child: GlassSearchField(
+            child: SearchInput(
               fieldKey: const Key("activity_filter_card_search"),
               hintKey: "activity.query.sheet.search_cards",
               onChanged: (text) => setState(() => _cardSearch = text),
@@ -438,7 +438,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
               YiviSpace.x16,
               YiviSpace.x24,
             ),
-            sliver: SliverGlassGroup(
+            sliver: SliverInsetGroup(
               dividerIndent: 14 + 46 + 12,
               itemCount: cards.length + any,
               itemBuilder: (context, i) {
@@ -570,7 +570,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
     if (picked != null && !shown.any((p) => p.key == picked.key)) {
       shown.add(picked);
     }
-    return GlassGroup(
+    return InsetGroup(
       dividerIndent: 14 + 36 + 12,
       children: [
         for (final p in shown)

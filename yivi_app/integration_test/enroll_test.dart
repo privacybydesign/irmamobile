@@ -10,7 +10,7 @@ import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/widgets/error_report_switch.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "helpers/helpers.dart";
@@ -111,7 +111,7 @@ void main() {
       await enterPin(tester, "54321");
 
       // Expect false pin dialog
-      final dialogFinder = find.byType(GlassDialog);
+      final dialogFinder = find.byType(YiviDialog);
       expect(dialogFinder, findsOneWidget);
       expect(tester.getAllText(dialogFinder), [
         "PIN entered incorrectly",

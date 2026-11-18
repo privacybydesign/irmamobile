@@ -6,8 +6,8 @@ import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/action_bar.dart";
-import "../../widgets/feedback/glass_dialog.dart";
-import "../../widgets/surfaces/glass_surface.dart";
+import "../../widgets/feedback/dialog.dart";
+import "../../widgets/surfaces/surface.dart";
 import "layout/session_layout.dart";
 import "result/session_result.dart";
 
@@ -53,7 +53,7 @@ class CallInfoScreen extends StatelessWidget {
               alignment: SessionLayout.of(context).split
                   ? AlignmentDirectional.centerStart
                   : Alignment.center,
-              child: GlassSurface(
+              child: Surface(
                 key: const Key("call_number"),
                 shape: const RoundedRectangleBorder(
                   borderRadius: YiviCorners.cardRadius,

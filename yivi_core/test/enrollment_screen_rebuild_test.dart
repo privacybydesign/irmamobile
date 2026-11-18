@@ -6,7 +6,7 @@ import "package:yivi_core/src/models/enrollment_events.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -98,7 +98,7 @@ void main() {
     await settle(tester);
 
     await typePin(tester, "86315");
-    expect(find.byType(GlassDialog), findsNothing);
+    expect(find.byType(YiviDialog), findsNothing);
     expect(bridge.dispatched.whereType<EnrollEvent>(), hasLength(1));
     expect(currentLocation(router), "/home");
   });

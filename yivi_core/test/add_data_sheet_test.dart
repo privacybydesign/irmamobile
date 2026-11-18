@@ -41,7 +41,7 @@ import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
 import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
-import "package:yivi_core/src/widgets/input/glass_search_field.dart";
+import "package:yivi_core/src/widgets/input/search_input.dart";
 import "package:yivi_core/src/widgets/input/unfocus_on_tap_outside.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 import "package:yivi_core/src/widgets/sheet/sheet_layout.dart";
@@ -297,7 +297,7 @@ void main() {
       expect(find.text("Adding data"), findsOneWidget);
       // The field is a button until tapped: no text field yet.
       expect(find.byKey(const Key("add_data_search")), findsOneWidget);
-      expect(find.byType(GlassSearchField), findsNothing);
+      expect(find.byType(SearchInput), findsNothing);
       // Each type as its card, not a round logo.
       expect(
         find.descendant(
@@ -1650,7 +1650,7 @@ void main() {
 
     testWidgets("the list: two cards side by side", (tester) async {
       await _pump(tester, size: side);
-      expect(find.byType(GlassSearchField), findsNothing);
+      expect(find.byType(SearchInput), findsNothing);
       final passport = tester.getRect(_row("pbdf.pbdf.passport"));
       final email = tester.getRect(_row("pbdf.sidn-pbdf.email"));
       expect(email.top, passport.top);

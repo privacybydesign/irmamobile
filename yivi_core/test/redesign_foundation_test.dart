@@ -7,7 +7,7 @@ import "package:yivi_core/src/theme/yivi_corners.dart";
 import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/feedback/app_toast.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
 import "package:yivi_core/src/widgets/feedback/status_body.dart";
 import "package:yivi_core/src/widgets/feedback/status_screen.dart";
 

@@ -5,7 +5,7 @@ import "../../../providers/local_backends_provider.dart";
 import "../../../providers/preferences_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/feedback/dialog.dart";
 import "../../../widgets/input/pill_text_field.dart";
 import "../../more/widgets/tiles.dart";
 
@@ -29,7 +29,7 @@ class LocalBackendsTile extends ConsumerWidget {
 
     final host = await showDialog<String>(
       context: context,
-      builder: (context) => GlassDialog(
+      builder: (context) => YiviDialog(
         title: "Local backends",
         message: LocalBackendsTile._backendsSummary(ref),
         body: PillTextField(

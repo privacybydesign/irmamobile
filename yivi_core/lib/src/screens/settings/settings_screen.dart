@@ -15,8 +15,8 @@ import "../../routing/navigation.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
 import "../../util/language.dart";
-import "../../widgets/feedback/glass_dialog.dart";
-import "../../widgets/surfaces/glass_group.dart";
+import "../../widgets/feedback/dialog.dart";
+import "../../widgets/surfaces/inset_group.dart";
 import "../add_data/email_linking.dart";
 import "../more/widgets/more_subpage.dart";
 import "../more/widgets/tiles.dart";
@@ -80,7 +80,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             final biometricAvailable =
                 ref.watch(biometricAvailableProvider).value ?? false;
             final biometricEnabled = ref.watch(biometricEnabledProvider);
-            return GlassGroup(
+            return InsetGroup(
               children: [
                 if (biometricAvailable) ...[
                   ToggleTile(
@@ -170,7 +170,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           },
         ),
         Consumer(
-          builder: (context, ref, _) => GlassGroup(
+          builder: (context, ref, _) => InsetGroup(
             header: context.tr("settings.other"),
             dividerIndent: 68,
             children: [

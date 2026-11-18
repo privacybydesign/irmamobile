@@ -9,9 +9,9 @@ import "../../theme/yivi_tone.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../buttons/pill_buttons.dart";
-import "../surfaces/glass_surface.dart";
+import "../surfaces/surface.dart";
 
-/// The round disc with an icon at the top of a [GlassDialog] or a status
+/// The round disc with an icon at the top of a [YiviDialog] or a status
 /// screen: a soft fill with the icon in the matching strong colour.
 class ToneDisc extends StatelessWidget {
   final IconData icon;
@@ -53,7 +53,7 @@ class ToneDisc extends StatelessWidget {
 /// The app's dialog: a solid card with 32 pt corners, an optional icon
 /// disc, a centred title and message, and the actions stacked below as pills
 /// (the primary one first). For a yes/no question, see [showConfirmDialog].
-class GlassDialog extends StatelessWidget {
+class YiviDialog extends StatelessWidget {
   final String title;
 
   /// The message under the title. Use [body] for anything richer.
@@ -72,7 +72,7 @@ class GlassDialog extends StatelessWidget {
   /// message have the keys `dialog_title` and `dialog_message`.
   final Key cardKey;
 
-  const GlassDialog({
+  const YiviDialog({
     super.key,
     required this.title,
     this.message,
@@ -174,7 +174,7 @@ class GlassDialog extends StatelessWidget {
               explicitChildNodes: true,
               child: Material(
                 type: MaterialType.transparency,
-                child: GlassSurface(
+                child: Surface(
                   key: cardKey,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
@@ -194,7 +194,7 @@ class GlassDialog extends StatelessWidget {
   }
 }
 
-/// Asks a yes/no question in a [GlassDialog]: the [titleKey] and the
+/// Asks a yes/no question in a [YiviDialog]: the [titleKey] and the
 /// [messageKey] (translation keys, with [messageParams]), the confirm button
 /// (red when confirming deletes or resets something, [destructive]) above a
 /// cancel text button. True when confirmed.
@@ -212,7 +212,7 @@ Future<bool> showConfirmDialog(
       context: context,
       builder: (context) {
         void close(bool confirmed) => Navigator.of(context).pop(confirmed);
-        return GlassDialog(
+        return YiviDialog(
           icon: icon,
           title: context.tr(titleKey),
           message: context.tr(messageKey, messageParams),

@@ -10,7 +10,7 @@ import "../../../theme/yivi_motion.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/feedback/dialog.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
@@ -422,7 +422,7 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
     final stop =
         await showDialog<bool>(
           context: context,
-          builder: (dialogContext) => GlassDialog(
+          builder: (dialogContext) => YiviDialog(
             cardKey: const Key("sheet_stop_dialog"),
             title: context.tr("share.sheet.stop_title", {
               "name": inSentenceAt(context, d.name),

@@ -32,9 +32,9 @@ import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart
 import "../../widgets/credential_card/instance_hint.dart";
 import "../../widgets/feedback/app_toast.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
-import "../../widgets/input/glass_search_field.dart";
+import "../../widgets/input/search_input.dart";
 import "../../widgets/layout/tab_layout.dart";
-import "../../widgets/surfaces/glass_menu.dart";
+import "../../widgets/surfaces/menu.dart";
 import "../../widgets/surfaces/surface_card.dart";
 import "../../widgets/text/search_mark.dart";
 import "../../widgets/text/translated_text.dart";
@@ -147,7 +147,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
       afterFrame(() => _revealCard(context, hash, top: topInset));
     });
 
-    Widget field(double height) => GlassSearchField(
+    Widget field(double height) => SearchInput(
       fieldKey: const Key("search_field"),
       hintKey: "wallet.search_placeholder",
       controller: _search.field,

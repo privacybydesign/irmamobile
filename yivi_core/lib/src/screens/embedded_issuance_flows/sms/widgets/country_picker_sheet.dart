@@ -8,9 +8,9 @@ import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/adaptive_layout.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/input/glass_search_field.dart";
+import "../../../../widgets/input/search_input.dart";
 import "../../../../widgets/sheet/sheet.dart";
-import "../../../../widgets/surfaces/glass_group.dart";
+import "../../../../widgets/surfaces/inset_group.dart";
 import "../../../../widgets/surfaces/list_row.dart";
 
 /// The name of [country] in [languageCode], else its English name.
@@ -157,7 +157,7 @@ class _CountryPickerState extends State<_CountryPicker> {
     // A phone held sideways: three countries side by side, each a card.
     Widget grid(String? header, List<Country> list) => SliverMainAxisGroup(
       slivers: [
-        if (header != null) SliverToBoxAdapter(child: GlassTileHeader(header)),
+        if (header != null) SliverToBoxAdapter(child: InsetGroupHeader(header)),
         SliverPadding(
           padding: const EdgeInsets.only(bottom: YiviSpace.x12),
           sliver: SliverGrid.builder(
@@ -169,7 +169,7 @@ class _CountryPickerState extends State<_CountryPicker> {
                   52 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 2),
             ),
             itemCount: list.length,
-            itemBuilder: (context, i) => GlassTile(child: row(list[i])),
+            itemBuilder: (context, i) => InsetGroupTile(child: row(list[i])),
           ),
         ),
       ],
@@ -177,14 +177,14 @@ class _CountryPickerState extends State<_CountryPicker> {
 
     Widget group(String? header, List<Country> list) => landscape
         ? grid(header, list)
-        : SliverGlassGroup(
+        : SliverInsetGroup(
             header: header,
             dividerIndent: _CountryRow.dividerIndent,
             itemCount: list.length,
             itemBuilder: (context, i) => row(list[i]),
           );
 
-    final search = GlassSearchField(
+    final search = SearchInput(
       fieldKey: const Key("phone_country_search"),
       hintKey: "sms_issuance.enter_phone.search_label",
       height: landscape ? 40 : 44,

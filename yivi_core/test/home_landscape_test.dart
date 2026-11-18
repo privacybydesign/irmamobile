@@ -21,7 +21,7 @@ import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "package:yivi_core/src/widgets/input/glass_search_field.dart";
+import "package:yivi_core/src/widgets/input/search_input.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -199,7 +199,7 @@ void main() {
       final rail = tester.getRect(find.byType(HomeRail));
       expect(rail.left, 62);
       expect(rail.width, HomeRail.width);
-      final search = tester.getRect(find.byType(GlassSearchField));
+      final search = tester.getRect(find.byType(SearchInput));
       expect(search.left, rail.right + 12);
       expect(search.top, 12);
       // Scan QR under the tabs.
@@ -218,7 +218,7 @@ void main() {
       expect(rail.left, 0);
       // The cutout's inset inside it.
       expect(rail.width, 62 + HomeRail.dockedWidth);
-      final search = tester.getRect(find.byType(GlassSearchField));
+      final search = tester.getRect(find.byType(SearchInput));
       expect(search.left, rail.right + 12);
       expect(find.byKey(const Key("nav_button_scanner")), findsOneWidget);
     });
@@ -543,10 +543,10 @@ void main() {
         const Offset(0, -140),
       );
       await tester.pumpAndSettle();
-      final search = tester.getRect(find.byType(GlassSearchField));
+      final search = tester.getRect(find.byType(SearchInput));
       // A tap there reaches the field, not a card under it.
       final hit = tester.hitTestOnBinding(search.center);
-      final field = tester.renderObject(find.byType(GlassSearchField));
+      final field = tester.renderObject(find.byType(SearchInput));
       expect(hit.path.any((e) => e.target == field), isTrue);
     });
 

@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../util/i18n.dart";
 import "../../../../widgets/buttons/pill_buttons.dart";
-import "../../../../widgets/feedback/glass_dialog.dart";
+import "../../../../widgets/feedback/dialog.dart";
 import "../../../../widgets/input/pill_text_field.dart";
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
@@ -26,7 +26,7 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
       "debug.scheme_management.install_scheme_dialog.content",
     );
 
-    return GlassDialog(
+    return YiviDialog(
       title: translatedTitle,
       message: translatedContent,
       body: PillTextField(

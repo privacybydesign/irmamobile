@@ -6,8 +6,8 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
-import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
-import "package:yivi_core/src/widgets/surfaces/glass_group.dart";
+import "package:yivi_core/src/widgets/feedback/dialog.dart";
+import "package:yivi_core/src/widgets/surfaces/inset_group.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -50,7 +50,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switches, Appearance (light / dark / system), Other.
-      expect(find.byType(GlassGroup), findsNWidgets(3));
+      expect(find.byType(InsetGroup), findsNWidgets(3));
       expect(find.text("Appearance"), findsOneWidget);
       // The explanation sits in the row, under the label.
       final label = tester.getRect(find.text("Error and app status reporting"));

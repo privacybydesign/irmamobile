@@ -7,7 +7,7 @@ import "../../providers/preferences_provider.dart";
 import "../../providers/store_review_provider.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
-import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/feedback/dialog.dart";
 import "store_review_feedback_dialog.dart";
 
 /// Sentiment pre-gate shown after enough successful sessions. Happy users are
@@ -61,7 +61,7 @@ class _StoreReviewGateDialogState
 
   @override
   Widget build(BuildContext context) {
-    return GlassDialog(
+    return YiviDialog(
       title: context.tr("review.gate.title"),
       message: context.tr("review.gate.body"),
       actions: [

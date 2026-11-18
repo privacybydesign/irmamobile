@@ -22,10 +22,10 @@ import "../../util/scale.dart";
 import "../../widgets/bars/app_bar.dart";
 import "../../widgets/buttons/link.dart";
 import "../../widgets/buttons/pill_buttons.dart";
-import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/feedback/dialog.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
 import "../../widgets/sheet/sheet.dart";
-import "../../widgets/surfaces/glass_surface.dart";
+import "../../widgets/surfaces/surface.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
 import "widgets/pin_keypad.dart";
 
@@ -700,7 +700,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
         child: Stack(
           fit: StackFit.expand,
           children: [
-            GlassSurface(
+            Surface(
               padding: const EdgeInsets.only(left: 20, right: 6),
               child: Row(
                 spacing: YiviSpace.x4,

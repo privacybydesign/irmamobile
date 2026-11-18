@@ -318,7 +318,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                   top: padding.top + YiviAppBar.buttonTop,
                   left: 16 + padding.left,
                   right: 16 + padding.right,
-                  // Faded by the surface itself (GlassSurface.opacity).
+                  // Faded by the surface itself (Surface.opacity).
                   child: AnimatedBuilder(
                     animation: chrome,
                     builder: (context, _) => Row(

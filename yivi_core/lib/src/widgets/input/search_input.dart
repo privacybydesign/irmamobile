@@ -10,7 +10,7 @@ import "../../util/i18n.dart";
 /// away; a clear button appears once there is text, and clearing puts the
 /// cursor back in the field. A tap anywhere on the pill focuses it, not only
 /// on the line of text; a tap anywhere outside it puts the keyboard away.
-class GlassSearchField extends StatefulWidget {
+class SearchInput extends StatefulWidget {
   /// The field's surface, also of the search field that opens a search
   /// ([HomeTabSearchField]): the surface colour with a thin edge.
   static ShapeDecoration decoration(YiviPalette palette) => ShapeDecoration(
@@ -46,7 +46,7 @@ class GlassSearchField extends StatefulWidget {
   final FocusNode? focusNode;
   final double height;
 
-  const GlassSearchField({
+  const SearchInput({
     super.key,
     required this.hintKey,
     required this.onChanged,
@@ -59,10 +59,10 @@ class GlassSearchField extends StatefulWidget {
   });
 
   @override
-  State<GlassSearchField> createState() => _GlassSearchFieldState();
+  State<SearchInput> createState() => _SearchInputState();
 }
 
-class _GlassSearchFieldState extends State<GlassSearchField> {
+class _SearchInputState extends State<SearchInput> {
   TextEditingController? _own;
   TextEditingController get _controller =>
       widget.controller ?? (_own ??= TextEditingController());
@@ -79,7 +79,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
   }
 
   @override
-  void didUpdateWidget(GlassSearchField old) {
+  void didUpdateWidget(SearchInput old) {
     super.didUpdateWidget(old);
     if (old.controller != widget.controller) {
       (old.controller ?? _own)?.removeListener(_changed);
@@ -133,7 +133,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
     // The clear button is part of the field: tapping it keeps the keyboard.
     return TextFieldTapRegion(
       child: DecoratedBox(
-        decoration: GlassSearchField.decoration(palette),
+        decoration: SearchInput.decoration(palette),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: _focusField,
@@ -142,7 +142,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
             child: Row(
               children: [
                 const SizedBox(width: YiviSpace.x16),
-                GlassSearchField.icon(palette),
+                SearchInput.icon(palette),
                 const SizedBox(width: YiviSpace.x8),
                 Expanded(
                   child: TextField(
@@ -160,7 +160,7 @@ class _GlassSearchFieldState extends State<GlassSearchField> {
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       hintText: hint,
-                      hintStyle: GlassSearchField.hintStyle(palette),
+                      hintStyle: SearchInput.hintStyle(palette),
                     ),
                   ),
                 ),

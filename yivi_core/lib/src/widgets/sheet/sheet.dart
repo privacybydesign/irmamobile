@@ -18,7 +18,7 @@ import "../bars/compact_bar.dart";
 import "../bars/scroll_edge.dart";
 import "../buttons/close_button.dart";
 import "../feedback/yivi_spinner.dart";
-import "../surfaces/glass_surface.dart";
+import "../surfaces/surface.dart";
 import "form_sheet_frame.dart";
 import "pull_to_dismiss_physics.dart";
 import "sheet_actions.dart";
@@ -52,7 +52,7 @@ Future<T?> showSheet<T>({
     // A page route, as on the phone, so heroes fly into the sheet (they
     // don't into a dialog's popup route).
     return Navigator.of(context, rootNavigator: true).push(
-      _GlassFormSheetRoute<T>(
+      _FormSheetRoute<T>(
         builder: builder,
         barrierLabel: MaterialLocalizations.of(
           context,
@@ -196,10 +196,10 @@ class _SheetScope extends InheritedWidget {
 /// The sheet on a tablet: a form sheet in the middle of the window, over a
 /// dim barrier, closing on a tap outside it. A [PageRoute], so heroes fly
 /// into it as into the phone's sheet ([_SheetRoute]).
-class _GlassFormSheetRoute<T> extends PageRoute<T> {
+class _FormSheetRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
 
-  _GlassFormSheetRoute({required this.builder, required this.barrierLabel});
+  _FormSheetRoute({required this.builder, required this.barrierLabel});
 
   @override
   final String? barrierLabel;
@@ -247,7 +247,7 @@ class _GlassFormSheetRoute<T> extends PageRoute<T> {
   ) => FormSheetFrame.transition(_curved, child);
 }
 
-/// The form sheet of [_GlassFormSheetRoute], placed in the window. Every
+/// The form sheet of [_FormSheetRoute], placed in the window. Every
 /// sheet is as tall as a form sheet may be; what the keyboard still covers
 /// the content ends above (as in the phone's sheet), so its buttons stay in
 /// sight.
@@ -329,7 +329,7 @@ class _FormSheetDragState extends State<_FormSheetDrag>
 /// not let it go ([SheetConfirmDismiss]), by asking that first. A
 /// close, not a step back: a [NavigatorPopHandler] in the sheet (a flow
 /// with screens of its own, that steps back on the system back) sees
-/// [glassSheetClosing] and leaves its screens as they are.
+/// [_sheetClosing] and leaves its screens as they are.
 void _closeSheet(BuildContext context) {
   final route = ModalRoute.of(context);
   if (route is _SheetRoute) {
@@ -398,7 +398,7 @@ class _SheetRoute<T> extends PageRoute<T> {
   bool get _held => popDisposition == RoutePopDisposition.doNotPop;
 
   /// The pop scopes in the sheet are being told about a close (see
-  /// [glassSheetClosing]).
+  /// [_sheetClosing]).
   bool _closeAsked = false;
 
   /// Closes the sheet, or asks the scope that holds it first.
@@ -432,7 +432,7 @@ class _SheetRoute<T> extends PageRoute<T> {
   bool _gesture = false;
   NavigatorState? _gestureNavigator;
 
-  /// [_gesture], for the sheet's content ([glassSheetHand]).
+  /// [_gesture], for the sheet's content ([_sheetHand]).
   final _hand = ValueNotifier(false);
 
   void _startGesture() {
@@ -908,7 +908,7 @@ class _SheetSurfaceState extends State<_SheetSurface>
     // Solid, at the sheet level: in light the page colour, so its white cards stand out without a shadow; in dark below
     // the raised cards in it ([YiviPaletteScope]).
     final fill = palette.sheet;
-    return GlassSurface(
+    return Surface(
       key: const Key("glass_sheet"),
       fill: fill,
       shape: shape,

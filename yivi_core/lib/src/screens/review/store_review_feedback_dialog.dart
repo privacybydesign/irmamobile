@@ -6,7 +6,7 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
-import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/feedback/dialog.dart";
 import "../../widgets/input/pill_text_field.dart";
 
 /// Private feedback box shown to users who tapped "Not really" on the sentiment
@@ -54,7 +54,7 @@ class _StoreReviewFeedbackDialogState
     final palette = YiviPalette.of(context);
 
     if (_sent) {
-      return GlassDialog(
+      return YiviDialog(
         title: context.tr("review.feedback.title"),
         message: context.tr("review.feedback.thanks"),
         actions: [
@@ -68,7 +68,7 @@ class _StoreReviewFeedbackDialogState
       );
     }
 
-    return GlassDialog(
+    return YiviDialog(
       title: context.tr("review.feedback.title"),
       message: context.tr("review.feedback.body"),
       body: Column(

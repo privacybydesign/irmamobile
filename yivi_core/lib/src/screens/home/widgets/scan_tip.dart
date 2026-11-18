@@ -8,7 +8,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/surfaces/glass_surface.dart";
+import "../../../widgets/surfaces/surface.dart";
 import "../../../widgets/text/translated_text.dart";
 
 /// Whether the tip on the Scan button shows: on the first visit after the
@@ -36,7 +36,7 @@ class ScanTip extends ConsumerWidget {
       child: Semantics(
         container: true,
         liveRegion: true,
-        child: GlassSurface(
+        child: Surface(
           key: const Key("scan_tip"),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(YiviCorners.dialog)),

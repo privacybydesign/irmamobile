@@ -6,10 +6,10 @@ import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/haptics.dart";
-import "glass_surface.dart";
+import "surface.dart";
 
-/// One choice in a [showGlassMenu].
-class GlassMenuItem<T> {
+/// One choice in a [showYiviMenu].
+class MenuItem<T> {
   final T value;
   final String label;
   final IconData icon;
@@ -22,7 +22,7 @@ class GlassMenuItem<T> {
   /// ticked at the start. Null for an action.
   final bool? checked;
 
-  const GlassMenuItem({
+  const MenuItem({
     required this.value,
     required this.label,
     required this.icon,
@@ -36,16 +36,16 @@ class GlassMenuItem<T> {
 /// growing out of the button's corner, a row lighting up grey as it is
 /// pressed. [footnote] is a line of help under the choices. Resolves to the
 /// picked item's value, or null when it is closed without a pick.
-Future<T?> showGlassMenu<T>(
+Future<T?> showYiviMenu<T>(
   BuildContext anchor, {
-  required List<GlassMenuItem<T>> items,
+  required List<MenuItem<T>> items,
   String? footnote,
 }) {
   final box = anchor.findRenderObject()! as RenderBox;
   final rect = box.localToGlobal(Offset.zero) & box.size;
   Haptics.select();
   return Navigator.of(anchor).push(
-    _GlassMenuRoute<T>(
+    _MenuRoute<T>(
       anchor: rect,
       items: items,
       footnote: footnote,
@@ -55,16 +55,16 @@ Future<T?> showGlassMenu<T>(
   );
 }
 
-class _GlassMenuRoute<T> extends PopupRoute<T> {
+class _MenuRoute<T> extends PopupRoute<T> {
   final Rect anchor;
-  final List<GlassMenuItem<T>> items;
+  final List<MenuItem<T>> items;
   final String? footnote;
   final bool rtl;
 
   @override
   final String barrierLabel;
 
-  _GlassMenuRoute({
+  _MenuRoute({
     required this.anchor,
     required this.items,
     required this.footnote,
@@ -184,7 +184,7 @@ class _MenuPlacement extends SingleChildLayoutDelegate {
 }
 
 class _Menu<T> extends StatelessWidget {
-  final List<GlassMenuItem<T>> items;
+  final List<MenuItem<T>> items;
   final String? footnote;
 
   const _Menu({required this.items, required this.footnote});
@@ -204,7 +204,7 @@ class _Menu<T> extends StatelessWidget {
     const shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(20)),
     );
-    return GlassSurface(
+    return Surface(
       shape: shape,
       child: Material(
         type: MaterialType.transparency,
@@ -265,7 +265,7 @@ class _Menu<T> extends StatelessWidget {
 
 /// A choice: its name and its icon at the end, as iOS has them.
 class _Row<T> extends StatelessWidget {
-  final GlassMenuItem<T> item;
+  final MenuItem<T> item;
   final YiviPalette palette;
 
   const _Row({required this.item, required this.palette});

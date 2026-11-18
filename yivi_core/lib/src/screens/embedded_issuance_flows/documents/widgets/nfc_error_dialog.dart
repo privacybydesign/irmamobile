@@ -6,7 +6,7 @@ import "../../../../sentry/sentry.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/buttons/pill_buttons.dart";
-import "../../../../widgets/feedback/glass_dialog.dart";
+import "../../../../widgets/feedback/dialog.dart";
 import "../../../../widgets/text/translated_text.dart";
 
 class NfcErrorDialog extends StatefulWidget {
@@ -25,7 +25,7 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return GlassDialog(
+    return YiviDialog(
       title: context.tr("error.details_title"),
       body: Column(
         crossAxisAlignment: .stretch,

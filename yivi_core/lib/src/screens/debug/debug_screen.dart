@@ -8,8 +8,8 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/app_bar.dart";
-import "../../widgets/feedback/glass_dialog.dart";
-import "../../widgets/surfaces/glass_group.dart";
+import "../../widgets/feedback/dialog.dart";
+import "../../widgets/surfaces/inset_group.dart";
 import "../more/widgets/tiles.dart";
 import "cert_management/cert_management_screen.dart";
 import "debug_helper.dart";
@@ -123,7 +123,7 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
                 YiviSpace.x48,
               ),
           children: [
-            GlassGroup(
+            InsetGroup(
               dividerIndent: 68,
               children: [
                 _buildListTile(
@@ -140,7 +140,7 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
               ],
             ),
             const SizedBox(height: YiviSpace.x24),
-            GlassGroup(
+            InsetGroup(
               dividerIndent: 68,
               children: [
                 _buildListTile(
@@ -177,9 +177,9 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
               ],
             ),
             const SizedBox(height: YiviSpace.x24),
-            const GlassGroup(children: [CardMotionSliders()]),
+            const InsetGroup(children: [CardMotionSliders()]),
             const SizedBox(height: YiviSpace.x24),
-            GlassGroup(
+            InsetGroup(
               children: [
                 _buildListTile(
                   Icons.delete_outline_rounded,

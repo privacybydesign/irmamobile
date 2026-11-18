@@ -13,7 +13,7 @@ import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/yivi_spinner.dart";
-import "../../../widgets/surfaces/glass_group.dart";
+import "../../../widgets/surfaces/inset_group.dart";
 import "../../error/error_screen.dart";
 import "../../pin/yivi_pin_screen.dart";
 import "../debug_schemes.dart";
@@ -213,7 +213,7 @@ class SchemeManagerDetailScreen extends ConsumerWidget {
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(YiviSpace.pageSide),
             child: SafeArea(
-              child: GlassGroup(
+              child: InsetGroup(
                 children: [
                   // These values are not translated because they are the same in English and Dutch.
                   if (!schemeManager.demo)

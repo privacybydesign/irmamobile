@@ -6,8 +6,8 @@ import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/link.dart";
 import "../../widgets/buttons/pill_buttons.dart";
-import "../../widgets/surfaces/glass_group.dart";
 import "../../widgets/surfaces/icon_square.dart";
+import "../../widgets/surfaces/inset_group.dart";
 import "../../widgets/text/markdown.dart";
 import "../../widgets/text/translated_text.dart";
 import "../more/widgets/more_subpage.dart";
@@ -41,7 +41,7 @@ class _HelpScreenState extends State<HelpScreen> {
       top: 0,
       controller: _controller,
       children: [
-        GlassGroup(
+        InsetGroup(
           header: context.tr("help.about_irma"),
           children: [
             HelpItem(
@@ -58,7 +58,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
           ],
         ),
-        GlassGroup(
+        InsetGroup(
           header: context.tr("help.login"),
           children: [
             HelpItem(
@@ -113,7 +113,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
           ],
         ),
-        GlassGroup(
+        InsetGroup(
           header: context.tr("help.device"),
           children: [
             HelpItem(
@@ -126,7 +126,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
           ],
         ),
-        GlassGroup(
+        InsetGroup(
           header: context.tr("help.security_and_privacy"),
           children: [
             HelpItem(
@@ -162,7 +162,7 @@ class _AskAQuestion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    return GlassGroup(
+    return InsetGroup(
       children: [
         Padding(
           padding: const EdgeInsets.all(YiviSpace.x16),

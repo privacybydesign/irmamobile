@@ -24,7 +24,7 @@ import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
-import "../../widgets/feedback/glass_dialog.dart";
+import "../../widgets/feedback/dialog.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";

@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/widgets/input/glass_search_field.dart";
+import "package:yivi_core/src/widgets/input/search_input.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -17,7 +17,7 @@ void main() {
   tearDown(() => repo.close());
 
   final field = find.byKey(const Key("search_field"));
-  final pill = find.byType(GlassSearchField);
+  final pill = find.byType(SearchInput);
 
   Future<void> pump(WidgetTester tester, {FocusNode? focusNode}) async {
     tester.view.devicePixelRatio = 1;
@@ -30,7 +30,7 @@ void main() {
         padding: const EdgeInsets.fromLTRB(16, 100, 16, 0),
         child: Align(
           alignment: Alignment.topCenter,
-          child: GlassSearchField(
+          child: SearchInput(
             fieldKey: const Key("search_field"),
             hintKey: "wallet.search_placeholder",
             focusNode: focusNode,

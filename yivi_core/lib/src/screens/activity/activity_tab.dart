@@ -23,7 +23,7 @@ import "../../widgets/bars/title_scroll_edge.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
-import "../../widgets/input/glass_search_field.dart";
+import "../../widgets/input/search_input.dart";
 import "../../widgets/layout/tab_layout.dart";
 import "../../widgets/surfaces/corner_badge.dart";
 import "../home/widgets/home_tab_top.dart";
@@ -333,7 +333,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
   /// The search field, in the bar on a phone held upright ([height] 44) or
   /// over the list (48, the field's own height).
-  Widget _searchField({double height = 48}) => GlassSearchField(
+  Widget _searchField({double height = 48}) => SearchInput(
     fieldKey: const Key("activity_search_field"),
     hintKey: "activity.query.search_hint",
     controller: _field.field,

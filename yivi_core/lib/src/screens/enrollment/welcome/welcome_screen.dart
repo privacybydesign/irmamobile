@@ -5,8 +5,8 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/surfaces/glass_group.dart";
 import "../../../widgets/surfaces/icon_square.dart";
+import "../../../widgets/surfaces/inset_group.dart";
 import "../../../widgets/surfaces/surface_card.dart";
 import "../../../widgets/text/translated_text.dart";
 import "../widgets/enrollment_page.dart";
@@ -74,7 +74,7 @@ class WelcomeScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        GlassGroup(
+        InsetGroup(
           dividerIndent: 68,
           children: [
             for (final (icon, title, text) in _values)

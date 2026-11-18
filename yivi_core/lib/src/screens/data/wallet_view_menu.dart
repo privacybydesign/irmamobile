@@ -38,11 +38,11 @@ class _ViewMenu extends ConsumerWidget {
     required WalletView view,
     required bool arrangeable,
   }) async {
-    final picked = await showGlassMenu<Object>(
+    final picked = await showYiviMenu<Object>(
       context,
       items: [
         for (final (i, v) in WalletView.values.indexed)
-          GlassMenuItem(
+          MenuItem(
             key: Key("wallet_view_${v.name}"),
             value: v,
             label: context.tr("wallet.view.${v.name}"),
@@ -52,7 +52,7 @@ class _ViewMenu extends ConsumerWidget {
           ),
         if (arrangeable)
           for (final (i, way) in CardArrangement.values.indexed)
-            GlassMenuItem(
+            MenuItem(
               key: Key("wallet_arrange_${way.name}"),
               value: way,
               label: context.tr("wallet.arrange.${way.name}"),

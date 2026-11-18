@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
 import "../../models/log_entry.dart";
-import "../feedback/glass_dialog.dart";
+import "../feedback/dialog.dart";
 
 /// Asks whether to delete a card; true once confirmed.
 Future<bool> confirmDeleteCredential(BuildContext context) => showConfirmDialog(

@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../widgets/surfaces/glass_group.dart";
+import "../../../widgets/surfaces/inset_group.dart";
 
 /// A rounded group of [Tile]s with dividers between them; the dividers start
 /// after the tiles' icon squares.
@@ -11,5 +11,5 @@ class TilesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      GlassGroup(dividerIndent: 68, children: children);
+      InsetGroup(dividerIndent: 68, children: children);
 }

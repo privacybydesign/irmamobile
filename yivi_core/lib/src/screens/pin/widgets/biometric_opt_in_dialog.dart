@@ -6,7 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/feedback/glass_dialog.dart";
+import "../../../widgets/feedback/dialog.dart";
 import "../providers/biometric_provider.dart";
 
 /// One-time biometric opt-in, shown during enrollment (after the PIN is
@@ -52,7 +52,7 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return GlassDialog(
+    return YiviDialog(
       icon: const ToneDisc(icon: Icons.fingerprint, tone: YiviTone.info),
       title: context.tr("pin.biometric_prompt.title"),
       message: context.tr("pin.biometric_prompt.body"),

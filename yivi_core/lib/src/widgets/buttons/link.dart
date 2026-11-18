@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../providers/irma_repository_provider.dart";
 import "../../util/i18n.dart";
-import "../feedback/glass_dialog.dart";
+import "../feedback/dialog.dart";
 import "pill_buttons.dart";
 
 /// Opens a new e-mail to Yivi support, or explains in a dialog that no mail
@@ -18,7 +18,7 @@ Future<void> openSupportMail(BuildContext context) async {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return GlassDialog(
+          return YiviDialog(
             title: context.tr("help.mail_error_title"),
             message: context.tr("help.mail_error"),
             actions: [
