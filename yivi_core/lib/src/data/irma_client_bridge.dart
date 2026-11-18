@@ -13,7 +13,6 @@ import "../models/error_event.dart";
 import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
-import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/native_events.dart";
 import "../models/scheme_rules.dart";
@@ -30,7 +29,6 @@ class IrmaClientBridge extends IrmaBridge {
   final MethodChannel _methodChannel;
 
   static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
-    IrmaConfigurationEvent: (j) => IrmaConfigurationEvent.fromJson(j),
     SchemeRulesEvent: (j) => SchemeRulesEvent.fromJson(j),
     DebugSchemesEvent: (j) => DebugSchemesEvent.fromJson(j),
     EudiConfigurationEvent: (j) => EudiConfigurationEvent.fromJson(j),
@@ -108,10 +106,11 @@ class IrmaClientBridge extends IrmaBridge {
       }
 
       if (debugLogging) {
-        // These payloads are large (the configuration, the credentials, a page
-        // of activity) and bloat the log, so only their name is printed.
+        // These payloads are large (the credentials, a page of activity, the
+        // schemes for the debug screens) and bloat the log, so only their
+        // name is printed.
         const nonPrinting = {
-          "IrmaConfigurationEvent",
+          "DebugSchemesEvent",
           "CredentialsEvent",
           "CredentialStoreEvent",
           "LogPageEvent",

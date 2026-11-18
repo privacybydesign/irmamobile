@@ -7,38 +7,7 @@ import (
 	"github.com/go-errors/errors"
 	"github.com/privacybydesign/irmago/eudi"
 	"github.com/privacybydesign/irmago/eudi/utils"
-	"github.com/privacybydesign/irmago/irma"
 )
-
-// needed to inject logo into issuers
-type WrappedConfiguration irma.Configuration
-type WrappedCredentialType struct {
-	Logo string `json:",omitempty"`
-	irma.CredentialType
-}
-
-func (conf *WrappedConfiguration) MarshalJSON() ([]byte, error) {
-	var encodedData struct {
-		CredentialTypes map[irma.CredentialTypeIdentifier]*WrappedCredentialType
-		irma.Configuration
-	}
-
-	encodedData.Configuration = *(*irma.Configuration)(conf)
-	encodedData.CredentialTypes = make(map[irma.CredentialTypeIdentifier]*WrappedCredentialType)
-
-	for k, v := range conf.CredentialTypes {
-		if v == nil {
-			encodedData.CredentialTypes[k] = nil
-			continue
-		}
-		encodedData.CredentialTypes[k] = &WrappedCredentialType{
-			Logo:           v.Logo((*irma.Configuration)(conf)),
-			CredentialType: *v,
-		}
-	}
-
-	return json.Marshal(encodedData)
-}
 
 type WrappedEudiConfiguration eudi.Configuration
 type Cert struct {
@@ -127,12 +96,7 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 }
 
 func dispatchConfigurationEvent() {
-	conf := yiviClient.GetIrmaConfiguration()
-	dispatchEvent(schemeRules(conf))
-	t := WrappedConfiguration(*conf)
-	dispatchEvent(&irmaConfigurationEvent{
-		IrmaConfiguration: &t,
-	})
+	dispatchEvent(schemeRules(yiviClient.GetIrmaConfiguration()))
 	e := WrappedEudiConfiguration(*yiviClient.GetEudiConfiguration())
 	dispatchEvent(&eudiConfigurationEvent{
 		EudiConfiguration: &e,

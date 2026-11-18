@@ -189,14 +189,6 @@ type setCrashReportingPreferenceEvent struct {
 // //
 // Outgoing events
 // //
-type irmaConfigurationEvent struct {
-	SchemeManagers  map[irma.SchemeManagerIdentifier]*irma.SchemeManager
-	Issuers         map[irma.IssuerIdentifier]*irma.Issuer
-	CredentialTypes map[irma.CredentialTypeIdentifier]*irma.CredentialType
-	AttributeTypes  map[irma.AttributeTypeIdentifier]*irma.AttributeType
-	Path            string
-}
-
 type credentialsEvent struct {
 	Credentials irma.CredentialInfoList
 }

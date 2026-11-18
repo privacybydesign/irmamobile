@@ -119,10 +119,6 @@ type sessionPreviewEvent struct {
 	Preview *client.SessionPreview `json:"preview"`
 }
 
-type irmaConfigurationEvent struct {
-	IrmaConfiguration *WrappedConfiguration `json:"irma_configuration"`
-}
-
 type eudiConfigurationEvent struct {
 	EudiConfiguration *WrappedEudiConfiguration `json:"eudi_configuration"`
 }

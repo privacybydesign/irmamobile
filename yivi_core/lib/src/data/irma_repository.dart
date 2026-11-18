@@ -29,7 +29,6 @@ import "../models/error_event.dart";
 import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
-import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/native_events.dart";
 import "../models/scheme_rules.dart";
@@ -98,7 +97,6 @@ class IrmaRepository {
   late final SessionRepository _sessionRepository;
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
-  final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _schemeRulesSubject = BehaviorSubject<SchemeRulesEvent>();
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<WalletCredentials>();
@@ -146,7 +144,6 @@ class IrmaRepository {
     // Then we can close all internal subjects
     await Future.wait([
       _eventSubject.close(),
-      _irmaConfigurationSubject.close(),
       _schemeRulesSubject.close(),
       _eudiConfigurationSubject.close(),
       _credentialsSubject.close(),
@@ -195,8 +192,6 @@ class IrmaRepository {
         // Only fatal errors on start-up are caught at the moment, so we have to report other errors manually.
         reportError(event.exception, event.stack);
       }
-    } else if (event is IrmaConfigurationEvent) {
-      _irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is SchemeRulesEvent) {
       _schemeRulesSubject.add(event);
     } else if (event is EudiConfigurationEvent) {
@@ -359,13 +354,8 @@ class IrmaRepository {
         false;
   }
 
-  // -- Scheme manager, cert manager, issuer, credential and attribute definitions
-  IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
+  // -- Cert manager
   EudiConfiguration get eudiConfiguration => _eudiConfigurationSubject.value;
-
-  Stream<IrmaConfiguration> getIrmaConfiguration() {
-    return _irmaConfigurationSubject.stream;
-  }
 
   Stream<EudiConfiguration> getEudiConfiguration() {
     return _eudiConfigurationSubject.stream;
