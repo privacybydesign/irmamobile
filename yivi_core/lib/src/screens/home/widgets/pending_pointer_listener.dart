@@ -1,11 +1,14 @@
 import "dart:async";
 
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/session.dart";
-import "../../../providers/irma_repository_provider.dart";
+import "../../../providers/app_locked_provider.dart";
+import "../../../providers/pending_pointer_provider.dart";
+import "../../../providers/session_launcher.dart";
 import "../../../util/after_frame.dart";
-import "../../../util/handle_pointer.dart";
+import "../../../util/email_linking.dart";
 
 /// Picks up a queued session/URL pointer and starts the session — but only
 /// once the app is unlocked. While locked the pointer waits behind the lock
@@ -26,8 +29,10 @@ class PendingPointerListener extends StatefulWidget {
 }
 
 class _PendingPointerListenerState extends State<PendingPointerListener> {
-  StreamSubscription<Pointer?>? _pointerSubscription;
-  StreamSubscription<bool>? _lockedSubscription;
+  // Subscribed on the container, not through a ConsumerState's `ref`: those
+  // pause while the widget is out of view (home under a session screen),
+  // and a link must start then too.
+  final _subscriptions = <ProviderSubscription<Object?>>[];
 
   Pointer? _pointer;
   bool _locked = true;
@@ -38,15 +43,21 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
     super.initState();
 
     afterFrame(() {
-      final repo = repositoryOf(context);
-      _pointerSubscription = repo.pendingPointers.pending.listen((pointer) {
-        _pointer = pointer;
-        _maybeHandle();
-      });
-      _lockedSubscription = repo.appLock.locked.listen((locked) {
-        _locked = locked;
-        _maybeHandle();
-      });
+      if (!mounted) return;
+      final container = ProviderScope.containerOf(context, listen: false);
+      _subscriptions
+        ..add(
+          container.listen<Pointer?>(pendingPointerProvider, (_, pointer) {
+            _pointer = pointer;
+            _maybeHandle();
+          }, fireImmediately: true),
+        )
+        ..add(
+          container.listen<bool>(appLockedProvider, (_, locked) {
+            _locked = locked;
+            _maybeHandle();
+          }, fireImmediately: true),
+        );
     });
   }
 
@@ -54,13 +65,23 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
     final pointer = _pointer;
     if (pointer == null || _locked || _handling || !mounted) return;
     _handling = true;
-    handlePointer(context, pointer).whenComplete(() => _handling = false);
+    final outcome = ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(sessionLauncherProvider).handle(pointer);
+    if (outcome case LinkForLinking(openLinking: true)) {
+      openEmailLinking(context);
+    }
+    // One at a time: a session's pointer stays queued until its start
+    // reaches the queue, a microtask later.
+    scheduleMicrotask(() => _handling = false);
   }
 
   @override
   void dispose() {
-    _pointerSubscription?.cancel();
-    _lockedSubscription?.cancel();
+    for (final subscription in _subscriptions) {
+      subscription.close();
+    }
     super.dispose();
   }
 

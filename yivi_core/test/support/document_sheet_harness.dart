@@ -6,6 +6,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
+import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/models/mrz.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
@@ -82,6 +83,21 @@ class DocumentSheetHarness {
       ..devicePixelRatio = 1
       ..physicalSize = size;
     addTearDown(tester.view.reset);
+    router = GoRouter(
+      routes: [
+        GoRoute(
+          path: "/",
+          builder: (context, _) {
+            home = context;
+            return const Scaffold(body: Text("home"));
+          },
+        ),
+        GoRoute(
+          path: "/error",
+          builder: (_, state) => Scaffold(body: Text("error: ${state.extra}")),
+        ),
+      ],
+    );
     await pumpTranslated(
       tester,
       ProviderScope(
@@ -94,28 +110,14 @@ class DocumentSheetHarness {
           ),
           regulaFaceServiceProvider.overrideWithValue(face),
           nfcDoneHoldProvider.overrideWithValue(Duration.zero),
+          routerProvider.overrideWithValue(router),
           ...overrides,
         ],
         // The pictures stand still, and the camera shows its fallback.
         child: TestContext(
           child: IrmaTheme(
             builder: (_) => MaterialApp.router(
-              routerConfig: router = GoRouter(
-                routes: [
-                  GoRoute(
-                    path: "/",
-                    builder: (context, _) {
-                      home = context;
-                      return const Scaffold(body: Text("home"));
-                    },
-                  ),
-                  GoRoute(
-                    path: "/error",
-                    builder: (_, state) =>
-                        Scaffold(body: Text("error: ${state.extra}")),
-                  ),
-                ],
-              ),
+              routerConfig: router,
               localizationsDelegates: [
                 FlutterI18nDelegate(
                   translationLoader: TestTranslationLoader(

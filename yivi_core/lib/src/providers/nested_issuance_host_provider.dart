@@ -3,7 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 /// Takes over a session that starts while the user adds a card in a sheet,
 /// instead of a session screen pushed on top: the Change sheet of a request,
 /// or the Add data sheet, registers itself while a card is being added, and
-/// the issuance then shows in the sheet (see `handlePointer`).
+/// the issuance then shows in the sheet (see `SessionLauncher`).
 abstract interface class NestedIssuanceHost {
   /// The request the host adds a card for, or null for a host that adds one
   /// on its own (Add data). A session that starts while another request is

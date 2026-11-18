@@ -46,7 +46,7 @@ import "widgets/session_scaffold.dart";
 
 /// Displays the current [SessionState] for a given session ID.
 ///
-/// Pushed by [handlePointer] immediately after dispatching `NewSessionEvent`,
+/// Pushed by `SessionLauncher` immediately after dispatching `NewSessionEvent`,
 /// with a Dart-allocated session id. While Go has not yet emitted the first
 /// state, the existing `asyncSession.isLoading` branch renders the loading
 /// screen — this is the spinner during the QR-scan → first-state window.

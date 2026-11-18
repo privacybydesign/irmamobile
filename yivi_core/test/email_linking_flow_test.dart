@@ -25,12 +25,12 @@ import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/providers/session_launcher.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/data/widgets/email_link_banner.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/email_linking.dart";
-import "package:yivi_core/src/util/handle_pointer.dart";
 import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 
@@ -102,6 +102,18 @@ SessionState _successState(int id, SessionType type) => SessionState(
   continueOnSecondDevice: true,
 );
 
+/// What the home screen does with a link: [SessionLauncher.handle], and the
+/// linking screens opened when it asks for them.
+void _handle(BuildContext context, Pointer pointer) {
+  final outcome = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(sessionLauncherProvider).handle(pointer);
+  if (outcome case LinkForLinking(openLinking: true)) {
+    openEmailLinking(context);
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -143,18 +155,6 @@ void main() {
     Widget? home,
     List<Override> overrides = const [],
   }) async {
-    container = ProviderContainer(
-      overrides: [
-        preferencesProvider.overrideWithValue(prefs),
-        irmaRepositoryProvider.overrideWithValue(repo),
-        emailIssuerApiProvider.overrideWithValue(issuerApi),
-        keyshareEmailLinkApiProvider.overrideWithValue(linkApi),
-        emailLinkingOfferedProvider.overrideWithValue(linkingOffered),
-        ...overrides,
-      ],
-    );
-    addTearDown(container.dispose);
-
     router = GoRouter(
       initialLocation: "/home",
       // The code screen starts over when a page above it closes.
@@ -196,6 +196,20 @@ void main() {
         ),
       ],
     );
+
+    container = ProviderContainer(
+      overrides: [
+        preferencesProvider.overrideWithValue(prefs),
+        irmaRepositoryProvider.overrideWithValue(repo),
+        emailIssuerApiProvider.overrideWithValue(issuerApi),
+        keyshareEmailLinkApiProvider.overrideWithValue(linkApi),
+        emailLinkingOfferedProvider.overrideWithValue(linkingOffered),
+        // Sessions started through the launcher go on this router.
+        routerProvider.overrideWithValue(router),
+        ...overrides,
+      ],
+    );
+    addTearDown(container.dispose);
 
     final widget = UncontrolledProviderScope(
       container: container,
@@ -376,7 +390,7 @@ void main() {
       await pumpApp(tester);
       final context = tester.element(find.text("home"));
 
-      handlePointer(
+      _handle(
         context,
         EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
       );
@@ -401,7 +415,7 @@ void main() {
 
     testWidgets("is dropped when linking is not offered", (tester) async {
       await pumpApp(tester);
-      handlePointer(
+      _handle(
         tester.element(find.text("home")),
         EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
       );
@@ -419,7 +433,7 @@ void main() {
       issuerApi.verifyFailsWith = const ContactWrongCode();
 
       repo.pendingPointers.put(link);
-      handlePointer(context, link);
+      _handle(context, link);
       await settle(tester);
 
       expect(repo.pendingPointers.current, isNull);
@@ -483,13 +497,13 @@ void main() {
       await pumpApp(tester);
       final context = tester.element(find.text("home"));
 
-      handlePointer(
+      _handle(
         context,
         EmailCodePointer(email: "evil@example.com", code: "AAA111"),
       );
       await settle(tester);
       await settle(tester);
-      handlePointer(
+      _handle(
         tester.element(sheet),
         EmailCodePointer(email: "evil@example.com", code: "BBB222"),
       );
@@ -519,7 +533,7 @@ void main() {
       await pumpApp(tester);
       final context = tester.element(find.text("home"));
 
-      handlePointer(context, EmailCodePointer(code: "XYZ789"));
+      _handle(context, EmailCodePointer(code: "XYZ789"));
       await settle(tester);
       await settle(tester);
 
@@ -538,7 +552,7 @@ void main() {
       await sendEmailTo(tester, "jan@example.com");
       final context = tester.element(find.text("Code from the e-mail"));
 
-      handlePointer(
+      _handle(
         context,
         EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
       );

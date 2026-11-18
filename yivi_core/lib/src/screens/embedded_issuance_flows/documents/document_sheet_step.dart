@@ -20,7 +20,7 @@ import "face_verification_intro_screen.dart";
 /// a bar or Cancel of their own. Back from the
 /// instruction is [onBack]; closing is the sheet's.
 ///
-/// The chip read starts the issuance through `handlePointer`, which hands it
+/// The chip read starts the issuance through the `SessionLauncher`, which hands it
 /// to the sheet waiting for it. When the issuer asks for a face check, its
 /// intro is the next screen here; only Regula's own liveness screen opens
 /// full-screen above the sheet.

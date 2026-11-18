@@ -4,11 +4,11 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/session.dart";
 import "../../../providers/contact_issuance_provider.dart";
 import "../../../providers/email_linking_provider.dart";
+import "../../../providers/session_launcher.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
-import "../../../util/handle_pointer.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/sheet_actions.dart";
@@ -33,7 +33,7 @@ import "contact_widgets.dart";
 /// Both pages follow the flow's provider (`contactIssuanceProvider`); the
 /// sheet shows the code page while its stage is the code
 /// ([ContactSheetStep.atCode]). The checked code starts the issuance through
-/// [handlePointer], which hands it to the sheet waiting for it (step 3).
+/// [SessionLauncher], which hands it to the sheet waiting for it (step 3).
 class ContactSheetStep extends ConsumerStatefulWidget {
   final ContactFlow flow;
 
@@ -183,7 +183,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   Future<void> _verify(String code) async {
     final session = await _c.verify(code);
     if (session == null || !mounted) return;
-    await handlePointer(context, session);
+    ref.read(sessionLauncherProvider).handle(session);
   }
 
   /// Back on the address, filled in, to change it: the code page slides

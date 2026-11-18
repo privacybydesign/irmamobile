@@ -9,6 +9,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
+import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_store.dart";
@@ -24,6 +25,7 @@ import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/pane_selection_provider.dart";
 import "package:yivi_core/src/providers/resend_wait.dart";
+import "package:yivi_core/src/providers/session_launcher.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_row.dart";
@@ -33,7 +35,6 @@ import "package:yivi_core/src/screens/error/session_error_screen.dart";
 import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/issue_flow/issue_sheet.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/util/handle_pointer.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
 import "package:yivi_core/src/widgets/glass/glass_search_field.dart";
@@ -216,6 +217,7 @@ Future<_Calls> _pump(
         credentialOrderControllerProvider.overrideWith(() => _Wallet(wallet)),
         irmaRepositoryProvider.overrideWithValue(repo),
         browserProvider.overrideWithValue(calls.browser),
+        routerProvider.overrideWithValue(router),
         for (final MapEntry(key: id, value: states) in nested.entries)
           sessionStateProvider(id).overrideWith((ref) => states),
         ...overrides,
@@ -1349,10 +1351,11 @@ void main() {
     await _pumpFor(tester);
     expect(find.byKey(const Key("contact_sheet_code")), findsOneWidget);
 
-    handlePointer(
-      tester.element(find.byKey(const Key("contact_sheet_code"))),
-      EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
-    );
+    ProviderScope.containerOf(
+          tester.element(find.byKey(const Key("contact_sheet_code"))),
+        )
+        .read(sessionLauncherProvider)
+        .handle(EmailCodePointer(email: "jan@example.com", code: "XYZ789"));
     await _pumpFor(tester);
     expect(api.verified, isEmpty);
     final container = ProviderScope.containerOf(

@@ -60,6 +60,14 @@ class SessionRepository {
   /// emitted the first session state.
   int allocateSessionId() => ++_nextSessionId;
 
+  /// Starts a session for [pointer]: allocates its id and asks Go for it
+  /// with a [NewSessionEvent]. Returns the id.
+  int startSession(SessionPointer pointer) {
+    final sessionId = allocateSessionId();
+    _dispatch(NewSessionEvent(sessionId: sessionId, request: pointer));
+    return sessionId;
+  }
+
   /// Stops session [sessionId].
   void dismissSession(int sessionId) =>
       _dispatch(SessionUserInteractionEvent.dismiss(sessionId: sessionId));

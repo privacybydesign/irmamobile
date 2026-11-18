@@ -5,8 +5,8 @@ import "../data/irma_repository.dart";
 import "../models/credential_store.dart";
 import "../providers/email_linking_provider.dart";
 import "../providers/irma_repository_provider.dart";
+import "../providers/session_launcher.dart";
 import "../screens/add_data/add_data_sheet.dart";
-import "handle_pointer.dart";
 import "navigation.dart";
 
 /// The e-mail type of the default keyshare scheme in the credential store
@@ -59,17 +59,17 @@ Future<void> openEmailLinking(BuildContext context) async {
 /// keyshare registration stay two sessions: the keyshare server never
 /// issues. [context] outlives the sheet (the root navigator's).
 Future<void> shareEmailWithKeyshare(BuildContext context) async {
-  final linking = ProviderScope.containerOf(
-    context,
-    listen: false,
-  ).read(emailLinkingProvider.notifier);
+  final container = ProviderScope.containerOf(context, listen: false);
+  final linking = container.read(emailLinkingProvider.notifier);
 
   try {
     final pointer = await linking.startDisclosure();
     if (!context.mounted) return;
 
-    final sessionId = await handlePointer(context, pointer);
-    if (sessionId != null) linking.trackDisclosure(sessionId);
+    final outcome = container.read(sessionLauncherProvider).handle(pointer);
+    if (outcome case SessionStarted(:final sessionId)) {
+      linking.trackDisclosure(sessionId);
+    }
   } catch (e) {
     if (!context.mounted) return;
     context.pushErrorScreen(message: "error linking e-mail address: $e");

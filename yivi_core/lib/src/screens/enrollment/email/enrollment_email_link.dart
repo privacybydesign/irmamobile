@@ -2,7 +2,6 @@ import "dart:async";
 
 import "../../../data/irma_repository.dart";
 import "../../../models/session.dart";
-import "../../../models/session_events.dart";
 import "../../../models/session_state.dart";
 import "../../../providers/email_linking_provider.dart";
 import "../../session/models/disclosure_view_model.dart";
@@ -33,7 +32,9 @@ Future<void> runOwnSession(
   Duration timeout = const Duration(minutes: 2),
 }) async {
   final sessions = repo.sessions;
-  final sessionId = sessions.allocateSessionId();
+  // Go's states for the session come through the event bus, a microtask
+  // later at the earliest, so the subscription below misses none.
+  final sessionId = sessions.startSession(pointer);
   final done = Completer<void>();
   var permissionGiven = false;
   var pinGiven = false;
@@ -69,7 +70,6 @@ Future<void> runOwnSession(
     }
   });
 
-  repo.bridgedDispatch(NewSessionEvent(sessionId: sessionId, request: pointer));
   try {
     await done.future.timeout(timeout);
   } on TimeoutException {

@@ -7,6 +7,7 @@ import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_store.dart";
@@ -237,6 +238,7 @@ Future<_Calls> _pump(
         credentialOrderControllerProvider.overrideWith(wallet),
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
+        routerProvider.overrideWithValue(router),
         groupedCredentialStoreProvider.overrideWith(
           (ref) => Stream.value(const []),
         ),
@@ -3266,59 +3268,58 @@ void main() {
       expect(find.byKey(const Key("disclosure_choice_sheet")), findsNothing);
     });
 
-    testWidgets(
-      "the chip read's issuance is the last step; back, the details",
-      (tester) async {
-        final (_, nested) = await open(tester);
-        // What the chip screen's handlePointer does once the issuer is called.
-        ProviderScope.containerOf(
-          tester.element(find.byType(ChangeChoiceSheet)),
-        ).read(nestedIssuanceHostProvider)!.attach(nestedId);
-        nested.add(
-          SessionState(
-            id: nestedId,
-            protocol: "irma",
-            type: SessionType.issuance,
-            status: SessionStatus.requestPermission,
-            requestor: _party("Yivi"),
-            offeredCredentials: [
-              testCredential(
-                type: "pbdf.pbdf.passport",
-                hash: "new-passport",
-                name: "Passport",
-              ),
-            ],
-          ),
-        );
-        await _pumpFor(tester);
-        expect(
-          find.byKey(const ValueKey(("issue_sheet_progress", 5, 5))),
-          findsOneWidget,
-        );
-        expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
+    testWidgets("the chip read's issuance is the last step; back, the details", (
+      tester,
+    ) async {
+      final (_, nested) = await open(tester);
+      // What the chip screen's session launcher does once the issuer is called.
+      ProviderScope.containerOf(
+        tester.element(find.byType(ChangeChoiceSheet)),
+      ).read(nestedIssuanceHostProvider)!.attach(nestedId);
+      nested.add(
+        SessionState(
+          id: nestedId,
+          protocol: "irma",
+          type: SessionType.issuance,
+          status: SessionStatus.requestPermission,
+          requestor: _party("Yivi"),
+          offeredCredentials: [
+            testCredential(
+              type: "pbdf.pbdf.passport",
+              hash: "new-passport",
+              name: "Passport",
+            ),
+          ],
+        ),
+      );
+      await _pumpFor(tester);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 5, 5))),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("sheet_issuance")), findsOneWidget);
 
-        // Back there: a step back, the document to be read again (the
-        // chip screen starts over; here no chip was read, so the
-        // instruction is on top).
-        await tester.tap(find.bySemanticsLabel("Go back").last);
-        await tester.pump();
-        nested.add(
-          SessionState(
-            id: nestedId,
-            protocol: "irma",
-            type: SessionType.issuance,
-            status: SessionStatus.dismissed,
-            requestor: _party("Yivi"),
-          ),
-        );
-        await _pumpFor(tester);
-        expect(
-          find.byKey(const ValueKey(("issue_sheet_progress", 2, 5))),
-          findsOneWidget,
-        );
-        expect(find.byType(DocumentInstructionScreen), findsOneWidget);
-      },
-    );
+      // Back there: a step back, the document to be read again (the
+      // chip screen starts over; here no chip was read, so the
+      // instruction is on top).
+      await tester.tap(find.bySemanticsLabel("Go back").last);
+      await tester.pump();
+      nested.add(
+        SessionState(
+          id: nestedId,
+          protocol: "irma",
+          type: SessionType.issuance,
+          status: SessionStatus.dismissed,
+          requestor: _party("Yivi"),
+        ),
+      );
+      await _pumpFor(tester);
+      expect(
+        find.byKey(const ValueKey(("issue_sheet_progress", 2, 5))),
+        findsOneWidget,
+      );
+      expect(find.byType(DocumentInstructionScreen), findsOneWidget);
+    });
   });
 
   group("who you share with", () {

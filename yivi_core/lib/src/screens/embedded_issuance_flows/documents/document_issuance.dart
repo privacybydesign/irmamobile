@@ -11,7 +11,7 @@ import "../../../models/session.dart";
 import "../../../providers/document_reader_providers.dart";
 import "../../../providers/passport_issuer_provider.dart";
 import "../../../providers/regula_face_service_provider.dart";
-import "../../../util/handle_pointer.dart";
+import "../../../providers/session_launcher.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
 import "../../../widgets/done_check.dart";
@@ -264,15 +264,16 @@ class DocumentIssuance extends Notifier<DocumentIssuanceState> {
     // As any other issuance session: the sheet waiting for it shows it.
     // Without one (the sheet went), the face flow replaces the top so it
     // does not return to the read.
-    await handlePointer(
-      root,
-      SessionPointer(
-        protocol: .irma,
-        u: pointer.u,
-        irmaqr: pointer.irmaqr,
-        continueOnSecondDevice: true,
-      ),
-      pushReplacement: faceCheck,
-    );
+    ref
+        .read(sessionLauncherProvider)
+        .handle(
+          SessionPointer(
+            protocol: .irma,
+            u: pointer.u,
+            irmaqr: pointer.irmaqr,
+            continueOnSecondDevice: true,
+          ),
+          replace: faceCheck,
+        );
   }
 }

@@ -5,6 +5,7 @@ import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/browser.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/data/issuance_launcher.dart";
@@ -204,6 +205,7 @@ Future<SessionHarness> pumpSessionScreen(
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
         browserProvider.overrideWithValue(browser),
+        routerProvider.overrideWithValue(router),
         credentialOrderControllerProvider.overrideWith(_NoWallet.new),
         groupedCredentialStoreProvider.overrideWith(
           (ref) => Stream.value(const []),

@@ -8,6 +8,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
+import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
@@ -117,7 +118,8 @@ Future<GoRouter> pumpRoutes(
     tester,
     _app(
       repo: repo,
-      overrides: overrides,
+      // Sessions started through the launcher go on this router.
+      overrides: [...overrides, routerProvider.overrideWithValue(router)],
       locale: locale,
       builder: (delegates) => MaterialApp.router(
         localizationsDelegates: delegates,
