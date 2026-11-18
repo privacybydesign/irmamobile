@@ -59,6 +59,14 @@ Future<void> runYiviApp({
     WidgetsFlutterBinding.ensureInitialized();
     LicenseRegistry.addLicense(cardFontLicenses);
 
+    // Every way up, on phones and tablets.
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         // Android 15+ enforces edge-to-edge, so bar colors are ignored;
@@ -142,9 +150,8 @@ Future<void> runYiviApp({
 
 class YiviApp extends ConsumerWidget {
   final Locale? defaultLanguage;
-  final Duration? idleLockThreshold;
 
-  const YiviApp({super.key, this.defaultLanguage, this.idleLockThreshold});
+  const YiviApp({super.key, this.defaultLanguage});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -169,10 +176,7 @@ class YiviApp extends ConsumerWidget {
           // If there is no preferred locale and no default locale,
           // appLocale will be null and the system locale will be used
 
-          return App(
-            forcedLocale: appLocale,
-            idleLockThreshold: idleLockThreshold,
-          );
+          return App(forcedLocale: appLocale);
         },
       ),
     );

@@ -1,5 +1,7 @@
 import "dart:convert";
 
+import "package:flutter/widgets.dart"
+    show AppLifecycleListener, AppLifecycleState;
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../data/irma_repository.dart";
@@ -77,6 +79,13 @@ class NotificationsNotifier extends Notifier<NotificationsState> {
       _records = _recordsFromJson(stored);
       await _refresh(generation);
     });
+    // The cards may have changed while the app was away.
+    final lifecycle = AppLifecycleListener(
+      onStateChange: (state) {
+        if (state == AppLifecycleState.resumed) reload();
+      },
+    );
+    ref.onDispose(lifecycle.dispose);
     return const NotificationsLoading();
   }
 

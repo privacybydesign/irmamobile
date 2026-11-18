@@ -8,6 +8,7 @@ import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/enrollment_events.dart";
 import "package:yivi_core/src/models/scheme_rules.dart";
+import "package:yivi_core/src/providers/app_effects.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
@@ -87,11 +88,10 @@ class AppHarness {
           irmaRepositoryProvider.overrideWithValue(repo),
           preferencesProvider.overrideWithValue(repo.preferences),
           rootedDeviceDetectorProvider.overrideWithValue(_Detector(rooted)),
+          if (idleLockThreshold != null)
+            idleLockThresholdProvider.overrideWithValue(idleLockThreshold),
         ],
-        child: YiviApp(
-          defaultLanguage: const Locale("en", "US"),
-          idleLockThreshold: idleLockThreshold,
-        ),
+        child: const YiviApp(defaultLanguage: Locale("en", "US")),
       ),
     );
     await run(tester);

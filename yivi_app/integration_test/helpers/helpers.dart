@@ -16,6 +16,7 @@ import "package:yivi_core/app.dart";
 import "package:yivi_core/src/data/issuance_launcher.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/providers/app_effects.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
@@ -113,12 +114,13 @@ Future<void> pumpYiviApp(
             await launcher.open(d.credentialId, d.issueURL);
           },
         ),
+        if (idleLockThreshold != null)
+          idleLockThresholdProvider.overrideWithValue(idleLockThreshold),
         ...?providerOverrides,
       ],
       child: TestContext(
         child: YiviApp(
           defaultLanguage: defaultLanguage ?? const Locale("en", "EN"),
-          idleLockThreshold: idleLockThreshold,
         ),
       ),
     ),

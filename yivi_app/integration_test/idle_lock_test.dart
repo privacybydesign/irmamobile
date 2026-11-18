@@ -1,4 +1,4 @@
-// Verifies the idle-lock behavior introduced by IdleLockObserver:
+// Verifies the idle lock (`idleLockProvider`):
 // a paused → idle → resumed cycle (longer than the idle threshold)
 // must lock the app. Locking now overlays `PinScreen` on top of the
 // currently mounted route (`LockGate`); the route stays mounted and
