@@ -8,7 +8,10 @@ part "authentication_events.g.dart";
 abstract class AuthenticationEvent extends Event {}
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class AuthenticateEvent extends AuthenticationEvent {
+class AuthenticateEvent extends AuthenticationEvent implements BridgeEvent {
+  @override
+  String get wireName => "AuthenticateEvent";
+
   final String pin;
 
   final String schemeId;
@@ -16,6 +19,7 @@ class AuthenticateEvent extends AuthenticationEvent {
   AuthenticateEvent({required this.pin, required this.schemeId});
   factory AuthenticateEvent.fromJson(Map<String, dynamic> json) =>
       _$AuthenticateEventFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$AuthenticateEventToJson(this);
 }
 

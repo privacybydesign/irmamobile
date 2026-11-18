@@ -8,7 +8,10 @@ part "change_pin_events.g.dart";
 abstract class ChangePinBaseEvent extends Event {}
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class ChangePinEvent extends ChangePinBaseEvent {
+class ChangePinEvent extends ChangePinBaseEvent implements BridgeEvent {
+  @override
+  String get wireName => "ChangePinEvent";
+
   ChangePinEvent({required this.oldPin, required this.newPin});
 
   final String oldPin;
@@ -17,6 +20,7 @@ class ChangePinEvent extends ChangePinBaseEvent {
 
   factory ChangePinEvent.fromJson(Map<String, dynamic> json) =>
       _$ChangePinEventFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$ChangePinEventToJson(this);
 }
 

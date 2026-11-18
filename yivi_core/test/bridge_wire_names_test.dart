@@ -33,7 +33,7 @@ import "package:yivi_core/src/screens/debug/debug_schemes.dart";
 const _channel = MethodChannel("irma.app/irma_mobile_bridge");
 
 /// What the app sends, by the method name it has on the channel today.
-final _outgoing = <String, Event Function()>{
+final _outgoing = <String, BridgeEvent Function()>{
   "AppReadyEvent": () => AppReadyEvent(locale: "en"),
   "SetLocaleEvent": () => SetLocaleEvent(locale: "nl"),
   "EnrollEvent": () =>
@@ -141,7 +141,7 @@ void main() {
   }
 
   group("29. outgoing", () {
-    test("each event goes out under its class name, as JSON", () async {
+    test("each event goes out under its wire name, as JSON", () async {
       final calls = <MethodCall>[];
       messenger.setMockMethodCallHandler(_channel, (call) async {
         calls.add(call);
@@ -160,8 +160,10 @@ void main() {
           isA<Map<String, dynamic>>(),
         );
       }
-      // Today's name is the Dart class name.
       for (final entry in _outgoing.entries) {
+        expect(entry.value().wireName, entry.key);
+        // The names are those of the Dart classes, as before they were
+        // fixed strings.
         expect(entry.value().runtimeType.toString(), entry.key);
       }
     });

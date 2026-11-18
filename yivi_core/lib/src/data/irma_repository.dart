@@ -219,7 +219,7 @@ class IrmaRepository {
     _eventSubject.add(event);
   }
 
-  void bridgedDispatch(Event event) {
+  void bridgedDispatch(BridgeEvent event) {
     if (_closed) return;
     dispatch(event);
     _bridge.dispatch(event);

@@ -10,7 +10,11 @@ part "debug_schemes.g.dart";
 
 /// Asks the bridge for the schemes; it answers with a [DebugSchemesEvent].
 /// Only the debug screens ask.
-class RequestDebugSchemesEvent extends Event {
+class RequestDebugSchemesEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "RequestDebugSchemesEvent";
+
+  @override
   Map<String, dynamic> toJson() => const {};
 }
 

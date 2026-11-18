@@ -5,7 +5,10 @@ import "event.dart";
 part "certificate_events.g.dart";
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class InstallCertificateEvent extends Event {
+class InstallCertificateEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "InstallCertificateEvent";
+
   final String type;
 
   final String pemContent;
@@ -14,11 +17,15 @@ class InstallCertificateEvent extends Event {
 
   factory InstallCertificateEvent.fromJson(Map<String, dynamic> json) =>
       _$InstallCertificateEventFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$InstallCertificateEventToJson(this);
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class RemoveCertificateEvent extends Event {
+class RemoveCertificateEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "RemoveCertificateEvent";
+
   final String type;
 
   final String thumbprint;
@@ -27,5 +34,6 @@ class RemoveCertificateEvent extends Event {
 
   factory RemoveCertificateEvent.fromJson(Map<String, dynamic> json) =>
       _$RemoveCertificateEventFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$RemoveCertificateEventToJson(this);
 }

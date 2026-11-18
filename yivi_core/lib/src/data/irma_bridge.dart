@@ -30,5 +30,6 @@ abstract class IrmaBridge {
     }
   }
 
-  void dispatch(Event event);
+  /// Sends [event] over the bridge, by its [BridgeEvent.wireName].
+  void dispatch(BridgeEvent event);
 }

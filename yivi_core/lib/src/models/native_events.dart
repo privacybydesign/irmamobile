@@ -5,7 +5,10 @@ import "event.dart";
 part "native_events.g.dart";
 
 @JsonSerializable(createFactory: false)
-class AppReadyEvent extends Event {
+class AppReadyEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "AppReadyEvent";
+
   AppReadyEvent({required this.locale});
 
   /// The effective app language (a bare language code such as "nl") the Go
@@ -13,6 +16,7 @@ class AppReadyEvent extends Event {
   /// first pull. The native plugin reads it from this payload.
   final String locale;
 
+  @override
   Map<String, dynamic> toJson() => _$AppReadyEventToJson(this);
 }
 
@@ -20,11 +24,15 @@ class AppReadyEvent extends Event {
 /// handler re-resolves and re-dispatches credentials; the app asks for the
 /// activity log again ([ActivityLogClient.changed]).
 @JsonSerializable(createFactory: false)
-class SetLocaleEvent extends Event {
+class SetLocaleEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "SetLocaleEvent";
+
   SetLocaleEvent({required this.locale});
 
   final String locale;
 
+  @override
   Map<String, dynamic> toJson() => _$SetLocaleEventToJson(this);
 }
 
@@ -41,8 +49,12 @@ class AppReadyAckEvent extends Event {
 }
 
 @JsonSerializable(createFactory: false)
-class AndroidSendToBackgroundEvent extends Event {
+class AndroidSendToBackgroundEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "AndroidSendToBackgroundEvent";
+
   AndroidSendToBackgroundEvent();
 
+  @override
   Map<String, dynamic> toJson() => _$AndroidSendToBackgroundEventToJson(this);
 }

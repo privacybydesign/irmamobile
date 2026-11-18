@@ -28,45 +28,34 @@ class IrmaClientBridge extends IrmaBridge {
   final bool debugLogging;
   final MethodChannel _methodChannel;
 
-  static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
-    SchemeRulesEvent: (j) => SchemeRulesEvent.fromJson(j),
-    DebugSchemesEvent: (j) => DebugSchemesEvent.fromJson(j),
-    EudiConfigurationEvent: (j) => EudiConfigurationEvent.fromJson(j),
-    CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
-    CredentialStoreEvent: (j) => CredentialStoreEvent.fromJson(j),
-    SessionStateEvent: (j) => SessionStateEvent.fromJson(j),
-    SessionPreviewEvent: (j) => SessionPreviewEvent.fromJson(j),
-    EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
-    LogPageEvent: (j) => LogPageEvent.fromJson(j),
-    PartiesEvent: (j) => PartiesEvent.fromJson(j),
-    LogCountsEvent: (j) => LogCountsEvent.fromJson(j),
-
-    HandleURLEvent: (j) => HandleURLEvent.fromJson(j),
-
-    AppReadyAckEvent: (j) => AppReadyAckEvent.fromJson(j),
-
-    EnrollmentSuccessEvent: (j) => EnrollmentSuccessEvent.fromJson(j),
-    EnrollmentFailureEvent: (j) => EnrollmentFailureEvent.fromJson(j),
-
-    AuthenticationSuccessEvent: (j) => AuthenticationSuccessEvent.fromJson(j),
-    AuthenticationFailedEvent: (j) => AuthenticationFailedEvent.fromJson(j),
-    AuthenticationErrorEvent: (j) => AuthenticationErrorEvent.fromJson(j),
-
-    ChangePinSuccessEvent: (j) => ChangePinSuccessEvent.fromJson(j),
-    ChangePinFailedEvent: (j) => ChangePinFailedEvent.fromJson(j),
-    ChangePinErrorEvent: (j) => ChangePinErrorEvent.fromJson(j),
-
-    ClientPreferencesEvent: (j) => ClientPreferencesEvent.fromJson(j),
-
-    ErrorEvent: (j) => ErrorEvent.fromJson(j),
+  /// What Go and the native plugins send, by the name it has on the bridge
+  /// channel. The names are fixed strings: they must not follow a renamed
+  /// Dart class.
+  static final Map<String, EventUnmarshaller> _eventUnmarshallers = {
+    "SchemeRulesEvent": SchemeRulesEvent.fromJson,
+    "DebugSchemesEvent": DebugSchemesEvent.fromJson,
+    "EudiConfigurationEvent": EudiConfigurationEvent.fromJson,
+    "CredentialsEvent": CredentialsEvent.fromJson,
+    "CredentialStoreEvent": CredentialStoreEvent.fromJson,
+    "SessionStateEvent": SessionStateEvent.fromJson,
+    "SessionPreviewEvent": SessionPreviewEvent.fromJson,
+    "EnrollmentStatusEvent": EnrollmentStatusEvent.fromJson,
+    "LogPageEvent": LogPageEvent.fromJson,
+    "PartiesEvent": PartiesEvent.fromJson,
+    "LogCountsEvent": LogCountsEvent.fromJson,
+    "HandleURLEvent": HandleURLEvent.fromJson,
+    "AppReadyAckEvent": AppReadyAckEvent.fromJson,
+    "EnrollmentSuccessEvent": EnrollmentSuccessEvent.fromJson,
+    "EnrollmentFailureEvent": EnrollmentFailureEvent.fromJson,
+    "AuthenticationSuccessEvent": AuthenticationSuccessEvent.fromJson,
+    "AuthenticationFailedEvent": AuthenticationFailedEvent.fromJson,
+    "AuthenticationErrorEvent": AuthenticationErrorEvent.fromJson,
+    "ChangePinSuccessEvent": ChangePinSuccessEvent.fromJson,
+    "ChangePinFailedEvent": ChangePinFailedEvent.fromJson,
+    "ChangePinErrorEvent": ChangePinErrorEvent.fromJson,
+    "ClientPreferencesEvent": ClientPreferencesEvent.fromJson,
+    "ErrorEvent": ErrorEvent.fromJson,
   };
-
-  // Create a lookup of unmarshallers
-  static final Map<String, EventUnmarshaller> _eventUnmarshallerLookup =
-      _eventUnmarshallers.map(
-        (Type t, EventUnmarshaller u) =>
-            MapEntry<String, EventUnmarshaller>(t.toString(), u),
-      );
 
   IrmaClientBridge({this.debugLogging = false})
     : _methodChannel = const MethodChannel("irma.app/irma_mobile_bridge") {
@@ -97,7 +86,7 @@ class IrmaClientBridge extends IrmaBridge {
     }
     try {
       final data = jsonDecode(call.arguments as String) as Map<String, dynamic>;
-      final unmarshaller = _eventUnmarshallerLookup[call.method];
+      final unmarshaller = _eventUnmarshallers[call.method];
 
       if (unmarshaller == null) {
         // Don't send 'call.arguments' to Sentry; it might contain personal data.
@@ -141,14 +130,12 @@ class IrmaClientBridge extends IrmaBridge {
   }
 
   @override
-  void dispatch(Event event) {
+  void dispatch(BridgeEvent event) {
     final encodedEvent = jsonEncode(event);
     if (debugLogging && kDebugMode) {
-      printLongString(
-        "Sending ${event.runtimeType.toString()} to bridge: $encodedEvent",
-      );
+      printLongString("Sending ${event.wireName} to bridge: $encodedEvent");
     }
 
-    _methodChannel.invokeMethod(event.runtimeType.toString(), encodedEvent);
+    _methodChannel.invokeMethod(event.wireName, encodedEvent);
   }
 }

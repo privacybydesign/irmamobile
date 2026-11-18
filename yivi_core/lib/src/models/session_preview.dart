@@ -85,12 +85,16 @@ class SessionPreview {
 
 /// Asks irmago what [request] would start and who it is from, without
 /// starting it. Answered by a [SessionPreviewEvent] with the same [key].
-class PreviewSessionEvent extends Event {
+class PreviewSessionEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "PreviewSessionEvent";
+
   final String key;
   final SessionPointer request;
 
   PreviewSessionEvent({required this.key, required this.request});
 
+  @override
   Map<String, dynamic> toJson() => {"key": key, "request": request.toJson()};
 }
 

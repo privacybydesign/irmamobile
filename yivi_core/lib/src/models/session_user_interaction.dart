@@ -1,5 +1,6 @@
 import "package:json_annotation/json_annotation.dart";
 
+import "event.dart";
 import "session_events.dart";
 
 part "session_user_interaction.g.dart";
@@ -38,7 +39,10 @@ class DisclosureDisconSelection {
 }
 
 @JsonSerializable(createFactory: false, fieldRename: .snake)
-class SessionUserInteractionEvent extends SessionEvent {
+class SessionUserInteractionEvent extends SessionEvent implements BridgeEvent {
+  @override
+  String get wireName => "SessionUserInteractionEvent";
+
   final int sessionId;
   final UserInteractionType type;
   final Map<String, dynamic>? payload;
@@ -98,5 +102,6 @@ class SessionUserInteractionEvent extends SessionEvent {
     payload: {"proceed": proceed, "transaction_code": transactionCode},
   );
 
+  @override
   Map<String, dynamic> toJson() => _$SessionUserInteractionEventToJson(this);
 }

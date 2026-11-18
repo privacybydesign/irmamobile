@@ -22,7 +22,10 @@ class EnrollmentStatusEvent extends Event {
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class EnrollEvent extends Event {
+class EnrollEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "EnrollEvent";
+
   EnrollEvent({
     required this.email,
     required this.pin,
@@ -40,6 +43,7 @@ class EnrollEvent extends Event {
 
   factory EnrollEvent.fromJson(Map<String, dynamic> json) =>
       _$EnrollEventFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$EnrollEventToJson(this);
 }
 

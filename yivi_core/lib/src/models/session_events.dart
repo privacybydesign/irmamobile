@@ -10,7 +10,10 @@ abstract class SessionEvent extends Event {
 }
 
 @JsonSerializable(createFactory: false, fieldRename: .snake)
-class NewSessionEvent extends SessionEvent {
+class NewSessionEvent extends SessionEvent implements BridgeEvent {
+  @override
+  String get wireName => "NewSessionEvent";
+
   NewSessionEvent({required this.sessionId, required this.request});
 
   /// Caller-supplied id (allocated by [SessionRepository.allocateSessionId]).
@@ -20,5 +23,6 @@ class NewSessionEvent extends SessionEvent {
 
   final SessionPointer request;
 
+  @override
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
 }

@@ -10,11 +10,12 @@ import "../models/session_state.dart";
 /// Questions to irmago about the activity log, answered by request id, and
 /// when the log may have changed.
 class ActivityLogClient {
-  ActivityLogClient({required void Function(Event event) send}) : _send = send;
+  ActivityLogClient({required void Function(BridgeEvent event) send})
+    : _send = send;
 
   /// Sends a question to the bridge only: the app's own listeners have no
   /// use for it.
-  final void Function(Event event) _send;
+  final void Function(BridgeEvent event) _send;
 
   bool _closed = false;
 

@@ -18,7 +18,7 @@ import "irma_preferences.dart";
 /// - Provides per-session state streams via [getSessionState]
 class SessionRepository {
   /// Sends an event to the bridge and to the app's own listeners.
-  final void Function(Event event) _dispatch;
+  final void Function(BridgeEvent event) _dispatch;
   final IrmaPreferences _preferences;
 
   final _states =
@@ -42,7 +42,7 @@ class SessionRepository {
 
   SessionRepository({
     required Stream<Event> eventStream,
-    required void Function(Event event) dispatch,
+    required void Function(BridgeEvent event) dispatch,
     required IrmaPreferences preferences,
   }) : _dispatch = dispatch,
        _preferences = preferences {

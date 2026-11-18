@@ -5,13 +5,17 @@ import "event.dart";
 part "client_preferences.g.dart";
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class ClientPreferencesEvent extends Event {
+class ClientPreferencesEvent extends Event implements BridgeEvent {
+  @override
+  String get wireName => "ClientPreferencesEvent";
+
   ClientPreferencesEvent({required this.clientPreferences});
 
   final ClientPreferences clientPreferences;
 
   factory ClientPreferencesEvent.fromJson(Map<String, dynamic> json) =>
       _$ClientPreferencesEventFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$ClientPreferencesEventToJson(this);
 }
 

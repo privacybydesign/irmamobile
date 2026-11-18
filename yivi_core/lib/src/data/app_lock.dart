@@ -12,7 +12,7 @@ import "irma_preferences.dart";
 /// and why the next lock screen should not scan on its own.
 class AppLock {
   AppLock({
-    required void Function(Event event) dispatch,
+    required void Function(BridgeEvent event) dispatch,
     required IrmaPreferences preferences,
     required String defaultKeyshareScheme,
   }) : _dispatch = dispatch,
@@ -20,7 +20,7 @@ class AppLock {
        _scheme = defaultKeyshareScheme;
 
   /// Sends an event to the bridge and to the app's own listeners.
-  final void Function(Event event) _dispatch;
+  final void Function(BridgeEvent event) _dispatch;
   final IrmaPreferences _preferences;
   final String _scheme;
 

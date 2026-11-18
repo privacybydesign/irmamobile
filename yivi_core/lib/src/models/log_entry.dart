@@ -382,11 +382,12 @@ class PartySummary {
 
 /// A question about the activity log. irmago answers with a [LogAnswer]
 /// carrying the same [requestId].
-abstract class LogRequest extends Event {
+abstract class LogRequest extends Event implements BridgeEvent {
   LogRequest(this.requestId);
 
   final String requestId;
 
+  @override
   Map<String, dynamic> toJson();
 }
 
@@ -399,6 +400,9 @@ abstract class LogAnswer extends Event {
 }
 
 class QueryLogsEvent extends LogRequest {
+  @override
+  String get wireName => "QueryLogsEvent";
+
   QueryLogsEvent(super.requestId, this.query);
 
   final LogQuery query;
@@ -412,6 +416,9 @@ class QueryLogsEvent extends LogRequest {
 
 /// How many entries each of [filters] matches, in order.
 class CountLogsEvent extends LogRequest {
+  @override
+  String get wireName => "CountLogsEvent";
+
   CountLogsEvent(super.requestId, this.filters);
 
   final List<LogFilter> filters;
@@ -424,6 +431,9 @@ class CountLogsEvent extends LogRequest {
 }
 
 class ListPartiesEvent extends LogRequest {
+  @override
+  String get wireName => "ListPartiesEvent";
+
   ListPartiesEvent(super.requestId, this.filter);
 
   final LogFilter filter;
