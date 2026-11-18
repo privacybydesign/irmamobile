@@ -1,4 +1,4 @@
-part of "glass_sheet.dart";
+part of "sheet.dart";
 
 /// What the bar of a sheet page shows in its middle.
 @immutable
@@ -14,7 +14,7 @@ class SheetTitle {
   final String text;
 
   /// In the title's place: a tag, a search field (see
-  /// [GlassSheetHeader.titleWidget]).
+  /// [SheetHeader.titleWidget]).
   final Widget? widget;
 
   /// [widget] stays in the middle of the bar on a phone held sideways too
@@ -53,7 +53,7 @@ final class _Under extends SheetTitleReveal {
 }
 
 /// Where a sheet page's close button is: at the end of the bar, at its
-/// start (see [GlassSheetHeader.closeAtStart]), or none (a page left by
+/// start (see [SheetHeader.closeAtStart]), or none (a page left by
 /// dragging its header down, or by its way on).
 enum SheetClose { end, start, none }
 
@@ -82,12 +82,12 @@ enum _PageBody {
   split,
 }
 
-/// One page of a sheet: its [GlassSheetHeader], its content, and [bottom]
+/// One page of a sheet: its [SheetHeader], its content, and [bottom]
 /// (a button) pinned to the bottom of the sheet, as on a full screen.
 ///
 /// The content scrolls on under the header; once it is under it, the header
 /// gets the hard scroll edge of iOS ([ScrollEdgeBand]).
-class GlassSheetPage extends StatefulWidget {
+class SheetPage extends StatefulWidget {
   final SheetTitle title;
   final SheetExits exits;
   final _PageBody _body;
@@ -122,7 +122,7 @@ class GlassSheetPage extends StatefulWidget {
   final SheetUnderBar? underBar;
 
   /// Content that scrolls under the bar: a [child] or [slivers].
-  const GlassSheetPage.scroll({
+  const SheetPage.scroll({
     super.key,
     required this.title,
     this.exits = const SheetExits(),
@@ -141,7 +141,7 @@ class GlassSheetPage extends StatefulWidget {
 
   /// A [child] that fills the page and keeps clear of the home indicator
   /// itself (a PIN pad, a camera, screens with their own buttons).
-  const GlassSheetPage.fill({
+  const SheetPage.fill({
     super.key,
     required this.title,
     this.exits = const SheetExits(),
@@ -158,7 +158,7 @@ class GlassSheetPage extends StatefulWidget {
 
   /// A [child] that lays itself out in a [SheetSplit]: only where the sheet
   /// has columns ([useSheetColumns]). No padding, no scroll of its own.
-  const GlassSheetPage.split({
+  const SheetPage.split({
     super.key,
     required this.title,
     this.exits = const SheetExits(),
@@ -177,17 +177,17 @@ class GlassSheetPage extends StatefulWidget {
   bool get _split => _body == _PageBody.split;
 
   @override
-  State<GlassSheetPage> createState() => _GlassSheetPageState();
+  State<SheetPage> createState() => _SheetPageState();
 }
 
-class _GlassSheetPageState extends State<GlassSheetPage> {
+class _SheetPageState extends State<SheetPage> {
   final _under = ScrollEdgeNotifier();
   final _slot = SheetActionSlot();
 
-  /// Whether the page has scrolled past [GlassSheetPage.titleAfterScroll].
+  /// Whether the page has scrolled past [SheetPage.titleAfterScroll].
   final _past = ValueNotifier(false);
 
-  /// Whether [GlassSheetPage.underBar] shows.
+  /// Whether [SheetPage.underBar] shows.
   final _underBarShown = ValueNotifier(false);
 
   @override
@@ -236,11 +236,11 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     final title = widget.title.text;
     final onBack = widget.exits.onBack;
     final action = widget.action;
-    final inBar = GlassSheet.actionInBar(context);
+    final inBar = Sheet.actionInBar(context);
     final bottomUp =
         widget.bottomInBar &&
         useSheetColumns(context) &&
-        !GlassSheet.of(context).floating;
+        !Sheet.of(context).floating;
     _slot.takesBottom =
         widget.slotBottom &&
         !widget._scrolls &&
@@ -285,7 +285,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
           // Until the page has scrolled its heading away, nothing in the
           // title's place (the title still names the page).
           final hideTitle = widget.title.reveal is! _Always && !_past.value;
-          return GlassSheetHeader(
+          return SheetHeader(
             title: title,
             titleWidget:
                 widget.title.widget ??
@@ -385,7 +385,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         : page;
   }
 
-  /// [GlassSheetPage.underBar] on the bar's band (the band as it is with
+  /// [SheetPage.underBar] on the bar's band (the band as it is with
   /// content under it), with the band's line under it instead of under the
   /// bar: it covers that line.
   Widget _underBar(Widget row) {
@@ -418,7 +418,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
     );
   }
 
-  /// What scrolls, and the buttons under it: [GlassSheetPage.bottom] and
+  /// What scrolls, and the buttons under it: [SheetPage.bottom] and
   /// [action] (the way on, when it is not in the bar).
   List<Widget> _body(
     BuildContext context,
@@ -468,7 +468,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
         if (bottom != null) SheetBottomBar(child: bottom),
       ] else if (bottom == null)
         Flexible(
-          child: GlassSheetScrollView(
+          child: SheetScrollView(
             padding: padding,
             slivers: slivers,
             child: child,
@@ -480,7 +480,7 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
           // content doesn't run on under it as text over text; open at the
           // top, where it goes on under the header.
           child: OpenTop(
-            child: GlassSheetScrollView(
+            child: SheetScrollView(
               padding: padding,
               clearBottom: false,
               slivers: slivers,
@@ -495,8 +495,8 @@ class _GlassSheetPageState extends State<GlassSheetPage> {
 }
 
 /// The body of a page whose bottom bar shows the slot's buttons
-/// ([GlassSheetPage.slotBottom]).
-extension on _GlassSheetPageState {
+/// ([SheetPage.slotBottom]).
+extension on _SheetPageState {
   List<Widget> _slotBody(EdgeInsets padding, Widget child) {
     SheetAction? latest(SheetAction? a, SheetAction? Function() now) =>
         a == null || !a.enabled
@@ -553,12 +553,12 @@ extension on _GlassSheetPageState {
   }
 }
 
-/// The scrolling body of a sheet, under its [GlassSheetHeader]: it pulls the
-/// sheet down from its top (see [GlassSheetScope]), goes on under the header
-/// (which clips it no more than the sheet does; see [GlassSheetPage]), and
+/// The scrolling body of a sheet, under its [SheetHeader]: it pulls the
+/// sheet down from its top (see [SheetScope]), goes on under the header
+/// (which clips it no more than the sheet does; see [SheetPage]), and
 /// ends clear of the home indicator. [child] pads itself from the
 /// sides unless [padding] does.
-class GlassSheetScrollView extends StatelessWidget {
+class SheetScrollView extends StatelessWidget {
   final Widget? child;
 
   /// Instead of [child]: slivers, built as they scroll into view (a long
@@ -569,7 +569,7 @@ class GlassSheetScrollView extends StatelessWidget {
   /// Ends clear of the home indicator; off when a button sits under it.
   final bool clearBottom;
 
-  const GlassSheetScrollView({
+  const SheetScrollView({
     super.key,
     this.child,
     this.slivers,
@@ -583,7 +583,7 @@ class GlassSheetScrollView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Not clipped at the top: the content goes on under a
-    // [GlassSheetPage]'s header (its hard scroll edge). The page clips the
+    // [SheetPage]'s header (its hard scroll edge). The page clips the
     // bottom.
     final inset = _padding(context);
     final physics = _sheetScrollPhysics(context);
@@ -628,23 +628,21 @@ class GlassSheetScrollView extends StatelessWidget {
   );
 }
 
-/// A sheet with the title [titleKey] over [child]: a [GlassSheetPage] in
-/// [showGlassSheet].
-Future<void> showTitledGlassSheet({
+/// A sheet with the title [titleKey] over [child]: a [SheetPage] in
+/// [showSheet].
+Future<void> showTitledSheet({
   required BuildContext context,
   required String titleKey,
   required Widget child,
-}) => showGlassSheet<void>(
+}) => showSheet<void>(
   context: context,
-  builder: (context) => GlassSheetPage.scroll(
-    title: SheetTitle(context.tr(titleKey)),
-    child: child,
-  ),
+  builder: (context) =>
+      SheetPage.scroll(title: SheetTitle(context.tr(titleKey)), child: child),
 );
 
 /// How many sheets are fully open: the band behind Android's buttons then
 /// takes the sheet's colour.
-abstract final class GlassSheetCover {
+abstract final class SheetCover {
   static final covering = ValueNotifier<int>(0);
 }
 

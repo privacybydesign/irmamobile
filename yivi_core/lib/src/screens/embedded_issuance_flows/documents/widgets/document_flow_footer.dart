@@ -5,7 +5,7 @@ import "../../../../theme/yivi_palette.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/bars/floating_bar_placement.dart";
 import "../../../../widgets/buttons/pill_buttons.dart";
-import "../../../../widgets/sheet/glass_sheet.dart";
+import "../../../../widgets/sheet/sheet.dart";
 import "../../../../widgets/sheet/sheet_actions.dart";
 import "../../../../widgets/sheet/sheet_layout.dart";
 
@@ -87,7 +87,7 @@ class DocumentFlowFooter extends StatelessWidget {
     final actions = sheetActions(context, buttons);
     // Upright, in the page's own bottom bar (it puts them there).
     if (SheetSlotAction.atBottom(context)) return actions;
-    if (!GlassSheet.actionInBar(context)) return SheetBottomBar(child: actions);
+    if (!Sheet.actionInBar(context)) return SheetBottomBar(child: actions);
     // The way on is in the bar; the other choice, if any, a link at the
     // bottom.
     return Padding(
@@ -119,7 +119,7 @@ class DocumentFlowFooter extends StatelessWidget {
         secondary: asAction(secondary),
       );
     }
-    if (GlassSheet.actionInBar(context)) {
+    if (Sheet.actionInBar(context)) {
       return SheetSlotAction(
         action: asAction(primary),
         child: secondary == null

@@ -4,9 +4,9 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../bars/floating_bar_placement.dart";
-import "glass_sheet.dart";
+import "sheet.dart";
 
-/// Where the buttons of a sheet page sit ([GlassSheetPage.bottom], and the
+/// Where the buttons of a sheet page sit ([SheetPage.bottom], and the
 /// document screens shown in a sheet): 8 under the content, 16 from the
 /// sides, and as low as on a full screen. Usually around a [SheetActionRow].
 class SheetBottomBar extends StatelessWidget {
@@ -17,7 +17,7 @@ class SheetBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // In place while the content slides over to another page.
-    return GlassSheetHold(child: _bar(context));
+    return SheetHold(child: _bar(context));
   }
 
   Widget _bar(BuildContext context) {
@@ -61,7 +61,7 @@ class SheetBottomBar extends StatelessWidget {
 /// wide sheet keeps them centred. The way on is in the bar; what a page
 /// still has at its bottom ([actions], the progress of a step without its
 /// own) sits at the bottom of the left column. With the keyboard up the
-/// columns end right above it. Give it to a [GlassSheetPage] with
+/// columns end right above it. Give it to a [SheetPage] with
 /// `split: true`.
 class SheetSplit extends StatelessWidget {
   final List<Widget> start;
@@ -146,7 +146,7 @@ class SheetSplit extends StatelessWidget {
                             padding: const EdgeInsets.only(top: YiviSpace.x12),
                             // In place while the content slides over to
                             // another page.
-                            child: GlassSheetHold(child: actions),
+                            child: SheetHold(child: actions),
                           ),
                       ],
                     ),

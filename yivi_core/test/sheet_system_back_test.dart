@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -38,21 +38,21 @@ Widget _app() => IrmaTheme(
 /// A sheet with a subpage open.
 void _openTwoPages() {
   var two = true;
-  showGlassSheet<void>(
+  showSheet<void>(
     context: _page,
     builder: (_) => StatefulBuilder(
       builder: (context, setState) {
         void back() => setState(() => two = false);
-        return GlassSheetPages(
+        return SheetPages(
           onBack: back,
           pages: [
-            GlassSheetPage.scroll(
+            SheetPage.scroll(
               key: ValueKey("one"),
               title: SheetTitle("First"),
               child: Text("first page"),
             ),
             if (two)
-              GlassSheetPage.scroll(
+              SheetPage.scroll(
                 key: const ValueKey("two"),
                 title: SheetTitle("Second"),
                 exits: SheetExits(onBack: back),

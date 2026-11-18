@@ -11,7 +11,7 @@ import "package:yivi_core/src/screens/enrollment/welcome/widgets/error_report_sw
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -84,9 +84,9 @@ void main() {
       expect(link.recognizer, isA<TapGestureRecognizer>());
       (link.recognizer as TapGestureRecognizer).onTap!();
       await tester.pumpAndSettle();
-      expect(find.byType(GlassSheetPage), findsOneWidget);
+      expect(find.byType(SheetPage), findsOneWidget);
       expect(find.text("Error and app status reporting"), findsOneWidget);
-      Navigator.of(tester.element(find.byType(GlassSheetPage))).pop();
+      Navigator.of(tester.element(find.byType(SheetPage))).pop();
       await tester.pumpAndSettle();
 
       // Get started waits for the terms.

@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 import "package:yivi_core/src/widgets/sheet/sheet_actions.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -31,9 +31,9 @@ Widget _app() => IrmaTheme(
 );
 
 /// A sheet whose list is taller than the sheet.
-void _open() => showGlassSheet<void>(
+void _open() => showSheet<void>(
   context: _page,
-  builder: (_) => GlassSheetPage.scroll(
+  builder: (_) => SheetPage.scroll(
     title: SheetTitle("Sheet"),
     child: Column(children: [for (var i = 0; i < 40; i++) Text("row $i")]),
   ),
@@ -43,15 +43,15 @@ void _open() => showGlassSheet<void>(
 int _asked = 0;
 void _openGuarded({required bool answer}) {
   _asked = 0;
-  showGlassSheet<void>(
+  showSheet<void>(
     context: _page,
-    builder: (_) => GlassSheetConfirmDismiss(
+    builder: (_) => SheetConfirmDismiss(
       ask: true,
       confirm: () async {
         _asked++;
         return answer;
       },
-      child: GlassSheetPage.scroll(
+      child: SheetPage.scroll(
         title: SheetTitle("Sheet"),
         child: Column(children: [for (var i = 0; i < 40; i++) Text("row $i")]),
       ),
@@ -80,9 +80,9 @@ void main() {
       tapped = 0;
       await tester.pumpWidget(_app());
       await tester.pumpAndSettle();
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
-        builder: (_) => GlassSheetPage.scroll(
+        builder: (_) => SheetPage.scroll(
           title: SheetTitle("Step"),
           exits: SheetExits(
             onBack: () {},
@@ -177,9 +177,9 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(_app());
       await tester.pumpAndSettle();
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
-        builder: (_) => GlassSheetPage.scroll(
+        builder: (_) => SheetPage.scroll(
           title: SheetTitle("Step"),
           child: Builder(
             builder: (context) {
@@ -224,7 +224,7 @@ void main() {
     await tester.pumpAndSettle();
     _open();
     await tester.pumpAndSettle();
-    final sheet = tester.getRect(find.byType(GlassSheetPage));
+    final sheet = tester.getRect(find.byType(SheetPage));
     expect(sheet.top, 47);
     expect(sheet.bottom, 800);
   });
@@ -354,12 +354,12 @@ void main() {
       tester,
     ) async {
       await open(tester, answer: false);
-      final top = tester.getRect(find.byType(GlassSheetPage)).top;
+      final top = tester.getRect(find.byType(SheetPage)).top;
       final g = await tester.startGesture(tester.getCenter(find.text("row 2")));
       for (var i = 0; i < 6; i++) {
         await g.moveBy(const Offset(0, 60));
         await tester.pump();
-        expect(tester.getRect(find.byType(GlassSheetPage)).top, top);
+        expect(tester.getRect(find.byType(SheetPage)).top, top);
       }
       await g.up();
       await tester.pumpAndSettle();
@@ -375,18 +375,18 @@ void main() {
       tester,
     ) async {
       await open(tester, answer: false);
-      final top = tester.getRect(find.byType(GlassSheetPage)).top;
+      final top = tester.getRect(find.byType(SheetPage)).top;
       final g = await tester.startGesture(tester.getCenter(find.text("Sheet")));
       for (var i = 0; i < 8; i++) {
         await g.moveBy(const Offset(0, 60));
         await tester.pump();
       }
-      expect(tester.getRect(find.byType(GlassSheetPage)).top, greaterThan(top));
+      expect(tester.getRect(find.byType(SheetPage)).top, greaterThan(top));
       await g.up();
       await tester.pumpAndSettle();
       expect(_asked, 1);
       expect(find.text("Sheet"), findsOneWidget);
-      expect(tester.getRect(find.byType(GlassSheetPage)).top, top);
+      expect(tester.getRect(find.byType(SheetPage)).top, top);
       expect(_gestureStuck(tester), isFalse);
     });
 
@@ -407,15 +407,15 @@ void main() {
       await tester.pumpWidget(_app());
       await tester.pumpAndSettle();
       var asked = 0;
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
-        builder: (_) => GlassSheetConfirmDismiss(
+        builder: (_) => SheetConfirmDismiss(
           ask: false,
           confirm: () async {
             asked++;
             return false;
           },
-          child: GlassSheetPage.scroll(
+          child: SheetPage.scroll(
             title: SheetTitle("Sheet"),
             child: Text("body"),
           ),
@@ -452,21 +452,21 @@ void main() {
     var pages = 1;
     void openPages() {
       pages = 1;
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             push = setState;
-            return GlassSheetPages(
+            return SheetPages(
               onBack: () => setState(() => pages = 1),
               pages: [
-                GlassSheetPage.scroll(
+                SheetPage.scroll(
                   key: ValueKey("one"),
                   title: SheetTitle("First"),
                   child: Text("first page"),
                 ),
                 if (pages > 1)
-                  GlassSheetPage.scroll(
+                  SheetPage.scroll(
                     key: const ValueKey("two"),
                     title: SheetTitle("Second"),
                     exits: SheetExits(onBack: () => setState(() => pages = 1)),
@@ -486,26 +486,26 @@ void main() {
       await tester.pumpAndSettle();
       late StateSetter set;
       var under = true;
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             set = setState;
-            return GlassSheetPages(
+            return SheetPages(
               onBack: () {},
               pages: [
-                GlassSheetPage.scroll(
+                SheetPage.scroll(
                   key: ValueKey("one"),
                   title: SheetTitle("First"),
                   child: Text("first page"),
                 ),
                 if (under)
-                  GlassSheetPage.scroll(
+                  SheetPage.scroll(
                     key: ValueKey("pin"),
                     title: SheetTitle("PIN"),
                     child: Text("pin page"),
                   ),
-                GlassSheetPage.scroll(
+                SheetPage.scroll(
                   key: ValueKey("done"),
                   title: SheetTitle("Success"),
                   child: Text("done page"),
@@ -541,18 +541,18 @@ void main() {
       late StateSetter set;
       var top = 1;
       var pin = false;
-      Widget page(String name, {VoidCallback? onBack}) => GlassSheetPage.scroll(
+      Widget page(String name, {VoidCallback? onBack}) => SheetPage.scroll(
         key: ValueKey(name),
         title: SheetTitle(name),
         exits: SheetExits(onBack: onBack),
         child: _Born(name: name, born: born),
       );
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             set = setState;
-            return GlassSheetPages(
+            return SheetPages(
               onBack: () => setState(() => top = 1),
               // The root dims under the flow, as the Change sheet's does.
               rootShift: 0.3,
@@ -595,27 +595,27 @@ void main() {
       var over = false;
       var backs = 0;
       final swiper = <_InnerSwiper>[];
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             set = setState;
-            return GlassSheetPages(
+            return SheetPages(
               onBack: () => backs++,
               pages: [
-                GlassSheetPage.scroll(
+                SheetPage.scroll(
                   key: const ValueKey("root"),
                   title: SheetTitle("root"),
                   child: const Text("root"),
                 ),
-                GlassSheetPage.fill(
+                SheetPage.fill(
                   key: const ValueKey("steps"),
                   title: SheetTitle("steps"),
                   exits: SheetExits(onBack: () => backs++),
                   child: _InnerSwipePage(registered: swiper.add),
                 ),
                 if (over)
-                  GlassSheetPage.scroll(
+                  SheetPage.scroll(
                     key: const ValueKey("over"),
                     title: SheetTitle("over"),
                     exits: SheetExits(onBack: () {}),
@@ -697,22 +697,22 @@ void main() {
       var two = false;
       await tester.pumpWidget(_app());
       await tester.pumpAndSettle();
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             setPages = setState;
-            return GlassSheetPages(
+            return SheetPages(
               onBack: () => setState(() => two = false),
               pages: [
                 // A field in the title's place, no back button.
-                GlassSheetPage.scroll(
+                SheetPage.scroll(
                   key: ValueKey("one"),
                   title: SheetTitle("First", widget: Text("field")),
                   child: Text("first page"),
                 ),
                 if (two)
-                  GlassSheetPage.scroll(
+                  SheetPage.scroll(
                     key: const ValueKey("two"),
                     title: SheetTitle("Second"),
                     exits: SheetExits(
@@ -759,15 +759,15 @@ void main() {
       var two = false;
       await tester.pumpWidget(_app());
       await tester.pumpAndSettle();
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             setPages = setState;
-            return GlassSheetPages(
+            return SheetPages(
               onBack: () => setState(() => two = false),
               pages: [
-                GlassSheetPage.scroll(
+                SheetPage.scroll(
                   key: const ValueKey("one"),
                   title: SheetTitle("First"),
                   child: Column(
@@ -775,7 +775,7 @@ void main() {
                   ),
                 ),
                 if (two)
-                  GlassSheetPage.scroll(
+                  SheetPage.scroll(
                     key: const ValueKey("two"),
                     title: SheetTitle("Second"),
                     exits: SheetExits(
@@ -823,15 +823,15 @@ void main() {
         two = false;
         await tester.pumpWidget(_app());
         await tester.pumpAndSettle();
-        showGlassSheet<void>(
+        showSheet<void>(
           context: _page,
           builder: (_) => StatefulBuilder(
             builder: (context, setState) {
               setPages = setState;
-              return GlassSheetPages(
+              return SheetPages(
                 onBack: () => setState(() => two = false),
                 pages: [
-                  GlassSheetPage.scroll(
+                  SheetPage.scroll(
                     key: ValueKey("one"),
                     title: SheetTitle("First"),
                     bottom: SizedBox(
@@ -842,7 +842,7 @@ void main() {
                     child: Text("first page"),
                   ),
                   if (two)
-                    GlassSheetPage.scroll(
+                    SheetPage.scroll(
                       key: const ValueKey("two"),
                       title: SheetTitle("Second"),
                       exits: SheetExits(
@@ -986,15 +986,15 @@ void main() {
     void openPages() {
       pages = 1;
       builds = 0;
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             push = setState;
-            return GlassSheetPages(
+            return SheetPages(
               onBack: () => setState(() => pages = 1),
               pages: [
-                GlassSheetPage.scroll(
+                SheetPage.scroll(
                   key: const ValueKey("list"),
                   title: SheetTitle("List"),
                   child: Column(
@@ -1004,7 +1004,7 @@ void main() {
                         builder: (context) {
                           // Depends on where its page is, as the progress
                           // bar does.
-                          GlassSheetPages.maybeOf(context)?.isTop;
+                          SheetPages.maybeOf(context)?.isTop;
                           builds++;
                           return Column(
                             children: [
@@ -1017,7 +1017,7 @@ void main() {
                   ),
                 ),
                 if (pages > 1)
-                  GlassSheetPage.scroll(
+                  SheetPage.scroll(
                     key: const ValueKey("next"),
                     title: SheetTitle("Next"),
                     exits: SheetExits(onBack: () => setState(() => pages = 1)),
@@ -1041,7 +1041,7 @@ void main() {
       expect(_Counted.inits, 1);
       final list = find
           .descendant(
-            of: find.byType(GlassSheetScrollView),
+            of: find.byType(SheetScrollView),
             matching: find.byType(Scrollable),
           )
           .first;
@@ -1062,7 +1062,7 @@ void main() {
             .state<ScrollableState>(
               find
                   .descendant(
-                    of: find.byType(GlassSheetScrollView),
+                    of: find.byType(SheetScrollView),
                     matching: find.byType(Scrollable),
                   )
                   .first,
@@ -1091,9 +1091,9 @@ void main() {
   });
 
   group("the keyboard", () {
-    void openWithField() => showGlassSheet<void>(
+    void openWithField() => showSheet<void>(
       context: _page,
-      builder: (_) => GlassSheetPage.scroll(
+      builder: (_) => SheetPage.scroll(
         title: SheetTitle("Sheet"),
         bottom: const SizedBox(
           key: Key("sheet_buttons"),
@@ -1137,21 +1137,21 @@ void main() {
       var pages = 1;
       await tester.pumpWidget(_app());
       await tester.pumpAndSettle();
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) => StatefulBuilder(
           builder: (context, setState) {
             push = setState;
-            return GlassSheetPages(
+            return SheetPages(
               onBack: () => setState(() => pages = 1),
               pages: [
-                GlassSheetPage.scroll(
+                SheetPage.scroll(
                   key: ValueKey("code"),
                   title: SheetTitle("Code"),
                   child: TextField(key: Key("code_field"), autofocus: true),
                 ),
                 if (pages > 1)
-                  GlassSheetPage.scroll(
+                  SheetPage.scroll(
                     key: ValueKey("next"),
                     title: SheetTitle("Next"),
                     child: Text("no fields here"),
@@ -1230,15 +1230,14 @@ class _InnerSwipePage extends StatefulWidget {
   State<_InnerSwipePage> createState() => _InnerSwiper();
 }
 
-class _InnerSwiper extends State<_InnerSwipePage>
-    implements GlassSheetInnerSwipe {
+class _InnerSwiper extends State<_InnerSwipePage> implements SheetInnerSwipe {
   var starts = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // As the document step does.
-    GlassSheetPages.maybeOf(context)?.setInnerSwipe(this);
+    SheetPages.maybeOf(context)?.setInnerSwipe(this);
     widget.registered(this);
   }
 

@@ -1,4 +1,4 @@
-part of "glass_sheet.dart";
+part of "sheet.dart";
 
 /// Pages inside one sheet, as the navigation stack of a native iOS sheet.
 /// [pages] is the stack, the first at the bottom, each with a key of its own;
@@ -7,11 +7,11 @@ part of "glass_sheet.dart";
 /// the finger, and past half way or with a flick it calls [onBack], which
 /// removes it.
 ///
-/// A [GlassSheetPage] slides only its body: its bar (the titles fade into
+/// A [SheetPage] slides only its body: its bar (the titles fade into
 /// each other) stays where it is, so the sheet's top
 /// does not move between steps. Any other page slides as a whole when it is
-/// wrapped in a [GlassSheetPageMotion].
-class GlassSheetPages extends StatefulWidget {
+/// wrapped in a [SheetPageMotion].
+class SheetPages extends StatefulWidget {
   final List<Widget> pages;
   final VoidCallback onBack;
 
@@ -20,7 +20,7 @@ class GlassSheetPages extends StatefulWidget {
   /// kaartje deel je? under adding a card). Popping back to it takes 300 ms.
   final double? rootShift;
 
-  const GlassSheetPages({
+  const SheetPages({
     super.key,
     required this.pages,
     required this.onBack,
@@ -42,19 +42,19 @@ class GlassSheetPages extends StatefulWidget {
   }
 
   @override
-  State<GlassSheetPages> createState() => _GlassSheetPagesState();
+  State<SheetPages> createState() => _SheetPagesState();
 }
 
-class _GlassSheetPagesState extends State<GlassSheetPages>
+class _SheetPagesState extends State<SheetPages>
     with SingleTickerProviderStateMixin {
   /// 1 when the top page is fully in, 0 when it is out to the right.
   late final AnimationController _slide = AnimationController(
     vsync: this,
-    duration: GlassSheetPages.slideDuration,
+    duration: SheetPages.slideDuration,
     value: 1,
   )..addListener(() => _moving.value = _slide.value < 1);
 
-  /// What is on screen: [GlassSheetPages.pages], plus a page that is sliding
+  /// What is on screen: [SheetPages.pages], plus a page that is sliding
   /// out after it was removed.
   late List<Widget> _shown = widget.pages;
 
@@ -74,15 +74,15 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   /// What each page has in its bar, by page key (see [_SheetPageRole.chrome]).
   final _chrome = <Object?, _Chrome>{};
 
-  /// The pages with buttons held in place (see [GlassSheetHold]).
+  /// The pages with buttons held in place (see [SheetHold]).
   final _held = <Object?>{};
 
   /// The pages that take the back swipe themselves, by page key (see
   /// [SheetPageInfo.setInnerSwipe]).
-  final _inner = <Object?, GlassSheetInnerSwipe>{};
+  final _inner = <Object?, SheetInnerSwipe>{};
 
   /// The page that takes the swipe under way, if one does.
-  GlassSheetInnerSwipe? _innerDrag;
+  SheetInnerSwipe? _innerDrag;
 
   /// Whether a page is coming in or going out ([_slide] below 1).
   final _moving = ValueNotifier(false);
@@ -95,7 +95,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   bool get _canSwipe => widget.pages.length > 1 && _shown.length > 1;
 
   @override
-  void didUpdateWidget(GlassSheetPages oldWidget) {
+  void didUpdateWidget(SheetPages oldWidget) {
     super.didUpdateWidget(oldWidget);
     _coming.value = widget.pages.last.key;
     // By the top page: a page that comes or goes under it (the PIN staying
@@ -328,7 +328,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
                   shift:
                       !top && widget.rootShift != null && page == _shown.first
                       ? widget.rootShift!
-                      : GlassSheetPages.underShift,
+                      : SheetPages.underShift,
                   dims:
                       !top && widget.rootShift != null && page == _shown.first,
                   memory: _memory,
@@ -351,7 +351,7 @@ class _GlassSheetPagesState extends State<GlassSheetPages>
   }
 }
 
-/// Where a page of [GlassSheetPages] is while pages change: on top or under
+/// Where a page of [SheetPages] is while pages change: on top or under
 /// it, the [animation] (1 when the top page is fully in), and with [reduce] a fade
 /// instead of a slide. It changes only when a slide starts or ends: the slide
 /// itself moves and fades layers through [animation], so nothing rebuilds per
@@ -383,17 +383,17 @@ class _SheetPageRole extends InheritedWidget {
   final Animation<double> fadeIn;
   final Animation<double> fadeOut;
 
-  /// What each page has in its bar, by page key: a [GlassSheetPage] notes
+  /// What each page has in its bar, by page key: a [SheetPage] notes
   /// its own as it builds, and reads the other page's ([otherKey]) to fade
   /// what they do not share.
   final Map<Object?, _Chrome> chrome;
 
-  /// The pages with buttons held in place (see [GlassSheetHold]).
+  /// The pages with buttons held in place (see [SheetHold]).
   final Set<Object?> held;
 
   /// The pages that take the back swipe themselves (see
   /// [SheetPageInfo.setInnerSwipe]).
-  final Map<Object?, GlassSheetInnerSwipe> inner;
+  final Map<Object?, SheetInnerSwipe> inner;
   final Key? pageKey;
 
   /// The page this one changes with while [moving]; null otherwise.
@@ -405,7 +405,7 @@ class _SheetPageRole extends InheritedWidget {
     required this.moving,
     required this.reduce,
     required this.width,
-    this.shift = GlassSheetPages.underShift,
+    this.shift = SheetPages.underShift,
     this.dims = false,
     required this.memory,
     required this.coming,
@@ -420,7 +420,7 @@ class _SheetPageRole extends InheritedWidget {
   });
 
   /// What the page this one changes with has in its bar; null when pages
-  /// are not changing, or it is not a [GlassSheetPage].
+  /// are not changing, or it is not a [SheetPage].
   _Chrome? get other => otherKey == null ? null : chrome[otherKey];
 
   /// How a part of this page that the other page lacks shows: fading in on
@@ -496,7 +496,7 @@ class _SheetPageRole extends InheritedWidget {
       otherKey != old.otherKey;
 }
 
-/// What a [GlassSheetPage] has in its bar; [title] is the key of its title
+/// What a [SheetPage] has in its bar; [title] is the key of its title
 /// widget, so two pages with the same one (the "For {requestor}" pill on
 /// every step of adding a card) keep it in place instead of fading it.
 typedef _Chrome = ({bool back, bool action, Key? title});
@@ -540,20 +540,20 @@ class _Slide extends AnimatedWidget {
   }
 }
 
-/// The buttons of a page of [GlassSheetPages] (its bottom bar, or the
+/// The buttons of a page of [SheetPages] (its bottom bar, or the
 /// actions of a [SheetSplit]): they stay in place while the content slides
 /// over to the next page. When both pages have them, the new page's take
 /// their place at once; when only one does, they fade.
-class GlassSheetHold extends StatefulWidget {
+class SheetHold extends StatefulWidget {
   final Widget child;
 
-  const GlassSheetHold({super.key, required this.child});
+  const SheetHold({super.key, required this.child});
 
   @override
-  State<GlassSheetHold> createState() => _GlassSheetHoldState();
+  State<SheetHold> createState() => _SheetHoldState();
 }
 
-class _GlassSheetHoldState extends State<GlassSheetHold> {
+class _SheetHoldState extends State<SheetHold> {
   _SheetPageRole? _role;
 
   @override
@@ -595,19 +595,19 @@ class _GlassSheetHoldState extends State<GlassSheetHold> {
   }
 }
 
-/// A page of [GlassSheetPages] that is not a [GlassSheetPage] (e.g. screens
+/// A page of [SheetPages] that is not a [SheetPage] (e.g. screens
 /// with their own navigator): it slides in and out as a whole.
-class GlassSheetPageMotion extends StatelessWidget {
+class SheetPageMotion extends StatelessWidget {
   final Widget child;
 
-  const GlassSheetPageMotion({super.key, required this.child});
+  const SheetPageMotion({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) =>
       _SheetPageRole.maybeOf(context)?.slide(child) ?? child;
 }
 
-/// What a page of [GlassSheetPages] knows about its place.
+/// What a page of [SheetPages] knows about its place.
 final class SheetPageInfo {
   const SheetPageInfo._(this._role);
 
@@ -629,9 +629,9 @@ final class SheetPageInfo {
   ValueListenable<Object?> get coming => _role.coming;
 
   /// Hands the back swipe on this page to [swipe] while it is
-  /// [GlassSheetInnerSwipe.enabled] (a page with screens of its own, as
+  /// [SheetInnerSwipe.enabled] (a page with screens of its own, as
   /// adding a document); null hands it back to the sheet.
-  void setInnerSwipe(GlassSheetInnerSwipe? swipe) {
+  void setInnerSwipe(SheetInnerSwipe? swipe) {
     if (swipe == null) {
       _role.inner.remove(_role.pageKey);
     } else {

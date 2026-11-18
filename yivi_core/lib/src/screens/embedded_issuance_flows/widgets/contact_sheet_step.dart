@@ -11,7 +11,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/input/pill_text_field.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
 import "../../session/issuance/issue_sheet_progress.dart";
@@ -201,7 +201,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final top = GlassSheetPages.maybeOf(context)?.isTop ?? true;
+    final top = SheetPages.maybeOf(context)?.isTop ?? true;
     if (!widget.code && top && !_wasTop) {
       afterFrame(() => _focusNode.requestFocus());
     }
@@ -446,7 +446,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
 
     final landscape = useSheetColumns(context);
     return landscape
-        ? GlassSheetPage.split(
+        ? SheetPage.split(
             // Two steps of their own: the address, then the code.
             title: SheetTitle(
               context.tr(
@@ -472,7 +472,7 @@ class _ContactSheetStepState extends ConsumerState<ContactSheetStep> {
                     child: body,
                   ),
           )
-        : GlassSheetPage.scroll(
+        : SheetPage.scroll(
             // Two steps of their own: the address, then the code.
             title: SheetTitle(
               context.tr(

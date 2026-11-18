@@ -5,8 +5,8 @@ import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../buttons/pill_buttons.dart";
 import "../feedback/yivi_spinner.dart";
-import "glass_sheet.dart";
 import "landscape_action_bar.dart";
+import "sheet.dart";
 import "sheet_layout.dart";
 
 /// The buttons of a step in a sheet, side by side so they take little height:
@@ -134,7 +134,7 @@ class SheetKeepsKeyboard extends StatelessWidget {
 }
 
 /// The way on of a sheet page, as data: where it shows is the page's
-/// business ([GlassSheetPage.action]). On a phone held upright it is the
+/// business ([SheetPage.action]). On a phone held upright it is the
 /// wide button at the bottom, right above the keyboard; everywhere else
 /// (sideways, on a tablet) the capsule at the top right of the bar
 /// ([SheetBarButton]), where the keyboard never covers it. A page has one
@@ -189,7 +189,7 @@ class SheetActionSlot extends ChangeNotifier {
   Object? _owner;
 
   /// The page shows the slot's buttons at its bottom on a phone held
-  /// upright (`GlassSheetPage.slotBottom`).
+  /// upright (`SheetPage.slotBottom`).
   bool takesBottom = false;
 
   SheetAction? get action => _action;

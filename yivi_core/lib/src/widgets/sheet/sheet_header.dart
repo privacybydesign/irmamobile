@@ -1,4 +1,4 @@
-part of "glass_sheet.dart";
+part of "sheet.dart";
 
 /// The top of a sheet, as the navigation bar of a native iOS sheet: the
 /// title in the middle, the ways out at the sides, and in the bar the way
@@ -12,7 +12,7 @@ part of "glass_sheet.dart";
 ///
 /// Explanatory text goes at the top of the sheet's scrolling content, not
 /// here.
-class GlassSheetHeader extends StatelessWidget {
+class SheetHeader extends StatelessWidget {
   static Duration _switch(BuildContext context) =>
       YiviMotion.duration(context, YiviMotion.quick);
 
@@ -40,7 +40,7 @@ class GlassSheetHeader extends StatelessWidget {
   /// Without [onBack] only.
   final bool closeAtStart;
 
-  /// The title fades while pages of [GlassSheetPages] change (the bar
+  /// The title fades while pages of [SheetPages] change (the bar
   /// itself stays put); null when it simply shows.
   final Animation<double>? titleOpacity;
 
@@ -67,7 +67,7 @@ class GlassSheetHeader extends StatelessWidget {
   /// way on at the end.
   final Widget? extra;
 
-  const GlassSheetHeader({
+  const SheetHeader({
     super.key,
     required this.title,
     this.titleWidget,
@@ -87,19 +87,19 @@ class GlassSheetHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sideways = useSheetColumns(context);
-    if (sideways && extra != null && !GlassSheet.of(context).floating) {
+    if (sideways && extra != null && !Sheet.of(context).floating) {
       return _startRow(context);
     }
     if (sideways && this.titleWidget != null && !titleWidgetCentred) {
       return _row(context);
     }
     final palette = YiviPalette.of(context);
-    final floating = GlassSheet.of(context).floating;
+    final floating = Sheet.of(context).floating;
     final titleWidget = this.titleWidget;
-    final action = GlassSheet.actionInBar(context) ? this.action : null;
+    final action = Sheet.actionInBar(context) ? this.action : null;
     final onBack = this.onBack;
 
-    // Names the page (see GlassSheetPages): a screen reader reads it when
+    // Names the page (see SheetPages): a screen reader reads it when
     // the page comes in. A new title on the same page (a screen changing
     // below the bar) fades in over the old one.
     final text = Semantics(
@@ -150,8 +150,8 @@ class GlassSheetHeader extends StatelessWidget {
     );
 
     Widget shown(Widget child) => _kept(buttons, child);
-    // Through closeGlassSheet, so a [GlassSheetConfirmDismiss] can ask first.
-    void close() => GlassSheet.of(context).close();
+    // Through closeSheet, so a [SheetConfirmDismiss] can ask first.
+    void close() => Sheet.of(context).close();
     final keepsClose = SheetKeepsClose.of(context);
     // A phone held sideways: the way on takes the close button's place;
     // a page without one keeps the close button.
@@ -243,19 +243,17 @@ class GlassSheetHeader extends StatelessWidget {
     ),
   );
 
-  /// The round close button. Through [closeGlassSheet], so a
-  /// [GlassSheetConfirmDismiss] can ask first.
-  Widget _closeButton(BuildContext context) => _kept(
-    buttons,
-    YiviCloseButton(onTap: () => GlassSheet.of(context).close()),
-  );
+  /// The round close button. Through [closeSheet], so a
+  /// [SheetConfirmDismiss] can ask first.
+  Widget _closeButton(BuildContext context) =>
+      _kept(buttons, YiviCloseButton(onTap: () => Sheet.of(context).close()));
 
   /// A phone held sideways with [extra]: one row from the start, the back
   /// button (or the close button on a first page), [titleWidget], [extra],
   /// and at the end the way on ([action]), or the close button when there is
   /// none.
   Widget _startRow(BuildContext context) {
-    final action = GlassSheet.actionInBar(context) ? this.action : null;
+    final action = Sheet.actionInBar(context) ? this.action : null;
     final onBack = this.onBack;
     Widget shown(Widget child) => _kept(buttons, child);
     final Widget? start = onBack != null

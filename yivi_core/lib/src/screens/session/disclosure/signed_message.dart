@@ -6,7 +6,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
 import "signature_message_text.dart";
 
@@ -236,14 +236,14 @@ Future<void> showSignedMessageSheet({
       fly(opening: true);
     });
   }
-  return showGlassSheet<void>(
+  return showSheet<void>(
     context: context,
     motion: SheetMotion.share,
     builder: (context) => PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) fly(opening: false);
       },
-      child: GlassSheetPage.scroll(
+      child: SheetPage.scroll(
         key: const Key("message_sheet"),
         title: SheetTitle(
           context.tr("share.message_label"),

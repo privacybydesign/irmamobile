@@ -9,7 +9,7 @@ import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/press_scale.dart";
 import "../../../widgets/feedback/progress_part.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../requestor/requestor_card.dart";
 
 /// What a card is added for: the request behind the sheet ("For
@@ -54,7 +54,7 @@ class _NoSubject extends IssueSheetSubject {
 /// Where adding a card stands, right above the way on of each of its pages:
 /// a short part per step ([total]: the details, the steps that prove it,
 /// adding it), filled up to [step], and "Step n of N". It sits in the
-/// page's bottom ([GlassSheetPage.bottom]), which stays put while the pages
+/// page's bottom ([SheetPage.bottom]), which stays put while the pages
 /// change, so it does not jump; a page without a button keeps the button's
 /// room.
 ///
@@ -97,7 +97,7 @@ class _IssueSheetProgressState extends State<IssueSheetProgress> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final page = GlassSheetPages.maybeOf(context);
+    final page = SheetPages.maybeOf(context);
     final memory = page?.memory;
     final coming = page?.coming;
     if (memory == null || coming == null) {
@@ -220,7 +220,7 @@ class IssueRequestorPill extends StatelessWidget {
 
   /// The pill for [subject]; none without a request. Keyed by its
   /// requestor, so it stays put in the bar while the sheet's pages change
-  /// ([GlassSheetPages]).
+  /// ([SheetPages]).
   static IssueRequestorPill? maybe(IssueSheetSubject? subject) =>
       subject is _ForRequest
       ? IssueRequestorPill(

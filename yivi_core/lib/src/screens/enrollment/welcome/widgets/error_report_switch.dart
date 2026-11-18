@@ -6,7 +6,7 @@ import "../../../../providers/preferences_provider.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/i18n.dart";
-import "../../../../widgets/sheet/glass_sheet.dart";
+import "../../../../widgets/sheet/sheet.dart";
 import "error_reporting_info_bottom_sheet.dart";
 
 /// "Share error messages and app status with Yivi", as a switch. The first
@@ -28,7 +28,7 @@ class _ErrorReportSwitchState extends ConsumerState<ErrorReportSwitch> {
     super.dispose();
   }
 
-  Future<void> _explain(BuildContext context) => showTitledGlassSheet(
+  Future<void> _explain(BuildContext context) => showTitledSheet(
     context: context,
     titleKey: "enrollment.error_reporting.dialog.title",
     child: const ErrorReportingInfoBottomSheet(),

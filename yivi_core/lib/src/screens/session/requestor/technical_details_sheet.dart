@@ -7,7 +7,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/app_toast.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/surfaces/surface_card.dart";
 import "../../../widgets/text/caps_label.dart";
 import "../models/technical_details.dart";
@@ -50,7 +50,7 @@ class TechnicalDetailsSheet extends StatelessWidget {
         ),
       ),
     ];
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       title: SheetTitle(context.tr("share.tech.title")),
       exits: SheetExits(onBack: onBack),
       padding: const EdgeInsets.fromLTRB(

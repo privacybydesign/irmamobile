@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -46,13 +46,13 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    showGlassSheet<void>(
+    showSheet<void>(
       context: _home,
       builder: (_) => PopScope(
         canPop: canPop,
         onPopInvokedWithResult: (_, _) =>
-            onPop?.call(GlassSheet.of(_inSheet).closing),
-        child: GlassSheetPage.scroll(
+            onPop?.call(Sheet.of(_inSheet).closing),
+        child: SheetPage.scroll(
           title: SheetTitle("Sheet"),
           child: Builder(
             builder: (context) {
@@ -91,7 +91,7 @@ void main() {
       await open(tester, phone);
       final top = tester.getTopLeft(find.text("row 0")).dy;
       if (delayed) {
-        GlassSheet.of(_inSheet).delayClose(const Duration(milliseconds: 200));
+        Sheet.of(_inSheet).delayClose(const Duration(milliseconds: 200));
       }
       Navigator.of(_inSheet).pop();
       await tester.pump();
@@ -110,7 +110,7 @@ void main() {
   testWidgets("the hand: dragging while the header is held, not once it "
       "settles; a tablet's form sheet has one too", (tester) async {
     await open(tester, phone);
-    final hand = GlassSheet.of(_inSheet).hand!;
+    final hand = Sheet.of(_inSheet).hand!;
     expect(hand.dragging.value, isFalse);
     final drag = await tester.startGesture(
       tester.getCenter(find.text("Sheet")),
@@ -124,17 +124,17 @@ void main() {
     expect(hand.dragging.value, isFalse);
 
     await open(tester, tablet);
-    expect(GlassSheet.of(_inSheet).hand, isNotNull);
+    expect(Sheet.of(_inSheet).hand, isNotNull);
   });
 
   testWidgets("the action in the bar: on a tablet's form sheet and "
       "sideways; outside a sheet by the window", (tester) async {
     await open(tester, tablet);
-    expect(GlassSheet.actionInBar(_inSheet), isTrue);
+    expect(Sheet.actionInBar(_inSheet), isTrue);
     await open(tester, phone);
-    expect(GlassSheet.actionInBar(_inSheet), isFalse);
-    expect(GlassSheet.actionInBar(_home), isFalse);
+    expect(Sheet.actionInBar(_inSheet), isFalse);
+    expect(Sheet.actionInBar(_home), isFalse);
     await open(tester, const Size(844, 390));
-    expect(GlassSheet.actionInBar(_home), isTrue);
+    expect(Sheet.actionInBar(_home), isTrue);
   });
 }

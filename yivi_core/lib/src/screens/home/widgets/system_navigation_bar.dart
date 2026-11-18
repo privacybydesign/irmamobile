@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../widgets/bars/floating_bar_placement.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "home_navigation.dart";
 
 /// The system bars for the whole app: the status bar's icons and Android's
@@ -66,7 +66,7 @@ class _ButtonsBand extends StatelessWidget {
     child: ValueListenableBuilder<bool>(
       valueListenable: HomeNavigation.bottomBarShown,
       builder: (context, docked, _) => ValueListenableBuilder<int>(
-        valueListenable: GlassSheetCover.covering,
+        valueListenable: SheetCover.covering,
         builder: (context, sheets, _) {
           final palette = YiviPalette.of(context);
           // An open sheet reaches the bottom: the band in the sheet's colour.

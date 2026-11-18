@@ -17,7 +17,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document
 import "package:yivi_core/src/screens/session/issuance/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "../helpers/test_translation_loader.dart";
 import "document_fakes.dart";
@@ -32,7 +32,7 @@ final testPassportMrz = ScannedPassportMrz(
 );
 
 /// Adding a document in a glass sheet, as the Add data sheet shows it:
-/// [DocumentSheetStep] on [GlassSheetPages], over a home page, with fakes
+/// [DocumentSheetStep] on [SheetPages], over a home page, with fakes
 /// for the reader, the issuer and the face check.
 class DocumentSheetHarness {
   late BuildContext home;
@@ -133,9 +133,9 @@ class DocumentSheetHarness {
       ),
     );
     await tester.pumpAndSettle();
-    showGlassSheet<void>(
+    showSheet<void>(
       context: home,
-      builder: (_) => GlassSheetPages(
+      builder: (_) => SheetPages(
         onBack: () => backs++,
         pages: [
           DocumentSheetStep(

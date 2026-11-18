@@ -8,7 +8,7 @@ import "package:yivi_core/src/screens/session/layout/session_layout.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 import "package:yivi_core/src/widgets/sheet/form_sheet_frame.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -129,7 +129,7 @@ void main() {
         builder: (context) => Scaffold(
           body: Center(
             child: TextButton(
-              onPressed: () => showTitledGlassSheet(
+              onPressed: () => showTitledSheet(
                 context: context,
                 titleKey: "share.sheet.pick_card",
                 child: const SizedBox(height: 200, child: Text("options")),

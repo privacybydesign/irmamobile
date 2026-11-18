@@ -19,7 +19,7 @@ import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/feedback/glass_dialog.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
 import "../../widgets/input/glass_search_field.dart";
-import "../../widgets/sheet/glass_sheet.dart";
+import "../../widgets/sheet/sheet.dart";
 import "../../widgets/surfaces/glass_group.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../embedded_issuance_flows/documents/nfc_credentials.dart";
@@ -41,7 +41,7 @@ Future<void> showAddDataSheet(
   CredentialDescriptor? addNew,
   bool flyToDataTab = true,
   bool linking = false,
-}) => showGlassSheet<void>(
+}) => showSheet<void>(
   context: context,
   builder: (_) => AddDataSheet(
     key: const Key("add_data_sheet"),
@@ -460,7 +460,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     };
 
     final justAdded = widget.justAdded;
-    final page = GlassSheetPage.scroll(
+    final page = SheetPage.scroll(
       title: SheetTitle(
         context.tr("data.add.title"),
         widget: _inBar

@@ -8,7 +8,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../widgets/sheet/glass_sheet.dart";
+import "../../widgets/sheet/sheet.dart";
 import "../pin/pin_entry.dart";
 import "../pin/providers/pin_unlock_provider.dart";
 import "../pin/widgets/waiting_request_announcement.dart";
@@ -150,17 +150,17 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet> {
         onSessionEnded: _close,
         routeContext: _routeContext,
       ),
-      builder: (context, flow) => GlassSheetConfirmDismiss(
+      builder: (context, flow) => SheetConfirmDismiss(
         ask: _scanned != null,
         confirm: _confirmClose,
-        child: GlassSheetPages(
+        child: SheetPages(
           onBack: flow.now.hasSession ? flow.back : _back,
           pages: [
             KeyedSubtree(
               key: const ValueKey("scanner"),
               // Slides out as the PIN comes in, so the sheet shows behind
               // the PIN pad (it stayed put, dark, under it until the end).
-              child: GlassSheetPageMotion(
+              child: SheetPageMotion(
                 child: ScannerScreen(onScanned: _onScanned),
               ),
             ),
@@ -196,7 +196,7 @@ class _UnlockPageState extends ConsumerState<_UnlockPage> {
     final state = ref.watch(pinUnlockProvider);
     final busy = state.authenticateInProgress || state.authenticated;
 
-    return GlassSheetPage.fill(
+    return SheetPage.fill(
       key: const Key("lock_scanner_unlock"),
       title: SheetTitle(context.tr("waiting_request.unlock_title")),
       exits: SheetExits(onBack: busy ? null : widget.onBack),

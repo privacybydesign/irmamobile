@@ -5,7 +5,7 @@ import "package:vcmrtd/vcmrtd.dart";
 import "../../../providers/ocr_processor_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../session/issuance/issue_sheet_progress.dart";
 import "document_flow.dart";
@@ -45,7 +45,7 @@ class DocumentSheetStep extends ConsumerStatefulWidget {
 }
 
 class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
-    implements GlassSheetInnerSwipe {
+    implements SheetInnerSwipe {
   final _navigator = GlobalKey<NavigatorState>();
 
   /// The route of each page, for the swipe.
@@ -71,7 +71,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
   void didChangeDependencies() {
     super.didChangeDependencies();
     // A swipe back goes back a screen here, not to the details.
-    _page = GlassSheetPages.maybeOf(context)?..setInnerSwipe(this);
+    _page = SheetPages.maybeOf(context)?..setInnerSwipe(this);
   }
 
   @override
@@ -155,7 +155,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
     final flow = ref.watch(documentFlowProvider(widget.type));
     // The screens fill the page; upright their buttons are in the page's
     // bottom bar, which stays put while they change.
-    return GlassSheetPage.fill(
+    return SheetPage.fill(
       // Each screen has its heading in the page; the bar names it once
       // that has scrolled away.
       title: SheetTitle(
@@ -181,7 +181,7 @@ class _DocumentSheetStepState extends ConsumerState<DocumentSheetStep>
         removeTop: true,
         child: NavigatorPopHandler(
           onPopWithResult: (_) {
-            if (!GlassSheet.of(context).closing) _back();
+            if (!Sheet.of(context).closing) _back();
           },
           child: Semantics(
             container: true,
@@ -233,7 +233,7 @@ class _SheetScreenRoute<T> extends PageRoute<T> {
   _ScreenPage get _page => settings as _ScreenPage;
 
   /// A back swipe takes this screen away, following the finger
-  /// ([GlassSheetInnerSwipe]).
+  /// ([SheetInnerSwipe]).
   void dragStart() => navigator?.didStartUserGesture();
 
   void dragUpdate(double delta) =>

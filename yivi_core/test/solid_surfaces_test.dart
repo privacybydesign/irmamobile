@@ -2,7 +2,7 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 import "package:yivi_core/src/widgets/surfaces/glass_surface.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -37,9 +37,9 @@ Widget _app() => IrmaTheme(
   ),
 );
 
-void _open() => showGlassSheet<void>(
+void _open() => showSheet<void>(
   context: _page,
-  builder: (_) => GlassSheetPage.scroll(
+  builder: (_) => SheetPage.scroll(
     title: SheetTitle("Sheet"),
     child: Column(
       children: [
@@ -66,7 +66,7 @@ Color _fillOf(WidgetTester tester, String key) => tester
     .color!;
 
 void main() {
-  setUp(() => GlassSheetCover.covering.value = 0);
+  setUp(() => SheetCover.covering.value = 0);
 
   testWidgets("no glass: surfaces are solid and nothing blurs", (tester) async {
     await tester.pumpWidget(_app());
@@ -103,7 +103,7 @@ void main() {
     expect(drawn(), isTrue);
 
     await tester.pumpAndSettle();
-    expect(GlassSheetCover.covering.value, 1);
+    expect(SheetCover.covering.value, 1);
     expect(drawn(), isFalse);
     // Still laid out: what is on it keeps its size and state.
     expect(tester.getSize(glass), const Size(200, 48));

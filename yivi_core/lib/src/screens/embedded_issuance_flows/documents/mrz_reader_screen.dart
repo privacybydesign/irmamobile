@@ -10,7 +10,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/floating_bar_placement.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
 import "../../../widgets/text/translated_text.dart";
@@ -136,7 +136,7 @@ class _SheetCamera extends StatelessWidget {
         ),
       );
     }
-    final inBar = GlassSheet.actionInBar(context);
+    final inBar = Sheet.actionInBar(context);
     final Widget manual = inBar
         ? SheetSlotAction(
             action: null,

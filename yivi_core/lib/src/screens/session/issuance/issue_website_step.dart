@@ -8,7 +8,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
 import "../../../widgets/surfaces/numbered_step.dart";
@@ -111,7 +111,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
     );
 
     return sideways
-        ? GlassSheetPage.split(
+        ? SheetPage.split(
             title: title,
             exits: exits,
             action: action,
@@ -137,7 +137,7 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
               ),
             ),
           )
-        : GlassSheetPage.scroll(
+        : SheetPage.scroll(
             title: title,
             exits: exits,
             action: action,

@@ -13,7 +13,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/yivi_spinner.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
 import "../../add_data/add_data_details_content.dart";
@@ -37,7 +37,7 @@ import "issue_flow_controller.dart";
 import "issue_sheet.dart";
 
 /// The pages of [flow], one or two per step of its stack, bottom first, to
-/// follow the sheet's own pages in its [GlassSheetPages]; none while on the
+/// follow the sheet's own pages in its [SheetPages]; none while on the
 /// sheet's root page. Called while the sheet builds: what the pages show
 /// is read here, so a page sliding out stays as it was.
 List<Widget> issueFlowPages(IssueSheetFlow flow) {
@@ -331,7 +331,7 @@ class IssueDetailsPage extends StatelessWidget {
     // A phone held sideways: the card, its name and the intro at the left,
     // what you get at the right; the way on is in the bar.
     if (useSheetColumns(context)) {
-      return GlassSheetPage.split(
+      return SheetPage.split(
         title: title,
         exits: exits,
         action: action,
@@ -347,7 +347,7 @@ class IssueDetailsPage extends StatelessWidget {
         ),
       );
     }
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       title: title,
       exits: exits,
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
@@ -490,7 +490,7 @@ class IssueOfferPage extends StatelessWidget {
     // Back declines this issuance: on the details again, to try again.
     final exits = SheetExits(onBack: flow.back);
     final page = sideways
-        ? GlassSheetPage.split(
+        ? SheetPage.split(
             title: title,
             exits: exits,
             action: action,
@@ -512,7 +512,7 @@ class IssueOfferPage extends StatelessWidget {
                     ),
             ),
           )
-        : GlassSheetPage.scroll(
+        : SheetPage.scroll(
             title: title,
             exits: exits,
             padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
@@ -592,7 +592,7 @@ class IssueOpenIdPage extends ConsumerWidget {
         );
       default:
         // Granted at once (by the session's flow); the next state follows.
-        return GlassSheetPage.scroll(
+        return SheetPage.scroll(
           title: SheetTitle(context.tr("issuance.title")),
           // Left by dragging its header down: no close button.
           exits: SheetExits(
@@ -629,7 +629,7 @@ class IssuePinPage extends StatelessWidget {
     // The pad fills the page and scales itself to it; it does not scroll.
     // It keeps clear of the home indicator itself (YiviPinScreen), so the
     // link under the keypad sits as low as on the full-screen PIN.
-    return GlassSheetPage.fill(
+    return SheetPage.fill(
       title: SheetTitle(
         context.tr("issuance.title"),
         widget: IssueRequestorPill.maybe(subject),
@@ -730,7 +730,7 @@ class IssueSuccessPage extends StatelessWidget {
     // A phone held sideways: "Success", the words and the way on at the
     // left; the card with its check at the right.
     if (sideways) {
-      return GlassSheetPage.split(
+      return SheetPage.split(
         title: title,
         exits: SheetExits(close: SheetClose.none),
         action: action,
@@ -744,7 +744,7 @@ class IssueSuccessPage extends StatelessWidget {
         ),
       );
     }
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       title: title,
       exits: SheetExits(close: SheetClose.none),
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),

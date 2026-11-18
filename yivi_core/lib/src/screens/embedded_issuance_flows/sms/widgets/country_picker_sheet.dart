@@ -9,7 +9,7 @@ import "../../../../theme/yivi_space.dart";
 import "../../../../util/adaptive_layout.dart";
 import "../../../../util/i18n.dart";
 import "../../../../widgets/input/glass_search_field.dart";
-import "../../../../widgets/sheet/glass_sheet.dart";
+import "../../../../widgets/sheet/sheet.dart";
 import "../../../../widgets/surfaces/glass_group.dart";
 import "../../../../widgets/surfaces/list_row.dart";
 
@@ -68,7 +68,7 @@ Future<Country?> showCountryPickerSheet({
   required List<Country> countries,
   required Country selected,
   required List<String> common,
-}) => showGlassSheet<Country>(
+}) => showSheet<Country>(
   context: context,
   builder: (_) =>
       _CountryPicker(countries: countries, selected: selected, common: common),
@@ -190,7 +190,7 @@ class _CountryPickerState extends State<_CountryPicker> {
       height: landscape ? 40 : 44,
       onChanged: (q) => setState(() => _query = q),
     );
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       // Sideways the search field is in the bar, next to the title.
       title: SheetTitle(_t("country_title"), widget: landscape ? search : null),
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),

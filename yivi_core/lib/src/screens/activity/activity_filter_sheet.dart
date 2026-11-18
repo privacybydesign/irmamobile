@@ -14,7 +14,7 @@ import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
 import "../../widgets/input/glass_search_field.dart";
-import "../../widgets/sheet/glass_sheet.dart";
+import "../../widgets/sheet/sheet.dart";
 import "../../widgets/sheet/sheet_actions.dart";
 import "../../widgets/surfaces/glass_group.dart";
 import "../../widgets/surfaces/list_row.dart";
@@ -33,7 +33,7 @@ import "widgets/activity_query_chips.dart";
 Future<ActivityQuery?> showActivityFilterSheet(
   BuildContext context,
   ActivityQuery query,
-) => showGlassSheet<ActivityQuery>(
+) => showSheet<ActivityQuery>(
   context: context,
   builder: (_) => _ActivityFilterSheet(initial: query),
 );
@@ -154,7 +154,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
         _opened &&
         ref.watch(activityPartiesProvider).hasValue &&
         ref.watch(removedCardTypesProvider).hasValue;
-    return GlassSheetPages(
+    return SheetPages(
       // The swipe and the system back, as the card page's back button.
       onBack: () => setState(_leaveCardPage),
       pages: [
@@ -170,7 +170,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   }
 
   Widget _main(YiviPalette palette, int? total, bool ready) {
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       key: const Key("activity_filter_main"),
       title: SheetTitle(_t("sheet.title")),
       padding: const EdgeInsets.fromLTRB(
@@ -398,7 +398,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
       _leaveCardPage();
       _set(_q.withCard(c));
     });
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       key: const Key("activity_filter_cards"),
       title: SheetTitle(_t("sheet.card")),
       exits: SheetExits(onBack: () => setState(_leaveCardPage)),

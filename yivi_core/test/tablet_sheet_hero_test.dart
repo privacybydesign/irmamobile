@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 void main() {
   for (final (name, size) in [
@@ -33,7 +33,7 @@ void main() {
       );
 
       late BuildContext inSheet;
-      showGlassSheet<void>(
+      showSheet<void>(
         context: home,
         builder: (context) {
           inSheet = context;

@@ -24,9 +24,9 @@ import "pull_to_dismiss_physics.dart";
 import "sheet_actions.dart";
 import "sheet_layout.dart";
 
-part "glass_sheet_header.dart";
-part "glass_sheet_page.dart";
-part "glass_sheet_pages.dart";
+part "sheet_header.dart";
+part "sheet_page.dart";
+part "sheet_pages.dart";
 
 /// Shows [builder]'s content in the app's one sheet: a full-width sheet
 /// attached to the bottom of the screen, as tall as a native iOS sheet (its
@@ -36,14 +36,14 @@ part "glass_sheet_pages.dart";
 /// form sheet in the middle, 540 wide.
 ///
 /// To ask before it closes (for example while something is under way in it),
-/// wrap the content in a [GlassSheetConfirmDismiss].
+/// wrap the content in a [SheetConfirmDismiss].
 ///
 /// The sheet adds no padding of its own: the content starts with a
-/// [GlassSheetHeader] (or is a [GlassSheetPage]) and pads its body 16 from
+/// [SheetHeader] (or is a [SheetPage]) and pads its body 16 from
 /// the sides. Its bottom padding, clear of the home indicator, is in
 /// `MediaQuery.paddingOf(context).bottom`, so a list can scroll under the
 /// bottom edge.
-Future<T?> showGlassSheet<T>({
+Future<T?> showSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   SheetMotion motion = SheetMotion.standard,
@@ -61,7 +61,7 @@ Future<T?> showGlassSheet<T>({
     );
   }
   return Navigator.of(context).push(
-    _GlassSheetRoute<T>(
+    _SheetRoute<T>(
       builder: builder,
       motion: motion,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -141,7 +141,7 @@ class SheetMotion {
 /// time it closes: a card is picked up first and lands while it goes.
 void _delayClose(BuildContext context, Duration delay) {
   final route = ModalRoute.of(context);
-  if (route is _GlassSheetRoute) {
+  if (route is _SheetRoute) {
     route.motion = route.motion.copyWith(closeDelay: delay);
   }
 }
@@ -175,27 +175,27 @@ Rect? _settledBox(GlobalKey key, RenderBox overlay) {
 /// sheet on a tablet.
 const sheetDim = Color(0x470C1824);
 
-/// The scroll physics for a list in a sheet (see [_GlassSheetScope]).
+/// The scroll physics for a list in a sheet (see [_SheetScope]).
 ScrollPhysics? _sheetScrollPhysics(BuildContext context) =>
-    context.dependOnInheritedWidgetOfExactType<_GlassSheetScope>()?.physics;
+    context.dependOnInheritedWidgetOfExactType<_SheetScope>()?.physics;
 
 /// Hands a sheet's content the physics for its list: as on the credential's
 /// page and in native iOS sheets, a drag that starts at the top of the list
 /// pulls the sheet down with it, and far enough or fast enough closes it; a
 /// drag that starts further down only scrolls.
-class _GlassSheetScope extends InheritedWidget {
+class _SheetScope extends InheritedWidget {
   final ScrollPhysics physics;
 
-  const _GlassSheetScope({required this.physics, required super.child});
+  const _SheetScope({required this.physics, required super.child});
 
   @override
-  bool updateShouldNotify(_GlassSheetScope oldWidget) =>
+  bool updateShouldNotify(_SheetScope oldWidget) =>
       physics != oldWidget.physics;
 }
 
 /// The sheet on a tablet: a form sheet in the middle of the window, over a
 /// dim barrier, closing on a tap outside it. A [PageRoute], so heroes fly
-/// into it as into the phone's sheet ([_GlassSheetRoute]).
+/// into it as into the phone's sheet ([_SheetRoute]).
 class _GlassFormSheetRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
 
@@ -273,7 +273,7 @@ Widget _formSheet(BuildContext context, WidgetBuilder builder) =>
 
 /// A drag down on a form sheet's header moves it down with the finger; far
 /// enough or fast enough it closes (through [Navigator.maybePop], so a
-/// [GlassSheetConfirmDismiss] asks first), else it springs back. As a
+/// [SheetConfirmDismiss] asks first), else it springs back. As a
 /// native iPad form sheet.
 class _FormSheetDrag extends StatefulWidget {
   final Widget child;
@@ -326,13 +326,13 @@ class _FormSheetDragState extends State<_FormSheetDrag>
 }
 
 /// Closes the sheet [context] is in: at once, or, while something in it does
-/// not let it go ([GlassSheetConfirmDismiss]), by asking that first. A
+/// not let it go ([SheetConfirmDismiss]), by asking that first. A
 /// close, not a step back: a [NavigatorPopHandler] in the sheet (a flow
 /// with screens of its own, that steps back on the system back) sees
 /// [glassSheetClosing] and leaves its screens as they are.
 void _closeSheet(BuildContext context) {
   final route = ModalRoute.of(context);
-  if (route is _GlassSheetRoute) {
+  if (route is _SheetRoute) {
     route._close();
   } else {
     Navigator.of(context).maybePop();
@@ -343,7 +343,7 @@ void _closeSheet(BuildContext context) {
 /// is told about is the sheet being closed, rather than the system back.
 bool _sheetClosing(BuildContext context) {
   final route = ModalRoute.of(context);
-  return route is _GlassSheetRoute && route._closeAsked;
+  return route is _SheetRoute && route._closeAsked;
 }
 
 /// A hand on the sheet at [context]: whether a drag or pull of it is under
@@ -352,21 +352,21 @@ bool _sheetClosing(BuildContext context) {
 /// a sheet.
 SheetHand? _sheetHand(BuildContext context) {
   final route = ModalRoute.of(context);
-  if (route is! _GlassSheetRoute) return null;
+  if (route is! _SheetRoute) return null;
   return (dragging: route._hand, shown: route.animation!);
 }
 
 /// The route of a sheet: it slides up from the bottom over a dim barrier,
 /// closes on a tap outside it, a drag down or a pull of its list, and is a
 /// [PageRoute], so heroes fly into it (a modal bottom sheet is not).
-class _GlassSheetRoute<T> extends PageRoute<T> {
+class _SheetRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
 
   /// How it slides; its close delay can change while it is open
-  /// ([delayGlassSheetClose]).
+  /// ([delaySheetClose]).
   SheetMotion motion;
 
-  _GlassSheetRoute({
+  _SheetRoute({
     required this.builder,
     required this.barrierLabel,
     this.motion = SheetMotion.standard,
@@ -390,7 +390,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   );
 
   /// While something important happens in the sheet (a [PopScope] in it does
-  /// not let it close, see [GlassSheetConfirmDismiss]), a pull of its list
+  /// not let it close, see [SheetConfirmDismiss]), a pull of its list
   /// does not move the sheet: the list just scrolls. A drag on its header
   /// still moves it, and letting go to close asks first, as a tap outside
   /// and the system back do (the issuance pages have no close button: the
@@ -455,7 +455,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   /// has settled, so the curve does not take over half way.
   ///
   /// A close that a [PopScope] in the sheet does not allow (see
-  /// [GlassSheetConfirmDismiss]) springs back and is handed to that scope
+  /// [SheetConfirmDismiss]) springs back and is handed to that scope
   /// instead, as a tap outside the sheet or the system back is.
   void _settle({required bool close}) {
     final vetoed = close && popDisposition == RoutePopDisposition.doNotPop;
@@ -539,10 +539,10 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   /// The dim over the page under a sheet.
   static const barrier = sheetDim;
 
-  /// This sheet is fully open: the page under it is covered (GlassSheetCover).
+  /// This sheet is fully open: the page under it is covered (SheetCover).
   bool _covering = false;
 
-  /// The sheet is lower than full height ([GlassSheetPage.fit]): the page
+  /// The sheet is lower than full height ([SheetPage.fit]): the page
   /// above it shows, so it is never covered.
   bool _fitted = false;
 
@@ -565,7 +565,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
   void _cover(bool covering) {
     if (covering == _covering) return;
     _covering = covering;
-    GlassSheetCover.covering.value += covering ? 1 : -1;
+    SheetCover.covering.value += covering ? 1 : -1;
     _backdrop.value = covering;
     _below?.offstage = covering;
   }
@@ -715,7 +715,7 @@ class _GlassSheetRoute<T> extends PageRoute<T> {
                     _measure(context);
                     return _onScrollStart(n);
                   },
-                  child: _GlassSheetScope(
+                  child: _SheetScope(
                     physics: _physics,
                     child: _SheetSurface(
                       attached: true,
@@ -832,7 +832,7 @@ class _SheetSurface extends StatefulWidget {
 
 class _SheetSurfaceState extends State<_SheetSurface>
     with SingleTickerProviderStateMixin {
-  /// The height a page that fits its content asks for ([GlassSheetPage.fit]);
+  /// The height a page that fits its content asks for ([SheetPage.fit]);
   /// null: full height.
   double? _fit;
 
@@ -941,7 +941,7 @@ class _SheetSurfaceState extends State<_SheetSurface>
                     ),
                   ),
                   // Its bar has text buttons when it floats.
-                  child: _GlassSheetFloating(
+                  child: _SheetFloating(
                     floating: !attached,
                     child: _SheetFit(
                       report: _report,
@@ -986,7 +986,7 @@ class _SheetHeight extends StatelessWidget {
 }
 
 /// Where a page of a sheet tells it how high it wants to be: see
-/// [GlassSheetPage.fit].
+/// [SheetPage.fit].
 class _SheetFit extends InheritedWidget {
   final ValueChanged<double?> report;
 
@@ -999,8 +999,8 @@ class _SheetFit extends InheritedWidget {
   bool updateShouldNotify(_SheetFit old) => old.report != report;
 }
 
-/// Tells a [GlassSheetScrollView] in a page that fits its content to measure
-/// it ([GlassSheetPage.fit]); only on the page on top.
+/// Tells a [SheetScrollView] in a page that fits its content to measure
+/// it ([SheetPage.fit]); only on the page on top.
 class _FitPage extends InheritedWidget {
   final ValueChanged<double?> report;
 
@@ -1017,19 +1017,17 @@ class _FitPage extends InheritedWidget {
 /// (a tablet's form sheet) rather than being attached to the bottom edge.
 /// Its bar then has text buttons, as a native iPad form sheet: "Cancel" or
 /// "‹ Back" at the left, the way on at the right, no close button.
-class _GlassSheetFloating extends InheritedWidget {
+class _SheetFloating extends InheritedWidget {
   final bool floating;
 
-  const _GlassSheetFloating({required this.floating, required super.child});
+  const _SheetFloating({required this.floating, required super.child});
 
   static bool of(BuildContext context) =>
-      context
-          .dependOnInheritedWidgetOfExactType<_GlassSheetFloating>()
-          ?.floating ??
+      context.dependOnInheritedWidgetOfExactType<_SheetFloating>()?.floating ??
       false;
 
   @override
-  bool updateShouldNotify(_GlassSheetFloating old) => old.floating != floating;
+  bool updateShouldNotify(_SheetFloating old) => old.floating != floating;
 }
 
 /// Whether a sheet page shows its way on ([SheetAction]) in its bar: on a
@@ -1037,10 +1035,10 @@ class _GlassSheetFloating extends InheritedWidget {
 /// the keyboard would cover a button at the bottom. A phone held upright has
 /// it at the bottom, in the thumb's reach, right above the keyboard.
 bool _actionInBar(BuildContext context) =>
-    _GlassSheetFloating.of(context) || useSheetColumns(context);
+    _SheetFloating.of(context) || useSheetColumns(context);
 
-/// What a sideways [GlassSheetPage] puts at the bottom of its
-/// [SheetSplit]'s left column: its [GlassSheetPage.bottom], when it is not
+/// What a sideways [SheetPage] puts at the bottom of its
+/// [SheetSplit]'s left column: its [SheetPage.bottom], when it is not
 /// in the bar.
 class SheetSplitBottom extends InheritedWidget {
   final Widget bottom;
@@ -1085,12 +1083,12 @@ class SheetKeepsClose extends InheritedWidget {
 /// instead, and the sheet closes only when that returns true. A drag or pull
 /// down does not move the sheet then; its list just scrolls. While [ask] is
 /// false the sheet closes as usual.
-class GlassSheetConfirmDismiss extends StatelessWidget {
+class SheetConfirmDismiss extends StatelessWidget {
   final bool ask;
   final Future<bool> Function() confirm;
   final Widget child;
 
-  const GlassSheetConfirmDismiss({
+  const SheetConfirmDismiss({
     super.key,
     required this.ask,
     required this.confirm,
@@ -1109,10 +1107,10 @@ class GlassSheetConfirmDismiss extends StatelessWidget {
   );
 }
 
-/// A page of [GlassSheetPages] with screens of its own (adding a document):
+/// A page of [SheetPages] with screens of its own (adding a document):
 /// while [enabled], a back swipe on the page goes back one of its screens,
 /// following the finger, instead of back a page of the sheet.
-abstract interface class GlassSheetInnerSwipe {
+abstract interface class SheetInnerSwipe {
   /// Whether a swipe that starts now goes back a screen in the page.
   bool get enabled;
 
@@ -1144,15 +1142,15 @@ typedef SheetHand = ({ValueListenable<bool> dragging, Animation<double> shown});
 /// The sheet around a context: the phone's sheet, a tablet's form sheet,
 /// or none. Each getter looks it up when it is read, and has an answer
 /// outside a sheet too.
-final class GlassSheet {
-  const GlassSheet._(this._context);
+final class Sheet {
+  const Sheet._(this._context);
 
   final BuildContext _context;
 
-  static GlassSheet of(BuildContext context) => GlassSheet._(context);
+  static Sheet of(BuildContext context) => Sheet._(context);
 
   /// A tablet's form sheet, floating in the middle of the window.
-  bool get floating => _GlassSheetFloating.of(_context);
+  bool get floating => _SheetFloating.of(_context);
 
   /// The pop scopes in the sheet are being told about a close by its close
   /// button (not the system back).

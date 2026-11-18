@@ -24,7 +24,7 @@ import "../../widgets/buttons/link.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/feedback/glass_dialog.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
-import "../../widgets/sheet/glass_sheet.dart";
+import "../../widgets/sheet/sheet.dart";
 import "../../widgets/surfaces/glass_surface.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
 import "widgets/pin_keypad.dart";

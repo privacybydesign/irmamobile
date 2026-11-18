@@ -24,7 +24,7 @@ import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/credential_card/faded_card_art.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
 import "../../../widgets/surfaces/surface_card.dart";
@@ -73,7 +73,7 @@ Future<void> showChangeChoiceSheet({
       : addNew != null
       ? const Duration(milliseconds: 120)
       : SheetMotion.carried.openDelay;
-  return showGlassSheet<void>(
+  return showSheet<void>(
     context: context,
     motion: (addNew != null ? SheetMotion.issue : SheetMotion.share).copyWith(
       openDelay: wait,
@@ -229,7 +229,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       from: from,
       // Where the row will be once the sheet is up, not where it is while
       // the sheet slides.
-      to: (overlay) => GlassSheet.settledBox(row, overlay),
+      to: (overlay) => Sheet.settledBox(row, overlay),
       path: const FlightPath.into(),
       keys: const [
         FlightKey(0, FlightKey.start),
@@ -257,7 +257,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     if (_landing) return;
     final flies =
         _now.adding == null && !MediaQuery.disableAnimationsOf(context);
-    GlassSheet.of(context).delayClose(
+    Sheet.of(context).delayClose(
       flies
           ? SheetMotion.carried.closeDelay
           : (widget.addNew != null ? SheetMotion.issue : SheetMotion.share)
@@ -299,7 +299,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final hand = GlassSheet.of(context).hand;
+    final hand = Sheet.of(context).hand;
     if (hand?.dragging == _hand?.dragging) return;
     _hand?.dragging.removeListener(_onHand);
     _hand?.shown.removeListener(_steerHand);
@@ -661,7 +661,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         onLanded: widget.onLanded,
       );
       if (flew && mounted) {
-        GlassSheet.of(context).delayClose(const Duration(milliseconds: 180));
+        Sheet.of(context).delayClose(const Duration(milliseconds: 180));
       }
     }
     // On "Success" while the sheet goes.
@@ -746,7 +746,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final palette = YiviPalette.of(context);
     final set = addableOptions(pickOne);
     final inApp = ref.watch(cardTypesInAppProvider);
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       title: SheetTitle(context.tr("share.sheet.together_title")),
       padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
       child: Column(
@@ -871,7 +871,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final title = pickOne.optional
         ? context.tr("share.sheet.optional_title")
         : context.tr("share.sheet.pick_card");
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       title: SheetTitle(title, reveal: SheetTitleReveal.under(_chooseTitle)),
       padding: const EdgeInsets.fromLTRB(
         YiviSpace.x16,
@@ -987,7 +987,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final title = pickOne.optional
         ? context.tr("share.sheet.optional_title")
         : context.tr("share.next.pick");
-    return GlassSheetPage.scroll(
+    return SheetPage.scroll(
       title: SheetTitle(title, reveal: SheetTitleReveal.under(_kindsTitle)),
       // A low sheet with only the kinds; it grows into the full sheet as
       // adding one comes in.

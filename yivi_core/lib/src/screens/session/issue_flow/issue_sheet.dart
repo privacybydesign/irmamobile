@@ -12,7 +12,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/glass_dialog.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../embedded_issuance_flows/documents/document_flow.dart";
 import "../../error/session_error_screen.dart";
@@ -213,7 +213,7 @@ class IssueSheet extends StatelessWidget {
   /// Called on back in the sheet, before it goes back.
   final VoidCallback? onBack;
 
-  /// See [GlassSheetPages.rootShift].
+  /// See [SheetPages.rootShift].
   final double? rootShift;
 
   const IssueSheet({
@@ -547,7 +547,7 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
       from: from,
       to: YiviFlight.boxOf(to),
       keys: const [FlightKey(0, FlightKey.start), FlightKey(1, FlightKey.end)],
-      duration: GlassSheetPages.slideDuration,
+      duration: SheetPages.slideDuration,
       curve: YiviMotion.ease,
       hide: [from, to],
       copy: (context, frame) => RequestorLogo(
@@ -587,7 +587,7 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
         s.adding != null &&
         s.added == null &&
         !closing;
-    return GlassSheetConfirmDismiss(
+    return SheetConfirmDismiss(
       ask: s.started,
       confirm: confirmStop,
       // On a phone held upright the close button stays at the top right on
@@ -603,7 +603,7 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
               // still makes a low sheet.
               fit: StackFit.passthrough,
               children: [
-                GlassSheetPages(
+                SheetPages(
                   onBack: () {
                     onBack?.call();
                     back();

@@ -15,7 +15,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_read
 import "package:yivi_core/src/screens/session/issuance/issue_sheet_progress.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "helpers/test_translation_loader.dart";
 import "support/document_fakes.dart";
@@ -92,11 +92,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    showGlassSheet<void>(
+    showSheet<void>(
       context: home,
       builder: (_) => StatefulBuilder(
         builder: (context, setState) {
-          return GlassSheetPages(
+          return SheetPages(
             onBack: () => backs++,
             pages: [
               DocumentSheetStep(

@@ -10,7 +10,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/buttons/close_button.dart";
 import "../../../widgets/buttons/link.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/text/translated_text.dart";
 import "../../add_data/email_linking.dart";
 
@@ -117,7 +117,7 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
   // the navigator now instead of looking it up from the banner's context.
   final navigator = Navigator.of(context);
 
-  return showTitledGlassSheet(
+  return showTitledSheet(
     context: context,
     titleKey: "email_linking.later.title",
     child: Padding(

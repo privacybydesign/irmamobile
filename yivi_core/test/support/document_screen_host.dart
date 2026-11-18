@@ -1,5 +1,5 @@
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 /// A document screen as the sheet's document step shows it, for tests of
 /// one screen: as `home`, it opens a glass sheet with [screen] on a page
@@ -21,12 +21,12 @@ class _DocumentScreenHostState extends State<DocumentScreenHost> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      showGlassSheet<void>(
+      showSheet<void>(
         context: context,
-        builder: (_) => GlassSheetPages(
+        builder: (_) => SheetPages(
           onBack: () {},
           pages: [
-            GlassSheetPage.fill(
+            SheetPage.fill(
               title: SheetTitle(widget.title),
               exits: const SheetExits(close: SheetClose.none),
               bottomInBar: true,

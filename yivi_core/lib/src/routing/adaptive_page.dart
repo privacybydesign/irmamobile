@@ -5,7 +5,7 @@ import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
 import "../util/adaptive_layout.dart";
 import "../widgets/sheet/form_sheet_frame.dart";
-import "../widgets/sheet/glass_sheet.dart";
+import "../widgets/sheet/sheet.dart";
 import "pane_handoff.dart";
 
 /// How a screen is presented at tablet widths (from
@@ -177,7 +177,7 @@ class _AdaptiveRoute<T> extends PageRoute<T>
       );
     }
 
-    // Where every sheet on a tablet sits ([showGlassSheet] too); the screen
+    // Where every sheet on a tablet sits ([showSheet] too); the screen
     // inside keeps the keyboard, so the sheet stays put.
     return Stack(
       children: [

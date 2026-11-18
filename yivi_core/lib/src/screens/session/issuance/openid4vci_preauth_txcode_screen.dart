@@ -11,7 +11,7 @@ import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/input/pill_text_field.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../embedded_issuance_flows/widgets/contact_widgets.dart";
 import "../layout/session_scaffold.dart";
@@ -169,7 +169,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       final continueLabel = context.tr(
         "issuance.pre-authorized_code.tx_code_screen.continue",
       );
-      return GlassSheetPage.scroll(
+      return SheetPage.scroll(
         key: const Key("sheet_openid4vci_tx_code"),
         title: SheetTitle(
           context.tr("issuance.pre-authorized_code.tx_code_screen.title"),

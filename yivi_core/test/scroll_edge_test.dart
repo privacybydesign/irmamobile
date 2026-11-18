@@ -5,7 +5,7 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/bars/scroll_edge.dart";
 import "package:yivi_core/src/widgets/bars/title_scroll_edge.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -72,10 +72,10 @@ void main() {
         _app(const Scaffold(body: Center(child: Text("page")))),
       );
       await tester.pumpAndSettle();
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
         builder: (_) =>
-            GlassSheetPage.scroll(title: SheetTitle("Sheet"), child: _rows()),
+            SheetPage.scroll(title: SheetTitle("Sheet"), child: _rows()),
       );
       await tester.pumpAndSettle();
     }
@@ -84,7 +84,7 @@ void main() {
         "the header and the edge shows", (tester) async {
       await open(tester);
       expect(_band, findsNothing);
-      final header = tester.getRect(find.byType(GlassSheetHeader));
+      final header = tester.getRect(find.byType(SheetHeader));
       expect(
         tester.getRect(find.text("row 0")).top,
         greaterThan(header.bottom),
@@ -116,9 +116,9 @@ void main() {
         _app(const Scaffold(body: Center(child: Text("page")))),
       );
       await tester.pumpAndSettle();
-      showGlassSheet<void>(
+      showSheet<void>(
         context: _page,
-        builder: (_) => GlassSheetPage.scroll(
+        builder: (_) => SheetPage.scroll(
           title: SheetTitle("Sheet"),
           child: Column(
             children: [
@@ -139,7 +139,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.drag(find.text("row 4"), const Offset(0, -120));
       await tester.pumpAndSettle();
-      final header = tester.getRect(find.byType(GlassSheetHeader));
+      final header = tester.getRect(find.byType(SheetHeader));
       await tester.tapAt(Offset(header.center.dx, header.bottom - 4));
       await tester.pump();
       expect(tapped, 0);

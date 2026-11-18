@@ -10,7 +10,7 @@ import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
 import "../../widgets/buttons/pill_buttons.dart";
-import "../../widgets/sheet/glass_sheet.dart";
+import "../../widgets/sheet/sheet.dart";
 import "../../widgets/surfaces/icon_square.dart";
 import "util/camera_access.dart";
 import "widgets/qr_scanner.dart";
@@ -64,7 +64,7 @@ class ScannerScreenState extends ConsumerState<ScannerScreen> {
   @override
   Widget build(BuildContext context) {
     // The sheet's own bar on top; the camera between it and the panel.
-    return GlassSheetPage.fill(
+    return SheetPage.fill(
       title: SheetTitle(context.tr("qr_scanner.title")),
       child: LayoutBuilder(
         // Sideways: wider than high (a phone held sideways).

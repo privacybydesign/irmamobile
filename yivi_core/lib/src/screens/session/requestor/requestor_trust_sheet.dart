@@ -9,7 +9,7 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/sheet/glass_sheet.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
 import "../../../widgets/surfaces/icon_square.dart";
 import "../../../widgets/surfaces/list_row.dart";
@@ -43,7 +43,7 @@ Future<void> showRequestorTrustSheet({
   List<TechGroup>? technicalDetails,
   bool issuer = false,
   Object? logoHeroTag,
-}) => showGlassSheet<void>(
+}) => showSheet<void>(
   context: context,
   motion: SheetMotion.share,
   builder: (_) => _TrustSheetPages(
@@ -82,7 +82,7 @@ class _TrustSheetPagesState extends State<_TrustSheetPages> {
   @override
   Widget build(BuildContext context) {
     final groups = widget.technicalDetails;
-    return GlassSheetPages(
+    return SheetPages(
       onBack: () => setState(() => _tech = false),
       pages: [
         RequestorTrustSheet(
@@ -277,7 +277,7 @@ class RequestorTrustSheet extends StatelessWidget {
       scopesRoute: true,
       explicitChildNodes: true,
       child: sideways
-          ? GlassSheetPage.split(
+          ? SheetPage.split(
               title: SheetTitle(""),
               exits: SheetExits(onBack: onBack),
               child: _columns(
@@ -348,7 +348,7 @@ class RequestorTrustSheet extends StatelessWidget {
                 ],
               ),
             )
-          : GlassSheetPage.scroll(
+          : SheetPage.scroll(
               title: SheetTitle(""),
               exits: SheetExits(onBack: onBack),
               // No title in the bar; once something is under it, the hard edge.

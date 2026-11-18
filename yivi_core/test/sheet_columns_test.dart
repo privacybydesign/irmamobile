@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/util/adaptive_layout.dart";
-import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 void main() {
   /// Opens a sheet in a window of [size]; returns the sheet's width and
@@ -24,7 +24,7 @@ void main() {
         ),
       ),
     );
-    showGlassSheet<void>(
+    showSheet<void>(
       context: page,
       // The sheet's content, built inside the sheet.
       builder: (_) => Builder(

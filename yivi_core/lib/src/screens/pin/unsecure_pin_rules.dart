@@ -17,7 +17,7 @@ void _showSecurePinRules(BuildContext context, EnterPinState state) {
     );
     return;
   }
-  showTitledGlassSheet(
+  showTitledSheet(
     context: context,
     titleKey: "secure_pin.title",
     child: Padding(
