@@ -32,7 +32,7 @@ import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/error/session_error_screen.dart";
 import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/issue_flow.dart";
+import "package:yivi_core/src/screens/session/issue_flow/issue_sheet.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/handle_pointer.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";

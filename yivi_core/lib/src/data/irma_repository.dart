@@ -811,7 +811,7 @@ class IrmaRepository {
   ) {
     if (!prepareEmbeddedFlow(credentialId, url, ref.read)) return;
     // E-mail addresses, phone numbers and documents are added in the
-    // sheet (IssueFlowController), which never comes here.
+    // sheet (IssueSheet), which never comes here.
     assert(false, "${embeddedFlowOf(credentialId)} is added in the sheet");
   }
 

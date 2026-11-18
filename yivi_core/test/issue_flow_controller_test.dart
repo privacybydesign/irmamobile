@@ -112,7 +112,7 @@ class _Flow {
 
   IssueFlowController get c {
     sub;
-    return container.read(issueFlowProvider(config).notifier);
+    return container.read(issueFlowProvider(config).notifier)..bind(host);
   }
 
   IssueFlowState get s => sub.read();
@@ -157,12 +157,7 @@ Future<_Flow> _flow({
     repo,
     bridge,
     host,
-    IssueFlowConfig(
-      host: host,
-      requestId: requestId,
-      linking: linking,
-      start: start,
-    ),
+    IssueFlowConfig(requestId: requestId, linking: linking, start: start),
   );
 }
 

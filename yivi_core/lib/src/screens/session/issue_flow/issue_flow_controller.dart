@@ -213,8 +213,6 @@ abstract interface class IssueFlowHost {
 /// What differs per sheet. Compared by identity: the sheet's state creates
 /// it once, so each sheet has its own controller.
 final class IssueFlowConfig {
-  final IssueFlowHost host;
-
   /// The request a card is added for; null: Add data, the lock scanner.
   final int? requestId;
 
@@ -224,11 +222,15 @@ final class IssueFlowConfig {
   /// The sheet opens straight on this type's details.
   final CredentialDescriptor? start;
 
+  /// The sheet opens on step 2 for [start] at once, as if "Add" had been
+  /// tapped on its details.
+  final bool prove;
+
   IssueFlowConfig({
-    required this.host,
     this.requestId,
     this.linking = false,
     this.start,
+    this.prove = false,
   });
 }
 
@@ -273,6 +275,17 @@ class IssueFlowController extends Notifier<IssueFlowState>
 
   /// The sheet has gone ([detach]); the provider follows a frame later.
   bool _detached = false;
+
+  IssueFlowHost? _host;
+
+  /// The sheet, while it is there ([bind] until [detach]).
+  IssueFlowHost? get _sheet => _detached ? null : _host;
+
+  /// Whether the sheet is closing ([startClosing]).
+  bool get closing => _closing;
+
+  /// The sheet that shows this flow: it is told what the flow needs of it.
+  void bind(IssueFlowHost host) => _host = host;
 
   @override
   int? get underlyingSessionId => config.requestId;
@@ -645,14 +658,14 @@ class IssueFlowController extends Notifier<IssueFlowState>
       _repo.clearInAppLaunches();
       _hosts.unregister(this);
       _set(s.copyWith(stack: [...s.stack, SuccessStep(cards)]));
-      if (!_detached) config.host.onSucceeded(cards);
+      _sheet?.onSucceeded(cards);
       return;
     }
     if (next is SessionDismissed) {
       if (previous is SessionDismissed) return;
       _set(_forget(s));
       if (s.standalone && s.adding == null) {
-        if (!_detached) config.host.onSessionEnded();
+        _sheet?.onSessionEnded();
         return;
       }
       // Cancelled on the permission or the PIN: a step back, to try again.
@@ -671,25 +684,23 @@ class IssueFlowController extends Notifier<IssueFlowState>
     switch (next) {
       // Over the sheet, then back to it without the session.
       case SessionFailed() || SessionTxLockout():
-        if (_detached) return;
+        final sheet = _sheet;
+        if (sheet == null) return;
         _overSheet = true;
-        config.host.showOverSheet(next).whenComplete(() {
+        sheet.showOverSheet(next).whenComplete(() {
           _overSheet = false;
           if (!ref.mounted) return;
           _set(_forget(state));
           if (state.standalone && state.adding == null) {
-            if (!_detached) config.host.onSessionEnded();
+            _sheet?.onSessionEnded();
           }
         });
       // A pairing code, or a request instead of an issuance, takes the
       // session screen, as without the sheet.
       case SessionPairing() || SessionShare():
         _set(_forget(state));
-        if (_detached) return;
-        config.host.handOver(next.state!.id);
-        if (s.standalone && s.adding == null && !_detached) {
-          config.host.onSessionEnded();
-        }
+        _sheet?.handOver(next.state!.id);
+        if (s.standalone && s.adding == null) _sheet?.onSessionEnded();
       // The offer and OpenID4VCI's own steps are pages of the sheet.
       case _:
     }

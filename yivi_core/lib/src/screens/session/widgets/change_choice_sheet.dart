@@ -30,14 +30,15 @@ import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_heading.dart";
 import "../../../widgets/press_scale.dart";
 import "../../../widgets/surface_card.dart";
+import "../issue_flow/issue_flow_controller.dart";
+import "../issue_flow/issue_sheet.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/issuance_view_model.dart";
 import "empty_card_spot.dart";
-import "issue_flow.dart";
 import "issue_sheet_progress.dart";
 import "shared_card_tile.dart";
 
-export "issue_flow.dart" show inSentenceAt, issuerOpenerProvider;
+export "../issue_flow/issue_sheet.dart" show inSentenceAt, issuerOpenerProvider;
 
 part "change_choice_rows.dart";
 
@@ -45,7 +46,7 @@ part "change_choice_rows.dart";
 /// in the app (one tap picks one and closes the sheet) and, clearly apart,
 /// the types that are not in the app yet.
 ///
-/// Adding one of those happens in the sheet ([IssueFlow]): its details, then
+/// Adding one of those happens in the sheet ([IssueSheet]): its details, then
 /// proving it, then the issuance. "Back to {requestor}" then flies the new
 /// card into its spot on the share screen ([landingKey]) as the sheet
 /// closes.
@@ -154,11 +155,22 @@ class ChangeChoiceSheet extends ConsumerStatefulWidget {
 }
 
 class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
-    with IssueFlow<ChangeChoiceSheet>, SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
+  late final _config = IssueFlowConfig(
+    requestId: widget.sessionId,
+    start: widget.addNew,
+  );
+  final _keys = IssueSheetKeys();
+
+  IssueFlowController get _flow =>
+      ref.read(issueFlowProvider(_config).notifier);
+
+  /// Where adding a card in this sheet is.
+  IssueFlowState get _now => ref.read(issueFlowProvider(_config));
+
   @override
   void initState() {
     super.initState();
-    issueStartWith(widget.addNew);
     final from = widget.liftFrom;
     if (from == null) return;
     final adding = widget.addNew;
@@ -245,7 +257,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   void _setCloseDelay() {
     if (_landing) return;
     final flies =
-        issueAdding == null && !MediaQuery.disableAnimationsOf(context);
+        _now.adding == null && !MediaQuery.disableAnimationsOf(context);
     GlassSheet.of(context).delayClose(
       flies
           ? SheetMotion.carried.closeDelay
@@ -317,7 +329,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   }
 
   void _pickUpByHand() {
-    if (_handFlight != null || _landing || issueAdding != null) return;
+    if (_handFlight != null || _landing || _now.adding != null) return;
     final bundle = _picked ?? _current;
     final to = widget.returnTo;
     final copy = widget.tileCopy;
@@ -382,18 +394,18 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// in under it (or grows). 620 ms. The first step's picture shows only once
   /// it has landed.
   void _rise(GlobalKey from, CredentialDescriptor d) {
-    YiviFlight.hide([issueHeroKey]);
+    YiviFlight.hide([_keys.hero]);
     afterFrame(() {
       YiviFlight.start(
         context,
         from: from,
-        to: YiviFlight.boxOf(issueHeroKey),
+        to: YiviFlight.boxOf(_keys.hero),
         keys: FlightKey.carry(startOpacity: 0.6),
         duration: const Duration(milliseconds: 620),
         lift: YiviFlight.liftCarried,
         shadow: YiviFlight.shadowCarried,
         radius: const BorderRadius.all(Radius.circular(4)),
-        hide: [from, issueHeroKey],
+        hide: [from, _keys.hero],
         copy: (context, frame) => SizedBox.fromSize(
           size: frame.size,
           child: FittedBox(
@@ -401,7 +413,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             child: CredentialTypeThumbnail(descriptor: d, width: 200),
           ),
         ),
-        onLanded: () => YiviFlight.show([issueHeroKey]),
+        onLanded: () => YiviFlight.show([_keys.hero]),
       );
     });
   }
@@ -410,20 +422,16 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// screen: no card flies back from the list.
   bool _landing = false;
 
-  @override
-  int get underlyingSessionId => widget.sessionId;
-
-  @override
-  SessionState? get issueRequest =>
+  /// The request the card is added for.
+  SessionState? get _request =>
       ref.read(sessionStateProvider(widget.sessionId)).value;
 
-  TrustedParty? get _requestor => issueRequest?.requestor;
+  TrustedParty? get _requestor => _request?.requestor;
 
   /// The request behind the sheet asks for a signature.
-  bool get _signing => issueRequest?.type == SessionType.signature;
+  bool get _signing => _request?.type == SessionType.signature;
 
-  @override
-  IssueSheetSubject issueSubject(CredentialDescriptor d) {
+  IssueSheetSubject _subject(CredentialDescriptor d) {
     final set = _set;
     final n = set?.indexWhere((c) => c.credentialId == d.credentialId) ?? -1;
     return IssueSheetSubject.request(
@@ -432,13 +440,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
   }
 
-  @override
-  String issueStopText() => context.tr("share.sheet.stop_text", {
+  String _stopText() => context.tr("share.sheet.stop_text", {
     "requestor": _requestor?.name ?? "",
   });
 
-  @override
-  void beforeIssueAdd(CredentialDescriptor d) {
+  void _beforeAdd(CredentialDescriptor d) {
     if (_pickOne?.optional ?? false) {
       _choices.includeOptionalWhenAdded(widget.index);
     }
@@ -450,8 +456,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     "requestor": _requestor?.name ?? "",
   };
 
-  @override
-  SheetAction issueSuccessAction(List<Credential> cards) {
+  SheetAction _successAction(List<Credential> cards) {
     // A card of a set: on to the other one, which the request needs too.
     final next = _nextOfSet(cards);
     if (next != null) {
@@ -461,8 +466,9 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           "next": inSentenceAt(context, next.name),
         }),
         onTap: () => setState(() {
-          issueReset();
-          issueOpen(next);
+          _flow
+            ..reset()
+            ..open(next);
         }),
       );
     }
@@ -475,8 +481,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     );
   }
 
-  @override
-  IssueSuccessLink? issueSuccessLink(List<Credential> cards) =>
+  IssueSuccessLink? _successLink(List<Credential> cards) =>
       _nextOfSet(cards) == null
       ? null
       : (
@@ -485,21 +490,19 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
           onTap: _finish,
         );
 
-  @override
-  bool get issueHasOtherChoices {
+  bool get _hasOtherChoices {
     final pickOne = _pickOne;
     if (pickOne == null) return false;
     return (pickOne.ownedOptions ?? const []).isNotEmpty ||
         addableBundles(pickOne).length > 1;
   }
 
-  @override
-  String issueSuccessText(List<Credential> cards) {
+  String _successText(List<Credential> cards) {
     // Added anyway, with a value the request doesn't take: it is in the app,
     // but doesn't count.
     final miss = issuanceMismatches(
       cards,
-      issueRequest?.disclosurePlan?.issueDuringDisclosure?.steps ?? const [],
+      _request?.disclosurePlan?.issueDuringDisclosure?.steps ?? const [],
     ).firstOrNull;
     if (miss != null) {
       return context.tr(
@@ -531,7 +534,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// The pick-one of this sheet, while the request is there.
   DisclosurePickOne? get _pickOne {
     final pickOnes =
-        issueRequest?.disclosurePlan?.disclosureChoicesOverview ?? const [];
+        _request?.disclosurePlan?.disclosureChoicesOverview ?? const [];
     return widget.index < pickOnes.length ? pickOnes[widget.index] : null;
   }
 
@@ -542,7 +545,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         pickOne != null &&
             spotTogether(
               pickOne,
-              issueRequest?.disclosurePlan?.issueDuringDisclosure,
+              _request?.disclosurePlan?.issueDuringDisclosure,
             );
   }
 
@@ -568,7 +571,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// and then the next ([_nextOfSet]).
   void _add(List<CredentialDescriptor> missing) {
     _set = missing.length > 1 ? missing : null;
-    issueOpen(missing.first);
+    _flow.open(missing.first);
   }
 
   /// Adds [d], one card of a [set] only accepted together, and then the
@@ -576,7 +579,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// offers the others, and no longer reads as a set.
   void _addOfSet(List<CredentialDescriptor> set, CredentialDescriptor d) {
     _set = set;
-    issueOpen(d);
+    _flow.open(d);
   }
 
   SessionUserChoicesNotifier get _choices =>
@@ -611,7 +614,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       hand.land();
       return;
     }
-    if (_landing || issueAdding != null) return;
+    if (_landing || _now.adding != null) return;
     final bundle = _picked ?? _current;
     if (bundle != null) _flyBack(bundle);
   }
@@ -626,10 +629,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// success page (turned as it lies there), carried and put down in the
   /// spot, 950 ms, while the sheet goes down a beat (180 ms) later.
   Future<void> _finish() async {
-    final cards = issueAdded ?? const <Credential>[];
+    final cards = _now.added ?? const <Credential>[];
     final landing = widget.landingKey;
     final i = cards.indexWhere(
-      (c) => c.credentialId == issueAdding?.credentialId,
+      (c) => c.credentialId == _now.adding?.credentialId,
     );
     // A card of a set flies only once the set is whole: until then the
     // spot stays empty.
@@ -645,7 +648,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       final card = cards[i];
       final flew = YiviFlight.start(
         context,
-        from: issueAddedKeys[i],
+        from: _keys.added(cards)[i],
         to: YiviFlight.boxOf(landing),
         keys: FlightKey.carry(lift: 0.2, hold: 0.8, startTurn: -0.035),
         duration: const Duration(milliseconds: 950),
@@ -663,7 +666,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       }
     }
     // On "Success" while the sheet goes.
-    issueClose();
+    closeIssueSheet(context, ref, _config);
   }
 
   /// Whether [spot] is in view on its page, clear of the bars over it (the
@@ -687,7 +690,8 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final session = ref.watch(sessionStateProvider(widget.sessionId)).value;
     final pickOnes =
         session?.disclosurePlan?.disclosureChoicesOverview ?? const [];
-    issueListen();
+    // The flow's changes build the sheet again, as its pages follow them.
+    final flow = ref.watch(issueFlowProvider(_config));
     _setCloseDelay();
     if (widget.index >= pickOnes.length || session == null) {
       return const SizedBox.shrink();
@@ -699,10 +703,26 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _onClose();
       },
-      child: issueSheet(
+      child: IssueSheet(
+        config: _config,
+        keys: _keys,
+        host: IssueSheetHost(
+          request: session,
+          subject: _subject,
+          stopText: _stopText,
+          beforeAdd: _beforeAdd,
+          successAction: _successAction,
+          successLink: _successLink,
+          successText: _successText,
+          hasOtherChoices: _hasOtherChoices,
+        ),
         rootKey: "choose",
-        root: () => _buildChoose(pickOne),
-        onBack: _back,
+        // Opened on one card, the list is not shown.
+        root: flow.direct && flow.adding != null
+            ? const SizedBox.shrink()
+            : _buildChoose(pickOne),
+        // Back from adding a card: the list shows the card in use again.
+        onBack: () => _pressed = null,
         // Adding a card is pushed onto the list: the list moves a little
         // further aside and is dimmed under it.
         rootShift: 0.28,
@@ -718,12 +738,6 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
 
   void _press(String? key) {
     if (_pressed != key) setState(() => _pressed = key);
-  }
-
-  /// Back from adding a card: the list shows the card in use again.
-  void _back() {
-    _pressed = null;
-    issueBack();
   }
 
   /// A set of cards only accepted together: both are needed, so the page

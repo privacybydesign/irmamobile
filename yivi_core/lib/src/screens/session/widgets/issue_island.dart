@@ -17,7 +17,7 @@ import "requestor_card.dart";
 /// "Got it", or a touch beside it (which still reaches the page), folds it
 /// back into the pill.
 ///
-/// The flow puts it over its sheet's pages ([IssueFlow.issueSheet]) when
+/// The flow puts it over its sheet's pages (`IssueSheet`) when
 /// the pill is tapped.
 class IssueIsland extends StatefulWidget {
   final TrustedParty requestor;

@@ -27,7 +27,7 @@ enum AddDataDetailsPart { all, card, rest }
 /// requestor on the share screen: its logo, name and who vouches for it, ⓘ
 /// to its page), what comes in the app (its fields as a list), and the
 /// answers to what it is for and how it is added, folded into one group.
-/// The first step of adding a card in a sheet ([IssueFlow]).
+/// The first step of adding a card in a sheet (`IssueSheet`).
 class AddDataDetailsContent extends StatelessWidget {
   final CredentialDescriptor credential;
   final Faq? faq;

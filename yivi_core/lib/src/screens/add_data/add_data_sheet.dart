@@ -25,7 +25,8 @@ import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/yivi_spinner.dart";
 import "../data/wallet/issuance_flight.dart";
 import "../home/widgets/home_tab_top.dart";
-import "../session/widgets/issue_flow.dart";
+import "../session/issue_flow/issue_flow_controller.dart";
+import "../session/issue_flow/issue_sheet.dart";
 import "add_data_row.dart";
 
 /// Opens Add data: a sheet over the Data tab with every type of card the
@@ -98,7 +99,7 @@ Future<void> obtainAgain(
 /// Add data as a sheet. Its root page is the list of what can be added, by
 /// category. Tapping a type adds it in
 /// the sheet, with the same steps as adding a card during a request
-/// ([IssueFlow]): its details, proving it, the issuance. "Success" then
+/// ([IssueSheet]): its details, proving it, the issuance. "Success" then
 /// offers "Add more", back to the list, and "Done", which closes the sheet.
 class AddDataSheet extends ConsumerStatefulWidget {
   final CredentialDescriptor? addNew;
@@ -121,8 +122,21 @@ class AddDataSheet extends ConsumerStatefulWidget {
   ConsumerState<AddDataSheet> createState() => _AddDataSheetState();
 }
 
-class _AddDataSheetState extends ConsumerState<AddDataSheet>
-    with IssueFlow<AddDataSheet>, StandaloneIssueFlow<AddDataSheet> {
+class _AddDataSheetState extends ConsumerState<AddDataSheet> {
+  late final _config = IssueFlowConfig(
+    linking: widget.linking,
+    start: widget.addNew,
+    prove: widget.linking,
+  );
+  final _keys = IssueSheetKeys();
+
+  IssueFlowController get _flow =>
+      ref.read(issueFlowProvider(_config).notifier);
+
+  /// The cards of the finished issuance, on "Success".
+  List<Credential> get _added =>
+      ref.read(issueFlowProvider(_config)).added ?? const <Credential>[];
+
   /// The name of the card just added with "Add more", noted on the list.
   String? _justAdded;
 
@@ -154,31 +168,17 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    issueStartWith(widget.addNew, prove: widget.linking);
-  }
-
-  @override
-  bool get issueLinking => widget.linking;
-
   /// Linking: the sheet goes and the disclosure that shares the address
   /// with MijnYivi comes up, as the issuance gave way to it before.
-  @override
-  bool issueSucceeded(List<Credential> cards) {
+  bool _succeeded(List<Credential> cards) {
     if (!widget.linking) return false;
     final root = Navigator.of(context, rootNavigator: true).context;
-    issueClose();
+    closeIssueSheet(context, ref, _config);
     shareEmailWithKeyshare(root);
     return true;
   }
 
-  @override
-  void issueDone() => _done();
-
-  @override
-  IssueSuccessLink issueSuccessLink(List<Credential> cards) => (
+  IssueSuccessLink _successLink(List<Credential> cards) => (
     key: const Key("sheet_add_more"),
     label: context.tr("data.add.add_more"),
     onTap: _addMore,
@@ -187,10 +187,10 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   /// "Add more": the card is in the app already; back to the list, which
   /// says so.
   void _addMore() {
-    final cards = issueAdded ?? const <Credential>[];
+    final cards = _added;
     setState(() {
       _justAdded = cards.length == 1 ? cards.single.name : null;
-      issueShowRoot();
+      _flow.showRoot();
     });
   }
 
@@ -198,7 +198,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
   /// "Success" into the first slot. Where the data tab has a detail pane
   /// (tablet, landscape), the card opens in the pane instead.
   void _done() {
-    final cards = issueAdded ?? const <Credential>[];
+    final cards = _added;
     if (!widget.flyToDataTab) {
       // Opened over another page: the card is in the app, nothing flies.
     } else if (useHomePanes(context)) {
@@ -211,12 +211,12 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
       IssuanceFlight.startFirstOf(
         context,
         received: cards,
-        sources: issueAddedKeys,
+        sources: _keys.added(cards),
         curtain: false,
       );
     }
     // On "Success" while the sheet goes.
-    issueClose();
+    closeIssueSheet(context, ref, _config);
   }
 
   // ---------- the list ----------
@@ -248,13 +248,25 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet>
     }
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _justAdded = null);
-    issueOpen(item.credential);
+    _flow.open(item.credential);
   }
 
   @override
   Widget build(BuildContext context) {
-    issueListen();
-    return issueSheet(rootKey: "list", root: () => _list, onBack: issueBack);
+    // The flow's changes build the sheet again, as its pages follow them.
+    ref.watch(issueFlowProvider(_config));
+    return IssueSheet(
+      config: _config,
+      keys: _keys,
+      host: IssueSheetHost.standalone(
+        context,
+        onDone: _done,
+        successLink: _successLink,
+        onSucceeded: _succeeded,
+      ),
+      rootKey: "list",
+      root: _list,
+    );
   }
 }
 
