@@ -65,7 +65,7 @@ class _StoreReviewGateDialogState
       title: context.tr("review.gate.title"),
       message: context.tr("review.gate.body"),
       actions: [
-        FancyPillButton(
+        PrimaryPillButton(
           key: const Key("review_gate_positive"),
           label: context.tr("review.gate.positive"),
           onPressed: _busy ? null : _positive,

@@ -131,7 +131,7 @@ Future<void> _showLaterSheet(BuildContext context, WidgetRef ref) {
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: YiviSpace.x24),
-          FancyPillButton(
+          PrimaryPillButton(
             key: const Key("email_link_later_remind"),
             label: context.tr("email_linking.later.remind_me"),
             size: PillSize.regular,

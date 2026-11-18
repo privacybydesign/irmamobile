@@ -37,7 +37,7 @@ void main() {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
-              child: FancyPillButton(
+              child: PrimaryPillButton(
                 key: const Key("fancy"),
                 label: "Next",
                 onPressed: () {},
@@ -61,7 +61,7 @@ void main() {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              FancyPillButton(
+              PrimaryPillButton(
                 key: const Key("fancy"),
                 label: "Share",
                 onPressed: () {},
@@ -96,7 +96,7 @@ void main() {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            FancyPillButton(
+            PrimaryPillButton(
               key: const Key("fancy"),
               label: "Share",
               onPressed: () {},
@@ -118,7 +118,7 @@ void main() {
     ) async {
       await _pump(
         tester,
-        FancyPillButton(
+        PrimaryPillButton(
           key: const Key("fancy"),
           label: "A rather long label that has to wrap at a large size",
           onPressed: () {},
@@ -141,7 +141,7 @@ void main() {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            FancyPillButton(label: "Primary", onPressed: () {}),
+            PrimaryPillButton(label: "Primary", onPressed: () {}),
             for (final style in PillStyle.values)
               PillButton(label: style.name, style: style, onPressed: () {}),
           ],
@@ -180,7 +180,7 @@ void main() {
     ) async {
       await _pump(
         tester,
-        const FancyPillButton(label: "Next", onPressed: null),
+        const PrimaryPillButton(label: "Next", onPressed: null),
       );
       await tester.pumpAndSettle();
       final palette = YiviPalette.of(tester.element(find.text("Next")));
@@ -216,7 +216,7 @@ void main() {
     testWidgets("a fancy pill turns red when it can be pressed", (
       tester,
     ) async {
-      await _pump(tester, FancyPillButton(label: "Next", onPressed: () {}));
+      await _pump(tester, PrimaryPillButton(label: "Next", onPressed: () {}));
       await tester.pumpAndSettle();
       expect(
         tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,

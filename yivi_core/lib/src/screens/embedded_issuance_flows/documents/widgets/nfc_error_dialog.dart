@@ -86,7 +86,7 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
         ],
       ),
       actions: [
-        FancyPillButton(
+        PrimaryPillButton(
           label: context.tr("error.button_send_to_irma"),
           size: PillSize.regular,
           // Can't share logs when sensitive data is enabled, so the user

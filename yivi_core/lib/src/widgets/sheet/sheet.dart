@@ -17,7 +17,7 @@ import "../bars/app_bar.dart";
 import "../bars/compact_bar.dart";
 import "../bars/scroll_edge.dart";
 import "../buttons/close_button.dart";
-import "../feedback/yivi_spinner.dart";
+import "../feedback/spinner.dart";
 import "../surfaces/surface.dart";
 import "form_sheet_frame.dart";
 import "pull_to_dismiss_physics.dart";

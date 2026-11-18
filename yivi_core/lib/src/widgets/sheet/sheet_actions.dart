@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../buttons/pill_buttons.dart";
-import "../feedback/yivi_spinner.dart";
+import "../feedback/spinner.dart";
 import "landscape_action_bar.dart";
 import "sheet.dart";
 import "sheet_layout.dart";
@@ -76,7 +76,7 @@ class SheetActionRow extends StatelessWidget {
             style: PillStyle.neutral,
             size: PillSize.regular,
           )
-        : FancyPillButton(
+        : PrimaryPillButton(
             key: primaryKey,
             label: primary,
             onPressed: onPrimary,
@@ -256,12 +256,12 @@ class SheetBarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SheetKeepsKeyboard(
-    child: FancyPillButton(
+    child: PrimaryPillButton(
       key: action.key,
       label: action.label,
       onPressed: action.enabled ? (onTap ?? action.onTap) : null,
       size: PillSize.bar,
-      leading: action.busy ? const YiviSpinner.onButton(size: 14) : null,
+      leading: action.busy ? const Spinner.onButton(size: 14) : null,
     ),
   );
 }

@@ -6,7 +6,7 @@ import "../../theme/yivi_edges.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../../widgets/surfaces/icon_square.dart";
 import "layout/session_scaffold.dart";
 import "requestor/requestor_card.dart";
@@ -135,7 +135,7 @@ class PairingRequired extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 spacing: YiviSpace.x12,
                 children: [
-                  YiviSpinner(size: 18, color: palette.heading, track: true),
+                  Spinner(size: 18, color: palette.heading, track: true),
                   Flexible(
                     child: Text(
                       context.tr("session.pairing.waiting"),

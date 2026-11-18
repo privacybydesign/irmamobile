@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -84,27 +84,19 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _wrap(
-          YiviCredentialCardAttributeList([
-            _amount("12.50", hint: "currency:EUR"),
-          ]),
-        ),
+        _wrap(CardAttributeList([_amount("12.50", hint: "currency:EUR")])),
       );
       expect(find.text("€12.50"), findsOneWidget);
     });
 
     testWidgets("shows the raw string without a currency hint", (tester) async {
-      await tester.pumpWidget(
-        _wrap(YiviCredentialCardAttributeList([_amount("12.50")])),
-      );
+      await tester.pumpWidget(_wrap(CardAttributeList([_amount("12.50")])));
       expect(find.text("12.50"), findsOneWidget);
     });
 
     testWidgets("shows the raw string for other display hints", (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          YiviCredentialCardAttributeList([_amount("12.50", hint: "unit:kg")]),
-        ),
+        _wrap(CardAttributeList([_amount("12.50", hint: "unit:kg")])),
       );
       expect(find.text("12.50"), findsOneWidget);
     });
@@ -113,11 +105,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _wrap(
-          YiviCredentialCardAttributeList([
-            _amount("€ 12,50", hint: "currency:EUR"),
-          ]),
-        ),
+        _wrap(CardAttributeList([_amount("€ 12,50", hint: "currency:EUR")])),
       );
       expect(find.text("€ 12,50"), findsOneWidget);
     });
@@ -125,7 +113,7 @@ void main() {
     testWidgets("formats amounts in a list of values", (tester) async {
       await tester.pumpWidget(
         _wrap(
-          YiviCredentialCardAttributeList([
+          CardAttributeList([
             Attribute(claimPath: ["balances"], displayName: "Saldi"),
             for (final (i, amount) in ["12.50", "3"].indexed)
               Attribute(
@@ -160,9 +148,7 @@ void main() {
               ...GlobalMaterialLocalizations.delegates,
             ],
             home: Scaffold(
-              body: YiviCredentialCardAttributeList([
-                _amount("12.50", hint: "currency:EUR"),
-              ]),
+              body: CardAttributeList([_amount("12.50", hint: "currency:EUR")]),
             ),
           ),
         ),

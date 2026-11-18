@@ -68,13 +68,13 @@ void main() {
         ),
       );
       final secondary = tester.getSize(find.byType(PillButton));
-      final primary = tester.getSize(find.byType(FancyPillButton));
+      final primary = tester.getSize(find.byType(PrimaryPillButton));
       expect(secondary.width, primary.width);
       expect(secondary.height, SheetActionRow.height);
       expect(primary.height, SheetActionRow.height);
 
       await tester.tap(find.byType(PillButton));
-      await tester.tap(find.byType(FancyPillButton));
+      await tester.tap(find.byType(PrimaryPillButton));
       expect((cancelled, added), (1, 1));
     });
 
@@ -93,7 +93,7 @@ void main() {
         ),
       );
       final secondary = tester.getSize(find.byType(PillButton));
-      final primary = tester.getSize(find.byType(FancyPillButton));
+      final primary = tester.getSize(find.byType(PrimaryPillButton));
       expect(primary.height, greaterThan(SheetActionRow.height));
       expect(secondary.height, primary.height);
     });
@@ -105,7 +105,7 @@ void main() {
       );
       // 400 wide test screen, 16 padding on both sides.
       expect(
-        tester.getSize(find.byType(FancyPillButton)).width,
+        tester.getSize(find.byType(PrimaryPillButton)).width,
         tester.view.physicalSize.width / tester.view.devicePixelRatio - 32,
       );
     });

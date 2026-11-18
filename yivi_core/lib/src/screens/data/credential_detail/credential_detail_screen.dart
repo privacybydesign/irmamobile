@@ -20,10 +20,10 @@ import "../../../widgets/bars/compact_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_attribute_list.dart";
 import "../../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../../widgets/credential_card/instance_hint.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/feedback/app_toast.dart";
 import "../../../widgets/layout/centred_max_width.dart";
 import "../../../widgets/layout/two_pane.dart";
@@ -516,7 +516,7 @@ class _Details extends ConsumerWidget {
           ),
           child: _FoundField(
             found: foundLabel == null ? null : found,
-            builder: (key) => YiviCredentialCardAttributeList(
+            builder: (key) => CardAttributeList(
               credential.attributes,
               credentialId: credential.credentialId,
               namespaced: credential.isMdoc,

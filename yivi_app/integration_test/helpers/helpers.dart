@@ -41,8 +41,8 @@ import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_templates.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/feedback/dialog.dart";
 import "package:yivi_core/yivi_core.dart";
 
@@ -363,7 +363,7 @@ Future<void> issueCredentials(
 
   // Check whether all attributes are displayed (order-independent).
   final attributeTexts = attributeRowTexts(
-    find.byType(YiviCredentialCardAttributeList),
+    find.byType(CardAttributeList),
   ).map((t) => t.data!).toList();
 
   // Build a map of displayed attribute name -> value pairs.
@@ -648,7 +648,7 @@ Future<void> evaluateCredentialCard(
       );
       attributeListFinder = find.descendant(
         of: rootFinder,
-        matching: find.byType(YiviCredentialCardAttributeList),
+        matching: find.byType(CardAttributeList),
       );
       // The tile's own texts: the name(s), then the issuer(s).
       if (credentialName != null || issuerName != null) {
@@ -685,7 +685,7 @@ Future<void> evaluateCredentialCard(
       );
       attributeListFinder = find.descendant(
         of: rootFinder,
-        matching: find.byType(YiviCredentialCardAttributeList),
+        matching: find.byType(CardAttributeList),
       );
       // The tile's own texts: the credential name, then the issuer name.
       if (credentialName != null || issuerName != null) {
@@ -720,7 +720,7 @@ Future<void> evaluateCredentialCard(
       );
       attributeListFinder = find.descendant(
         of: rootFinder,
-        matching: find.byType(YiviCredentialCardAttributeList),
+        matching: find.byType(CardAttributeList),
       );
 
       if (credentialName != null) {
@@ -813,10 +813,7 @@ Future<void> evaluateCredentialCard(
             .toList();
         final lists = find.descendant(
           of: permission,
-          matching: find.byType(
-            YiviCredentialCardAttributeList,
-            skipOffstage: false,
-          ),
+          matching: find.byType(CardAttributeList, skipOffstage: false),
           skipOffstage: false,
         );
         attributeListFinder = lists.at(arts.indexOf(root));

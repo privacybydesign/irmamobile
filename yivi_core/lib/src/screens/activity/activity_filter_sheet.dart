@@ -12,7 +12,7 @@ import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../../widgets/input/search_input.dart";
 import "../../widgets/sheet/sheet.dart";
 import "../../widgets/sheet/sheet_actions.dart";
@@ -194,7 +194,7 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
           ? SizedBox(
               key: const Key("activity_filter_loading"),
               height: 240,
-              child: Center(child: YiviSpinner()),
+              child: Center(child: Spinner()),
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

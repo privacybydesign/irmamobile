@@ -44,7 +44,7 @@ class DocumentFlowButton extends StatelessWidget {
     // The pills of the redesign: the faceted red one for the main action,
     // plain text pills for the others.
     final Widget button = switch (style) {
-      .primary => FancyPillButton(
+      .primary => PrimaryPillButton(
         label: label,
         onPressed: onPressed,
         size: PillSize.large,

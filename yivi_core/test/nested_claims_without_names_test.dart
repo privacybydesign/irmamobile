@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -77,7 +77,7 @@ void main() {
   testWidgets("items of an unnamed array are titled and counted per array", (
     tester,
   ) async {
-    await _pump(tester, YiviCredentialCardAttributeList(_badge));
+    await _pump(tester, CardAttributeList(_badge));
 
     // Each list is its own section, counted on its own: the two alignments
     // apart from the one result description and the one result.
@@ -98,7 +98,7 @@ void main() {
   testWidgets("an unnamed object keeps its fields under its own title", (
     tester,
   ) async {
-    await _pump(tester, YiviCredentialCardAttributeList(_badge));
+    await _pump(tester, CardAttributeList(_badge));
 
     expect(find.text("Achievement"), findsOneWidget);
     expect(find.text("Criteria"), findsOneWidget);
@@ -123,7 +123,7 @@ void main() {
   testWidgets("a first key every attribute shares gets no level", (
     tester,
   ) async {
-    await _pump(tester, YiviCredentialCardAttributeList(_badge));
+    await _pump(tester, CardAttributeList(_badge));
 
     // Every attribute starts with credentialSubject: it is the credential,
     // not a section of it.
@@ -137,7 +137,7 @@ void main() {
   ) async {
     await _pump(
       tester,
-      YiviCredentialCardAttributeList([
+      CardAttributeList([
         Attribute(
           claimPath: const ["address", "street"],
           displayName: null,
@@ -159,7 +159,7 @@ void main() {
   });
 
   testWidgets("keys without a display name are made readable", (tester) async {
-    await _pump(tester, YiviCredentialCardAttributeList(_badge));
+    await _pump(tester, CardAttributeList(_badge));
 
     // The target codes title their items, so only the names keep a label.
     expect(find.text("Target name"), findsNWidgets(2));
@@ -173,7 +173,7 @@ void main() {
     // item rather than land next to it.
     await _pump(
       tester,
-      YiviCredentialCardAttributeList([
+      CardAttributeList([
         _leaf(["alignment", 0, "type", 0], "Alignment"),
         _leaf(["alignment", 0, "targetCode"], "A"),
         _leaf(["alignment", 1, "type", 0], "Alignment"),
@@ -197,7 +197,7 @@ void main() {
   ) async {
     await _pump(
       tester,
-      YiviCredentialCardAttributeList([
+      CardAttributeList([
         Attribute(
           claimPath: const ["credentialSubject", "alignment"],
           displayName: "Koppelingen",
@@ -212,7 +212,7 @@ void main() {
   });
 
   testWidgets("a level shows its values before its sections", (tester) async {
-    await _pump(tester, YiviCredentialCardAttributeList(_badge));
+    await _pump(tester, CardAttributeList(_badge));
 
     // credentialSubject.id and the list of values in credentialSubject.type
     // sort around achievement and result, but are shown above every section.
@@ -237,7 +237,7 @@ void main() {
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC";
     await _pump(
       tester,
-      YiviCredentialCardAttributeList([
+      CardAttributeList([
         Attribute(
           claimPath: const ["portrait"],
           displayName: "Photo",
@@ -284,10 +284,7 @@ void main() {
     testWidgets("a namespace gets no level, however many there are", (
       tester,
     ) async {
-      await _pump(
-        tester,
-        YiviCredentialCardAttributeList(twoNamespaces, namespaced: true),
-      );
+      await _pump(tester, CardAttributeList(twoNamespaces, namespaced: true));
 
       expect(find.textContaining("Org.iso"), findsNothing);
       expect(_left(tester, "Jansen"), equals(_left(tester, "1")));
@@ -299,7 +296,7 @@ void main() {
     ) async {
       // Pins why the card has to tell the list: from the paths alone two
       // namespaces look like two objects.
-      await _pump(tester, YiviCredentialCardAttributeList(twoNamespaces));
+      await _pump(tester, CardAttributeList(twoNamespaces));
 
       expect(find.text("Org.iso.18013.5.1"), findsOneWidget);
     });
@@ -309,7 +306,7 @@ void main() {
     ) async {
       await _pump(
         tester,
-        YiviCredentialCardAttributeList([
+        CardAttributeList([
           element("org.iso.18013.5.1", "family_name", "Jansen"),
           Attribute(
             claimPath: const [

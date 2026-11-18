@@ -5,7 +5,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 // Regression tests for an issuer (the Ver.iD vergoedingenpas demo) that fills
 // an empty photo attribute with a single space. Decoding that as base64 threw
@@ -38,9 +38,7 @@ void main() {
     testWidgets("renders nothing for an image attribute holding $name", (
       tester,
     ) async {
-      await tester.pumpWidget(
-        _wrap(YiviCredentialCardAttributeList([_photo(value)])),
-      );
+      await tester.pumpWidget(_wrap(CardAttributeList([_photo(value)])));
 
       expect(tester.takeException(), isNull);
       expect(find.byType(Image), findsNothing);
@@ -53,7 +51,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       _wrap(
-        YiviCredentialCardAttributeList([
+        CardAttributeList([
           _photo(base64Encode(utf8.encode("definitely not a PNG"))),
         ]),
       ),
@@ -67,9 +65,7 @@ void main() {
   });
 
   testWidgets("still renders a valid image", (tester) async {
-    await tester.pumpWidget(
-      _wrap(YiviCredentialCardAttributeList([_photo(_png)])),
-    );
+    await tester.pumpWidget(_wrap(CardAttributeList([_photo(_png)])));
 
     expect(tester.takeException(), isNull);
     expect(find.byType(Image), findsOneWidget);
@@ -82,7 +78,7 @@ void main() {
         '<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="red"/></svg>';
     await tester.pumpWidget(
       _wrap(
-        YiviCredentialCardAttributeList([
+        CardAttributeList([
           _photo(base64Encode(utf8.encode(svg)), mimeType: "image/svg+xml"),
         ]),
       ),
@@ -97,9 +93,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      _wrap(
-        YiviCredentialCardAttributeList([_photo(_png, mimeType: "image/png")]),
-      ),
+      _wrap(CardAttributeList([_photo(_png, mimeType: "image/png")])),
     );
 
     expect(find.byType(Image), findsOneWidget);

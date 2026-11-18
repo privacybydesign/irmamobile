@@ -14,7 +14,7 @@ import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/feedback/yivi_spinner.dart";
+import "../../../widgets/feedback/spinner.dart";
 import "../../../widgets/surfaces/inset_group.dart";
 import "../../error/error_screen.dart";
 import "../util/snackbar.dart";
@@ -122,7 +122,7 @@ class _CertificateManagementScreenState
           stream: repo.getEudiConfiguration(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return Center(child: YiviSpinner());
+              return Center(child: Spinner());
             }
             final configuration = snapshot.data!;
 

@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -82,9 +82,7 @@ const _allCourses = [
 void main() {
   group("a credential's own values", () {
     testWidgets("everything starts open: one card per item", (tester) async {
-      await tester.pumpWidget(
-        _wrap(YiviCredentialCardAttributeList(_university())),
-      );
+      await tester.pumpWidget(_wrap(CardAttributeList(_university())));
       await tester.pumpAndSettle();
 
       expect(find.text("Faculties"), findsOneWidget);
@@ -98,9 +96,7 @@ void main() {
     });
 
     testWidgets("the list folds to its item names", (tester) async {
-      await tester.pumpWidget(
-        _wrap(YiviCredentialCardAttributeList(_university())),
-      );
+      await tester.pumpWidget(_wrap(CardAttributeList(_university())));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text("Faculties"));
@@ -114,9 +110,7 @@ void main() {
     });
 
     testWidgets("a card folds on its own to what it holds", (tester) async {
-      await tester.pumpWidget(
-        _wrap(YiviCredentialCardAttributeList(_university())),
-      );
+      await tester.pumpWidget(_wrap(CardAttributeList(_university())));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text("Faculty of Arts"));
@@ -130,7 +124,7 @@ void main() {
     testWidgets("a top-level object is one card", (tester) async {
       await tester.pumpWidget(
         _wrap(
-          YiviCredentialCardAttributeList([
+          CardAttributeList([
             _header(["address"], "Address"),
             _value(["address", "city"], "City", "Nijmegen"),
             _value(["address", "country"], "Country", "Netherlands"),
@@ -149,7 +143,7 @@ void main() {
   group("a disclosure", () {
     testWidgets("nothing folds", (tester) async {
       await tester.pumpWidget(
-        _wrap(YiviCredentialCardAttributeList(_university(), disclosure: true)),
+        _wrap(CardAttributeList(_university(), disclosure: true)),
       );
       await tester.pumpAndSettle();
 
@@ -164,7 +158,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         _wrap(
-          YiviCredentialCardAttributeList([
+          CardAttributeList([
             _header(["faculties"], "Faculties"),
             _header(["faculties", 1, "departments"], "Departments"),
             _value(

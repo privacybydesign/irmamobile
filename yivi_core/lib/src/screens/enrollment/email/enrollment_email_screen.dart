@@ -15,7 +15,7 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/feedback/yivi_spinner.dart";
+import "../../../widgets/feedback/spinner.dart";
 import "../../../widgets/input/pill_text_field.dart";
 import "../../../widgets/surfaces/icon_square.dart";
 import "../../add_data/email_linking.dart";
@@ -233,11 +233,11 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
           );
 
     final pillSize = tablet ? PillSize.large : PillSize.regular;
-    final sendButton = FancyPillButton(
+    final sendButton = PrimaryPillButton(
       key: const Key("enrollment_email_send"),
       label: context.tr("contact_sheet.send_code"),
       size: pillSize,
-      leading: sending ? const YiviSpinner.onButton() : null,
+      leading: sending ? const Spinner.onButton() : null,
       onPressed: _valid && !sending ? _send : null,
     );
 
@@ -292,7 +292,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
         switch (_check) {
           _Check.checking => const Padding(
             padding: EdgeInsets.only(top: YiviSpace.x16),
-            child: Center(child: YiviSpinner(size: 22)),
+            child: Center(child: Spinner(size: 22)),
           ),
           _Check.linked => Padding(
             key: const Key("enrollment_email_linked"),

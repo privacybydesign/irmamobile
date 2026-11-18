@@ -10,7 +10,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../home/widgets/home_tab.dart";
 import "wallet_transition.dart";
 
@@ -30,7 +30,7 @@ class IssuanceFlightState {
 /// The fly-in after an issuance: on "Done" the session closes at once, a
 /// curtain in the page colour hides the switch to the data tab, and the
 /// received card is carried from the success screen into the first slot
-/// (a [YiviFlight], as a card lands on the share screen: picked up as it
+/// (a [Flight], as a card lands on the share screen: picked up as it
 /// lies, turned a little, carried and put down, 950 ms), while the other
 /// cards slide down to make room from the moment it is picked up.
 ///
@@ -96,7 +96,7 @@ class IssuanceFlight {
 
     final palette = YiviPalette.of(context);
     var first = true;
-    return YiviFlight.start(
+    return Flight.start(
       context,
       from: source,
       to: (overlay) {
@@ -106,8 +106,8 @@ class IssuanceFlight {
       },
       keys: FlightKey.carry(lift: 0.2, hold: 0.8, startTurn: -0.035),
       duration: duration,
-      lift: YiviFlight.liftCarried,
-      shadow: YiviFlight.shadowCarried,
+      lift: Flight.liftCarried,
+      shadow: Flight.shadowCarried,
       copyKey: const Key("issuance_flight_card"),
       copy: (context, frame) =>
           CredentialCardArt(credential: card, width: frame.size.width),
@@ -195,7 +195,7 @@ class IssuanceFlight {
   /// Ends a flight at once, e.g. between tests.
   @visibleForTesting
   static void reset() {
-    YiviFlight.reset();
+    Flight.reset();
     _target = null;
     state.value = null;
   }

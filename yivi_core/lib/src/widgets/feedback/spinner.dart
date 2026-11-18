@@ -4,7 +4,7 @@ import "../../theme/yivi_palette.dart";
 
 /// The app's one spinner. Its stroke follows its size, so a small one on a
 /// button and a large one on a page look the same.
-class YiviSpinner extends StatelessWidget {
+class Spinner extends StatelessWidget {
   /// The spinner's side; null fills the box it is given, 36 when unbounded.
   final double? size;
 
@@ -14,10 +14,10 @@ class YiviSpinner extends StatelessWidget {
   /// A faint ring behind the arc, for a spinner that stands alone.
   final bool track;
 
-  const YiviSpinner({super.key, this.size, this.color, this.track = false});
+  const Spinner({super.key, this.size, this.color, this.track = false});
 
   /// White, for on a filled pill button.
-  const YiviSpinner.onButton({super.key, this.size = 18})
+  const Spinner.onButton({super.key, this.size = 18})
     : color = const Color(0xFFFFFFFF),
       track = false;
 

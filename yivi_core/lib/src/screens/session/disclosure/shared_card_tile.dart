@@ -11,9 +11,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
+import "../../../widgets/credential_card/card_attribute_list.dart";
 import "../../../widgets/credential_card/card_tile.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/surfaces/status_chip.dart";
 import "../models/disclosure_view_model.dart";
 
@@ -124,7 +124,7 @@ class SharedCardTile extends ConsumerWidget {
           if (c.attributes.isNotEmpty)
             Opacity(
               opacity: problem != null ? 0.55 : 1,
-              child: YiviCredentialCardAttributeList(
+              child: CardAttributeList(
                 c.attributes,
                 credentialId: c.credentialId,
                 namespaced: c.format == CredentialFormat.msoMdoc,

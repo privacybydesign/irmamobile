@@ -6,7 +6,7 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../util/test_detection.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 
 /// The Yivi logo on the plain background, growing in, with the slogan at the
 /// bottom, in the dark theme in the colours of the dark app icon.
@@ -55,7 +55,7 @@ class SplashScreen extends StatelessWidget {
                   if (isLoading)
                     Padding(
                       padding: const EdgeInsets.only(top: YiviSpace.x48),
-                      child: YiviSpinner(),
+                      child: Spinner(),
                     ),
                 ],
               ),

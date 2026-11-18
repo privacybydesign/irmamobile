@@ -25,7 +25,7 @@ import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/feedback/dialog.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
@@ -292,7 +292,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   Widget _buildLoadingScreen(SessionState? session) {
     return SessionScaffold(
-      body: Center(child: YiviSpinner()),
+      body: Center(child: Spinner()),
       onDismiss: _dismissSession,
       appBarTitle: session != null
           ? _getAppBarTitle(session)
@@ -344,7 +344,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         ),
         title: context.tr("email_linking.done.title"),
         text: context.tr("email_linking.done.body"),
-        action: FancyPillButton(
+        action: PrimaryPillButton(
           key: const Key("ok_button"),
           label: context.tr("action_feedback.ok"),
           onPressed: _popToUnderlyingOrHome,

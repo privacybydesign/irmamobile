@@ -13,7 +13,7 @@ import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/title_scroll_edge.dart";
 import "../../widgets/feedback/app_toast.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../../widgets/layout/centred_max_width.dart";
 import "../../widgets/layout/tab_layout.dart";
 import "../../widgets/layout/two_pane.dart";
@@ -165,7 +165,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
           builder: (context) {
             final state = ref.watch(notificationsProvider);
             if (state is NotificationsLoading) {
-              return Center(child: YiviSpinner());
+              return Center(child: Spinner());
             } else if (state is NotificationsLoaded) {
               final notifications = state.notifications;
               final unread = state.unreadCount;

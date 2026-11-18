@@ -107,7 +107,7 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
             ),
       title: context.tr("issuance.success_feedback.header", params),
       text: context.tr(text, params),
-      action: FancyPillButton(
+      action: PrimaryPillButton(
         key: const Key("ok_button"),
         label: context.tr(
           back == null

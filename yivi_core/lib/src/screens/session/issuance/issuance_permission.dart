@@ -242,7 +242,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
         onPressed: widget.onGivePermission,
       );
     }
-    return FancyPillButton(
+    return PrimaryPillButton(
       key: const Key("bottom_bar_primary"),
       label: issuanceAddLabel(context, _cards.length),
       onPressed: widget.onGivePermission,

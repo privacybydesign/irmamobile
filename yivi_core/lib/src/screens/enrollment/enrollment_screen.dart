@@ -9,7 +9,7 @@ import "../../routing/navigation.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../../widgets/text/translated_text.dart";
 import "biometric/enrollment_biometric_screen.dart";
 import "choose_pin/choose_pin_screen.dart";
@@ -154,7 +154,7 @@ class _SettingUp extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: YiviSpace.x48),
-              YiviSpinner(),
+              Spinner(),
               if (showText) ...[
                 const SizedBox(height: YiviSpace.x24),
                 TranslatedText(

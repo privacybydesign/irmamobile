@@ -22,7 +22,7 @@ Future<void> openSupportMail(BuildContext context) async {
             title: context.tr("help.mail_error_title"),
             message: context.tr("help.mail_error"),
             actions: [
-              FancyPillButton(
+              PrimaryPillButton(
                 label: context.tr("help.mail_error_button"),
                 size: PillSize.regular,
                 onPressed: () => Navigator.pop(context),

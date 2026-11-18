@@ -20,7 +20,7 @@ import "package:yivi_core/src/screens/session/pairing_required.dart";
 import "package:yivi_core/src/screens/session/result/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/session_pin_entry_screen.dart";
-import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
+import "package:yivi_core/src/widgets/feedback/spinner.dart";
 
 import "missing_data_fixtures.dart";
 import "support/session_harness.dart";
@@ -110,7 +110,7 @@ SessionState _preAuth({
 
 final _home = find.text("home");
 final _request = find.text("request");
-final _spinner = find.byType(YiviSpinner);
+final _spinner = find.byType(Spinner);
 
 /// Lets the screen react and its routes move.
 Future<void> _settle(WidgetTester tester) => pumpFrames(tester);

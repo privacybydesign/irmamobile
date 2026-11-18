@@ -94,7 +94,7 @@ class WelcomeScreen extends StatelessWidget {
         ),
       ),
       const SizedBox(height: YiviSpace.x12),
-      FancyPillButton(
+      PrimaryPillButton(
         key: const Key("enrollment_next_button"),
         label: context.tr("enrollment.welcome.start"),
         size: tablet ? PillSize.large : PillSize.regular,

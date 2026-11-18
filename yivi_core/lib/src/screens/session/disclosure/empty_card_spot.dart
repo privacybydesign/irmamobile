@@ -12,7 +12,7 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/credential_card/faded_card_art.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/surfaces/count_badge.dart";
 
 /// A row of an [EmptyCardSpot]: a field, its value, and whether that value

@@ -39,8 +39,8 @@ import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
-import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
-import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
+import "package:yivi_core/src/widgets/feedback/spinner.dart";
+import "package:yivi_core/src/widgets/flight/flight.dart";
 import "package:yivi_core/src/widgets/input/search_input.dart";
 import "package:yivi_core/src/widgets/input/unfocus_on_tap_outside.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
@@ -741,7 +741,7 @@ void main() {
         expect(find.byKey(const Key("issuance_heading")), findsOneWidget);
         expect(add, findsOneWidget);
         expect(
-          find.descendant(of: _sheet, matching: find.byType(YiviSpinner)),
+          find.descendant(of: _sheet, matching: find.byType(Spinner)),
           findsNothing,
         );
       }
@@ -818,7 +818,7 @@ void main() {
       // The page goes with the finger: no logo flies back from outside.
       for (var i = 0; i < 30; i++) {
         await tester.pump(const Duration(milliseconds: 16));
-        expect(YiviFlight.isFlying, isFalse);
+        expect(Flight.isFlying, isFalse);
       }
       await tester.pumpAndSettle();
 
@@ -1075,7 +1075,7 @@ void main() {
           ).single.payload?["transaction_code"],
           isNull,
         );
-        expect(find.byType(YiviSpinner), findsOneWidget);
+        expect(find.byType(Spinner), findsOneWidget);
         // The same state again grants nothing more.
         nested.add(openId(SessionStatus.requestPreAuthorizedCode));
         await _pumpFor(tester);

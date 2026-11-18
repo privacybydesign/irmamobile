@@ -24,11 +24,11 @@ import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_attribute_list.dart";
 import "../../../widgets/credential_card/card_tile.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/feedback/dialog.dart";
 import "../../../widgets/feedback/progress_part.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/layout/fill_scroll_view.dart";
 import "../../../widgets/surfaces/status_chip.dart";
 import "../../../widgets/text/caps_label.dart";
@@ -184,7 +184,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     if (filled.isEmpty) return;
     _arrived.addAll(filled);
     // Nothing over the page (the card came in some other way): at once.
-    if (_sheets == 0 && !YiviFlight.isFlying) {
+    if (_sheets == 0 && !Flight.isFlying) {
       afterFrame(() => _land(fromSheet: false));
     }
   }
@@ -217,7 +217,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     } finally {
       _sheets--;
     }
-    if (!mounted || YiviFlight.isFlying) return;
+    if (!mounted || Flight.isFlying) return;
     _land();
   }
 
@@ -733,7 +733,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             title: t("share.trust.confirm.title"),
             message: t("share.trust.confirm.text"),
             actions: [
-              FancyPillButton(
+              PrimaryPillButton(
                 key: const Key("share_anyway_cancel"),
                 size: PillSize.regular,
                 label: t("share.trust.confirm.dont_share"),

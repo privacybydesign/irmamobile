@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_motion.dart";
 import "../../../util/laid_out_box.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 
 /// The flight from the share screen into the done screen: when the user
 /// shares, [capture] notes where each card's picture, the message and the
@@ -89,10 +89,10 @@ class DoneFlight {
     const duration = Duration(milliseconds: 560);
     for (final (n, (from, c)) in pairs.indexed) {
       flying.add(c.key);
-      YiviFlight.start(
+      Flight.start(
         context,
         fromRect: from,
-        to: YiviFlight.boxOf(c.key),
+        to: Flight.boxOf(c.key),
         // Ends on the place's own turn; the key is on its unturned box.
         keys: [
           const FlightKey(0, FlightKey.start),
@@ -112,10 +112,10 @@ class DoneFlight {
     final message = captured.message;
     if (message != null && paper != null && paperCopy != null) {
       flying.add(paper);
-      YiviFlight.start(
+      Flight.start(
         context,
         fromRect: message,
-        to: YiviFlight.boxOf(paper),
+        to: Flight.boxOf(paper),
         keys: const [
           FlightKey(0, FlightKey.start),
           FlightKey(1, FlightKey.end),
@@ -138,10 +138,10 @@ class DoneFlight {
     final from = captured.logo;
     if (from != null && logo != null && logoCopy != null) {
       flying.add(logo);
-      YiviFlight.start(
+      Flight.start(
         context,
         fromRect: from,
-        to: YiviFlight.boxOf(logo),
+        to: Flight.boxOf(logo),
         keys: const [
           FlightKey(0, FlightKey.start),
           FlightKey(1, FlightKey.end),

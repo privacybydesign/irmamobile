@@ -107,7 +107,7 @@ class _EnrollmentBiometricScreenState
               ),
             ),
             Expanded(
-              child: FancyPillButton(
+              child: PrimaryPillButton(
                 key: const Key("biometric_enable"),
                 label: context.tr("enrollment.biometric.use_$kind"),
                 size: size,

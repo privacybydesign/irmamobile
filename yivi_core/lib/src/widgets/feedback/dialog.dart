@@ -225,7 +225,7 @@ Future<bool> showConfirmDialog(
                 style: PillStyle.dangerFilled,
               )
             else
-              FancyPillButton(
+              PrimaryPillButton(
                 key: const Key("dialog_confirm_button"),
                 label: context.tr(confirmKey),
                 onPressed: () => close(true),

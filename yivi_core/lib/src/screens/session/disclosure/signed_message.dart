@@ -5,7 +5,7 @@ import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
 import "signature_message_text.dart";
@@ -207,10 +207,10 @@ Future<void> showSignedMessageSheet({
   void fly({required bool opening}) {
     final source = from;
     if (source == null) return;
-    YiviFlight.start(
+    Flight.start(
       context,
       from: opening ? source : into,
-      to: YiviFlight.boxOf(opening ? into : source),
+      to: Flight.boxOf(opening ? into : source),
       keys: const [FlightKey(0, FlightKey.start), FlightKey(1, FlightKey.end)],
       duration: flight,
       curve: YiviMotion.ease,
@@ -230,9 +230,9 @@ Future<void> showSignedMessageSheet({
 
   // The quote is hidden in the sheet until the copy lands in it.
   if (from != null && !MediaQuery.disableAnimationsOf(context)) {
-    YiviFlight.hide([into]);
+    Flight.hide([into]);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      YiviFlight.show([into]);
+      Flight.show([into]);
       fly(opening: true);
     });
   }

@@ -143,7 +143,7 @@ class _NoCamera extends StatelessWidget {
           const SizedBox(height: YiviSpace.x16),
           SizedBox(
             width: 240,
-            child: FancyPillButton(
+            child: PrimaryPillButton(
               key: const Key("qr_scanner_open_settings"),
               label: context.tr("qr_scanner.no_camera.open_settings"),
               size: PillSize.regular,

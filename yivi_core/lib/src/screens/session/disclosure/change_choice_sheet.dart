@@ -23,7 +23,7 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/credential_card/faded_card_art.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
@@ -178,7 +178,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     } else {
       // The tapped card is picked up and put down on its row here.
       final row = _currentRow;
-      if (row != null) YiviFlight.hide([row]);
+      if (row != null) Flight.hide([row]);
       afterFrame(() => _liftIn(from));
     }
   }
@@ -220,11 +220,11 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final row = _currentRow;
     final copy = widget.tileCopy;
     if (!mounted || bundle == null || row == null) {
-      if (row != null) YiviFlight.show([row]);
+      if (row != null) Flight.show([row]);
       return;
     }
     setState(() => _ringShown = false);
-    YiviFlight.start(
+    Flight.start(
       context,
       from: from,
       // Where the row will be once the sheet is up, not where it is while
@@ -334,10 +334,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final copy = widget.tileCopy;
     if (bundle == null) return;
     final row = _rowKey(bundle);
-    _handFlight = YiviFlight.follow(
+    _handFlight = Flight.follow(
       context,
       from: row,
-      to: YiviFlight.boxOf(to),
+      to: Flight.boxOf(to),
       keys: _handKeys,
       duration: const Duration(milliseconds: 680),
       radius: YiviCorners.cardRadius,
@@ -367,10 +367,10 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
     final to = widget.returnTo;
     final copy = widget.tileCopy;
     final row = _rowKey(bundle);
-    YiviFlight.start(
+    Flight.start(
       context,
       from: row,
-      to: YiviFlight.boxOf(to),
+      to: Flight.boxOf(to),
       path: const FlightPath.outOf(size: Interval(0.7, 1)),
       keys: const [
         FlightKey(0, FlightKey.start, strip: 0),
@@ -393,16 +393,16 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
   /// in under it (or grows). 620 ms. The first step's picture shows only once
   /// it has landed.
   void _rise(GlobalKey from, CredentialDescriptor d) {
-    YiviFlight.hide([_keys.hero]);
+    Flight.hide([_keys.hero]);
     afterFrame(() {
-      YiviFlight.start(
+      Flight.start(
         context,
         from: from,
-        to: YiviFlight.boxOf(_keys.hero),
+        to: Flight.boxOf(_keys.hero),
         keys: FlightKey.carry(startOpacity: 0.6),
         duration: const Duration(milliseconds: 620),
-        lift: YiviFlight.liftCarried,
-        shadow: YiviFlight.shadowCarried,
+        lift: Flight.liftCarried,
+        shadow: Flight.shadowCarried,
         radius: const BorderRadius.all(Radius.circular(4)),
         hide: [from, _keys.hero],
         copy: (context, frame) => SizedBox.fromSize(
@@ -412,7 +412,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
             child: CredentialTypeThumbnail(descriptor: d, width: 200),
           ),
         ),
-        onLanded: () => YiviFlight.show([_keys.hero]),
+        onLanded: () => Flight.show([_keys.hero]),
       );
     });
   }
@@ -645,14 +645,14 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         if (!mounted) return;
       }
       final card = cards[i];
-      final flew = YiviFlight.start(
+      final flew = Flight.start(
         context,
         from: _keys.added(cards)[i],
-        to: YiviFlight.boxOf(landing),
+        to: Flight.boxOf(landing),
         keys: FlightKey.carry(lift: 0.2, hold: 0.8, startTurn: -0.035),
         duration: const Duration(milliseconds: 950),
-        lift: YiviFlight.liftCarried,
-        shadow: YiviFlight.shadowCarried,
+        lift: Flight.liftCarried,
+        shadow: Flight.shadowCarried,
         radius: const BorderRadius.all(Radius.circular(4)),
         hide: [landing],
         copyKey: const Key("sheet_flight_card"),

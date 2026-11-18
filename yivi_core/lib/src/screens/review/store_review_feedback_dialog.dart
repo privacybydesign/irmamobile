@@ -58,7 +58,7 @@ class _StoreReviewFeedbackDialogState
         title: context.tr("review.feedback.title"),
         message: context.tr("review.feedback.thanks"),
         actions: [
-          FancyPillButton(
+          PrimaryPillButton(
             key: const Key("review_feedback_done"),
             label: context.tr("review.feedback.close"),
             onPressed: () => Navigator.of(context).pop(),
@@ -99,7 +99,7 @@ class _StoreReviewFeedbackDialogState
         ],
       ),
       actions: [
-        FancyPillButton(
+        PrimaryPillButton(
           key: const Key("review_feedback_send"),
           label: context.tr("review.feedback.send"),
           onPressed: _send,

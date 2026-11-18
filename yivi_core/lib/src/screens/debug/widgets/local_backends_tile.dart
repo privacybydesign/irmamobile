@@ -39,7 +39,7 @@ class LocalBackendsTile extends ConsumerWidget {
           hint: "localhost",
         ),
         actions: [
-          FancyPillButton(
+          PrimaryPillButton(
             label: "Save",
             size: PillSize.regular,
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),

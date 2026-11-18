@@ -4,7 +4,7 @@ import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 // Booleans and integers keep their data outside `string`, so comparing only
 // strings made every pair of them match: a differing value was drawn green.
@@ -48,7 +48,7 @@ void main() {
       List<Attribute> compareTo,
     ) async {
       await tester.pumpWidget(
-        _wrap(YiviCredentialCardAttributeList([_age(3)], compareTo: compareTo)),
+        _wrap(CardAttributeList([_age(3)], compareTo: compareTo)),
       );
       return tester.widget<Text>(find.text("3")).style?.color;
     }

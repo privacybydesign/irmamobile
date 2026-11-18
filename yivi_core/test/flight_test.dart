@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
+import "package:yivi_core/src/widgets/flight/flight.dart";
 
 const _copy = Key("flight_copy");
 
@@ -9,7 +9,7 @@ void main() {
   final target = GlobalKey(debugLabel: "target");
   late BuildContext page;
 
-  tearDown(YiviFlight.reset);
+  tearDown(Flight.reset);
 
   Future<void> pump(WidgetTester tester, {bool reduceMotion = false}) async {
     tester.view.devicePixelRatio = 1;
@@ -64,10 +64,10 @@ void main() {
     WidgetTester tester, {
     VoidCallback? onLanded,
     Duration delay = Duration.zero,
-  }) => YiviFlight.start(
+  }) => Flight.start(
     page,
     from: source,
-    to: YiviFlight.boxOf(target),
+    to: Flight.boxOf(target),
     copy: (context, frame) => SizedBox.fromSize(size: frame.size),
     keys: FlightKey.carry(),
     duration: const Duration(milliseconds: 620),
@@ -116,7 +116,7 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.byKey(_copy), findsNothing);
-    expect(YiviFlight.isFlying, isFalse);
+    expect(Flight.isFlying, isFalse);
   });
 
   testWidgets("waits at the start during its delay", (tester) async {
@@ -167,7 +167,7 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
     await tester.pump();
-    expect(YiviFlight.hidden.value, contains(place));
+    expect(Flight.hidden.value, contains(place));
     expect(
       tester
           .widget<Opacity>(
@@ -197,7 +197,7 @@ class _HidesOnInitState extends State<_HidesOnInit> {
   @override
   void initState() {
     super.initState();
-    YiviFlight.hide([widget.place]);
+    Flight.hide([widget.place]);
   }
 
   @override

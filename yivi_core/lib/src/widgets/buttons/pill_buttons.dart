@@ -34,7 +34,7 @@ enum PillSize {
 /// The primary action: a rounded rectangle in the faceted Yivi red
 /// (`ui/btn-bg.svg`, the same art as today's fancy button), with a light top
 /// edge. No red glow behind it: it stands on its own colour.
-class FancyPillButton extends StatelessWidget {
+class PrimaryPillButton extends StatelessWidget {
   /// The shape of every big text button: the corners of a card.
   static const shape = RoundedRectangleBorder(
     borderRadius: YiviCorners.cardRadius,
@@ -49,7 +49,7 @@ class FancyPillButton extends StatelessWidget {
   final PillSize size;
   final Widget? leading;
 
-  const FancyPillButton({
+  const PrimaryPillButton({
     super.key,
     required this.label,
     required this.onPressed,
@@ -145,11 +145,11 @@ class FancyPillButton extends StatelessWidget {
   }
 }
 
-/// The primary action as a round button: [FancyPillButton]'s faceted red
+/// The primary action as a round button: [PrimaryPillButton]'s faceted red
 /// (`ui/round-btn-bg.svg`) and light top edge, with a white [icon], and
 /// on the same neutral fill when [onPressed] is null. The QR button,
 /// the PIN's submit arrow, the manual entry of the document camera.
-class FancyRoundButton extends StatelessWidget {
+class PrimaryRoundButton extends StatelessWidget {
   final IconData icon;
   final double size;
 
@@ -161,7 +161,7 @@ class FancyRoundButton extends StatelessWidget {
   /// Under the button, e.g. to stand off the cards scrolling behind it.
   final List<BoxShadow>? shadows;
 
-  const FancyRoundButton({
+  const PrimaryRoundButton({
     super.key,
     required this.icon,
     required this.size,
@@ -196,7 +196,7 @@ class FancyRoundButton extends StatelessWidget {
                 children: [
                   AnimatedOpacity(
                     opacity: enabled ? 1 : 0,
-                    duration: FancyPillButton.enableFade,
+                    duration: PrimaryPillButton.enableFade,
                     curve: Curves.easeOut,
                     child: Stack(
                       fit: StackFit.expand,
@@ -217,7 +217,7 @@ class FancyRoundButton extends StatelessWidget {
                       tween: ColorTween(
                         end: enabled ? Colors.white : palette.secondaryText,
                       ),
-                      duration: FancyPillButton.enableFade,
+                      duration: PrimaryPillButton.enableFade,
                       curve: Curves.easeOut,
                       builder: (context, color, _) => Icon(
                         icon,
@@ -236,7 +236,7 @@ class FancyRoundButton extends StatelessWidget {
   }
 }
 
-/// The faint rim of [FancyRoundButton] and the light edge along its top,
+/// The faint rim of [PrimaryRoundButton] and the light edge along its top,
 /// which fades out towards the sides: the light edge of the red pills.
 class _RoundEdgePainter extends CustomPainter {
   const _RoundEdgePainter();
@@ -386,7 +386,7 @@ class PillButton extends StatelessWidget {
       label: label,
       child: Material(
         color: fill,
-        shape: FancyPillButton.shape.copyWith(side: side),
+        shape: PrimaryPillButton.shape.copyWith(side: side),
         clipBehavior: Clip.antiAlias,
         child: content,
       ),

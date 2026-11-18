@@ -20,7 +20,7 @@ import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/dialog.dart";
-import "../../../widgets/feedback/yivi_spinner.dart";
+import "../../../widgets/feedback/spinner.dart";
 import "../../../widgets/surfaces/inset_group.dart";
 import "../../error/error_screen.dart";
 import "../debug_schemes.dart";
@@ -194,7 +194,7 @@ class _SchemeManagementScreenState
           builder: (context, snapshot) {
             final schemes = ref.watch(debugSchemesProvider).value;
             if (!snapshot.hasData || schemes == null) {
-              return Center(child: YiviSpinner());
+              return Center(child: Spinner());
             }
             final enrollmentStatus = snapshot.data!;
 

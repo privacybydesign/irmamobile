@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -85,7 +85,7 @@ Future<void> _pump(
 ) async {
   await _pumpWithTranslations(
     tester,
-    YiviCredentialCardAttributeList(attrs, renderers: renderers),
+    CardAttributeList(attrs, renderers: renderers),
   );
 }
 
@@ -118,7 +118,7 @@ void main() {
     ) async {
       await _pumpWithTranslations(
         tester,
-        YiviCredentialCardAttributeList(held, credentialId: id),
+        CardAttributeList(held, credentialId: id),
       );
       expect(find.text("ISSUED"), findsOneWidget);
       expect(find.text("STATUS"), findsNothing);
@@ -130,11 +130,7 @@ void main() {
     ) async {
       await _pumpWithTranslations(
         tester,
-        YiviCredentialCardAttributeList(
-          held,
-          credentialId: id,
-          disclosure: true,
-        ),
+        CardAttributeList(held, credentialId: id, disclosure: true),
       );
       expect(find.text("STATUS"), findsNothing);
       expect(find.text("ISSUED"), findsOneWidget);
@@ -144,7 +140,7 @@ void main() {
     testWidgets("disclosure of flags only: status column", (tester) async {
       await _pumpWithTranslations(
         tester,
-        YiviCredentialCardAttributeList(
+        CardAttributeList(
           [attr("categoryB", flag: true), attr("categoryC", flag: false)],
           credentialId: id,
           disclosure: true,
@@ -169,7 +165,7 @@ void main() {
     testWidgets("none when the categories are all there is", (tester) async {
       await _pumpWithTranslations(
         tester,
-        YiviCredentialCardAttributeList([flag("B")], credentialId: id),
+        CardAttributeList([flag("B")], credentialId: id),
       );
       expect(
         find.byKey(const Key("attribute_group_driving_licence_categories")),
@@ -181,10 +177,7 @@ void main() {
     testWidgets("shown when attributes come before it", (tester) async {
       await _pumpWithTranslations(
         tester,
-        YiviCredentialCardAttributeList([
-          _attr("dateOfExpiry"),
-          flag("B"),
-        ], credentialId: id),
+        CardAttributeList([_attr("dateOfExpiry"), flag("B")], credentialId: id),
       );
       expect(divider, findsOneWidget);
     });
@@ -343,7 +336,7 @@ void main() {
     );
     await _pumpWithTranslations(
       tester,
-      YiviCredentialCardAttributeList([
+      CardAttributeList([
         _attr("dateOfExpiry"),
         _attr("over18"),
         _photo(),

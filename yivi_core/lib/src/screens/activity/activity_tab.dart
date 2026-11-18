@@ -22,7 +22,7 @@ import "../../widgets/bars/scroll_edge.dart";
 import "../../widgets/bars/title_scroll_edge.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/credential_card/card_art/credential_card_art.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../../widgets/input/search_input.dart";
 import "../../widgets/layout/tab_layout.dart";
 import "../../widgets/surfaces/corner_badge.dart";
@@ -703,7 +703,7 @@ class _ActivityTabState extends ConsumerState<ActivityTab> {
 
     final Widget log;
     if (!state.loaded) {
-      log = Center(child: YiviSpinner());
+      log = Center(child: Spinner());
     } else if (panes) {
       log = _buildLogEntries(
         context,

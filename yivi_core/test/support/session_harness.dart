@@ -21,7 +21,7 @@ import "package:yivi_core/src/routing/navigation.dart";
 import "package:yivi_core/src/screens/session/result/done_flight.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
+import "package:yivi_core/src/widgets/flight/flight.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "onboarding_v2_harness.dart";
@@ -160,7 +160,7 @@ Future<SessionHarness> pumpSessionScreen(
     ..physicalSize = size
     ..devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  addTearDown(YiviFlight.reset);
+  addTearDown(Flight.reset);
   addTearDown(DoneFlight.reset);
   final bridge = RecordingBridge();
   final repo = (await tester.runAsync(() async {

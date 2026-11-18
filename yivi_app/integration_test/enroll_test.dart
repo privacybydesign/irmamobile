@@ -90,10 +90,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // Get started waits for the terms.
-      expect(tester.widget<FancyPillButton>(startFinder).onPressed, isNull);
+      expect(tester.widget<PrimaryPillButton>(startFinder).onPressed, isNull);
       await tester.scrollUntilVisible(termsFinder.hitTestable(), 50);
       await tester.tapAndSettle(termsFinder);
-      expect(tester.widget<FancyPillButton>(startFinder).onPressed, isNotNull);
+      expect(
+        tester.widget<PrimaryPillButton>(startFinder).onPressed,
+        isNotNull,
+      );
 
       await tester.tapAndSettle(startFinder);
       expect(find.byType(ChoosePinScreen), findsOneWidget);

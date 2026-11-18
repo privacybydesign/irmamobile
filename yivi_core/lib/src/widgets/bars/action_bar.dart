@@ -39,7 +39,7 @@ class ActionBar extends StatelessWidget {
           style: PillStyle.dangerFilled,
           size: PillSize.large,
         )
-      : FancyPillButton(
+      : PrimaryPillButton(
           key: const Key("bottom_bar_primary"),
           label: label,
           onPressed: onTap,

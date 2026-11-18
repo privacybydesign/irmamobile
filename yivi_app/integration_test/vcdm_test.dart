@@ -25,7 +25,7 @@ import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart"
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_photo.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 import "package:yivi_core/src/widgets/surfaces/base64_image.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
@@ -471,7 +471,7 @@ Future<void> _evaluateBadgeCard(
 
   final attributes = find.descendant(
     of: attributesIn ?? card,
-    matching: find.byType(YiviCredentialCardAttributeList, skipOffstage: false),
+    matching: find.byType(CardAttributeList, skipOffstage: false),
     skipOffstage: false,
   );
   expect(

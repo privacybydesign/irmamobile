@@ -60,7 +60,7 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
         ],
       ),
       actions: [
-        FancyPillButton(
+        PrimaryPillButton(
           label: context.tr("ui.add"),
           size: PillSize.regular,
           onPressed: () => navigator.pop(

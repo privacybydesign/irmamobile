@@ -48,7 +48,7 @@ void main() {
       await _goToEnterPhoneScreen(tester, irmaBinding);
       await _enterPhone(tester, "06123");
 
-      final button = tester.widget<FancyPillButton>(
+      final button = tester.widget<PrimaryPillButton>(
         find.byKey(const Key("contact_sheet_send")),
       );
       expect(button.onPressed, isNull);

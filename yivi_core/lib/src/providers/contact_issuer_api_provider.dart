@@ -2,19 +2,17 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/contact_issuer_api.dart";
 import "../models/session.dart";
-import "../util/provider_helpers.dart" as helpers;
+import "../util/value_holder.dart";
 import "local_backends_provider.dart";
 
 /// The e-mail issuer's base URL, set from the credential's issue URL when
 /// adding or linking an address starts; null until then.
 final emailIssuerUrlProvider = NotifierProvider(
-  () => helpers.ValueNotifier<String?>(null),
+  () => ValueHolder<String?>(null),
 );
 
 /// The SMS issuer's base URL, set like [emailIssuerUrlProvider].
-final smsIssuerUrlProvider = NotifierProvider(
-  () => helpers.ValueNotifier<String?>(null),
-);
+final smsIssuerUrlProvider = NotifierProvider(() => ValueHolder<String?>(null));
 
 /// The e-mail issuer: a debug local backend's, else the one set from the
 /// credential's issue URL. Without either, nothing can be sent.

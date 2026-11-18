@@ -32,7 +32,7 @@ import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart"
 import "package:yivi_core/src/screens/session/issuance/openid4vci_preauth_txcode_screen.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 import "helpers/eudi_issuance_helpers.dart";
 import "helpers/eudi_stack_helpers.dart";
@@ -453,7 +453,7 @@ Future<void> testIssueMdlPortraitAndPrivileges(
   // Portrait: a label and a picture, no base64 text.
   final attributeList = find.descendant(
     of: card,
-    matching: find.byType(YiviCredentialCardAttributeList),
+    matching: find.byType(CardAttributeList),
   );
   expect(
     find.descendant(of: attributeList, matching: find.text("Portrait")),
@@ -632,7 +632,7 @@ void _expectAttributeRow(
 ) {
   final attributeList = find.descendant(
     of: card,
-    matching: find.byType(YiviCredentialCardAttributeList),
+    matching: find.byType(CardAttributeList),
   );
   final texts = tester.getAllText(attributeList).toList(growable: false);
 
@@ -656,7 +656,7 @@ void _expectAttributeRow(
 void _expectLabelIgnoringCase(WidgetTester tester, Finder card, String label) {
   final attributeList = find.descendant(
     of: card,
-    matching: find.byType(YiviCredentialCardAttributeList),
+    matching: find.byType(CardAttributeList),
   );
   final matches = tester
       .getAllText(attributeList)

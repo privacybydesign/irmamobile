@@ -226,7 +226,7 @@ class _IssueWebsiteScreenState extends State<IssueWebsiteScreen> {
                 spacing: YiviSpace.x12,
                 children: [parts.heading, parts.lead],
               ),
-              action: FancyPillButton(
+              action: PrimaryPillButton(
                 key: const Key("bottom_bar_primary"),
                 label: parts.openLabel,
                 onPressed: onOpen,

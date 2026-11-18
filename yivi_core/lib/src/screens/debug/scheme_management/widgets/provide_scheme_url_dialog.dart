@@ -36,7 +36,7 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
         onSubmitted: (url) => navigator.pop(url),
       ),
       actions: [
-        FancyPillButton(
+        PrimaryPillButton(
           label: context.tr("ui.add"),
           size: PillSize.regular,
           onPressed: () => navigator.pop(controller.text),

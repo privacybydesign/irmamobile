@@ -17,7 +17,7 @@ import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/feedback/dialog.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../../widgets/input/search_input.dart";
 import "../../widgets/sheet/sheet.dart";
 import "../../widgets/surfaces/inset_group.dart";
@@ -231,7 +231,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet> {
         title: context.tr("data.add.nfc_unsupported.title"),
         message: context.tr("data.add.nfc_unsupported.body"),
         actions: [
-          FancyPillButton(
+          PrimaryPillButton(
             label: context.tr("error.button_ok"),
             size: PillSize.regular,
             onPressed: () => Navigator.of(context).pop(),
@@ -372,7 +372,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 80),
-            child: Center(child: YiviSpinner()),
+            child: Center(child: Spinner()),
           ),
         ),
       ],

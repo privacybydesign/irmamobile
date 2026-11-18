@@ -434,7 +434,7 @@ class _SheetPageState extends State<SheetPage> {
             primaryKey: action.key,
             primaryLabel: action.label,
             onPrimary: action.enabled ? action.onTap : null,
-            primaryLeading: action.busy ? const YiviSpinner.onButton() : null,
+            primaryLeading: action.busy ? const Spinner.onButton() : null,
             primaryNeutral: action.neutral,
           );
     final given = bottomUp ? null : widget.bottom;
@@ -533,7 +533,7 @@ extension on _SheetPageState {
             primaryLabel: empty ? " " : primary?.label,
             onPrimary: primary?.onTap,
             primaryLeading: primary?.busy ?? false
-                ? const YiviSpinner.onButton()
+                ? const Spinner.onButton()
                 : null,
             secondaryKey: secondary?.key,
             secondaryLabel: secondary?.label,

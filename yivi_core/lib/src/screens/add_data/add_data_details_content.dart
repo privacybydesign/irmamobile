@@ -7,7 +7,7 @@ import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../widgets/credential_card/credential_type_thumbnail.dart";
-import "../../widgets/flight/yivi_flight.dart";
+import "../../widgets/flight/flight.dart";
 import "../../widgets/sheet/sheet_layout.dart";
 import "../../widgets/surfaces/faq_fold.dart";
 import "../../widgets/surfaces/inset_group.dart";

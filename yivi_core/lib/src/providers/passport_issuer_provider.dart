@@ -1,10 +1,10 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
-import "../util/provider_helpers.dart" as helpers;
+import "../util/value_holder.dart";
 
 final passportIssuerUrlProvider = NotifierProvider(
-  () => helpers.ValueNotifier("https://passport-issuer.staging.yivi.app"),
+  () => ValueHolder("https://passport-issuer.staging.yivi.app"),
 );
 
 /// Hosts the passport issuer is allowed to hand the app an `irma_server_url`
@@ -56,9 +56,9 @@ final faceCaptureUrlProvider = Provider<Uri>(
 /// time.
 final faceVerificationConfigProvider =
     NotifierProvider<
-      helpers.ValueNotifier<FaceVerificationConfig?>,
+      ValueHolder<FaceVerificationConfig?>,
       FaceVerificationConfig?
-    >(() => helpers.ValueNotifier(null));
+    >(() => ValueHolder(null));
 
 class ErrorThrowingPassportIssuer implements PassportIssuer {
   int startSessionCount = 0;

@@ -5,8 +5,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "support/pump_translated.dart";
 
@@ -62,7 +62,7 @@ Future<void> _pumpList(
   await pumpTranslated(
     tester,
     _app(
-      YiviCredentialCardAttributeList(
+      CardAttributeList(
         attributes,
         ageDisplay: ageDisplay,
         compareTo: compareTo,
@@ -260,10 +260,7 @@ void main() {
             title: "Personal data",
             subtitle: "Issuer",
             body: [
-              YiviCredentialCardAttributeList(
-                _mixedAges,
-                ageDisplay: AgeDisplay.collapsed,
-              ),
+              CardAttributeList(_mixedAges, ageDisplay: AgeDisplay.collapsed),
             ],
           ),
         ),

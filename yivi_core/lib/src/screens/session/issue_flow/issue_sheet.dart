@@ -11,7 +11,7 @@ import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/dialog.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../embedded_issuance_flows/documents/document_flow.dart";
@@ -490,10 +490,10 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
   /// The issuer's page slides in over the question; its logo grows from the
   /// question's into its own (360 ms, with the slide).
   void openIssuerPage(TrustedParty issuer) {
-    YiviFlight.hide([keys.issuerLogoTo]);
+    Flight.hide([keys.issuerLogoTo]);
     controller.openIssuer();
     afterFrame(() {
-      YiviFlight.show([keys.issuerLogoTo]);
+      Flight.show([keys.issuerLogoTo]);
       _flyIssuerLogo(issuer, from: keys.issuerLogoFrom, to: keys.issuerLogoTo);
     });
   }
@@ -507,10 +507,10 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
   /// The issuer's page slides in over the details, its logo growing from
   /// the issuer card's.
   void openDetailsIssuer(TrustedParty issuer) {
-    YiviFlight.hide([keys.detailsLogoTo]);
+    Flight.hide([keys.detailsLogoTo]);
     controller.openDetailsIssuer();
     afterFrame(() {
-      YiviFlight.show([keys.detailsLogoTo]);
+      Flight.show([keys.detailsLogoTo]);
       _flyIssuerLogo(
         issuer,
         from: keys.detailsLogoFrom,
@@ -542,10 +542,10 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
     required GlobalKey to,
   }) {
     final style = RequestorTrustStyle.of(context, issuer);
-    YiviFlight.start(
+    Flight.start(
       context,
       from: from,
-      to: YiviFlight.boxOf(to),
+      to: Flight.boxOf(to),
       keys: const [FlightKey(0, FlightKey.start), FlightKey(1, FlightKey.end)],
       duration: SheetPages.slideDuration,
       curve: YiviMotion.ease,

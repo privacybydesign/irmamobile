@@ -134,7 +134,7 @@ class FlightFrame {
 /// box stands in.
 typedef FlightTarget = Rect? Function(RenderBox overlay);
 
-/// Steers a flight by hand ([YiviFlight.follow]): its [t] follows a gesture
+/// Steers a flight by hand ([Flight.follow]): its [t] follows a gesture
 /// (a sheet dragged down), and once the gesture ends it [land]s, or goes
 /// [back] to where it started.
 class FlightHandle {
@@ -159,8 +159,8 @@ class FlightHandle {
 /// the [hide] keys). When it lands, those show first and the copy goes two
 /// frames later, so there is never a frame with neither. With reduce motion
 /// on nothing flies: [onLanded] runs at once.
-class YiviFlight {
-  YiviFlight._();
+class Flight {
+  Flight._();
 
   /// The lift of a card in a sheet.
   static const liftCard = 1.03;
@@ -237,7 +237,7 @@ class YiviFlight {
     }
 
     final hiding = hide.toSet();
-    YiviFlight.hide(hiding);
+    Flight.hide(hiding);
     late final OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => _Flying(
@@ -330,7 +330,7 @@ class YiviFlight {
   }
 }
 
-/// A place a [YiviFlight] flies from or to: hides its [child] while its
+/// A place a [Flight] flies from or to: hides its [child] while its
 /// [flightKey] is hidden, and marks it with that key so the flight can find
 /// its box.
 class FlightSpot extends StatelessWidget {
@@ -346,7 +346,7 @@ class FlightSpot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<Set<Key>>(
-    valueListenable: YiviFlight.hidden,
+    valueListenable: Flight.hidden,
     child: KeyedSubtree(key: flightKey, child: child),
     builder: (context, hidden, child) =>
         Opacity(opacity: hidden.contains(flightKey) ? 0 : 1, child: child),

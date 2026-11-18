@@ -93,7 +93,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
       ),
       actions: [
         // The keys of the bottom bar this dialog used to have.
-        FancyPillButton(
+        PrimaryPillButton(
           key: const Key("bottom_bar_primary"),
           label: context.tr("new_terms_and_conditions.accept"),
           size: PillSize.regular,

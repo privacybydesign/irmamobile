@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/theme.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/feedback/yivi_spinner.dart";
+import "../../../widgets/feedback/spinner.dart";
 import "../../../widgets/text/translated_text.dart";
 
 /// Under a list while more of it loads: a spinner between two lines, and
@@ -26,7 +26,7 @@ class LoadingMoreIndicator extends StatelessWidget {
             expandedDividerWidget,
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-              child: YiviSpinner(size: 24),
+              child: Spinner(size: 24),
             ),
             expandedDividerWidget,
           ],

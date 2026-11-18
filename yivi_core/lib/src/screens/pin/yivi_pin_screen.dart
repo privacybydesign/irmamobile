@@ -23,7 +23,7 @@ import "../../widgets/bars/app_bar.dart";
 import "../../widgets/buttons/link.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/feedback/dialog.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../../widgets/sheet/sheet.dart";
 import "../../widgets/surfaces/surface.dart";
 import "widgets/pin_hardware_keyboard_listener.dart";
@@ -651,7 +651,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
                   alignment: PlaceholderAlignment.middle,
                   child: Padding(
                     padding: const EdgeInsets.only(right: YiviSpace.x8),
-                    child: YiviSpinner(size: 14, color: color),
+                    child: Spinner(size: 14, color: color),
                   ),
                 )
               else if (icon != null)
@@ -767,7 +767,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
   }
 
   /// The round arrow that submits a PIN that doesn't submit itself.
-  Widget _buildSubmitArrow(BuildContext context) => FancyRoundButton(
+  Widget _buildSubmitArrow(BuildContext context) => PrimaryRoundButton(
     key: const Key("pin_next"),
     icon: Icons.arrow_forward_rounded,
     size: 40,

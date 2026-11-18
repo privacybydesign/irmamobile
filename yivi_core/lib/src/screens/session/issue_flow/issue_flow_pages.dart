@@ -12,7 +12,7 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/feedback/yivi_spinner.dart";
+import "../../../widgets/feedback/spinner.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
@@ -263,7 +263,7 @@ SessionView? _openIdStepOf(SessionView? view) {
 /// A page still waiting for the issuance's next state.
 Widget _loading() => Padding(
   padding: const EdgeInsets.symmetric(vertical: 80),
-  child: Center(child: YiviSpinner()),
+  child: Center(child: Spinner()),
 );
 
 /// Step 1: what the card is, as on the add-data page. It stays under the

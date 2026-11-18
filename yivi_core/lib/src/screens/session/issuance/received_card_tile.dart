@@ -5,8 +5,8 @@ import "../../../theme/yivi_tone.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_attribute_list.dart";
 import "../../../widgets/credential_card/card_tile.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/surfaces/status_chip.dart";
 import "../models/issuance_view_model.dart";
 
@@ -58,7 +58,7 @@ class ReceivedCardTile extends StatelessWidget {
       chip: label == null ? null : StatusChip(label: label, tone: tone!),
       body: [
         if (disclosure || card.attributes.isNotEmpty)
-          YiviCredentialCardAttributeList(
+          CardAttributeList(
             card.attributes,
             credentialId: card.credentialId,
             namespaced: card.isMdoc,

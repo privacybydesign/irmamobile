@@ -122,7 +122,7 @@ class TabGlyph {
 }
 
 /// The round Scan QR button in the bar and the rail: the faceted red of the
-/// app's primary action ([FancyRoundButton]). No shadow of its own: the bar
+/// app's primary action ([PrimaryRoundButton]). No shadow of its own: the bar
 /// it sits in has one.
 class HomeScanButton extends StatelessWidget {
   const HomeScanButton({super.key = const Key("nav_button_scanner")});
@@ -130,7 +130,7 @@ class HomeScanButton extends StatelessWidget {
   static const double size = 56;
 
   @override
-  Widget build(BuildContext context) => FancyRoundButton(
+  Widget build(BuildContext context) => PrimaryRoundButton(
     icon: Icons.qr_code_scanner_rounded,
     size: size,
     // As big in its circle as on the scan button before (42 in 72).

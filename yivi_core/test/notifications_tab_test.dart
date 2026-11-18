@@ -4,7 +4,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
+import "package:yivi_core/src/widgets/feedback/spinner.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
@@ -66,10 +66,10 @@ void main() {
       // store write finishing.
       for (var i = 0; i < 30; i++) {
         await tester.pump(const Duration(milliseconds: 50));
-        spinner |= find.byType(YiviSpinner).evaluate().isNotEmpty;
+        spinner |= find.byType(Spinner).evaluate().isNotEmpty;
         await tester.runAsync(() => Future<void>.delayed(Duration.zero));
         await tester.pump();
-        spinner |= find.byType(YiviSpinner).evaluate().isNotEmpty;
+        spinner |= find.byType(Spinner).evaluate().isNotEmpty;
       }
       expect(spinner, isFalse, reason: "a spinner was built after dismiss");
       expect(find.byType(NotificationCard), findsOneWidget);

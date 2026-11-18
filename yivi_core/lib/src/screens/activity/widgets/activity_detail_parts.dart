@@ -12,8 +12,8 @@ import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/compact_bar.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/card_attribute_list.dart";
 import "../../../widgets/credential_card/card_tile.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/layout/centred_max_width.dart";
 import "../../../widgets/surfaces/corner_badge.dart";
 import "../../../widgets/surfaces/list_row.dart";
@@ -444,7 +444,7 @@ class ActivityCredentialTile extends StatelessWidget {
         if (credential.attributes.isNotEmpty)
           Opacity(
             opacity: card.deleted ? 0.55 : 1,
-            child: YiviCredentialCardAttributeList(
+            child: CardAttributeList(
               credential.attributes,
               credentialId: credential.credentialId,
               namespaced: credential.formats.contains(CredentialFormat.msoMdoc),

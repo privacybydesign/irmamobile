@@ -154,7 +154,7 @@ class HomeSidebar extends StatelessWidget {
             ),
           ),
         const Spacer(),
-        FancyPillButton(
+        PrimaryPillButton(
           key: const Key("nav_button_scanner"),
           label: context.tr("home.nav_bar.scan_qr"),
           leading: const Icon(

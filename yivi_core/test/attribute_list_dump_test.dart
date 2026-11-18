@@ -7,7 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -62,31 +62,31 @@ void main() {
   ];
 
   final cases = <String, Widget>{
-    "flat": YiviCredentialCardAttributeList(flat, showDividers: true),
-    "nested": YiviCredentialCardAttributeList(nested, showDividers: true),
-    "ages_collapsed": YiviCredentialCardAttributeList(
+    "flat": CardAttributeList(flat, showDividers: true),
+    "nested": CardAttributeList(nested, showDividers: true),
+    "ages_collapsed": CardAttributeList(
       ages,
       ageDisplay: AgeDisplay.collapsed,
       showDividers: true,
     ),
-    "ages_per_attribute": YiviCredentialCardAttributeList(ages),
-    "group_renderer": YiviCredentialCardAttributeList(
+    "ages_per_attribute": CardAttributeList(ages),
+    "group_renderer": CardAttributeList(
       flat,
       renderers: [_NameRenderer()],
       showDividers: true,
     ),
-    "mdoc_namespaced": YiviCredentialCardAttributeList(
+    "mdoc_namespaced": CardAttributeList(
       mdoc,
       namespaced: true,
       showDividers: true,
     ),
-    "found": YiviCredentialCardAttributeList(
+    "found": CardAttributeList(
       nested,
       found: claimPathKey(["address", "locality"]),
       foundQuery: "nijm",
       foundKey: GlobalKey(),
     ),
-    "compare_to": YiviCredentialCardAttributeList(
+    "compare_to": CardAttributeList(
       flat,
       compareTo: [
         value(["given_name"], "First names", "Willeke Liselotte"),
@@ -155,7 +155,7 @@ Widget _wrap(Widget child) => IrmaTheme(
 );
 
 String _dump(WidgetTester tester) {
-  final root = find.byType(YiviCredentialCardAttributeList);
+  final root = find.byType(CardAttributeList);
   final out = StringBuffer();
   out.writeln("# texts");
   for (final e in collectAllElementsFrom(

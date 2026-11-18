@@ -5,9 +5,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/credential_card/card_attribute_list.dart";
 import "../../../widgets/credential_card/models/credential_card_layout.dart";
 import "../../../widgets/credential_card/models/credential_card_status.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/surfaces/surface_card.dart";
 
 /// The data of a document read from its chip, for the question whether
@@ -42,7 +42,7 @@ class DocumentIssuanceData extends StatelessWidget {
                 YiviSpace.x16,
                 YiviSpace.x4,
               ),
-              child: YiviCredentialCardAttributeList(
+              child: CardAttributeList(
                 credential.attributes,
                 credentialId: credential.credentialId,
                 namespaced: credential.isMdoc,

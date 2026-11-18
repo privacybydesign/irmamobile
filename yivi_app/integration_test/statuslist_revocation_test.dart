@@ -5,8 +5,8 @@ import "package:yivi_core/src/models/refresh_credential_statuses_event.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 
 import "helpers/eudi_issuance_helpers.dart";
 import "helpers/helpers.dart";
@@ -91,7 +91,7 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
     find.descendant(
       of: find.descendant(
         of: findCredentialDetail(),
-        matching: find.byType(YiviCredentialCardAttributeList),
+        matching: find.byType(CardAttributeList),
       ),
       matching: find.text(marker),
     ),
@@ -151,7 +151,7 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
         tester.any(
           find.descendant(
             of: cardFinder,
-            matching: find.byType(YiviCredentialCardAttributeList),
+            matching: find.byType(CardAttributeList),
           ),
         ) &&
         !tester.any(_revokedChip),

@@ -4,7 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -66,7 +66,7 @@ void main() {
       expect(
         find.descendant(
           of: findCredentialDetail(),
-          matching: find.byType(YiviCredentialCardAttributeList),
+          matching: find.byType(CardAttributeList),
         ),
         findsOneWidget,
       );

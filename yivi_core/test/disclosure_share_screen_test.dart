@@ -43,7 +43,7 @@ import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/feedback/progress_part.dart";
-import "package:yivi_core/src/widgets/flight/yivi_flight.dart";
+import "package:yivi_core/src/widgets/flight/flight.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 import "package:yivi_core/src/widgets/sheet/sheet_layout.dart";
 
@@ -206,7 +206,7 @@ Future<_Calls> _pump(
   if (padding != null) tester.view.padding = padding;
   addTearDown(tester.view.reset);
   // A test that stops mid-flight leaves no copy for the next one.
-  addTearDown(YiviFlight.reset);
+  addTearDown(Flight.reset);
   addTearDown(DoneFlight.reset);
   final calls = _Calls();
   final repo = (await tester.runAsync(() async {
@@ -2108,7 +2108,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       // Under way: its place on the page and its row are empty while the
       // copy is carried.
-      expect(YiviFlight.isFlying, isTrue);
+      expect(Flight.isFlying, isTrue);
       expect(opacityOf(slot), 0);
       expect(opacityOf(row), 0);
       await tester.pumpAndSettle();
@@ -2119,7 +2119,7 @@ void main() {
       );
       // Landed: the card in the sheet has every value it would share, with
       // the ring of the one in use.
-      expect(YiviFlight.isFlying, isFalse);
+      expect(Flight.isFlying, isFalse);
       expect(opacityOf(row), 1);
       expect(
         find.descendant(of: row, matching: find.text("Jansen")),
@@ -2853,7 +2853,7 @@ void main() {
       await tester.pump();
       expect(spot, findsNothing);
       expect(find.byKey(const Key("share_slot_0")), findsOneWidget);
-      expect(YiviFlight.isFlying, isFalse);
+      expect(Flight.isFlying, isFalse);
       await tester.pumpAndSettle();
       expect(ring(0), findsOneWidget);
     });

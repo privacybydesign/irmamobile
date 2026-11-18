@@ -137,7 +137,7 @@ class _ShareBar extends StatelessWidget {
                 onPressed: onPressed,
               )
             : primary
-            ? FancyPillButton(label: label, onPressed: onPressed)
+            ? PrimaryPillButton(label: label, onPressed: onPressed)
             : PillButton(
                 label: label,
                 size: PillSize.large,
@@ -339,7 +339,7 @@ class _MismatchTile extends StatelessWidget {
         tone: YiviTone.danger,
       ),
       body: [
-        YiviCredentialCardAttributeList(
+        CardAttributeList(
           card.attributes,
           credentialId: card.credentialId,
           namespaced: card.isMdoc,

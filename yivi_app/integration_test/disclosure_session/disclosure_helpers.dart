@@ -48,12 +48,12 @@ bool shareButtonEnabled(WidgetTester tester) {
   final button = find.descendant(
     of: find.byKey(const Key("share_button")),
     matching: find.byWidgetPredicate(
-      (w) => w is FancyPillButton || w is PillButton,
+      (w) => w is PrimaryPillButton || w is PillButton,
     ),
   );
   final widget = tester.widget(button);
   return switch (widget) {
-    FancyPillButton(:final onPressed) => onPressed != null,
+    PrimaryPillButton(:final onPressed) => onPressed != null,
     PillButton(:final onPressed) => onPressed != null,
     _ => false,
   };

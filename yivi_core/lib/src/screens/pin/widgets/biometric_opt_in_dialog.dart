@@ -57,7 +57,7 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
       title: context.tr("pin.biometric_prompt.title"),
       message: context.tr("pin.biometric_prompt.body"),
       actions: [
-        FancyPillButton(
+        PrimaryPillButton(
           key: const Key("biometric_enable"),
           label: context.tr("pin.biometric_prompt.enable"),
           size: PillSize.regular,

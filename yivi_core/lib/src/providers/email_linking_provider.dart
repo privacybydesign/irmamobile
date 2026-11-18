@@ -4,7 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/keyshare_email_link_api.dart";
 import "../models/session.dart";
-import "../util/provider_helpers.dart" as helpers;
+import "../util/value_holder.dart";
 import "contact_issuance_provider.dart";
 import "credentials_provider.dart";
 import "local_backends_provider.dart";
@@ -17,9 +17,7 @@ const emailBannerSnoozeDuration = Duration(days: 7);
 /// e-mail address, from privacybydesign/irmago#744. Empty until that endpoint
 /// ships and the app is told where it lives; until then only a local backend
 /// set in the debug menu has it.
-final _keyshareEmailLinkUrlProvider = NotifierProvider(
-  () => helpers.ValueNotifier(""),
-);
+final _keyshareEmailLinkUrlProvider = NotifierProvider(() => ValueHolder(""));
 
 final _keyshareEmailLinkProvider = Provider<String>(
   (ref) =>

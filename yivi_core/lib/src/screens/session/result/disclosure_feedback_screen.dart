@@ -15,7 +15,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../disclosure/shared_card_tile.dart";
 import "../disclosure/signed_message.dart";
 import "../requestor/requestor_card.dart";
@@ -113,7 +113,7 @@ class DisclosureFeedbackScreenState
     if (_arriving) {
       // The places are hidden from the first frame; the flight shows them
       // as each card lands.
-      YiviFlight.hide([..._cardKeys, _paperKey, _logoKey]);
+      Flight.hide([..._cardKeys, _paperKey, _logoKey]);
       afterFrame(_land);
     }
   }
@@ -121,7 +121,7 @@ class DisclosureFeedbackScreenState
   void _land() {
     if (!mounted) {
       DoneFlight.reset();
-      YiviFlight.show([..._cardKeys, _paperKey, _logoKey]);
+      Flight.show([..._cardKeys, _paperKey, _logoKey]);
       return;
     }
     final cards = _cards();
@@ -150,7 +150,7 @@ class DisclosureFeedbackScreenState
       logoCopy: requestorAvatar(widget.requestor, size: _Handover.logo),
     );
     // What does not fly (not captured) just shows.
-    YiviFlight.show([
+    Flight.show([
       for (final k in [..._cardKeys, _paperKey, _logoKey])
         if (!flying.contains(k)) k,
     ]);
@@ -242,7 +242,7 @@ class DisclosureFeedbackScreenState
     // (or close): no button.
     final button = widget.goBackYourself
         ? null
-        : FancyPillButton(
+        : PrimaryPillButton(
             key: const Key("ok_button"),
             label: label,
             onPressed: done,

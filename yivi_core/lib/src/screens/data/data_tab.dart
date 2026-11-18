@@ -31,7 +31,7 @@ import "../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/instance_hint.dart";
 import "../../widgets/feedback/app_toast.dart";
-import "../../widgets/feedback/yivi_spinner.dart";
+import "../../widgets/feedback/spinner.dart";
 import "../../widgets/input/search_input.dart";
 import "../../widgets/layout/tab_layout.dart";
 import "../../widgets/surfaces/menu.dart";
@@ -395,7 +395,7 @@ class _Content extends ConsumerWidget {
                 titleTop: titleTop,
                 onStartSearch: onStartSearch,
               ),
-      _ => const Center(child: YiviSpinner()),
+      _ => const Center(child: Spinner()),
     };
   }
 }

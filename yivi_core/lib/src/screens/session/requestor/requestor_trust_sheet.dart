@@ -8,7 +8,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/flight/yivi_flight.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
 import "../../../widgets/surfaces/icon_square.dart";
@@ -127,7 +127,7 @@ class RequestorTrustSheet extends StatelessWidget {
   /// to stop or a registration to ask for.
   final bool issuer;
 
-  /// Where the logo is: the issuer's logo flies in here ([YiviFlight]), in
+  /// Where the logo is: the issuer's logo flies in here ([Flight]), in
   /// the issuance sheet.
   final GlobalKey? logoKey;
 

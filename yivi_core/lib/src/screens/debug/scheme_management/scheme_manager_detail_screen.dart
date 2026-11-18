@@ -12,7 +12,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/feedback/yivi_spinner.dart";
+import "../../../widgets/feedback/spinner.dart";
 import "../../../widgets/surfaces/inset_group.dart";
 import "../../error/error_screen.dart";
 import "../../pin/yivi_pin_screen.dart";
@@ -165,7 +165,7 @@ class SchemeManagerDetailScreen extends ConsumerWidget {
       builder: (context, snapshot) {
         final schemes = ref.watch(debugSchemesProvider).value;
         if (!snapshot.hasData || schemes == null) {
-          return Scaffold(body: Center(child: YiviSpinner()));
+          return Scaffold(body: Center(child: Spinner()));
         }
 
         final enrollmentStatus = snapshot.data!;

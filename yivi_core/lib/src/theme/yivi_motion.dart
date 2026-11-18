@@ -13,7 +13,7 @@ class YiviMotion {
   static const overshoot = Cubic(0.3, 1.4, 0.5, 1);
 
   /// How a card is carried: picked up, held and put down (each beat of a
-  /// `YiviFlight` eases on its own).
+  /// `Flight` eases on its own).
   static const carry = Cubic(0.3, 0.7, 0.2, 1);
 
   /// Something leaving: a sheet going down, a panel folding away.

@@ -1,4 +1,4 @@
-part of "../yivi_credential_card_attribute_list.dart";
+part of "../card_attribute_list.dart";
 
 class _FlatRow extends StatelessWidget {
   final AttributeNode node;

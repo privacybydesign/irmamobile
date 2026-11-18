@@ -32,7 +32,7 @@ enum AgeDisplay {
   collapsed,
 }
 
-class YiviCredentialCardAttributeList extends StatelessWidget {
+class CardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;
   final List<Attribute>? compareTo;
 
@@ -78,7 +78,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   // element, not a part of the credential, so it never gets a level.
   final bool namespaced;
 
-  const YiviCredentialCardAttributeList(
+  const CardAttributeList(
     this.attributes, {
     this.compareTo,
     this.showDividers = false,

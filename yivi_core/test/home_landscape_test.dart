@@ -20,7 +20,7 @@ import "package:yivi_core/src/screens/home/widgets/home_navigation.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 import "package:yivi_core/src/widgets/input/search_input.dart";
 
 import "helpers/credential_factory.dart";
@@ -518,7 +518,7 @@ void main() {
       await pump(tester);
       final list = find.descendant(
         of: find.byKey(const Key("credential_detail_pane_personal")),
-        matching: find.byType(YiviCredentialCardAttributeList),
+        matching: find.byType(CardAttributeList),
       );
       final before = tester.widget(list);
       await tester.tap(find.byKey(const Key("search_field")));

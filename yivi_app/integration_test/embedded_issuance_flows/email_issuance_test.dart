@@ -48,7 +48,7 @@ void main() {
       await _goToEnterEmailScreen(tester, irmaBinding);
       await _enterEmail(tester, "test@example");
 
-      final button = tester.widget<FancyPillButton>(
+      final button = tester.widget<PrimaryPillButton>(
         find.byKey(const Key("contact_sheet_send")),
       );
       expect(button.onPressed, isNull);

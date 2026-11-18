@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
@@ -44,7 +44,7 @@ Future<void> mdlPortraitAndPrivilegesTest(
   final cardsFinder = findCredentialCards(skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
-  // Metadata order, except that YiviCredentialCardAttributeList sorts image
+  // Metadata order, except that CardAttributeList sorts image
   // attributes to the bottom of the card, so the portrait renders last even
   // though irmago sends it second. The portrait row has a label and a picture,
   // no text value. The privileges are one item, named by its first value
@@ -60,7 +60,7 @@ Future<void> mdlPortraitAndPrivilegesTest(
 
   // The privileges: a fold "Driving Privileges" with one item, named by its
   // category code.
-  final list = find.byType(YiviCredentialCardAttributeList);
+  final list = find.byType(CardAttributeList);
   expect(
     find.descendant(of: list, matching: find.text("Driving Privileges")),
     findsOneWidget,
@@ -73,7 +73,7 @@ Future<void> mdlPortraitAndPrivilegesTest(
   // The portrait is drawn as an image, and its base64 text is nowhere.
   expect(
     find.descendant(
-      of: find.byType(YiviCredentialCardAttributeList),
+      of: find.byType(CardAttributeList),
       matching: find.byType(Image),
     ),
     findsOneWidget,

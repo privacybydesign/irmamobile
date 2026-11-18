@@ -146,7 +146,7 @@ void main() {
         expect(find.text("Only on your phone"), findsOneWidget);
 
         final start = find.byKey(const Key("enrollment_next_button"));
-        expect(tester.widget<FancyPillButton>(start).onPressed, isNull);
+        expect(tester.widget<PrimaryPillButton>(start).onPressed, isNull);
 
         // A small phone with large text scrolls the page down to the terms.
         await tester.runAsync(
@@ -158,7 +158,7 @@ void main() {
         await tester.pump();
         await tester.tap(find.byKey(const Key("accept_terms_checkbox")));
         await tester.pump();
-        expect(tester.widget<FancyPillButton>(start).onPressed, isNotNull);
+        expect(tester.widget<PrimaryPillButton>(start).onPressed, isNotNull);
         await tester.tap(start);
         expect(started, 1);
       });
