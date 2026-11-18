@@ -1,6 +1,3 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -15,7 +12,8 @@ import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/providers/credential_store_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/theme/theme.dart";
+
+import "../support/test_app.dart";
 
 final _issuer = TrustedParty(
   id: "issuer",
@@ -110,25 +108,8 @@ List<Override> dataTabOverrides({
 }
 
 /// [home] in an app with English texts.
-Widget dataTabApp({required List<Override> overrides, required Widget home}) {
-  return ProviderScope(
-    overrides: overrides,
-    child: IrmaTheme(
-      builder: (_) => MaterialApp(
-        localizationsDelegates: [
-          FlutterI18nDelegate(
-            translationLoader: FileTranslationLoader(
-              basePath: "assets/locales",
-              forcedLocale: const Locale("en", "US"),
-            ),
-          ),
-          ...GlobalMaterialLocalizations.delegates,
-        ],
-        home: home,
-      ),
-    ),
-  );
-}
+Widget dataTabApp({required List<Override> overrides, required Widget home}) =>
+    testApp(home, overrides: overrides);
 
 /// Storage and the providers that wait for it finish on the real event loop,
 /// not the test's fake clock. Pumps in between, as each pump builds what the

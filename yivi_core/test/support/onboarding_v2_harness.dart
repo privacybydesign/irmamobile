@@ -18,6 +18,7 @@ import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
 import "pump_translated.dart";
+import "test_app.dart";
 
 /// A bridge that records what the app sends and lets a test answer it.
 class RecordingBridge extends IrmaBridge {
@@ -88,14 +89,14 @@ Future<void> pumpHome(
   Locale locale = const Locale("en", "US"),
 }) => pumpTranslated(
   tester,
-  _app(
-    repo: repo,
-    overrides: overrides,
+  testApp(
+    Scaffold(body: home),
     locale: locale,
-    builder: (delegates) => MaterialApp(
-      localizationsDelegates: delegates,
-      home: Scaffold(body: home),
-    ),
+    overrides: [
+      irmaRepositoryProvider.overrideWithValue(repo),
+      preferencesProvider.overrideWithValue(repo.preferences),
+      ...overrides,
+    ],
   ),
 );
 
