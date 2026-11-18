@@ -123,7 +123,7 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
     credentialData: {"email": "test@example.com", "domain": "example.com"},
   );
 
-  final newSessionFuture = irmaBinding.repository.getNewSessionIds().first;
+  final newSessionFuture = irmaBinding.repository.sessions.newSessionIds.first;
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
   final sessionId = await newSessionFuture;
 
@@ -131,7 +131,7 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
   // code before driving the website screen. Its steps name the issuer
   // ("do there what {issuer} asks"), so we can verify the screen surfaces
   // it without a RequestorHeader.
-  final session = await irmaBinding.repository
+  final session = await irmaBinding.repository.sessions
       .getSessionState(sessionId)
       .firstWhere((s) => s.openID4VCIState != null);
   final walletState = session.openID4VCIState!;
@@ -220,11 +220,11 @@ Future<void> testIssueOrganizationOpenID4VCIAuthCode(
     },
   );
 
-  final newSessionFuture = irmaBinding.repository.getNewSessionIds().first;
+  final newSessionFuture = irmaBinding.repository.sessions.newSessionIds.first;
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
   final sessionId = await newSessionFuture;
 
-  final session = await irmaBinding.repository
+  final session = await irmaBinding.repository.sessions
       .getSessionState(sessionId)
       .firstWhere((s) => s.openID4VCIState != null);
   final walletState = session.openID4VCIState!;
@@ -334,11 +334,11 @@ Future<void> testDismissOnIssuancePermissionScreen(
     credentialData: {"email": "test@example.com", "domain": "example.com"},
   );
 
-  final newSessionFuture = irmaBinding.repository.getNewSessionIds().first;
+  final newSessionFuture = irmaBinding.repository.sessions.newSessionIds.first;
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
   final sessionId = await newSessionFuture;
 
-  final session = await irmaBinding.repository
+  final session = await irmaBinding.repository.sessions
       .getSessionState(sessionId)
       .firstWhere((s) => s.openID4VCIState != null);
   final walletState = session.openID4VCIState!;

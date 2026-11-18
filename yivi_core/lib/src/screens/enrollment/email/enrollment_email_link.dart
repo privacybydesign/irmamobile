@@ -32,23 +32,24 @@ Future<void> runOwnSession(
   required String pin,
   Duration timeout = const Duration(minutes: 2),
 }) async {
-  final sessionId = repo.allocateSessionId();
+  final sessions = repo.sessions;
+  final sessionId = sessions.allocateSessionId();
   final done = Completer<void>();
   var permissionGiven = false;
   var pinGiven = false;
 
   void dismiss(SessionStatus status) {
-    repo.dismissSession(sessionId);
+    sessions.dismissSession(sessionId);
     if (!done.isCompleted) done.completeError(OwnSessionFailed(status));
   }
 
-  final subscription = repo.getSessionState(sessionId).listen((session) {
+  final subscription = sessions.getSessionState(sessionId).listen((session) {
     if (done.isCompleted) return;
     switch (session.status) {
       case SessionStatus.requestPermission:
         if (permissionGiven) return;
         permissionGiven = true;
-        repo.grantSession(
+        sessions.grantSession(
           sessionId,
           disclosureChoicesFor(
             session.disclosurePlan?.disclosureChoicesOverview ?? const [],
@@ -58,7 +59,7 @@ Future<void> runOwnSession(
       case SessionStatus.requestPin:
         if (pinGiven) return dismiss(session.status);
         pinGiven = true;
-        repo.enterSessionPin(sessionId, pin);
+        sessions.enterSessionPin(sessionId, pin);
       case SessionStatus.success:
         done.complete();
       case SessionStatus.error || SessionStatus.dismissed:

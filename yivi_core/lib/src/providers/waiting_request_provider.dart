@@ -45,11 +45,12 @@ final waitingRequestProvider = StreamProvider<WaitingRequest?>((ref) {
     case _:
   }
   if (!ref.watch(hasInFlightSessionProvider)) return Stream.value(null);
-  final id = repo.inFlightSessionIds.firstOrNull;
+  final sessions = ref.watch(sessionRepositoryProvider);
+  final id = sessions.inFlightSessionIds.firstOrNull;
   if (id == null) return Stream.value(null);
   // Before Go's first state there is nothing to show but that something
   // waits.
-  return repo
+  return sessions
       .getSessionState(id)
       .map(
         (state) => WaitingRequest(

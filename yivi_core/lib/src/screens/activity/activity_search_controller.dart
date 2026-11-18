@@ -82,7 +82,9 @@ final activitySearchProvider =
 class ActivitySearchController extends Notifier<ActivitySearch> {
   Timer? _liveDelay;
   Timer? _countDelay;
-  late final _counter = ActivityOptionCounter(ref.read(irmaRepositoryProvider));
+  late final _counter = ActivityOptionCounter(
+    ref.read(activityLogClientProvider),
+  );
 
   @override
   ActivitySearch build() {

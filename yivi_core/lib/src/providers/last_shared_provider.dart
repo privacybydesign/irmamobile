@@ -12,7 +12,7 @@ import "wallet_cards_provider.dart";
 final cardSharesProvider = FutureProvider.autoDispose
     .family<List<LogInfo>, String>((ref, hash) async {
       final page = await ref
-          .read(irmaRepositoryProvider)
+          .read(activityLogClientProvider)
           .queryLogs(
             LogQuery(
               filter: LogFilter(

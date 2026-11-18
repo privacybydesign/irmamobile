@@ -97,7 +97,7 @@ class BiometricService {
       // idle-lock re-locked. In both cases leave the app locked; only a PIN
       // admits the session (biometric doesn't refresh the keyshare token the
       // idle-lock cleared).
-      if (repo.pendingPointer != null || repo.hasInFlightSession) {
+      if (repo.pendingPointer != null || repo.sessions.hasInFlightSession) {
         return didAuthenticate;
       }
       repo.unlockAppLocally();

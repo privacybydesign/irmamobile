@@ -80,7 +80,7 @@ void main() {
         final target = initial == "nl" ? "de" : "nl";
 
         var logsChanged = 0;
-        final sub = repo.logsChanged.listen((_) => logsChanged++);
+        final sub = repo.activityLog.changed.listen((_) => logsChanged++);
         addTearDown(sub.cancel);
         bridge.dispatched.clear();
         await prefs.preferredLanguageCode.set(target);

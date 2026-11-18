@@ -1,6 +1,6 @@
 import "stream_mirror.dart";
 
-/// `repo.getHasInFlightSession()`: `true` while a session is running
+/// `SessionRepository.hasInFlightSessionStream`: `true` while a session is running
 /// (started, not yet terminal), `false` otherwise.
 ///
 /// The lock-screen [PinScreen] watches this to withhold its biometric
@@ -14,6 +14,6 @@ import "stream_mirror.dart";
 /// #654). Tracked from session start rather than the first
 /// `requestPermission` state so it is true before Go replies.
 final hasInFlightSessionProvider = mirrorProvider<bool>(
-  (repo) => repo.getHasInFlightSession(),
-  first: (repo) => repo.hasInFlightSession,
+  (repo) => repo.sessions.hasInFlightSessionStream,
+  first: (repo) => repo.sessions.hasInFlightSession,
 );

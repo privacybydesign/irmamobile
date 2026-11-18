@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../data/irma_repository.dart";
+import "../../data/activity_log_client.dart";
 import "../../models/activity_query.dart";
 import "../../models/log_entry.dart";
 import "../../providers/activity_providers.dart";
@@ -191,15 +191,15 @@ List<ActivityOption> activityFilterOptions(
 /// answer to an older ask is dropped (null), as is a failure; a count
 /// irmago left out is not in the map.
 class ActivityOptionCounter {
-  final IrmaRepository repo;
+  final ActivityLogClient log;
   var _asks = 0;
 
-  ActivityOptionCounter(this.repo);
+  ActivityOptionCounter(this.log);
 
   Future<Map<String, int>?> count(Map<String, ActivityQuery> tries) async {
     final ask = ++_asks;
     final keys = tries.keys.toList();
-    final counts = await countActivity(repo, [for (final k in keys) tries[k]!]);
+    final counts = await countActivity(log, [for (final k in keys) tries[k]!]);
     if (counts == null || ask != _asks) return null;
     return {
       for (final (i, k) in keys.indexed)

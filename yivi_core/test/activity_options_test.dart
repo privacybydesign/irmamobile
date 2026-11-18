@@ -180,7 +180,7 @@ void main() {
     tearDown(() => repo.close());
 
     test("counts by key; a count left out is not there", () async {
-      final counter = ActivityOptionCounter(repo);
+      final counter = ActivityOptionCounter(repo.activityLog);
       final result = counter.count({
         "a": ActivityQuery.empty,
         "b": ActivityQuery.empty.copyWith(text: "x"),
@@ -191,7 +191,7 @@ void main() {
     });
 
     test("an answer to an older ask is dropped", () async {
-      final counter = ActivityOptionCounter(repo);
+      final counter = ActivityOptionCounter(repo.activityLog);
       final first = counter.count({"a": ActivityQuery.empty});
       await Future<void>.delayed(Duration.zero);
       final second = counter.count({"a": ActivityQuery.empty});

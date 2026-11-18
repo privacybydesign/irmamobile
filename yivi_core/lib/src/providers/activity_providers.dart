@@ -3,7 +3,7 @@ import "dart:async";
 import "package:collection/collection.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../data/irma_repository.dart";
+import "../data/activity_log_client.dart";
 import "../models/activity_query.dart";
 import "../models/log_entry.dart";
 import "../screens/activity/activity_entry.dart";
@@ -54,8 +54,8 @@ class ActivityLogState {
 }
 
 /// Has [ref] asked again whenever the activity log may have changed.
-void _refetchOnLogChange(Ref ref, IrmaRepository repo) {
-  final sub = repo.logsChanged.listen((_) => ref.invalidateSelf());
+void _refetchOnLogChange(Ref ref, ActivityLogClient log) {
+  final sub = log.changed.listen((_) => ref.invalidateSelf());
   ref.onDispose(sub.cancel);
 }
 
@@ -68,8 +68,8 @@ class ActivityLogNotifier extends Notifier<ActivityLogState> {
 
   @override
   ActivityLogState build() {
-    final repo = ref.watch(irmaRepositoryProvider);
-    final sub = repo.logsChanged.listen((_) => refresh());
+    final log = ref.watch(activityLogClientProvider);
+    final sub = log.changed.listen((_) => refresh());
     ref.onDispose(sub.cancel);
     scheduleMicrotask(refresh);
     return const ActivityLogState(loading: true);
@@ -96,7 +96,7 @@ class ActivityLogNotifier extends Notifier<ActivityLogState> {
     state = state.copyWith(loading: true);
     try {
       final page = await ref
-          .read(irmaRepositoryProvider)
+          .read(activityLogClientProvider)
           .queryLogs(
             LogQuery(
               filter: filter.toLogFilter(),
@@ -133,7 +133,7 @@ class ActivityLogNotifier extends Notifier<ActivityLogState> {
     LogPage? page;
     try {
       page = await ref
-          .read(irmaRepositoryProvider)
+          .read(activityLogClientProvider)
           .queryLogs(
             LogQuery(
               filter: filter.toLogFilter(),
@@ -191,18 +191,18 @@ class CardActivity {
 /// changes.
 final cardActivityProvider = FutureProvider.autoDispose
     .family<CardActivity, String>((ref, hash) async {
-      final repo = ref.watch(irmaRepositoryProvider);
-      _refetchOnLogChange(ref, repo);
+      final log = ref.watch(activityLogClientProvider);
+      _refetchOnLogChange(ref, log);
       // Both at once: they do not depend on each other.
       final (page, sharedWith) = await (
-        repo.queryLogs(
+        log.queryLogs(
           LogQuery(
             filter: LogFilter(credentialHash: hash),
             limit: cardActivityLimit,
             withCounts: true,
           ),
         ),
-        repo.listParties(
+        log.listParties(
           LogFilter(credentialHash: hash, types: const [LogType.disclosure]),
         ),
       ).wait;
@@ -220,16 +220,16 @@ final cardActivityProvider = FutureProvider.autoDispose
 final activityPartiesProvider = FutureProvider.autoDispose<List<PartySummary>>((
   ref,
 ) async {
-  final repo = ref.watch(irmaRepositoryProvider);
-  _refetchOnLogChange(ref, repo);
-  return repo.listParties(const LogFilter(includeHidden: false));
+  final log = ref.watch(activityLogClientProvider);
+  _refetchOnLogChange(ref, log);
+  return log.listParties(const LogFilter(includeHidden: false));
 });
 
 /// The latest removals in the log, asked again when the log changes.
 final _removalLogProvider = FutureProvider.autoDispose<LogPage>((ref) {
-  final repo = ref.watch(irmaRepositoryProvider);
-  _refetchOnLogChange(ref, repo);
-  return repo.queryLogs(
+  final log = ref.watch(activityLogClientProvider);
+  _refetchOnLogChange(ref, log);
+  return log.queryLogs(
     const LogQuery(filter: LogFilter(types: [LogType.removal]), limit: 200),
   );
 });
@@ -258,11 +258,11 @@ final removedCardTypesProvider =
 /// How many entries each of [queries] finds, in one question to irmago;
 /// null when that fails.
 Future<List<int>?> countActivity(
-  IrmaRepository repo,
+  ActivityLogClient log,
   List<ActivityQuery> queries,
 ) async {
   try {
-    return await repo.countLogs([for (final q in queries) q.toLogFilter()]);
+    return await log.countLogs([for (final q in queries) q.toLogFilter()]);
   } catch (_) {
     return null;
   }

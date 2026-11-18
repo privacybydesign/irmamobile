@@ -2,8 +2,10 @@ import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+import "../data/activity_log_client.dart";
 import "../data/irma_client_bridge.dart";
 import "../data/irma_repository.dart";
+import "../data/session_repository.dart";
 import "preferences_provider.dart";
 
 /// The repository, for code that has a context but no `ref`: callbacks in
@@ -20,3 +22,13 @@ final irmaRepositoryProvider = Provider<IrmaRepository>((ref) {
     preferences: preferences,
   );
 });
+
+/// The sessions: their states, and what the user does in them.
+final sessionRepositoryProvider = Provider<SessionRepository>(
+  (ref) => ref.watch(irmaRepositoryProvider).sessions,
+);
+
+/// Questions to irmago about the activity log.
+final activityLogClientProvider = Provider<ActivityLogClient>(
+  (ref) => ref.watch(irmaRepositoryProvider).activityLog,
+);

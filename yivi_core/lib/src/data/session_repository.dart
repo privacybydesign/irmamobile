@@ -6,16 +6,19 @@ import "../models/event.dart";
 import "../models/session_events.dart";
 import "../models/session_state.dart";
 import "../models/session_user_interaction.dart";
-import "irma_repository.dart";
+import "irma_preferences.dart";
 
-/// SessionRepository manages session states.
+/// SessionRepository manages session states, and sends what the user does
+/// in a session to the bridge.
 ///
 /// It listens for [SessionStateEvent]s and:
 /// - Stores the latest [SessionState] per session ID
 /// - Emits new session IDs on [newSessionIds] when a previously unseen session appears
 /// - Provides per-session state streams via [getSessionState]
 class SessionRepository {
-  final IrmaRepository repo;
+  /// Sends an event to the bridge and to the app's own listeners.
+  final void Function(Event event) _dispatch;
+  final IrmaPreferences _preferences;
 
   final _states =
       BehaviorSubject<UnmodifiableMapView<int, SessionState>>.seeded(
@@ -36,8 +39,77 @@ class SessionRepository {
   /// before Go replies (issue #654). See [hasInFlightSessionStream].
   final _inFlightSessionIds = BehaviorSubject<Set<int>>.seeded({});
 
-  SessionRepository({required this.repo, required Stream<Event> eventStream}) {
+  SessionRepository({
+    required Stream<Event> eventStream,
+    required void Function(Event event) dispatch,
+    required IrmaPreferences preferences,
+  }) : _dispatch = dispatch,
+       _preferences = preferences {
     eventStream.listen(_handleEvent);
+  }
+
+  // Resets to 0 on Flutter hot-restart while Go still holds prior ids.
+  // `sessionManager.NewSession` evicts the old entry but its goroutines may
+  // linger until they observe the eviction. Dev-only nuisance, not a
+  // production concern (production app starts from a clean Go state too).
+  int _nextSessionId = 0;
+
+  /// Allocates a session id for an outgoing [NewSessionEvent]. Dart owns id
+  /// allocation so [SessionScreen] can be pushed synchronously, before Go has
+  /// emitted the first session state.
+  int allocateSessionId() => ++_nextSessionId;
+
+  /// Stops session [sessionId].
+  void dismissSession(int sessionId) =>
+      _dispatch(SessionUserInteractionEvent.dismiss(sessionId: sessionId));
+
+  /// Goes on with session [sessionId] with the PIN the user entered.
+  void enterSessionPin(int sessionId, String pin) => _dispatch(
+    SessionUserInteractionEvent.pin(
+      sessionId: sessionId,
+      pin: pin,
+      proceed: true,
+    ),
+  );
+
+  /// Says yes to session [sessionId], sharing [choices].
+  void grantSession(
+    int sessionId, [
+    List<DisclosureDisconSelection> choices = const [],
+  ]) => _dispatch(
+    SessionUserInteractionEvent.permission(
+      sessionId: sessionId,
+      granted: true,
+      disclosureChoices: choices,
+    ),
+  );
+
+  /// Says yes to the offer of session [sessionId], with the
+  /// [transactionCode] the issuer asked for.
+  void grantPreAuthorizedCode(int sessionId, String? transactionCode) =>
+      _dispatch(
+        SessionUserInteractionEvent.preAuthorizedCodePermission(
+          sessionId: sessionId,
+          transactionCode: transactionCode,
+          proceed: true,
+        ),
+      );
+
+  /// Dismisses all sessions that are currently in the requestPermission state.
+  void dismissAllActiveSessions() {
+    for (final sessionId in getActiveSessionIds()) {
+      dismissSession(sessionId);
+    }
+  }
+
+  /// Dismisses every in-flight session (started, not yet terminal). Unlike
+  /// [dismissAllActiveSessions] this also covers a session that has not yet
+  /// reached `requestPermission`, so the lock-screen ✕ cancels exactly the set
+  /// that [hasInFlightSession] hides biometric for.
+  void dismissAllInFlightSessions() {
+    for (final sessionId in inFlightSessionIds) {
+      dismissSession(sessionId);
+    }
   }
 
   void _handleEvent(Event event) {
@@ -67,7 +139,7 @@ class SessionRepository {
     // the F-Droid build (which injects none) is harmless.
     if (state.status == SessionStatus.success &&
         prevStates[state.id]?.status != SessionStatus.success) {
-      repo.preferences.incrementReviewSuccessCount();
+      _preferences.incrementReviewSuccessCount();
     }
 
     final nextStates = Map<int, SessionState>.from(prevStates);

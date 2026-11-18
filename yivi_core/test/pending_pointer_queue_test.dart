@@ -99,14 +99,14 @@ void main() {
     // waiting: the lock screen's biometric backstop reads both.
     final gaps = <String>[];
     void check(String what) {
-      if (repo.pendingPointer == null && !repo.hasInFlightSession) {
+      if (repo.pendingPointer == null && !repo.sessions.hasInFlightSession) {
         gaps.add(what);
       }
     }
 
     final subs = [
       repo.getPendingPointer().listen((_) => check("pointer")),
-      repo.getHasInFlightSession().listen((_) => check("in flight")),
+      repo.sessions.hasInFlightSessionStream.listen((_) => check("in flight")),
     ];
     addTearDown(() => Future.wait(subs.map((s) => s.cancel())));
     await _settle();
@@ -115,11 +115,11 @@ void main() {
     check("dispatched");
     // Both happen a microtask later, together.
     expect(repo.pendingPointer, isNotNull);
-    expect(repo.hasInFlightSession, isFalse);
+    expect(repo.sessions.hasInFlightSession, isFalse);
 
     await Future<void>.microtask(() {});
     expect(repo.pendingPointer, isNull);
-    expect(repo.hasInFlightSession, isTrue);
+    expect(repo.sessions.hasInFlightSession, isTrue);
 
     await _settle();
     expect(gaps, isEmpty);

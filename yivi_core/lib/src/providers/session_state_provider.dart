@@ -8,8 +8,7 @@ final sessionStateProvider = StreamProvider.family<SessionState, int>((
   ref,
   sessionId,
 ) {
-  final repo = ref.watch(irmaRepositoryProvider);
-  return repo.getSessionState(sessionId);
+  return ref.watch(sessionRepositoryProvider).getSessionState(sessionId);
 });
 
 /// The request a nested issuance [sessionId] is for: the disclosure session
@@ -17,7 +16,7 @@ final sessionStateProvider = StreamProvider.family<SessionState, int>((
 /// {requestor} · step n of m" and the values that request needs.
 final underlyingDisclosureProvider = StreamProvider.family<SessionState?, int>(
   (ref, sessionId) =>
-      ref.watch(irmaRepositoryProvider).getUnderlyingDisclosure(sessionId),
+      ref.watch(sessionRepositoryProvider).underlyingDisclosure(sessionId),
 );
 
 /// Whether [sessionId] has dispatched a user interaction that's still waiting
@@ -32,7 +31,7 @@ final underlyingDisclosureProvider = StreamProvider.family<SessionState?, int>(
 final sessionAwaitingInteractionProvider =
     NotifierProvider.family<StreamMirror<bool>, bool, int>(
       (sessionId) => StreamMirror(
-        (repo) => repo.isSessionAwaitingInteraction(sessionId),
-        (repo) => repo.isSessionAwaitingInteractionNow(sessionId),
+        (repo) => repo.sessions.isAwaitingInteraction(sessionId),
+        (repo) => repo.sessions.isAwaitingInteractionNow(sessionId),
       ),
     );

@@ -18,7 +18,7 @@ class AppReadyEvent extends Event {
 
 /// Changes the effective app language in the Go client at runtime. The Go
 /// handler re-resolves and re-dispatches credentials; the app asks for the
-/// activity log again ([IrmaRepository.logsChanged]).
+/// activity log again ([ActivityLogClient.changed]).
 @JsonSerializable(createFactory: false)
 class SetLocaleEvent extends Event {
   SetLocaleEvent({required this.locale});

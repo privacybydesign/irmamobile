@@ -1,6 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/irma_repository.dart";
+import "../data/session_repository.dart";
 import "../models/session.dart";
 import "../models/session_state.dart";
 import "../models/session_user_interaction.dart";
@@ -24,6 +25,7 @@ class SessionFlow extends Notifier<SessionView> {
   final int sessionId;
 
   late IrmaRepository _repo;
+  late SessionRepository _sessions;
   late AsyncValue<SessionState> _session;
   late bool _awaiting;
   int? _lastTxCodeAttempts;
@@ -51,6 +53,7 @@ class SessionFlow extends Notifier<SessionView> {
   @override
   SessionView build() {
     _repo = ref.read(irmaRepositoryProvider);
+    _sessions = ref.read(sessionRepositoryProvider);
     _session = ref.listen(sessionStateProvider(sessionId), _onSession).read();
     _awaiting = ref.listen(sessionAwaitingInteractionProvider(sessionId), (
       _,
@@ -115,15 +118,15 @@ class SessionFlow extends Notifier<SessionView> {
   /// Goes on with the pre-authorized code, with the [transactionCode] the
   /// issuer asked for.
   void grantPreAuthorizedCode(String? transactionCode) =>
-      _repo.grantPreAuthorizedCode(sessionId, transactionCode);
+      _sessions.grantPreAuthorizedCode(sessionId, transactionCode);
 
-  void enterPin(String pin) => _repo.enterSessionPin(sessionId, pin);
+  void enterPin(String pin) => _sessions.enterSessionPin(sessionId, pin);
 
   /// Says yes, sharing [choices].
   void grant([List<DisclosureDisconSelection> choices = const []]) =>
-      _repo.grantSession(sessionId, choices);
+      _sessions.grantSession(sessionId, choices);
 
-  void dismiss() => _repo.dismissSession(sessionId);
+  void dismiss() => _sessions.dismissSession(sessionId);
 
   /// Opens the issuer's login for the authorization code.
   Future<void> openAuthorization() async {

@@ -42,6 +42,7 @@ import "../providers/contact_issuer_api.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/nfc_credentials.dart";
+import "activity_log_client.dart";
 import "app_language.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
@@ -67,9 +68,10 @@ class IrmaRepository {
   }) : _bridge = client {
     _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
-    _sessionRepository = SessionRepository(
-      repo: this,
+    sessions = SessionRepository(
       eventStream: _eventSubject.stream,
+      dispatch: bridgedDispatch,
+      preferences: preferences,
     );
     // Listen for bridge events and send them to our event subject.
     _bridgeEventSubscription = _bridge.events.listen(
@@ -83,7 +85,7 @@ class IrmaRepository {
     bridgedDispatch(AppReadyEvent(locale: _appLanguage.current));
     _localeSubscription = _appLanguage.changes.listen((locale) {
       bridgedDispatch(SetLocaleEvent(locale: locale));
-      _logsChangedSubject.add(null);
+      activityLog.notifyChanged();
     });
   }
 
@@ -93,8 +95,15 @@ class IrmaRepository {
   final IrmaBridge _bridge;
   final _eventSubject = PublishSubject<Event>();
 
-  // SessionRepository depends on a IrmaRepository instance, so therefore it must be late final.
-  late final SessionRepository _sessionRepository;
+  /// The sessions: their states, and what the user does in them. Built in
+  /// the constructor, after the repository's own listener, so that it sees
+  /// each event after the repository did.
+  late final SessionRepository sessions;
+
+  /// Questions about the activity log.
+  late final ActivityLogClient activityLog = ActivityLogClient(
+    send: (event) => _bridge.dispatch(event),
+  );
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _schemeRulesSubject = BehaviorSubject<SchemeRulesEvent>();
@@ -135,6 +144,7 @@ class IrmaRepository {
     // disposed while it is in flight would otherwise still reach a subject
     // that is about to close.
     _closed = true;
+    final activityLogClosed = activityLog.close();
 
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
@@ -158,29 +168,16 @@ class IrmaRepository {
       _preferencesSubject.close(),
       _credentialObtainState.close(),
       _startupUrlResolvedSubject.close(),
-      _sessionRepository.close(),
+      sessions.close(),
       _fatalErrorSubject.close(),
-      _logsChangedSubject.close(),
+      activityLogClosed,
       for (final preview in _previews.values) preview.close(),
     ]);
-    for (final request in _logRequests.values) {
-      request.completeError(StateError("the repository closed"));
-    }
-    _logRequests.clear();
   }
 
   Future<void> _eventListener(Event event) async {
-    if (event is LogAnswer) {
-      _logRequests.remove(event.requestId)?.complete(event);
-      return;
-    }
-    // What the activity log shows changes with a finished session, with the
-    // credentials (an issuance or a removal) and with the language.
-    if ((event is SessionStateEvent &&
-            event.sessionState.status == SessionStatus.success) ||
-        event is CredentialsEvent) {
-      if (!_logsChangedSubject.isClosed) _logsChangedSubject.add(null);
-    }
+    activityLog.onEvent(event);
+    if (event is LogAnswer) return;
     if (event is SessionPreviewEvent) {
       final preview = _previews[event.key];
       if (preview != null && !preview.isClosed) preview.add(event.preview);
@@ -289,43 +286,6 @@ class IrmaRepository {
   /// by format (`credentialInstanceIds`).
   void deleteCredential(Map<CredentialFormat, String> hashByFormat) =>
       bridgedDispatch(DeleteCredentialEvent(hashByFormat: hashByFormat));
-
-  /// Stops session [sessionId].
-  void dismissSession(int sessionId) => bridgedDispatch(
-    SessionUserInteractionEvent.dismiss(sessionId: sessionId),
-  );
-
-  /// Goes on with session [sessionId] with the PIN the user entered.
-  void enterSessionPin(int sessionId, String pin) => bridgedDispatch(
-    SessionUserInteractionEvent.pin(
-      sessionId: sessionId,
-      pin: pin,
-      proceed: true,
-    ),
-  );
-
-  /// Says yes to session [sessionId], sharing [choices].
-  void grantSession(
-    int sessionId, [
-    List<DisclosureDisconSelection> choices = const [],
-  ]) => bridgedDispatch(
-    SessionUserInteractionEvent.permission(
-      sessionId: sessionId,
-      granted: true,
-      disclosureChoices: choices,
-    ),
-  );
-
-  /// Says yes to the offer of session [sessionId], with the
-  /// [transactionCode] the issuer asked for.
-  void grantPreAuthorizedCode(int sessionId, String? transactionCode) =>
-      bridgedDispatch(
-        SessionUserInteractionEvent.preAuthorizedCodePermission(
-          sessionId: sessionId,
-          transactionCode: transactionCode,
-          proceed: true,
-        ),
-      );
 
   void markInAppLaunched(Iterable<String> credentialTypeIds) {
     final current = _credentialObtainState.value.inAppLaunchedCredentialTypes;
@@ -535,126 +495,6 @@ class IrmaRepository {
         .takeUntil(_fatalErrorSubject);
   }
 
-  // -- Sessions
-  Stream<SessionState> getSessionState(int sessionId) {
-    return _sessionRepository.getSessionState(sessionId);
-  }
-
-  /// The request waiting under [sessionId], see
-  /// [SessionRepository.underlyingDisclosure].
-  Stream<SessionState?> getUnderlyingDisclosure(int sessionId) {
-    return _sessionRepository.underlyingDisclosure(sessionId);
-  }
-
-  /// Whether [sessionId] has a user interaction dispatched to Go that's still
-  /// waiting on a response state event. Cleared automatically when the next
-  /// state arrives.
-  Stream<bool> isSessionAwaitingInteraction(int sessionId) {
-    return _sessionRepository.isAwaitingInteraction(sessionId);
-  }
-
-  /// Synchronous companion to [isSessionAwaitingInteraction]. Useful in the
-  /// first build of a freshly-mounted screen, before the stream provider has
-  /// delivered its seed value.
-  bool isSessionAwaitingInteractionNow(int sessionId) {
-    return _sessionRepository.isAwaitingInteractionNow(sessionId);
-  }
-
-  SessionState? getCurrentSessionStateByOpenID4VCIState(String sessionState) {
-    return _sessionRepository.getCurrentSessionStateByOpenID4VCIState(
-      sessionState,
-    );
-  }
-
-  /// Stream that emits session IDs when a new session is first seen.
-  Stream<int> getNewSessionIds() {
-    return _sessionRepository.newSessionIds;
-  }
-
-  // Resets to 0 on Flutter hot-restart while Go still holds prior ids.
-  // `sessionManager.NewSession` evicts the old entry but its goroutines may
-  // linger until they observe the eviction. Dev-only nuisance, not a
-  // production concern (production app starts from a clean Go state too).
-  int _nextSessionId = 0;
-
-  /// Allocates a session id for an outgoing [NewSessionEvent]. Dart owns id
-  /// allocation so [SessionScreen] can be pushed synchronously, before Go has
-  /// emitted the first session state.
-  int allocateSessionId() => ++_nextSessionId;
-
-  bool hasActiveSessions({int? excludeSessionId}) {
-    return _sessionRepository.hasActiveSessions(
-      excludeSessionId: excludeSessionId,
-    );
-  }
-
-  /// Whether session [sessionId] waits for the user's permission (a request
-  /// that a card can be added for).
-  bool isActiveSession(int sessionId) =>
-      _sessionRepository.isActiveSession(sessionId);
-
-  /// Whether any session is currently in flight (started, not yet terminal).
-  /// Synchronous companion to [getHasInFlightSession] for the biometric backstop.
-  bool get hasInFlightSession => _sessionRepository.hasInFlightSession;
-
-  /// Whether any session is currently in flight. The lock screen watches this to
-  /// withhold biometric while a session is running — e.g. one a link started
-  /// just before the app idle-locked — so it stays PIN-gated (issue #654).
-  /// See [SessionRepository.hasInFlightSessionStream].
-  Stream<bool> getHasInFlightSession() =>
-      _sessionRepository.hasInFlightSessionStream;
-
-  /// Dismisses all sessions that are currently in the requestPermission state.
-  void dismissAllActiveSessions() {
-    final activeSessionIds = _sessionRepository.getActiveSessionIds();
-    for (final sessionId in activeSessionIds) {
-      dismissSession(sessionId);
-    }
-  }
-
-  final _logsChangedSubject = PublishSubject<void>();
-
-  /// Fires when the activity log may have changed: after a session, a change
-  /// of credentials or of language. Whoever shows the log asks again.
-  Stream<void> get logsChanged => _logsChangedSubject.stream;
-
-  /// The log questions irmago has not answered yet, by request id.
-  final _logRequests = <String, Completer<LogAnswer>>{};
-  var _logRequestCount = 0;
-
-  /// Asks irmago a question about the activity log and waits for the answer
-  /// with the same request id. irmago always answers, with the error in the
-  /// answer when it has one; closing the repository fails what is left.
-  Future<A> _askLog<A extends LogAnswer>(
-    LogRequest Function(String requestId) request,
-  ) async {
-    if (_closed) throw StateError("the repository is closed");
-    final id = "log-${_logRequestCount++}";
-    final answer = Completer<LogAnswer>();
-    _logRequests[id] = answer;
-    _bridge.dispatch(request(id));
-    final result = await answer.future as A;
-    if (result.error != null) throw Exception(result.error);
-    return result;
-  }
-
-  /// A page of the activity log, newest first.
-  Future<LogPage> queryLogs(LogQuery query) async =>
-      (await _askLog<LogPageEvent>((id) => QueryLogsEvent(id, query))).page;
-
-  /// How many entries each of [filters] matches, in order.
-  Future<List<int>> countLogs(List<LogFilter> filters) async => filters.isEmpty
-      ? const []
-      : (await _askLog<LogCountsEvent>(
-          (id) => CountLogsEvent(id, filters),
-        )).counts;
-
-  /// The parties of the entries matching [filter], the most recent first.
-  Future<List<PartySummary>> listParties(LogFilter filter) async =>
-      (await _askLog<PartiesEvent>(
-        (id) => ListPartiesEvent(id, filter),
-      )).parties;
-
   /// Previews asked of irmago, by pointer URL.
   final _previews = <String, BehaviorSubject<SessionPreview>>{};
 
@@ -670,19 +510,6 @@ class IrmaRepository {
       _bridge.dispatch(PreviewSessionEvent(key: pointer.u, request: pointer));
     }
     return preview.stream;
-  }
-
-  /// The ids of the sessions started and not yet ended.
-  Set<int> get inFlightSessionIds => _sessionRepository.inFlightSessionIds;
-
-  /// Dismisses every in-flight session (started, not yet terminal). Unlike
-  /// [dismissAllActiveSessions] this also covers a session that has not yet
-  /// reached `requestPermission`, so the lock-screen ✕ cancels exactly the set
-  /// that [hasInFlightSession] hides biometric for.
-  void dismissAllInFlightSessions() {
-    for (final sessionId in _sessionRepository.inFlightSessionIds) {
-      dismissSession(sessionId);
-    }
   }
 
   /// The e-mail code link in [url], or null when it is not one. Only a user
@@ -967,9 +794,7 @@ class IrmaRepository {
       );
     }
 
-    final session = _sessionRepository.getCurrentSessionStateByOpenID4VCIState(
-      state,
-    );
+    final session = sessions.getCurrentSessionStateByOpenID4VCIState(state);
     if (session == null) {
       throw MissingPointer(
         details: 'No session found for state value "$state"',

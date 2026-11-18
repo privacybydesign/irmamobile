@@ -145,7 +145,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
     if (confirmed && mounted) {
       final repo = ref.read(irmaRepositoryProvider);
       repo.setPendingPointer(null);
-      repo.dismissAllInFlightSessions();
+      ref.read(sessionRepositoryProvider).dismissAllInFlightSessions();
     }
   }
 

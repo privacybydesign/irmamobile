@@ -68,7 +68,9 @@ class _ActivityFilterSheetState extends ConsumerState<_ActivityFilterSheet> {
   /// How many entries match the question, and each option tried in it.
   int? _total;
   final _counts = <String, int>{};
-  late final _counter = ActivityOptionCounter(ref.read(irmaRepositoryProvider));
+  late final _counter = ActivityOptionCounter(
+    ref.read(activityLogClientProvider),
+  );
 
   @override
   void initState() {

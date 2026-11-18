@@ -2909,8 +2909,8 @@ void main() {
         calls.repo.dispatch(SessionStateEvent(sessionState: request));
         await Future<void>.delayed(Duration.zero);
       });
-      expect(calls.repo.isActiveSession(_sessionId), isTrue);
-      calls.repo.allocateSessionId();
+      expect(calls.repo.sessions.isActiveSession(_sessionId), isTrue);
+      calls.repo.sessions.allocateSessionId();
       await tester.tap(find.byKey(const Key("share_change_0")));
       await tester.pumpAndSettle();
       await _openAdd(tester);

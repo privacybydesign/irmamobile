@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
+import "../../data/session_repository.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
 import "../../models/session.dart";
@@ -65,6 +66,7 @@ class SessionScreen extends ConsumerStatefulWidget {
 
 class _SessionScreenState extends ConsumerState<SessionScreen> {
   late final IrmaRepository _repo;
+  late final SessionRepository _sessions;
   late SessionFlow _flow;
 
   /// The state of the last view: what dispose and the close of an error
@@ -101,6 +103,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   void initState() {
     super.initState();
     _repo = ref.read(irmaRepositoryProvider);
+    _sessions = ref.read(sessionRepositoryProvider);
     ref.listenManual(
       sessionFlowProvider(widget.sessionId),
       _onView,
@@ -182,7 +185,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // We use cached values because ref is unsafe to use during dispose.
     final status = _lastState?.status;
     if (!(status?.isTerminal ?? false)) {
-      _repo.dismissSession(widget.sessionId);
+      _sessions.dismissSession(widget.sessionId);
     }
     super.dispose();
   }

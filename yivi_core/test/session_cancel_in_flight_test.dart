@@ -50,12 +50,12 @@ void main() {
     repo.dispatch(NewSessionEvent(sessionId: 1, request: pointer));
     await pumpEventQueue();
 
-    expect(repo.hasInFlightSession, isTrue);
+    expect(repo.sessions.hasInFlightSession, isTrue);
     // Not `requestPermission`, so the old requestPermission-only cancel path
     // would have dismissed nothing here.
-    expect(repo.hasActiveSessions(), isFalse);
+    expect(repo.sessions.hasActiveSessions(), isFalse);
 
-    repo.dismissAllInFlightSessions();
+    repo.sessions.dismissAllInFlightSessions();
 
     final dismissedIds = bridge.dispatched
         .whereType<SessionUserInteractionEvent>()

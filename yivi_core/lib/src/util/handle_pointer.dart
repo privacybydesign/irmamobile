@@ -70,15 +70,14 @@ int _startSession(
   SessionPointer sessionPointer, {
   bool pushReplacement = false,
 }) {
-  final repo = ProviderScope.containerOf(
-    context,
-    listen: false,
-  ).read(irmaRepositoryProvider);
+  final container = ProviderScope.containerOf(context, listen: false);
+  final repo = container.read(irmaRepositoryProvider);
+  final sessions = container.read(sessionRepositoryProvider);
 
-  final sessionId = repo.allocateSessionId();
+  final sessionId = sessions.allocateSessionId();
   // Any session active at this moment is "underlying" — ours does not exist on
   // the Go side yet, so we don't need to exclude it.
-  final hasUnderlying = repo.hasActiveSessions();
+  final hasUnderlying = sessions.hasActiveSessions();
 
   repo.bridgedDispatch(
     NewSessionEvent(sessionId: sessionId, request: sessionPointer),
@@ -88,12 +87,9 @@ int _startSession(
   // request, or Add data): the issuance shows there, so no session screen is
   // pushed.
   final host = hostForNewSession(
-    ProviderScope.containerOf(
-      context,
-      listen: false,
-    ).read(nestedIssuanceHostProvider),
+    container.read(nestedIssuanceHostProvider),
     hasUnderlying: hasUnderlying,
-    isActive: repo.isActiveSession,
+    isActive: sessions.isActiveSession,
   );
   if (host != null) {
     host.attach(sessionId);

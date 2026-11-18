@@ -532,9 +532,11 @@ void main() {
       final container = ProviderContainer(overrides: overrides);
       addTearDown(container.dispose);
       events = StreamController<Event>();
+      final repo = container.read(irmaRepositoryProvider);
       sessions = SessionRepository(
-        repo: container.read(irmaRepositoryProvider),
         eventStream: events.stream,
+        dispatch: repo.bridgedDispatch,
+        preferences: repo.preferences,
       );
       addTearDown(events.close);
     });

@@ -318,7 +318,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
     Future.microtask(() {
       hosts.unregister(this);
       if (s.added != null) return;
-      if (s.sessionId case final id?) repo?.dismissSession(id);
+      if (s.sessionId case final id?) repo?.sessions.dismissSession(id);
       if (!closing) return;
       if (s.opened) repo?.clearInAppLaunches();
       if (s.contact != null) {
@@ -481,9 +481,9 @@ class IssueFlowController extends Notifier<IssueFlowState>
       case IssuerStep(:final technical):
         closeIssuer(technical: technical);
       case PinStep(:final sessionId):
-        _repo.dismissSession(sessionId);
+        _repo.sessions.dismissSession(sessionId);
       case IssueSessionStep(:final sessionId):
-        _repo.dismissSession(sessionId);
+        _repo.sessions.dismissSession(sessionId);
         if (s.standalone && s.adding == null) return;
         _set(_forget(s));
         _backToChip();
@@ -519,7 +519,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
   void stopAdding() {
     final s = state;
     final id = s.sessionId;
-    if (id != null && s.added == null) _repo.dismissSession(id);
+    if (id != null && s.added == null) _repo.sessions.dismissSession(id);
     _hosts.unregister(this);
     if (s.opened) _repo.clearInAppLaunches();
     if (s.contact != null) {
@@ -601,7 +601,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
     final s = state;
     final previous = s.sessionId;
     if (previous != null && previous != sessionId) {
-      _repo.dismissSession(previous);
+      _repo.sessions.dismissSession(previous);
     }
     _set(
       s.copyWith(
@@ -620,12 +620,12 @@ class IssueFlowController extends Notifier<IssueFlowState>
     final id = state.sessionId;
     if (state.granted || id == null) return;
     _set(state.copyWith(granted: true));
-    _repo.grantSession(id);
+    _repo.sessions.grantSession(id);
   }
 
   /// Declines the issuance in the sheet; what follows comes from irmago.
   void dismissSession() {
-    if (state.sessionId case final id?) _repo.dismissSession(id);
+    if (state.sessionId case final id?) _repo.sessions.dismissSession(id);
   }
 
   /// Opens the issuer's login for OpenID4VCI's authorization code at [url].

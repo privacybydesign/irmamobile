@@ -55,7 +55,11 @@ void main() {
     final repo = await repository();
     final base = repo.preferences.reviewSuccessCount.value;
     final events = StreamController<Event>();
-    final sessions = SessionRepository(repo: repo, eventStream: events.stream);
+    final sessions = SessionRepository(
+      eventStream: events.stream,
+      dispatch: repo.bridgedDispatch,
+      preferences: repo.preferences,
+    );
     addTearDown(sessions.close);
     addTearDown(events.close);
 
@@ -73,7 +77,11 @@ void main() {
     final repo = await repository();
     final base = repo.preferences.reviewSuccessCount.value;
     final events = StreamController<Event>();
-    final sessions = SessionRepository(repo: repo, eventStream: events.stream);
+    final sessions = SessionRepository(
+      eventStream: events.stream,
+      dispatch: repo.bridgedDispatch,
+      preferences: repo.preferences,
+    );
     addTearDown(sessions.close);
     addTearDown(events.close);
 
