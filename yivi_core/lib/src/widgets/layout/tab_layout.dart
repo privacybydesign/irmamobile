@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
-import "../bars/irma_app_bar.dart";
+import "../bars/app_bar.dart";
 import "../bars/title_scroll_edge.dart";
 
 /// Space the bottom of a tab's list keeps free, above the bottom safe area:
@@ -17,7 +17,7 @@ double bottomBarSpace(BuildContext context) {
 /// Where the large title of a home tab (Data, Notifications, More) starts,
 /// below the status bar: under the bar's row (the Data tab's buttons are in
 /// it) and 2 more.
-const double tabTitleTop = IrmaAppBar.toolbarHeight + 2;
+const double tabTitleTop = YiviAppBar.toolbarHeight + 2;
 
 /// Where it ends, for its `TitleScrollEdge`.
 const double tabTitleBottom = tabTitleTop + TabLargeTitle.height;

@@ -2,8 +2,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/bars/floating_bar_placement.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
 import "../../../widgets/layout/centred_max_width.dart";
 
 /// The most each column of a session screen's sideways layout is wide (on
@@ -34,7 +34,7 @@ double sidewaysPanelTop(BuildContext context) => 28 + _aboveBar(context);
 double sidewaysContentTop(BuildContext context) => 56 + _aboveBar(context);
 
 double _aboveBar(BuildContext context) =>
-    (MediaQuery.paddingOf(context).top - IrmaAppBar.toolbarHeight).clamp(
+    (MediaQuery.paddingOf(context).top - YiviAppBar.toolbarHeight).clamp(
       0.0,
       double.infinity,
     );

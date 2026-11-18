@@ -9,8 +9,8 @@ import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/surfaces/avatar.dart";
 import "../../../widgets/surfaces/base64_image.dart";
-import "../../../widgets/surfaces/irma_avatar.dart";
 import "../../../widgets/surfaces/surface_card.dart";
 import "../../data/wallet/card_hero.dart";
 import "../models/credential_status_notification.dart";
@@ -75,7 +75,7 @@ class NotificationCard extends ConsumerWidget {
             ? CredentialCardArt(credential: card, width: 64, greyedOut: true)
             : CardHero(credential: card, width: 64);
       } else {
-        picture = IrmaAvatar(
+        picture = Avatar(
           size: 48,
           initials: "i",
           logoImage: notification.logoImage == null

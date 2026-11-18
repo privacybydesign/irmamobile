@@ -19,7 +19,7 @@ import "../../util/adaptive_layout.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/scale.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/buttons/link.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/feedback/glass_dialog.dart";

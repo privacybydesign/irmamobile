@@ -4,7 +4,7 @@ import "../../models/error_event.dart";
 import "../../sentry/sentry.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/action_bar.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/error_status_screen.dart";
 
 class ErrorScreen extends StatefulWidget {
@@ -71,7 +71,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
   @override
   Widget build(BuildContext context) {
     return ErrorStatusScreen(
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleTranslationKey: "error.details_title",
         leading: widget.onTapClose != null
             ? YiviBackButton(onTap: widget.onTapClose)

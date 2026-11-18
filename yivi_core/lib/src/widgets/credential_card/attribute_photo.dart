@@ -6,8 +6,8 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
-import "../bars/irma_app_bar.dart";
-import "../buttons/irma_close_button.dart";
+import "../bars/app_bar.dart";
+import "../buttons/close_button.dart";
 import "../buttons/pill_buttons.dart";
 import "../sheet/pull_to_dismiss_physics.dart";
 
@@ -399,7 +399,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                           // page's bar has its buttons.
                           padding: EdgeInsets.fromLTRB(
                             16 + padding.left,
-                            padding.top + IrmaAppBar.buttonTop,
+                            padding.top + YiviAppBar.buttonTop,
                             16 + padding.right,
                             YiviSpace.x24,
                           ),
@@ -436,7 +436,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                 // bare, in white on the photo's dark band. Above the bar,
                 // not in it: the bar fades through an Opacity.
                 Positioned(
-                  top: padding.top + IrmaAppBar.buttonTop,
+                  top: padding.top + YiviAppBar.buttonTop,
                   right: 16 + padding.right,
                   child: TweenAnimationBuilder<double>(
                     tween: Tween(
@@ -448,7 +448,7 @@ class _PhotoViewerState extends State<_PhotoViewer>
                     duration: route.isAnimating
                         ? Duration.zero
                         : YiviMotion.quick,
-                    builder: (context, opacity, _) => IrmaCloseButton(
+                    builder: (context, opacity, _) => YiviCloseButton(
                       key: const Key("photo_viewer_close"),
                       onTap: _close,
                       opacity: opacity,

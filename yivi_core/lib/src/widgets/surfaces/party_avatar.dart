@@ -3,8 +3,8 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../models/credential.dart" show LogoImage;
 import "../../theme/yivi_palette.dart";
+import "avatar.dart";
 import "base64_image.dart";
-import "irma_avatar.dart";
 
 /// The deep colours of a party without a logo: one per name, so the same
 /// party always gets the same colour and parties are told apart.
@@ -100,7 +100,7 @@ class PartyAvatar extends StatelessWidget {
       // The whole logo inside the circle, on white (what logos are made
       // for): a wide one is not cut off by the circle, a small one is not
       // left small in a grey ring.
-      child: IrmaAvatar(
+      child: Avatar(
         size: size,
         logoFit: BoxFit.contain,
         logoPadding: size * 0.08,

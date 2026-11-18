@@ -10,7 +10,7 @@ import "package:yivi_core/src/screens/error/no_internet_screen.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "helpers/credential_factory.dart";
@@ -172,7 +172,7 @@ void main() {
       repo: repo,
       home: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: IrmaAppBar(titleString: "Title"),
+        appBar: YiviAppBar(titleString: "Title"),
         body: const SizedBox.expand(),
       ),
     );
@@ -181,7 +181,7 @@ void main() {
     final back = tester.getRect(find.byKey(const Key("irma_app_bar_leading")));
     expect(back.left, 16);
     expect(back.size, const Size(44, 44));
-    expect(back.top, IrmaAppBar.buttonTop);
+    expect(back.top, YiviAppBar.buttonTop);
     expect(
       find.descendant(
         of: find.byKey(const Key("irma_app_bar")),
@@ -201,7 +201,7 @@ void main() {
       repo: repo,
       home: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: IrmaAppBar(titleString: "One"),
+        appBar: YiviAppBar(titleString: "One"),
         body: const SizedBox.expand(),
       ),
     );
@@ -213,7 +213,7 @@ void main() {
       MaterialPageRoute<void>(
         builder: (context) => Scaffold(
           extendBodyBehindAppBar: true,
-          appBar: IrmaAppBar(titleString: "Two"),
+          appBar: YiviAppBar(titleString: "Two"),
           body: const ColoredBox(color: Colors.white),
         ),
       ),

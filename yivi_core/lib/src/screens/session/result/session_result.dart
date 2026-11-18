@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../widgets/bars/action_bar.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../layout/session_layout.dart";
 import "../layout/session_scaffold.dart";
 

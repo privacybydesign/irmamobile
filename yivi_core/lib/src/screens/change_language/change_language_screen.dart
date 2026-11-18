@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/text/preferred_language_builder.dart";
 import "widgets/change_language_radio.dart";
 import "widgets/system_language_toggle.dart";
@@ -13,7 +13,7 @@ class ChangeLanguageScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
-      appBar: IrmaAppBar(titleTranslationKey: "settings.language"),
+      appBar: YiviAppBar(titleTranslationKey: "settings.language"),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(

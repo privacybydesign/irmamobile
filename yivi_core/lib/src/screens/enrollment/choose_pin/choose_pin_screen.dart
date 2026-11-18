@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../pin/pin_entry.dart";
 import "../../pin/yivi_pin_screen.dart";
 
@@ -21,7 +21,7 @@ class ChoosePinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return YiviPinScaffold(
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleString: "",
         leading: YiviBackButton(onTap: onPrevious),
       ),

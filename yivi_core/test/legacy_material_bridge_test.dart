@@ -5,7 +5,7 @@ import "package:pinput/pinput.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
-import "package:yivi_core/src/widgets/text/irma_markdown.dart";
+import "package:yivi_core/src/widgets/text/markdown.dart";
 
 // Flutter 3.47 unbundled the Material and Cupertino widget libraries and the app
 // moved to package:material_ui, so a material_ui MaterialApp no longer installs
@@ -87,10 +87,10 @@ void main() {
   testWidgets("markdown keeps the Yivi body text style", (tester) async {
     await _pumpApp(
       tester,
-      _app(bridge: true, child: const IrmaMarkdown("hello world")),
+      _app(bridge: true, child: const YiviMarkdown("hello world")),
     );
 
-    // IrmaMarkdown now reads the core SDK theme, because flutter_markdown_plus'
+    // YiviMarkdown now reads the core SDK theme, because flutter_markdown_plus'
     // MarkdownStyleSheet.fromTheme still takes the core SDK ThemeData. Read the
     // style off the span holding the text, which is the one the style sheet
     // feeds: the span above it carries the ambient DefaultTextStyle that the

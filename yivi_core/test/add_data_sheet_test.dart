@@ -36,7 +36,7 @@ import "package:yivi_core/src/screens/error/session_error_screen.dart";
 import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/issue_flow/issue_sheet.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
 import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
@@ -957,7 +957,7 @@ void main() {
     testWidgets("on a phone held upright the close button is at the top "
         "right on the list and on every page of adding", (tester) async {
       await _pump(tester);
-      final close = tester.getRect(find.byType(IrmaCloseButton));
+      final close = tester.getRect(find.byType(YiviCloseButton));
       final title = tester.getRect(
         find.byKey(const Key("glass_sheet_title")).last,
       );
@@ -968,7 +968,7 @@ void main() {
       await tester.pumpAndSettle();
       // Back at the left, the close button still at the right.
       expect(find.bySemanticsLabel("Go back"), findsWidgets);
-      final onDetails = find.byType(IrmaCloseButton).hitTestable();
+      final onDetails = find.byType(YiviCloseButton).hitTestable();
       expect(onDetails, findsOneWidget);
       expect(
         tester.getRect(onDetails).left,
@@ -991,7 +991,7 @@ void main() {
 
       // The close button stays at the top right, and asks; so does a drag
       // down on the header.
-      await tester.tap(find.byType(IrmaCloseButton).hitTestable());
+      await tester.tap(find.byType(YiviCloseButton).hitTestable());
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("sheet_stop_dialog")), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_stop_keep")));
@@ -1816,7 +1816,7 @@ void _closingInADocument() {
     final instruction = find.byType(DocumentInstructionScreen);
     expect(instruction, findsNothing);
 
-    await tester.tap(find.byType(IrmaCloseButton).hitTestable());
+    await tester.tap(find.byType(YiviCloseButton).hitTestable());
     await _pumpFor(tester);
     expect(find.byKey(const Key("sheet_stop_dialog")), findsOneWidget);
     expect(instruction, findsNothing);

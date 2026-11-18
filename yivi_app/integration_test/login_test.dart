@@ -4,7 +4,7 @@ import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/reset_pin/reset_pin_screen.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -143,7 +143,7 @@ void main() {
       expect(resetPinScreenFinder, findsOneWidget);
 
       // Expect the app bar to have the header text "Forgot PIN"
-      final appBarFinder = find.byType(IrmaAppBar);
+      final appBarFinder = find.byType(YiviAppBar);
       const expectedHeaderText = "Forgot PIN";
 
       final appBarHeaderFinder = find.descendant(

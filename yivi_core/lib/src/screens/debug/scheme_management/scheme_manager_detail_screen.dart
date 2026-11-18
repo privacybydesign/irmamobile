@@ -10,7 +10,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/action_bar.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/yivi_spinner.dart";
 import "../../../widgets/surfaces/glass_group.dart";
@@ -39,7 +39,7 @@ class SchemeManagerDetailScreen extends ConsumerWidget {
     return navigator.push(
       MaterialPageRoute(
         builder: (context) => YiviPinScaffold(
-          appBar: IrmaAppBar(titleString: title),
+          appBar: YiviAppBar(titleString: title),
           body: YiviPinScreen(
             instruction: instruction,
             maxPinSize: maxPinSize,
@@ -199,7 +199,7 @@ class SchemeManagerDetailScreen extends ConsumerWidget {
           extendBodyBehindAppBar: true,
           extendBody: true,
           backgroundColor: YiviPalette.of(context).background,
-          appBar: IrmaAppBar(
+          appBar: YiviAppBar(
             titleString: schemeManager.id,
             actions: [
               YiviIconButton(

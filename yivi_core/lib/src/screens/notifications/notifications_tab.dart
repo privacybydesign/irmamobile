@@ -24,9 +24,9 @@ import "../data/wallet/wallet_transition.dart";
 import "models/credential_status_notification.dart";
 import "models/notification.dart";
 import "notifications_provider.dart";
-import "widgets/irma_dismissible.dart";
 import "widgets/no_notifications.dart";
 import "widgets/notification_card.dart";
+import "widgets/yivi_dismissible.dart";
 
 class NotificationsTab extends ConsumerStatefulWidget {
   @override
@@ -220,7 +220,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
                                 padding: const EdgeInsets.only(
                                   bottom: YiviSpace.x8,
                                 ),
-                                child: IrmaDismissible(
+                                child: YiviDismissible(
                                   key: Key(notification.id),
                                   borderRadius: YiviCorners.cardRadius,
                                   onDismissed: () =>

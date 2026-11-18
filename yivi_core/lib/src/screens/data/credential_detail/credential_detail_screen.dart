@@ -15,8 +15,8 @@ import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/bars/compact_bar.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
@@ -136,7 +136,7 @@ class _CredentialDetailScreenState
                 physics: physics,
                 padding: EdgeInsets.fromLTRB(
                   YiviSpace.x16,
-                  padding.top + IrmaAppBar.contentTop,
+                  padding.top + YiviAppBar.contentTop,
                   YiviSpace.x16,
                   padding.bottom + 32,
                 ),

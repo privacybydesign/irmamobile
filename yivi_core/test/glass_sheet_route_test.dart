@@ -2,7 +2,7 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -75,7 +75,7 @@ void main() {
       "close button, false from the system back", (tester) async {
     final seen = <bool>[];
     await open(tester, phone, onPop: seen.add, canPop: false);
-    await tester.tap(find.byType(IrmaCloseButton));
+    await tester.tap(find.byType(YiviCloseButton));
     await tester.pumpAndSettle();
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();

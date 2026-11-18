@@ -330,7 +330,7 @@ class RenderBarOverBody extends RenderBox
 /// under the status bar, as iOS does for a scroll view at the top of the
 /// screen.
 ///
-/// The sheets (GlassSheetPage) and IrmaAppBar draw the same band, fitted
+/// The sheets (GlassSheetPage) and YiviAppBar draw the same band, fitted
 /// into their own layout.
 class ScrollEdge extends StatefulWidget {
   final Widget child;

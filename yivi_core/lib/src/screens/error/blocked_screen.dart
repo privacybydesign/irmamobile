@@ -5,7 +5,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/action_bar.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/status_screen.dart";
 
 class BlockedScreen extends StatelessWidget {
@@ -20,7 +20,7 @@ class BlockedScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: StatusScreen(
-        appBar: IrmaAppBar(
+        appBar: YiviAppBar(
           titleTranslationKey: "error.blocked_title",
           leading: null,
         ),

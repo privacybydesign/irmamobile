@@ -9,7 +9,7 @@ import "package:yivi_core/src/screens/change_language/change_language_screen.dar
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
 
 import "helpers/helpers.dart";
@@ -355,7 +355,7 @@ void main() {
       // asynchronous — Localizations reloads its delegates and keeps serving the
       // old locale until they resolve — and no frame is scheduled meanwhile, so
       // pumpAndSettle can return while the title still reads English.
-      final appBarFinder = find.byType(IrmaAppBar);
+      final appBarFinder = find.byType(YiviAppBar);
       final dutchTitleFinder = find.descendant(
         of: appBarFinder,
         matching: find.text("Taal"),

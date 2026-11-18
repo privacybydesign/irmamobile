@@ -6,7 +6,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/bars/scroll_edge.dart";
 import "../../../widgets/bars/title_scroll_edge.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
@@ -73,7 +73,7 @@ class HomeTabTop extends StatefulWidget {
   });
 
   /// The bar's height under the status bar.
-  static const double barHeight = IrmaAppBar.toolbarHeight;
+  static const double barHeight = YiviAppBar.toolbarHeight;
 
   /// From the top of the screen to the list while searching: under the bar
   /// and, [below] high, what is pinned under it.

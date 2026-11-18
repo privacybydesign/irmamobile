@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/layout/two_pane.dart";
 
 /// A page the More tab opens (Instellingen, Veelgestelde vragen): in the
@@ -59,7 +59,7 @@ class MoreSubpage extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
-      appBar: IrmaAppBar(titleTranslationKey: titleKey),
+      appBar: YiviAppBar(titleTranslationKey: titleKey),
       body: fillHeight
           ? SizedBox(height: double.infinity, child: scroll)
           : scroll,

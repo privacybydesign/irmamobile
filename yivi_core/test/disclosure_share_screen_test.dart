@@ -36,9 +36,9 @@ import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/screens/session/result/done_flight.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/bars/irma_bottom_bar_base.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
+import "package:yivi_core/src/widgets/bars/bottom_bar_base.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/card_tile.dart";
 import "package:yivi_core/src/widgets/credential_card/credential_type_thumbnail.dart";
@@ -408,7 +408,7 @@ void main() {
     await tester.tap(find.byKey(const Key("share_change_0")));
     await tester.pumpAndSettle();
     final row = tester.getRect(find.byKey(const Key("sheet_chosen_ring")));
-    await tester.tap(find.byType(IrmaCloseButton).last);
+    await tester.tap(find.byType(YiviCloseButton).last);
     await tester.pump();
     final copy = find.byKey(const Key("sheet_back_card"));
     final sheet = find.byKey(const Key("disclosure_choice_sheet"));
@@ -1572,7 +1572,7 @@ void main() {
       // asking.
       final close = find.descendant(
         of: find.byKey(const Key("disclosure_choice_sheet")),
-        matching: find.byType(IrmaCloseButton),
+        matching: find.byType(YiviCloseButton),
       );
       expect(close, findsOneWidget);
       expect(
@@ -1982,7 +1982,7 @@ void main() {
           ),
         ]),
       );
-      final appBar = tester.widget<IrmaAppBar>(find.byType(IrmaAppBar));
+      final appBar = tester.widget<YiviAppBar>(find.byType(YiviAppBar));
       expect(appBar.edgeShown, isNull);
       expect(find.byKey(const Key("scroll_edge_band")), findsNothing);
     });
@@ -3253,7 +3253,7 @@ void main() {
       // The screen's own bar and Cancel are gone; the sheet's bar has the
       // title and back, also for screen readers (no close: a drag down on
       // the header closes).
-      expect(inSheet(find.byType(IrmaAppBar)), findsNothing);
+      expect(inSheet(find.byType(YiviAppBar)), findsNothing);
       expect(
         inSheet(find.byKey(DocumentFlowButton.secondaryKey)),
         findsNothing,
@@ -3645,7 +3645,7 @@ void main() {
       expect(card, findsOneWidget);
       expect(find.descendant(of: panel, matching: card), findsOneWidget);
       expect(find.descendant(of: panel, matching: _share), findsOneWidget);
-      expect(find.byType(IrmaBottomBarBase), findsNothing);
+      expect(find.byType(BottomBarBase), findsNothing);
       // The title above it, in the panel too; no footnote under the list.
       expect(
         find.descendant(
@@ -3664,7 +3664,7 @@ void main() {
       expect(find.byType(RequestorCompactBar), findsNothing);
       // Close in the corner, 24 from the edge (clear of the rounded
       // corner), beside the column.
-      expect(tester.getRect(find.byType(IrmaCloseButton)).right, 874 - 24);
+      expect(tester.getRect(find.byType(YiviCloseButton)).right, 874 - 24);
     });
 
     for (final (name, size, padding) in [
@@ -3686,10 +3686,10 @@ void main() {
         expect(find.byType(SidewaysLayout), findsOneWidget);
         expect(find.descendant(of: panel, matching: card), findsOneWidget);
         expect(find.descendant(of: panel, matching: _share), findsOneWidget);
-        expect(find.byType(IrmaBottomBarBase), findsNothing);
+        expect(find.byType(BottomBarBase), findsNothing);
         // Clear of the side panel.
         expect(
-          tester.getRect(find.byType(IrmaCloseButton)).right,
+          tester.getRect(find.byType(YiviCloseButton)).right,
           lessThanOrEqualTo(size.width - padding.right),
         );
 

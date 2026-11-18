@@ -9,7 +9,7 @@ import "../../providers/preferences_provider.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
 import "../../util/rebuild_when_safe.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/app_toast.dart";
 import "../home/widgets/home_tab.dart";
 import "../home/widgets/open_qr_scanner.dart";
@@ -162,7 +162,7 @@ class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
                             ),
                           );
                         },
-                        leading: YiviAppBarQrCodeButton(
+                        leading: QrCodeBarButton(
                           // Same sheet entry point as the home-screen QR
                           // button — the modal opens on this local
                           // Navigator (since `innerCtx` is below it), sits

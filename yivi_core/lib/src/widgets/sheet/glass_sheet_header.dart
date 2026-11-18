@@ -247,7 +247,7 @@ class GlassSheetHeader extends StatelessWidget {
   /// [GlassSheetConfirmDismiss] can ask first.
   Widget _closeButton(BuildContext context) => _kept(
     buttons,
-    IrmaCloseButton(onTap: () => GlassSheet.of(context).close()),
+    YiviCloseButton(onTap: () => GlassSheet.of(context).close()),
   );
 
   /// A phone held sideways with [extra]: one row from the start, the back

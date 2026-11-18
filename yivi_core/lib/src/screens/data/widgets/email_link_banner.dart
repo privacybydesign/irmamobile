@@ -7,7 +7,7 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/buttons/irma_close_button.dart";
+import "../../../widgets/buttons/close_button.dart";
 import "../../../widgets/buttons/link.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/sheet/glass_sheet.dart";
@@ -97,7 +97,7 @@ class EmailLinkBanner extends ConsumerWidget {
               ),
               KeyedSubtree(
                 key: const Key("email_link_banner_close"),
-                child: IrmaCloseButton(
+                child: YiviCloseButton(
                   onTap: () => _showLaterSheet(context, ref),
                 ),
               ),

@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/action_bar.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/status_screen.dart";
 
 /// Shown when the user has used all transaction-code attempts on the
@@ -17,7 +17,7 @@ class TxCodeLockoutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StatusScreen(
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleTranslationKey: "error.details_title",
         leading: YiviBackButton(onTap: onTapClose),
       ),

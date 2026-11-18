@@ -7,7 +7,7 @@ import "../../util/laid_out_box.dart";
 import "scroll_edge.dart";
 
 /// Where the top bar's buttons end, from the top of the safe area: 16 above
-/// the 44 pt buttons of an `IrmaAppBar`, and the buttons.
+/// the 44 pt buttons of an `YiviAppBar`, and the buttons.
 const double _barButtonsBottom = 16 + 44;
 
 /// Whether the bottom of the header at [headerKey] has scrolled up under

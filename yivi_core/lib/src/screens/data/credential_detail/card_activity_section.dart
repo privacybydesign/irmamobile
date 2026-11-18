@@ -11,7 +11,7 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/date_formatter.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/buttons/irma_close_button.dart";
+import "../../../widgets/buttons/close_button.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/surfaces/surface_card.dart";
 import "../../activity/activity_detail_screen.dart";
@@ -222,7 +222,7 @@ class _CardActivityEntryPage extends ConsumerWidget {
         look: IconButtonLook.bar,
       ),
       actions: [
-        IrmaCloseButton(
+        YiviCloseButton(
           key: const Key("card_activity_entry_close"),
           // Closes the card under it too.
           onTap: () => navigator

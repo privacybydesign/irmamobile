@@ -8,8 +8,8 @@ import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/bars/compact_bar.dart";
-import "../../widgets/bars/irma_app_bar.dart";
 import "../../widgets/layout/two_pane.dart";
 import "activity_entry.dart";
 import "widgets/activity_detail_parts.dart";
@@ -106,7 +106,7 @@ class _ActivityDetailPageState extends ConsumerState<ActivityDetailPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: palette.background,
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         title: ActivityBarTitle(entry: entry),
         titleVisibility: _nameUnderBar,
         edgeShown: _nameUnderBar,
@@ -121,7 +121,7 @@ class _ActivityDetailPageState extends ConsumerState<ActivityDetailPage> {
         children: [
           ActivityDetailBody(
             entry: entry,
-            top: padding.top + IrmaAppBar.contentTop,
+            top: padding.top + YiviAppBar.contentTop,
             pictureKey: _pictureKey,
             onAsk: widget.onAsk,
           ),

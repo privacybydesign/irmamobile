@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../util/i18n.dart";
 import "../../widgets/bars/action_bar.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/error_status_screen.dart";
 
 class EnrollmentFailedScreen extends StatelessWidget {
@@ -17,7 +17,7 @@ class EnrollmentFailedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ErrorStatusScreen(
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleTranslationKey: "ui.error",
         leading: YiviBackButton(onTap: onPrevious),
       ),

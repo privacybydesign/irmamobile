@@ -4,7 +4,7 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/test_detection.dart";
-import "../bars/irma_app_bar.dart";
+import "../bars/app_bar.dart";
 import "../layout/centred_max_width.dart";
 
 /// The middle of a status screen (an error, a warning, "update required"):

@@ -9,7 +9,7 @@ import "package:webview_flutter_android/webview_flutter_android.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 import "package:yivi_core/src/theme/yivi_space.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/feedback/yivi_spinner.dart";
 import "package:yivi_core/src/widgets/text/translated_text.dart";
 
@@ -143,7 +143,7 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
       },
       child: Scaffold(
         backgroundColor: YiviPalette.of(context).surface,
-        appBar: IrmaAppBar(
+        appBar: YiviAppBar(
           titleTranslationKey: "face_verification.title",
           leading: YiviBackButton(
             onTap: () =>

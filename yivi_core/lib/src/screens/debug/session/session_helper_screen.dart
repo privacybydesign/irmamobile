@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/surfaces/glass_group.dart";
 
@@ -29,7 +29,7 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
   Widget build(BuildContext context) => Scaffold(
     extendBodyBehindAppBar: true,
     backgroundColor: YiviPalette.of(context).background,
-    appBar: IrmaAppBar(
+    appBar: YiviAppBar(
       titleTranslationKey: "debug.session_helper",
       actions: [
         YiviIconButton(

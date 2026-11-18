@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/action_bar.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/status_screen.dart";
 
 /// Tells IRMA users once that the app is now called Yivi: the new logo on a
@@ -16,7 +16,7 @@ class NameChangedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StatusScreen(
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleTranslationKey: "name_changed.title",
         leading: null,
       ),

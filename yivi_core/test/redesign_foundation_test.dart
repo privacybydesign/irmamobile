@@ -4,8 +4,8 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/routing/adaptive_page.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_corners.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/feedback/app_toast.dart";
 import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
 import "package:yivi_core/src/widgets/feedback/status_body.dart";
@@ -149,7 +149,7 @@ void main() {
     }
   });
 
-  group("IrmaAppBar", () {
+  group("YiviAppBar", () {
     Future<Rect> closeIn(WidgetTester tester, FakeViewPadding padding) async {
       _setWindow(tester, const Size(951, 669));
       tester.view.padding = padding;
@@ -157,16 +157,16 @@ void main() {
         tester,
         _app(
           home: Scaffold(
-            appBar: IrmaAppBar(
+            appBar: YiviAppBar(
               titleString: "",
               edgeActions: true,
-              actions: [IrmaCloseButton(onTap: () {})],
+              actions: [YiviCloseButton(onTap: () {})],
             ),
             body: const SizedBox.shrink(),
           ),
         ),
       );
-      return tester.getRect(find.byType(IrmaCloseButton));
+      return tester.getRect(find.byType(YiviCloseButton));
     }
 
     testWidgets("a corner close button stays clear of a side panel", (

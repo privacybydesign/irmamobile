@@ -2,7 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../theme/yivi_space.dart";
 import "../buttons/pill_buttons.dart";
-import "irma_bottom_bar_base.dart";
+import "bottom_bar_base.dart";
 
 /// The buttons at the bottom of a page: one look everywhere. It floats
 /// over the page with a fade above it, keeps clear of the home indicator
@@ -79,7 +79,7 @@ class ActionBar extends StatelessWidget {
             spacing: YiviSpace.x4,
             children: [for (final a in actions.reversed) Expanded(child: a)],
           );
-    return IrmaBottomBarBase(
+    return BottomBarBase(
       // "Cancel" under the main button sits low, as on iOS.
       endsWithTextButton: endsWithText,
       child: Column(

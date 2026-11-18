@@ -12,7 +12,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/yivi_spinner.dart";
 import "../../../widgets/surfaces/glass_group.dart";
@@ -107,7 +107,7 @@ class _CertificateManagementScreenState
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleTranslationKey: "debug.cert_management.title",
         actions: [
           YiviIconButton(

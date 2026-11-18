@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
 
 import "../../helpers/helpers.dart";
@@ -34,7 +34,7 @@ Future<void> declineDisclosure(
   await tester.waitFor(find.byKey(const Key("share_button")));
 
   // Press the close button
-  await tester.tapAndSettle(find.byType(IrmaCloseButton));
+  await tester.tapAndSettle(find.byType(YiviCloseButton));
 
   // Expect the close dialog
   final disclosureCloseDialogFinder = find.byType(GlassDialog);

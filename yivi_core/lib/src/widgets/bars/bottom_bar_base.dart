@@ -4,17 +4,14 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "floating_bar_placement.dart";
 
-class IrmaBottomBarBase extends StatelessWidget {
+class BottomBarBase extends StatelessWidget {
   final Widget child;
 
   /// The lowest button is a plain text one, which sits lower (see
   /// [FloatingBarPlacement.buttonBottom]).
   final bool endsWithTextButton;
 
-  const IrmaBottomBarBase({
-    required this.child,
-    this.endsWithTextButton = false,
-  });
+  const BottomBarBase({required this.child, this.endsWithTextButton = false});
 
   @override
   Widget build(BuildContext context) {

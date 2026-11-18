@@ -2,7 +2,7 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/bars/scroll_edge.dart";
 import "package:yivi_core/src/widgets/bars/title_scroll_edge.dart";
 import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
@@ -146,14 +146,14 @@ void main() {
     });
   });
 
-  testWidgets("IrmaAppBar: the edge once the page scrolls under it", (
+  testWidgets("YiviAppBar: the edge once the page scrolls under it", (
     tester,
   ) async {
     await tester.pumpWidget(
       _app(
         Scaffold(
           extendBodyBehindAppBar: true,
-          appBar: IrmaAppBar(titleString: "Title"),
+          appBar: YiviAppBar(titleString: "Title"),
           body: ListView(
             padding: const EdgeInsets.only(top: 100),
             children: [for (var i = 0; i < 40; i++) Text("row $i")],
@@ -225,7 +225,7 @@ void main() {
       expect(_band, findsNothing);
     });
 
-    testWidgets("IrmaAppBar with edgeShown: not on the first scroll", (
+    testWidgets("YiviAppBar with edgeShown: not on the first scroll", (
       tester,
     ) async {
       final shown = ValueNotifier(false);
@@ -233,7 +233,7 @@ void main() {
         _app(
           Scaffold(
             extendBodyBehindAppBar: true,
-            appBar: IrmaAppBar(titleString: "Title", edgeShown: shown),
+            appBar: YiviAppBar(titleString: "Title", edgeShown: shown),
             body: ListView(
               padding: const EdgeInsets.only(top: 100),
               children: [for (var i = 0; i < 40; i++) Text("row $i")],

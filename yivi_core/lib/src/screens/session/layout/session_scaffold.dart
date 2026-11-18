@@ -2,8 +2,8 @@ import "package:flutter/foundation.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
-import "../../../widgets/buttons/irma_close_button.dart";
+import "../../../widgets/bars/app_bar.dart";
+import "../../../widgets/buttons/close_button.dart";
 
 class SessionScaffold extends StatelessWidget {
   final Widget? body, bottomNavigationBar;
@@ -26,12 +26,12 @@ class SessionScaffold extends StatelessWidget {
   final ValueListenable<bool>? barTitleVisibility;
 
   /// A compact bar ([CompactBar]) in place of the title (see
-  /// [IrmaAppBar.startBar]).
+  /// [YiviAppBar.startBar]).
   final Widget? startBar;
 
   /// Landscape with a panel at the left: the close button in the corner, 16
   /// inside the safe area, and no scroll edge band (see
-  /// [IrmaAppBar.edgeActions]).
+  /// [YiviAppBar.edgeActions]).
   final bool cornerClose;
 
   /// The scroll edge band under the bar once content scrolls under it; off
@@ -40,10 +40,10 @@ class SessionScaffold extends StatelessWidget {
 
   /// For a page whose header only appears once you scroll (the requestor's
   /// pill, a small title): the band comes and goes with it instead
-  /// ([IrmaAppBar.edgeShown]), also where [scrollEdge] is off.
+  /// ([YiviAppBar.edgeShown]), also where [scrollEdge] is off.
   final ValueListenable<bool>? edgeShown;
 
-  /// See [IrmaAppBar.edgeColor].
+  /// See [YiviAppBar.edgeColor].
   final Color? edgeColor;
 
   /// At the top left, in place of nothing (a back button).
@@ -80,7 +80,7 @@ class SessionScaffold extends StatelessWidget {
           ? bottomNavigationBar
           : _centred(bottomNavigationBar!),
       body: body == null ? null : _keepClear(wide ? body! : _centred(body!)),
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleTranslationKey: appBarTitle,
         titleString: appBarTitle == null ? "" : null,
         titleVisibility: barTitleVisibility,
@@ -92,7 +92,7 @@ class SessionScaffold extends StatelessWidget {
         leading: leading,
         actions: [
           if (onDismiss != null)
-            IrmaCloseButton(key: const Key("session_close"), onTap: onDismiss),
+            YiviCloseButton(key: const Key("session_close"), onTap: onDismiss),
         ],
       ),
     );

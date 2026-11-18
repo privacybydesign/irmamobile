@@ -7,11 +7,11 @@ import "package:material_ui/material_ui.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 
-class IrmaMarkdown extends StatelessWidget {
+class YiviMarkdown extends StatelessWidget {
   final String data;
   final MarkdownStyleSheet? styleSheet;
 
-  const IrmaMarkdown(this.data, {this.styleSheet});
+  const YiviMarkdown(this.data, {this.styleSheet});
 
   @override
   Widget build(BuildContext context) {

@@ -7,9 +7,9 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/bars/scroll_edge.dart";
-import "../../../widgets/buttons/irma_close_button.dart";
+import "../../../widgets/buttons/close_button.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/sheet/pull_to_dismiss_physics.dart";
 import "../card_transition/card_transition.dart";
@@ -305,7 +305,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
           // content is under them, as in a sheet.
           Positioned.fill(
             child: ScrollEdge(
-              height: padding.top + IrmaAppBar.toolbarHeight,
+              height: padding.top + YiviAppBar.toolbarHeight,
               band: (context, under) => AnimatedBuilder(
                 animation: chrome,
                 builder: (context, _) =>
@@ -315,7 +315,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                 // Inside the safe area: clear of the Dynamic Island or an
                 // unfolded phone's side panel.
                 Positioned(
-                  top: padding.top + IrmaAppBar.buttonTop,
+                  top: padding.top + YiviAppBar.buttonTop,
                   left: 16 + padding.left,
                   right: 16 + padding.right,
                   // Faded by the surface itself (GlassSurface.opacity).
@@ -370,7 +370,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                             }
                             return Transform.rotate(
                               angle: still ? 0 : turn * pi / 180,
-                              child: IrmaCloseButton(
+                              child: YiviCloseButton(
                                 key: widget.closeKey,
                                 onTap: _close,
                                 opacity: opacity * (1 - _pullProgress),
@@ -472,7 +472,7 @@ class _PlusAsClose extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (still) {
-      return IrmaCloseButton(key: closeKey, onTap: onTap, opacity: opacity);
+      return YiviCloseButton(key: closeKey, onTap: onTap, opacity: opacity);
     }
     return Transform.rotate(
       angle: pi / 4 * turn,

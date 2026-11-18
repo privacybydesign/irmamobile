@@ -5,7 +5,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/surfaces/glass_group.dart";
 import "../debug_schemes.dart";
@@ -36,7 +36,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleString: requestorScheme.id,
         actions: [
           YiviIconButton(

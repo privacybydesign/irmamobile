@@ -7,8 +7,8 @@ import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/result/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
-import "package:yivi_core/src/widgets/bars/irma_bottom_bar_base.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/bars/bottom_bar_base.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/feedback/glass_dialog.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
@@ -79,7 +79,7 @@ void main() {
       expect(find.descendant(of: panel, matching: question), findsOneWidget);
       expect(find.descendant(of: column, matching: find.text("12A")), findsOne);
       // No bottom bar: the button is at the bottom of the panel.
-      expect(find.byType(IrmaBottomBarBase), findsNothing);
+      expect(find.byType(BottomBarBase), findsNothing);
       final add = find.byKey(const Key("bottom_bar_primary"));
       expect(find.descendant(of: panel, matching: add), findsOneWidget);
       expect(
@@ -94,7 +94,7 @@ void main() {
         lessThanOrEqualTo(420),
       );
       // Close in the corner, beside the column, clear of the rounded corner.
-      final close = tester.getRect(find.byType(IrmaCloseButton));
+      final close = tester.getRect(find.byType(YiviCloseButton));
       expect(close.right, 874 - 24);
       expect(close.top, 24);
     });

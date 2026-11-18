@@ -5,7 +5,7 @@ import "../../util/i18n.dart";
 import "pill_buttons.dart";
 
 /// The round close button ([YiviIconButton]).
-class IrmaCloseButton extends StatelessWidget {
+class YiviCloseButton extends StatelessWidget {
   final Function()? onTap;
 
   /// Fades the button with its page.
@@ -14,7 +14,7 @@ class IrmaCloseButton extends StatelessWidget {
   /// The cross's colour without a disc (white over a photo's dark band).
   final Color? color;
 
-  const IrmaCloseButton({super.key, this.onTap, this.opacity = 1, this.color});
+  const YiviCloseButton({super.key, this.onTap, this.opacity = 1, this.color});
 
   @override
   Widget build(BuildContext context) {

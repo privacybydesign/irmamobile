@@ -6,7 +6,7 @@ import "package:yivi_core/src/providers/qr_scanner_factory_provider.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
 import "package:yivi_core/src/screens/scanner/util/camera_access.dart";
 import "package:yivi_core/src/screens/scanner/widgets/qr_scanner.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "support/onboarding_v2_harness.dart";
@@ -130,7 +130,7 @@ void main() {
       expect(torch.top, greaterThanOrEqualTo(cam.bottom));
       expect(torch.center.dx, closeTo(195, 0.5));
       expect(find.text("Point your camera at a Yivi QR code"), findsOneWidget);
-      expect(find.byType(IrmaCloseButton), findsOneWidget);
+      expect(find.byType(YiviCloseButton), findsOneWidget);
     });
 
     testWidgets("sideways: the torch in a column at the left, the camera "
@@ -154,7 +154,7 @@ void main() {
       expect(pill.left, greaterThan(cam.left));
       expect(pill.bottom, lessThan(cam.bottom));
       expect(torch.right, lessThanOrEqualTo(QRScannerState.sideColumn));
-      expect(find.byType(IrmaCloseButton), findsOneWidget);
+      expect(find.byType(YiviCloseButton), findsOneWidget);
     });
 
     testWidgets("the torch shows only with a torch, and switches", (
@@ -224,7 +224,7 @@ void main() {
       expect(permission.asked, 0);
       expect(find.byKey(const Key("camera")), findsNothing);
       expect(find.text("No access to your camera"), findsOneWidget);
-      expect(find.byType(IrmaCloseButton), findsOneWidget);
+      expect(find.byType(YiviCloseButton), findsOneWidget);
 
       await tester.tap(find.byKey(const Key("qr_scanner_open_settings")));
       await tester.pump();
@@ -248,7 +248,7 @@ void main() {
         permission: _FakePermission(CameraAccess.denied),
       );
       expect(find.text("No access to your camera"), findsOneWidget);
-      expect(find.byType(IrmaCloseButton), findsOneWidget);
+      expect(find.byType(YiviCloseButton), findsOneWidget);
     });
   });
 }

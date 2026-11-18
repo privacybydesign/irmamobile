@@ -7,7 +7,7 @@ import "../../providers/wallet_cards_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/glass_dialog.dart";
 import "../../widgets/surfaces/glass_group.dart";
 import "../more/widgets/tiles.dart";
@@ -111,7 +111,7 @@ class _DebugScreenState extends ConsumerState<DebugScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: YiviPalette.of(context).background,
-      appBar: IrmaAppBar(titleTranslationKey: "debug.title"),
+      appBar: YiviAppBar(titleTranslationKey: "debug.title"),
       body: BarInsetsBuilder(
         builder: (context, insets) => ListView(
           padding:

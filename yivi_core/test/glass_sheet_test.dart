@@ -2,7 +2,7 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/sheet/glass_sheet.dart";
 import "package:yivi_core/src/widgets/sheet/sheet_actions.dart";
 
@@ -109,7 +109,7 @@ void main() {
       final next = tester.getRect(find.byKey(const Key("next")));
       expect(next.top, greaterThan(700));
       expect(next.width, greaterThan(300));
-      expect(find.byType(IrmaCloseButton), findsOneWidget);
+      expect(find.byType(YiviCloseButton), findsOneWidget);
       await tester.tap(find.byKey(const Key("next")));
       expect(tapped, 1);
     });
@@ -119,7 +119,7 @@ void main() {
     ) async {
       await open(tester, const Size(874, 402));
       final next = tester.getRect(find.byKey(const Key("next")));
-      final close = tester.getRect(find.byType(IrmaCloseButton));
+      final close = tester.getRect(find.byType(YiviCloseButton));
       expect(next.center.dy, closeTo(title(tester).center.dy, 2));
       expect(next.height, 36);
       expect(next.right, lessThan(close.left));
@@ -133,7 +133,7 @@ void main() {
     testWidgets("a tablet: Back as text at the left, the way on at the "
         "right, no close button", (tester) async {
       await open(tester, const Size(820, 1180));
-      expect(find.byType(IrmaCloseButton), findsNothing);
+      expect(find.byType(YiviCloseButton), findsNothing);
       expect(find.text("Previous"), findsOneWidget);
       final next = tester.getRect(find.byKey(const Key("next")));
       expect(next.center.dy, closeTo(title(tester).center.dy, 2));
@@ -165,7 +165,7 @@ void main() {
 
     testWidgets("done (not closable): no close button", (tester) async {
       await open(tester, const Size(390, 844), closable: false);
-      expect(find.byType(IrmaCloseButton), findsNothing);
+      expect(find.byType(YiviCloseButton), findsNothing);
     });
 
     testWidgets("a screen inside the page puts its way on in the bar", (
@@ -251,7 +251,7 @@ void main() {
     expect(_gestureStuck(tester), isFalse);
     expect(find.text("Sheet"), findsOneWidget);
     // Still answers taps: the close button closes it.
-    await tester.tap(find.byType(IrmaCloseButton));
+    await tester.tap(find.byType(YiviCloseButton));
     await tester.pumpAndSettle();
     expect(find.text("Sheet"), findsNothing);
   });
@@ -322,7 +322,7 @@ void main() {
       // The sheet is as tall as on iOS: its top edge is at the status
       // bar's bottom (47), so the status bar is outside it.
       "a tap outside it": (tester) => tester.tapAt(const Offset(200, 3)),
-      "its close button": (tester) => tester.tap(find.byType(IrmaCloseButton)),
+      "its close button": (tester) => tester.tap(find.byType(YiviCloseButton)),
       "the system back": (tester) async {
         await tester.binding.handlePopRoute();
       },
@@ -422,7 +422,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(IrmaCloseButton));
+      await tester.tap(find.byType(YiviCloseButton));
       await tester.pumpAndSettle();
       expect(asked, 0);
       expect(find.text("Sheet"), findsNothing);
@@ -436,7 +436,7 @@ void main() {
       addTearDown(() => view.physicalSize = const Size(400, 800));
       await open(tester, answer: false);
       // A form sheet has "Cancel" at the left of its bar, no close button.
-      expect(find.byType(IrmaCloseButton), findsNothing);
+      expect(find.byType(YiviCloseButton), findsNothing);
       await tester.tap(find.byKey(const Key("glass_sheet_text_back")));
       await tester.pumpAndSettle();
       await tester.tapAt(const Offset(10, 10));

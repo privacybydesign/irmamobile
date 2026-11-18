@@ -2,10 +2,10 @@ import "package:flutter/widgets.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 
-import "irma_markdown.dart";
+import "markdown.dart";
 
 class TranslatedText extends StatelessWidget {
-  // Shared between Text and IrmaMarkdown
+  // Shared between Text and YiviMarkdown
   final String _key;
   final String? fallbackKey;
   final Map<String, String>? translationParams;
@@ -31,7 +31,7 @@ class TranslatedText extends StatelessWidget {
   });
 
   Widget _buildMarkdown(String translation, BuildContext context) {
-    return IrmaMarkdown(
+    return YiviMarkdown(
       translation,
       styleSheet: MarkdownStyleSheet(textAlign: markdownTextAlign, p: style),
     );

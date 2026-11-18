@@ -8,7 +8,7 @@ import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../layout/tab_layout.dart";
 import "../text/translated_text.dart";
-import "irma_app_bar.dart";
+import "app_bar.dart";
 import "scroll_edge.dart";
 
 /// The top of a tab page with a large title (More, Notifications): the hard
@@ -34,7 +34,7 @@ class TitleScrollEdge extends StatefulWidget {
 
   /// The bar under the status bar, where the small title sits: as high as
   /// the Data tab's, whose buttons are in it.
-  static const barHeight = IrmaAppBar.toolbarHeight;
+  static const barHeight = YiviAppBar.toolbarHeight;
 
   @override
   State<TitleScrollEdge> createState() => _TitleScrollEdgeState();

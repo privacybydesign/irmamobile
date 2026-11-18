@@ -22,7 +22,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_photo.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -194,7 +194,7 @@ Future<void> testDismissVcdmIssuance(
 
   await tester.waitFor(find.byType(IssuancePermission));
   // No Cancel: the close button declines.
-  await tester.tap(find.byType(IrmaCloseButton));
+  await tester.tap(find.byType(YiviCloseButton));
   await tester.pumpUntilGone(find.byType(IssuancePermission));
   await tester.pumpAndSettle();
 

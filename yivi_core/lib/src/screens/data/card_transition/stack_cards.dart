@@ -2,7 +2,7 @@ import "dart:math";
 
 import "package:material_ui/material_ui.dart";
 
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../wallet/wallet_transition.dart";
 import "card_transition_layer.dart";
@@ -34,7 +34,7 @@ abstract final class StackCards {
       cards: rects,
       target: Rect.fromLTWH(
         (screen.width - width) / 2,
-        MediaQuery.paddingOf(context).top + IrmaAppBar.contentTop,
+        MediaQuery.paddingOf(context).top + YiviAppBar.contentTop,
         width,
         width / CredentialCardArt.aspectRatio,
       ),

@@ -8,7 +8,7 @@ class _UnsecurePinFullScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return YiviPinScaffold(
-      appBar: IrmaAppBar(titleTranslationKey: "secure_pin.title"),
+      appBar: YiviAppBar(titleTranslationKey: "secure_pin.title"),
       body: ListView(
         padding: const EdgeInsets.all(YiviSpace.x8),
         children: [

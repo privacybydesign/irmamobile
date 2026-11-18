@@ -13,7 +13,7 @@ import "../../widgets/surfaces/faq_fold.dart";
 import "../../widgets/surfaces/glass_group.dart";
 import "../../widgets/surfaces/numbered_step.dart";
 import "../../widgets/text/caps_label.dart";
-import "../../widgets/text/irma_markdown.dart";
+import "../../widgets/text/markdown.dart";
 import "../session/requestor/requestor_card.dart";
 
 /// Which part of the details to show: all of it, or (in the two columns of a
@@ -335,7 +335,7 @@ class _Markdown extends StatelessWidget {
       height: 22 / 15,
       color: palette.heading,
     );
-    return IrmaMarkdown(
+    return YiviMarkdown(
       data,
       styleSheet: MarkdownStyleSheet(
         p: style,

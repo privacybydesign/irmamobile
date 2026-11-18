@@ -45,7 +45,7 @@ import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Preview scaffolding
@@ -152,7 +152,7 @@ Widget _pin({
   final scaffoldKey = _keys[keyId]!;
   return YiviPinScaffold(
     key: scaffoldKey,
-    appBar: IrmaAppBar(titleString: ""),
+    appBar: YiviAppBar(titleString: ""),
     body: YiviPinScreen(
       instructionKey: instructionKey,
       maxPinSize: maxPinSize,

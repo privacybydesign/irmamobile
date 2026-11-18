@@ -8,7 +8,7 @@ import "../../widgets/buttons/link.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/surfaces/glass_group.dart";
 import "../../widgets/surfaces/icon_square.dart";
-import "../../widgets/text/irma_markdown.dart";
+import "../../widgets/text/markdown.dart";
 import "../../widgets/text/translated_text.dart";
 import "../more/widgets/more_subpage.dart";
 import "widgets/help_item.dart";
@@ -50,7 +50,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             HelpItem(
               headerTranslationKey: "help.question_2",
-              body: IrmaMarkdown(context.tr("help.answer_2")),
+              body: YiviMarkdown(context.tr("help.answer_2")),
             ),
             HelpItem(
               headerTranslationKey: "help.question_3",
@@ -143,7 +143,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             HelpItem(
               headerTranslationKey: "help.question_11",
-              body: IrmaMarkdown(context.tr("help.answer_11")),
+              body: YiviMarkdown(context.tr("help.answer_11")),
             ),
           ],
         ),

@@ -7,7 +7,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/buttons/irma_close_button.dart";
+import "../../../widgets/buttons/close_button.dart";
 import "../../../widgets/feedback/done_check.dart";
 import "../../../widgets/feedback/glass_dialog.dart";
 import "../../../widgets/text/translated_text.dart";
@@ -193,7 +193,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
               Positioned(
                 right: 16 + MediaQuery.paddingOf(context).right,
                 top: MediaQuery.paddingOf(context).top + 16,
-                child: IrmaCloseButton(
+                child: YiviCloseButton(
                   key: const Key("arrow_back_close"),
                   onTap: context.goHomeScreen,
                 ),

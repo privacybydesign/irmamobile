@@ -5,14 +5,14 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../widgets/text/translated_text.dart";
 
-class IrmaDismissible extends StatelessWidget {
+class YiviDismissible extends StatelessWidget {
   final Widget child;
   final VoidCallback onDismissed;
 
   /// Corners of the red "Delete" background; defaults to the theme's.
   final BorderRadius? borderRadius;
 
-  const IrmaDismissible({
+  const YiviDismissible({
     required super.key,
     required this.child,
     required this.onDismissed,

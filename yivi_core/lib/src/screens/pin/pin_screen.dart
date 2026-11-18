@@ -11,8 +11,8 @@ import "../../providers/waiting_request_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/after_frame.dart";
 import "../../util/i18n.dart";
-import "../../widgets/bars/irma_app_bar.dart";
-import "../../widgets/buttons/irma_close_button.dart";
+import "../../widgets/bars/app_bar.dart";
+import "../../widgets/buttons/close_button.dart";
 import "../error/session_error_screen.dart";
 import "pin_entry.dart";
 import "providers/biometric_provider.dart";
@@ -231,7 +231,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
     final waiting = hasSession ? ref.watch(waitingRequestProvider).value : null;
 
     return YiviPinScaffold(
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleString: "",
         // Hide the leading button (the lock screen's QR scanner) while a session
         // is waiting — pending or in flight — scanning another is pointless; the
@@ -241,7 +241,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
         // to the normal unlock screen.
         // PopScope here if hardware-back parity is ever requested.
         actions: hasSession
-            ? [IrmaCloseButton(onTap: () => _confirmCancelPending(context))]
+            ? [YiviCloseButton(onTap: () => _confirmCancelPending(context))]
             : const [],
       ),
       // Only the spinner while the PIN is being verified.

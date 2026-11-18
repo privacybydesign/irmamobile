@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -65,7 +65,7 @@ Future<void> revocationTest(
   expect(cardsFinder, findsOneWidget);
 
   // Close the session
-  await tester.tapAndSettle(find.byType(IrmaCloseButton));
+  await tester.tapAndSettle(find.byType(YiviCloseButton));
 
   // Confirm the close dialog
   await tester.tapAndSettle(find.text("Yes"));

@@ -5,7 +5,7 @@ import "../../../package_name.dart";
 import "../../theme/yivi_palette.dart";
 import "../../util/i18n.dart";
 import "../../widgets/bars/action_bar.dart";
-import "../../widgets/bars/irma_app_bar.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/status_screen.dart";
 import "../settings/settings_screen.dart";
 
@@ -15,7 +15,7 @@ class ResetPinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StatusScreen(
-      appBar: IrmaAppBar(titleTranslationKey: "reset_pin.title"),
+      appBar: YiviAppBar(titleTranslationKey: "reset_pin.title"),
       discColor: YiviPalette.of(context).surface,
       picture: Padding(
         padding: const EdgeInsets.all(26),

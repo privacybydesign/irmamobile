@@ -11,8 +11,8 @@ import "route_fixed_bar.dart";
 import "scroll_edge.dart";
 import "title_scroll_edge.dart";
 
-class YiviAppBarQrCodeButton extends StatelessWidget {
-  const YiviAppBarQrCodeButton({super.key, this.onTap});
+class QrCodeBarButton extends StatelessWidget {
+  const QrCodeBarButton({super.key, this.onTap});
 
   final Function()? onTap;
 
@@ -58,7 +58,7 @@ class YiviBackButton extends StatelessWidget {
 /// [BarInsets] and `extendBodyBehindAppBar`).
 ///
 /// Unlike Material's AppBar it does not clip what reaches past it.
-class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
+class YiviAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Every page's bar, the home tabs' too: its 44 pt buttons [buttonTop]
   /// under the status bar and 4 above its bottom, where the band (once
   /// content scrolls under it) ends. One place for them on every page, so a
@@ -115,7 +115,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// red wash's top when nobody vouches for a requestor.
   final Color? edgeColor;
 
-  IrmaAppBar({
+  YiviAppBar({
     this.titleTranslationKey,
     this.titleString,
     this.title,
@@ -284,7 +284,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(toolbarHeight);
 }
 
-/// What a screen under a floating [IrmaAppBar] and bottom bar needs: with
+/// What a screen under a floating [YiviAppBar] and bottom bar needs: with
 /// `extendBodyBehindAppBar` and `extendBody` the scaffold reports both bars
 /// in the body's media padding, and the scrolling content adds them to its
 /// own padding, so it starts below the bars but scrolls underneath them.
@@ -311,7 +311,7 @@ class BarInsetsBuilder extends StatelessWidget {
   Widget build(BuildContext context) => builder(context, BarInsets.of(context));
 }
 
-/// The scroll edge of an [IrmaAppBar]: it follows the page's scroll view
+/// The scroll edge of an [YiviAppBar]: it follows the page's scroll view
 /// through the [Scaffold]'s [ScrollNotificationObserver], as a Material app
 /// bar knows it is scrolled under. Outside a scaffold it never shows.
 class _AppBarEdge extends StatefulWidget {
@@ -361,12 +361,12 @@ bool cornerIsFree(BuildContext context) {
 }
 
 /// Where the content of a screen with its close button in the corner
-/// ([IrmaAppBar.edgeActions]) starts: at the top, beside the button, when
+/// ([YiviAppBar.edgeActions]) starts: at the top, beside the button, when
 /// the corner is free ([cornerIsFree]); below the bar when the button is
 /// inside the safe area, so it never sits over the content.
 double cornerContentTop(BuildContext context) {
   final top = MediaQuery.paddingOf(context).top;
   if (!cornerIsFree(context)) return top + 8;
-  return (top - IrmaAppBar.toolbarHeight).clamp(0.0, 1e9) +
-      IrmaAppBar.cornerInset;
+  return (top - YiviAppBar.toolbarHeight).clamp(0.0, 1e9) +
+      YiviAppBar.cornerInset;
 }

@@ -7,8 +7,8 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
-import "../../widgets/bars/irma_app_bar.dart";
-import "../../widgets/buttons/irma_close_button.dart";
+import "../../widgets/bars/app_bar.dart";
+import "../../widgets/buttons/close_button.dart";
 import "../pin/pin_entry.dart";
 import "../pin/pin_feedback.dart";
 import "../pin/yivi_pin_screen.dart";
@@ -127,10 +127,10 @@ class _SessionPinEntryScreenState extends ConsumerState<SessionPinEntryScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleTranslationKey: widget.title,
         leading: const SizedBox.shrink(),
-        actions: [IrmaCloseButton(onTap: widget.onCancel)],
+        actions: [YiviCloseButton(onTap: widget.onCancel)],
       ),
       backgroundColor: YiviPalette.of(context).background,
       body: SafeArea(

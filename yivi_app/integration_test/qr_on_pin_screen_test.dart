@@ -12,8 +12,8 @@ import "package:yivi_core/src/screens/pin/widgets/waiting_request_announcement.d
 import "package:yivi_core/src/screens/scanner/lock_scanner_sheet.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/buttons/irma_close_button.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
+import "package:yivi_core/src/widgets/buttons/close_button.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -122,21 +122,21 @@ Future<void> testCancelPendingSession(
 
   // The PIN page of the sheet; the lock screen under it hides its QR button.
   expect(find.byKey(const Key("lock_scanner_unlock")), findsOneWidget);
-  expect(find.byType(YiviAppBarQrCodeButton), findsNothing);
+  expect(find.byType(QrCodeBarButton), findsNothing);
 
   // Close the sheet and stop the request.
   await tester.tapAndSettle(
     find.descendant(
       of: find.byKey(const Key("lock_scanner_unlock")),
-      matching: find.byType(IrmaCloseButton),
+      matching: find.byType(YiviCloseButton),
     ),
   );
   await tester.tapAndSettle(find.byKey(const Key("dialog_confirm_button")));
 
   // Back to normal unlock: still on PinScreen, QR button back, ✕ gone.
   expect(find.byType(PinScreen), findsOneWidget);
-  expect(find.byType(YiviAppBarQrCodeButton), findsOneWidget);
-  expect(find.byType(IrmaCloseButton), findsNothing);
+  expect(find.byType(QrCodeBarButton), findsOneWidget);
+  expect(find.byType(YiviCloseButton), findsNothing);
 
   // Leave the app unlocked so teardown is happy.
   await unlockAndWaitForHome(tester);
@@ -180,7 +180,7 @@ Future<void> testBackFromQrScanner(
   // Sheet has a close button in the top-right (not a back button).
   final closeButton = find.descendant(
     of: qrScreen,
-    matching: find.byType(IrmaCloseButton),
+    matching: find.byType(YiviCloseButton),
   );
   await tester.tapAndSettle(closeButton);
 
@@ -280,7 +280,7 @@ Future<void> testDisclosureGoesFullScreen(
 
 Future<void> tapQrScannerButton(WidgetTester tester) async {
   // should be on the pin screen, find the qr scanner button and press it
-  final qrButton = find.byType(YiviAppBarQrCodeButton);
+  final qrButton = find.byType(QrCodeBarButton);
   await tester.waitFor(qrButton);
   await tester.tapAndSettle(qrButton);
 }
@@ -311,7 +311,7 @@ Future<void> testLinkWhileLockedShowsCard(
   IrmaRepository repo,
 ) async {
   await pumpYiviApp(tester, repo, defaultLanguage: Locale("en", "EN"));
-  await tester.waitFor(find.byType(YiviAppBarQrCodeButton));
+  await tester.waitFor(find.byType(QrCodeBarButton));
 
   final session = await createIssuanceSession(
     attributes: createMunicipalityPersonalDataAttributes(Locale("en", "EN")),

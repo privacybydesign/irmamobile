@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -44,8 +44,8 @@ Future<void> callingSessionTest(
   final callInfoScreenFinder = find.byType(CallInfoScreen);
   expect(callInfoScreenFinder, findsOneWidget);
 
-  // The screen should have a IrmaAppBar with the right header
-  final appBarFinder = find.byType(IrmaAppBar);
+  // The screen should have a YiviAppBar with the right header
+  final appBarFinder = find.byType(YiviAppBar);
   expect(appBarFinder, findsOneWidget);
 
   const expectedAppBarText = "Call via Yivi";

@@ -37,7 +37,7 @@ import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart"
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/util/test_detection.dart";
-import "package:yivi_core/src/widgets/bars/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/builtin_card_templates.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";

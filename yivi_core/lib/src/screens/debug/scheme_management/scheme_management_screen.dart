@@ -17,7 +17,7 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/action_bar.dart";
-import "../../../widgets/bars/irma_app_bar.dart";
+import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/feedback/glass_dialog.dart";
 import "../../../widgets/feedback/yivi_spinner.dart";
@@ -178,7 +178,7 @@ class _SchemeManagementScreenState
       extendBodyBehindAppBar: true,
       extendBody: true,
       backgroundColor: YiviPalette.of(context).background,
-      appBar: IrmaAppBar(
+      appBar: YiviAppBar(
         titleTranslationKey: "debug.scheme_management.title",
         actions: [
           YiviIconButton(

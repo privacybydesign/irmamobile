@@ -6,7 +6,7 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 
-class IrmaAvatar extends StatelessWidget {
+class Avatar extends StatelessWidget {
   final double size;
   final Widget? logoImage;
   final String? logoPath;
@@ -22,7 +22,7 @@ class IrmaAvatar extends StatelessWidget {
   /// Behind a logo (else the light neutral of the initials).
   final Color? logoBackground;
 
-  const IrmaAvatar({
+  const Avatar({
     this.size = 48,
     this.logoImage,
     this.logoPath,
