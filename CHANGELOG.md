@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- A "Report to the Data Protection Authority" item on the More tab, next to the privacy policy. It opens the page of the Dutch Autoriteit Persoonsgegevens where you can file a tip or a complaint ([#800](https://github.com/privacybydesign/irmamobile/issues/800))
 - Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
 - A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
 - Support for French language ([#806](https://github.com/privacybydesign/irmamobile/issues/806))
