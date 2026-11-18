@@ -29,7 +29,8 @@ class DocumentFlowButton extends StatelessWidget {
   /// Both styles have this height.
   static const double height = PillSize.largeHeight;
 
-  /// The keys of the two button positions, the same as IrmaBottomBar's.
+  /// The keys of the two button positions; integration tests find the
+  /// buttons by them.
   static const primaryKey = Key("bottom_bar_primary");
   static const secondaryKey = Key("bottom_bar_secondary");
 

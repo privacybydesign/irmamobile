@@ -6,7 +6,7 @@ import "status_body.dart";
 
 /// A screen that only says something (an error, a warning, "update
 /// required"): a [StatusBody] between an optional [appBar] and the
-/// [actions] at the bottom (an IrmaBottomBar). The texts arrive translated.
+/// [actions] at the bottom. The texts arrive translated.
 class StatusScreen extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final String title;
