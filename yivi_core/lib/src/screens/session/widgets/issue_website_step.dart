@@ -6,7 +6,6 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/action_bar.dart";
-import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_actions.dart";
@@ -202,7 +201,7 @@ class _IssueWebsiteScreenState extends State<IssueWebsiteScreen> {
     // Held sideways, and on a tablet: the words at the left with the button
     // at their foot; the picture and the steps at the right, as the
     // permission screen.
-    final columns = useSessionColumns(context) || useSheetColumns(context);
+    final columns = SessionLayout.of(context).split;
     final parts = _WebsiteParts(
       context,
       host: widget.host,
@@ -220,56 +219,29 @@ class _IssueWebsiteScreenState extends State<IssueWebsiteScreen> {
         // The body's own context sees the bars.
         body: Builder(
           builder: (context) => SidewaysLayout(
-            panel: Padding(
+            panel: SessionPanel(
               key: const Key("website_panel"),
-              padding: EdgeInsets.fromLTRB(
-                0,
-                sidewaysPanelTop(context),
-                0,
-                FloatingBarPlacement.buttonBottom(context),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: YiviSpace.x12,
-                        children: [parts.heading, parts.lead],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: YiviSpace.x16),
-                  FancyPillButton(
-                    key: const Key("bottom_bar_primary"),
-                    label: parts.openLabel,
-                    onPressed: onOpen,
-                  ),
-                ],
-              ),
-            ),
-            content: SingleChildScrollView(
-              key: const Key("website_screen"),
-              padding: EdgeInsets.fromLTRB(
-                YiviSpace.x4,
-                sidewaysContentTop(context),
-                0,
-                56 + MediaQuery.paddingOf(context).bottom,
-              ),
-              child: Column(
+              top: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: YiviSpace.x12,
-                children: [
-                  SurfaceCard(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: YiviSpace.x24,
-                    ),
-                    child: parts.picture,
-                  ),
-                  ?parts.steps,
-                ],
+                children: [parts.heading, parts.lead],
               ),
+              action: FancyPillButton(
+                key: const Key("bottom_bar_primary"),
+                label: parts.openLabel,
+                onPressed: onOpen,
+              ),
+            ),
+            content: SessionPanelContent(
+              scrollKey: const Key("website_screen"),
+              spacing: YiviSpace.x12,
+              children: [
+                SurfaceCard(
+                  padding: const EdgeInsets.symmetric(vertical: YiviSpace.x24),
+                  child: parts.picture,
+                ),
+                ?parts.steps,
+              ],
             ),
           ),
         ),

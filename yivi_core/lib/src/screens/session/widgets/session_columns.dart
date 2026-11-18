@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/centred_max_width.dart";
-import "../../../widgets/fill_scroll_view.dart";
+import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/irma_app_bar.dart";
 
 /// The most each column of a session screen's sideways layout is wide (on
@@ -72,6 +72,103 @@ class SidewaysLayout extends StatelessWidget {
   }
 }
 
+/// How a session screen is laid out.
+enum SessionLayout {
+  /// A phone held upright: one column, the button in the bar at the bottom.
+  upright,
+
+  /// Wider than high (a phone held sideways, a tablet on its side): two
+  /// columns, the panel at the left.
+  sideways,
+
+  /// A tablet held upright: the two columns too.
+  columns;
+
+  static SessionLayout of(BuildContext context) => useSessionColumns(context)
+      ? columns
+      : useSheetColumns(context)
+      ? sideways
+      : upright;
+
+  /// Two columns: a [SessionPanel] at the left, the rest at the right.
+  bool get split => this != upright;
+}
+
+/// The left column of a split session screen ([SidewaysLayout.panel]): [top]
+/// (the title, who asks) scrolls if it doesn't fit; [action] (the button,
+/// with [above] it a reason) stays at the bottom, as low as a full screen's
+/// buttons.
+class SessionPanel extends StatelessWidget {
+  final Widget? top;
+  final Widget action;
+  final Widget? above;
+
+  const SessionPanel({
+    super.key,
+    required this.top,
+    required this.action,
+    this.above,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final above = this.above;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        0,
+        sidewaysPanelTop(context),
+        0,
+        FloatingBarPlacement.buttonBottom(context),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: SingleChildScrollView(child: top)),
+          const SizedBox(height: YiviSpace.x16),
+          if (above != null) ...[above, const SizedBox(height: YiviSpace.x12)],
+          action,
+        ],
+      ),
+    );
+  }
+}
+
+/// The right column of a split session screen ([SidewaysLayout.content]):
+/// [children] scrolling from [sidewaysContentTop], clear of the home
+/// indicator at the end.
+class SessionPanelContent extends StatelessWidget {
+  final List<Widget> children;
+
+  /// The scroll view's own key.
+  final Key? scrollKey;
+
+  /// The room between the children.
+  final double spacing;
+
+  const SessionPanelContent({
+    super.key,
+    required this.children,
+    this.scrollKey,
+    this.spacing = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    key: scrollKey,
+    padding: EdgeInsets.fromLTRB(
+      YiviSpace.x4,
+      sidewaysContentTop(context),
+      0,
+      56 + MediaQuery.paddingOf(context).bottom,
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: spacing,
+      children: children,
+    ),
+  );
+}
+
 /// Whether the session screens use their two-column tablet layouts: on a
 /// tablet held upright. Wider than high they use the layout of a phone held
 /// sideways instead ([useSheetColumns]): who asks and the button in a panel
@@ -79,44 +176,4 @@ class SidewaysLayout extends StatelessWidget {
 bool useSessionColumns(BuildContext context) {
   final size = MediaQuery.sizeOf(context);
   return isExpandedLayout(context) && size.width <= size.height;
-}
-
-/// The tablet layout of a short session screen (a result, the call): one
-/// column of at most [maxWidth], centred on the screen, with its button
-/// under the text instead of across the bottom.
-class SessionCentred extends StatelessWidget {
-  final List<Widget> children;
-  final double maxWidth;
-
-  const SessionCentred({
-    super.key,
-    required this.children,
-    this.maxWidth = 480,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // The bars are part of the padding: the content is centred between
-    // them and only scrolls when it does not fit.
-    final padding = BarInsets.of(
-      context,
-      const EdgeInsets.fromLTRB(
-        YiviSpace.x32,
-        YiviSpace.x24,
-        YiviSpace.x32,
-        YiviSpace.x32,
-      ),
-    );
-    return FillScrollView(
-      padding: padding,
-      child: CentredMaxWidth(
-        maxWidth: maxWidth,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: children,
-        ),
-      ),
-    );
-  }
 }

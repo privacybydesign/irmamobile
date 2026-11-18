@@ -2,7 +2,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../util/adaptive_layout.dart";
 import "../../../widgets/action_bar.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "session_columns.dart";
@@ -64,7 +63,7 @@ class SessionResult extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
-    final columns = useSheetColumns(context) || useSessionColumns(context);
+    final columns = SessionLayout.of(context).split;
     final below = this.below;
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

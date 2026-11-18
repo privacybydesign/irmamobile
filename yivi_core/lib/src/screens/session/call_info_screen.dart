@@ -4,7 +4,6 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
-import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
 import "../../widgets/action_bar.dart";
 import "../../widgets/glass/glass_dialog.dart";
@@ -51,7 +50,7 @@ class CallInfoScreen extends StatelessWidget {
           ? null
           : Align(
               // Under the words: centred upright, at their start in columns.
-              alignment: useSheetColumns(context) || useSessionColumns(context)
+              alignment: SessionLayout.of(context).split
                   ? AlignmentDirectional.centerStart
                   : Alignment.center,
               child: GlassSurface(

@@ -4,7 +4,6 @@ import "../../../models/credential.dart";
 import "../../../models/session_state.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../util/nfc_credentials.dart";
 import "../../../widgets/action_bar.dart";
@@ -12,7 +11,6 @@ import "../../../widgets/caps_label.dart";
 import "../../../widgets/centred_max_width.dart";
 import "../../../widgets/compact_bar.dart";
 import "../../../widgets/credential_card/card_art/card_art_support.dart";
-import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../models/issuance_view_model.dart";
@@ -136,7 +134,7 @@ class _IssuancePermissionState extends State<IssuancePermission> {
 
     // Held sideways, and on a tablet: who gives it at the left with the
     // button at its foot; the cards at the right.
-    if (useSessionColumns(context) || useSheetColumns(context)) {
+    if (SessionLayout.of(context).split) {
       return SessionScaffold(
         wide: true,
         scrollsUnderBars: true,
@@ -147,39 +145,15 @@ class _IssuancePermissionState extends State<IssuancePermission> {
           builder: (context) => IssuanceTrustWash(
             on: risky,
             child: SidewaysLayout(
-              panel: Padding(
+              panel: SessionPanel(
                 key: const Key("issuance_panel"),
-                padding: EdgeInsets.fromLTRB(
-                  0,
-                  sidewaysPanelTop(context),
-                  0,
-                  FloatingBarPlacement.buttonBottom(context),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: SingleChildScrollView(child: heading)),
-                    const SizedBox(height: YiviSpace.x16),
-                    if (reason != null) ...[
-                      reason,
-                      const SizedBox(height: YiviSpace.x12),
-                    ],
-                    button,
-                  ],
-                ),
+                top: heading,
+                above: reason,
+                action: button,
               ),
-              content: SingleChildScrollView(
-                key: const Key("issuance_scroll_view"),
-                padding: EdgeInsets.fromLTRB(
-                  YiviSpace.x4,
-                  sidewaysContentTop(context),
-                  0,
-                  56 + MediaQuery.paddingOf(context).bottom,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: values,
-                ),
+              content: SessionPanelContent(
+                scrollKey: const Key("issuance_scroll_view"),
+                children: values,
               ),
             ),
           ),

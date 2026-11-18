@@ -14,7 +14,6 @@ import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
-import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/action_bar.dart";
@@ -27,7 +26,6 @@ import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/fill_scroll_view.dart";
 import "../../../widgets/flight/yivi_flight.dart";
-import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -300,7 +298,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     final box = spot.findRenderObject();
     final viewport = Scrollable.maybeOf(spot)?.context.findRenderObject();
     if (box is! RenderBox || viewport is! RenderBox || !box.hasSize) return;
-    final sideways = useSheetColumns(context) || useSessionColumns(context);
+    final sideways = SessionLayout.of(context).split;
     final top = sideways ? 40.0 : 120.0;
     final bottom = viewport.size.height - (sideways ? 16.0 : 200.0);
     final y = box.localToGlobal(Offset.zero, ancestor: viewport).dy;
@@ -367,11 +365,11 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
       ShareKind.share => "share",
     };
     final t = context.tr;
-    final columns = useSessionColumns(context);
-    final landscape = !columns && useSheetColumns(context);
+    final layout = SessionLayout.of(context);
+    final landscape = layout == SessionLayout.sideways;
     // The header can change size (rotation, text size): check again after
     // this layout.
-    if (!columns && !landscape) {
+    if (!layout.split) {
       afterFrame(_checkHeader);
     }
 
@@ -579,7 +577,7 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
     // Held sideways, and on a tablet: the title, who asks and the button in
     // a panel at the left that stays put; what is shared scrolls at the
     // right, the message first.
-    if (landscape || columns) {
+    if (layout.split) {
       return SessionScaffold(
         appBarTitle: "share.bar.$kind",
         onDismiss: widget.onDismiss,
@@ -598,9 +596,9 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
             builder: (context) {
               final top = sidewaysContentTop(context);
               return SidewaysLayout(
-                panel: _LandscapePanel(
-                  top: sidewaysPanelTop(context),
-                  heading: heading(gap: YiviSpace.x16),
+                panel: SessionPanel(
+                  key: const Key("share_panel"),
+                  top: heading(gap: YiviSpace.x16),
                   action: bar,
                 ),
                 content: _SidewaysCards(

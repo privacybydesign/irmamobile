@@ -380,41 +380,6 @@ class _MismatchTile extends StatelessWidget {
   }
 }
 
-/// The panel at the left held sideways (and on a tablet): the title and who
-/// asks at the top ([heading]), the progress and the button at its bottom.
-/// It scrolls only when it doesn't fit (a large text size).
-class _LandscapePanel extends StatelessWidget {
-  final double top;
-  final Widget heading;
-  final Widget action;
-
-  const _LandscapePanel({
-    required this.top,
-    required this.heading,
-    required this.action,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bottom = FloatingBarPlacement.buttonBottom(context);
-    return FillScrollView(
-      scrollKey: const Key("share_panel"),
-      padding: EdgeInsets.fromLTRB(0, top, 0, bottom),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          heading,
-          Padding(
-            padding: const EdgeInsets.only(top: YiviSpace.x16),
-            child: action,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// The right column held sideways: what is shared, scrolling under the
 /// corner's close button. Once something is under the top, the column gets
 /// the bar's hard edge behind that button, across to the screen's edge.
