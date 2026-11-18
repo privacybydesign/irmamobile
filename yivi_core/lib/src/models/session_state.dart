@@ -4,6 +4,7 @@ import "credential.dart";
 import "credential_store.dart";
 import "event.dart";
 import "log_entry.dart";
+import "protocol.dart";
 import "return_url.dart";
 import "session.dart";
 
@@ -40,7 +41,19 @@ enum SessionStatus {
 @JsonSerializable(createToJson: false, fieldRename: .snake)
 class SessionState {
   final int id;
+
+  /// The protocol as irmago names it; see [knownProtocol].
   final String protocol;
+
+  /// [protocol], or null for one this app does not know (the technical
+  /// details then show irmago's name for it).
+  Protocol? get knownProtocol => switch (protocol) {
+    "irma" => Protocol.irma,
+    "openid4vp" => Protocol.openid4vp,
+    "openid4vci" => Protocol.openid4vci,
+    _ => null,
+  };
+
   final SessionType type;
   final SessionStatus status;
   final TrustedParty requestor;

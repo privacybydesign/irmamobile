@@ -1,5 +1,6 @@
 import "../../../models/credential.dart";
 import "../../../models/log_entry.dart" show CredentialFormat;
+import "../../../models/protocol.dart";
 import "../../../models/session_state.dart";
 
 /// One line of the technical details: a label and its value. Identifiers
@@ -58,7 +59,9 @@ List<TechGroup> issuanceTechnicalDetailsOf(
   Translate t,
 ) {
   final issuer = cards.firstOrNull?.issuer ?? session.requestor;
-  final fallback = session.protocol == "irma" ? CredentialFormat.idemix : null;
+  final fallback = session.knownProtocol == Protocol.irma
+      ? CredentialFormat.idemix
+      : null;
   return [
     TechGroup(t("issuance.tech.group.who"), _partyRows(issuer, t)),
     TechGroup(t("issuance.tech.group.how"), _howRows(session, t)),
@@ -85,21 +88,23 @@ List<TechRow> _partyRows(TrustedParty party, Translate t) {
   final certificate = evidence?.certificate;
 
   final level = switch (party.trustLevel) {
-    "high" => t("share.tech.level.high"),
-    "medium" => t("share.tech.level.medium"),
-    "low" => t("share.tech.level.low"),
+    TrustLevel.high => t("share.tech.level.high"),
+    TrustLevel.medium => t("share.tech.level.medium"),
+    TrustLevel.low => t("share.tech.level.low"),
     null =>
       party.verified
           ? t("share.tech.level.verified")
           : t("share.tech.level.not_verified"),
-    _ => t("share.tech.level.unevaluated"),
+    // Not evaluated, or a rung this app does not know.
+    TrustLevel.unevaluated ||
+    TrustLevel.unrecognised => t("share.tech.level.unevaluated"),
   };
   final source = switch (party.trustSource) {
-    "yivi_scheme" => t("share.tech.source.yivi_scheme"),
-    "yivi_trust_list" => t("share.tech.source.yivi_trust_list"),
-    "eu_trusted_list" => t("share.tech.source.eu_trusted_list"),
-    "other" => party.trustAnchor,
-    _ => null,
+    TrustSource.yiviScheme => t("share.tech.source.yivi_scheme"),
+    TrustSource.yiviTrustList => t("share.tech.source.yivi_trust_list"),
+    TrustSource.euTrustedList => t("share.tech.source.eu_trusted_list"),
+    TrustSource.other => party.trustAnchor,
+    null => null,
   };
   final notAfter = certificate?.notAfter;
 
@@ -111,7 +116,7 @@ List<TechRow> _partyRows(TrustedParty party, Translate t) {
     if (source != null && source.isNotEmpty)
       TechRow(t("share.tech.row.trust_source"), source),
     if (party.trustAnchor case final anchor?
-        when anchor.isNotEmpty && party.trustSource != "other")
+        when anchor.isNotEmpty && party.trustSource != TrustSource.other)
       TechRow(t("share.tech.row.trust_anchor"), anchor),
     if (evidence?.registrationId case final id? when id.isNotEmpty)
       TechRow(t("share.tech.row.registration"), id, mono: true),
@@ -130,11 +135,11 @@ List<TechRow> _partyRows(TrustedParty party, Translate t) {
 
 /// How the data travels: protocol, session, response.
 List<TechRow> _howRows(SessionState session, Translate t) => [
-  TechRow(t("share.tech.row.protocol"), switch (session.protocol) {
-    "irma" => t("share.tech.protocol.irma"),
-    "openid4vp" => t("share.tech.protocol.openid4vp"),
-    "openid4vci" => t("share.tech.protocol.openid4vci"),
-    final other => other,
+  TechRow(t("share.tech.row.protocol"), switch (session.knownProtocol) {
+    Protocol.irma => t("share.tech.protocol.irma"),
+    Protocol.openid4vp => t("share.tech.protocol.openid4vp"),
+    Protocol.openid4vci => t("share.tech.protocol.openid4vci"),
+    null => session.protocol,
   }),
   TechRow(
     t("share.tech.row.session"),

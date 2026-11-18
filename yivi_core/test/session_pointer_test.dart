@@ -317,6 +317,16 @@ void main() {
       expect(kind("redirect"), SessionPreviewKind.unknown);
       expect(kind("something-new"), SessionPreviewKind.unknown);
     });
+
+    test("its kind, null for one the app does not know", () {
+      SessionKind? kind(String irmaqr) =>
+          SessionPointer(u: "u", irmaqr: irmaqr, protocol: Protocol.irma).kind;
+      expect(kind("disclosing"), SessionKind.disclosing);
+      expect(kind("issuing"), SessionKind.issuing);
+      expect(kind("signing"), SessionKind.signing);
+      expect(kind("redirect"), SessionKind.redirect);
+      expect(kind("something-new"), isNull);
+    });
   });
 
   group("SessionState.protocol", () {
@@ -336,6 +346,14 @@ void main() {
 
     test("one the app does not know does not stop the session", () {
       expect(() => parse("future"), returnsNormally);
+      expect(parse("future").knownProtocol, isNull);
+      expect(parse("future").protocol, "future");
+    });
+
+    test("the protocols the app knows", () {
+      expect(parse("irma").knownProtocol, Protocol.irma);
+      expect(parse("openid4vp").knownProtocol, Protocol.openid4vp);
+      expect(parse("openid4vci").knownProtocol, Protocol.openid4vci);
     });
   });
 }

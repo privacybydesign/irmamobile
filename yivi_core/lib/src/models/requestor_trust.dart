@@ -25,19 +25,22 @@ RequestorTrust requestorTrustOf(TrustedParty party) {
     // Verified, but by whom: a certificate from another CA is vouched for
     // just as well, by someone other than Yivi.
     return switch (party.trustSource) {
-      "other" || "eu_trusted_list" => RequestorTrust.elsewhere,
-      _ => RequestorTrust.yivi,
+      TrustSource.other ||
+      TrustSource.euTrustedList => RequestorTrust.elsewhere,
+      TrustSource.yiviScheme ||
+      TrustSource.yiviTrustList ||
+      null => RequestorTrust.yivi,
     };
   }
   return switch (level) {
-    "high" => RequestorTrust.yivi,
-    "medium" => RequestorTrust.elsewhere,
-    "low" => RequestorTrust.unknown,
+    TrustLevel.high => RequestorTrust.yivi,
+    TrustLevel.medium => RequestorTrust.elsewhere,
+    TrustLevel.low => RequestorTrust.unknown,
     // An empty rung is irmago's "not evaluated" in old log rows.
-    "" => RequestorTrust.unevaluated,
+    TrustLevel.unevaluated => RequestorTrust.unevaluated,
     // A rung this app does not know: the cautious reading, never a claim
     // of trust it cannot back.
-    _ => RequestorTrust.unknown,
+    TrustLevel.unrecognised => RequestorTrust.unknown,
   };
 }
 
@@ -57,7 +60,7 @@ extension RequestorTrustX on RequestorTrust {
 enum ElsewhereSource { euTrustedList, namedAnchor, unspecified }
 
 ElsewhereSource elsewhereSourceOf(TrustedParty party) {
-  if (party.trustSource == "eu_trusted_list") {
+  if (party.trustSource == TrustSource.euTrustedList) {
     return ElsewhereSource.euTrustedList;
   }
   final anchor = party.trustAnchor;

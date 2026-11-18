@@ -73,11 +73,11 @@ class SessionPreview {
   /// The preview of [pointer] that needs no irmago: the kind its pointer
   /// names, nothing about who asks.
   factory SessionPreview.ofPointer(SessionPointer pointer) => SessionPreview(
-    kind: switch (pointer.irmaqr) {
-      "disclosing" => SessionPreviewKind.disclosure,
-      "issuing" => SessionPreviewKind.issuance,
-      "signing" => SessionPreviewKind.signature,
-      _ => SessionPreviewKind.unknown,
+    kind: switch (pointer.kind) {
+      SessionKind.disclosing => SessionPreviewKind.disclosure,
+      SessionKind.issuing => SessionPreviewKind.issuance,
+      SessionKind.signing => SessionPreviewKind.signature,
+      SessionKind.redirect || null => SessionPreviewKind.unknown,
     },
     knowledge: SessionPreviewKnowledge.none,
   );

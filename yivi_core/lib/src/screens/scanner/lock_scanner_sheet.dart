@@ -55,7 +55,7 @@ class _LockScannerSheetState extends ConsumerState<LockScannerSheet> {
   /// The scan is an issuance: it goes on in this sheet after the PIN.
   bool get _issuance {
     final scanned = _scanned;
-    return scanned is SessionPointer && scanned.irmaqr == "issuing";
+    return scanned is SessionPointer && scanned.kind == SessionKind.issuing;
   }
 
   @override

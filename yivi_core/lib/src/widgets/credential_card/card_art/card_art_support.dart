@@ -158,14 +158,16 @@ SvgCardTemplate? pickSvgTemplate(
   required bool highContrast,
 }) {
   if (templates.isEmpty) return null;
-  final scheme = brightness == Brightness.dark ? "dark" : "light";
+  final scheme = brightness == Brightness.dark
+      ? CardColorScheme.dark
+      : CardColorScheme.light;
   int score(SvgCardTemplate t) {
     var s = 0;
-    if (t.orientation == "landscape") s += 8;
-    if (t.orientation == "portrait") s -= 8;
+    if (t.orientation == CardOrientation.landscape) s += 8;
+    if (t.orientation == CardOrientation.portrait) s -= 8;
     if (t.colorScheme == scheme) s += 4;
     if (t.colorScheme != null && t.colorScheme != scheme) s -= 2;
-    if ((t.contrast == "high") == highContrast) s += 1;
+    if ((t.contrast == CardContrast.high) == highContrast) s += 1;
     return s;
   }
 

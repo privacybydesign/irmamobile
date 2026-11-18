@@ -35,7 +35,7 @@ SvgCardTemplate? builtinCardTemplate(
   }
   return SvgCardTemplate(
     svg: _svgs.putIfAbsent(key, () => _svg(builtinCardSvgs[key]!)),
-    orientation: "landscape",
+    orientation: CardOrientation.landscape,
   );
 }
 

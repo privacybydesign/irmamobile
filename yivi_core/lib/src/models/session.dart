@@ -133,14 +133,22 @@ Protocol _protocolFromJsonAlwaysIrma(String? protocol) {
 Object? _readContinueOnSecondDevice(Map<dynamic, dynamic> json, String key) =>
     json[key] ?? json["continueOnSecondDevice"];
 
+/// What a session pointer says the session is (its `irmaqr`).
+enum SessionKind { disclosing, signing, issuing, redirect }
+
 /// A pointer that refers to a new IRMA session.
 @JsonSerializable(fieldRename: FieldRename.snake)
 final class SessionPointer implements Pointer {
   @JsonKey(name: "u", required: true)
   final String u;
 
+  /// Stays the string the QR had: it goes back to Go as it came, also a
+  /// value this app does not know. See [kind].
   @JsonKey(name: "irmaqr", required: true)
   final String irmaqr;
+
+  /// [irmaqr], or null for a kind this app does not know.
+  SessionKind? get kind => SessionKind.values.asNameMap()[irmaqr];
 
   @JsonKey(
     name: "protocol",

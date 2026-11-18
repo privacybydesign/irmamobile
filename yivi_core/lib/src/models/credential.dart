@@ -193,6 +193,37 @@ class Attribute {
   Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
+/// The rung of irmago's trust ladder.
+enum TrustLevel {
+  @JsonValue("high")
+  high,
+  @JsonValue("medium")
+  medium,
+  @JsonValue("low")
+  low,
+
+  /// Not evaluated: the empty rung of old log rows.
+  @JsonValue("")
+  unevaluated,
+
+  /// A rung this app does not know. Read with caution: never a claim of
+  /// trust the app cannot back.
+  @JsonValue("unrecognised")
+  unrecognised,
+}
+
+/// Where a party's trust comes from.
+enum TrustSource {
+  @JsonValue("yivi_scheme")
+  yiviScheme,
+  @JsonValue("yivi_trust_list")
+  yiviTrustList,
+  @JsonValue("eu_trusted_list")
+  euTrustedList,
+  @JsonValue("other")
+  other,
+}
+
 @JsonSerializable(fieldRename: .snake)
 class TrustedParty {
   final String id;
@@ -208,13 +239,15 @@ class TrustedParty {
   @JsonKey(defaultValue: false)
   final bool verified;
 
-  /// The rung of irmago's trust ladder: "low", "medium" or "high". Absent
-  /// when nothing was evaluated, or from an irmago without the ladder.
-  final String? trustLevel;
+  /// The rung of irmago's trust ladder. Absent when nothing was evaluated,
+  /// or from an irmago without the ladder.
+  @JsonKey(unknownEnumValue: TrustLevel.unrecognised)
+  final TrustLevel? trustLevel;
 
-  /// Where the trust comes from: "yivi_scheme", "yivi_trust_list",
-  /// "eu_trusted_list" or "other". Absent when unknown.
-  final String? trustSource;
+  /// Where the trust comes from. Absent when unknown, also for a source
+  /// this app does not know.
+  @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
+  final TrustSource? trustSource;
 
   /// The display name of the list or authority that vouches, if any.
   final String? trustAnchor;
@@ -292,6 +325,35 @@ class LogoImage {
   Map<String, dynamic> toJson() => _$LogoImageToJson(this);
 }
 
+/// Which way up an issuer's card template is drawn.
+enum CardOrientation {
+  @JsonValue("portrait")
+  portrait,
+  @JsonValue("landscape")
+  landscape,
+}
+
+/// The colour scheme an issuer's card template is drawn for.
+enum CardColorScheme {
+  @JsonValue("light")
+  light,
+  @JsonValue("dark")
+  dark,
+
+  /// A scheme this app does not know: neither of the app's, so it scores
+  /// below a template that does not say.
+  @JsonValue("other")
+  other,
+}
+
+/// The contrast an issuer's card template is drawn for.
+enum CardContrast {
+  @JsonValue("normal")
+  normal,
+  @JsonValue("high")
+  high,
+}
+
 /// One issuer SVG card template from SD-JWT VC type metadata
 /// (`display[].rendering.svg_templates[]`), already fetched, integrity-checked
 /// and sanitised by irmago.
@@ -299,14 +361,18 @@ class LogoImage {
 class SvgCardTemplate {
   final String svg;
 
-  /// `portrait` or `landscape`; null when the issuer did not say.
-  final String? orientation;
+  /// Null when the issuer did not say, or said something unknown.
+  @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
+  final CardOrientation? orientation;
 
-  /// `light` or `dark`; null when the issuer did not say.
-  final String? colorScheme;
+  /// Null when the issuer did not say; [CardColorScheme.other] when it said
+  /// something unknown.
+  @JsonKey(unknownEnumValue: CardColorScheme.other)
+  final CardColorScheme? colorScheme;
 
-  /// `normal` or `high`; null when the issuer did not say.
-  final String? contrast;
+  /// Null when the issuer did not say, or said something unknown.
+  @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
+  final CardContrast? contrast;
 
   SvgCardTemplate({
     required this.svg,

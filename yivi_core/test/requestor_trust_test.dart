@@ -18,8 +18,17 @@ TrustedParty _party({
   url: null,
   parent: null,
   verified: verified,
-  trustLevel: level,
-  trustSource: source,
+  // As irmago sends them, unknown values included.
+  trustLevel: TrustedParty.fromJson({
+    "id": "",
+    "name": "",
+    "trust_level": level,
+  }).trustLevel,
+  trustSource: TrustedParty.fromJson({
+    "id": "",
+    "name": "",
+    "trust_source": source,
+  }).trustSource,
   trustAnchor: anchor,
   evidence: evidence,
 );
@@ -217,11 +226,40 @@ void main() {
         "trust_source": "eu_trusted_list",
         "trust_anchor": "QTSP",
       });
-      expect(party.trustLevel, "medium");
-      expect(party.trustSource, "eu_trusted_list");
+      expect(party.trustLevel, TrustLevel.medium);
+      expect(party.trustSource, TrustSource.euTrustedList);
       expect(party.trustAnchor, "QTSP");
       expect(party.verified, isFalse);
       expect(requestorTrustOf(party), RequestorTrust.elsewhere);
+    });
+
+    test("every rung and source on the wire, and unknown ones", () {
+      TrustedParty of(Map<String, dynamic> json) =>
+          TrustedParty.fromJson({"id": "p", "name": "P", ...json});
+      expect(of({"trust_level": "high"}).trustLevel, TrustLevel.high);
+      expect(of({"trust_level": "medium"}).trustLevel, TrustLevel.medium);
+      expect(of({"trust_level": "low"}).trustLevel, TrustLevel.low);
+      expect(of({"trust_level": ""}).trustLevel, TrustLevel.unevaluated);
+      expect(
+        of({"trust_level": "extreme"}).trustLevel,
+        TrustLevel.unrecognised,
+      );
+      expect(of({}).trustLevel, isNull);
+      expect(
+        of({"trust_source": "yivi_scheme"}).trustSource,
+        TrustSource.yiviScheme,
+      );
+      expect(
+        of({"trust_source": "yivi_trust_list"}).trustSource,
+        TrustSource.yiviTrustList,
+      );
+      expect(
+        of({"trust_source": "eu_trusted_list"}).trustSource,
+        TrustSource.euTrustedList,
+      );
+      expect(of({"trust_source": "other"}).trustSource, TrustSource.other);
+      expect(of({"trust_source": "somewhere"}).trustSource, isNull);
+      expect(of({}).trustSource, isNull);
     });
 
     test("every source of a verified party before the ladder", () {

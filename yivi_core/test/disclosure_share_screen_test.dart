@@ -3333,8 +3333,17 @@ void main() {
       url: null,
       parent: null,
       verified: verified,
-      trustLevel: level,
-      trustSource: source,
+      // As irmago sends them, unknown values included.
+      trustLevel: TrustedParty.fromJson({
+        "id": "",
+        "name": "",
+        "trust_level": level,
+      }).trustLevel,
+      trustSource: TrustedParty.fromJson({
+        "id": "",
+        "name": "",
+        "trust_source": source,
+      }).trustSource,
     );
     List<DisclosurePickOne> email() => [
       DisclosurePickOne(

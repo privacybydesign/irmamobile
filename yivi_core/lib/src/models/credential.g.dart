@@ -120,8 +120,16 @@ TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
-  trustLevel: json['trust_level'] as String?,
-  trustSource: json['trust_source'] as String?,
+  trustLevel: $enumDecodeNullable(
+    _$TrustLevelEnumMap,
+    json['trust_level'],
+    unknownValue: TrustLevel.unrecognised,
+  ),
+  trustSource: $enumDecodeNullable(
+    _$TrustSourceEnumMap,
+    json['trust_source'],
+    unknownValue: JsonKey.nullForUndefinedEnumValue,
+  ),
   trustAnchor: json['trust_anchor'] as String?,
   evidence: json['evidence'] == null
       ? null
@@ -137,11 +145,26 @@ Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
       'image': instance.image,
       'parent': instance.parent,
       'verified': instance.verified,
-      'trust_level': instance.trustLevel,
-      'trust_source': instance.trustSource,
+      'trust_level': _$TrustLevelEnumMap[instance.trustLevel],
+      'trust_source': _$TrustSourceEnumMap[instance.trustSource],
       'trust_anchor': instance.trustAnchor,
       'evidence': instance.evidence,
     };
+
+const _$TrustLevelEnumMap = {
+  TrustLevel.high: 'high',
+  TrustLevel.medium: 'medium',
+  TrustLevel.low: 'low',
+  TrustLevel.unevaluated: '',
+  TrustLevel.unrecognised: 'unrecognised',
+};
+
+const _$TrustSourceEnumMap = {
+  TrustSource.yiviScheme: 'yivi_scheme',
+  TrustSource.yiviTrustList: 'yivi_trust_list',
+  TrustSource.euTrustedList: 'eu_trusted_list',
+  TrustSource.other: 'other',
+};
 
 TrustEvidence _$TrustEvidenceFromJson(Map<String, dynamic> json) =>
     TrustEvidence(
@@ -186,18 +209,46 @@ Map<String, dynamic> _$LogoImageToJson(LogoImage instance) => <String, dynamic>{
 SvgCardTemplate _$SvgCardTemplateFromJson(Map<String, dynamic> json) =>
     SvgCardTemplate(
       svg: json['svg'] as String,
-      orientation: json['orientation'] as String?,
-      colorScheme: json['color_scheme'] as String?,
-      contrast: json['contrast'] as String?,
+      orientation: $enumDecodeNullable(
+        _$CardOrientationEnumMap,
+        json['orientation'],
+        unknownValue: JsonKey.nullForUndefinedEnumValue,
+      ),
+      colorScheme: $enumDecodeNullable(
+        _$CardColorSchemeEnumMap,
+        json['color_scheme'],
+        unknownValue: CardColorScheme.other,
+      ),
+      contrast: $enumDecodeNullable(
+        _$CardContrastEnumMap,
+        json['contrast'],
+        unknownValue: JsonKey.nullForUndefinedEnumValue,
+      ),
     );
 
 Map<String, dynamic> _$SvgCardTemplateToJson(SvgCardTemplate instance) =>
     <String, dynamic>{
       'svg': instance.svg,
-      'orientation': instance.orientation,
-      'color_scheme': instance.colorScheme,
-      'contrast': instance.contrast,
+      'orientation': _$CardOrientationEnumMap[instance.orientation],
+      'color_scheme': _$CardColorSchemeEnumMap[instance.colorScheme],
+      'contrast': _$CardContrastEnumMap[instance.contrast],
     };
+
+const _$CardOrientationEnumMap = {
+  CardOrientation.portrait: 'portrait',
+  CardOrientation.landscape: 'landscape',
+};
+
+const _$CardColorSchemeEnumMap = {
+  CardColorScheme.light: 'light',
+  CardColorScheme.dark: 'dark',
+  CardColorScheme.other: 'other',
+};
+
+const _$CardContrastEnumMap = {
+  CardContrast.normal: 'normal',
+  CardContrast.high: 'high',
+};
 
 CredentialDisplay _$CredentialDisplayFromJson(Map<String, dynamic> json) =>
     CredentialDisplay(
