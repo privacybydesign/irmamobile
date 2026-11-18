@@ -38,6 +38,16 @@ class AppLock {
   /// Nothing before the first lock.
   Stream<DateTime?> get blockedUntil => _blocked.stream;
 
+  /// Until when wrong PINs block an unlock, if they do right now; null when
+  /// nothing blocks or the block has ended. Known at once, so a lock screen's
+  /// first frame and a biometric unlock can both ask it.
+  DateTime? get blockedNow {
+    final until = _blocked.valueOrNull;
+    return until != null && DateTime.now().isBefore(until) ? until : null;
+  }
+
+  bool get isBlocked => blockedNow != null;
+
   // Set by the More tab's Log out, so the next lock screen shows the PIN pad
   // instead of scanning on its own. One-shots consumed by the lock screen:
   // an idle lock leaves them false and still scans.

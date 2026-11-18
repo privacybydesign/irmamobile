@@ -6,6 +6,7 @@ import "package:local_auth/local_auth.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/preferences_provider.dart";
 import "../../../util/privacy_screen.dart";
+import "pin_unlock_provider.dart";
 
 /// The local_auth entry point, behind a provider so tests can override it.
 final localAuthProvider = Provider<LocalAuthentication>(
@@ -84,12 +85,17 @@ class BiometricService {
 
   /// Lock-screen biometric button: authenticate and, on success, unlock the
   /// app shell locally (no keyshare — sessions still require the PIN).
+  /// While wrong PINs block an unlock nothing happens: no prompt, no unlock.
   Future<bool> authenticateAndUnlock({required String localizedReason}) async {
+    if (_blocked()) return false;
     final didAuthenticate = await authenticate(
       localizedReason: localizedReason,
     );
     if (didAuthenticate) {
       final repo = _ref.read(irmaRepositoryProvider);
+      // A block that arrived while the prompt was up (the change-PIN
+      // lockout) still wins: biometric must not skip it.
+      if (_blocked()) return didAuthenticate;
       // Backstop invariant: a biometric unlock must never dismiss a lock screen
       // that has a session pending OR in flight. Either a pointer arrived while
       // the OS prompt was up, or a link that opened the app while it was
@@ -104,6 +110,14 @@ class BiometricService {
       _ref.read(appLockProvider).unlockLocally();
     }
     return didAuthenticate;
+  }
+
+  /// Whether wrong PINs block an unlock: one the app was locked with, or one
+  /// the lock screen's own PIN pad just got.
+  bool _blocked() {
+    if (_ref.read(appLockProvider).isBlocked) return true;
+    final until = _ref.read(pinUnlockProvider).blockedUntil;
+    return until != null && DateTime.now().isBefore(until);
   }
 
   /// Turns biometric unlock on once the user confirmed it with a biometric

@@ -160,16 +160,15 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // Hide pin screen once authenticated.
     if (state.authenticated) return Container();
 
-    final blockedFor =
-        ref
-            .watch(
-              pinCountdownProvider(
-                ref.watch(pinUnlockProvider.select((s) => s.blockedUntil)),
-              ),
-            )
-            .value ??
-        Duration.zero;
-    final blocked = blockedFor.inSeconds > 0;
+    final blockedUntil = ref.watch(
+      pinUnlockProvider.select((s) => s.blockedUntil),
+    );
+    final blockedFor = ref.watch(pinCountdownProvider(blockedUntil)).value;
+    // Until the countdown's first tick (the first frame), the block time
+    // itself says whether it holds: the auto-scan must not fire then.
+    final blocked = blockedFor != null
+        ? blockedFor.inSeconds > 0
+        : blockedUntil != null && DateTime.now().isBefore(blockedUntil);
 
     final biometricAvailable =
         ref.watch(biometricAvailableProvider).value ?? false;

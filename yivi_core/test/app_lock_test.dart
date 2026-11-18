@@ -102,6 +102,20 @@ void main() {
       expect(await blockedUntil(), until);
     });
 
+    test("a block is known at once, and only while it lasts", () {
+      final until = DateTime.now().add(const Duration(minutes: 1));
+      repo.appLock.lock(unblockTime: until);
+      expect(repo.appLock.blockedNow, until);
+      expect(repo.appLock.isBlocked, isTrue);
+
+      repo.appLock.lock(
+        unblockTime: DateTime.now().subtract(const Duration(seconds: 1)),
+      );
+      expect(repo.appLock.isBlocked, isFalse);
+      repo.appLock.lock();
+      expect(repo.appLock.blockedNow, isNull);
+    });
+
     test("the same value twice is announced once", () async {
       repo.appLock.unlockLocally();
       repo.appLock.lock();

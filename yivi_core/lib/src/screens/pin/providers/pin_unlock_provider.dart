@@ -63,26 +63,24 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
     });
     ref.onDispose(sub.cancel);
 
-    // Seed blocked-until if the keyshare server already has us blocked.
-    // A cancel-on-dispose subscription (cancelled after the first value),
-    // not a fire-and-forget `.first`: blockedUntil is an unseeded subject
-    // that never emits during enrollment, so a pending `.first` throws
-    // "Bad state: No element" when the repo is closed (test teardown) before
-    // any block arrives.
-    StreamSubscription<DateTime?>? blockSub;
-    blockSub = lock.blockedUntil.listen((blockedUntil) {
-      blockSub?.cancel();
-      blockSub = null;
-      if (blockedUntil != null) {
+    // Every block the app is locked with reaches the pad, also one that
+    // comes while this provider already lives (the change-PIN lockout).
+    // A cancel-on-dispose subscription, not a fire-and-forget `.first`:
+    // blockedUntil is an unseeded subject that may never emit, and a pending
+    // `.first` throws "Bad state: No element" when the repo closes.
+    final blockSub = lock.blockedUntil.listen((blockedUntil) {
+      if (blockedUntil != null && blockedUntil != state.blockedUntil) {
         state = PinUnlockState(
           blockedUntil: blockedUntil,
           wrongCount: state.wrongCount,
         );
       }
     });
-    ref.onDispose(() => blockSub?.cancel());
+    ref.onDispose(blockSub.cancel);
 
-    return const PinUnlockState();
+    // A block already in force is known from the first frame on, before
+    // the stream above delivers it: the lock screen must not scan then.
+    return PinUnlockState(blockedUntil: lock.blockedNow);
   }
 
   Future<void> unlock(String pin) async {

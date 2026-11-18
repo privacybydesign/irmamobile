@@ -124,18 +124,17 @@ void main() {
     },
   );
 
-  test("today: after a PIN unlock, a block from locking is not seen until "
-      "the next try (open question 3 of phase 9)", () async {
-    answerWith(AuthenticationSuccessEvent.new);
-    await notifier().unlock("12345");
-    // The PIN unlock emitted a null block time: that was the one value the
-    // notifier takes.
-    repo.appLock.lock(
-      unblockTime: DateTime.now().add(const Duration(minutes: 5)),
-    );
-    await Future<void>.delayed(Duration.zero);
-    expect(state().blockedUntil, isNull);
-  });
+  test(
+    "after a PIN unlock, a block from a later lock reaches the pad",
+    () async {
+      answerWith(AuthenticationSuccessEvent.new);
+      await notifier().unlock("12345");
+      final until = DateTime.now().add(const Duration(minutes: 5));
+      repo.appLock.lock(unblockTime: until);
+      await Future<void>.delayed(Duration.zero);
+      expect(state().blockedUntil, until);
+    },
+  );
 
   testWidgets("the countdown: zero without a block, else once a second", (
     tester,

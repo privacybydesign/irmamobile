@@ -156,9 +156,49 @@ void main() {
       await pump(tester);
 
       expect(_biometricButton, findsNothing);
-      // Not checked: the screen's first frame comes before the block is
-      // known, and today the automatic scan already fires there.
+      expect(auth.prompts, 0);
+      expect(await locked(), isTrue);
       await unmount(tester);
+    });
+
+    testWidgets("not after a block that arrives with the screen already up "
+        "(the change-PIN lockout); a re-open does not scan either", (
+      tester,
+    ) async {
+      await pump(tester);
+      expect(auth.prompts, 1);
+
+      repo.appLock.lock(
+        unblockTime: DateTime.now().add(const Duration(minutes: 1)),
+      );
+      await settle(tester);
+      expect(_biometricButton, findsNothing);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump();
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await settle(tester);
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(auth.prompts, 1);
+      expect(await locked(), isTrue);
+      await unmount(tester);
+    });
+
+    testWidgets("again once the block has ended", (tester) async {
+      repo.appLock.lock(
+        unblockTime: DateTime.now().subtract(const Duration(seconds: 1)),
+      );
+      await pump(tester);
+
+      expect(_biometricButton, findsOneWidget);
+      expect(auth.prompts, 1);
+      await settle(tester);
+      expect(await locked(), isFalse);
     });
 
     testWidgets("not while a pointer is queued", (tester) async {
@@ -227,6 +267,18 @@ void main() {
       expect(auth.prompts, 1);
       await settle(tester);
       expect(await locked(), isTrue);
+    });
+
+    testWidgets("a wrong-PIN block set during the prompt", (tester) async {
+      auth.onPrompt = () => repo.appLock.lock(
+        unblockTime: DateTime.now().add(const Duration(minutes: 1)),
+      );
+      await pump(tester);
+
+      expect(auth.prompts, 1);
+      await settle(tester);
+      expect(await locked(), isTrue);
+      await unmount(tester);
     });
 
     testWidgets("a session started during the prompt", (tester) async {
