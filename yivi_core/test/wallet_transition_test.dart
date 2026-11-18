@@ -6,6 +6,9 @@ import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/widgets/surfaces/base64_image.dart";
 import "package:yivi_core/src/widgets/surfaces/surface.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 // A 1x1 PNG.
 const _png =
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
@@ -286,9 +289,10 @@ void main() {
 
   group("fading surfaces", () {
     Future<void> pumpGlass(WidgetTester tester, double opacity) =>
-        tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
+        pumpTranslated(
+          tester,
+          testApp(
+            Scaffold(
               body: Center(
                 child: Surface(
                   shape: const CircleBorder(),

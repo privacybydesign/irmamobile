@@ -3,6 +3,9 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/feedback/spinner.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 /// Reads the color the circular spinner actually paints with. The painter type
 /// is private to the framework, but its `valueColor` field is public, so a
 /// dynamic read works and covers the theme fallback too (which
@@ -18,15 +21,10 @@ Color paintedSpinnerColor(WidgetTester tester) {
 }
 
 void main() {
-  Widget host(Widget child) => IrmaTheme(
-    builder: (context) => MaterialApp(
-      theme: IrmaTheme.of(context).themeData,
-      home: Scaffold(body: Center(child: child)),
-    ),
-  );
+  Widget host(Widget child) => testApp(Scaffold(body: Center(child: child)));
 
   testWidgets("Spinner paints in the primary red", (tester) async {
-    await tester.pumpWidget(host(Spinner()));
+    await pumpTranslated(tester, host(Spinner()));
 
     expect(paintedSpinnerColor(tester), IrmaThemeData().primary);
   });
@@ -34,7 +32,7 @@ void main() {
   testWidgets("a bare CircularProgressIndicator paints in the primary red", (
     tester,
   ) async {
-    await tester.pumpWidget(host(const CircularProgressIndicator()));
+    await pumpTranslated(tester, host(const CircularProgressIndicator()));
 
     expect(paintedSpinnerColor(tester), IrmaThemeData().primary);
   });

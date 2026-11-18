@@ -2,15 +2,19 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/widgets/input/unfocus_on_tap_outside.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 void main() {
   final one = FocusNode();
   final two = FocusNode();
 
   Future<void> pump(WidgetTester tester) async {
-    await tester.pumpWidget(
+    await pumpTranslated(
+      tester,
       UnfocusOnTapOutside(
-        child: MaterialApp(
-          home: Scaffold(
+        child: testApp(
+          Scaffold(
             body: ListView(
               children: [
                 TextField(key: const Key("one"), focusNode: one),

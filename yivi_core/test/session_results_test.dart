@@ -1,6 +1,3 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -24,11 +21,11 @@ import "package:yivi_core/src/screens/session/result/disclosure_feedback_screen.
 import "package:yivi_core/src/screens/session/result/done_flight.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
 import "missing_data_fixtures.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 // The screens at the end of a session: cards added (also inside a
 // request), shared, the call screen and the pairing code.
@@ -100,25 +97,12 @@ Future<void> _pump(
 }) async {
   await pumpTranslated(
     tester,
-    ProviderScope(
+    testApp(
+      home,
       overrides: [
         credentialOrderControllerProvider.overrideWith(_EmptyWallet.new),
         ...overrides,
       ],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: home,
-        ),
-      ),
     ),
   );
   if (settle) {

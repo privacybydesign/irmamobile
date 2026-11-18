@@ -1,6 +1,3 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/translation_loader.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -8,15 +5,9 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/store_review_provider.dart";
 import "package:yivi_core/src/screens/review/store_review_gate_dialog.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
-/// Empty translations: this test asserts on widget keys, never on copy, so it
-/// sidesteps the FileTranslationLoader's real IO (which doesn't settle under
-/// the test's fake clock).
-class _NoopTranslationLoader extends TranslationLoader {
-  @override
-  Future<Map> load() async => <String, dynamic>{};
-}
+import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 class _FakeStoreReviewService implements StoreReviewService {
   int requestReviewCalls = 0;
@@ -42,30 +33,22 @@ void main() {
   }
 
   Widget host(IrmaPreferences prefs, StoreReviewService service) {
-    return ProviderScope(
-      overrides: [
-        preferencesProvider.overrideWithValue(prefs),
-        storeReviewServiceProvider.overrideWithValue(service),
-      ],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(translationLoader: _NoopTranslationLoader()),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: Center(
-                child: ElevatedButton(
-                  key: const Key("open"),
-                  onPressed: () => showStoreReviewGateDialog(context),
-                  child: const Text("open"),
-                ),
-              ),
+    return testApp(
+      Builder(
+        builder: (context) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              key: const Key("open"),
+              onPressed: () => showStoreReviewGateDialog(context),
+              child: const Text("open"),
             ),
           ),
         ),
       ),
+      overrides: [
+        preferencesProvider.overrideWithValue(prefs),
+        storeReviewServiceProvider.overrideWithValue(service),
+      ],
     );
   }
 
@@ -75,7 +58,7 @@ void main() {
     final prefs = await freshPrefs();
     final service = _FakeStoreReviewService();
 
-    await tester.pumpWidget(host(prefs, service));
+    await pumpTranslated(tester, host(prefs, service));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key("open")));
     await tester.pumpAndSettle();
@@ -96,7 +79,7 @@ void main() {
     final prefs = await freshPrefs();
     final service = _FakeStoreReviewService();
 
-    await tester.pumpWidget(host(prefs, service));
+    await pumpTranslated(tester, host(prefs, service));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key("open")));
     await tester.pumpAndSettle();

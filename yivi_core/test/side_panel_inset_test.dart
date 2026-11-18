@@ -2,6 +2,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/widgets/layout/side_panel_inset.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 void main() {
   /// Pumps the inset with a child that reports what it gets, and returns
   /// the child's rect and the side padding it sees.
@@ -15,9 +18,10 @@ void main() {
     tester.view.padding = padding;
     addTearDown(tester.view.reset);
     late EdgeInsets seen;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: SidePanelInset(
+    await pumpTranslated(
+      tester,
+      testApp(
+        SidePanelInset(
           child: Builder(
             builder: (context) {
               seen = MediaQuery.paddingOf(context);

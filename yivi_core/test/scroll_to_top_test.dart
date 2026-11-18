@@ -3,6 +3,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/widgets/bars/scroll_to_top.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 Widget _list(ScrollController controller, {Axis axis = Axis.vertical}) =>
     ListView.builder(
       controller: controller,
@@ -15,9 +18,7 @@ void main() {
   testWidgets("a list in sight goes back to its top", (tester) async {
     final controller = ScrollController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: _list(controller))),
-    );
+    await pumpTranslated(tester, testApp(Scaffold(body: _list(controller))));
     controller.jumpTo(900);
     await tester.pump();
 
@@ -29,9 +30,10 @@ void main() {
   testWidgets("a list covered by something else is left alone", (tester) async {
     final under = ScrollController();
     addTearDown(under.dispose);
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+    await pumpTranslated(
+      tester,
+      testApp(
+        Scaffold(
           body: Stack(
             children: [
               _list(under),
@@ -53,10 +55,9 @@ void main() {
   testWidgets("a list out of sight (Offstage) is left alone", (tester) async {
     final hidden = ScrollController();
     addTearDown(hidden.dispose);
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(body: Offstage(child: _list(hidden))),
-      ),
+    await pumpTranslated(
+      tester,
+      testApp(Scaffold(body: Offstage(child: _list(hidden)))),
     );
     hidden.jumpTo(900);
     await tester.pump();
@@ -69,10 +70,9 @@ void main() {
   testWidgets("a list across is left alone", (tester) async {
     final across = ScrollController();
     addTearDown(across.dispose);
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(body: _list(across, axis: Axis.horizontal)),
-      ),
+    await pumpTranslated(
+      tester,
+      testApp(Scaffold(body: _list(across, axis: Axis.horizontal))),
     );
     across.jumpTo(900);
     await tester.pump();

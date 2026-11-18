@@ -1,33 +1,20 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/bars/scroll_edge.dart";
 import "package:yivi_core/src/widgets/bars/title_scroll_edge.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 late BuildContext _page;
 
-Widget _app(Widget home) => IrmaTheme(
-  builder: (_) => MaterialApp(
-    localizationsDelegates: [
-      FlutterI18nDelegate(
-        translationLoader: TestTranslationLoader(
-          basePath: "assets/locales",
-          forcedLocale: const Locale("en", "US"),
-        ),
-      ),
-      ...GlobalMaterialLocalizations.delegates,
-    ],
-    home: Builder(
-      builder: (context) {
-        _page = context;
-        return home;
-      },
-    ),
+Widget _app(Widget home) => testApp(
+  Builder(
+    builder: (context) {
+      _page = context;
+      return home;
+    },
   ),
 );
 

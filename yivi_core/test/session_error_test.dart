@@ -1,22 +1,11 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/screens/error/blocked_screen.dart";
 import "package:yivi_core/src/screens/error/session_error_screen.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
-/// Stub loader that resolves immediately with an empty map. The production
-/// FileTranslationLoader reads JSON via rootBundle.loadString — real-time IO
-/// that the test framework's fake clock doesn't drive, so pumpAndSettle
-/// returns before Localizations rebuilds and every `find.byKey` sees 0
-/// widgets. Tests here only check widget structure, never translation
-/// content, so an empty map is enough.
-class _NoopTranslationLoader extends TranslationLoader {
-  @override
-  Future<Map> load() async => <String, dynamic>{};
-}
+import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 class TestWidget extends StatelessWidget {
   final SessionError error;
@@ -24,15 +13,8 @@ class TestWidget extends StatelessWidget {
   const TestWidget(this.error);
 
   @override
-  Widget build(BuildContext context) => IrmaTheme(
-    builder: (_) => MaterialApp(
-      localizationsDelegates: [
-        FlutterI18nDelegate(translationLoader: _NoopTranslationLoader()),
-        ...GlobalMaterialLocalizations.delegates,
-      ],
-      home: SessionErrorScreen(error: error, onTapClose: () {}),
-    ),
-  );
+  Widget build(BuildContext context) =>
+      testApp(SessionErrorScreen(error: error, onTapClose: () {}));
 }
 
 void main() {
@@ -40,7 +22,7 @@ void main() {
   testWidgets("errorType = transport", (WidgetTester tester) async {
     final error = SessionError(errorType: "transport", info: "info");
 
-    await tester.pumpWidget(TestWidget(error));
+    await pumpTranslated(tester, TestWidget(error));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey("no_internet_screen")), findsOneWidget);
@@ -49,7 +31,7 @@ void main() {
   testWidgets("errorType = pairingRejected", (WidgetTester tester) async {
     final error = SessionError(errorType: "pairingRejected", info: "info");
 
-    await tester.pumpWidget(TestWidget(error));
+    await pumpTranslated(tester, TestWidget(error));
     await tester.pumpAndSettle();
     expect(find.byKey(errorScreenKey), findsOneWidget);
   });
@@ -61,7 +43,7 @@ void main() {
       remoteError: RemoteError(errorName: "USER_NOT_FOUND"),
     );
 
-    await tester.pumpWidget(TestWidget(error));
+    await pumpTranslated(tester, TestWidget(error));
     await tester.pumpAndSettle();
     expect(find.byType(BlockedScreen), findsOneWidget);
   });
@@ -73,7 +55,7 @@ void main() {
       remoteError: RemoteError(errorName: "SESSION_UNKNOWN"),
     );
 
-    await tester.pumpWidget(TestWidget(error));
+    await pumpTranslated(tester, TestWidget(error));
     await tester.pumpAndSettle();
     expect(find.byKey(errorScreenKey), findsOneWidget);
   });
@@ -85,7 +67,7 @@ void main() {
       remoteError: RemoteError(errorName: "UNEXPECTED_REQUEST"),
     );
 
-    await tester.pumpWidget(TestWidget(error));
+    await pumpTranslated(tester, TestWidget(error));
     await tester.pumpAndSettle();
     expect(find.byKey(errorScreenKey), findsOneWidget);
   });
@@ -97,7 +79,7 @@ void main() {
       remoteError: RemoteError(errorName: ""),
     );
 
-    await tester.pumpWidget(TestWidget(error));
+    await pumpTranslated(tester, TestWidget(error));
     await tester.pumpAndSettle();
     expect(find.byKey(errorScreenKey), findsOneWidget);
   });

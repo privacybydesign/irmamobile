@@ -3,6 +3,9 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/util/adaptive_layout.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 void main() {
   /// Opens a sheet in a window of [size]; returns the sheet's width and
   /// whether its content uses two columns.
@@ -14,9 +17,10 @@ void main() {
     late BuildContext page;
     double? width;
     bool? columns;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Builder(
+    await pumpTranslated(
+      tester,
+      testApp(
+        Builder(
           builder: (context) {
             page = context;
             return const Scaffold(body: SizedBox.shrink());

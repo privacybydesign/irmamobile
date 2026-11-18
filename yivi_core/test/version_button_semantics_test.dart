@@ -1,6 +1,4 @@
 import "package:flutter/semantics.dart";
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
@@ -13,9 +11,8 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/more/widgets/version_button.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 // Regression test for #727: the version button excluded its subtree from
 // semantics, so a screen reader could neither read the app ID and version
@@ -64,25 +61,13 @@ void main() {
       buildSignature: "",
     );
 
-    final widget = ProviderScope(
+    final widget = testApp(
+      Scaffold(body: VersionButton()),
+      locale: locale,
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
       ],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: TestTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: locale,
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: Scaffold(body: VersionButton()),
-        ),
-      ),
     );
 
     // FileTranslationLoader reads the locale JSON with real IO, which the test

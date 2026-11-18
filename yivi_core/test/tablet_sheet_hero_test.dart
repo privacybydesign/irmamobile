@@ -2,6 +2,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 void main() {
   for (final (name, size) in [
     ("phone", const Size(390, 844)),
@@ -13,9 +16,10 @@ void main() {
       addTearDown(tester.view.reset);
 
       late BuildContext home;
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
+      await pumpTranslated(
+        tester,
+        testApp(
+          Scaffold(
             body: Builder(
               builder: (context) {
                 home = context;

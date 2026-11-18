@@ -1,14 +1,11 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/widgets/terms_check_box.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 // Regression test for #638: the terms acceptance checkbox had no accessible
 // name of its own, so a screen reader announced only its role and state.
@@ -31,27 +28,15 @@ void main() {
     Locale locale = const Locale("en", "US"),
     void Function(bool)? onToggleAccepted,
   }) async {
-    final widget = ProviderScope(
-      overrides: [preferencesProvider.overrideWithValue(preferences)],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: TestTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: locale,
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: Scaffold(
-            body: TermsCheckBox(
-              isAccepted: isAccepted,
-              onToggleAccepted: onToggleAccepted ?? (_) {},
-            ),
-          ),
+    final widget = testApp(
+      Scaffold(
+        body: TermsCheckBox(
+          isAccepted: isAccepted,
+          onToggleAccepted: onToggleAccepted ?? (_) {},
         ),
       ),
+      locale: locale,
+      overrides: [preferencesProvider.overrideWithValue(preferences)],
     );
 
     // FileTranslationLoader reads the locale JSON with real IO, which the test

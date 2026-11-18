@@ -1,14 +1,11 @@
 import "package:flutter/semantics.dart";
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/pref.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 // The PIN screen used to expose its whole body as ONE semantics node: the
 // keyboard-focus GestureDetector in PinHardwareKeyboardListener wrapped the
@@ -28,31 +25,18 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final widget = ProviderScope(
-      overrides: [pinVisiblePrefProvider.overrideWithValue(Pref.memory(false))],
-      child: IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: TestTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("en", "US"),
-              ),
-            ),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          // Via the scaffold, not bare: YiviPinScreen needs a Material ancestor
-          // (the forgot-PIN link's InkWell) and a bounded height.
-          home: YiviPinScaffold(
-            body: YiviPinScreen(
-              instructionKey: "pin.subtitle",
-              maxPinSize: 5,
-              submitLabel: "pin.unlock",
-              onSubmit: (_) {},
-            ),
-          ),
+    final widget = testApp(
+      // Via the scaffold, not bare: YiviPinScreen needs a Material ancestor
+      // (the forgot-PIN link's InkWell) and a bounded height.
+      YiviPinScaffold(
+        body: YiviPinScreen(
+          instructionKey: "pin.subtitle",
+          maxPinSize: 5,
+          submitLabel: "pin.unlock",
+          onSubmit: (_) {},
         ),
       ),
+      overrides: [pinVisiblePrefProvider.overrideWithValue(Pref.memory(false))],
     );
 
     // FileTranslationLoader reads the locale JSON with real IO, which the test

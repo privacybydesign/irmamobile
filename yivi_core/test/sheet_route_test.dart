@@ -1,11 +1,9 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
 /// What the sheet around a page tells and does for it (closing, a delayed
 /// close, the hand on it, the action in the bar), on a phone and on a
@@ -13,23 +11,12 @@ import "helpers/test_translation_loader.dart";
 late BuildContext _home;
 late BuildContext _inSheet;
 
-Widget _app() => IrmaTheme(
-  builder: (_) => MaterialApp(
-    localizationsDelegates: [
-      FlutterI18nDelegate(
-        translationLoader: TestTranslationLoader(
-          basePath: "assets/locales",
-          forcedLocale: const Locale("en", "US"),
-        ),
-      ),
-      ...GlobalMaterialLocalizations.delegates,
-    ],
-    home: Builder(
-      builder: (context) {
-        _home = context;
-        return const Scaffold(body: Center(child: Text("home")));
-      },
-    ),
+Widget _app() => testApp(
+  Builder(
+    builder: (context) {
+      _home = context;
+      return const Scaffold(body: Center(child: Text("home")));
+    },
   ),
 );
 
