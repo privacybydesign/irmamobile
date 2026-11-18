@@ -3,7 +3,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
-import "src/models/log_entry.dart";
 import "src/providers/pane_selection_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/providers/redirect_state_provider.dart";
@@ -82,7 +81,7 @@ GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
         mode: PresentationMode.sheet,
         path: "/error",
         builder: (context, state) => ErrorScreen(
-          details: state.extra as String,
+          details: ErrorRouteArgs.fromState(state).message,
           onTapClose: context.pop,
         ),
       ),
@@ -136,18 +135,15 @@ GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
             // Moves the data tab's items out of the way while the card
             // flies (see WalletTransition).
             pageBuilder: (context, state) {
-              final hash = state.uri.queryParameters["hash"] ?? "";
+              final args = CredentialRouteArgs.fromState(state);
               return WalletDetailPage(
                 key: state.pageKey,
                 name: "/home/credential",
                 // Turned sideways, the card moves into the tab's detail pane.
                 child: cardHandoff(
                   context,
-                  hash,
-                  CredentialDetailScreen(
-                    hash: hash,
-                    found: state.uri.queryParameters["found"],
-                  ),
+                  args.hash,
+                  CredentialDetailScreen(hash: args.hash, found: args.found),
                 ),
               );
             },
@@ -158,7 +154,7 @@ GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
             mode: PresentationMode.full,
             path: "activity_details",
             builder: (context, state) {
-              final log = state.extra as LogInfo;
+              final log = ActivityRouteArgs.fromState(state).log;
               return activityHandoff(
                 context,
                 log,
@@ -202,9 +198,7 @@ GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
         phone: PhoneTransition.rise,
         path: "/session",
         builder: (context, state) {
-          final args = SessionRouteParams.fromQueryParams(
-            state.uri.queryParameters,
-          );
+          final args = SessionRouteParams.fromState(state);
           return SessionScreen(
             sessionId: args.sessionId,
             hasUnderlyingSession: args.hasUnderlyingSession,

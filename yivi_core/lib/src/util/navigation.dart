@@ -6,11 +6,13 @@ import "../models/log_entry.dart";
 
 extension RoutingHelpers on BuildContext {
   void pushErrorScreen({required String message}) {
-    push("/error", extra: message);
+    final args = ErrorRouteArgs(message);
+    push(args.location, extra: args.extra);
   }
 
   void pushReplacementErrorScreen({required String message}) {
-    pushReplacement("/error", extra: message);
+    final args = ErrorRouteArgs(message);
+    pushReplacement(args.location, extra: args.extra);
   }
 
   void pushResetPinScreen() {
@@ -88,7 +90,8 @@ extension RoutingHelpers on BuildContext {
   }
 
   void pushActivityDetailsScreen({required LogInfo logInfo}) {
-    push("/home/activity_details", extra: logInfo);
+    final args = ActivityRouteArgs(logInfo);
+    push(args.location, extra: args.extra);
   }
 
   /// Opens the full-screen detail view of one card (credential instance).
@@ -96,30 +99,23 @@ extension RoutingHelpers on BuildContext {
   /// [found]: the field (a claim path key) a search found the card by; the
   /// card opens on it.
   void pushCredentialDetailScreen(String hash, {String? found}) {
-    final uri = Uri(
-      path: "/home/credential",
-      queryParameters: {"hash": hash, "found": ?found},
-    );
-    push(uri.toString());
+    push(CredentialRouteArgs(hash, found: found).location);
   }
 
   void pushReplacementSessionScreen(SessionRouteParams args) {
-    final uri = Uri(path: "/session", queryParameters: args.toQueryParams());
-    pushReplacement(uri.toString());
+    pushReplacement(args.location);
   }
 
   void pushSessionScreen(SessionRouteParams args) {
-    final uri = Uri(path: "/session", queryParameters: args.toQueryParams());
-    push(uri.toString());
+    push(args.location);
   }
 }
 
-// =============================================================================================
+// Each route that takes arguments has one class for them: [location] (and
+// for an object, [extra]) to go there, `fromState` to read them back in the
+// route's builder.
 
-// =============================================================================================
-
-// =============================================================================================
-
+/// `/session`: the session to show, in the query.
 class SessionRouteParams {
   final int sessionId;
   final bool hasUnderlyingSession;
@@ -142,6 +138,59 @@ class SessionRouteParams {
       hasUnderlyingSession: params["has_underlying_session"] == "true",
     );
   }
+
+  String get location =>
+      Uri(path: "/session", queryParameters: toQueryParams()).toString();
+
+  static SessionRouteParams fromState(GoRouterState state) =>
+      fromQueryParams(state.uri.queryParameters);
+}
+
+/// `/home/credential`: the card (its hash) and the field a search found it
+/// by, in the query.
+class CredentialRouteArgs {
+  final String hash;
+  final String? found;
+
+  const CredentialRouteArgs(this.hash, {this.found});
+
+  String get location => Uri(
+    path: "/home/credential",
+    queryParameters: {"hash": hash, "found": ?found},
+  ).toString();
+
+  static CredentialRouteArgs fromState(GoRouterState state) =>
+      CredentialRouteArgs(
+        state.uri.queryParameters["hash"] ?? "",
+        found: state.uri.queryParameters["found"],
+      );
+}
+
+/// `/error`: the message to show, carried as the route's extra.
+class ErrorRouteArgs {
+  final String message;
+
+  const ErrorRouteArgs(this.message);
+
+  String get location => "/error";
+  Object get extra => message;
+
+  static ErrorRouteArgs fromState(GoRouterState state) =>
+      ErrorRouteArgs(state.extra as String);
+}
+
+/// `/home/activity_details`: the log entry to show, carried as the route's
+/// extra (there is no way to look one up by id).
+class ActivityRouteArgs {
+  final LogInfo log;
+
+  const ActivityRouteArgs(this.log);
+
+  String get location => "/home/activity_details";
+  Object get extra => log;
+
+  static ActivityRouteArgs fromState(GoRouterState state) =>
+      ActivityRouteArgs(state.extra as LogInfo);
 }
 
 // =============================================================================================
