@@ -17,7 +17,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.da
 import "package:yivi_core/src/screens/session/widgets/email_linked_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/openid4vci_authcode_pending_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_website_step.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/pairing_required.dart";
 import "package:yivi_core/src/screens/session/widgets/session_pin_entry_screen.dart";
@@ -273,12 +273,20 @@ void main() {
         ),
       );
       await _settle(tester);
-      final screen = tester.widget<OpenID4VCIAuthCodePendingScreen>(
-        find.byType(OpenID4VCIAuthCodePendingScreen),
-      );
-      screen.onOpenBrowser();
+      // The website step of adding a card, full screen: where it goes, and
+      // "To {host}" in the bar.
+      expect(find.byType(IssueWebsiteScreen), findsOneWidget);
+      expect(find.byKey(const Key("sheet_website_steps")), findsOneWidget);
+      expect(find.text("issuer.example"), findsWidgets);
+      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+      await _settle(tester);
       expect(h.repo.authorizations, ["https://issuer.example/authorize"]);
-      screen.onDismiss();
+      // Back without the card: not done on the website yet.
+      expect(find.text("Not done on the website yet?"), findsOneWidget);
+      // No Cancel: the close at the top declines.
+      expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
+      await tester.tap(find.byKey(const Key("session_close")));
+      await _settle(tester);
       expect(h.of(UserInteractionType.dismiss), hasLength(1));
     });
 

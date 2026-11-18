@@ -19,7 +19,7 @@ import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/openid4vci_authcode_pending_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_website_step.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -128,10 +128,9 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
   final sessionId = await newSessionFuture;
 
   // Wait for openID4VCIState to be populated and fetch the synthetic auth
-  // code before driving the pending screen — the body string mentions the
-  // issuer by name (interpolated), so we can verify the screen surfaces it
-  // without a RequestorHeader. The issuer name appears in both the body
-  // text and the credential card, hence findsAtLeast(1).
+  // code before driving the website screen. Its steps name the issuer
+  // ("do there what {issuer} asks"), so we can verify the screen surfaces
+  // it without a RequestorHeader.
   final session = await irmaBinding.repository
       .getSessionState(sessionId)
       .firstWhere((s) => s.openID4VCIState != null);
@@ -141,8 +140,7 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
     walletState: walletState,
   );
 
-  await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
-  expect(find.text("Email Credential (SD-JWT)"), findsOneWidget);
+  await tester.waitFor(find.byType(IssueWebsiteScreen));
   expect(find.textContaining("AuthCode Issuer"), findsAtLeast(1));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
@@ -235,9 +233,9 @@ Future<void> testIssueOrganizationOpenID4VCIAuthCode(
     walletState: walletState,
   );
 
-  // Confirm and launch via the pending screen, then dispatch the synthetic
+  // Confirm and launch via the website screen, then dispatch the synthetic
   // redirect to mimic the browser callback.
-  await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
+  await tester.waitFor(find.byType(IssueWebsiteScreen));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   dispatchAuthCallback(
     irmaBinding.repository,
@@ -304,13 +302,13 @@ Future<void> testDismissOnPendingScreen(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // When the session enters requestAuthorizationCode, the pending screen is
-  // rendered awaiting the user to tap "Open browser". Without that tap, no
+  // When the session enters requestAuthorizationCode, the website screen is
+  // rendered awaiting the user to tap "To {host}". Without that tap, no
   // browser launch happens and the session stays put.
-  await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
+  await tester.waitFor(find.byType(IssueWebsiteScreen));
 
-  // Tap "Cancel" to dismiss the session directly.
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
+  // The close at the top declines the session.
+  await tester.tapAndSettle(find.byKey(const Key("session_close")));
 
   // Should be back at home
   await tester.waitFor(find.byType(DataTab));
@@ -349,9 +347,9 @@ Future<void> testDismissOnIssuancePermissionScreen(
     walletState: walletState,
   );
 
-  // Confirm and launch via the pending screen, then dispatch the synthetic
+  // Confirm and launch via the website screen, then dispatch the synthetic
   // redirect to advance state.
-  await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
+  await tester.waitFor(find.byType(IssueWebsiteScreen));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   dispatchAuthCallback(
     irmaBinding.repository,

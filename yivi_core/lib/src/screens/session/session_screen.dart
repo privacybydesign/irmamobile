@@ -32,7 +32,7 @@ import "widgets/disclosure_share_screen.dart";
 import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
-import "widgets/openid4vci_authcode_pending_screen.dart";
+import "widgets/issue_website_step.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
 import "widgets/session_pin_entry_screen.dart";
@@ -244,13 +244,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           onSubmit: _flow.grantPreAuthorizedCode,
           onDismiss: _dismissSession,
         ),
-      // The user must tap "Open browser" on this screen to launch the issuer
-      // flow. Shown on first entry and whenever the user returns to the app
-      // without completing the browser flow.
-      SessionAuthCode(:final state) => OpenID4VCIAuthCodePendingScreen(
-        requestor: state.requestor,
-        offeredCredentialTypes: state.offeredCredentialTypes!,
-        onOpenBrowser: _flow.openAuthorization,
+      // The issuer's login in the browser, as the website step of adding a
+      // card in a sheet. The user opens it from here: shown on first entry
+      // and whenever the user returns to the app without finishing there.
+      SessionAuthCode(:final state, :final url) => IssueWebsiteScreen(
+        titleKey: "issuance.authorization_code.pending.title",
+        host: hostOf(url) ?? state.requestor.name,
+        issuer: state.requestor.name,
+        onOpen: _flow.openAuthorization,
         onDismiss: _dismissSession,
       ),
     };

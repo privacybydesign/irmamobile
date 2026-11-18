@@ -5,12 +5,17 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
+import "../../../widgets/action_bar.dart";
+import "../../../widgets/floating_bar_placement.dart";
 import "../../../widgets/glass/glass_sheet.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../../widgets/glass/sheet_actions.dart";
 import "../../../widgets/glass/sheet_layout.dart";
+import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/numbered_step.dart";
 import "../../../widgets/surface_card.dart";
+import "session_columns.dart";
+import "session_scaffold.dart";
 
 /// The step of adding a card that sends you to the issuer's website, as a
 /// page of the sheet: the Yivi app and the browser with an arrow there and
@@ -82,202 +87,338 @@ class _IssueWebsiteStepState extends State<IssueWebsiteStep> {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final params = {"issuer": widget.issuer, "host": widget.host};
     final sideways = useSheetColumns(context);
-    final opened = widget.opened;
-    final align = sideways ? TextAlign.start : TextAlign.center;
-
-    final heading = Semantics(
-      key: _headingKey,
-      header: true,
-      child: Text(
-        context.tr(
-          opened ? "data.add.website.not_done" : "data.add.website.heading",
-          params,
-        ),
-        key: const Key("sheet_website_heading"),
-        textAlign: align,
-        style: palette
-            .display(sideways ? 22 : 24, weight: FontWeight.w700)
-            .copyWith(
-              height: (sideways ? 29 : 30) / (sideways ? 22 : 24),
-              color: palette.text,
-            ),
-      ),
+    final parts = _WebsiteParts(
+      context,
+      host: widget.host,
+      issuer: widget.issuer,
+      opened: widget.opened,
+      sideways: sideways,
+      headingKey: _headingKey,
+      onOther: widget.onOther,
     );
-    final lead = Text(
-      context.tr(
-        opened ? "data.add.website.not_done_body" : "data.add.website.lead",
-        params,
-      ),
-      textAlign: align,
-      style: palette.body(15).copyWith(height: 22 / 15, color: palette.heading),
+    final title = SheetTitle(
+      widget.title,
+      widget: widget.titleWidget,
+      centred: true,
+      reveal: SheetTitleReveal.under(_headingKey),
     );
-    final steps = opened
-        ? null
-        : SurfaceCard(
-            key: const Key("sheet_website_steps"),
-            padding: const EdgeInsets.all(YiviSpace.x16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: YiviSpace.x12,
-              children: [
-                for (final (n, key) in const [
-                  "data.add.website.step_open",
-                  "data.add.website.step_do",
-                  "data.add.website.step_back",
-                ].indexed)
-                  NumberedStep(
-                    number: n + 1,
-                    child: Text(context.tr(key, params)),
-                  ),
-              ],
-            ),
-          );
-    final other = opened && widget.onOther != null
-        ? Center(
-            child: TextLink(
-              key: const Key("sheet_choose_other"),
-              label: context.tr("data.add.website.other"),
-              onPressed: widget.onOther,
-            ),
-          )
-        : null;
-    final picture = _AppAndBrowser(host: widget.host, waiting: opened);
+    final exits = SheetExits(onBack: widget.onBack);
+    final action = SheetAction(
+      key: const Key("sheet_open_website"),
+      label: parts.openLabel,
+      busy: _opening,
+      onTap: _open,
+    );
 
     return sideways
         ? GlassSheetPage.split(
-            title: SheetTitle(
-              widget.title,
-              widget: widget.titleWidget,
-              centred: true,
-              reveal: SheetTitleReveal.under(_headingKey),
-            ),
-            exits: SheetExits(onBack: widget.onBack),
-            action: SheetAction(
-              key: const Key("sheet_open_website"),
-              label: opened
-                  ? context.tr("data.add.website.continue")
-                  : context.tr("data.add.website.open", params),
-              busy: _opening,
-              onTap: _open,
-            ),
+            title: title,
+            exits: exits,
+            action: action,
             bottom: widget.bottom,
             bottomInBar: true,
-            child: sideways
-                // A phone held sideways: the words at the left, the picture and
-                // the steps at the right.
-                ? SheetSplit(
-                    start: [heading, lead],
-                    end: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: YiviSpace.x12,
-                      children: [
-                        SurfaceCard(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: YiviSpace.x24,
-                          ),
-                          child: picture,
-                        ),
-                        ?steps,
-                        ?other,
-                      ],
+            // A phone held sideways: the words at the left, the picture and
+            // the steps at the right.
+            child: SheetSplit(
+              start: [parts.heading, parts.lead],
+              end: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: YiviSpace.x12,
+                children: [
+                  SurfaceCard(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: YiviSpace.x24,
                     ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(top: YiviSpace.x24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        picture,
-                        const SizedBox(height: YiviSpace.x32),
-                        heading,
-                        const SizedBox(height: YiviSpace.x8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: YiviSpace.x12,
-                          ),
-                          child: lead,
-                        ),
-                        if (steps != null) ...[
-                          const SizedBox(height: YiviSpace.x24),
-                          steps,
-                        ],
-                        if (other != null) ...[
-                          const SizedBox(height: YiviSpace.x16),
-                          other,
-                        ],
-                      ],
-                    ),
+                    child: parts.picture,
                   ),
+                  ?parts.steps,
+                  ?parts.other,
+                ],
+              ),
+            ),
           )
         : GlassSheetPage.scroll(
-            title: SheetTitle(
-              widget.title,
-              widget: widget.titleWidget,
-              centred: true,
-              reveal: SheetTitleReveal.under(_headingKey),
-            ),
-            exits: SheetExits(onBack: widget.onBack),
-            action: SheetAction(
-              key: const Key("sheet_open_website"),
-              label: opened
-                  ? context.tr("data.add.website.continue")
-                  : context.tr("data.add.website.open", params),
-              busy: _opening,
-              onTap: _open,
-            ),
+            title: title,
+            exits: exits,
+            action: action,
             bottom: widget.bottom,
             padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
-            child: sideways
-                // A phone held sideways: the words at the left, the picture and
-                // the steps at the right.
-                ? SheetSplit(
-                    start: [heading, lead],
-                    end: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: YiviSpace.x12,
-                      children: [
-                        SurfaceCard(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: YiviSpace.x24,
-                          ),
-                          child: picture,
-                        ),
-                        ?steps,
-                        ?other,
-                      ],
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(top: YiviSpace.x24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        picture,
-                        const SizedBox(height: YiviSpace.x32),
-                        heading,
-                        const SizedBox(height: YiviSpace.x8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: YiviSpace.x12,
-                          ),
-                          child: lead,
-                        ),
-                        if (steps != null) ...[
-                          const SizedBox(height: YiviSpace.x24),
-                          steps,
-                        ],
-                        if (other != null) ...[
-                          const SizedBox(height: YiviSpace.x16),
-                          other,
-                        ],
-                      ],
-                    ),
-                  ),
+            child: parts.column(),
           );
   }
+}
+
+/// The issuer's login for an OpenID4VCI authorization code, full screen:
+/// the content of [IssueWebsiteStep] (the app and the browser, "Continue on
+/// the website", the three steps) with "To {host}" in the bar. The close at
+/// the top declines. Back in the app before the issuer sent anything, it
+/// says so ("Not done on the website yet?").
+class IssueWebsiteScreen extends StatefulWidget {
+  /// The bar's title (a translation key).
+  final String titleKey;
+
+  /// The website's address, under the browser.
+  final String host;
+
+  /// Who issues the card.
+  final String issuer;
+
+  final Future<void> Function() onOpen;
+  final VoidCallback onDismiss;
+
+  const IssueWebsiteScreen({
+    super.key,
+    required this.titleKey,
+    required this.host,
+    required this.issuer,
+    required this.onOpen,
+    required this.onDismiss,
+  });
+
+  @override
+  State<IssueWebsiteScreen> createState() => _IssueWebsiteScreenState();
+}
+
+class _IssueWebsiteScreenState extends State<IssueWebsiteScreen> {
+  var _opening = false;
+  var _opened = false;
+
+  Future<void> _open() async {
+    if (_opening) return;
+    setState(() {
+      _opening = true;
+      _opened = true;
+    });
+    try {
+      await widget.onOpen();
+    } finally {
+      if (mounted) setState(() => _opening = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Held sideways, and on a tablet: the words at the left with the button
+    // at their foot; the picture and the steps at the right, as the
+    // permission screen.
+    final columns = useSessionColumns(context) || useSheetColumns(context);
+    final parts = _WebsiteParts(
+      context,
+      host: widget.host,
+      issuer: widget.issuer,
+      opened: _opened,
+      sideways: columns,
+    );
+    final onOpen = _opening ? null : _open;
+    if (columns) {
+      return SessionScaffold(
+        wide: true,
+        scrollsUnderBars: true,
+        cornerClose: true,
+        onDismiss: widget.onDismiss,
+        // The body's own context sees the bars.
+        body: Builder(
+          builder: (context) => SidewaysLayout(
+            panel: Padding(
+              key: const Key("website_panel"),
+              padding: EdgeInsets.fromLTRB(
+                0,
+                sidewaysPanelTop(context),
+                0,
+                FloatingBarPlacement.buttonBottom(context),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: YiviSpace.x12,
+                        children: [parts.heading, parts.lead],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: YiviSpace.x16),
+                  FancyPillButton(
+                    key: const Key("bottom_bar_primary"),
+                    label: parts.openLabel,
+                    onPressed: onOpen,
+                  ),
+                ],
+              ),
+            ),
+            content: SingleChildScrollView(
+              key: const Key("website_screen"),
+              padding: EdgeInsets.fromLTRB(
+                YiviSpace.x4,
+                sidewaysContentTop(context),
+                0,
+                56 + MediaQuery.paddingOf(context).bottom,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: YiviSpace.x12,
+                children: [
+                  SurfaceCard(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: YiviSpace.x24,
+                    ),
+                    child: parts.picture,
+                  ),
+                  ?parts.steps,
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return SessionScaffold(
+      appBarTitle: widget.titleKey,
+      onDismiss: widget.onDismiss,
+      bottomNavigationBar: ActionBar.single(
+        label: parts.openLabel,
+        onTap: onOpen,
+      ),
+      scrollsUnderBars: true,
+      body: BarInsetsBuilder(
+        builder: (context, insets) => ListView(
+          key: const Key("website_screen"),
+          padding:
+              insets +
+              const EdgeInsets.fromLTRB(
+                YiviSpace.x16,
+                0,
+                YiviSpace.x16,
+                YiviSpace.x32,
+              ),
+          children: [parts.column()],
+        ),
+      ),
+    );
+  }
+}
+
+/// What the website step says and shows, for a sheet page and full screen.
+class _WebsiteParts {
+  final Widget heading, lead, picture;
+  final Widget? steps, other;
+  final String openLabel;
+
+  factory _WebsiteParts(
+    BuildContext context, {
+    required String host,
+    required String issuer,
+    required bool opened,
+    required bool sideways,
+    Key? headingKey,
+    VoidCallback? onOther,
+  }) {
+    final palette = YiviPalette.of(context);
+    final params = {"issuer": issuer, "host": host};
+    final align = sideways ? TextAlign.start : TextAlign.center;
+    return _WebsiteParts._(
+      heading: Semantics(
+        key: headingKey,
+        header: true,
+        child: Text(
+          context.tr(
+            opened ? "data.add.website.not_done" : "data.add.website.heading",
+            params,
+          ),
+          key: const Key("sheet_website_heading"),
+          textAlign: align,
+          style: palette
+              .display(sideways ? 22 : 24, weight: FontWeight.w700)
+              .copyWith(
+                height: (sideways ? 29 : 30) / (sideways ? 22 : 24),
+                color: palette.text,
+              ),
+        ),
+      ),
+      lead: Text(
+        context.tr(
+          opened ? "data.add.website.not_done_body" : "data.add.website.lead",
+          params,
+        ),
+        textAlign: align,
+        style: palette
+            .body(15)
+            .copyWith(height: 22 / 15, color: palette.heading),
+      ),
+      steps: opened
+          ? null
+          : SurfaceCard(
+              key: const Key("sheet_website_steps"),
+              padding: const EdgeInsets.all(YiviSpace.x16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: YiviSpace.x12,
+                children: [
+                  for (final (n, key) in const [
+                    "data.add.website.step_open",
+                    "data.add.website.step_do",
+                    "data.add.website.step_back",
+                  ].indexed)
+                    NumberedStep(
+                      number: n + 1,
+                      child: Text(context.tr(key, params)),
+                    ),
+                ],
+              ),
+            ),
+      other: opened && onOther != null
+          ? Center(
+              child: TextLink(
+                key: const Key("sheet_choose_other"),
+                label: context.tr("data.add.website.other"),
+                onPressed: onOther,
+              ),
+            )
+          : null,
+      picture: _AppAndBrowser(host: host, waiting: opened),
+      openLabel: opened
+          ? context.tr("data.add.website.continue")
+          : context.tr("data.add.website.open", params),
+    );
+  }
+
+  _WebsiteParts._({
+    required this.heading,
+    required this.lead,
+    required this.picture,
+    required this.steps,
+    required this.other,
+    required this.openLabel,
+  });
+
+  /// Upright: the picture, the heading and the words, then the steps.
+  Widget column() => Padding(
+    padding: const EdgeInsets.only(top: YiviSpace.x24),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        picture,
+        const SizedBox(height: YiviSpace.x32),
+        heading,
+        const SizedBox(height: YiviSpace.x8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x12),
+          child: lead,
+        ),
+        if (steps case final steps?) ...[
+          const SizedBox(height: YiviSpace.x24),
+          steps,
+        ],
+        if (other case final other?) ...[
+          const SizedBox(height: YiviSpace.x16),
+          other,
+        ],
+      ],
+    ),
+  );
 }
 
 /// The Yivi app and the browser side by side, an arrow there and one back,
