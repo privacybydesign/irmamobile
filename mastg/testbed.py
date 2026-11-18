@@ -220,7 +220,11 @@ def semgrep(rule_files: list[Path], root: Path, targets: list[str]) -> list[dict
     command = shlex.split(os.environ.get("MASTG_SEMGREP", ""))
     if not command:
         command = ["semgrep"] if shutil.which("semgrep") else ["uvx", "semgrep"]
+    # --project-root: without it semgrep takes the git repository as the project and
+    # applies its default ignore list, which has build/. The decompiled code is in
+    # build/mastg, so semgrep would then scan nothing and every rule would "pass".
     cmd = command + ["scan", "--json", "--quiet", "--metrics=off", "--no-git-ignore",
+                     "--project-root", ".",
                      "--disable-version-check", "--timeout", "20", "--max-target-bytes", "3000000"]
     for rule in rule_files:
         cmd += ["--config", str(rule)]
@@ -231,6 +235,10 @@ def semgrep(rule_files: list[Path], root: Path, targets: list[str]) -> list[dict
         output = json.loads(result.stdout)
     except json.JSONDecodeError:
         raise SystemExit(f"semgrep failed ({result.returncode}):\n{result.stderr[-2000:]}")
+    scanned = len(output.get("paths", {}).get("scanned", []))
+    if not scanned:
+        raise SystemExit(f"semgrep scanned no files in {root}; refusing to report results")
+    log(f"semgrep scanned {scanned} files")
     return output.get("results", [])
 
 
