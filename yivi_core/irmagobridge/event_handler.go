@@ -306,6 +306,13 @@ func (ah *eventHandler) removeRequestorScheme(event *removeRequestorSchemeEvent)
 	return nil
 }
 
+// requestDebugSchemes answers the debug screens with what they show of the
+// schemes.
+func (ah *eventHandler) requestDebugSchemes() error {
+	dispatchEvent(debugSchemes(yiviClient.GetIrmaConfiguration()))
+	return nil
+}
+
 func (ah *eventHandler) installCertificate(event *installCertificateEvent) error {
 	conf := yiviClient.GetEudiConfiguration()
 

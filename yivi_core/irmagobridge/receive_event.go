@@ -148,6 +148,8 @@ func handleNativeEvent(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.removeRequestorScheme(event)
 		}
+	case "RequestDebugSchemesEvent":
+		err = bridgeEventHandler.requestDebugSchemes()
 	case "InstallCertificateEvent":
 		event := &installCertificateEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
