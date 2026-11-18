@@ -263,7 +263,7 @@ void main() {
       final actualConfirmDeleteDialogText = tester.getAllText(dialogFinder);
       final expectedConfirmDeleteDialogText = [
         "Delete data",
-        "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
+        "If you proceed, all data will be deleted from your Yivi app, including your activity history. This cannot be undone: the deleted data cannot be recovered. If you wish to continue using Yivi you will have to reload the data.",
         "Yes, delete everything",
         "Cancel",
       ];

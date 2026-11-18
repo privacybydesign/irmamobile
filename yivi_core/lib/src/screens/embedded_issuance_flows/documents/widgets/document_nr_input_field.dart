@@ -40,6 +40,10 @@ class DocumentNrInputField extends StatelessWidget {
       key: const Key("document_nr_input_field"),
       controller: controller,
       keyboardType: .text,
+      autocorrect: false,
+      enableSuggestions: false,
+      // No learning from what is typed (Gboard's incognito mode on Android).
+      enableIMEPersonalizedLearning: false,
       textCapitalization: .characters,
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,

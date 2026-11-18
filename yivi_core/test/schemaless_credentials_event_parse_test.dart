@@ -1,4 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/models/log_entry.dart";
+import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 
 void main() {
@@ -30,5 +32,28 @@ void main() {
     expect(e.problematic, hasLength(1));
     expect(e.problematic.first.credentialInstanceIds, hasLength(1));
     expect(e.problematic.first.reason, contains("unknown"));
+  });
+
+  group("CredentialDescriptor.format", () {
+    CredentialDescriptor parse(Map<String, dynamic> extra) =>
+        CredentialDescriptor.fromJson({
+          "credential_id": "org.iso.18013.5.1.mDL",
+          "name": "Driving licence",
+          "issuer": {"id": "", "name": "", "verified": false},
+          "attributes": <dynamic>[],
+          ...extra,
+        });
+
+    test("reads the format", () {
+      expect(parse({"format": "mso_mdoc"}).format, CredentialFormat.msoMdoc);
+    });
+
+    test("is null when absent, as from an older irmago", () {
+      expect(parse({}).format, isNull);
+    });
+
+    test("is null for a format the app does not know", () {
+      expect(parse({"format": "ldp_vc"}).format, isNull);
+    });
   });
 }

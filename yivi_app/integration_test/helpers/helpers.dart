@@ -11,6 +11,8 @@ import "package:local_auth/local_auth.dart";
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/providers/app_integrity_provider.dart";
+import "package:yivi_core/src/providers/device_security_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
@@ -23,6 +25,7 @@ import "package:yivi_core/src/screens/notifications/widgets/notification_card.da
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/util/test_detection.dart";
+import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
@@ -38,6 +41,8 @@ import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
 import "../util.dart";
+import "fake_app_integrity.dart";
+import "fake_device_security.dart";
 import "fake_local_auth.dart";
 import "fake_rooted_device_detector.dart";
 
@@ -69,6 +74,7 @@ Future<void> pumpYiviApp(
   Locale? defaultLanguage,
   List<Override>? providerOverrides,
   bool isDeviceRooted = false,
+  bool isDeviceSecure = true,
   Duration? idleLockThreshold,
   // Biometric is off by default in tests (unavailable fake), so the opt-in
   // prompt / button never appear and don't interfere. Biometric tests pass an
@@ -83,6 +89,10 @@ Future<void> pumpYiviApp(
         rootedDeviceDetectorProvider.overrideWithValue(
           FakeRootedDeviceDetector(rooted: isDeviceRooted),
         ),
+        deviceSecurityProvider.overrideWithValue(
+          FakeDeviceSecurity(secure: isDeviceSecure),
+        ),
+        appIntegrityProvider.overrideWithValue(const FakeAppIntegrity()),
         ocrProcessorProvider.overrideWithValue(GoogleMLKitOcrProcessor()),
         localAuthProvider.overrideWithValue(
           localAuth ?? FakeLocalAuthentication(available: false),
@@ -261,6 +271,10 @@ Future<void> issueCredentials(
   bool continueOnSecondDevice = true,
   bool declineOffer = false,
   int? sdJwtBatchSize,
+
+  /// Attributes drawn by an attribute group (such as the driving licence
+  /// categories table) instead of as rows; the caller checks those itself.
+  Set<String> attributesInGroups = const {},
 }) async {
   // Credential and attribute names in the issuance permission are resolved by
   // irmago, not by Flutter, so an explicitly requested locale has to reach the
@@ -322,9 +336,9 @@ Future<void> issueCredentials(
   }
 
   // Check whether all attributes are displayed (order-independent).
-  final attributeTexts = tester
-      .getAllText(find.byType(YiviCredentialCardAttributeList))
-      .toList();
+  final attributeTexts = attributeRowTexts(
+    find.byType(YiviCredentialCardAttributeList),
+  ).map((t) => t.data!).toList();
 
   // Build a map of displayed attribute name -> value pairs.
   final displayedAttributes = <String, String>{};
@@ -335,6 +349,7 @@ Future<void> issueCredentials(
   // Build a map of expected attribute name -> value pairs.
   final expectedAttributes = <String, String>{};
   for (final entry in attributes.entries) {
+    if (attributesInGroups.contains(entry.key)) continue;
     final attrName = irmaBinding
         .repository
         .irmaConfiguration
@@ -416,9 +431,12 @@ Future<void> evaluateRequestor(
 
 /// One label-value entry in an [attributes] list. The value is one of:
 /// - `String`: a leaf row (label + value)
-/// - `List<String>`: a primitive array, rendered as bullets
+/// - `List<String>`: a primitive array, rendered as bullets (a [Matcher] may
+///   stand in for any of them)
 /// - [Block] (`List<AttrRow>`): a nested group
 /// - `List<Block>`: an array of nested items
+/// - [Matcher]: a leaf row whose value is only known by shape, such as a
+///   holder `did:key` that differs per issuance
 typedef AttrRow = (String label, Object value);
 
 /// Ordered list of rows, used for nested groups and as item children.
@@ -650,6 +668,29 @@ Future<void> evaluateCredentialCard(
   }
 }
 
+/// The texts of the attribute rows under [attributeList], leaving out those
+/// inside an attribute group (such as the driving licence categories table),
+/// which lays out its attributes in its own way.
+List<Text> attributeRowTexts(Finder attributeList) {
+  final inGroups = find
+      .descendant(
+        of: find.descendant(
+          of: attributeList,
+          matching: find.byType(AttributeGroupScope),
+        ),
+        matching: find.byType(Text),
+      )
+      .evaluate()
+      .toSet();
+  return find
+      .descendant(of: attributeList, matching: find.byType(Text))
+      .evaluate()
+      .where((e) => !inGroups.contains(e))
+      .map((e) => e.widget as Text)
+      .where((t) => t.data != null)
+      .toList();
+}
+
 /// Walks the card's attribute list and pairs each label with its run of
 /// following values, recovering an ordered list of (label, [values]) entries.
 /// Classification keys off the font sizes used by the renderer
@@ -658,11 +699,7 @@ Future<void> evaluateCredentialCard(
 ///   - 16: leaf value or prim-array bullet
 ///   - 12: eyebrow header (group/item) — closes the current run, ignored.
 List<_LabelValues> _renderedRows(WidgetTester tester, Finder cardAttList) {
-  final texts = tester
-      .widgetList<Text>(
-        find.descendant(of: cardAttList, matching: find.byType(Text)),
-      )
-      .toList();
+  final texts = attributeRowTexts(cardAttList);
 
   final rendered = <_LabelValues>[];
   String? pendingLabel;
@@ -715,17 +752,18 @@ Map<String, List<String>> _renderedLabelValues(
 /// (`yivi_credential_card_attribute_list.dart`): leaves emit one entry,
 /// primitive arrays emit one entry with all bullets, item arrays recurse
 /// into each item's children, and nested groups recurse into their children.
-List<_LabelValues> _flattenExpected(List<AttrRow> rows) {
-  final out = <_LabelValues>[];
+List<_ExpectedRow> _flattenExpected(List<AttrRow> rows) {
+  final out = <_ExpectedRow>[];
+  bool isValue(Object? v) => v is String || v is Matcher;
   void walk(List<AttrRow> rows) {
     for (final (label, value) in rows) {
-      if (value is String) {
-        out.add(_LabelValues(label, [value]));
+      if (isValue(value)) {
+        out.add((label: label, values: [value]));
       } else if (value is List) {
         if (value.isEmpty) {
-          out.add(_LabelValues(label, const []));
-        } else if (value.every((v) => v is String)) {
-          out.add(_LabelValues(label, value.cast<String>()));
+          out.add((label: label, values: const []));
+        } else if (value.every(isValue)) {
+          out.add((label: label, values: value.cast<Object>()));
         } else if (value.every((v) => v is List)) {
           // List<Block>: array of items. Recurse into each item.
           for (final item in value) {
@@ -787,6 +825,9 @@ void _matchAttributes(
     );
   }
 }
+
+/// An expected row: its label and its values, each a [String] or a [Matcher].
+typedef _ExpectedRow = ({String label, List<Object> values});
 
 class _LabelValues {
   final String label;

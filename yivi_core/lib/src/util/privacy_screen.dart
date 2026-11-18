@@ -1,4 +1,43 @@
+import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
+import "package:flutter/widgets.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+
+/// Keeps the text of the cover that iOS shows while the screen is recorded or
+/// shared in the language the app is set to. The cover is drawn by native
+/// code, which cannot reach the app's translations and would otherwise follow
+/// the language of the system.
+///
+/// Belongs below the app's localizations, and sends the text again whenever
+/// the language changes.
+class CaptureCoverText extends StatefulWidget {
+  final Widget child;
+
+  const CaptureCoverText({super.key, required this.child});
+
+  @override
+  State<CaptureCoverText> createState() => _CaptureCoverTextState();
+}
+
+class _CaptureCoverTextState extends State<CaptureCoverText> {
+  String? _sent;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Read to be called again when the language changes.
+    Localizations.maybeLocaleOf(context);
+    const key = "privacy_screen.capture_cover";
+    final text = FlutterI18n.translate(context, key);
+    // A translation that is missing comes back as its key.
+    if (text == key || text == _sent) return;
+    _sent = text;
+    PrivacyScreen.setCaptureCoverText(text);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
 
 class PrivacyScreen {
   static final MethodChannel _channel = MethodChannel("privacy_screen");
@@ -9,6 +48,17 @@ class PrivacyScreen {
 
   static Future<void> disablePrivacyScreen() async {
     await _channel.invokeMethod("disablePrivacyScreen");
+  }
+
+  /// Sets the text of the cover shown while the screen is recorded or shared.
+  /// Only iOS has such a cover: Android keeps the app out of a capture itself.
+  static Future<void> setCaptureCoverText(String text) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return;
+    try {
+      await _channel.invokeMethod("setCaptureCoverText", text);
+    } on MissingPluginException {
+      // No native side, as in a test: there is no cover to label.
+    }
   }
 
   /// Runs [action] with the privacy screen held back, for flows that put system

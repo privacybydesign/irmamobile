@@ -71,7 +71,12 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   static List<Locale> defaultSupportedLocales() {
-    return const [Locale("en", "US"), Locale("nl", "NL"), Locale("de", "DE")];
+    return const [
+      Locale("en", "US"),
+      Locale("nl", "NL"),
+      Locale("de", "DE"),
+      Locale("fr", "FR"),
+    ];
   }
 
   @override
@@ -186,12 +191,14 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
             supportedLocales: defaultSupportedLocales(),
             showSemanticsDebugger: false,
             routerConfig: _router,
-            builder: (context, child) => LegacyMaterialBridge(
-              child: LockGate(
-                router: _router,
-                child: StoreReviewGate(
+            builder: (context, child) => CaptureCoverText(
+              child: LegacyMaterialBridge(
+                child: LockGate(
                   router: _router,
-                  child: child ?? const SizedBox.shrink(),
+                  child: StoreReviewGate(
+                    router: _router,
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ),

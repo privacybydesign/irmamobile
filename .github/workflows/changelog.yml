@@ -1,0 +1,34 @@
+# Ensures every PR either updates CHANGELOG.md or carries the `skip-changelog` label.
+name: Changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: changelog-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check for CHANGELOG.md update
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet "$BASE_SHA"...HEAD -- CHANGELOG.md; then
+            echo "CHANGELOG.md was updated."
+            exit 0
+          fi
+          echo "::error::CHANGELOG.md was not updated. Update it under the 'Unreleased' section, or add the 'skip-changelog' label if this change does not warrant a changelog entry."
+          exit 1

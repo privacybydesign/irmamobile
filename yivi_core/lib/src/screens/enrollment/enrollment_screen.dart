@@ -20,17 +20,20 @@ import "enrollment_failed_screen.dart";
 import "introduction/introduction_screen.dart";
 import "provide_email/email_sent_screen.dart";
 import "provide_email/provide_email_screen.dart";
+import "widgets/wallet_deleted_confirmation.dart";
 
 class EnrollmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
-    return BlocProvider(
-      create: (_) => EnrollmentBloc(
-        language: FlutterI18n.currentLocale(context)!.languageCode,
-        repo: repo,
+    return WalletDeletedConfirmation(
+      child: BlocProvider(
+        create: (_) => EnrollmentBloc(
+          language: FlutterI18n.currentLocale(context)!.languageCode,
+          repo: repo,
+        ),
+        child: _ProvidedEnrollmentScreen(repo: repo),
       ),
-      child: _ProvidedEnrollmentScreen(repo: repo),
     );
   }
 }

@@ -16,7 +16,9 @@
     "expand": "Erweitern",
     "expand_hint": "Doppeltippen zum Erweitern",
     "collapse_hint": "Doppeltippen zum Einklappen",
-    "refresh": "Aktualisieren"
+    "refresh": "Aktualisieren",
+    "search_data": "Ihre Daten durchsuchen",
+    "obtain_data": "Daten abrufen"
   },
   "new_terms_and_conditions": {
     "title": "Neue Nutzungsbedingungen",
@@ -111,7 +113,21 @@
     "revoked": "Widerrufen",
     "not_obtainable": "Diese Daten können nicht abgerufen werden. Bitte kontaktieren Sie {issuerName}, um diese Daten zu erhalten.",
     "boolean_yes": "Ja",
-    "boolean_no": "Nein"
+    "boolean_no": "Nein",
+    "driving_licence_categories": {
+      "title": "Führerscheinklassen",
+      "category": "Klasse",
+      "status": "Status",
+      "held": "Vorhanden",
+      "not_held": "Nicht vorhanden",
+      "issued": "Ausgestellt",
+      "expires": "Läuft ab",
+      "no_information": "Keine Klasseninformationen",
+      "not_held_count-0": "{count} Klassen nicht vorhanden",
+      "not_held_count-1": "{count} Klasse nicht vorhanden",
+      "not_held_count-2": "{count} Klassen nicht vorhanden",
+      "show_less": "Weniger anzeigen"
+    }
   },
   "data": {
     "tab": {
@@ -321,7 +337,8 @@
       "point_1": "Sie entscheiden, welche Daten Sie speichern und was Sie teilen.",
       "point_2": "Ihre Daten befinden sich nur auf Ihrem Telefon, sicher und geschützt. Nirgendwo sonst.",
       "point_3": "Niemand schaut zu, auch Yivi nicht!",
-      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})"
+      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
+      "privacy_policy_markdown": "Lesen Sie in unserer [Datenschutzerklärung]({privacy_url}), wie Yivi mit Ihren Daten umgeht."
     },
     "error_reporting": {
       "accept": {
@@ -337,6 +354,10 @@
     "submit": {
       "title": "Anmeldung",
       "progress_enrollment": "Willkommen! Bitte warten Sie einen Moment, wir melden Sie an."
+    },
+    "wallet_deleted": {
+      "title": "Wallet entfernt",
+      "body": "Ihre Wallet wurde entfernt und alle Ihre Daten wurden gelöscht"
     }
   },
   "error": {
@@ -660,9 +681,25 @@
     "explanation": "Es tut uns leid, aber die Yivi-Organisation hat keine Kopie Ihrer PIN. Wenn Sie Yivi weiter nutzen möchten, müssen Sie eine neue PIN eingeben und Ihre Daten neu laden.",
     "reset": "Von vorne beginnen"
   },
+  "device_lock_required": {
+    "title": "Bildschirmsperre einrichten",
+    "explanation_android": "Ihr Telefon hat keine Bildschirmsperre. Yivi schützt Ihre Daten mit der Sicherheit Ihres Telefons und funktioniert daher nur auf einem Telefon mit Bildschirmsperre: einer PIN, einem Muster oder einem Passwort, das auch für das Entsperren per Fingerabdruck oder Gesicht nötig ist.\n\nRichten Sie in den Einstellungen Ihres Telefons eine Bildschirmsperre ein und kehren Sie dann zu Yivi zurück.",
+    "explanation_ios": "Ihr iPhone hat keinen Code. Yivi schützt Ihre Daten mit der Sicherheit Ihres iPhones und funktioniert daher nur auf einem iPhone mit Code, der auch für Face ID und Touch ID nötig ist.\n\nLegen Sie in den Einstellungen unter „Face ID & Code“ (oder „Touch ID & Code“) einen Code fest und kehren Sie dann zu Yivi zurück.",
+    "open_settings": "Einstellungen öffnen",
+    "check_again": "Erneut prüfen",
+    "continue_anyway_debug": "Trotzdem fortfahren (Debug-Build)"
+  },
+  "app_integrity_blocked": {
+    "title": "Yivi kann gerade nicht verwendet werden",
+    "explanation": "Yivi hat ein Werkzeug bemerkt, das die App während der Ausführung untersuchen oder verändern kann, zum Beispiel einen Debugger. Zum Schutz Ihrer Daten bleibt Yivi geschlossen, solange dieses Werkzeug aktiv ist.\n\nBeenden Sie das Werkzeug oder starten Sie Ihr Telefon neu und öffnen Sie Yivi danach erneut."
+  },
+  "privacy_screen": {
+    "capture_cover": "Yivi ist ausgeblendet, solange Ihr Bildschirm aufgezeichnet oder geteilt wird."
+  },
   "rooted_warning": {
     "title": "Gerät unsicher",
     "explanation": "Das Betriebssystem auf Ihrem Gerät scheint modifiziert zu sein (Rooted/Jailbreak). Aus diesem Grund kann die Sicherheit Ihrer Daten nicht garantiert werden.",
+    "explanation_environment": "Yivi scheint in einem Emulator zu laufen, in einer von einer anderen App erstellten Kopie der App, oder auf einem Gerät mit einem Werkzeug, das andere Apps verändern kann. Aus diesem Grund kann die Sicherheit Ihrer Daten nicht garantiert werden.",
     "accept_risk": "Ich akzeptiere das Risiko"
   },
   "secure_pin": {
@@ -703,7 +740,9 @@
     "report_errors": "Fehler- und App-Status-Berichterstattung",
     "report_errors_explanation": "Durch die Aktivierung der Fehler- und App-Status-Berichterstattung helfen Sie uns, die Benutzererfahrung zu verbessern.",
     "enable_screenshots": "Screenshots aktivieren",
-    "enable_screenshots_explanation": "Wenn aktiviert, wird die App im App-Umschalter nicht unscharf dargestellt.",
+    "enable_screenshots_explanation": "Wenn aktiviert, können Screenshots und Bildschirmaufnahmen von Yivi gemacht werden, und die App ist im App-Umschalter sichtbar.",
+    "enable_screen_recording": "Bildschirmaufnahme erlauben",
+    "enable_screen_recording_explanation": "Wenn aktiviert, wird Yivi nicht ausgeblendet, während Ihr Bildschirm aufgezeichnet oder geteilt wird, und im App-Umschalter nicht unscharf dargestellt.",
     "developer_mode": "Entwicklermodus",
     "other": "Sonstiges",
     "language": "Sprache",
@@ -716,7 +755,7 @@
     "delete": "Daten löschen",
     "confirm_delete_dialog": {
       "title": "Daten löschen",
-      "explanation": "Wenn Sie fortfahren, werden alle Daten aus Ihrer Yivi-App gelöscht. Wenn Sie Yivi weiter nutzen möchten, müssen Sie die Daten neu laden.",
+      "explanation": "Wenn Sie fortfahren, werden alle Daten aus Ihrer Yivi-App gelöscht, einschließlich Ihres Aktivitätsverlaufs. Dies kann nicht rückgängig gemacht werden: Gelöschte Daten können nicht wiederhergestellt werden. Wenn Sie Yivi weiter nutzen möchten, müssen Sie die Daten neu laden.",
       "confirm": "Ja, alles löschen",
       "deny": "Abbrechen"
     }
@@ -922,7 +961,73 @@
         "explanation": "Sind Sie sicher, dass Sie das Lesen Ihres Personalausweises abbrechen möchten?",
         "confirm": "Ja",
         "decline": "Nein"
+      },
+      "wrong_document": "Das ist ein Aufenthaltstitel",
+      "wrong_document_tip": "Gehen Sie zurück und wählen Sie Aufenthaltstitel."
+    }
+  },
+  "residence_permit": {
+    "scan": {
+      "title": "Aufenthaltstitel scannen",
+      "success": "Erfolg",
+      "success_explanation": "Der Aufenthaltstitel wurde erfolgreich gescannt.",
+      "manual": "Manuell eingeben",
+      "error": "Aufenthaltstitel konnte nicht gelesen werden. Bitte versuchen Sie es erneut."
+    },
+    "manual": {
+      "title": "Daten des Aufenthaltstitels eingeben",
+      "explanation": "Wir benötigen die Dokumentennummer, das Geburtsdatum und das Ablaufdatum Ihres Aufenthaltstitels, um auf den NFC-Chip zuzugreifen.",
+      "fields": {
+        "document_nr": "Dokumentennummer",
+        "document_nr_required": "Dokumentennummer ist erforderlich",
+        "document_nr_invalid": "Dokumentennummer ist ungültig",
+        "date_of_birth": "Geburtsdatum",
+        "date_of_birth_required": "Geburtsdatum ist erforderlich",
+        "date_of_expiry": "Ablaufdatum",
+        "date_of_expiry_required": "Ablaufdatum ist erforderlich",
+        "date_invalid": "Datum ist ungültig"
       }
+    },
+    "nfc": {
+      "introduction": "Sie scannen jetzt die Daten in Ihrem Aufenthaltstitel.\n\nHalten Sie die Rückseite Ihres Telefons an Ihren Aufenthaltstitel. Drücken Sie Start, um den Scanvorgang zu starten.",
+      "start_scanning": "Scannen starten",
+      "title": "Aufenthaltstitel lesen",
+      "nfc_enabled": "NFC aktiviert",
+      "nfc_disabled": "NFC deaktiviert",
+      "reading": "Lesen...",
+      "error": "Aufenthaltstitel konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
+      "nfc_not_supported": "NFC wird auf diesem Gerät nicht unterstützt.",
+      "nfc_disabled_explanation": "NFC ist deaktiviert. Bitte aktivieren Sie NFC in den Systemeinstellungen und versuchen Sie es erneut.",
+      "nfc_interrupted": "Lesevorgang unterbrochen. Versuchen Sie es erneut und halten Sie Ihr Telefon ruhig auf Ihrem Aufenthaltstitel.",
+      "tip_1": "Bewegen Sie Ihr Telefon nicht. Das Lesen dauert normalerweise nur 10-20 Sekunden.",
+      "tip_2": "Halten Sie die Rückseite Ihres Telefons an Ihren Aufenthaltstitel.",
+      "tip_3": "Probleme beim Lesen? Versuchen Sie, die Hülle Ihres Telefons zu entfernen. Das verstärkt oft das NFC-Signal.",
+      "success": "Erfolg",
+      "success_explanation": "Aufenthaltstitel erfolgreich gelesen",
+      "idle": "Bereit zum Starten des Lesens des Aufenthaltstitels",
+      "cancelling": "Abbrechen...",
+      "hold_near_photo_page": "Halten Sie Ihr Telefon an Ihren Aufenthaltstitel.",
+      "cancelled": "Abgebrochen",
+      "connecting": "Verbindung zum Aufenthaltstitel wird hergestellt...",
+      "finished": "Fertig",
+      "reading_card_security": "NFC-Chip-Zugriff wird ermittelt...",
+      "authenticating": "Authentifizierung mit Aufenthaltstitel...",
+      "reading_passport_data": "Daten des Aufenthaltstitels werden gelesen...",
+      "performing_security_verification": "Sicherheitsüberprüfung wird durchgeführt...",
+      "completed_successfully": "Aufenthaltstitel erfolgreich gelesen.",
+      "error_generic": "Beim Lesen des Aufenthaltstitels ist ein Fehler aufgetreten.",
+      "failed_initiate_session": "Verbindung mit Aufenthaltstitel konnte nicht gestartet werden.",
+      "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Aufenthaltstitel-Tag",
+      "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
+      "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
+      "cancel_dialog": {
+        "title": "Lesen des Aufenthaltstitels abbrechen?",
+        "explanation": "Sind Sie sicher, dass Sie das Lesen Ihres Aufenthaltstitels abbrechen möchten?",
+        "confirm": "Ja",
+        "decline": "Nein"
+      },
+      "wrong_document": "Das ist ein Personalausweis",
+      "wrong_document_tip": "Gehen Sie zurück und wählen Sie Personalausweis."
     }
   },
   "passport": {

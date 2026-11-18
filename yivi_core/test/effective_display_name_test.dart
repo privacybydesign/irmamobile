@@ -19,13 +19,21 @@ void main() {
           claimPath: const ["address", "city"],
           displayName: null,
         );
-        expect(attr.effectiveDisplayName, "city");
+        expect(attr.effectiveDisplayName, "City");
       },
     );
 
     test("skips trailing int segments (array indices)", () {
       final attr = _attr(claimPath: const ["tags", 0], displayName: null);
-      expect(attr.effectiveDisplayName, "tags");
+      expect(attr.effectiveDisplayName, "Tags");
+    });
+
+    test("makes a camelCase key readable", () {
+      final attr = _attr(
+        claimPath: const ["credentialSubject", "achievement", "targetCode"],
+        displayName: null,
+      );
+      expect(attr.effectiveDisplayName, "Target code");
     });
 
     test(
@@ -48,7 +56,25 @@ void main() {
         claimPath: const [3.14, true, "fieldName"],
         displayName: null,
       );
-      expect(attr.effectiveDisplayName, "fieldName");
+      expect(attr.effectiveDisplayName, "Field name");
     });
+  });
+
+  group("readableClaimKey", () {
+    for (final (key, readable) in const [
+      ("targetCode", "Target code"),
+      ("educationProgramIdentifier", "Education program identifier"),
+      ("given_name", "Given name"),
+      ("ECTS", "ECTS"),
+      ("institutionBRINCode", "Institution BRIN code"),
+      ("resultDescription", "Result description"),
+      ("id", "Id"),
+      ("street_address2", "Street address2"),
+      ("", ""),
+    ]) {
+      test("'$key' reads '$readable'", () {
+        expect(readableClaimKey(key), readable);
+      });
+    }
   });
 }

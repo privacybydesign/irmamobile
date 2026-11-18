@@ -191,6 +191,11 @@ extension RoutingHelpers on BuildContext {
     push(uri.toString());
   }
 
+  void pushResidencePermitMrzReaderScreen() {
+    final uri = Uri(path: "/mrz/reader/residence_permit");
+    push(uri.toString());
+  }
+
   void pushDrivingLicenceMrzReaderScreen() {
     final uri = Uri(path: "/mrz/reader/driving_licence");
     push(uri.toString());
@@ -203,6 +208,11 @@ extension RoutingHelpers on BuildContext {
 
   void pushIdCardManualEntryScreen() {
     final uri = Uri(path: "/mrz/manual_entry/id_card");
+    push(uri.toString());
+  }
+
+  void pushResidencePermitManualEntryScreen() {
+    final uri = Uri(path: "/mrz/manual_entry/residence_permit");
     push(uri.toString());
   }
 
@@ -227,6 +237,21 @@ extension RoutingHelpers on BuildContext {
   void pushIdCardNfcReadingScreen(PassportNfcReadingRouteParams params) {
     final uri = Uri(
       path: "/nfc/id_card",
+      queryParameters: params.toQueryParams(),
+    ).toString();
+
+    final current = GoRouter.of(this).state.uri.toString();
+
+    if (current != uri) {
+      push(uri);
+    }
+  }
+
+  void pushResidencePermitNfcReadingScreen(
+    PassportNfcReadingRouteParams params,
+  ) {
+    final uri = Uri(
+      path: "/nfc/residence_permit",
       queryParameters: params.toQueryParams(),
     ).toString();
 

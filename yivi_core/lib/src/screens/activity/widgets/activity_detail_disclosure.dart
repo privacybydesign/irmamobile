@@ -33,6 +33,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: YiviCredentialCard.fromLogCredential(
+                disclosure: true,
                 logCredential: credential,
                 compact: true,
                 hideFooter: true,

@@ -78,4 +78,76 @@ void main() {
     expect(find.byType(Image), findsOneWidget);
     expect(find.byType(SvgPicture), findsNothing);
   });
+
+  // Issuers sometimes fill an empty image attribute with a placeholder; a
+  // logo or attribute image that is not an image must render nothing rather
+  // than throw during build, which release builds show as a grey error box.
+  for (final (name, value) in [
+    ("a single space", " "),
+    ("an empty string", ""),
+    ("invalid base64", "not base64!"),
+  ]) {
+    testWidgets("renders nothing for $name", (tester) async {
+      await pump(tester, Base64Image(base64: value));
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Image), findsNothing);
+      expect(find.byType(SvgPicture), findsNothing);
+    });
+  }
+
+  testWidgets("renders nothing for base64 that is no image", (tester) async {
+    await pump(
+      tester,
+      Base64Image(base64: base64Encode(utf8.encode("definitely not a PNG"))),
+    );
+    // Let the image codec fail so the errorBuilder runs.
+    await tester.runAsync(() => Future.delayed(const Duration(seconds: 1)));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(ErrorWidget), findsNothing);
+  });
+
+  testWidgets("renders nothing for an SVG that does not parse", (tester) async {
+    await pump(
+      tester,
+      Base64Image(
+        base64: base64Encode(utf8.encode("<svg><unclosed")),
+        mimeType: "image/svg+xml",
+      ),
+    );
+    await tester.runAsync(() => Future.delayed(const Duration(seconds: 1)));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(ErrorWidget), findsNothing);
+  });
+
+  testWidgets("passes the fit on", (tester) async {
+    await pump(tester, Base64Image(base64: _png, fit: BoxFit.fitWidth));
+
+    expect(tester.widget<Image>(find.byType(Image)).fit, BoxFit.fitWidth);
+  });
+
+  testWidgets("does not draw an SVG larger than maxSvgBytes", (tester) async {
+    final padding = " " * maxSvgBytes;
+    await pump(
+      tester,
+      Base64Image(base64: _svgBase64(padding), mimeType: "image/svg+xml"),
+    );
+
+    expect(find.byType(SvgPicture), findsNothing);
+    expect(find.byType(Image), findsNothing);
+  });
+
+  testWidgets("draws an SVG of up to maxSvgBytes", (tester) async {
+    final padding = " " * (maxSvgBytes - _svg.length);
+    await pump(
+      tester,
+      Base64Image(base64: _svgBase64(padding), mimeType: "image/svg+xml"),
+    );
+
+    expect(find.byType(SvgPicture), findsOneWidget);
+  });
 }
