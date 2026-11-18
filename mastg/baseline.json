@@ -1,0 +1,35 @@
+{
+ "owasp": {
+  "tests": 188,
+  "resolved": 48,
+  "score": 25.5,
+  "automated": 85,
+  "automation": 45.2,
+  "by_status": {
+   "pass": 48,
+   "not_applicable": 0,
+   "fail": 9,
+   "triage": 28,
+   "not_automated": 103
+  }
+ },
+ "owasp_checked_by": {
+  "owasp_checks_only": 47,
+  "yivi_checks_only": 37,
+  "both": 1
+ },
+ "yivi": {
+  "tests": 8,
+  "resolved": 6,
+  "score": 75.0,
+  "automated": 8,
+  "automation": 100.0,
+  "by_status": {
+   "pass": 6,
+   "not_applicable": 0,
+   "fail": 0,
+   "triage": 2,
+   "not_automated": 0
+  }
+ }
+}

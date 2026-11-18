@@ -1,0 +1,5 @@
+{
+ "_comment": "Decisions on findings and recorded verdicts on tests. See README.md. A finding is known by its check and the matched content.",
+ "findings": {},
+ "tests": {}
+}

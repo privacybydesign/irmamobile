@@ -1,0 +1,475 @@
+{
+ "profile": "OWASP MAS EUDI Wallet profile",
+ "version": "v1.0",
+ "source": "https://mas.owasp.org/Profiles/MAS-EUDIW/",
+ "requirements": [
+  {
+   "number": 1,
+   "title": "The app encrypts sensitive data stored in private storage.",
+   "category": "MASVS-STORAGE",
+   "maswe": "MASWE-0001"
+  },
+  {
+   "number": 2,
+   "title": "The app encrypts sensitive data stored outside of private storage.",
+   "category": "MASVS-STORAGE",
+   "maswe": "MASWE-0002"
+  },
+  {
+   "number": 3,
+   "title": "The app stores cryptographic keys inside the platform-provided secure keystore.",
+   "category": "MASVS-STORAGE",
+   "maswe": "MASWE-0003"
+  },
+  {
+   "number": 4,
+   "title": "The app does not hardcode sensitive data in the application package.",
+   "category": "MASVS-STORAGE",
+   "maswe": "MASWE-0004"
+  },
+  {
+   "number": 5,
+   "title": "The app excludes sensitive data from application logs.",
+   "category": "MASVS-STORAGE",
+   "maswe": "MASWE-0005"
+  },
+  {
+   "number": 6,
+   "title": "The app excludes sensitive data from backups.",
+   "category": "MASVS-STORAGE",
+   "maswe": "MASWE-0006"
+  },
+  {
+   "number": 7,
+   "title": "The app properly encrypts sensitive data.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0007"
+  },
+  {
+   "number": 8,
+   "title": "The app properly hashes sensitive data.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0008"
+  },
+  {
+   "number": 9,
+   "title": "The app properly uses Message Authentication Codes (MACs).",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0009"
+  },
+  {
+   "number": 10,
+   "title": "The app properly generates cryptographic signatures.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0010"
+  },
+  {
+   "number": 11,
+   "title": "The app properly verifies cryptographic signatures.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0011"
+  },
+  {
+   "number": 12,
+   "title": "The app properly generates random numbers.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0012"
+  },
+  {
+   "number": 13,
+   "title": "The app securely generates cryptographic keys.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0013"
+  },
+  {
+   "number": 14,
+   "title": "The app derives cryptographic keys using approved key derivation functions.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0014"
+  },
+  {
+   "number": 15,
+   "title": "The app rotates cryptographic keys regularly.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0015"
+  },
+  {
+   "number": 16,
+   "title": "The app restricts access to cryptographic keys.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0016"
+  },
+  {
+   "number": 17,
+   "title": "The app verifies that the device has a secure lock configured.",
+   "category": "MASVS-CRYPTO",
+   "maswe": "MASWE-0017"
+  },
+  {
+   "number": 18,
+   "title": "The app enforces authentication and authorization on its components.",
+   "category": "MASVS-AUTH",
+   "maswe": "MASWE-0018"
+  },
+  {
+   "number": 19,
+   "title": "The app enables auto-fill support for credential providers.",
+   "category": "MASVS-AUTH",
+   "maswe": "MASWE-0019"
+  },
+  {
+   "number": 20,
+   "title": "The app implements local authentication securely.",
+   "category": "MASVS-AUTH",
+   "maswe": "MASWE-0020"
+  },
+  {
+   "number": 21,
+   "title": "The app does not allow fallback to non-biometric credentials for sensitive transactions.",
+   "category": "MASVS-AUTH",
+   "maswe": "MASWE-0021"
+  },
+  {
+   "number": 22,
+   "title": "The app invalidates keys after any enrollment of new biometric data.",
+   "category": "MASVS-AUTH",
+   "maswe": "MASWE-0022"
+  },
+  {
+   "number": 23,
+   "title": "The app enforces step-up authentication before granting access to sensitive functionality.",
+   "category": "MASVS-AUTH",
+   "maswe": "MASWE-0023"
+  },
+  {
+   "number": 24,
+   "title": "The app makes sensitive data inaccessible after session termination.",
+   "category": "MASVS-AUTH",
+   "maswe": "MASWE-0024"
+  },
+  {
+   "number": 25,
+   "title": "The app ensures non-repudiation for critical actions.",
+   "category": "MASVS-AUTH",
+   "maswe": "MASWE-0025"
+  },
+  {
+   "number": 26,
+   "title": "The app encrypts all network traffic.",
+   "category": "MASVS-NETWORK",
+   "maswe": "MASWE-0026"
+  },
+  {
+   "number": 27,
+   "title": "The app validates certificates for all network traffic.",
+   "category": "MASVS-NETWORK",
+   "maswe": "MASWE-0027"
+  },
+  {
+   "number": 28,
+   "title": "The app correctly implements identity pinning.",
+   "category": "MASVS-NETWORK",
+   "maswe": "MASWE-0028"
+  },
+  {
+   "number": 29,
+   "title": "The app securely handles deep links.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0029"
+  },
+  {
+   "number": 30,
+   "title": "The app uses the clipboard securely and only with user consent.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0030"
+  },
+  {
+   "number": 31,
+   "title": "The app only permits trusted app extensions to interact with it.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0031"
+  },
+  {
+   "number": 32,
+   "title": "The app securely handles intents.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0032"
+  },
+  {
+   "number": 33,
+   "title": "The app does not expose sensitive native functionality to WebView content.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0033"
+  },
+  {
+   "number": 34,
+   "title": "The app only allows trusted WebView content to access local resources.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0034"
+  },
+  {
+   "number": 35,
+   "title": "The app only allows trusted content in WebViews.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0035"
+  },
+  {
+   "number": 36,
+   "title": "The app does not unnecessarily expose sensitive data through its user interface.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0036"
+  },
+  {
+   "number": 37,
+   "title": "The app does not unnecessarily expose sensitive data through system notifications.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0037"
+  },
+  {
+   "number": 38,
+   "title": "The app removes or masks sensitive data from its views when moved to the background, when being recorded or when a screenshot is taken.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0038"
+  },
+  {
+   "number": 39,
+   "title": "The app protects its sensitive screens against overlay attacks.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0039"
+  },
+  {
+   "number": 40,
+   "title": "The app prevents sensitive data from being exposed to, or captured by, accessibility services.",
+   "category": "MASVS-PLATFORM",
+   "maswe": "MASWE-0040"
+  },
+  {
+   "number": 41,
+   "title": "The app detects if it is running on an unsupported OS version and reacts appropriately.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0041"
+  },
+  {
+   "number": 42,
+   "title": "The app targets the latest platform version.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0042"
+  },
+  {
+   "number": 43,
+   "title": "The app detects if it must be updated and reacts appropriately.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0043"
+  },
+  {
+   "number": 44,
+   "title": "The app's third-party components are regularly checked for known vulnerabilities.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0044"
+  },
+  {
+   "number": 45,
+   "title": "The app uses the compiler-provided security features of the platform.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0045"
+  },
+  {
+   "number": 46,
+   "title": "The app does not use deprecated APIs or functionality.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0046"
+  },
+  {
+   "number": 47,
+   "title": "The app uses standard APIs for security-critical functionality.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0047"
+  },
+  {
+   "number": 48,
+   "title": "The app package does not contain malicious code.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0048"
+  },
+  {
+   "number": 49,
+   "title": "The app loads dynamic code safely from trusted sources.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0049"
+  },
+  {
+   "number": 50,
+   "title": "The app securely handles untrusted data.",
+   "category": "MASVS-CODE",
+   "maswe": "MASWE-0050"
+  },
+  {
+   "number": 51,
+   "title": "The app detects if it runs on a rooted/jailbroken device and reacts appropriately.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0051"
+  },
+  {
+   "number": 52,
+   "title": "The app detects when it is running inside an app-virtualization environment.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0052"
+  },
+  {
+   "number": 53,
+   "title": "The app detects when it is running in an emulated or virtual device environment.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0053"
+  },
+  {
+   "number": 54,
+   "title": "The app implements device attestation.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0054"
+  },
+  {
+   "number": 55,
+   "title": "The app detects attacks by malware.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0055"
+  },
+  {
+   "number": 56,
+   "title": "The app implements app attestation.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0056"
+  },
+  {
+   "number": 57,
+   "title": "The app verifies the integrity of its resources.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0057"
+  },
+  {
+   "number": 58,
+   "title": "The app detects unauthorized changes to its code and execution flow at runtime.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0058"
+  },
+  {
+   "number": 59,
+   "title": "The app implements code obfuscation.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0059"
+  },
+  {
+   "number": 60,
+   "title": "The app applies resource obfuscation to hinder reverse engineering.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0060"
+  },
+  {
+   "number": 61,
+   "title": "The app does not contain debug artifacts.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0061"
+  },
+  {
+   "number": 62,
+   "title": "The app applies application-level payload encryption in addition to transport-layer encryption.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0062"
+  },
+  {
+   "number": 63,
+   "title": "The app disables debug mechanisms.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0063"
+  },
+  {
+   "number": 64,
+   "title": "The app detects debugger attachment at runtime and responds to protect sensitive operations.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0064"
+  },
+  {
+   "number": 65,
+   "title": "The app detects dynamic analysis tools and responds to protect sensitive operations.",
+   "category": "MASVS-RESILIENCE",
+   "maswe": "MASWE-0065"
+  },
+  {
+   "number": 66,
+   "title": "The app adequately manages permissions.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0066"
+  },
+  {
+   "number": 67,
+   "title": "The app uses anonymization or pseudonymisation measures.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0067"
+  },
+  {
+   "number": 68,
+   "title": "The app does not use persistent or unique identifiers in a way that enables user tracking.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0068"
+  },
+  {
+   "number": 69,
+   "title": "The app uses privacy-preserving functionality.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0069"
+  },
+  {
+   "number": 70,
+   "title": "The app informs the user about the privacy implications before performing an action.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0070"
+  },
+  {
+   "number": 71,
+   "title": "The app uses adequate defaults for privacy relevant actions.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0071"
+  },
+  {
+   "number": 72,
+   "title": "The app provides an adequate privacy policy.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0072"
+  },
+  {
+   "number": 73,
+   "title": "The app adequately declares all user collected data.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0073"
+  },
+  {
+   "number": 74,
+   "title": "The app adequately declares all tracking domains it connects to.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0074"
+  },
+  {
+   "number": 75,
+   "title": "The app offers reproducible builds. (OUT OF SCOPE for the OWASP MAS EUDIW Profile)",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0075"
+  },
+  {
+   "number": 76,
+   "title": "The app provides adequate controls to manage user data.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0076"
+  },
+  {
+   "number": 77,
+   "title": "The app provides adequate controls over the visibility of user data.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0077"
+  },
+  {
+   "number": 78,
+   "title": "The app requests user consent prior to any data processing.",
+   "category": "MASVS-PRIVACY",
+   "maswe": "MASWE-0078"
+  }
+ ]
+}

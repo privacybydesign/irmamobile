@@ -1,0 +1,556 @@
+{
+ "_comment": "Our own checks that automate OWASP MASTG tests. These are not written or reviewed by OWASP. See README.md.",
+ "checks": [
+  {
+   "id": "yivi-android-screen-lock-detection",
+   "test": "MASTG-TEST-0247",
+   "title": "Looks for a call to KeyguardManager.isDeviceSecure(). OWASP's rule for this test expects the service to be looked up by the name \"keyguard\"; the app looks it up by class, which that rule does not match.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "present",
+   "files": [
+    "sources/**/*.java"
+   ],
+   "pattern": "\\.isDeviceSecure\\(\\)"
+  },
+  {
+   "id": "yivi-android-insecure-tls-protocols",
+   "test": "MASTG-TEST-0217",
+   "title": "A finding is code that asks for SSL, TLS 1.0 or TLS 1.1 by name.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "absent",
+   "files": [
+    "sources/**/*.java"
+   ],
+   "pattern": "SSLContext\\.getInstance\\(\\s*\"(SSL|SSLv2|SSLv3|TLSv1|TLSv1\\.1)\""
+  },
+  {
+   "id": "yivi-android-cleartext-configuration",
+   "test": "MASTG-TEST-0235",
+   "title": "A finding is a manifest or network security configuration that allows cleartext traffic.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "absent",
+   "files": [
+    "resources/AndroidManifest.xml",
+    "resources/res/xml/*.xml"
+   ],
+   "pattern": "(usesCleartextTraffic|cleartextTrafficPermitted)=\"true\""
+  },
+  {
+   "id": "yivi-android-min-sdk-trusts-user-cas",
+   "test": "MASTG-TEST-0285",
+   "title": "A finding is a minimum SDK below 24, where Android trusts user-installed certificate authorities by default.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "absent",
+   "files": [
+    "resources/AndroidManifest.xml"
+   ],
+   "pattern": "android:minSdkVersion=\"(\\d|1\\d|2[0-3])\""
+  },
+  {
+   "id": "yivi-android-certificate-pinning",
+   "test": "MASTG-TEST-0242",
+   "title": "Looks for a pin-set in the network security configuration.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "present",
+   "files": [
+    "resources/res/xml/*.xml"
+   ],
+   "pattern": "<pin-set"
+  },
+  {
+   "id": "yivi-android-webview-debugging",
+   "test": "MASTG-TEST-0227",
+   "title": "A finding is a call that switches WebView debugging on or off; a person checks that it is never on in a release.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "triage",
+   "files": [
+    "sources/**/*.java"
+   ],
+   "pattern": "setWebContentsDebuggingEnabled\\([^)]*\\)"
+  },
+  {
+   "id": "yivi-android-exported-activities",
+   "test": "MASTG-TEST-0364",
+   "title": "A finding is an exported activity; a person checks what it exposes.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "triage",
+   "files": [
+    "resources/AndroidManifest.xml"
+   ],
+   "multiline": true,
+   "pattern": "<activity\\b[^>]*android:exported=\"true\"[^>]*>"
+  },
+  {
+   "id": "yivi-android-exported-services",
+   "test": "MASTG-TEST-0365",
+   "title": "A finding is an exported service; a person checks what it exposes.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "triage",
+   "files": [
+    "resources/AndroidManifest.xml"
+   ],
+   "multiline": true,
+   "pattern": "<service\\b[^>]*android:exported=\"true\"[^>]*>"
+  },
+  {
+   "id": "yivi-android-exported-receivers",
+   "test": "MASTG-TEST-0366",
+   "title": "A finding is an exported broadcast receiver; a person checks what it exposes.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "triage",
+   "files": [
+    "resources/AndroidManifest.xml"
+   ],
+   "multiline": true,
+   "pattern": "<receiver\\b[^>]*android:exported=\"true\"[^>]*>"
+  },
+  {
+   "id": "yivi-android-enforced-update-api",
+   "test": "MASTG-TEST-0392",
+   "title": "Looks for the Play in-app update API.",
+   "target": "apk",
+   "engine": "regex",
+   "mode": "present",
+   "files": [
+    "sources/**/*.java"
+   ],
+   "pattern": "com\\.google\\.android\\.play\\.core\\.appupdate"
+  },
+  {
+   "id": "yivi-android-native-pic",
+   "test": "MASTG-TEST-0222",
+   "title": "A finding is a native library that is not position independent.",
+   "target": "apk",
+   "engine": "elf-pic",
+   "mode": "absent",
+   "files": [
+    "resources/lib/**/*.so"
+   ]
+  },
+  {
+   "id": "yivi-android-native-stack-canaries",
+   "test": "MASTG-TEST-0223",
+   "title": "A finding is a native library without a reference to __stack_chk_fail. Dart and Go code has none by design, so a person judges each library.",
+   "target": "apk",
+   "engine": "binary",
+   "mode": "triage",
+   "files": [
+    "resources/lib/**/*.so"
+   ],
+   "binary": "elf",
+   "symbols": [
+    "__stack_chk_fail"
+   ],
+   "report": "missing"
+  },
+  {
+   "id": "yivi-android-native-debug-symbols",
+   "test": "MASTG-TEST-0288",
+   "title": "A finding is a native library that still has a DWARF debug section.",
+   "target": "apk",
+   "engine": "binary",
+   "mode": "absent",
+   "files": [
+    "resources/lib/**/*.so"
+   ],
+   "binary": "elf",
+   "symbols": [
+    ".debug_info"
+   ]
+  },
+  {
+   "id": "yivi-ios-logging-apis",
+   "test": "MASTG-TEST-0297",
+   "title": "A finding is a binary that uses a logging API; a person checks what is logged.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "_NSLog",
+    "_NSLogv",
+    "_os_log_create",
+    "__os_log_impl"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-insecure-random",
+   "test": "MASTG-TEST-0311",
+   "title": "A finding is a binary that uses a random generator that is not cryptographically secure; a person checks what for.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "_rand",
+    "_srand",
+    "_random",
+    "_srandom",
+    "_drand48",
+    "_erand48",
+    "_lrand48"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-commoncrypto-encryption",
+   "test": "MASTG-TEST-0210",
+   "title": "A finding is a binary that calls CommonCrypto encryption; a person checks the algorithm.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "_CCCrypt",
+    "_CCCryptorCreate"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-broken-hashes",
+   "test": "MASTG-TEST-0211",
+   "title": "A finding is a binary that uses MD5 or SHA-1; a person checks what for.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "_CC_MD5",
+    "_CC_SHA1",
+    "_CC_MD4",
+    "_CC_MD2"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-backup-exclusion",
+   "test": "MASTG-TEST-0215",
+   "title": "Looks for the API that marks files as excluded from backup. Only the app's own binaries count, not those of libraries.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "present",
+   "symbols": [
+    "_NSURLIsExcludedFromBackupKey"
+   ],
+   "files": [
+    "Payload/*.app/Runner",
+    "Payload/*.app/Frameworks/yivi_core.framework/yivi_core"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-screen-lock-detection",
+   "test": "MASTG-TEST-0248",
+   "title": "Looks for the API that tells whether a passcode is set. Only the app's own binaries count, not those of libraries.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "present",
+   "symbols": [
+    "canEvaluatePolicy:error:"
+   ],
+   "files": [
+    "Payload/*.app/Runner",
+    "Payload/*.app/Frameworks/yivi_core.framework/yivi_core"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-jailbreak-detection",
+   "test": "MASTG-TEST-0240",
+   "title": "Looks for jailbreak detection, by the paths it tests for. Only the app's own binaries count, not those of libraries.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "present",
+   "strings": [
+    "/Applications/Cydia.app",
+    "/private/var/lib/apt"
+   ],
+   "files": [
+    "Payload/*.app/Runner",
+    "Payload/*.app/Frameworks/yivi_core.framework/yivi_core"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-debugger-detection",
+   "test": "MASTG-TEST-0401",
+   "title": "Looks for the APIs a debugger check uses. Only the app's own binaries count, not those of libraries.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "present",
+   "symbols": [
+    "_sysctl",
+    "_ptrace"
+   ],
+   "files": [
+    "Payload/*.app/Runner",
+    "Payload/*.app/Frameworks/yivi_core.framework/yivi_core"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-biometric-event-bound",
+   "test": "MASTG-TEST-0266",
+   "title": "A finding is a binary that asks for biometrics through LocalAuthentication, which gives a yes or no and is not bound to a key; a person checks what depends on it.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "evaluatePolicy:localizedReason:reply:"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-biometric-enrollment-change",
+   "test": "MASTG-TEST-0270",
+   "title": "Looks for the API that detects a change in the enrolled biometrics. Only the app's own binaries count, not those of libraries.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "present",
+   "symbols": [
+    "evaluatedPolicyDomainState"
+   ],
+   "files": [
+    "Payload/*.app/Runner",
+    "Payload/*.app/Frameworks/yivi_core.framework/yivi_core"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-general-pasteboard",
+   "test": "MASTG-TEST-0276",
+   "title": "A finding is a binary that uses the general pasteboard; a person checks what is put on it.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "generalPasteboard"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-custom-keyboard-restriction",
+   "test": "MASTG-TEST-0389",
+   "title": "Looks for the app delegate method that refuses third-party keyboards. Only the app's own binaries count, not those of libraries.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "present",
+   "symbols": [
+    "application:shouldAllowExtensionPointIdentifier:"
+   ],
+   "files": [
+    "Payload/*.app/Runner",
+    "Payload/*.app/Frameworks/yivi_core.framework/yivi_core"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-deprecated-webview",
+   "test": "MASTG-TEST-0331",
+   "title": "A finding is a binary that uses the deprecated UIWebView.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "absent",
+   "symbols": [
+    "_OBJC_CLASS_$_UIWebView"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-webview-native-bridge",
+   "test": "MASTG-TEST-0376",
+   "title": "A finding is a binary that registers a native bridge in a WebView; a person checks what it exposes.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "addScriptMessageHandler:name:",
+    "addScriptMessageHandler:contentWorld:name:"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-urlsession-challenge-handler",
+   "test": "MASTG-TEST-0396",
+   "title": "A finding is a binary that handles TLS challenges itself; a person checks that it does not accept every certificate.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "URLSession:didReceiveChallenge:completionHandler:",
+    "URLSession:task:didReceiveChallenge:completionHandler:"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-webview-challenge-handler",
+   "test": "MASTG-TEST-0397",
+   "title": "A finding is a binary that handles TLS challenges of a WebView itself; a person checks that it does not accept every certificate.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "webView:didReceiveAuthenticationChallenge:completionHandler:"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-stack-canaries",
+   "test": "MASTG-TEST-0229",
+   "title": "A finding is a binary without a reference to ___stack_chk_fail. Dart code has none by design, so a person judges each binary.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "___stack_chk_fail"
+   ],
+   "report": "missing",
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-arc",
+   "test": "MASTG-TEST-0230",
+   "title": "A finding is a binary without the ARC runtime calls. Binaries without Objective-C or Swift code have none, so a person judges each binary.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "triage",
+   "symbols": [
+    "_objc_release",
+    "_swift_release",
+    "_objc_autoreleaseReturnValue"
+   ],
+   "report": "missing",
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-pie",
+   "test": "MASTG-TEST-0228",
+   "title": "A finding is a main executable that is not position independent.",
+   "target": "ipa",
+   "engine": "macho-pie",
+   "mode": "absent",
+   "files": [
+    "Payload/*.app/**"
+   ]
+  },
+  {
+   "id": "yivi-ios-debug-symbols",
+   "test": "MASTG-TEST-0219",
+   "title": "A finding is a binary that still has a DWARF debug section.",
+   "target": "ipa",
+   "engine": "binary",
+   "mode": "absent",
+   "symbols": [
+    "__debug_info"
+   ],
+   "files": [
+    "Payload/*.app/**"
+   ],
+   "binary": "macho"
+  },
+  {
+   "id": "yivi-ios-ats-arbitrary-loads",
+   "test": "MASTG-TEST-0322",
+   "title": "A finding is App Transport Security switched off for all connections.",
+   "target": "ipa",
+   "engine": "plist",
+   "mode": "absent",
+   "files": [
+    "Payload/*.app/Info.plist"
+   ],
+   "key": "NSAppTransportSecurity/NSAllowsArbitraryLoads",
+   "equals": true
+  },
+  {
+   "id": "yivi-ios-ats-exception-domains",
+   "test": "MASTG-TEST-0342",
+   "title": "A finding is a list of App Transport Security exceptions; a person checks each one.",
+   "target": "ipa",
+   "engine": "plist",
+   "mode": "triage",
+   "files": [
+    "Payload/*.app/Info.plist"
+   ],
+   "key": "NSAppTransportSecurity/NSExceptionDomains"
+  },
+  {
+   "id": "yivi-ios-ats-pinning",
+   "test": "MASTG-TEST-0385",
+   "title": "Looks for pinned domains in App Transport Security.",
+   "target": "ipa",
+   "engine": "plist",
+   "mode": "present",
+   "files": [
+    "Payload/*.app/Info.plist"
+   ],
+   "key": "NSAppTransportSecurity/NSPinnedDomains"
+  },
+  {
+   "id": "yivi-ios-custom-url-schemes",
+   "test": "MASTG-TEST-0370",
+   "title": "A finding is the list of custom URL schemes the app registers; a person checks that their input is validated.",
+   "target": "ipa",
+   "engine": "plist",
+   "mode": "triage",
+   "files": [
+    "Payload/*.app/Info.plist"
+   ],
+   "key": "CFBundleURLTypes"
+  },
+  {
+   "id": "yivi-ios-debuggable-entitlement",
+   "test": "MASTG-TEST-0261",
+   "title": "A finding is get-task-allow in the provisioning profile, which lets a debugger attach. It is expected in a development build and must be absent in a store build.",
+   "target": "ipa",
+   "engine": "plist",
+   "mode": "triage",
+   "files": [
+    "Payload/*.app/embedded.mobileprovision"
+   ],
+   "key": "Entitlements/get-task-allow",
+   "equals": true
+  }
+ ]
+}

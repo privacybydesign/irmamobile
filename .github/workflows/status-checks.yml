@@ -465,6 +465,65 @@ jobs:
         # komodo = Pixel 9 Pro XL
         run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 40m --device=model=komodo,version=34,orientation=portrait --device=model=komodo,version=34,orientation=landscape
 
+  # The OWASP MASTG tests of the OWASP MAS EUDI Wallet profile, see mastg/README.md.
+  # Reports a score in the job summary. It is not part of the gate and never fails
+  # the run: the score is there to be raised, not to block a merge.
+  mastg:
+    runs-on: ubuntu-latest
+    needs: [build-app-android, build-app-ios-alpha]
+    # Also runs when the app builds were skipped (a fork) or failed; it then tests the sources.
+    if: always()
+    continue-on-error: true
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      JADX_VERSION: 1.5.5
+      JADX_SHA256: 38a5766d3c8170c41566b4b13ea0ede2430e3008421af4927235c2880234d51a
+      MASTG_SEMGREP: pipx run --spec semgrep==1.186.0 semgrep
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Download the alpha APK
+        id: apk
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: app-alpha-android-apk
+          path: build/mastg-apk
+      - name: Download the alpha IPA
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: app-alpha-ios
+          path: build/mastg-ipa
+      - name: Install jadx
+        if: steps.apk.outcome == 'success'
+        run: |
+          curl -sSfL -o /tmp/jadx.zip "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip"
+          echo "${JADX_SHA256}  /tmp/jadx.zip" | sha256sum -c -
+          unzip -q /tmp/jadx.zip -d "$HOME/jadx"
+          echo "$HOME/jadx/bin" >> "$GITHUB_PATH"
+      - name: Run the test bed
+        run: |
+          args=()
+          apk="$(find build/mastg-apk -name '*.apk' 2>/dev/null | head -n 1)"
+          ipa="$(find build/mastg-ipa -name '*.ipa' 2>/dev/null | head -n 1)"
+          if [ -n "$apk" ]; then args+=(--apk "$apk"); fi
+          if [ -n "$ipa" ]; then args+=(--ipa "$ipa"); fi
+          python3 mastg/testbed.py "${args[@]}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: mastg-results
+          path: |
+            build/mastg/summary.md
+            build/mastg/results.json
+            build/mastg/docs-results.json
+            build/mastg/triage-todo.json
+
   # CodeQL static analysis of the Go bridge, the Android Java plugins and the workflow
   # files. Dart is not supported by CodeQL; Swift would need a macOS build of the iOS
   # project, which the shared workflow (Ubuntu) cannot do. The weekly scheduled run
