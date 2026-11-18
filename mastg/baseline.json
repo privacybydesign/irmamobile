@@ -1,15 +1,15 @@
 {
  "owasp": {
   "tests": 188,
-  "resolved": 48,
-  "score": 25.5,
+  "resolved": 56,
+  "score": 29.8,
   "automated": 85,
   "automation": 45.2,
   "by_status": {
-   "pass": 48,
+   "pass": 56,
    "not_applicable": 0,
-   "fail": 9,
-   "triage": 28,
+   "fail": 8,
+   "triage": 21,
    "not_automated": 103
   }
  },
@@ -20,15 +20,15 @@
  },
  "yivi": {
   "tests": 8,
-  "resolved": 6,
-  "score": 75.0,
+  "resolved": 8,
+  "score": 100.0,
   "automated": 8,
   "automation": 100.0,
   "by_status": {
-   "pass": 6,
+   "pass": 8,
    "not_applicable": 0,
    "fail": 0,
-   "triage": 2,
+   "triage": 0,
    "not_automated": 0
   }
  }

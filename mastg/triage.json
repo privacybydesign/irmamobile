@@ -1,5 +1,114 @@
 {
  "_comment": "Decisions on findings and recorded verdicts on tests. See README.md. A finding is known by its check and the matched content.",
- "findings": {},
+ "findings": {
+  "mastg-android-random-apis-insufficient-entropy:47e8974e9b93": {
+   "decision": "ok",
+   "reason": "Library code: the androidx ProfileInstaller picks a random delay before it installs a baseline profile. The value protects nothing.",
+   "test": "MASTG-TEST-0204",
+   "match": "new Random().nextInt(Math.max(1000, 1))"
+  },
+  "detect-dangerous-android-permissions:e9854fad47ad": {
+   "decision": "ok",
+   "reason": "The camera is needed to scan QR codes and to read the MRZ of an identity document.",
+   "test": "MASTG-TEST-0254",
+   "match": "<uses-permission android:name=\"android.permission.CAMERA\"/>"
+  },
+  "mastg-android-backup-manifest-allow-backup:2bf7db991caa": {
+   "decision": "ok",
+   "reason": "The value is false: backup is off.",
+   "test": "MASTG-TEST-0262",
+   "match": "android:allowBackup=\"false\""
+  },
+  "mastg-android-hardcoded-security-provider:9cc4758b7c10": {
+   "decision": "ok",
+   "reason": "The provider is AndroidKeyStore, which the rule itself names as the accepted exception.",
+   "test": "MASTG-TEST-0312",
+   "match": "KeyGenerator.getInstance(\"AES\", \"AndroidKeyStore\")"
+  },
+  "mastg-android-hardcoded-security-provider:8676fce9d6cb": {
+   "decision": "ok",
+   "reason": "The provider is AndroidKeyStore, which the rule itself names as the accepted exception.",
+   "test": "MASTG-TEST-0312",
+   "match": "KeyPairGenerator.getInstance(\"EC\", \"AndroidKeyStore\")"
+  },
+  "mastg-android-asymmetric-key-pair-used-for-multiple-purposes:29f7783e86c2": {
+   "decision": "ok",
+   "reason": "A symmetric AES key for encryption and decryption (purposes 1 and 2), not an asymmetric key pair with mixed purposes.",
+   "test": "MASTG-TEST-0307",
+   "match": "new KeyGenParameterSpec.Builder(\"storageKey\", 3)"
+  },
+  "mastg-android-asymmetric-key-pair-used-for-multiple-purposes:f2fea1752198": {
+   "decision": "ok",
+   "reason": "An EC key pair with one purpose: signing (purpose 4).",
+   "test": "MASTG-TEST-0307",
+   "match": "new KeyGenParameterSpec.Builder(str, 4)"
+  },
+  "yivi-android-exported-services:71a264303e3b": {
+   "decision": "ok",
+   "reason": "Library component of Google Play services, protected by a permission, as the match shows.",
+   "test": "MASTG-TEST-0365",
+   "match": "<service android:name=\"com.google.android.gms.auth.api.signin.RevocationBoundService\" android:permission=\"com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION\" android:exported=\"t"
+  },
+  "yivi-android-exported-receivers:2885dca00b1e": {
+   "decision": "ok",
+   "reason": "Library component of androidx, protected by the DUMP permission, which only the system and the shell hold.",
+   "test": "MASTG-TEST-0366",
+   "match": "<receiver android:name=\"androidx.profileinstaller.ProfileInstallReceiver\" android:permission=\"android.permission.DUMP\" android:enabled=\"true\" android:exported=\"true\" android:directBootAware=\"false\">"
+  },
+  "yivi-android-native-stack-canaries:87528757ceec": {
+   "decision": "ok",
+   "reason": "Compiled Dart code. The Dart compiler does not emit stack canaries; the OWASP test lists this as an expected false positive.",
+   "test": "MASTG-TEST-0223",
+   "match": "libapp.so: none of __stack_chk_fail"
+  },
+  "yivi-android-native-stack-canaries:cf714833fb6c": {
+   "decision": "ok",
+   "reason": "Compiled Go code. The Go compiler does not emit stack canaries; Go checks bounds at run time.",
+   "test": "MASTG-TEST-0223",
+   "match": "libgojni.so: none of __stack_chk_fail"
+  },
+  "yivi-ios-stack-canaries:d9bada998c96": {
+   "decision": "ok",
+   "reason": "Compiled Dart code. The Dart compiler does not emit stack canaries.",
+   "test": "MASTG-TEST-0229",
+   "match": "App: none of ___stack_chk_fail"
+  },
+  "yivi-ios-arc:eca1148c2a25": {
+   "decision": "ok",
+   "reason": "Compiled Dart code, without Objective-C or Swift code, so there is nothing for ARC to manage.",
+   "test": "MASTG-TEST-0230",
+   "match": "App: none of _objc_release, _swift_release, _objc_autoreleaseReturnValue"
+  },
+  "yivi-ios-arc:2fa438afdf3e": {
+   "decision": "ok",
+   "reason": "A C library, without Objective-C or Swift code, so there is nothing for ARC to manage.",
+   "test": "MASTG-TEST-0230",
+   "match": "SQLCipher: none of _objc_release, _swift_release, _objc_autoreleaseReturnValue"
+  },
+  "yivi-ios-arc:0002a2258e70": {
+   "decision": "ok",
+   "reason": "A C library, without Objective-C or Swift code, so there is nothing for ARC to manage.",
+   "test": "MASTG-TEST-0230",
+   "match": "nanopb: none of _objc_release, _swift_release, _objc_autoreleaseReturnValue"
+  },
+  "yivi-ios-general-pasteboard:b63efa2796a1": {
+   "decision": "ok",
+   "reason": "The Flutter engine implements the clipboard channel with it. What the app copies is decided in the Dart code, which YIVI-TEST-0002 lists.",
+   "test": "MASTG-TEST-0276",
+   "match": "Flutter: generalPasteboard"
+  },
+  "yivi-clipboard-writes:b24b598dc982": {
+   "decision": "ok",
+   "reason": "The copy button of the NFC error details. It copies the logs without personal data; with \"show sensitive data\" ticked the button is off, which nfc_error_dialog_clipboard_test.dart tests.",
+   "test": "YIVI-TEST-0002",
+   "match": "Clipboard.setData(ClipboardData(text: widget.logs))"
+  },
+  "yivi-webview-javascript-channels:5589be20b81d": {
+   "decision": "ok",
+   "reason": "The face capture WebView of the F-Droid app. The page can only send capture results over this channel, and the WebView only navigates within the host of the capture page over https, which face_capture_navigation_test.dart tests.",
+   "test": "YIVI-TEST-0005",
+   "match": "addJavaScriptChannel(\"YiviFace\", onMessageReceived: _onChannelMessage) ..setNavigationDelegate( NavigationDelegate( // The page has the camera and the YiviFace channel, so the WebView // must not end "
+  }
+ },
  "tests": {}
 }
