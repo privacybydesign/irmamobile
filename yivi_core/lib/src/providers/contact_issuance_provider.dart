@@ -2,11 +2,12 @@ import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:pinput/pinput.dart";
 
+import "../data/contact_issuer_api.dart";
 import "../models/session.dart";
-import "contact_issuer_api.dart";
+import "contact_issuer_api_provider.dart";
 import "resend_wait.dart";
 
-export "contact_issuer_api.dart";
+export "../data/contact_issuer_api.dart";
 
 /// The number of digits in the code the SMS issuer sends.
 const smsCodeLength = 6;

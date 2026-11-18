@@ -4,7 +4,7 @@ import "package:altcha_lib/altcha_lib.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:http/http.dart" as http;
 import "package:http/testing.dart";
-import "package:yivi_core/src/providers/contact_issuer_api.dart";
+import "package:yivi_core/src/data/contact_issuer_api.dart";
 
 const _host = "https://issuer.example";
 const _secret = "test-hmac-secret";

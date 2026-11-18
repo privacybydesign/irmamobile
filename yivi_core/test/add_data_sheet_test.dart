@@ -18,6 +18,7 @@ import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
 import "package:yivi_core/src/providers/contact_issuance_provider.dart";
+import "package:yivi_core/src/providers/contact_issuer_api_provider.dart";
 import "package:yivi_core/src/providers/credential_store_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";

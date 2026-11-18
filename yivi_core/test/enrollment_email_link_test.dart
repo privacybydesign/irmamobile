@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/data/keyshare_email_link_api.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/protocol.dart";
@@ -9,7 +10,6 @@ import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
-import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/screens/enrollment/email/enrollment_email_link.dart";
 
 import "support/onboarding_v2_harness.dart";

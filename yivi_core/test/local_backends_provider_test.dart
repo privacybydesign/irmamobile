@@ -1,8 +1,10 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:shared_preferences/shared_preferences.dart";
+import "package:yivi_core/src/data/contact_issuer_api.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
-import "package:yivi_core/src/providers/contact_issuer_api.dart";
+import "package:yivi_core/src/data/keyshare_email_link_api.dart";
+import "package:yivi_core/src/providers/contact_issuer_api_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/local_backends_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";

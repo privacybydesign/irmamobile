@@ -10,7 +10,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/data/issuance_launcher.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/scheme_rules.dart";
-import "package:yivi_core/src/providers/contact_issuer_api.dart";
+import "package:yivi_core/src/providers/contact_issuer_api_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 

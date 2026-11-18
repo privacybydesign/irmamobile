@@ -26,6 +26,7 @@ import "src/widgets/text/preferred_language_builder.dart";
 export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
 export "src/providers/contact_issuance_provider.dart";
+export "src/providers/contact_issuer_api_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/passport_issuer_provider.dart"
     show faceCaptureUrlProvider, faceVerificationConfigProvider;

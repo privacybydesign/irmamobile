@@ -2,6 +2,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/contact_issuance_provider.dart";
+import "package:yivi_core/src/providers/contact_issuer_api_provider.dart";
 import "package:yivi_core/src/providers/resend_wait.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/widgets/resend_countdown.dart";
 

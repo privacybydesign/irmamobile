@@ -3,7 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../models/session_state.dart";
-import "../providers/contact_issuer_api.dart";
+import "../providers/contact_issuer_api_provider.dart";
 import "../providers/irma_repository_provider.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../screens/embedded_issuance_flows/documents/nfc_credentials.dart";
