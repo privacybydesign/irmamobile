@@ -391,8 +391,7 @@ class IrmaRepository {
 
   void startTestSessionFromUrl(String url) {
     final sessionPtr = Pointer.fromString(url) as SessionPointer;
-    sessionPtr.continueOnSecondDevice = true;
-    pendingPointers.put(sessionPtr);
+    pendingPointers.put(sessionPtr.copyWith(continueOnSecondDevice: true));
   }
 
   /// Only meant for testing and debug purposes.
@@ -426,10 +425,7 @@ Future<SessionPointer> createTestSession(
   }
 
   final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
-  final sessionPtr = SessionPointer.fromJson(
+  return SessionPointer.fromJson(
     responseObject["sessionPtr"] as Map<String, dynamic>,
-  );
-
-  sessionPtr.continueOnSecondDevice = continueOnSecondDevice;
-  return sessionPtr;
+  ).copyWith(continueOnSecondDevice: continueOnSecondDevice);
 }

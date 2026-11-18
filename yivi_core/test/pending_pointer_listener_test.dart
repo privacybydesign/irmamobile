@@ -6,7 +6,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/providers/contact_issuance_provider.dart";

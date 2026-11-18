@@ -15,7 +15,6 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_store.dart";
-import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/models/protocol.dart";

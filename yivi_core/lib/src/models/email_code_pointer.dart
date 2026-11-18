@@ -1,4 +1,4 @@
-import "session.dart";
+part of "session.dart";
 
 const _emailLinkPath = "/-/email";
 
@@ -14,7 +14,7 @@ final _codePattern = RegExp("^[A-Za-z0-9]{$emailCodeLength}\$");
 /// The e-mail issuer leaves the address out (go-email-issuer#105), since the
 /// app knows which address it asked a code for. A link that does carry one,
 /// as `&email=jan%40example.com`, is still read.
-class EmailCodePointer implements Pointer {
+final class EmailCodePointer implements Pointer {
   final String? email;
   final String code;
 

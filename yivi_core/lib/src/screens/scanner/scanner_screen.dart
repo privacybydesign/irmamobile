@@ -41,12 +41,13 @@ class ScannerScreen extends ConsumerStatefulWidget {
 }
 
 class ScannerScreenState extends ConsumerState<ScannerScreen> {
-  void onQrScanned(Pointer pointer) {
-    if (pointer is SessionPointer) {
-      // QR was scanned using the in-app scanner, so the session
-      // continues on a second device — overrule the pointer.
-      pointer.continueOnSecondDevice = true;
-    }
+  void onQrScanned(Pointer scanned) {
+    // QR was scanned using the in-app scanner, so the session
+    // continues on a second device — overrule the pointer.
+    final pointer = switch (scanned) {
+      SessionPointer() => scanned.copyWith(continueOnSecondDevice: true),
+      EmailCodePointer() => scanned,
+    };
 
     Haptics.scanned();
 

@@ -6,7 +6,6 @@ import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/models/native_events.dart";
 import "package:yivi_core/src/models/session.dart";

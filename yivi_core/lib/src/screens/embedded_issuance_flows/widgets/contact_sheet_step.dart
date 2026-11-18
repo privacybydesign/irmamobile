@@ -1,7 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../models/email_code_pointer.dart";
+import "../../../models/session.dart";
 import "../../../providers/contact_issuance_provider.dart";
 import "../../../providers/email_linking_provider.dart";
 import "../../../theme/yivi_palette.dart";

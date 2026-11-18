@@ -4,6 +4,7 @@ import "package:json_annotation/json_annotation.dart";
 
 import "protocol.dart";
 
+part "email_code_pointer.dart";
 part "session.g.dart";
 
 class MissingPointer implements Exception {
@@ -23,8 +24,9 @@ class MissingPointer implements Exception {
 
 const universalLinkHosts = {"open.yivi.app", "open.staging.yivi.app"};
 
-/// Interface for all pointers referring to new sessions.
-abstract class Pointer {
+/// What a link or QR code points to: a new session ([SessionPointer]) or
+/// the code from a verification e-mail ([EmailCodePointer]).
+sealed class Pointer {
   factory Pointer.fromString(String content) {
     // OAuth `redirect_uri` for OpenID4VCI auth-code / pre-auth-code flows.
     // Default to production; if the inbound URL is a universal link on a
@@ -133,7 +135,7 @@ Object? _readContinueOnSecondDevice(Map<dynamic, dynamic> json, String key) =>
 
 /// A pointer that refers to a new IRMA session.
 @JsonSerializable(fieldRename: FieldRename.snake)
-class SessionPointer implements Pointer {
+final class SessionPointer implements Pointer {
   @JsonKey(name: "u", required: true)
   final String u;
 
@@ -146,14 +148,14 @@ class SessionPointer implements Pointer {
     toJson: protocolToString,
     fromJson: _protocolFromJsonAlwaysIrma,
   )
-  Protocol protocol;
+  final Protocol protocol;
 
   /// Whether the session should be continued on the mobile device,
   /// or on the device which has displayed a QR code.
-  /// Field is not always specified in QRs now.
-  /// To make sure we can override its value if necessary, the field is not final fow now.
+  /// Field is not always specified in QRs; the app sets it where it knows
+  /// better, through [copyWith].
   @JsonKey(readValue: _readContinueOnSecondDevice)
-  bool continueOnSecondDevice;
+  final bool continueOnSecondDevice;
 
   /// OAuth `redirect_uri` for OpenID4VCI auth-code / pre-auth-code flows.
   /// Populated only for [Protocol.openid4vci] pointers; derived from the
@@ -170,6 +172,15 @@ class SessionPointer implements Pointer {
     this.continueOnSecondDevice = false,
     this.openid4vciRedirectUri,
   });
+
+  SessionPointer copyWith({bool? continueOnSecondDevice}) => SessionPointer(
+    u: u,
+    irmaqr: irmaqr,
+    protocol: protocol,
+    continueOnSecondDevice:
+        continueOnSecondDevice ?? this.continueOnSecondDevice,
+    openid4vciRedirectUri: openid4vciRedirectUri,
+  );
 
   factory SessionPointer.fromJson(Map<String, dynamic> json) =>
       _$SessionPointerFromJson(json);

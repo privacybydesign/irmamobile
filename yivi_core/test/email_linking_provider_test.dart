@@ -7,7 +7,6 @@ import "package:http/http.dart" as http;
 import "package:http/testing.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
-import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/credentials_provider.dart";

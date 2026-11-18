@@ -86,8 +86,9 @@ Future<SessionPointer> startIssuerSession(
   if (response.statusCode != 200) {
     throw Exception("Store failed: ${response.statusCode} ${response.body}");
   }
-  return SessionPointer.fromJson(json.decode(response.body)["sessionPtr"])
-    ..continueOnSecondDevice = true;
+  return SessionPointer.fromJson(
+    json.decode(response.body)["sessionPtr"],
+  ).copyWith(continueOnSecondDevice: true);
 }
 
 /// The issuer's answer to a right code: its signed request and its IRMA

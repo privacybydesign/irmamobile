@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/models/email_code_pointer.dart";
+import "package:yivi_core/src/models/session.dart";
 
 void main() {
   test("reads the code and address from the fragment", () {

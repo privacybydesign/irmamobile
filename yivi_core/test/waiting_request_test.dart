@@ -3,7 +3,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/models/email_code_pointer.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";

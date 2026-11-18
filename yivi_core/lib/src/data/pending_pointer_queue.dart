@@ -1,6 +1,5 @@
 import "package:rxdart/rxdart.dart";
 
-import "../models/email_code_pointer.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/native_events.dart";

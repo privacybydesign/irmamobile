@@ -1,7 +1,6 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:rxdart/rxdart.dart";
 
-import "../models/email_code_pointer.dart";
 import "../models/session.dart";
 import "../models/session_preview.dart";
 import "../models/session_state.dart";
@@ -42,7 +41,7 @@ final waitingRequestProvider = StreamProvider<WaitingRequest?>((ref) {
           ),
         ),
       );
-    case _:
+    case null:
   }
   if (!ref.watch(hasInFlightSessionProvider)) return Stream.value(null);
   final sessions = ref.watch(sessionRepositoryProvider);

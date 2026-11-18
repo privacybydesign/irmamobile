@@ -268,6 +268,22 @@ void main() {
               as SessionPointer;
       expect(pointer.continueOnSecondDevice, isFalse);
     });
+
+    test("copyWith sets the flag and keeps the rest", () {
+      final pointer =
+          Pointer.fromString(
+                "https://open.staging.yivi.app/-/openid-credential-offer?credential_offer_uri=https%3A%2F%2Fexample.com%2Foffer",
+              )
+              as SessionPointer;
+      final second = pointer.copyWith(continueOnSecondDevice: true);
+      expect(second.continueOnSecondDevice, isTrue);
+      expect(pointer.continueOnSecondDevice, isFalse);
+      expect(second.toJson(), {
+        ...pointer.toJson(),
+        "continue_on_second_device": true,
+      });
+      expect(pointer.copyWith().toJson(), pointer.toJson());
+    });
   });
 
   // irmaqr goes back to Go in NewSessionEvent and PreviewSessionEvent as the

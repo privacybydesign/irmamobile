@@ -2,7 +2,6 @@ import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:pinput/pinput.dart";
 
-import "../models/email_code_pointer.dart";
 import "../models/session.dart";
 import "contact_issuer_api.dart";
 import "resend_wait.dart";

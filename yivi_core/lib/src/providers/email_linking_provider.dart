@@ -5,7 +5,6 @@ import "dart:io" show HttpStatus;
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
-import "../models/email_code_pointer.dart";
 import "../models/session.dart";
 import "contact_issuance_provider.dart";
 import "credentials_provider.dart";
@@ -69,11 +68,9 @@ class DefaultKeyshareEmailLinkApi implements KeyshareEmailLinkApi {
       );
     }
 
-    final pointer = SessionPointer.fromJson(
+    return SessionPointer.fromJson(
       jsonDecode(response.body)["sessionPtr"],
-    );
-    pointer.continueOnSecondDevice = true;
-    return pointer;
+    ).copyWith(continueOnSecondDevice: true);
   }
 }
 
