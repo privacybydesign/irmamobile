@@ -1,8 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/session_state.dart";
+import "../util/stream_mirror.dart";
 import "irma_repository_provider.dart";
-import "stream_mirror.dart";
 
 final sessionStateProvider = StreamProvider.family<SessionState, int>((
   ref,

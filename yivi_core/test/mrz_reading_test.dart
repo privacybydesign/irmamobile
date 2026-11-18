@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:mrz_parser/mrz_parser.dart";
-import "package:yivi_core/src/util/mrz_reading.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz/mrz_reading.dart";
 
 // ICAO 9303 specimens. TD1 document number D23145890 (check digit 7), TD3 document
 // number L898902C3 (check digit 6).

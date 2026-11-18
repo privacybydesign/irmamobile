@@ -7,8 +7,8 @@ import "../../models/enrollment_status.dart";
 import "../../models/error_event.dart";
 import "../../providers/app_providers.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../routing/navigation.dart";
 import "../../util/after_frame.dart";
-import "../../util/navigation.dart";
 import "../error/error_screen.dart";
 import "../splash_screen/splash_screen.dart";
 

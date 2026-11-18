@@ -2,11 +2,11 @@ import "dart:math";
 
 import "package:material_ui/material_ui.dart";
 
+import "../../routing/navigation.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/i18n.dart";
-import "../../util/navigation.dart";
 import "../../widgets/surfaces/icon_square.dart";
 import "../../widgets/surfaces/surface_card.dart";
 import "../../widgets/text/caps_label.dart";

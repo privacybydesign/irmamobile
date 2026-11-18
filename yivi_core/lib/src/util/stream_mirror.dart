@@ -1,7 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/irma_repository.dart";
-import "irma_repository_provider.dart";
+import "../providers/irma_repository_provider.dart";
 
 /// A repository stream as a provider that has a value from its first read
 /// on: [first] until the stream says otherwise.

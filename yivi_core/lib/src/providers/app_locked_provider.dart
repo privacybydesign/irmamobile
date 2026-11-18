@@ -1,4 +1,4 @@
-import "stream_mirror.dart";
+import "../util/stream_mirror.dart";
 
 /// `AppLock.locked` as a provider, so widgets `ref.watch` it instead of
 /// building a StreamBuilder.

@@ -27,11 +27,11 @@ import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_launcher.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
+import "package:yivi_core/src/routing/navigation.dart";
+import "package:yivi_core/src/screens/add_data/email_linking.dart";
 import "package:yivi_core/src/screens/data/widgets/email_link_banner.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/util/email_linking.dart";
-import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 class _SilentBridge extends IrmaBridge {

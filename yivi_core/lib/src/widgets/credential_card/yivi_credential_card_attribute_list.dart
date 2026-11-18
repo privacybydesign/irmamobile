@@ -2,7 +2,7 @@ import "package:collection/collection.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/credential.dart";
-import "../../providers/credential_field_search.dart";
+import "../../search/credential_field_search.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";

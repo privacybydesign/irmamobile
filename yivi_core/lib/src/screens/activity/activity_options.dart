@@ -4,7 +4,7 @@ import "../../data/activity_log_client.dart";
 import "../../models/activity_query.dart";
 import "../../models/log_entry.dart";
 import "../../providers/activity_providers.dart";
-import "../../providers/credentials_search.dart";
+import "../../search/credentials_search.dart";
 import "../../util/i18n.dart";
 import "activity_entry.dart";
 import "activity_query_labels.dart";

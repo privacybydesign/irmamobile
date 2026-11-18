@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/util/navigation.dart";
+import "package:yivi_core/src/routing/navigation.dart";
 
 /// Tracks the live route stack so tests can assert on it directly, rather than
 /// inferring it from whichever screen happens to be visible.

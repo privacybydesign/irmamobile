@@ -6,7 +6,7 @@ import "../models/session_state.dart";
 import "../providers/contact_issuer_api.dart";
 import "../providers/irma_repository_provider.dart";
 import "../providers/passport_issuer_provider.dart";
-import "../util/nfc_credentials.dart";
+import "../screens/embedded_issuance_flows/documents/nfc_credentials.dart";
 
 /// Sends the user to get a card: Yivi's own flow (e-mail, phone, document)
 /// or the issuer's website, remembering in-app launches for the finish.

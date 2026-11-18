@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/util/instance_hint.dart";
+import "package:yivi_core/src/widgets/credential_card/instance_hint.dart";
 
 import "helpers/credential_factory.dart";
 

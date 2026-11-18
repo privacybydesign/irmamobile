@@ -1,7 +1,7 @@
 import "package:camera/camera.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../util/mrz_glare.dart";
+import "../screens/embedded_issuance_flows/documents/mrz/mrz_glare.dart";
 
 /// What an [OcrProcessor] read in one camera frame.
 class OcrResult {

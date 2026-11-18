@@ -1,8 +1,8 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../routing/navigation.dart";
 import "../../util/i18n.dart";
-import "../../util/navigation.dart";
 import "../../widgets/bars/irma_app_bar.dart";
 import "../../widgets/feedback/app_toast.dart";
 import "../../widgets/feedback/glass_dialog.dart";

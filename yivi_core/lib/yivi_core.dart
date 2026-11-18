@@ -8,6 +8,7 @@ import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
+import "src/platform/security_context_binding.dart";
 import "src/providers/contact_issuance_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
@@ -16,11 +17,10 @@ import "src/providers/qr_scanner_factory_provider.dart";
 import "src/providers/regula_face_service_provider.dart";
 import "src/providers/store_review_provider.dart";
 import "src/providers/wallet_cards_provider.dart";
+import "src/routing/navigation.dart";
 import "src/screens/data/card_transition/choreography.dart";
 import "src/sentry/sentry.dart";
-import "src/util/card_font_licenses.dart";
-import "src/util/navigation.dart";
-import "src/util/security_context_binding.dart";
+import "src/widgets/credential_card/card_art/card_font_licenses.dart";
 import "src/widgets/text/preferred_language_builder.dart";
 
 export "src/data/irma_repository.dart";
@@ -32,8 +32,9 @@ export "src/providers/passport_issuer_provider.dart"
 export "src/providers/qr_scanner_factory_provider.dart";
 export "src/providers/regula_face_service_provider.dart";
 export "src/providers/store_review_provider.dart" show StoreReviewService;
-export "src/util/mrz_glare.dart" show Reflection, glareTileShare, mrzHasGlare;
-export "src/util/mrz_reading.dart"
+export "src/screens/embedded_issuance_flows/documents/mrz/mrz_glare.dart"
+    show Reflection, glareTileShare, mrzHasGlare;
+export "src/screens/embedded_issuance_flows/documents/mrz/mrz_reading.dart"
     show fixMrzLineLength, fixMrzLineLengths, minMrzLineLength, mrzLineCount;
 
 /// Builds the flavor's liveness service. Takes a [Ref] because the FOSS

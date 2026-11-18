@@ -2,7 +2,7 @@ import "dart:typed_data";
 import "dart:ui";
 
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/util/mrz_glare.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz/mrz_glare.dart";
 
 /// An upright frame as rows of brightness values.
 typedef _Image = List<List<int>>;

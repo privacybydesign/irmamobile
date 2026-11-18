@@ -1,6 +1,6 @@
 import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/util/privacy_screen.dart";
+import "package:yivi_core/src/platform/privacy_screen.dart";
 
 /// Records what the `privacy_screen` channel is asked to do, so the balance of
 /// suspend/resume calls is observable from a unit test.

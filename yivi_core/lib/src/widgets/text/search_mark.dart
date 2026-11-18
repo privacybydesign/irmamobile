@@ -1,6 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../providers/credential_field_search.dart";
+import "../../search/credential_field_search.dart";
 import "../../theme/yivi_palette.dart";
 
 /// [text] with the part a search matched ([match]) marked; plain when

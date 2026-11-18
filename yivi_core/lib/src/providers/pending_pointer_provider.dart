@@ -1,5 +1,5 @@
 import "../models/session.dart";
-import "stream_mirror.dart";
+import "../util/stream_mirror.dart";
 
 /// `PendingPointerQueue.pending`, the queued session or URL pointer. Used by
 /// the lock-screen [PinScreen] to hide biometric while a session is

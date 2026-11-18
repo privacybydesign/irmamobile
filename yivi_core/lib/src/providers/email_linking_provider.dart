@@ -6,11 +6,11 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
 import "../models/session.dart";
+import "../util/provider_helpers.dart" as helpers;
 import "contact_issuance_provider.dart";
 import "credentials_provider.dart";
 import "local_backends_provider.dart";
 import "preferences_provider.dart";
-import "provider_helpers.dart" as helpers;
 
 /// How long "Ask me later" hides the banner.
 const emailBannerSnoozeDuration = Duration(days: 7);

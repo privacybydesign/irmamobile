@@ -1,5 +1,5 @@
 import "../../models/log_entry.dart";
-import "../../providers/credentials_search.dart";
+import "../../search/credentials_search.dart";
 
 /// The words of typed search that say what happened ("gedeeld", "gedeeld
 /// met", "ontvangen van") read as the kind of entry to find, and the other

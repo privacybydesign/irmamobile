@@ -1,4 +1,4 @@
-import "stream_mirror.dart";
+import "../util/stream_mirror.dart";
 
 /// `SessionRepository.hasInFlightSessionStream`: `true` while a session is running
 /// (started, not yet terminal), `false` otherwise.

@@ -8,7 +8,7 @@ import "../../../providers/app_locked_provider.dart";
 import "../../../providers/pending_pointer_provider.dart";
 import "../../../providers/session_launcher.dart";
 import "../../../util/after_frame.dart";
-import "../../../util/email_linking.dart";
+import "../../add_data/email_linking.dart";
 
 /// Picks up a queued session/URL pointer and starts the session — but only
 /// once the app is unlocked. While locked the pointer waits behind the lock

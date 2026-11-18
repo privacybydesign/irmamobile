@@ -3,7 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl_phone_number_input/src/models/country_model.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../../providers/credentials_search.dart";
+import "../../../../search/credentials_search.dart";
 import "../../../../theme/yivi_palette.dart";
 import "../../../../theme/yivi_space.dart";
 import "../../../../util/adaptive_layout.dart";

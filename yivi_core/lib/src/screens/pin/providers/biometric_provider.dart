@@ -3,9 +3,9 @@ import "dart:async";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:local_auth/local_auth.dart";
 
+import "../../../platform/privacy_screen.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/preferences_provider.dart";
-import "../../../util/privacy_screen.dart";
 import "pin_unlock_provider.dart";
 
 /// The local_auth entry point, behind a provider so tests can override it.

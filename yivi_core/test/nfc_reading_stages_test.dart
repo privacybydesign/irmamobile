@@ -10,6 +10,7 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/models/mrz.dart";
+import "package:yivi_core/src/platform/nfc_settings.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/nfc_settings_provider.dart";
@@ -18,7 +19,6 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_read
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_error_dialog.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_view.dart";
 import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/util/nfc_settings.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/feedback/done_check.dart";
 

@@ -2,11 +2,11 @@ import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 import "package:native_device_orientation/native_device_orientation.dart";
 
+import "../../../routing/navigation.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
-import "../../../util/navigation.dart";
 import "../../../widgets/buttons/irma_close_button.dart";
 import "../../../widgets/feedback/done_check.dart";
 import "../../../widgets/feedback/glass_dialog.dart";

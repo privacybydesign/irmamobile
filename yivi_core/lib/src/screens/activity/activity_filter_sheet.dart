@@ -3,8 +3,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/activity_query.dart";
 import "../../providers/activity_providers.dart";
-import "../../providers/credentials_search.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../search/credentials_search.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";

@@ -3,10 +3,10 @@ import "dart:math" as math;
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
+import "../../../routing/navigation.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
-import "../../../util/navigation.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";

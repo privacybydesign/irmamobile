@@ -1,6 +1,6 @@
 import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/util/nfc_settings.dart";
+import "package:yivi_core/src/platform/nfc_settings.dart";
 
 const _channel = MethodChannel("yivi.app/nfc_settings");
 

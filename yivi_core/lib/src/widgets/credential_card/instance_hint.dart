@@ -1,10 +1,10 @@
 import "package:material_ui/material_ui.dart";
 
-import "../models/credential.dart";
-import "../widgets/credential_card/card_art/builtin_card_templates.dart";
-import "../widgets/credential_card/card_art/card_art_support.dart";
-import "date_formatter.dart";
-import "i18n.dart";
+import "../../models/credential.dart";
+import "../../util/date_formatter.dart";
+import "../../util/i18n.dart";
+import "card_art/builtin_card_templates.dart";
+import "card_art/card_art_support.dart";
 
 /// The one value shown next to a credential's name so you can tell two
 /// instances of the same type apart (two email addresses, two bank accounts).

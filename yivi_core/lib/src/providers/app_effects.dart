@@ -5,7 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../models/enrollment_status.dart";
 import "../models/update_schemes_event.dart";
-import "../util/privacy_screen.dart";
+import "../platform/privacy_screen.dart";
 import "irma_repository_provider.dart";
 import "preferences_provider.dart";
 

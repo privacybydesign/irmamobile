@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/util/nfc_credentials.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_credentials.dart";
 
 void main() {
   group("credentialRequiresNfc", () {

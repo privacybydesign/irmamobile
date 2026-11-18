@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/providers/credentials_search.dart";
+import "package:yivi_core/src/search/credentials_search.dart";
 
 // Pre-normalised candidates (lowercased, hyphen-stripped) — matches what
 // _credentialsToSearchEntries produces in the provider.

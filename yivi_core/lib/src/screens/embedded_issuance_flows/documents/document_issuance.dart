@@ -8,12 +8,12 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../models/mrz.dart";
 import "../../../models/session.dart";
+import "../../../platform/privacy_screen.dart";
 import "../../../providers/document_reader_providers.dart";
 import "../../../providers/passport_issuer_provider.dart";
 import "../../../providers/regula_face_service_provider.dart";
 import "../../../providers/session_launcher.dart";
-import "../../../util/navigation.dart";
-import "../../../util/privacy_screen.dart";
+import "../../../routing/navigation.dart";
 import "../../../widgets/feedback/done_check.dart";
 import "document_flow.dart";
 

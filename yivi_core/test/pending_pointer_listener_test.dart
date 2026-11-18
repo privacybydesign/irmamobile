@@ -11,8 +11,8 @@ import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/providers/contact_issuance_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
+import "package:yivi_core/src/routing/navigation.dart";
 import "package:yivi_core/src/screens/home/widgets/pending_pointer_listener.dart";
-import "package:yivi_core/src/util/navigation.dart";
 
 import "support/onboarding_v2_harness.dart";
 

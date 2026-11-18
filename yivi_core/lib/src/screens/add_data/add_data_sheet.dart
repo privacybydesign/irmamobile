@@ -4,19 +4,17 @@ import "package:material_ui/material_ui.dart";
 import "../../models/credential.dart";
 import "../../models/credential_store.dart";
 import "../../providers/credential_store_provider.dart";
-import "../../providers/credentials_search.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
+import "../../search/credentials_search.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
 import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
-import "../../util/email_linking.dart";
 import "../../util/i18n.dart";
-import "../../util/nfc_credentials.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/feedback/glass_dialog.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
@@ -24,10 +22,12 @@ import "../../widgets/input/glass_search_field.dart";
 import "../../widgets/sheet/glass_sheet.dart";
 import "../../widgets/surfaces/glass_group.dart";
 import "../data/wallet/issuance_flight.dart";
+import "../embedded_issuance_flows/documents/nfc_credentials.dart";
 import "../home/widgets/home_tab_top.dart";
 import "../session/issue_flow/issue_flow_controller.dart";
 import "../session/issue_flow/issue_sheet.dart";
 import "add_data_row.dart";
+import "email_linking.dart";
 
 /// Opens Add data: a sheet over the Data tab with every type of card the
 /// user can add, and the whole of adding one inside it ([AddDataSheet]).

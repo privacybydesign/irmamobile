@@ -2,7 +2,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../routing.dart";
 import "../models/session.dart";
-import "../util/navigation.dart";
+import "../routing/navigation.dart";
 import "contact_issuance_provider.dart";
 import "email_linking_provider.dart";
 import "irma_repository_provider.dart";

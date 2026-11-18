@@ -2,7 +2,7 @@ import "dart:convert";
 
 import "package:altcha_lib/altcha_lib.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/util/altcha_solver.dart";
+import "package:yivi_core/src/data/altcha_solver.dart";
 
 const _secret = "test-hmac-secret";
 

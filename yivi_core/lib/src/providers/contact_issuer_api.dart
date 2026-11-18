@@ -4,10 +4,10 @@ import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
+import "../data/altcha_solver.dart";
 import "../models/session.dart";
-import "../util/altcha_solver.dart";
+import "../util/provider_helpers.dart" as helpers;
 import "local_backends_provider.dart";
-import "provider_helpers.dart" as helpers;
 
 /// Which contact detail is added: an e-mail address or a phone number.
 enum ContactKind { email, phone }

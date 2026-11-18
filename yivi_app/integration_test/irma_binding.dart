@@ -13,8 +13,8 @@ import "package:yivi_core/src/models/error_event.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/native_events.dart";
 import "package:yivi_core/src/models/scheme_events.dart";
+import "package:yivi_core/src/platform/security_context_binding.dart";
 import "package:yivi_core/src/screens/debug/debug_schemes.dart";
-import "package:yivi_core/src/util/security_context_binding.dart";
 
 /// Binding to use the static IrmaClientBridge in integration tests.
 class IntegrationTestIrmaBinding {

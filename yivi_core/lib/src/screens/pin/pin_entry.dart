@@ -3,8 +3,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
 import "../../providers/waiting_request_provider.dart";
+import "../../routing/navigation.dart";
 import "../../util/i18n.dart";
-import "../../util/navigation.dart";
 import "pin_feedback.dart";
 import "providers/pin_countdown_provider.dart";
 import "widgets/waiting_request_announcement.dart";

@@ -7,7 +7,7 @@ import "../models/clear_all_data_event.dart";
 import "../models/credential.dart";
 import "../models/credential_events.dart";
 import "../models/event.dart";
-import "../util/instance_hint.dart";
+import "../widgets/credential_card/instance_hint.dart";
 import "irma_repository_provider.dart";
 import "preferences_provider.dart";
 

@@ -1,13 +1,13 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../data/irma_repository.dart";
-import "../models/credential_store.dart";
-import "../providers/email_linking_provider.dart";
-import "../providers/irma_repository_provider.dart";
-import "../providers/session_launcher.dart";
-import "../screens/add_data/add_data_sheet.dart";
-import "navigation.dart";
+import "../../data/irma_repository.dart";
+import "../../models/credential_store.dart";
+import "../../providers/email_linking_provider.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../providers/session_launcher.dart";
+import "../../routing/navigation.dart";
+import "add_data_sheet.dart";
 
 /// The e-mail type of the default keyshare scheme in the credential store
 /// (its issue URL names the issuer); null when the store has none.

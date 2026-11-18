@@ -1,4 +1,4 @@
-import "stream_mirror.dart";
+import "../util/stream_mirror.dart";
 
 /// `PendingPointerQueue.startupResolved`: `false` until native acknowledges the
 /// launch handshake, `true` afterwards. The lock-screen [PinScreen] gates its

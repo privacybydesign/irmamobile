@@ -4,8 +4,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
-import "package:yivi_core/src/providers/stream_mirror.dart";
 import "package:yivi_core/src/util/serial_queue.dart";
+import "package:yivi_core/src/util/stream_mirror.dart";
 
 import "support/onboarding_v2_harness.dart";
 

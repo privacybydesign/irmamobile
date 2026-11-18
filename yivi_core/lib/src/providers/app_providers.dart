@@ -2,8 +2,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
+import "../util/stream_mirror.dart";
 import "irma_repository_provider.dart";
-import "stream_mirror.dart";
 
 /// Whether developer mode is on; off until the Go core says otherwise.
 final developerModeProvider = mirrorProvider<bool>(

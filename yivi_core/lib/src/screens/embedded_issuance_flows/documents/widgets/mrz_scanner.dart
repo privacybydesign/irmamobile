@@ -5,9 +5,9 @@ import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../providers/ocr_processor_provider.dart";
 import "../../../../util/after_frame.dart";
-import "../../../../util/mrz_glare.dart";
-import "../../../../util/mrz_reading.dart";
 import "../../../../util/test_detection.dart";
+import "../mrz/mrz_glare.dart";
+import "../mrz/mrz_reading.dart";
 import "document_camera_frame.dart";
 import "mrz_camera_feed.dart";
 

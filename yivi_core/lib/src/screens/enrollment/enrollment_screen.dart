@@ -5,10 +5,10 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
+import "../../routing/navigation.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../util/navigation.dart";
 import "../../widgets/feedback/yivi_spinner.dart";
 import "../../widgets/text/translated_text.dart";
 import "biometric/enrollment_biometric_screen.dart";

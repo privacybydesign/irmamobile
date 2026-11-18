@@ -1,7 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 
-import "../../package_name.dart";
+import "../../../../package_name.dart";
 
 /// The licences (SIL Open Font License) of the typefaces the built-in card
 /// templates use, for the licence registry. One file holds them all, each a

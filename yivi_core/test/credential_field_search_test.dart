@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/providers/credential_field_search.dart";
+import "package:yivi_core/src/search/credential_field_search.dart";
 
 SearchField _f(String label, [String? value]) =>
     SearchField(claimKey: label, label: label, value: value);
