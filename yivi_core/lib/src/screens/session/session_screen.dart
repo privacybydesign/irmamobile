@@ -15,10 +15,13 @@ import "../../providers/session_flow_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../providers/session_user_choices_provider.dart";
 import "../../sentry/sentry.dart";
+import "../../theme/yivi_tone.dart";
 import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
+import "../../util/i18n.dart";
 import "../../util/navigation.dart";
 import "../../widgets/glass/glass_dialog.dart";
+import "../../widgets/glass/pill_buttons.dart";
 import "../../widgets/yivi_spinner.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
@@ -29,13 +32,13 @@ import "models/session_view.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_feedback_screen.dart";
 import "widgets/disclosure_share_screen.dart";
-import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_website_step.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
 import "widgets/session_pin_entry_screen.dart";
+import "widgets/session_result.dart";
 import "widgets/session_scaffold.dart";
 
 /// Displays the current [SessionState] for a given session ID.
@@ -320,8 +323,23 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
 
     return switch (outcome) {
-      EmailLinked() => EmailLinkedScreen(
-        onDismiss: (_) => _popToUnderlyingOrHome(),
+      // The e-mail address is linked to the PIN.
+      EmailLinked() => SessionResult(
+        key: const Key("email_linked"),
+        onClose: _popToUnderlyingOrHome,
+        hero: const ToneDisc(
+          icon: Icons.check_rounded,
+          tone: YiviTone.success,
+          size: 84,
+          iconSize: 40,
+        ),
+        title: context.tr("email_linking.done.title"),
+        text: context.tr("email_linking.done.body"),
+        action: FancyPillButton(
+          key: const Key("ok_button"),
+          label: context.tr("action_feedback.ok"),
+          onPressed: _popToUnderlyingOrHome,
+        ),
       ),
       // Confirm what was added, then back to the request ("Back to
       // {requestor}").

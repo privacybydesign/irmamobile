@@ -14,7 +14,6 @@ import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/email_linked_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_website_step.dart";
@@ -849,11 +848,11 @@ void main() {
       await _settle(tester);
       // Rebuilds do not record it again.
       for (var i = 0; i < 3; i++) {
-        tester.element(find.byType(EmailLinkedScreen)).markNeedsBuild();
+        tester.element(find.byKey(const Key("email_linked"))).markNeedsBuild();
         await _settle(tester);
       }
 
-      expect(find.byType(EmailLinkedScreen), findsOneWidget);
+      expect(find.byKey(const Key("email_linked")), findsOneWidget);
       expect(find.byType(DisclosureFeedbackScreen), findsNothing);
       expect(linking.marked, 1);
       expect(h.sent<AndroidSendToBackgroundEvent>(), isEmpty);

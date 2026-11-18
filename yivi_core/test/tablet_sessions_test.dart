@@ -108,15 +108,16 @@ void main() {
       find.byKey(const Key("ok_button")),
     ),
   ]) {
-    testWidgets("$name, tablet: one centred column, the button under the "
-        "text", (tester) async {
+    testWidgets("$name, tablet: the picture at the left, the words and the "
+        "button at the right", (tester) async {
       await pump(tester, _tablet, screen);
 
-      expect(find.byType(SessionCentred), findsOneWidget);
+      expect(find.byType(SidewaysLayout), findsOneWidget);
+      final panel = tester.getRect(find.byKey(const Key("result_panel")));
       final rect = tester.getRect(button);
-      expect(rect.center.dx, closeTo(_tablet.width / 2, 1));
+      expect(rect.left, greaterThan(panel.right));
       expect(rect.width, lessThan(400));
-      expect(rect.bottom, lessThan(_tablet.height - 100));
+      expect(rect.bottom, greaterThan(_tablet.height - 120));
     });
   }
 

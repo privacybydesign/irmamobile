@@ -178,7 +178,7 @@ void main() {
         ),
       );
 
-      final panel = tester.getRect(find.byKey(const Key("issuance_panel")));
+      final panel = tester.getRect(find.byKey(const Key("result_panel")));
       final check = tester.getRect(find.byKey(const Key("received_check")));
       expect(check.right, lessThanOrEqualTo(panel.right));
       // On the corner of the front card, as on a single card.

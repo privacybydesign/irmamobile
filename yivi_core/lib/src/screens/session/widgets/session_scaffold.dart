@@ -46,6 +46,9 @@ class SessionScaffold extends StatelessWidget {
   /// See [IrmaAppBar.edgeColor].
   final Color? edgeColor;
 
+  /// At the top left, in place of nothing (a back button).
+  final Widget? leading;
+
   const SessionScaffold({
     super.key,
     this.onDismiss,
@@ -60,6 +63,7 @@ class SessionScaffold extends StatelessWidget {
     this.scrollEdge = true,
     this.edgeShown,
     this.edgeColor,
+    this.leading,
   });
 
   @override
@@ -85,7 +89,7 @@ class SessionScaffold extends StatelessWidget {
         edge: (scrollEdge || edgeShown != null) && !cornerClose,
         edgeShown: edgeShown,
         edgeColor: edgeColor,
-        leading: null,
+        leading: leading,
         actions: [
           if (onDismiss != null)
             IrmaCloseButton(key: const Key("session_close"), onTap: onDismiss),

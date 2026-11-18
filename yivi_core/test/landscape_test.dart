@@ -99,32 +99,22 @@ void main() {
       expect(close.top, 24);
     });
 
-    testWidgets("success: the card and OK in the panel, the words and "
-        "what is now in the app right", (tester) async {
+    testWidgets("success: the card at the left, the words and OK at the "
+        "right", (tester) async {
       await pump(
         tester,
         IssuanceSuccessScreen(credentials: [ticket], onDismiss: (_) {}),
       );
-      final panel = find.byKey(const Key("issuance_panel"));
-      expect(
-        find.byKey(const Key("issuance_success_landscape")),
-        findsOneWidget,
-      );
+      final panel = find.byKey(const Key("result_panel"));
       expect(
         find.descendant(of: panel, matching: find.byType(CredentialCardArt)),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: panel,
-          matching: find.byKey(const Key("ok_button")),
-        ),
         findsOneWidget,
       );
       final card = tester.getRect(find.byType(CredentialCardArt).first);
       final title = tester.getRect(find.text("Success"));
       expect(title.left, greaterThan(card.right));
-      expect(find.text("IN YOUR APP"), findsOneWidget);
+      final ok = tester.getRect(find.byKey(const Key("ok_button")));
+      expect(ok.left, greaterThan(card.right));
     });
   });
 

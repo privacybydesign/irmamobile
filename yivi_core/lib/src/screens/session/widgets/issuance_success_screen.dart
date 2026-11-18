@@ -3,23 +3,17 @@ import "dart:math" as math;
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
-import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../util/adaptive_layout.dart";
+import "../../../theme/yivi_tone.dart";
 import "../../../util/i18n.dart";
 import "../../../util/navigation.dart";
-import "../../../widgets/caps_label.dart";
 import "../../../widgets/card_pile.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";
+import "../../../widgets/glass/glass_dialog.dart";
 import "../../../widgets/glass/pill_buttons.dart";
 import "../../data/wallet/issuance_flight.dart";
-import "../models/issuance_view_model.dart";
-import "action_feedback.dart";
-import "issuance_permission.dart";
-import "received_card_tile.dart";
-import "session_columns.dart";
-import "session_scaffold.dart";
+import "session_result.dart";
 
 /// "Success" after adding cards: the card with a green check, or the pile
 /// of cards with one check for several.
@@ -88,83 +82,46 @@ class _IssuanceSuccessScreenState extends State<IssuanceSuccessScreen> {
         : "issuance.success_feedback.added_${many ? "many" : "one"}"
               "${back == null ? "" : "_back"}";
 
-    // Held sideways, as the share screen and the permission: the card and
-    // the button in a panel at the left, the words and what is now in the
-    // app at the right.
-    if (cards.isNotEmpty &&
-        !useSessionColumns(context) &&
-        useSheetColumns(context)) {
-      final palette = YiviPalette.of(context);
-      return PopScope(
-        canPop: false,
-        child: SessionScaffold(
-          appBarTitle: "issuance.success_feedback.header",
-          onDismiss: _done,
-          wide: true,
-          scrollsUnderBars: true,
-          cornerClose: true,
-          body: IssuanceLandscape(
-            key: const Key("issuance_success_landscape"),
-            title: context.tr("issuance.success_feedback.header", params),
-            note: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
-              child: Text(
-                context.tr(text, params),
-                style: palette.body(16).copyWith(height: 24 / 16),
-              ),
-            ),
-            overview: [
-              Padding(
-                // Room for the check over the card's corner.
-                padding: const EdgeInsets.only(top: YiviSpace.x16),
-                child: IssuanceReceived(cards: cards, cardKeys: _cardKeys),
-              ),
-            ],
-            receives: [
-              CapsLabel(
-                context.tr("data.add.in_your_app"),
-                padding: const EdgeInsets.fromLTRB(
-                  YiviSpace.x8,
-                  0,
-                  YiviSpace.x8,
-                  YiviSpace.x8,
-                ),
-              ),
-              ...receivedCardTiles(
-                context,
-                issuanceOfferOf(cards, retryOnMismatch: false),
-              ),
-            ],
-            actions: FancyPillButton(
-              key: const Key("ok_button"),
-              label: context.tr(
-                back == null
-                    ? "action_feedback.ok"
-                    : "issuance.success_feedback.back_to",
-                params,
-              ),
-              size: PillSize.regular,
-              onPressed: _done,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return ActionFeedback(
-      titleTranslationKey: "issuance.success_feedback.header",
-      explanationTranslationKey: text,
-      explanationTranslationParams: params,
-      buttonTranslationKey: back == null
-          ? "action_feedback.ok"
-          : "issuance.success_feedback.back_to",
-      buttonTranslationParams: params,
-      onDismiss: _done,
+    return SessionResult(
+      onClose: _done,
+      // The card (or the pile) with its check, as on "Success" in a sheet:
+      // about four fifths of a phone's width (the success picture is the
+      // card and 48 of room for its check).
       hero: cards.isEmpty
-          ? null
-          : IssuanceReceived(cards: cards, cardKeys: _cardKeys),
+          ? const ToneDisc(
+              icon: Icons.check_rounded,
+              tone: YiviTone.success,
+              size: 84,
+              iconSize: 40,
+            )
+          // Its own height: it fills no more than the card (or pile) does,
+          // at the top of the column beside the words.
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: _receivedWidth + 48,
+                  child: IssuanceReceived(cards: cards, cardKeys: _cardKeys),
+                ),
+              ],
+            ),
+      title: context.tr("issuance.success_feedback.header", params),
+      text: context.tr(text, params),
+      action: FancyPillButton(
+        key: const Key("ok_button"),
+        label: context.tr(
+          back == null
+              ? "action_feedback.ok"
+              : "issuance.success_feedback.back_to",
+          params,
+        ),
+        onPressed: _done,
+      ),
     );
   }
+
+  /// The added card's width, as on "Success" in a sheet.
+  static const double _receivedWidth = 298;
 }
 
 /// The received card with a green check, or the pile of cards with one

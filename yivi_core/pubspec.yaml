@@ -109,7 +109,6 @@ flutter:
     - assets/reset/
     - assets/non-free/
     - assets/ui/
-    - assets/success/
     - assets/vehicles/
 
   fonts:

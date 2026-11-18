@@ -10,20 +10,16 @@ import "../../../theme/yivi_corners.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../util/adaptive_layout.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/received_check.dart";
 import "../../../widgets/flight/yivi_flight.dart";
 import "../../../widgets/glass/pill_buttons.dart";
-import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar_base.dart";
 import "../../../widgets/signed_message.dart";
 import "done_flight.dart";
 import "requestor_card.dart";
-import "session_columns.dart";
-import "session_scaffold.dart";
+import "session_result.dart";
 import "shared_card_tile.dart";
 
 /// "Shared with {requestor}" (or "Signed for {requestor}"), after the share
@@ -196,7 +192,6 @@ class DisclosureFeedbackScreenState
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final shared = widget.shared;
     ref.watch(walletCardsProvider);
     final cards = _cards();
@@ -278,114 +273,21 @@ class DisclosureFeedbackScreenState
             start: _handOverAt(cards.length),
           );
 
-    final sideways = useSheetColumns(context) || useSessionColumns(context);
-    final words = <Widget>[
-      Semantics(
-        header: true,
-        child: Text(
-          title,
-          key: const Key("share_done_title"),
-          textAlign: sideways ? TextAlign.start : TextAlign.center,
-          style: palette.titleResult.copyWith(
-            height: 34 / 26,
-            color: palette.text,
-          ),
-        ),
-      ),
-      SizedBox(height: sideways ? 12 : 16),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: sideways ? 0 : 24),
-        child: Text(
-          text,
-          key: const Key("share_done_text"),
-          textAlign: sideways ? TextAlign.start : TextAlign.center,
-          style: palette
-              .body(16)
-              .copyWith(height: 24 / 16, color: palette.text),
-        ),
-      ),
-      if (nextBox != null) ...[const SizedBox(height: YiviSpace.x16), nextBox],
-    ];
-    Widget fading(List<Widget> children) => _FadeUp(
-      on: _arriving,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
-      ),
-    );
-
     // Held sideways, and on a tablet: the pile (or the paper) at the left,
     // staying put; the words at the right, scrolling; the button at the
     // bottom of the right column.
-    if (sideways) {
-      return PopScope(
-        canPop: false,
-        child: SessionScaffold(
-          onDismiss: () => widget.onDismiss(context),
-          wide: true,
-          scrollsUnderBars: true,
-          cornerClose: true,
-          body: Builder(
-            builder: (context) {
-              final media = MediaQuery.paddingOf(context);
-              return SidewaysLayout(
-                panel: Padding(
-                  padding: EdgeInsets.only(top: 48 + media.top),
-                  child: Align(alignment: Alignment.topCenter, child: hero),
-                ),
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        key: const Key("share_done_scroll"),
-                        padding: EdgeInsets.only(top: 48 + media.top),
-                        child: fading(words),
-                      ),
-                    ),
-                    if (button != null)
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: YiviSpace.x12,
-                          bottom: 21 + media.bottom,
-                        ),
-                        child: button,
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      );
-    }
-
-    return PopScope(
-      canPop: false,
-      child: SessionScaffold(
-        onDismiss: () => widget.onDismiss(context),
-        scrollsUnderBars: true,
-        body: BarInsetsBuilder(
-          builder: (context, insets) => ListView(
-            padding:
-                insets +
-                const EdgeInsets.fromLTRB(
-                  YiviSpace.x16,
-                  0,
-                  YiviSpace.x16,
-                  YiviSpace.x24,
-                ),
-            children: [
-              Center(child: hero),
-              SizedBox(height: _message != null ? 12 : 28),
-              fading(words),
-            ],
-          ),
-        ),
-        bottomNavigationBar: button == null
-            ? null
-            : IrmaBottomBarBase(child: button),
-      ),
+    return SessionResult(
+      onClose: () => widget.onDismiss(context),
+      hero: hero,
+      heroGap: _message != null ? 12 : 28,
+      title: title,
+      titleKey: const Key("share_done_title"),
+      text: text,
+      textKey: const Key("share_done_text"),
+      below: nextBox,
+      action: button,
+      // The words come up once the cards have flown in.
+      words: (words) => _FadeUp(on: _arriving, child: words),
     );
   }
 
