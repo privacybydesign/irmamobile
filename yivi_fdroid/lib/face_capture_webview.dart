@@ -1,17 +1,9 @@
-// yivi_core exposes its theme and shared widgets only under lib/src (no public
-// barrel), so the Yivi chrome here must import them by their src path.
-// ignore_for_file: implementation_imports
 import "dart:async";
 
 import "package:material_ui/material_ui.dart";
 import "package:webview_flutter/webview_flutter.dart";
 import "package:webview_flutter_android/webview_flutter_android.dart";
-import "package:yivi_core/src/theme/theme.dart";
-import "package:yivi_core/src/theme/yivi_palette.dart";
-import "package:yivi_core/src/theme/yivi_space.dart";
-import "package:yivi_core/src/widgets/bars/app_bar.dart";
-import "package:yivi_core/src/widgets/feedback/spinner.dart";
-import "package:yivi_core/src/widgets/text/translated_text.dart";
+import "package:yivi_core/yivi_core.dart";
 
 import "face_liveness_message.dart";
 

@@ -1,11 +1,12 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/data/contact_issuer_api.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/providers/contact_issuer_api_provider.dart";
 import "package:yivi_core/src/providers/resend_wait.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
-import "package:yivi_core/yivi_core.dart";
 
 import "../helpers/helpers.dart";
 import "../irma_binding.dart";

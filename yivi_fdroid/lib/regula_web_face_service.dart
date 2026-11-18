@@ -1,8 +1,4 @@
-// yivi_core exposes the face verification widgets only under lib/src.
-// ignore_for_file: implementation_imports
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/routing.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/hold_upright_overlay.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "face_capture_webview.dart";

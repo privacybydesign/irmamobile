@@ -8,7 +8,7 @@ import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../../package_name.dart";
-import "../../../../yivi_core.dart";
+import "../../../models/mrz.dart";
 import "../../../providers/nfc_availability_provider.dart";
 import "../../../providers/nfc_settings_provider.dart";
 import "../../../theme/yivi_palette.dart";

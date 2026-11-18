@@ -12,12 +12,14 @@ import "package:local_auth/local_auth.dart";
 import "package:material_ui/material_ui.dart" show Icons;
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
+import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/data/issuance_launcher.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/app_effects.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
+import "package:yivi_core/src/providers/ocr_processor_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
@@ -44,7 +46,7 @@ import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_a
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/feedback/dialog.dart";
-import "package:yivi_core/yivi_core.dart";
+import "package:yivi_core/yivi_core.dart" show YiviApp;
 
 import "../irma_binding.dart";
 import "../util.dart";

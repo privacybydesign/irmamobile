@@ -23,20 +23,27 @@ import "src/sentry/sentry.dart";
 import "src/widgets/credential_card/card_art/card_font_licenses.dart";
 import "src/widgets/text/preferred_language_builder.dart";
 
-export "src/data/irma_repository.dart";
-export "src/models/mrz.dart";
-export "src/providers/contact_issuance_provider.dart";
-export "src/providers/contact_issuer_api_provider.dart";
-export "src/providers/ocr_processor_provider.dart";
+export "routing.dart" show rootNavigatorKey;
+export "src/providers/ocr_processor_provider.dart" show OcrProcessor, OcrResult;
 export "src/providers/passport_issuer_provider.dart"
     show faceCaptureUrlProvider, faceVerificationConfigProvider;
-export "src/providers/qr_scanner_factory_provider.dart";
-export "src/providers/regula_face_service_provider.dart";
+export "src/providers/qr_scanner_factory_provider.dart"
+    show QrScannerFactory, ScannerTorch;
+export "src/providers/regula_face_service_provider.dart"
+    show RegulaFaceService, RegulaLivenessResult;
 export "src/providers/store_review_provider.dart" show StoreReviewService;
 export "src/screens/embedded_issuance_flows/documents/mrz/mrz_glare.dart"
     show Reflection, glareTileShare, mrzHasGlare;
 export "src/screens/embedded_issuance_flows/documents/mrz/mrz_reading.dart"
     show fixMrzLineLength, fixMrzLineLengths, minMrzLineLength, mrzLineCount;
+export "src/screens/embedded_issuance_flows/documents/widgets/hold_upright_overlay.dart"
+    show HoldUprightOverlay;
+export "src/theme/theme.dart" show IrmaTheme;
+export "src/theme/yivi_palette.dart" show YiviPalette;
+export "src/theme/yivi_space.dart" show YiviSpace;
+export "src/widgets/bars/app_bar.dart" show YiviAppBar, YiviBackButton;
+export "src/widgets/feedback/spinner.dart" show Spinner;
+export "src/widgets/text/translated_text.dart" show TranslatedText;
 
 /// Builds the flavor's liveness service. Takes a [Ref] because the FOSS
 /// implementation's capture page is derived from the passport issuer the session
