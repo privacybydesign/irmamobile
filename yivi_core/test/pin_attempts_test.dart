@@ -1,10 +1,9 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 // The attempts as both PIN screens show them (unlocking, and a session's
 // PIN), and the short PIN that submits itself once full.
@@ -13,16 +12,8 @@ Future<BuildContext> _context(WidgetTester tester) async {
   late BuildContext context;
   await pumpTranslated(
     tester,
-    MaterialApp(
-      localizationsDelegates: [
-        FlutterI18nDelegate(
-          translationLoader: FileTranslationLoader(
-            basePath: "assets/locales",
-            forcedLocale: const Locale("en", "US"),
-          ),
-        ),
-      ],
-      home: Builder(
+    testApp(
+      Builder(
         builder: (c) {
           context = c;
           return const SizedBox();

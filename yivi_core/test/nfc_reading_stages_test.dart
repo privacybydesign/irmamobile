@@ -1,8 +1,6 @@
 import "dart:async";
 
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/svg.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -18,12 +16,12 @@ import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_error_dialog.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/nfc_stage_view.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/feedback/done_check.dart";
 
 import "support/document_screen_host.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 final _mrz = ScannedPassportMrz(
   documentNumber: "AB1234567",
@@ -202,19 +200,8 @@ void main() {
         ],
         // TestContext stops the scanning animation from looping on a timer.
         child: TestContext(
-          child: IrmaTheme(
-            builder: (_) => MaterialApp(
-              localizationsDelegates: [
-                FlutterI18nDelegate(
-                  translationLoader: FileTranslationLoader(
-                    basePath: "assets/locales",
-                    forcedLocale: const Locale("en", "US"),
-                  ),
-                ),
-                ...GlobalMaterialLocalizations.delegates,
-              ],
-              home: DocumentScreenHost(NfcReadingScreen(mrz: mrz ?? _mrz)),
-            ),
+          child: testApp(
+            DocumentScreenHost(NfcReadingScreen(mrz: mrz ?? _mrz)),
           ),
         ),
       ),

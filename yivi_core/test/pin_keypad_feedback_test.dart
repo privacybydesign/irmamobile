@@ -1,20 +1,9 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/pin/widgets/pin_keypad.dart";
-import "package:yivi_core/src/theme/theme.dart";
 
-/// Stub loader that resolves immediately with an empty map. The production
-/// FileTranslationLoader reads JSON via rootBundle.loadString — real-time IO
-/// that the test framework's fake clock doesn't drive, so pumpAndSettle
-/// returns before Localizations rebuilds and every `find.byKey` sees 0
-/// widgets. The keypad only uses translations for accessibility labels, not
-/// for anything these tests assert on.
-class _NoopTranslationLoader extends TranslationLoader {
-  @override
-  Future<Map> load() async => <String, dynamic>{};
-}
+import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 void main() {
   Future<void> pumpKeypad(
@@ -25,24 +14,19 @@ void main() {
     VoidCallback? onBackspace,
     Widget Function(Widget pad)? wrap,
   }) async {
-    await tester.pumpWidget(
-      IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(translationLoader: _NoopTranslationLoader()),
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          home: Scaffold(
-            body: SizedBox(
-              width: PinKeypad.width + 16,
-              height: 400,
-              child: (wrap ?? (pad) => pad)(
-                PinKeypad(
-                  onDigitPressed: onDigitPressed ?? (_, _) {},
-                  onDigitReleased: onDigitReleased ?? (_) {},
-                  onDigitCancelled: onDigitCancelled ?? (_) {},
-                  onBackspace: onBackspace ?? () {},
-                ),
+    await pumpTranslated(
+      tester,
+      testApp(
+        Scaffold(
+          body: SizedBox(
+            width: PinKeypad.width + 16,
+            height: 400,
+            child: (wrap ?? (pad) => pad)(
+              PinKeypad(
+                onDigitPressed: onDigitPressed ?? (_, _) {},
+                onDigitReleased: onDigitReleased ?? (_) {},
+                onDigitCancelled: onDigitCancelled ?? (_) {},
+                onBackspace: onBackspace ?? () {},
               ),
             ),
           ),

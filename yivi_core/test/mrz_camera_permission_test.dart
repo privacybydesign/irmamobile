@@ -1,5 +1,4 @@
 import "package:camera/camera.dart";
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -10,11 +9,10 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/mrz_scanner.dart";
 import "package:yivi_core/src/screens/scanner/util/camera_access.dart";
 import "package:yivi_core/src/screens/session/issuance/issue_sheet_progress.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
-import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
 class _FakePermission implements CameraPermission {
   CameraAccess access;
@@ -73,30 +71,17 @@ void main() {
     addTearDown(tester.view.reset);
     await pumpTranslated(
       tester,
-      ProviderScope(
+      testApp(
+        Builder(
+          builder: (context) {
+            home = context;
+            return const Scaffold(body: Text("home"));
+          },
+        ),
         overrides: [
           cameraPermissionProvider.overrideWithValue(permission),
           mrzCameraFeedProvider.overrideWithValue(_StillFeed.new),
         ],
-        child: IrmaTheme(
-          builder: (_) => MaterialApp(
-            localizationsDelegates: [
-              FlutterI18nDelegate(
-                translationLoader: TestTranslationLoader(
-                  basePath: "assets/locales",
-                  forcedLocale: const Locale("en", "US"),
-                ),
-              ),
-              ...GlobalMaterialLocalizations.delegates,
-            ],
-            home: Builder(
-              builder: (context) {
-                home = context;
-                return const Scaffold(body: Text("home"));
-              },
-            ),
-          ),
-        ),
       ),
     );
     await tester.pumpAndSettle();

@@ -3,15 +3,19 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/pin/widgets/pin_hardware_keyboard_listener.dart";
 
+import "support/pump_translated.dart";
+import "support/test_app.dart";
+
 void main() {
   Future<void> pump(
     WidgetTester tester, {
     required void Function(int) onEnterNumber,
     VoidCallback? onSubmit,
   }) {
-    return tester.pumpWidget(
-      MaterialApp(
-        home: PinHardwareKeyboardListener(
+    return pumpTranslated(
+      tester,
+      testApp(
+        PinHardwareKeyboardListener(
           onEnterNumber: onEnterNumber,
           onSubmit: onSubmit,
           child: const SizedBox.expand(),

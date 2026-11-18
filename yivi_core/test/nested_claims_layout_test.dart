@@ -1,26 +1,12 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
-import "helpers/test_translation_loader.dart";
+import "support/test_app.dart";
 
-Widget _wrap(Widget child) => IrmaTheme(
-  builder: (_) => MaterialApp(
-    localizationsDelegates: [
-      FlutterI18nDelegate(
-        translationLoader: TestTranslationLoader(
-          basePath: "assets/locales",
-          forcedLocale: const Locale("en", "US"),
-        ),
-      ),
-      ...GlobalMaterialLocalizations.delegates,
-    ],
-    home: Scaffold(body: SingleChildScrollView(child: child)),
-  ),
-);
+Widget _wrap(Widget child) =>
+    testApp(Scaffold(body: SingleChildScrollView(child: child)));
 
 /// A section header: an object or array with a display name.
 Attribute _header(List<dynamic> path, String name) =>

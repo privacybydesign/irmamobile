@@ -1,36 +1,18 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/pref.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/screens/reset_pin/reset_pin_screen.dart";
-import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/theme/yivi_palette.dart";
 
-import "helpers/test_translation_loader.dart";
 import "support/pump_translated.dart";
+import "support/test_app.dart";
 
-Widget _app(Widget home, {ThemeMode mode = ThemeMode.light}) => ProviderScope(
+Widget _app(Widget home, {ThemeMode mode = ThemeMode.light}) => testApp(
+  home,
+  brightness: mode == ThemeMode.dark ? Brightness.dark : Brightness.light,
   overrides: [pinVisiblePrefProvider.overrideWithValue(Pref.memory(false))],
-  child: IrmaTheme(
-    builder: (context) => MaterialApp(
-      theme: IrmaTheme.variantsOf(context).data.themeData,
-      darkTheme: IrmaTheme.variantsOf(context).darkData.themeData,
-      themeMode: mode,
-      localizationsDelegates: [
-        FlutterI18nDelegate(
-          translationLoader: TestTranslationLoader(
-            basePath: "assets/locales",
-            forcedLocale: const Locale("en", "US"),
-          ),
-        ),
-        ...GlobalMaterialLocalizations.delegates,
-      ],
-      home: home,
-    ),
-  ),
 );
 
 void _phone(WidgetTester tester, [Size size = const Size(390, 844)]) {
