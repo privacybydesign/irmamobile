@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/activity_log_client.dart";
 import "../data/app_lock.dart";
+import "../data/browser.dart";
 import "../data/irma_client_bridge.dart";
 import "../data/irma_repository.dart";
 import "../data/pending_pointer_queue.dart";
@@ -44,3 +45,12 @@ final appLockProvider = Provider<AppLock>(
 final pendingPointerQueueProvider = Provider<PendingPointerQueue>(
   (ref) => ref.watch(irmaRepositoryProvider).pendingPointers,
 );
+
+/// Opens links, in the app or outside it.
+final browserProvider = Provider<Browser>(
+  (ref) => Browser(ref.watch(sessionRepositoryProvider)),
+);
+
+/// The browser, for code that has a context but no `ref`.
+Browser browserOf(BuildContext context) =>
+    ProviderScope.containerOf(context, listen: false).read(browserProvider);

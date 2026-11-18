@@ -79,7 +79,7 @@ class ExternalLinkTile extends StatelessWidget {
       labelTranslationKey: labelTranslationKey,
       onTap: () {
         try {
-          repositoryOf(context).openURL(context.tr(urlLinkKey));
+          browserOf(context).openLink(context.tr(urlLinkKey));
         } catch (e, stacktrace) {
           // TODO: consider whether we want error screen here
           reportError(e, stacktrace);

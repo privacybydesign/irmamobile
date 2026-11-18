@@ -1,11 +1,10 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../data/irma_repository.dart";
+import "../../../data/issuance_launcher.dart";
 import "../../../models/credential.dart";
 import "../../../models/credential_store.dart";
 import "../../../models/session_state.dart";
-import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
@@ -31,17 +30,11 @@ import "issue_flow_pages.dart";
 /// app's own flow for the types Yivi issues itself (e-mail, phone,
 /// documents). A provider, so tests can see where the sheet sends the user.
 final issuerOpenerProvider =
-    Provider<
-      Future<void> Function(
-        BuildContext context,
-        CredentialDescriptor descriptor,
-        WidgetRef ref,
-      )
-    >(
+    Provider<Future<void> Function(CredentialDescriptor descriptor)>(
       (ref) =>
-          (context, d, widgetRef) => ref
-              .read(irmaRepositoryProvider)
-              .openIssueURL(context, d.credentialId, d.issueURL, widgetRef),
+          (d) => ref
+              .read(issuanceLauncherProvider)
+              .open(d.credentialId, d.issueURL),
     );
 
 /// [name] as it reads inside a sentence in the app's language
@@ -353,11 +346,9 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
 
   // ---------- the steps ----------
 
-  IrmaRepository get _repo => ref.read(irmaRepositoryProvider);
-
   /// How adding [d] goes: Yivi's own steps or the issuer's website.
   IssuePlan planOf(CredentialDescriptor d) =>
-      issuePlanOf(d, _repo.embeddedFlowOf(d.credentialId));
+      issuePlanOf(d, embeddedFlowOf(d.credentialId));
 
   /// How many steps adding [d] takes, for the progress ([IssuePlan.total]);
   /// a document's own count once its flow has started. Only while the
@@ -381,7 +372,7 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
   /// back from the issuer.
   Future<void> openWebsite(CredentialDescriptor d) async {
     controller.websiteOpened();
-    await ref.read(issuerOpenerProvider)(context, d, ref);
+    await ref.read(issuerOpenerProvider)(d);
   }
 
   /// Back from the website page to the details. Once the website was

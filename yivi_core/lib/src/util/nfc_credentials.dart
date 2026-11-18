@@ -6,7 +6,7 @@
 /// devices without NFC (e.g. iPads) they are not hidden from the credential
 /// store, but shown greyed out: tapping one explains that the device cannot
 /// load the credential without NFC. The matching embedded issuance flows live
-/// in `IrmaRepository.openIssueURL`.
+/// in `IssuanceLauncher.open`.
 const Set<String> nfcRequiringCredentialIds = {
   // production
   "pbdf.pbdf.passport",

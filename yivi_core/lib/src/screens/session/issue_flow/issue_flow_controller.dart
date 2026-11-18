@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../../../data/irma_repository.dart";
+import "../../../data/issuance_launcher.dart";
 import "../../../models/credential.dart";
 import "../../../models/credential_store.dart";
 import "../../../models/session_state.dart";
@@ -264,6 +265,17 @@ class IssueFlowController extends Notifier<IssueFlowState>
     return repo;
   }
 
+  // The launcher likewise: what was launched in the app is forgotten at the
+  // end.
+  IssuanceLauncher? _launcherRead;
+  IssuanceLauncher get _launcher {
+    final read = _launcherRead;
+    if (read != null) return read;
+    final launcher = ref.read(issuanceLauncherProvider);
+    _launcherRead = launcher;
+    return launcher;
+  }
+
   ProviderSubscription<SessionView>? _session;
   int? _sessionFor;
 
@@ -313,6 +325,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
   void _end(ProviderContainer container) {
     final s = _now;
     final repo = _repoRead;
+    final launcher = _launcherRead;
     final closing = _closing;
     final hosts = _hosts;
     Future.microtask(() {
@@ -320,7 +333,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
       if (s.added != null) return;
       if (s.sessionId case final id?) repo?.sessions.dismissSession(id);
       if (!closing) return;
-      if (s.opened) repo?.clearInAppLaunches();
+      if (s.opened) launcher?.clearInAppLaunches();
       if (s.contact != null) {
         container
           ..invalidate(contactIssuanceProvider(ContactFlow.email))
@@ -374,7 +387,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
   /// "Add" on the details of [d]: Yivi's own e-mail, phone or document
   /// steps, or the page that sends the user to the issuer's website.
   void add(CredentialDescriptor d) {
-    final flow = _repo.embeddedFlowOf(d.credentialId);
+    final flow = embeddedFlowOf(d.credentialId);
     final contact = switch (flow) {
       EmbeddedFlow.phone => ContactFlow.phone,
       EmbeddedFlow.email when config.linking => ContactFlow.linkEmail,
@@ -386,7 +399,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
         : null;
     final IssueStep step;
     if (contact != null || document != null) {
-      if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref.read)) {
+      if (!_launcher.prepareEmbeddedFlow(d.credentialId, d.issueURL)) {
         return;
       }
       _hosts.register(this);
@@ -491,7 +504,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
         leaveDocument();
       case WebsiteStep(:final opened):
         if (opened) {
-          _repo.clearInAppLaunches();
+          _launcher.clearInAppLaunches();
           _hosts.unregister(this);
         }
         _set(s.copyWith(stack: _below<WebsiteStep>(s.stack)));
@@ -521,7 +534,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
     final id = s.sessionId;
     if (id != null && s.added == null) _repo.sessions.dismissSession(id);
     _hosts.unregister(this);
-    if (s.opened) _repo.clearInAppLaunches();
+    if (s.opened) _launcher.clearInAppLaunches();
     if (s.contact != null) {
       ref
         ..invalidate(contactIssuanceProvider(ContactFlow.email))
@@ -564,7 +577,8 @@ class IssueFlowController extends Notifier<IssueFlowState>
   /// so it may be called while the sheet builds.
   void startClosing() {
     _closing = true;
-    if (state.sessionId != null || state.opened) _repo;
+    if (state.sessionId != null) _repo;
+    if (state.opened) _launcher;
   }
 
   // ---------- the issuance ----------
@@ -600,8 +614,10 @@ class IssueFlowController extends Notifier<IssueFlowState>
     if (!ref.mounted || _detached) return;
     final s = state;
     final previous = s.sessionId;
+    // Read now: the end, where ref can't be used, may have to stop it.
+    final repo = _repo;
     if (previous != null && previous != sessionId) {
-      _repo.sessions.dismissSession(previous);
+      repo.sessions.dismissSession(previous);
     }
     _set(
       s.copyWith(
@@ -631,7 +647,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
   /// Opens the issuer's login for OpenID4VCI's authorization code at [url].
   Future<void> openAuthorization(int sessionId, String url) async {
     _set(state.copyWith(authOpened: {...state.authOpened, sessionId}));
-    await _repo.authenticateOpenID4VCI(url);
+    await ref.read(browserProvider).authenticateOpenID4VCI(url);
   }
 
   /// Adding a document goes back to its chip screen, which starts over: the
@@ -655,7 +671,7 @@ class IssueFlowController extends Notifier<IssueFlowState>
     if (next is SessionSucceeded) {
       if (previous is SessionSucceeded) return;
       final cards = next.state.offeredCredentials ?? const <Credential>[];
-      _repo.clearInAppLaunches();
+      _launcher.clearInAppLaunches();
       _hosts.unregister(this);
       _set(s.copyWith(stack: [...s.stack, SuccessStep(cards)]));
       _sheet?.onSucceeded(cards);

@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/data/irma_repository.dart" show EmbeddedFlow;
+import "package:yivi_core/src/data/issuance_launcher.dart" show EmbeddedFlow;
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/models/log_entry.dart";

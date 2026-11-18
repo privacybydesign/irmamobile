@@ -1,6 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../data/irma_repository.dart";
+import "../data/browser.dart";
+import "../data/issuance_launcher.dart";
 import "../data/session_repository.dart";
 import "../models/session.dart";
 import "../models/session_state.dart";
@@ -24,7 +25,8 @@ class SessionFlow extends Notifier<SessionView> {
 
   final int sessionId;
 
-  late IrmaRepository _repo;
+  late IssuanceLauncher _launcher;
+  late Browser _browser;
   late SessionRepository _sessions;
   late AsyncValue<SessionState> _session;
   late bool _awaiting;
@@ -43,8 +45,8 @@ class SessionFlow extends Notifier<SessionView> {
   /// stays the same.
   bool inAppLaunchedOnSuccess(SessionState session) {
     if (_inAppLaunched case final launched?) return launched;
-    final launched = _repo.didIssueInAppLaunchedCredential(session);
-    _repo.clearInAppLaunches();
+    final launched = _launcher.didIssueInAppLaunchedCredential(session);
+    _launcher.clearInAppLaunches();
     return _inAppLaunched = launched;
   }
 
@@ -52,7 +54,8 @@ class SessionFlow extends Notifier<SessionView> {
   // it what it remembers.
   @override
   SessionView build() {
-    _repo = ref.read(irmaRepositoryProvider);
+    _launcher = ref.read(issuanceLauncherProvider);
+    _browser = ref.read(browserProvider);
     _sessions = ref.read(sessionRepositoryProvider);
     _session = ref.listen(sessionStateProvider(sessionId), _onSession).read();
     _awaiting = ref.listen(sessionAwaitingInteractionProvider(sessionId), (
@@ -131,7 +134,7 @@ class SessionFlow extends Notifier<SessionView> {
   /// Opens the issuer's login for the authorization code.
   Future<void> openAuthorization() async {
     if (state case SessionAuthCode(:final url)) {
-      await _repo.authenticateOpenID4VCI(url);
+      await _browser.authenticateOpenID4VCI(url);
     }
   }
 }

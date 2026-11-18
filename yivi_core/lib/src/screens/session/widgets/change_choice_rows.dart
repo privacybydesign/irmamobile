@@ -227,9 +227,7 @@ class _AddKindRow extends ConsumerWidget {
     WidgetRef ref,
     CredentialDescriptor d,
   ) {
-    final flow = ref
-        .read(irmaRepositoryProvider)
-        .embeddedFlowOf(d.credentialId);
+    final flow = embeddedFlowOf(d.credentialId);
     final host = hostOf(d.issueURL);
     return switch (flow) {
       EmbeddedFlow.email => context.tr("share.how.email"),

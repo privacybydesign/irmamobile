@@ -65,8 +65,9 @@ void main() {
   // Stub the auth-code flow's ASWebAuthenticationSession call so it never
   // resolves. The test drives the callback via a synthetic HandleURLEvent
   // dispatched in [dispatchAuthCallback]; the wallet's `HandleURLEvent`
-  // matcher routes that through the same `handleOpenID4VCIAuthCallback` the
-  // live AS path would have called. The pending auth future just dangles
+  // matcher routes that through the same
+  // `SessionRepository.answerAuthCallback` the live AS path would have
+  // called. The pending auth future just dangles
   // (fire-and-forget) until the test tears down.
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
@@ -504,8 +505,9 @@ Future<String> getAuthCodeFromMockAS({
 /// link after the user returns from the browser. The repository's
 /// `HandleURLEvent` matcher looks up the in-flight session by `walletState`
 /// and dispatches a [SessionUserInteractionEvent.authCallback] through
-/// `handleOpenID4VCIAuthCallback` — the same handler the production AS path
-/// (`authenticateOpenID4VCI` → `FlutterWebAuth2.authenticate`) would feed.
+/// `SessionRepository.answerAuthCallback` — the same handler the production
+/// AS path (`Browser.authenticateOpenID4VCI` →
+/// `FlutterWebAuth2.authenticate`) would feed.
 void dispatchAuthCallback(
   IrmaRepository repo, {
   required String walletState,
@@ -520,7 +522,7 @@ void dispatchAuthCallback(
 }
 
 /// Replacement for [UrlLauncherPlatform] that pretends every launch succeeded
-/// without touching the platform. Used so the wallet's `openURLinAppBrowser`
+/// without touching the platform. Used so the wallet's `Browser.openInApp`
 /// call during the auth-code flow does not actually open SFSafariViewController
 /// (or fail on simulators where it cannot).
 class _NoOpUrlLauncherPlatform extends UrlLauncherPlatform

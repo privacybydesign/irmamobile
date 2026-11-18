@@ -2,11 +2,10 @@ import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../data/irma_repository.dart";
+import "../../../data/issuance_launcher.dart";
 import "../../../models/credential.dart";
 import "../../../models/credential_store.dart";
 import "../../../models/session_state.dart";
-import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
@@ -981,11 +980,7 @@ class _ChangeChoiceSheetState extends ConsumerState<ChangeChoiceSheet>
         addable.isNotEmpty &&
         addable.every(
           (b) => b.missing.every(
-            (d) =>
-                ref
-                    .read(irmaRepositoryProvider)
-                    .embeddedFlowOf(d.credentialId) ==
-                EmbeddedFlow.document,
+            (d) => embeddedFlowOf(d.credentialId) == EmbeddedFlow.document,
           ),
         );
     final many = addable.length > 1;

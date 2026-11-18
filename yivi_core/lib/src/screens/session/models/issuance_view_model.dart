@@ -2,7 +2,7 @@ import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
-import "../../../data/irma_repository.dart" show EmbeddedFlow, documentTypeOf;
+import "../../../data/issuance_launcher.dart" show EmbeddedFlow, documentTypeOf;
 import "../../../models/credential.dart";
 import "../../../models/credential_store.dart";
 import "../../../models/requestor_trust.dart";

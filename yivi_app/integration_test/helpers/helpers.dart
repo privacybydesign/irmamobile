@@ -13,6 +13,7 @@ import "package:local_auth/local_auth.dart";
 import "package:material_ui/material_ui.dart" show Icons;
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
+import "package:yivi_core/src/data/issuance_launcher.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
@@ -105,10 +106,13 @@ Future<void> pumpYiviApp(
         // An issuer's website cannot be used in a test: the test issues the
         // card itself, as the website would (see issueCredentials). The
         // app's own flows (e-mail, phone, documents) still open.
-        issuerOpenerProvider.overrideWithValue((context, d, ref) async {
-          if (repo.issuesViaWebsite(d.credentialId)) return;
-          await repo.openIssueURL(context, d.credentialId, d.issueURL, ref);
-        }),
+        issuerOpenerProvider.overrideWith(
+          (ref) => (d) async {
+            final launcher = ref.read(issuanceLauncherProvider);
+            if (launcher.issuesViaWebsite(d.credentialId)) return;
+            await launcher.open(d.credentialId, d.issueURL);
+          },
+        ),
         ...?providerOverrides,
       ],
       child: TestContext(

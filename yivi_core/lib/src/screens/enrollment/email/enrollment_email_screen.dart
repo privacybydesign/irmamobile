@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/issuance_launcher.dart";
 import "../../../models/email_code_pointer.dart";
 import "../../../models/session.dart";
 import "../../../providers/contact_issuance_provider.dart";
@@ -94,7 +95,9 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     // sent, rather than to a default issuer.
     keyshareEmailType(repo).then((type) {
       if (type != null && mounted) {
-        repo.prepareEmbeddedFlow(type.credentialId, type.issueURL, ref.read);
+        ref
+            .read(issuanceLauncherProvider)
+            .prepareEmbeddedFlow(type.credentialId, type.issueURL);
       }
     }, onError: (_) {});
     final pointers = ref.read(pendingPointerQueueProvider);

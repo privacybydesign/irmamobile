@@ -116,6 +116,7 @@ class _Calls {
   final obtained = <String>[];
   final bridge = RecordingBridge();
   late final IrmaRepository repo;
+  late final RecordingBrowser browser;
 
   Iterable<SessionUserInteractionEvent> get interactions =>
       bridge.dispatched.whereType<SessionUserInteractionEvent>();
@@ -142,13 +143,14 @@ Future<_Calls> _pump(
   addTearDown(tester.view.reset);
   final calls = _Calls();
   final repo = (await tester.runAsync(
-    () async => RecordingRepository(
+    () async => IrmaRepository(
       client: calls.bridge,
       preferences: await freshPreferences(),
     ),
   ))!;
   addTearDown(() => tester.runAsync(repo.close));
   calls.repo = repo;
+  calls.browser = RecordingBrowser(repo.sessions);
   final router = GoRouter(
     routes: [
       // The session screen, stood in for.
@@ -214,12 +216,13 @@ Future<_Calls> _pump(
         ),
         credentialOrderControllerProvider.overrideWith(() => _Wallet(wallet)),
         irmaRepositoryProvider.overrideWithValue(repo),
+        browserProvider.overrideWithValue(calls.browser),
         for (final MapEntry(key: id, value: states) in nested.entries)
           sessionStateProvider(id).overrideWith((ref) => states),
         ...overrides,
         // Where "Add" sends the user, recorded instead of opened.
         issuerOpenerProvider.overrideWithValue(
-          (context, d, ref) async => calls.obtained.add(d.credentialId),
+          (d) async => calls.obtained.add(d.credentialId),
         ),
       ],
       child: IrmaTheme(
@@ -1118,10 +1121,12 @@ void main() {
           findsOneWidget,
         );
         expect(find.text("login.issuer.example"), findsWidgets);
-        final repo = calls.repo as RecordingRepository;
+        final browser = calls.browser;
         await tester.tap(find.byKey(const Key("sheet_open_website")).last);
         await _pumpFor(tester);
-        expect(repo.authorizations, ["https://login.issuer.example/authorize"]);
+        expect(browser.authorizations, [
+          "https://login.issuer.example/authorize",
+        ]);
         await tester.tap(find.bySemanticsLabel("Go back").last);
         await _pumpFor(tester);
         expect(ofType(calls, UserInteractionType.dismiss), hasLength(1));

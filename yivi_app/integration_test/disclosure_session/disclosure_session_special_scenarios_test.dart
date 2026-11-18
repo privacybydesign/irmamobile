@@ -21,7 +21,7 @@ import "special_scenarios/return_url_second_device.dart";
 import "special_scenarios/revocation.dart";
 import "special_scenarios/signing.dart";
 
-/// The Android in-app-browser channel the wallet's `openURLinAppBrowser` uses.
+/// The Android in-app-browser channel the wallet's `Browser.openInApp` uses.
 const _iiabChannel = MethodChannel("irma.app/iiab");
 
 void main() {
@@ -122,7 +122,7 @@ void main() {
         (tester) => callingSessionTest(tester, irmaBinding),
       );
 
-      // https clientReturnUrl → openURLExternally + pop
+      // https clientReturnUrl → Browser.openExternally + pop
       testWidgets(
         "return-url-https-external",
         (tester) => returnUrlHttpsExternalTest(
@@ -171,8 +171,8 @@ void main() {
 
 /// Records calls from `url_launcher` so tests can assert which return URL
 /// was opened, and through which channel. `mode: .externalApplication` (used
-/// by `openURLExternally`) lands in [externalLaunches]; `mode: .inAppWebView`
-/// or `.inAppBrowserView` (used by iOS `openURLinAppBrowser`) lands in
+/// by `Browser.openExternally`) lands in [externalLaunches]; `mode: .inAppWebView`
+/// or `.inAppBrowserView` (used by iOS `Browser.openInApp`) lands in
 /// [inAppLaunches]. The Android in-app browser path goes through the
 /// [_iiabChannel] MethodChannel, mocked alongside this stand-in in the
 /// group's setUp.

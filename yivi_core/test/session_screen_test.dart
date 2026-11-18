@@ -279,7 +279,7 @@ void main() {
       expect(find.text("issuer.example"), findsWidgets);
       await tester.tap(find.byKey(const Key("bottom_bar_primary")));
       await _settle(tester);
-      expect(h.repo.authorizations, ["https://issuer.example/authorize"]);
+      expect(h.browser.authorizations, ["https://issuer.example/authorize"]);
       // Back without the card: not done on the website yet.
       expect(find.text("Not done on the website yet?"), findsOneWidget);
       // No Cancel: the close at the top declines.
@@ -398,7 +398,7 @@ void main() {
       final h = await pumpSessionScreen(tester, sessionId: _id);
       h.emit(_issuance(SessionStatus.requestPermission));
       await _settle(tester);
-      h.repo.markInAppLaunched(["email"]);
+      h.launcher.markInAppLaunched(["email"]);
       final pops = h.observer.pops;
       h.emit(_issuance(SessionStatus.dismissed));
       await _settle(tester);
@@ -407,7 +407,7 @@ void main() {
       expect(_home, findsOneWidget);
       expect(h.observer.names, ["/home"]);
       expect(
-        h.repo.didIssueInAppLaunchedCredential(
+        h.launcher.didIssueInAppLaunchedCredential(
           _issuance(SessionStatus.success),
         ),
         isFalse,
@@ -450,7 +450,7 @@ void main() {
 
       expect(find.byType(IssuanceSuccessScreen), findsOneWidget);
       expect(find.text("Back to Test Verifier"), findsOneWidget);
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       await tester.tap(find.text("Back to Test Verifier"));
       await _settle(tester);
       expect(_request, findsOneWidget);
@@ -460,7 +460,7 @@ void main() {
     testWidgets("an issuance launched in the app: Success, the return URL "
         "not opened, OK goes home", (tester) async {
       final h = await pumpSessionScreen(tester, sessionId: _id);
-      h.repo.markInAppLaunched(["email"]);
+      h.launcher.markInAppLaunched(["email"]);
       h.emit(_issuance(SessionStatus.requestPermission));
       await _settle(tester);
       h.emit(
@@ -473,11 +473,11 @@ void main() {
       );
       expect(success.flyHome, isTrue);
       expect(success.backTo, isNull);
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       expect(h.sent<AndroidSendToBackgroundEvent>(), isEmpty);
       // The launch is forgotten once seen.
       expect(
-        h.repo.didIssueInAppLaunchedCredential(
+        h.launcher.didIssueInAppLaunchedCredential(
           _issuance(SessionStatus.success),
         ),
         isFalse,
@@ -507,7 +507,7 @@ void main() {
       final screen = tester.widget<CallInfoScreen>(find.byType(CallInfoScreen));
       expect(screen.phoneNumber, "+31201234567");
       expect(screen.otherParty, "Webshop");
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       expect(find.byType(DisclosureFeedbackScreen), findsNothing);
     });
 
@@ -529,7 +529,7 @@ void main() {
         find.byType(IssuanceSuccessScreen),
       );
       expect(success.flyHome, isTrue);
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       expect(h.sent<AndroidSendToBackgroundEvent>(), isEmpty);
     });
 
@@ -552,7 +552,7 @@ void main() {
       );
       expect(done.onOtherDevice, isTrue);
       expect(done.returnHost, isNull);
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       await tester.tap(find.byKey(const Key("ok_button")));
       await _settle(tester);
       expect(_home, findsOneWidget);
@@ -575,14 +575,14 @@ void main() {
         find.byType(DisclosureFeedbackScreen),
       );
       expect(done.returnHost, "shop.example");
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       await tester.tap(find.byKey(const Key("ok_button")));
       await _settle(tester);
-      expect(h.repo.opened, hasLength(1));
-      expect(h.repo.opened.single.url, "https://www.shop.example/done");
-      expect(h.repo.opened.single.inApp, isFalse);
+      expect(h.browser.opened, hasLength(1));
+      expect(h.browser.opened.single.url, "https://www.shop.example/done");
+      expect(h.browser.opened.single.inApp, isFalse);
       // Opened from the session, then home.
-      expect(h.repo.opened.single.at, "/session");
+      expect(h.browser.opened.single.at, "/session");
       expect(_home, findsOneWidget);
     });
 
@@ -600,16 +600,16 @@ void main() {
       await _settle(tester);
       await tester.tap(find.byKey(const Key("ok_button")));
       await _settle(tester);
-      expect(h.repo.opened.single.inApp, isTrue);
+      expect(h.browser.opened.single.inApp, isTrue);
       // Home first.
-      expect(h.repo.opened.single.at, "/home");
+      expect(h.browser.opened.single.at, "/home");
       expect(_home, findsOneWidget);
     });
 
     testWidgets("shared, a return URL that cannot open: the error; its "
         "close does not try again", (tester) async {
       final h = await pumpSessionScreen(tester, sessionId: _id);
-      h.repo.openFails = Exception("no app for it");
+      h.browser.openFails = Exception("no app for it");
       h.emit(_disclosure(SessionStatus.requestPermission));
       await _settle(tester);
       h.emit(
@@ -623,11 +623,11 @@ void main() {
         find.byType(SessionErrorScreen),
       );
       expect(error.error?.errorType, "clientReturnUrl");
-      expect(h.repo.opened, hasLength(1));
+      expect(h.browser.opened, hasLength(1));
 
       error.onTapClose();
       await _settle(tester);
-      expect(h.repo.opened, hasLength(1));
+      expect(h.browser.opened, hasLength(1));
       expect(h.sent<AndroidSendToBackgroundEvent>(), isEmpty);
       expect(_home, findsOneWidget);
     });
@@ -645,8 +645,8 @@ void main() {
       expect(_spinner, findsOneWidget);
       expect(find.byType(IssuanceSuccessScreen), findsNothing);
       await _settle(tester);
-      expect(h.repo.opened.single.url, "https://shop.example");
-      expect(h.repo.opened.single.inApp, isFalse);
+      expect(h.browser.opened.single.url, "https://shop.example");
+      expect(h.browser.opened.single.inApp, isFalse);
       expect(_home, findsOneWidget);
     });
 
@@ -678,7 +678,7 @@ void main() {
       await _settle(tester);
       expect(h.sent<AndroidSendToBackgroundEvent>(), hasLength(1));
       expect(_home, findsOneWidget);
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
     });
   });
 
@@ -694,7 +694,7 @@ void main() {
         sessionId: _id,
         underlyingId: underlyingId,
       );
-      h.repo.markInAppLaunched(launched);
+      h.launcher.markInAppLaunched(launched);
       h.emit(_state(SessionStatus.showPairingCode, type: error.type));
       await _settle(tester);
       h.emit(error);
@@ -713,15 +713,15 @@ void main() {
         tester,
         _disclosure(SessionStatus.error, returnUrl: "https://shop.example"),
       );
-      expect(h.repo.opened.single.url, "https://shop.example");
-      expect(h.repo.opened.single.inApp, isFalse);
+      expect(h.browser.opened.single.url, "https://shop.example");
+      expect(h.browser.opened.single.inApp, isFalse);
       expect(h.sent<AndroidSendToBackgroundEvent>(), isEmpty);
       expect(_home, findsOneWidget);
     });
 
     testWidgets("a URL that fails to open again: still home", (tester) async {
       final h = await pumpSessionScreen(tester, sessionId: _id);
-      h.repo.openFails = Exception("no app for it");
+      h.browser.openFails = Exception("no app for it");
       h.emit(_disclosure(SessionStatus.requestPermission));
       await _settle(tester);
       h.emit(
@@ -733,7 +733,7 @@ void main() {
           .onTapClose();
       await _settle(tester);
       expect(_reported(tester), isNotEmpty);
-      expect(h.repo.opened, hasLength(1));
+      expect(h.browser.opened, hasLength(1));
       expect(find.byType(SessionErrorScreen), findsNothing);
       expect(_home, findsOneWidget);
     });
@@ -747,7 +747,7 @@ void main() {
           secondDevice: true,
         ),
       );
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       expect(h.sent<AndroidSendToBackgroundEvent>(), isEmpty);
       expect(_home, findsOneWidget);
     });
@@ -763,7 +763,7 @@ void main() {
           error: SessionError(errorType: "clientReturnUrl", info: ""),
         ),
       );
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       expect(_home, findsOneWidget);
     });
 
@@ -774,7 +774,7 @@ void main() {
         _issuance(SessionStatus.error, returnUrl: "https://shop.example"),
         launched: ["email"],
       );
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       expect(h.sent<AndroidSendToBackgroundEvent>(), isEmpty);
       expect(_home, findsOneWidget);
     });
@@ -784,14 +784,14 @@ void main() {
         tester,
         _disclosure(SessionStatus.error, returnUrl: "tel:+31201234567"),
       );
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       expect(h.sent<AndroidSendToBackgroundEvent>(), isEmpty);
     });
 
     testWidgets("no return URL, no request: back to the caller (the "
         "background), home", (tester) async {
       final h = await closeError(tester, _disclosure(SessionStatus.error));
-      expect(h.repo.opened, isEmpty);
+      expect(h.browser.opened, isEmpty);
       expect(h.sent<AndroidSendToBackgroundEvent>(), hasLength(1));
       expect(_home, findsOneWidget);
     });

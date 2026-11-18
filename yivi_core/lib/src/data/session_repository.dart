@@ -3,6 +3,7 @@ import "dart:collection";
 import "package:rxdart/rxdart.dart";
 
 import "../models/event.dart";
+import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_state.dart";
 import "../models/session_user_interaction.dart";
@@ -94,6 +95,37 @@ class SessionRepository {
           proceed: true,
         ),
       );
+
+  /// Hands the issuer login's callback [url] (OpenID4VCI's authorization
+  /// code) to the session that started the login. Only its `state` is read
+  /// here, to find the session; Go reads the rest, also an OAuth error
+  /// (`?state=X&error=access_denied`, without a `code`), so the URL goes on
+  /// even when it carries a failure. Throws a [MissingPointer] without a
+  /// `state` or a session for it.
+  void answerAuthCallback(String url) {
+    final state = Uri.parse(url).queryParameters["state"];
+    if (state == null) {
+      throw MissingPointer(
+        details:
+            'expected "state" to be present in query parameters, but wasn\'t',
+      );
+    }
+
+    final session = getCurrentSessionStateByOpenID4VCIState(state);
+    if (session == null) {
+      throw MissingPointer(
+        details: 'No session found for state value "$state"',
+      );
+    }
+
+    _dispatch(
+      SessionUserInteractionEvent.authCallback(
+        sessionId: session.id,
+        callbackUrl: url,
+        proceed: true,
+      ),
+    );
+  }
 
   /// Dismisses all sessions that are currently in the requestPermission state.
   void dismissAllActiveSessions() {

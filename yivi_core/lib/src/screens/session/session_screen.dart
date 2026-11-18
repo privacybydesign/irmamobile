@@ -3,7 +3,9 @@ import "dart:io";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/browser.dart";
 import "../../data/irma_repository.dart";
+import "../../data/issuance_launcher.dart";
 import "../../data/session_repository.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
@@ -67,6 +69,8 @@ class SessionScreen extends ConsumerStatefulWidget {
 class _SessionScreenState extends ConsumerState<SessionScreen> {
   late final IrmaRepository _repo;
   late final SessionRepository _sessions;
+  late final IssuanceLauncher _launcher;
+  late final Browser _browser;
   late SessionFlow _flow;
 
   /// The state of the last view: what dispose and the close of an error
@@ -104,6 +108,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     super.initState();
     _repo = ref.read(irmaRepositoryProvider);
     _sessions = ref.read(sessionRepositoryProvider);
+    _launcher = ref.read(issuanceLauncherProvider);
+    _browser = ref.read(browserProvider);
     ref.listenManual(
       sessionFlowProvider(widget.sessionId),
       _onView,
@@ -125,7 +131,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       // session). Clear so an abandoned in-app launch doesn't leak into the
       // next session.
       case SessionDismissed():
-        _repo.clearInAppLaunches();
+        _launcher.clearInAppLaunches();
         afterFrame(() {
           if (widget.hasUnderlyingSession) {
             context.popToUnderlyingSession();
@@ -408,7 +414,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
               // to land back in Yivi, not bounced back to a browser.
               inAppLaunched:
                   _flow.inAppLaunched ??
-                  _repo.didIssueInAppLaunchedCredential(session),
+                  _launcher.didIssueInAppLaunchedCredential(session),
               forRequest: widget.hasUnderlyingSession,
               keyshareLink: false,
             ),
@@ -417,7 +423,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     if (close?.reopen case final url?) {
       try {
-        await _repo.openURLExternally(url.toString());
+        await _browser.openExternally(url.toString());
       } catch (e, st) {
         // The user is on the way out — don't surface a second error screen.
         reportError(e, st);
@@ -426,7 +432,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     // Clear so an abandoned in-app launch doesn't leak into the next
     // session. Safe to call even when nothing was launched.
-    _repo.clearInAppLaunches();
+    _launcher.clearInAppLaunches();
 
     switch (close?.caller) {
       // iOS has no programmatic way back, so point at the status-bar back
@@ -476,9 +482,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }) async {
     try {
       if (url.isInApp && !alwaysExternal) {
-        await _repo.openURLinAppBrowser(url.toString());
+        await _browser.openInApp(url.toString());
       } else {
-        await _repo.openURLExternally(url.toString());
+        await _browser.openExternally(url.toString());
       }
       if (popOnSuccess) _popToUnderlyingOrHome();
     } catch (e, st) {

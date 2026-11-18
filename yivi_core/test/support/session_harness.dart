@@ -5,7 +5,9 @@ import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/data/browser.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/data/issuance_launcher.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/session_state.dart";
@@ -24,10 +26,10 @@ import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
 import "onboarding_v2_harness.dart";
 import "pump_translated.dart";
 
-/// A real repository whose ways out of the app are recorded instead of
-/// taken: opening a URL and the OpenID4VCI browser login.
-class RecordingRepository extends IrmaRepository {
-  RecordingRepository({required super.client, required super.preferences});
+/// A browser whose ways out of the app are recorded instead of taken:
+/// opening a URL and the OpenID4VCI browser login.
+class RecordingBrowser extends Browser {
+  RecordingBrowser(super.sessions);
 
   /// Each URL opened, whether in the in-app browser, and the router's
   /// location at that moment.
@@ -48,10 +50,10 @@ class RecordingRepository extends IrmaRepository {
   }
 
   @override
-  Future<void> openURLExternally(String url) => _open(url, inApp: false);
+  Future<void> openExternally(String url) => _open(url, inApp: false);
 
   @override
-  Future<void> openURLinAppBrowser(String url) => _open(url, inApp: true);
+  Future<void> openInApp(String url) => _open(url, inApp: true);
 
   @override
   Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async =>
@@ -95,12 +97,25 @@ class _NoWallet extends CredentialOrderController {
 
 /// A [SessionScreen] in a small app, with Go played by the test.
 class SessionHarness {
-  SessionHarness._(this.bridge, this.repo, this.router, this.observer);
+  SessionHarness._(
+    this.bridge,
+    this.repo,
+    this.browser,
+    this.router,
+    this.observer,
+    this._container,
+  );
 
   final RecordingBridge bridge;
-  final RecordingRepository repo;
+  final IrmaRepository repo;
+  final RecordingBrowser browser;
   final GoRouter router;
   final StackObserver observer;
+
+  final ProviderContainer Function() _container;
+
+  /// Which cards were launched in the app, for the finish.
+  IssuanceLauncher get launcher => _container().read(issuanceLauncherProvider);
 
   /// Sends [state] to the app, as Go does.
   void emit(SessionState state) =>
@@ -149,8 +164,9 @@ Future<SessionHarness> pumpSessionScreen(
   final bridge = RecordingBridge();
   final repo = (await tester.runAsync(() async {
     final preferences = await freshPreferences();
-    return RecordingRepository(client: bridge, preferences: preferences);
+    return IrmaRepository(client: bridge, preferences: preferences);
   }))!;
+  final browser = RecordingBrowser(repo.sessions);
   addTearDown(() => tester.runAsync(repo.close));
   final observer = StackObserver();
   final router = GoRouter(
@@ -179,7 +195,7 @@ Future<SessionHarness> pumpSessionScreen(
     ],
   );
   addTearDown(router.dispose);
-  repo.location = () =>
+  browser.location = () =>
       router.routerDelegate.currentConfiguration.last.matchedLocation;
   await pumpTranslated(
     tester,
@@ -187,6 +203,7 @@ Future<SessionHarness> pumpSessionScreen(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
+        browserProvider.overrideWithValue(browser),
         credentialOrderControllerProvider.overrideWith(_NoWallet.new),
         groupedCredentialStoreProvider.overrideWith(
           (ref) => Stream.value(const []),
@@ -221,7 +238,17 @@ Future<SessionHarness> pumpSessionScreen(
     sessionLocation(sessionId, hasUnderlyingSession: underlyingId != null),
   );
   await pumpFrames(tester);
-  return SessionHarness._(bridge, repo, router, observer);
+  return SessionHarness._(
+    bridge,
+    repo,
+    browser,
+    router,
+    observer,
+    () => ProviderScope.containerOf(
+      tester.element(find.byType(IrmaTheme)),
+      listen: false,
+    ),
+  );
 }
 
 /// Pushes [location] without waiting for its result.

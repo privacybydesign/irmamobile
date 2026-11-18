@@ -2,6 +2,8 @@ import "dart:async";
 
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/data/issuance_launcher.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/models/session.dart";
@@ -15,11 +17,10 @@ import "package:yivi_core/src/screens/session/models/session_view.dart";
 
 import "helpers/credential_factory.dart";
 import "support/onboarding_v2_harness.dart";
-import "support/session_harness.dart";
 
 /// Counts the launch records cleared.
-class _Repo extends RecordingRepository {
-  _Repo({required super.client, required super.preferences});
+class _Launcher extends IssuanceLauncher {
+  _Launcher(super.ref);
 
   var cleared = 0;
 
@@ -101,7 +102,10 @@ class _Flow {
   _Flow(this.container, this.repo, this.bridge, this.host, this.config);
 
   final ProviderContainer container;
-  final _Repo repo;
+  final IrmaRepository repo;
+
+  _Launcher get launcher =>
+      container.read(issuanceLauncherProvider) as _Launcher;
   final RecordingBridge bridge;
   final _Host host;
   final IssueFlowConfig config;
@@ -145,10 +149,16 @@ Future<_Flow> _flow({
   bool linking = false,
 }) async {
   final bridge = RecordingBridge();
-  final repo = _Repo(client: bridge, preferences: await freshPreferences());
+  final repo = IrmaRepository(
+    client: bridge,
+    preferences: await freshPreferences(),
+  );
   addTearDown(repo.close);
   final container = ProviderContainer(
-    overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
+    overrides: [
+      irmaRepositoryProvider.overrideWithValue(repo),
+      issuanceLauncherProvider.overrideWith(_Launcher.new),
+    ],
   );
   addTearDown(container.dispose);
   final host = _Host();
@@ -262,7 +272,7 @@ void main() {
         ..add(_website)
         ..back();
       expect(f.steps, [DetailsStep]);
-      expect(f.repo.cleared, 0);
+      expect(f.launcher.cleared, 0);
 
       f.c
         ..add(_website)
@@ -270,7 +280,7 @@ void main() {
         ..back();
       expect(f.steps, [DetailsStep]);
       expect(f.waiting, isNull);
-      expect(f.repo.cleared, 1);
+      expect(f.launcher.cleared, 1);
     });
 
     test("the e-mail address: the details", () async {
@@ -368,13 +378,13 @@ void main() {
     test("Success: the cards kept, the wait and launches end, the host is "
         "told", () async {
       final f = await _withSession(5, SessionStatus.requestPermission);
-      final cleared = f.repo.cleared;
+      final cleared = f.launcher.cleared;
       await f.emit(_issuance(5, SessionStatus.success));
       expect(f.s.added?.single.hash, _card.hash);
       expect(f.s.hasSession, isTrue);
       expect(f.s.started, isFalse);
       expect(f.waiting, isNull);
-      expect(f.repo.cleared, cleared + 1);
+      expect(f.launcher.cleared, cleared + 1);
       expect(f.host.succeeded.single.single.hash, _card.hash);
     });
 
@@ -474,12 +484,12 @@ void main() {
 
     test("stop adding: the session declined, only the details left", () async {
       final f = await _withSession(5, SessionStatus.requestPermission);
-      final cleared = f.repo.cleared;
+      final cleared = f.launcher.cleared;
       f.c.stopAdding();
       expect(f.dismissed, [5]);
       expect(f.steps, [DetailsStep]);
       expect(f.waiting, isNull);
-      expect(f.repo.cleared, cleared + 1);
+      expect(f.launcher.cleared, cleared + 1);
     });
 
     test("choose something else: the root page", () async {
@@ -517,10 +527,10 @@ void main() {
 
     test("closed while adding: also the launch record", () async {
       final f = await _waiting();
-      final cleared = f.repo.cleared;
+      final cleared = f.launcher.cleared;
       f.c.startClosing();
       await f.dispose();
-      expect(f.repo.cleared, cleared + 1);
+      expect(f.launcher.cleared, cleared + 1);
       expect(f.waiting, isNull);
     });
 

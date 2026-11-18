@@ -7,6 +7,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/data/issuance_launcher.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/scheme_rules.dart";
 import "package:yivi_core/src/providers/contact_issuer_api.dart";
@@ -89,22 +90,22 @@ void main() {
     return (context: context, ref: ref);
   }
 
-  Future<void> openIssueURL(
+  Future<void> openIssue(
     WidgetTester tester,
     String credentialId,
     String? url,
   ) async {
     final app = await setUpApp(tester);
     await tester.runAsync(
-      () => repo.openIssueURL(app.context, credentialId, url, app.ref),
+      () => app.ref.read(issuanceLauncherProvider).open(credentialId, url),
     );
   }
 
-  group("openIssueURL", () {
+  group("IssuanceLauncher.open", () {
     testWidgets("10. a universal-link type opens outside the app", (
       tester,
     ) async {
-      await openIssueURL(tester, _ulType, _ulUrl);
+      await openIssue(tester, _ulType, _ulUrl);
       expect(launches, [(url: _ulUrl, inApp: false)]);
     });
 
@@ -117,7 +118,7 @@ void main() {
           ("irma-demo.PubHubs.account", _demoPubHubsUrl),
         ]) {
           await tester.runAsync(
-            () => repo.openIssueURL(app.context, type, url, app.ref),
+            () => app.ref.read(issuanceLauncherProvider).open(type, url),
           );
         }
         expect(launches, [
@@ -141,7 +142,7 @@ void main() {
           "pbdf.gemeente.personalData",
         ]) {
           await tester.runAsync(
-            () => repo.openIssueURL(app.context, type, url, app.ref),
+            () => app.ref.read(issuanceLauncherProvider).open(type, url),
           );
         }
         final inApp = defaultTargetPlatform != TargetPlatform.iOS;
@@ -161,7 +162,7 @@ void main() {
         const url = "https://idin-issuer.example.com/";
         for (final type in ["pbdf.pbdf.idin", "pbdf.pbdf.ageLimits"]) {
           await tester.runAsync(
-            () => repo.openIssueURL(app.context, type, url, app.ref),
+            () => app.ref.read(issuanceLauncherProvider).open(type, url),
           );
         }
         final inApp = defaultTargetPlatform != TargetPlatform.android;
@@ -174,13 +175,13 @@ void main() {
     );
 
     testWidgets("12. a plain type opens in the app", (tester) async {
-      await openIssueURL(tester, _plainType, _plainUrl);
+      await openIssue(tester, _plainType, _plainUrl);
       expect(launches, [(url: _plainUrl, inApp: true)]);
     });
 
     testWidgets("13. a type in no list opens in the app", (tester) async {
       const url = "https://example.com/unknown";
-      await openIssueURL(tester, "irma-demo.example.unknown", url);
+      await openIssue(tester, "irma-demo.example.unknown", url);
       expect(launches, [(url: url, inApp: true)]);
     });
 
@@ -192,12 +193,12 @@ void main() {
       // in debug builds the call asserts after pointing the flow at the
       // issuer.
       await expectLater(
-        () => repo.openIssueURL(
-          app.context,
-          "pbdf.sidn-pbdf.email",
-          "https://email.example.com/start/path",
-          app.ref,
-        ),
+        () => app.ref
+            .read(issuanceLauncherProvider)
+            .open(
+              "pbdf.sidn-pbdf.email",
+              "https://email.example.com/start/path",
+            ),
         throwsA(isA<AssertionError>()),
       );
       expect(launches, isEmpty);
@@ -208,7 +209,7 @@ void main() {
       final app = await setUpApp(tester);
       for (final url in [null, ""]) {
         await expectLater(
-          () => repo.openIssueURL(app.context, _plainType, url, app.ref),
+          () => app.ref.read(issuanceLauncherProvider).open(_plainType, url),
           throwsA(isA<UnsupportedError>()),
         );
       }
@@ -216,10 +217,12 @@ void main() {
     });
   });
 
-  group("openURL", () {
+  group("Browser.openLink", () {
     testWidgets("16. a link opens in the app", (tester) async {
-      await setUpApp(tester);
-      await tester.runAsync(() => repo.openURL(_plainUrl));
+      final app = await setUpApp(tester);
+      await tester.runAsync(
+        () => app.ref.read(browserProvider).openLink(_plainUrl),
+      );
       expect(launches, [(url: _plainUrl, inApp: true)]);
     });
 
@@ -227,8 +230,10 @@ void main() {
       "17. a link equal to an issue URL that opens outside the app still "
       "opens in the app",
       (tester) async {
-        await setUpApp(tester);
-        await tester.runAsync(() => repo.openURL(_pubHubsUrl));
+        final app = await setUpApp(tester);
+        await tester.runAsync(
+          () => app.ref.read(browserProvider).openLink(_pubHubsUrl),
+        );
         expect(launches, [(url: _pubHubsUrl, inApp: true)]);
       },
       variant: TargetPlatformVariant({

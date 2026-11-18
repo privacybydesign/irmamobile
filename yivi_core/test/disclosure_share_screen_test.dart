@@ -245,7 +245,7 @@ Future<_Calls> _pump(
         ...overrides,
         // Where "Go to …" sends the user, recorded instead of opened.
         issuerOpenerProvider.overrideWithValue(
-          (context, d, ref) async => calls.obtained.add(d.credentialId),
+          (d) async => calls.obtained.add(d.credentialId),
         ),
       ],
       child: IrmaTheme(
