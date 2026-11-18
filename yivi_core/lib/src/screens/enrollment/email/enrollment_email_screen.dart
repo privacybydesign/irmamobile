@@ -94,7 +94,7 @@ class _EnrollmentEmailScreenState extends ConsumerState<EnrollmentEmailScreen> {
     // sent, rather than to a default issuer.
     keyshareEmailType(repo).then((type) {
       if (type != null && mounted) {
-        repo.prepareEmbeddedFlow(type.credentialId, type.issueURL, ref);
+        repo.prepareEmbeddedFlow(type.credentialId, type.issueURL, ref.read);
       }
     }, onError: (_) {});
     _links = repo.getPendingPointer().listen((pointer) {

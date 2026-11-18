@@ -1,6 +1,5 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
-import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "../../../data/irma_repository.dart";
 import "../../../models/credential.dart";
@@ -9,7 +8,6 @@ import "../../../models/session_state.dart";
 import "../../../providers/contact_issuance_provider.dart";
 import "../../../providers/credential_store_provider.dart";
 import "../../../providers/irma_repository_provider.dart";
-import "../../../providers/nested_issuance_host_provider.dart";
 import "../../../providers/session_flow_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/yivi_motion.dart";
@@ -32,6 +30,7 @@ import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
 import "../../error/session_error_screen.dart";
 import "../../error/tx_code_lockout_screen.dart";
+import "../issue_flow/issue_flow_controller.dart";
 import "../models/disclosure_view_model.dart";
 import "../models/issuance_view_model.dart";
 import "../models/session_view.dart";
@@ -77,16 +76,25 @@ String inSentenceAt(BuildContext context, String name) =>
 /// ("Do you want to add this data?", the PIN if irmago asks, then
 /// "Success"). Once adding has started, closing the sheet asks first.
 ///
+/// Where the flow is, and what it does, is the [IssueFlowController] of
+/// this sheet; this draws its pages and does what needs the sheet's
+/// context (the flights, asking before stopping, the pages over the sheet).
+///
 /// The sheet's state mixes this in and puts [issueFlowPages] after its own
 /// root page in a [GlassSheetPages], with [issueBack] as its back. It says
 /// what differs per sheet by overriding the members below: the Change sheet
 /// of a request adds a card for that request, Add data adds one on its own.
 mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
-    implements NestedIssuanceHost {
+    implements IssueFlowHost {
   // ---------- what the sheet supplies ----------
 
   /// The request the card is added for, or null when there is none.
   SessionState? get issueRequest;
+
+  /// The session of [issueRequest], or null for a sheet that adds a card on
+  /// its own (Add data): a session that starts while another request waits
+  /// is not for this sheet.
+  int? get underlyingSessionId;
 
   /// The tag of the progress while [d] is added.
   IssueSheetSubject issueSubject(CredentialDescriptor d);
@@ -117,7 +125,20 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// declined, dismissed, or an error was closed.
   void issueSessionEnded() {}
 
-  // ---------- the flow's state ----------
+  /// The e-mail step links the address to the keyshare server: its flow is
+  /// [ContactFlow.linkEmail].
+  bool get issueLinking => false;
+
+  /// The issuance in the sheet succeeded ([issueAdded] is set, so closing
+  /// does not dismiss it). True: the host took over; "Success" is not
+  /// shown.
+  bool issueSucceeded(List<Credential> cards) => false;
+
+  /// There is something else to choose than the card being added: the
+  /// website step then offers "Choose something else".
+  bool get issueHasOtherChoices => false;
+
+  // ---------- the flow ----------
 
   /// Where step 1's picture is: a card lifted from the share screen lands
   /// there.
@@ -130,319 +151,181 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   GlobalKey _titleKey(String page) =>
       _titleKeys[page] ??= GlobalKey(debugLabel: "issue_title_$page");
 
-  /// The type the user is adding; null while on the sheet's root page.
-  CredentialDescriptor? issueAdding;
+  CredentialDescriptor? _startWith;
 
-  /// The sheet opened straight on [issueAdding] (a card to get again, or
-  /// the only one a request can use): its details are the sheet's first
-  /// page, with nothing to go back to. Leaving them closes the sheet.
-  bool _direct = false;
+  /// This sheet's flow; made on first use, after [issueStartWith].
+  late final IssueFlowConfig _config = IssueFlowConfig(
+    host: this,
+    requestId: underlyingSessionId,
+    linking: issueLinking,
+    start: _startWith,
+  );
+
+  /// Keeps the flow while this state lives; its build watches it.
+  ProviderSubscription<IssueFlowState>? _flowSub;
+  IssueFlowController? _controller;
+
+  ProviderSubscription<IssueFlowState> get _sub {
+    final sub = _flowSub;
+    if (sub != null) return sub;
+    final made = _flowSub = ref.listenManual(
+      issueFlowProvider(_config),
+      (_, _) {},
+    );
+    _controller = ref.read(issueFlowProvider(_config).notifier);
+    return made;
+  }
+
+  IssueFlowState get _s => _sub.read();
+
+  IssueFlowController get _flow {
+    _sub;
+    return _controller!;
+  }
+
+  IrmaRepository get _repo => ref.read(irmaRepositoryProvider);
 
   /// Opens the sheet straight on [d]'s details; call from the host's
   /// initState. Null: the sheet opens on its root page. [prove]: on step 2
   /// at once, as if "Add" had been tapped on the details.
   void issueStartWith(CredentialDescriptor? d, {bool prove = false}) {
-    issueAdding = d;
-    _direct = d != null;
+    assert(_flowSub == null, "issueStartWith before the flow is used");
+    _startWith = d;
     if (prove && d != null) afterFrame(() => _add(d));
   }
 
-  /// The e-mail step links the address to the keyshare server: its flow is
-  /// [ContactFlow.linkEmail].
-  bool get issueLinking => false;
+  /// The type the user is adding; null while on the sheet's root page.
+  CredentialDescriptor? get issueAdding => _s.adding;
 
-  /// The issuance in the sheet succeeded ([issueAdded] is set, so closing
-  /// does not dismiss it). True: the host took over; "Success" is not
-  /// shown.
-  bool issueSucceeded(List<Credential> cards) => false;
+  /// The cards of a finished issuance, kept for "Success" (the session state
+  /// moves on once the request picks them up).
+  List<Credential>? get issueAdded => _s.added;
 
-  /// The issuer's details over the question (1), and their technical
-  /// details over those (2); 0: none.
-  int _issuerDepth = 0;
-
-  /// The issuer's page over the card's details (step 1), from the ⓘ on its
-  /// issuer card.
-  bool _detailsIssuer = false;
-
-  /// The island over the sheet ([IssueIsland]): why the card is added,
-  /// during a request. Only opened from the pill in the bar.
-  bool _island = false;
-
-  void _closeIsland() {
-    if (_island) setState(() => _island = false);
+  /// Where each of [issueAdded] is drawn on "Success", to fly from.
+  List<GlobalKey> get issueAddedKeys {
+    final added = issueAdded;
+    if (added != null && !identical(added, _keysFor)) {
+      _keysFor = added;
+      _addedKeys = [
+        for (final (i, _) in added.indexed)
+          GlobalKey(debugLabel: "sheet_added_$i"),
+      ];
+    }
+    return _addedKeys;
   }
 
-  /// There is something else to choose than the card being added: the
-  /// website step then offers "Choose something else".
-  bool get issueHasOtherChoices => false;
+  List<Credential>? _keysFor;
+  List<GlobalKey> _addedKeys = const [];
+
+  @override
+  void dispose() {
+    _controller?.detach();
+    super.dispose();
+  }
+
+  // ---------- what the flow asks of the sheet ----------
+
+  @override
+  bool onSucceeded(List<Credential> cards) => mounted && issueSucceeded(cards);
+
+  @override
+  void onSessionEnded() {
+    if (mounted) issueSessionEnded();
+  }
+
+  @override
+  Future<void> showOverSheet(SessionView view) async {
+    if (!mounted) return;
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (context) => switch (view) {
+          SessionFailed(:final error, :final state) => SessionErrorScreen(
+            // The error as Go sent it (it may have none); else why the
+            // state could not be shown.
+            error: state?.status == SessionStatus.error ? state!.error : error,
+            onTapClose: () => Navigator.of(context).pop(),
+          ),
+          _ => TxCodeLockoutScreen(
+            onTapClose: () => Navigator.of(context).pop(),
+          ),
+        },
+      ),
+    );
+  }
+
+  @override
+  void handOver(int sessionId) {
+    if (!mounted) return;
+    issueRouteContext.pushSessionScreen(
+      SessionRouteParams(
+        sessionId: sessionId,
+        hasUnderlyingSession: issueRequest != null,
+      ),
+    );
+  }
 
   /// "Choose something else" on the website step: adding stops (after
   /// asking, once the website was opened) and the sheet's root page shows.
   Future<void> _issueChooseOther() async {
-    if (_opened && !await _issueConfirmStop(closing: false)) return;
+    if (_s.opened && !await _issueConfirmStop(closing: false)) return;
     if (!mounted) return;
-    _stopAdding();
-    setState(() {
-      issueAdding = null;
-      _direct = false;
-    });
-  }
-
-  /// The sheet takes the next session that starts, without a type picked
-  /// first ([issueTakeSession]): only its issuance pages show.
-  bool _standalone = false;
-
-  /// The issuer's website was opened for [issueAdding].
-  bool _opened = false;
-
-  /// The page that sends the user to the issuer's website is shown (step
-  /// 2): "Add" on the details of a card from a website.
-  bool _website = false;
-
-  /// OpenID4VCI sessions whose login page in the browser was opened.
-  final _vciOpened = <int>{};
-
-  /// Yivi's own e-mail or phone step for [issueAdding] is shown (step 2).
-  ContactFlow? _contact;
-
-  /// The document screens for [issueAdding] are shown (step 2).
-  DocumentType? _document;
-
-  /// The issuance that came back from the issuer, shown in the sheet.
-  int? _nestedId;
-
-  /// The cards of a finished issuance, kept for "Success" (the session state
-  /// moves on once the request picks them up).
-  List<Credential>? issueAdded;
-
-  /// Where each of [issueAdded] is drawn on "Success", to fly from.
-  List<GlobalKey> issueAddedKeys = const [];
-
-  /// A full-screen page shown over the sheet for the issuance (an error).
-  bool _overSheet = false;
-
-  /// irmago asks for the PIN for the issuance in the sheet.
-  bool _pin = false;
-
-  /// The PIN page was shown for the issuance: it stays under "Success", so
-  /// "Success" comes in over it (forward) instead of the PIN going away.
-  bool _pinShown = false;
-
-  /// The last offer shown, for the offer page while "Success" covers it,
-  /// and while irmago adds the card after "Add" ([_granted]).
-  SessionState? _lastOffer;
-
-  /// "Add" was tapped on the offer: it stays as it was (no loading in its
-  /// place for the moment before "Success" or the PIN), and a second tap
-  /// does nothing.
-  bool _granted = false;
-
-  // The repository only once something is added, kept for dispose (where
-  // ref is unsafe). The host notifier up front for the same reason.
-  IrmaRepository? _repoRead;
-  IrmaRepository get _repo {
-    final read = _repoRead;
-    if (read != null) return read;
-    final repo = ref.read(irmaRepositoryProvider);
-    _repoRead = repo;
-    return repo;
-  }
-
-  late final NestedIssuanceHostNotifier _hosts;
-
-  @override
-  void initState() {
-    super.initState();
-    _hosts = ref.read(nestedIssuanceHostProvider.notifier);
-  }
-
-  @override
-  void attach(int sessionId) {
-    if (!mounted) return;
-    final previous = _nestedId;
-    if (previous != null && previous != sessionId) _dismissNested(previous);
-    setState(() {
-      _nestedId = sessionId;
-      issueAdded = null;
-      _pinShown = false;
-      _lastOffer = null;
-      _granted = false;
-    });
-  }
-
-  @override
-  void dispose() {
-    final nested = _nestedId;
-    final repo = _repoRead;
-    final added = issueAdded != null;
-    if (_closing) {
-      // Closed while adding: end what it left running once the sheet has
-      // gone (providers can't change while the tree is being torn down).
-      final hosts = _hosts;
-      final opened = _opened;
-      final contact = _contact != null;
-      final container = _container;
-      Future.microtask(() {
-        hosts.unregister(this);
-        if (added) return;
-        if (nested != null) repo?.dismissSession(nested);
-        if (opened) repo?.clearInAppLaunches();
-        if (contact && container != null) {
-          container
-            ..invalidate(contactIssuanceProvider(ContactFlow.email))
-            ..invalidate(contactIssuanceProvider(ContactFlow.phone))
-            ..invalidate(contactIssuanceProvider(ContactFlow.linkEmail));
-        }
-      });
-    } else {
-      _hosts.unregister(this);
-      // A nested id means the repository was read (the website was opened).
-      if (nested != null && !added) repo?.dismissSession(nested);
-    }
-    super.dispose();
+    _flow.chooseOther();
   }
 
   /// The sheet is closing: it keeps the pages it had ([_shownPages]) until it
   /// has gone, instead of going back to an earlier one on the way out.
   bool _closing = false;
   List<Widget>? _shownPages;
-  ProviderContainer? _container;
 
   /// Closes the sheet on the page it is on; what is left running ends once
-  /// it has gone (see [dispose]).
+  /// it has gone.
   void issueClose() {
     _startClosing();
     Navigator.of(context).pop();
   }
 
-  /// What [dispose] needs to end the adding, read now: ref and the context
-  /// are unsafe there.
   void _startClosing() {
     _closing = true;
-    if (!mounted) return;
-    _container = ProviderScope.containerOf(context, listen: false);
-    if (_nestedId != null || _opened) _repo;
+    _flow.startClosing();
   }
 
   /// Adding has started: closing asks first. Not on the details page, where
   /// nothing has happened yet.
-  bool get _issueStarted =>
-      issueAdding != null && issueAdded == null && !_onDetails;
-
-  /// The details of the type being added are the page on top: no step
-  /// after them is open and no issuance is running.
-  bool get _onDetails =>
-      !_website &&
-      _contact == null &&
-      _document == null &&
-      _nestedId == null &&
-      !_pin;
+  bool get _issueStarted => _s.started;
 
   /// Takes the next session that starts into this sheet (an issuance
   /// scanned on the lock screen): its offer, the PIN if irmago asks and
   /// "Success" show here, without a type picked first.
-  void issueTakeSession() {
-    _standalone = true;
-    _hosts.register(this);
-  }
+  void issueTakeSession() => _flow.takeSession();
 
   /// An issuance is in this sheet: started, or finished on "Success".
-  bool get issueHasSession => _nestedId != null || issueAdded != null;
+  bool get issueHasSession => _s.hasSession;
 
   /// No longer takes the next session ([issueTakeSession]).
-  void issueReleaseSession() {
-    _hosts.unregister(this);
-    if (_nestedId == null) _standalone = false;
-  }
+  void issueReleaseSession() => _flow.releaseSession();
 
   /// Opens the details of [d] (step 1).
-  void issueOpen(CredentialDescriptor d) => setState(() {
-    issueAdding = d;
-    _direct = false;
-    _opened = false;
-    _website = false;
-  });
+  void issueOpen(CredentialDescriptor d) => _flow.open(d);
 
   /// Back from the details to the root page, leaving nothing behind. When
-  /// the details are the sheet's first page ([_direct]), the sheet
-  /// closes instead.
+  /// the details are the sheet's first page, the sheet closes instead.
   void _issueLeave() {
-    if (_direct) {
+    if (_s.direct) {
       // Asked already where it had to be (or nothing was started yet).
       issueClose();
       return;
     }
-    _stopAdding();
-    setState(() => issueAdding = null);
+    _flow.leave();
   }
 
   /// After a finished issuance, on to the sheet's root page (Add more),
   /// also when the sheet opened straight on the card.
-  void issueShowRoot() {
-    issueReset();
-    _direct = false;
-  }
+  void issueShowRoot() => _flow.showRoot();
 
   /// Done with a finished issuance: the flow starts over on the root page
   /// (a sheet that opened straight on the card keeps it as its first page
   /// while it closes).
-  void issueReset() {
-    issueAdded = null;
-    issueAdding = null;
-    _forgetSession();
-    _clearSteps();
-  }
-
-  /// The issuance in the sheet is gone: no session, no PIN page kept under
-  /// "Success", no offer kept.
-  void _forgetSession() {
-    _issuerDepth = 0;
-    _nestedId = null;
-    _pinShown = false;
-    _lastOffer = null;
-    _granted = false;
-  }
-
-  /// Back from the document screens to the details.
-  void _leaveDocument() => setState(() => _document = null);
-
-  /// None of the steps that prove the card is under way: no website opened,
-  /// no e-mail, phone or document step.
-  void _clearSteps() {
-    _detailsIssuer = false;
-    _opened = false;
-    _website = false;
-    _contact = null;
-    _document = null;
-  }
-
-  /// Ends what adding left running: the issuance, the waiting host, the
-  /// launch record.
-  void _stopAdding() {
-    final nested = _nestedId;
-    if (nested != null && issueAdded == null) _dismissNested(nested);
-    _hosts.unregister(this);
-    if (_opened) _repo.clearInAppLaunches();
-    if (_contact != null) {
-      ref
-        ..invalidate(contactIssuanceProvider(ContactFlow.email))
-        ..invalidate(contactIssuanceProvider(ContactFlow.phone))
-        ..invalidate(contactIssuanceProvider(ContactFlow.linkEmail));
-    }
-    _forgetSession();
-    issueAdded = null;
-    _clearSteps();
-  }
-
-  /// Adding a document goes back to its chip screen, which starts over: the
-  /// issuer asks for a face check again if it wants one.
-  void _backToChip() {
-    if (_document case final type?) {
-      ref.read(documentFlowProvider(type).notifier).readAgain();
-    }
-  }
-
-  void _dismissNested(int sessionId) => _repo.dismissSession(sessionId);
+  void issueReset() => _flow.reset();
 
   /// How adding [d] goes: Yivi's own steps or the issuer's website.
   IssuePlan _planOf(CredentialDescriptor d) =>
@@ -451,7 +334,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// How many steps adding [d] takes, for the progress ([IssuePlan.total]);
   /// a document's own count once its flow has started.
   int _stepsOf(CredentialDescriptor d) => _planOf(d).total(
-    documentTotal: switch (_document) {
+    documentTotal: switch (_s.document) {
       final type? => ref.watch(documentFlowProvider(type)).total,
       null => null,
     },
@@ -462,54 +345,26 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// back. Either way the issuance then shows in the sheet.
   void _add(CredentialDescriptor d) {
     beforeIssueAdd(d);
-    final flow = _repo.embeddedFlowOf(d.credentialId);
-    if (flow == EmbeddedFlow.email || flow == EmbeddedFlow.phone) {
-      if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
-      _hosts.register(this);
-      setState(
-        () => _contact = flow == EmbeddedFlow.phone
-            ? ContactFlow.phone
-            : issueLinking
-            ? ContactFlow.linkEmail
-            : ContactFlow.email,
-      );
-      return;
-    }
-    final document = flow == EmbeddedFlow.document
-        ? documentTypeOf(d.credentialId)
-        : null;
-    if (document != null) {
-      if (!_repo.prepareEmbeddedFlow(d.credentialId, d.issueURL, ref)) return;
-      _hosts.register(this);
-      setState(() => _document = document);
-      return;
-    }
-    // The issuer's website (every document Yivi issues itself has a
-    // DocumentType): first the page that says so.
-    setState(() => _website = true);
+    _flow.add(d);
   }
 
   /// "Open website" on the website page: the sheet waits for what comes
   /// back from the issuer.
   Future<void> _openWebsite(CredentialDescriptor d) async {
-    _hosts.register(this);
-    setState(() => _opened = true);
+    _flow.websiteOpened();
     await ref.read(issuerOpenerProvider)(context, d, ref);
   }
 
   /// Back from the website page to the details. Once the website was
-  /// opened, adding has started: it asks first, and ends the wait.
+  /// opened, adding has started: it asks first, and stopping ends the wait.
   Future<void> _leaveWebsite() async {
-    if (_opened && !await _issueConfirmStop(closing: false)) return;
-    if (!mounted) return;
-    if (_opened) {
-      _repo.clearInAppLaunches();
-      _hosts.unregister(this);
+    if (_s.opened) {
+      final stop = await _issueConfirmStop(closing: false);
+      // Stopped, adding has ended and the details show; not asked (nothing
+      // was started), only the page goes.
+      if (!stop || !mounted || _s.stack.lastOrNull is! WebsiteStep) return;
     }
-    setState(() {
-      _website = false;
-      _opened = false;
-    });
+    _flow.back();
   }
 
   /// "Stop adding {name}?" before a started adding is left. When the sheet
@@ -547,7 +402,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     if (stop && closing) {
       _startClosing();
     } else if (stop) {
-      _stopAdding();
+      _flow.stopAdding();
     }
     return stop;
   }
@@ -574,7 +429,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       child: SheetKeepsClose(
         child: Builder(
           builder: (_) => IssueIslandScope(
-            open: () => setState(() => _island = true),
+            open: _flow.openIsland,
             isOpen: _islandOpen,
             child: Stack(
               // The pages get the sheet's own constraints: a short page
@@ -587,7 +442,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                   pages: _closing && _shownPages != null
                       ? _shownPages!
                       : _shownPages = [
-                          if (!_direct || issueAdding == null)
+                          if (!_s.direct || issueAdding == null)
                             KeyedSubtree(key: ValueKey(rootKey), child: root()),
                           ...issueFlowPages(),
                         ],
@@ -597,7 +452,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
                     child: IssueIsland(
                       requestor: issueRequest!.requestor,
                       signing: issueRequest!.type == SessionType.signature,
-                      onClose: _closeIsland,
+                      onClose: _flow.closeIsland,
                     ),
                   ),
               ],
@@ -611,185 +466,50 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The island shows while adding a card for a request, not over the
   /// sheet's root page or once the card is in.
   bool get _islandOpen =>
-      _island &&
+      _s.island &&
       issueRequest != null &&
       issueAdding != null &&
       issueAdded == null &&
       !_closing;
 
-  /// Back in the sheet: one step back, or from the details to the root page.
+  /// Back in the sheet: one step back, or from the details to the root page
+  /// ([IssueFlowController.back]). The issuer's pages take their logo back
+  /// with them, an opened website asks first, and the details of a sheet
+  /// opened on them close it.
   void issueBack() {
-    // The issuer's page over the details: back to the details.
-    if (_detailsIssuer) {
-      final issuer = issueAdding?.issuer;
-      if (issuer != null && !_pageOut(_detailsLogoTo)) {
-        _closeDetailsIssuer(issuer);
-      } else {
-        setState(() => _detailsIssuer = false);
-      }
-      return;
-    }
-    // The issuer's details over the permission: back to what is under them.
-    if (_issuerDepth == 2) {
-      setState(() => _issuerDepth = 1);
-      return;
-    }
-    if (_issuerDepth == 1) {
-      final issuer = _lastOffer?.offeredCredentials?.firstOrNull?.issuer;
+    final s = _s;
+    switch (s.stack.lastOrNull) {
       // Swiped back, the page is out of the sheet already: no logo flies
       // back from there.
-      if (issuer != null && !_pageOut(_issuerLogoTo)) {
-        _closeIssuerPage(issuer);
-      } else {
-        setState(() => _issuerDepth = 0);
-      }
-      return;
+      case DetailsIssuerStep():
+        final issuer = s.adding?.issuer;
+        if (issuer != null && !_pageOut(_detailsLogoTo)) {
+          _closeDetailsIssuer(issuer);
+          return;
+        }
+      case IssuerStep(technical: false):
+        final issuer = s.lastOffer?.offeredCredentials?.firstOrNull?.issuer;
+        if (issuer != null && !_pageOut(_issuerLogoTo)) {
+          _closeIssuerPage(issuer);
+          return;
+        }
+      case WebsiteStep(opened: true):
+        _leaveWebsite();
+        return;
+      case DetailsStep() when s.direct:
+        _issueLeave();
+        return;
+      case _:
     }
-    final nested = _nestedId;
-    if (_standalone && issueAdding == null && nested != null) {
-      // Nothing to go back to: declines the issuance, which ends it
-      // (issueSessionEnded once irmago says it is dismissed).
-      _dismissNested(nested);
-      return;
-    }
-    if (_pin && nested != null) {
-      _dismissNested(nested);
-    } else if (nested != null && issueAdded == null) {
-      // A step back: a document's chip screen, to read it again; the
-      // website or the address page, as they were.
-      _dismissNested(nested);
-      setState(() {
-        _forgetSession();
-        _backToChip();
-      });
-    } else if (_document != null) {
-      _leaveDocument();
-    } else if (_website) {
-      _leaveWebsite();
-    } else if (_contact case final flow?) {
-      // From the code to the address; from the address to the details.
-      if (ContactSheetStep.atCode(ref, flow, watch: false)) {
-        ContactSheetStep.backToAddress(ref, flow);
-      } else {
-        setState(() => _contact = null);
-      }
-    } else {
-      _issueLeave();
-    }
+    _flow.back();
   }
 
   // ---------- the issuance in the sheet ----------
 
-  /// Follows the issuance in the sheet; call from the sheet's build.
+  /// Follows the flow, and the issuance in it; call from the sheet's build.
   void issueListen() {
-    final nested = _nestedId;
-    if (nested == null) return;
-    ref.listen(sessionFlowProvider(nested), _onNested);
-  }
-
-  void _onNested(SessionView? previous, SessionView next) {
-    // Only what a state of the session says: not before the first one, and
-    // not while a tap waits for Go's answer (the page stays as it was).
-    if (next.state == null || next is SessionWaiting) return;
-    if (next is SessionSucceeded) {
-      if (previous is SessionSucceeded) return;
-      // Kept: the request picks the cards up and the state moves on.
-      final cards = next.state.offeredCredentials ?? const [];
-      _repo.clearInAppLaunches();
-      _hosts.unregister(this);
-      _pin = false;
-      issueAdded = cards;
-      issueAddedKeys = [
-        for (final (i, _) in cards.indexed)
-          GlobalKey(debugLabel: "sheet_added_$i"),
-      ];
-      if (issueSucceeded(cards)) return;
-      setState(() {});
-      return;
-    }
-    if (next is SessionDismissed) {
-      if (previous is SessionDismissed) return;
-      if (_standalone && issueAdding == null) {
-        _forgetSession();
-        _pin = false;
-        issueSessionEnded();
-        return;
-      }
-      // Cancelled on the permission or the PIN: a step back, to try again.
-      setState(() {
-        _pin = false;
-        _forgetSession();
-        _backToChip();
-      });
-      return;
-    }
-    // The PIN is a page in the sheet, on top of the issuance, while irmago
-    // asks for it.
-    final pin = next is SessionPin;
-    if (pin) _pinShown = true;
-    if (pin != _pin) setState(() => _pin = pin);
-    if (pin || _overSheet || previous.runtimeType == next.runtimeType) return;
-    switch (next) {
-      // Over the sheet, then back to it without the session.
-      case SessionFailed(:final error, :final state):
-        _showOverSheet(
-          (context) => SessionErrorScreen(
-            // The error as Go sent it (it may have none); else why the
-            // state could not be shown.
-            error: state?.status == SessionStatus.error ? state!.error : error,
-            onTapClose: () => Navigator.of(context).pop(),
-          ),
-          then: _afterOverSheet,
-        );
-      case SessionTxLockout():
-        _showOverSheet(
-          (context) => TxCodeLockoutScreen(
-            onTapClose: () => Navigator.of(context).pop(),
-          ),
-          then: _afterOverSheet,
-        );
-      // A pairing code, or a request instead of an issuance, takes the
-      // session screen, as without the sheet.
-      case SessionPairing() || SessionShare():
-        final id = next.state!.id;
-        setState(() => _nestedId = null);
-        issueRouteContext.pushSessionScreen(
-          SessionRouteParams(
-            sessionId: id,
-            hasUnderlyingSession: issueRequest != null,
-          ),
-        );
-        if (_standalone && issueAdding == null) issueSessionEnded();
-      // The offer and OpenID4VCI's own steps are pages of the sheet.
-      case _:
-    }
-  }
-
-  /// Back from a page over the sheet: the sheet without the session.
-  void _afterOverSheet() {
-    if (!mounted) return;
-    setState(() {
-      _nestedId = null;
-      _granted = false;
-    });
-    if (_standalone && issueAdding == null) issueSessionEnded();
-  }
-
-  void _showOverSheet(WidgetBuilder builder, {VoidCallback? then}) {
-    _overSheet = true;
-    Navigator.of(
-      context,
-      rootNavigator: true,
-    ).push(MaterialPageRoute<void>(builder: builder)).whenComplete(() {
-      _overSheet = false;
-      then?.call();
-    });
-  }
-
-  void _grant(int sessionId) {
-    if (_granted) return;
-    _granted = true;
-    _repo.grantSession(sessionId);
+    _sub;
+    ref.watch(issueFlowProvider(_config));
   }
 
   // ---------- the pages ----------
@@ -797,9 +517,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// The flow's pages, to follow the sheet's root page in its
   /// [GlassSheetPages]; none while on the root page.
   List<Widget> issueFlowPages() {
-    final adding = issueAdding;
+    final s = _s;
+    final adding = s.adding;
     if (adding == null) return _standalonePages();
-    final nested = _nestedId;
+    final nested = s.sessionId;
     final subject = issueSubject(adding);
     final total = _stepsOf(adding);
     return [
@@ -808,7 +529,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         child: _buildDetails(adding, subject, total),
       ),
       // The issuer's page, from the ⓘ on the details' issuer card.
-      if (_detailsIssuer)
+      if (s.detailsIssuer)
         KeyedSubtree(
           key: ValueKey(("details_issuer", adding.credentialId)),
           child: RequestorTrustSheet(
@@ -820,14 +541,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           ),
         ),
       // Step 2 for a card from a website: where you go, and the way there.
-      if (_website)
+      if (s.website)
         KeyedSubtree(
           key: ValueKey(("web", adding.credentialId)),
           child: IssueWebsiteStep(
             title: adding.name,
             host: hostOf(adding.issueURL) ?? adding.issuer.name,
             issuer: adding.issuer.name,
-            opened: _opened,
+            opened: s.opened,
             onOpen: () => _openWebsite(adding),
             onBack: _leaveWebsite,
             bottom: IssueSheetProgress(step: 2, total: total),
@@ -835,14 +556,14 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             onOther: issueHasOtherChoices ? _issueChooseOther : null,
           ),
         ),
-      if (_contact case final flow?) ...[
+      if (s.contact case final flow?) ...[
         KeyedSubtree(
           key: ValueKey(("prove", flow)),
           child: ContactSheetStep(
             flow: flow,
             subject: subject,
             total: total,
-            onBack: () => setState(() => _contact = null),
+            onBack: _flow.leaveContact,
           ),
         ),
         // Once the code is sent, its page slides in over the address.
@@ -854,22 +575,22 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
               subject: subject,
               total: total,
               code: true,
-              onBack: () => setState(() => _contact = null),
+              onBack: _flow.leaveContact,
             ),
           ),
       ],
-      if (_document != null)
+      if (s.document case final document?)
         KeyedSubtree(
-          key: ValueKey(("document", _document)),
+          key: ValueKey(("document", document)),
           // A sheet page itself: its bar and progress stay while the
           // document's screens change below them.
           child: DocumentSheetStep(
-            type: _document!,
+            type: document,
             subject: subject,
-            onBack: _leaveDocument,
+            onBack: _flow.leaveDocument,
           ),
         ),
-      if (nested != null || issueAdded != null)
+      if (nested != null || s.added != null)
         KeyedSubtree(
           key: ValueKey(("issue", nested)),
           child: _buildIssuance(nested, subject, total),
@@ -892,7 +613,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// question's into its own (360 ms, with the slide).
   void _openIssuerPage(TrustedParty issuer) {
     YiviFlight.hide([_issuerLogoTo]);
-    setState(() => _issuerDepth = 1);
+    _flow.openIssuer();
     afterFrame(() {
       YiviFlight.show([_issuerLogoTo]);
       _flyIssuerLogo(issuer, from: _issuerLogoFrom, to: _issuerLogoTo);
@@ -913,7 +634,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// Back to the question: the logo shrinks back into the question's.
   void _closeIssuerPage(TrustedParty issuer) {
     _flyIssuerLogo(issuer, from: _issuerLogoTo, to: _issuerLogoFrom);
-    setState(() => _issuerDepth = 0);
+    _flow.closeIssuer();
   }
 
   /// The issuer's logo on the details' issuer card, and on the issuer's page
@@ -926,7 +647,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// the issuer card's.
   void _openDetailsIssuer(TrustedParty issuer) {
     YiviFlight.hide([_detailsLogoTo]);
-    setState(() => _detailsIssuer = true);
+    _flow.openDetailsIssuer();
     afterFrame(() {
       YiviFlight.show([_detailsLogoTo]);
       _flyIssuerLogo(issuer, from: _detailsLogoFrom, to: _detailsLogoTo);
@@ -936,7 +657,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// Back to the details: the logo shrinks back into the issuer card's.
   void _closeDetailsIssuer(TrustedParty issuer) {
     _flyIssuerLogo(issuer, from: _detailsLogoTo, to: _detailsLogoFrom);
-    setState(() => _detailsIssuer = false);
+    _flow.closeDetailsIssuer();
   }
 
   void _flyIssuerLogo(
@@ -965,9 +686,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// of the sheet (back returns to the question), and their technical
   /// details under them.
   List<Widget> _issuerPages(int? nested) {
-    final offer = _lastOffer;
+    final s = _s;
+    final offer = s.lastOffer;
     final cards = offer?.offeredCredentials;
-    if (_issuerDepth == 0 || offer == null || cards == null || cards.isEmpty) {
+    if (s.issuerDepth == 0 || offer == null || cards == null || cards.isEmpty) {
       return const [];
     }
     final issuer = cards.first.issuer;
@@ -980,16 +702,16 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           issuer: true,
           logoKey: _issuerLogoTo,
           onBack: () => _closeIssuerPage(issuer),
-          onTechnicalDetails: () => setState(() => _issuerDepth = 2),
+          onTechnicalDetails: () => _flow.openIssuer(technical: true),
         ),
       ),
-      if (_issuerDepth >= 2)
+      if (s.issuerDepth >= 2)
         KeyedSubtree(
           key: ValueKey(("issuer_tech", nested)),
           child: TechnicalDetailsSheet(
             key: const Key("issuer_technical_details"),
             groups: issuanceTechnicalDetailsOf(offer, cards, context.tr),
-            onBack: () => setState(() => _issuerDepth = 1),
+            onBack: () => _flow.closeIssuer(technical: true),
           ),
         ),
     ];
@@ -1003,17 +725,17 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     IssueSheetSubject? subject,
     int total,
   ) => [
-    if (nested != null && (_pin || (issueAdded != null && _pinShown)))
+    if (nested != null && _s.pinShown)
       KeyedSubtree(
         key: ValueKey(("pin", nested)),
         child: _NestedPin(
           sessionId: nested,
           subject: subject,
           total: total,
-          onCancel: () => _dismissNested(nested),
+          onCancel: _flow.dismissSession,
         ),
       ),
-    if (issueAdded case final added?)
+    if (_s.added case final added?)
       KeyedSubtree(
         key: ValueKey(("done", nested)),
         child: _buildSuccess(added, subject, total),
@@ -1024,8 +746,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
   /// issuance and, while irmago asks, the PIN. No progress: it has no steps
   /// before it.
   List<Widget> _standalonePages() {
-    final nested = _nestedId;
-    if (!_standalone || (nested == null && issueAdded == null)) {
+    final s = _s;
+    final nested = s.sessionId;
+    if (!s.standalone || (nested == null && s.added == null)) {
       return const [];
     }
     final state = nested == null
@@ -1099,8 +822,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             // where back is on the pages after it. Otherwise left by back or by
             // dragging its header down.
             exits: SheetExits(
-              onBack: _direct ? null : _issueLeave,
-              close: _direct ? SheetClose.start : SheetClose.none,
+              onBack: _s.direct ? null : _issueLeave,
+              close: _s.direct ? SheetClose.start : SheetClose.none,
             ),
             action: action,
             bottomInBar: true,
@@ -1120,8 +843,8 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
             // where back is on the pages after it. Otherwise left by back or by
             // dragging its header down.
             exits: SheetExits(
-              onBack: _direct ? null : _issueLeave,
-              close: _direct ? SheetClose.start : SheetClose.none,
+              onBack: _s.direct ? null : _issueLeave,
+              close: _s.direct ? SheetClose.start : SheetClose.none,
             ),
             padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
             action: action,
@@ -1157,10 +880,10 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         ref.watch(sessionAwaitingInteractionProvider(nestedId));
     // After "Add", and under "Success" (sliding away as it comes in), the
     // offer as it was: the session has moved on by then.
+    final s = _s;
     final current = view is SessionOffer ? view.state : null;
-    if (current != null) _lastOffer = current;
     final offer =
-        current ?? (issueAdded != null || _granted ? _lastOffer : null);
+        current ?? (s.added != null || s.granted ? s.lastOffer : null);
     final cards = offer?.offeredCredentials ?? const <Credential>[];
 
     // Inside a request, a card whose value is not what the request needs
@@ -1173,9 +896,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
       forRequest: issueRequest,
       retryOnMismatch: true,
     );
-    final grant = offer == null || nestedId == null
-        ? null
-        : () => _grant(nestedId);
+    final grant = offer == null || nestedId == null ? null : _flow.grant;
     final issuer = state.issuer;
     final risky = state.risky;
     final action = switch (state.primary) {
@@ -1188,7 +909,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
         ),
         onTap: state.primary == IssuancePrimary.dontReplace
             ? issueClose
-            : _retry,
+            : _flow.retry,
       ),
       IssuancePrimary.add || IssuancePrimary.addAnyway => SheetAction(
         key: const Key("sheet_issue_add"),
@@ -1347,13 +1068,6 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
     child: Center(child: YiviSpinner()),
   );
 
-  /// Back to the step before the issuance (the website, the code), to try
-  /// again after a card that does not count came back.
-  void _retry() {
-    issueBack();
-    setState(() => _opened = false);
-  }
-
   /// OpenID4VCI's own step before the offer in [view], if it is one: a
   /// transaction code, the issuer's website for the authorization code, or
   /// the wait while a pre-authorized code without a transaction code is
@@ -1384,7 +1098,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           issuedCredentials: state.offeredCredentialTypes ?? const [],
           transactionCodeParameters: parameters,
           onSubmit: flow.grantPreAuthorizedCode,
-          onDismiss: () => _dismissNested(sessionId),
+          onDismiss: _flow.dismissSession,
         );
       case SessionAuthCode(:final state, :final url):
         // The issuer's login in the browser: the website page of adding a
@@ -1394,12 +1108,9 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           title: context.tr("issuance.authorization_code.pending.title"),
           host: hostOf(url) ?? state.requestor.name,
           issuer: state.requestor.name,
-          opened: _vciOpened.contains(sessionId),
-          onOpen: () async {
-            setState(() => _vciOpened.add(sessionId));
-            await _repo.authenticateOpenID4VCI(url);
-          },
-          onBack: () => _dismissNested(sessionId),
+          opened: _s.authOpened.contains(sessionId),
+          onOpen: () => _flow.openAuthorization(sessionId, url),
+          onBack: _flow.dismissSession,
         );
       default:
         // Granted at once (by the session's flow); the next state follows.
@@ -1407,7 +1118,7 @@ mixin IssueFlow<W extends ConsumerStatefulWidget> on ConsumerState<W>
           title: SheetTitle(context.tr("issuance.title")),
           // Left by dragging its header down: no close button.
           exits: SheetExits(
-            onBack: () => _dismissNested(sessionId),
+            onBack: _flow.dismissSession,
             close: SheetClose.none,
           ),
           child: _loading(),

@@ -5,6 +5,7 @@ import "dart:io";
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_riverpod/misc.dart" show ProviderListenable;
 import "package:flutter_web_auth_2/flutter_web_auth_2.dart";
 import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
@@ -808,9 +809,9 @@ class IrmaRepository {
     String url,
     WidgetRef ref,
   ) {
-    if (!prepareEmbeddedFlow(credentialId, url, ref)) return;
+    if (!prepareEmbeddedFlow(credentialId, url, ref.read)) return;
     // E-mail addresses, phone numbers and documents are added in the
-    // sheet (IssueFlow), which never comes here.
+    // sheet (IssueFlowController), which never comes here.
     assert(false, "${embeddedFlowOf(credentialId)} is added in the sheet");
   }
 
@@ -843,10 +844,11 @@ class IrmaRepository {
   /// Points Yivi's own flow for [credentialId] at the issuer of [issueURL],
   /// as opening it does, but without opening its screens: for the Change
   /// sheet, which shows the steps itself. False without an issue URL.
+  /// [read] reads a provider (`ref.read` of a widget or a provider).
   bool prepareEmbeddedFlow(
     String credentialId,
     String? issueURL,
-    WidgetRef ref,
+    T Function<T>(ProviderListenable<T>) read,
   ) {
     final flow = embeddedFlowOf(credentialId);
     final url = issueURL ?? "";
@@ -854,11 +856,11 @@ class IrmaRepository {
     final base = _issuerBase(url);
     switch (flow) {
       case EmbeddedFlow.email:
-        ref.read(emailIssuerUrlProvider.notifier).set(base);
+        read(emailIssuerUrlProvider.notifier).set(base);
       case EmbeddedFlow.phone:
-        ref.read(smsIssuerUrlProvider.notifier).set(base);
+        read(smsIssuerUrlProvider.notifier).set(base);
       case EmbeddedFlow.document:
-        ref.read(passportIssuerUrlProvider.notifier).set(base);
+        read(passportIssuerUrlProvider.notifier).set(base);
     }
     return true;
   }
