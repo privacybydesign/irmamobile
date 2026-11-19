@@ -143,6 +143,22 @@ extension RoutingHelpers on BuildContext {
     push(uri.toString());
   }
 
+  void pushAddBankAccountScreen() {
+    push("/home/add_bank_account");
+  }
+
+  void pushBankAnalysisScreen({required String consentId}) {
+    // passed as extra instead of in the URL, so the consent id does not end
+    // up in route names
+    push("/home/bank_analysis", extra: consentId);
+  }
+
+  void pushBankAccountDetailsScreen(BankAccountDetailsRouteParams params) {
+    // passed as extra instead of in the URL, so the consent id does not end
+    // up in route names
+    push("/home/bank_account_details", extra: params);
+  }
+
   void pushReplacementSessionScreen(SessionRouteParams args) {
     final uri = Uri(path: "/session", queryParameters: args.toQueryParams());
     pushReplacement(uri.toString());
@@ -280,6 +296,18 @@ extension RoutingHelpers on BuildContext {
     );
     await push(uri.toString());
   }
+}
+
+// =============================================================================================
+
+class BankAccountDetailsRouteParams {
+  final String consentId;
+  final String accountId;
+
+  BankAccountDetailsRouteParams({
+    required this.consentId,
+    required this.accountId,
+  });
 }
 
 // =============================================================================================

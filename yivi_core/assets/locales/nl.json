@@ -446,6 +446,100 @@
     "empty": {
       "title": "Haal je gegevens op",
       "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
+    },
+    "sections": {
+      "credentials": "Gegevens",
+      "accounts": "Rekeningen"
+    }
+  },
+  "accounts": {
+    "add": "Rekening toevoegen",
+    "unknown_bank": "Bank",
+    "total": "Totaal saldo van {count} rekeningen",
+    "updated": "Bijgewerkt {moment}",
+    "empty": {
+      "title": "Je bankrekeningen",
+      "subtitle": "Voeg een rekening toe om hier je saldo en recente transacties te zien. Je logt in bij je eigen bank."
+    },
+    "privacy_note": "Je rekeninggegevens worden bij je bank opgehaald als je dit scherm opent. Ze worden niet in de Yivi-app opgeslagen.",
+    "connect_failed": "Het toevoegen van je rekening is niet gelukt. Probeer het opnieuw.",
+    "load_failed": "Je rekeningen konden niet worden geladen. Controleer je internetverbinding.",
+    "refresh": {
+      "busy": "Wordt bijgewerkt…",
+      "limit": "{bank} is zojuist nog bijgewerkt. Probeer het later opnieuw.",
+      "failed": "Bijwerken is niet gelukt. Probeer het later opnieuw."
+    },
+    "status": {
+      "pending": "Je rekeningen worden opgehaald…",
+      "failed": "Het koppelen met deze bank is mislukt. Verwijder deze en voeg je rekening opnieuw toe.",
+      "gone": "De koppeling met deze bank is verlopen. Verwijder deze en voeg je rekening opnieuw toe.",
+      "no_accounts": "Deze bank heeft geen rekeningen gedeeld.",
+      "remove": "Verwijderen"
+    },
+    "options": {
+      "title": "Opties voor rekening",
+      "refresh": "Bijwerken",
+      "refresh_explanation": "Haalt het nieuwste saldo en de nieuwste transacties op bij {bank}. Dit werkt al je rekeningen bij deze bank bij.",
+      "copy": "Rekeningnummer kopiëren",
+      "copied": "Rekeningnummer gekopieerd",
+      "remove": "Rekening verwijderen",
+      "remove_explanation": "De rekening verdwijnt uit Yivi. Je andere rekeningen bij {bank} blijven staan.",
+      "remove_explanation_last": "De rekening verdwijnt uit Yivi en de koppeling met {bank} wordt beëindigd."
+    },
+    "remove": {
+      "title": "Rekening verwijderen?",
+      "explanation": "Deze rekening wordt niet meer getoond in Yivi. De koppeling met {bank} blijft bestaan voor je andere rekeningen.",
+      "explanation_last": "Deze rekening wordt niet meer getoond in Yivi en de koppeling met {bank} wordt beëindigd. Je kunt de rekening later opnieuw toevoegen.",
+      "failed": "Het verwijderen van de rekening is niet gelukt. Probeer het opnieuw."
+    },
+    "details": {
+      "title": "Rekening",
+      "balance": "Saldo",
+      "valid_until": "Gekoppeld tot {date}",
+      "transactions": "Transacties",
+      "no_transactions": "Geen transacties in de laatste 90 dagen.",
+      "load_failed": "De transacties konden niet worden geladen."
+    },
+    "choose_bank": {
+      "title": "Kies je bank",
+      "explanation": "Kies de bank van de rekening die je wilt toevoegen. Daarna log je in bij je bank om toestemming te geven.",
+      "provider_note": "De koppeling met je bank wordt gemaakt door enablenow, een rekeninginformatiedienst met een vergunning. Yivi krijgt je inloggegevens nooit te zien.",
+      "load_failed": "De banken konden niet worden geladen. Controleer je internetverbinding."
+    },
+    "analysis": {
+      "title": "Rekeningen analyseren",
+      "choose_bank": "Welke bank wil je analyseren?",
+      "add_failed": "Het toevoegen aan Yivi is niet gelukt. Probeer het opnieuw.",
+      "entry": {
+        "title": "Rekeningen analyseren",
+        "subtitle": "Voeg je inkomsten en uitgaven toe aan Yivi als gegevens die je kunt delen."
+      },
+      "intro": {
+        "header": "Maak gegevens van je rekeningen",
+        "explanation": "Yivi kan je inkomsten en uitgaven afleiden uit je transacties. Zo kun je ze aantonen zonder bankafschriften te delen.",
+        "step_transactions": "Je transacties van de afgelopen 12 maanden bij {bank} worden in categorieën ingedeeld.",
+        "step_averages": "Per categorie krijg je één bedrag: het gemiddelde per maand.",
+        "step_choose": "Je ziet eerst het resultaat en kiest wat je toevoegt aan Yivi.",
+        "privacy_note": "De analyse wordt gedaan door enablenow, de dienst die je bank koppelt. Losse transacties worden nooit aan Yivi toegevoegd.",
+        "start": "Analyse starten"
+      },
+      "progress": {
+        "header": "Je transacties worden geanalyseerd…",
+        "explanation": "Dit duurt meestal minder dan een minuut. Houd dit scherm open."
+      },
+      "review": {
+        "explanation": "Dit heeft de analyse gevonden. Kies wat je wilt toevoegen aan Yivi.",
+        "period": "Gemiddelden per maand over {months} maanden, van {start} tot en met {end}.",
+        "per_month": "{amount} / maand",
+        "nothing_found": "Niets gevonden in deze categorie.",
+        "add": "Toevoegen aan Yivi"
+      },
+      "failed": {
+        "no_transactions": "Er zijn geen transacties om te analyseren bij deze bank.",
+        "rate_limit": "Je hebt te vaak een analyse gestart. Probeer het later opnieuw.",
+        "timeout": "De analyse duurt langer dan verwacht. Probeer het later opnieuw.",
+        "other": "De analyse is niet gelukt. Probeer het opnieuw."
+      }
     }
   },
   "issuance": {

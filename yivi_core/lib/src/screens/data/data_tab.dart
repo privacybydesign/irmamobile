@@ -10,6 +10,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../package_name.dart";
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/data_tab_section_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
@@ -23,6 +24,7 @@ import "../../widgets/irma_card.dart";
 import "../../widgets/irma_icon_button.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
+import "../accounts/bank_accounts_list.dart";
 
 class DataTab extends ConsumerStatefulWidget {
   @override
@@ -48,6 +50,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final section = ref.watch(dataTabSectionProvider);
 
     if (_searchActive) {
       return Scaffold(
@@ -68,27 +71,51 @@ class _DataTabState extends ConsumerState<DataTab> {
       appBar: IrmaAppBar(
         titleTranslationKey: "home.nav_bar.data",
         leading: null,
+        // the section tabs below continue the app bar and carry the border
+        hasBorder: false,
         actions: [
-          IrmaIconButton(
-            key: const Key("search_button"),
-            icon: CupertinoIcons.search,
-            size: 28,
-            semanticsLabelKey: "accessibility.search_data",
-            onTap: _openSearch,
-          ),
-          IrmaIconButton(
-            key: _addDataButtonKey,
-            icon: CupertinoIcons.add_circled_solid,
-            size: 28,
-            semanticsLabelKey: "accessibility.obtain_data",
-            onTap: context.pushAddDataScreen,
-          ),
+          if (section == .credentials)
+            IrmaIconButton(
+              key: const Key("search_button"),
+              icon: CupertinoIcons.search,
+              size: 28,
+              semanticsLabelKey: "accessibility.search_data",
+              onTap: _openSearch,
+            ),
+          if (section == .credentials)
+            IrmaIconButton(
+              key: _addDataButtonKey,
+              icon: CupertinoIcons.add_circled_solid,
+              size: 28,
+              semanticsLabelKey: "accessibility.obtain_data",
+              onTap: context.pushAddDataScreen,
+            )
+          else
+            IrmaIconButton(
+              key: const Key("add_bank_account_button"),
+              icon: CupertinoIcons.add_circled_solid,
+              size: 28,
+              semanticsLabelKey: "accounts.add",
+              onTap: context.pushAddBankAccountScreen,
+            ),
         ],
       ),
       body: SafeArea(
-        child: SizedBox(
-          height: double.infinity,
-          child: _AllCredentialsList(addDataButtonKey: _addDataButtonKey),
+        child: Column(
+          children: [
+            _SectionSwitch(
+              selected: section,
+              onChanged: ref.read(dataTabSectionProvider.notifier).set,
+            ),
+            Expanded(
+              child: switch (section) {
+                .credentials => _AllCredentialsList(
+                  addDataButtonKey: _addDataButtonKey,
+                ),
+                .accounts => const BankAccountsList(),
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -114,6 +141,71 @@ class _DataTabState extends ConsumerState<DataTab> {
 }
 
 // ============================================================================================
+
+/// Switches the data tab between the credentials and the bank accounts: two
+/// tabs that continue the app bar, the selected one underlined.
+class _SectionSwitch extends StatelessWidget {
+  const _SectionSwitch({required this.selected, required this.onChanged});
+
+  final DataTabSection selected;
+  final ValueChanged<DataTabSection> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.light,
+        border: Border(bottom: BorderSide(color: theme.tertiary)),
+      ),
+      child: Row(
+        children: [
+          _tab(context, .credentials, "data_tab.sections.credentials"),
+          _tab(context, .accounts, "data_tab.sections.accounts"),
+        ],
+      ),
+    );
+  }
+
+  Widget _tab(
+    BuildContext context,
+    DataTabSection section,
+    String translationKey,
+  ) {
+    final theme = IrmaTheme.of(context);
+    final isSelected = section == selected;
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        child: InkWell(
+          key: Key("data_tab_section_${section.name}"),
+          onTap: () => onChanged(section),
+          child: Container(
+            height: 46,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  width: 3,
+                  color: isSelected ? theme.primary : Colors.transparent,
+                ),
+              ),
+            ),
+            child: TranslatedText(
+              translationKey,
+              style: theme.themeData.textTheme.headlineMedium!.copyWith(
+                fontSize: 16,
+                color: isSelected ? theme.dark : theme.neutralDark,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 // Image of a man that always points towards the add data button to indicate that button should be pressed
 class _ToAddDataButtonPointingImage extends StatefulWidget {

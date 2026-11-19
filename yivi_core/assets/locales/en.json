@@ -446,6 +446,100 @@
     "empty": {
       "title": "Obtain your personal data",
       "subtitle": "Tap on the plus icon to obtain your personal data."
+    },
+    "sections": {
+      "credentials": "Data",
+      "accounts": "Accounts"
+    }
+  },
+  "accounts": {
+    "add": "Add account",
+    "unknown_bank": "Bank",
+    "total": "Total balance of {count} accounts",
+    "updated": "Updated {moment}",
+    "empty": {
+      "title": "Your bank accounts",
+      "subtitle": "Add an account to see your balance and recent transactions here. You log in at your own bank."
+    },
+    "privacy_note": "Your account data is fetched from your bank when you open this screen. It is not stored in the Yivi app.",
+    "connect_failed": "Adding your account did not work. Try again.",
+    "load_failed": "Your accounts could not be loaded. Check your internet connection.",
+    "refresh": {
+      "busy": "Updating…",
+      "limit": "{bank} was updated a moment ago. Try again later.",
+      "failed": "Updating did not work. Try again later."
+    },
+    "status": {
+      "pending": "Fetching your accounts…",
+      "failed": "Connecting to this bank failed. Remove it and add your account again.",
+      "gone": "The connection with this bank has expired. Remove it and add your account again.",
+      "no_accounts": "This bank did not share any accounts.",
+      "remove": "Remove"
+    },
+    "options": {
+      "title": "Account options",
+      "refresh": "Update",
+      "refresh_explanation": "Fetches the latest balance and transactions from {bank}. This updates all your accounts at this bank.",
+      "copy": "Copy account number",
+      "copied": "Account number copied",
+      "remove": "Remove account",
+      "remove_explanation": "The account disappears from Yivi. Your other accounts at {bank} stay.",
+      "remove_explanation_last": "The account disappears from Yivi and the connection with {bank} is ended."
+    },
+    "remove": {
+      "title": "Remove account?",
+      "explanation": "This account will no longer be shown in Yivi. The connection with {bank} stays for your other accounts.",
+      "explanation_last": "This account will no longer be shown in Yivi and the connection with {bank} is ended. You can add the account again later.",
+      "failed": "Removing the account did not work. Try again."
+    },
+    "details": {
+      "title": "Account",
+      "balance": "Balance",
+      "valid_until": "Connected until {date}",
+      "transactions": "Transactions",
+      "no_transactions": "No transactions in the last 90 days.",
+      "load_failed": "The transactions could not be loaded."
+    },
+    "choose_bank": {
+      "title": "Choose your bank",
+      "explanation": "Choose the bank of the account you want to add. You then log in at your bank to give permission.",
+      "provider_note": "The connection with your bank is made by enablenow, a licensed account information service. Yivi never sees your login details.",
+      "load_failed": "The banks could not be loaded. Check your internet connection."
+    },
+    "analysis": {
+      "title": "Analyse accounts",
+      "choose_bank": "Which bank do you want to analyse?",
+      "add_failed": "Adding to Yivi did not work. Try again.",
+      "entry": {
+        "title": "Analyse accounts",
+        "subtitle": "Add your income and expenses to Yivi as data you can share."
+      },
+      "intro": {
+        "header": "Turn your accounts into data",
+        "explanation": "Yivi can work out your income and expenses from your transactions, so you can prove them without sharing bank statements.",
+        "step_transactions": "Your transactions of the last 12 months at {bank} are sorted into categories.",
+        "step_averages": "Per category you get one amount: the average per month.",
+        "step_choose": "You see the result first and choose what to add to Yivi.",
+        "privacy_note": "The analysis is done by enablenow, the service that connects your bank. Individual transactions are never added to Yivi.",
+        "start": "Start analysis"
+      },
+      "progress": {
+        "header": "Analysing your transactions…",
+        "explanation": "This usually takes less than a minute. Keep this screen open."
+      },
+      "review": {
+        "explanation": "This is what the analysis found. Choose what you want to add to Yivi.",
+        "period": "Averages per month over {months} months, from {start} to {end}.",
+        "per_month": "{amount} / month",
+        "nothing_found": "Nothing found in this category.",
+        "add": "Add to Yivi"
+      },
+      "failed": {
+        "no_transactions": "There are no transactions to analyse at this bank.",
+        "rate_limit": "You started an analysis too often. Try again later.",
+        "timeout": "The analysis is taking longer than expected. Try again later.",
+        "other": "The analysis did not work. Try again."
+      }
     }
   },
   "issuance": {
