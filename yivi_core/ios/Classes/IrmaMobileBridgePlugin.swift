@@ -76,12 +76,28 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
     private func handle(url: URL) -> Bool {
         let urlStr = url.absoluteString
         if appReady {
-            channel.invokeMethod("HandleURLEvent", arguments: "{\"url\": \"\(urlStr)\"}")
+            channel.invokeMethod(
+                "HandleURLEvent",
+                arguments: IrmaMobileBridgePlugin.handleURLEventPayload(url: urlStr, isInitialURL: false))
         } else {
             // Picked up by the AppReadyEvent handler, which tags it isInitialURL.
             initialURL = urlStr
         }
         return true
+    }
+
+    /// The JSON payload of a HandleURLEvent. The URL comes from another app or a web
+    /// page, so it is encoded as a JSON string instead of pasted into one: a URL with a
+    /// quote in it must not be able to add fields to the event or break it.
+    static func handleURLEventPayload(url: String, isInitialURL: Bool) -> String {
+        var payload: [String: Any] = ["url": url]
+        if isInitialURL {
+            payload["isInitialURL"] = true
+        }
+        guard let data = try? JSONSerialization.data(withJSONObject: payload),
+            let json = String(data: data, encoding: .utf8)
+        else { return "{}" }
+        return json
     }
 
     /// The URL of the first web-browsing activity in `activities`, if there is one.
@@ -114,7 +130,9 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
     ///   - call: Object that specifies the method that should be handled and the corresponding arguments
     ///   - result: Result callback
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+#if DEBUG
         NSLog("handling \(call.method)")
+#endif
 
         if nativeError != nil {
             channel.invokeMethod("ErrorEvent", arguments: nativeError)
@@ -135,7 +153,8 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
             appReady = true
             if let initialURL = initialURL {
                 channel.invokeMethod(
-                    "HandleURLEvent", arguments: "{\"isInitialURL\": true, \"url\": \"\(initialURL)\"}")
+                    "HandleURLEvent",
+                    arguments: IrmaMobileBridgePlugin.handleURLEventPayload(url: initialURL, isInitialURL: true))
             }
             // Acknowledge the launch handshake AFTER any initial URL, so the UI
             // knows the launch URL (if any) has been delivered. Channel messages

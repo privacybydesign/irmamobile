@@ -65,6 +65,8 @@ jobs:
           fi
 
           echo "Versions are in sync."
+      - name: Check security configuration
+        run: ./ci_scripts/check_security_config.sh
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane lint
@@ -274,7 +276,11 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
-          path: ./fastlane/build/*
+          # Not the whole directory: the Dart symbols of the build are in it too,
+          # and they must not travel with the app.
+          path: |
+            ./fastlane/build/*.apk
+            ./fastlane/build/*.aab
 
   # The integration tests run on Firebase Test Lab. They have been switched off since
   # May 2026 (they were `if: false`); set the repository variable

@@ -63,6 +63,10 @@ class _DateInputFieldState extends State<DateInputField> {
       controller: widget.controller,
       readOnly: false,
       keyboardType: .number,
+      autocorrect: false,
+      enableSuggestions: false,
+      // No learning from what is typed (Gboard's incognito mode on Android).
+      enableIMEPersonalizedLearning: false,
       textInputAction: .next,
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,

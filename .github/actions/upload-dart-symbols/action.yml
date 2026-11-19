@@ -1,0 +1,67 @@
+name: Upload Dart symbols to Sentry
+description: >
+  Uploads the symbols of an obfuscated build to Sentry, so the Dart frames of its
+  crash reports show function names instead of addresses.
+inputs:
+  auth-token:
+    description: Sentry auth token that may upload debug files. Without it the upload is skipped.
+    required: false
+    default: ""
+  org:
+    description: Slug of the Sentry organisation.
+    required: false
+    default: ""
+  project:
+    description: Slug of the Sentry project.
+    required: false
+    default: ""
+  url:
+    description: Address of the Sentry instance, when it is not sentry.io.
+    required: false
+    default: ""
+  path:
+    description: Directory `flutter build --split-debug-info` wrote the symbols to.
+    required: false
+    default: yivi_app/build/dart-symbols
+runs:
+  using: composite
+  steps:
+    # Not a failure: the symbols are also kept as a build artifact, and a crash
+    # report can be made readable by hand with `flutter symbolize`.
+    - name: Skip when Sentry is not configured
+      if: inputs.auth-token == '' || inputs.org == '' || inputs.project == ''
+      shell: bash
+      run: echo "::warning::Dart symbols not uploaded to Sentry, SENTRY_AUTH_TOKEN, SENTRY_ORG or SENTRY_PROJECT is not set. Dart frames of this build stay unreadable in Sentry."
+    - name: Download sentry-cli
+      if: inputs.auth-token != '' && inputs.org != '' && inputs.project != ''
+      shell: bash
+      env:
+        # Pinned by version and checksum, like the actions are pinned to a commit.
+        # The checksums are the digests GitHub lists for the release assets.
+        SENTRY_CLI_VERSION: "3.8.2"
+        SHA256_LINUX_X64: c958865f9d4000183509ea21b1f04925d5390de6d8d87386b9e69f2b305070c3
+        SHA256_MACOS: 2d1b118fa46960ba5e8e0cca9a6e197366905776a0ddc5a89c7d05a3908b77db
+      run: |
+        case "$RUNNER_OS-$RUNNER_ARCH" in
+          Linux-X64) asset=sentry-cli-Linux-x86_64; sha256=$SHA256_LINUX_X64 ;;
+          macOS-*) asset=sentry-cli-Darwin-universal; sha256=$SHA256_MACOS ;;
+          *) echo "::error::No sentry-cli pinned for $RUNNER_OS-$RUNNER_ARCH"; exit 1 ;;
+        esac
+        curl --fail --silent --show-error --location --retry 3 \
+          --output "$RUNNER_TEMP/sentry-cli" \
+          "https://github.com/getsentry/sentry-cli/releases/download/$SENTRY_CLI_VERSION/$asset"
+        echo "$sha256  $RUNNER_TEMP/sentry-cli" | shasum -a 256 --check
+        chmod +x "$RUNNER_TEMP/sentry-cli"
+    - name: Upload Dart symbols
+      if: inputs.auth-token != '' && inputs.org != '' && inputs.project != ''
+      shell: bash
+      env:
+        SENTRY_AUTH_TOKEN: ${{ inputs.auth-token }}
+        SENTRY_ORG: ${{ inputs.org }}
+        SENTRY_PROJECT: ${{ inputs.project }}
+        SENTRY_URL: ${{ inputs.url }}
+        SYMBOLS_PATH: ${{ inputs.path }}
+      run: |
+        # An empty SENTRY_URL is not the same as none.
+        if [ -z "$SENTRY_URL" ]; then unset SENTRY_URL; fi
+        "$RUNNER_TEMP/sentry-cli" debug-files upload "$SYMBOLS_PATH"

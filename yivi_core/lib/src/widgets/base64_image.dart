@@ -19,6 +19,13 @@ class Base64Image extends StatefulWidget {
   State<Base64Image> createState() => _Base64ImageState();
 }
 
+/// The largest SVG [Base64Image] draws. Logos and attribute images come from
+/// issuers and verifiers, and flutter_svg parses an SVG on the UI thread, so an
+/// oversized one could stall the app. Large enough for an SVG with an embedded
+/// bitmap, as Open Badges images often are; a larger SVG is not drawn, like any
+/// other image that cannot be shown.
+const maxSvgBytes = 1024 * 1024;
+
 class _Base64ImageState extends State<Base64Image> {
   late final Uint8List? _bytes = _decode(widget.base64);
   late final bool _isSvg = _bytes != null && _detectSvg(_bytes);
@@ -71,6 +78,7 @@ class _Base64ImageState extends State<Base64Image> {
     final bytes = _bytes;
     if (bytes == null) return const SizedBox.shrink();
     if (_isSvg) {
+      if (bytes.length > maxSvgBytes) return const SizedBox.shrink();
       return SvgPicture.memory(
         bytes,
         fit: widget.fit ?? BoxFit.contain,
