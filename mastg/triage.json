@@ -43,6 +43,12 @@
    "test": "MASTG-TEST-0307",
    "match": "new KeyGenParameterSpec.Builder(str, 4)"
   },
+  "mastg-android-asymmetric-key-pair-used-for-multiple-purposes:cedb04a6e052": {
+   "decision": "ok",
+   "reason": "Library code: a helper of androidx.biometric with one caller, which builds the symmetric AES key \"androidxBiometric\" (purposes 1 and 2) for its fake crypto object. Not an asymmetric key pair. The match shows variables because the values are passed in by that caller.",
+   "test": "MASTG-TEST-0307",
+   "match": "new KeyGenParameterSpec.Builder(str, i)"
+  },
   "yivi-android-exported-services:71a264303e3b": {
    "decision": "ok",
    "reason": "Library component of Google Play services, protected by a permission, as the match shows.",
