@@ -17,6 +17,9 @@ import "src/providers/app_integrity_provider.dart";
 import "src/providers/device_security_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
+import "src/screens/accounts/add_bank_account_screen.dart";
+import "src/screens/accounts/bank_account_details_screen.dart";
+import "src/screens/accounts/bank_analysis_screen.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "src/screens/add_data/schemaless_add_data_screen.dart";
@@ -159,6 +162,25 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               final logEntry = state.extra as LogInfo;
               return ActivityDetailsScreen(
                 args: ActivityDetailsScreenArgs(logEntry: logEntry),
+              );
+            },
+          ),
+          GoRoute(
+            path: "add_bank_account",
+            builder: (context, state) => const AddBankAccountScreen(),
+          ),
+          GoRoute(
+            path: "bank_analysis",
+            builder: (context, state) =>
+                BankAnalysisScreen(consentId: state.extra as String),
+          ),
+          GoRoute(
+            path: "bank_account_details",
+            builder: (context, state) {
+              final params = state.extra as BankAccountDetailsRouteParams;
+              return BankAccountDetailsScreen(
+                consentId: params.consentId,
+                accountId: params.accountId,
               );
             },
           ),

@@ -447,6 +447,100 @@
     "empty": {
       "title": "Holen Sie sich Ihre persönlichen Daten",
       "subtitle": "Tippen Sie auf das Plus-Symbol, um Ihre persönlichen Daten abzurufen."
+    },
+    "sections": {
+      "credentials": "Daten",
+      "accounts": "Konten"
+    }
+  },
+  "accounts": {
+    "add": "Konto hinzufügen",
+    "unknown_bank": "Bank",
+    "total": "Gesamtsaldo von {count} Konten",
+    "updated": "Aktualisiert {moment}",
+    "empty": {
+      "title": "Deine Bankkonten",
+      "subtitle": "Füge ein Konto hinzu, um hier deinen Kontostand und deine letzten Transaktionen zu sehen. Du meldest dich bei deiner eigenen Bank an."
+    },
+    "privacy_note": "Deine Kontodaten werden bei deiner Bank abgerufen, wenn du diesen Bildschirm öffnest. Sie werden nicht in der Yivi-App gespeichert.",
+    "connect_failed": "Das Hinzufügen deines Kontos hat nicht funktioniert. Versuche es erneut.",
+    "load_failed": "Deine Konten konnten nicht geladen werden. Prüfe deine Internetverbindung.",
+    "refresh": {
+      "busy": "Wird aktualisiert…",
+      "limit": "{bank} wurde gerade erst aktualisiert. Versuche es später erneut.",
+      "failed": "Das Aktualisieren hat nicht funktioniert. Versuche es später erneut."
+    },
+    "status": {
+      "pending": "Deine Konten werden abgerufen…",
+      "failed": "Die Verbindung mit dieser Bank ist fehlgeschlagen. Entferne sie und füge dein Konto erneut hinzu.",
+      "gone": "Die Verbindung mit dieser Bank ist abgelaufen. Entferne sie und füge dein Konto erneut hinzu.",
+      "no_accounts": "Diese Bank hat keine Konten geteilt.",
+      "remove": "Entfernen"
+    },
+    "options": {
+      "title": "Kontooptionen",
+      "refresh": "Aktualisieren",
+      "refresh_explanation": "Ruft den neuesten Kontostand und die neuesten Transaktionen bei {bank} ab. Das aktualisiert alle deine Konten bei dieser Bank.",
+      "copy": "Kontonummer kopieren",
+      "copied": "Kontonummer kopiert",
+      "remove": "Konto entfernen",
+      "remove_explanation": "Das Konto verschwindet aus Yivi. Deine anderen Konten bei {bank} bleiben.",
+      "remove_explanation_last": "Das Konto verschwindet aus Yivi und die Verbindung mit {bank} wird beendet."
+    },
+    "remove": {
+      "title": "Konto entfernen?",
+      "explanation": "Dieses Konto wird nicht mehr in Yivi angezeigt. Die Verbindung mit {bank} bleibt für deine anderen Konten bestehen.",
+      "explanation_last": "Dieses Konto wird nicht mehr in Yivi angezeigt und die Verbindung mit {bank} wird beendet. Du kannst das Konto später erneut hinzufügen.",
+      "failed": "Das Entfernen des Kontos hat nicht funktioniert. Versuche es erneut."
+    },
+    "details": {
+      "title": "Konto",
+      "balance": "Kontostand",
+      "valid_until": "Verbunden bis {date}",
+      "transactions": "Transaktionen",
+      "no_transactions": "Keine Transaktionen in den letzten 90 Tagen.",
+      "load_failed": "Die Transaktionen konnten nicht geladen werden."
+    },
+    "choose_bank": {
+      "title": "Wähle deine Bank",
+      "explanation": "Wähle die Bank des Kontos, das du hinzufügen möchtest. Danach meldest du dich bei deiner Bank an, um zuzustimmen.",
+      "provider_note": "Die Verbindung mit deiner Bank wird von enablenow hergestellt, einem lizenzierten Kontoinformationsdienst. Yivi sieht deine Anmeldedaten nie.",
+      "load_failed": "Die Banken konnten nicht geladen werden. Prüfe deine Internetverbindung."
+    },
+    "analysis": {
+      "title": "Konten analysieren",
+      "choose_bank": "Welche Bank möchtest du analysieren?",
+      "add_failed": "Das Hinzufügen zu Yivi hat nicht funktioniert. Versuche es erneut.",
+      "entry": {
+        "title": "Konten analysieren",
+        "subtitle": "Füge deine Einnahmen und Ausgaben zu Yivi hinzu, als Daten, die du teilen kannst."
+      },
+      "intro": {
+        "header": "Mach Daten aus deinen Konten",
+        "explanation": "Yivi kann deine Einnahmen und Ausgaben aus deinen Transaktionen ableiten. So kannst du sie nachweisen, ohne Kontoauszüge zu teilen.",
+        "step_transactions": "Deine Transaktionen der letzten 12 Monate bei {bank} werden in Kategorien eingeteilt.",
+        "step_averages": "Pro Kategorie erhältst du einen Betrag: den Durchschnitt pro Monat.",
+        "step_choose": "Du siehst zuerst das Ergebnis und wählst, was du zu Yivi hinzufügst.",
+        "privacy_note": "Die Analyse wird von enablenow durchgeführt, dem Dienst, der deine Bank verbindet. Einzelne Transaktionen werden nie zu Yivi hinzugefügt.",
+        "start": "Analyse starten"
+      },
+      "progress": {
+        "header": "Deine Transaktionen werden analysiert…",
+        "explanation": "Das dauert meist weniger als eine Minute. Lass diesen Bildschirm geöffnet."
+      },
+      "review": {
+        "explanation": "Das hat die Analyse ergeben. Wähle, was du zu Yivi hinzufügen möchtest.",
+        "period": "Durchschnitte pro Monat über {months} Monate, von {start} bis {end}.",
+        "per_month": "{amount} / Monat",
+        "nothing_found": "In dieser Kategorie wurde nichts gefunden.",
+        "add": "Zu Yivi hinzufügen"
+      },
+      "failed": {
+        "no_transactions": "Bei dieser Bank gibt es keine Transaktionen zum Analysieren.",
+        "rate_limit": "Du hast zu oft eine Analyse gestartet. Versuche es später erneut.",
+        "timeout": "Die Analyse dauert länger als erwartet. Versuche es später erneut.",
+        "other": "Die Analyse hat nicht funktioniert. Versuche es erneut."
+      }
     }
   },
   "issuance": {

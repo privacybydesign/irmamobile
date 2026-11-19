@@ -72,6 +72,14 @@ class IrmaPreferences {
          _credentialOrderKey,
          defaultValue: [],
        ),
+       _bankConsentIds = preferences.getStringList(
+         _bankConsentIdsKey,
+         defaultValue: [],
+       ),
+       _hiddenBankAccounts = preferences.getStringList(
+         _hiddenBankAccountsKey,
+         defaultValue: [],
+       ),
        _reviewSuccessCount = preferences.getInt(
          _reviewSuccessCountKey,
          defaultValue: 0,
@@ -193,6 +201,19 @@ class IrmaPreferences {
   static const String _credentialOrderKey = "preference.credential_order";
   // list of credential ids stored as json string
   final Preference<List<String>> _credentialOrder;
+
+  /// The consents of the bank connections shown in the accounts section. A
+  /// consent id is all that is needed to read the accounts of that consent, so
+  /// it never leaves the device except as a credential to the PSD2 issuer.
+  static const String _bankConsentIdsKey = "preference.bank_consent_ids";
+  final Preference<List<String>> _bankConsentIds;
+
+  /// Accounts the user removed while other accounts of the same bank
+  /// connection are still shown, as `consentId/accountId`. A single
+  /// account cannot be removed from a consent, so it is hidden instead.
+  static const String _hiddenBankAccountsKey =
+      "preference.hidden_bank_accounts";
+  final Preference<List<String>> _hiddenBankAccounts;
 
   // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
   // All wiped by clearAll(), so a logout/reset restarts the whole flow.
@@ -327,6 +348,16 @@ class IrmaPreferences {
 
   Future<bool> setCredentialOrder(List<String> order) =>
       _credentialOrder.setValue(order);
+
+  List<String> getBankConsentIds() => _bankConsentIds.getValue();
+
+  Future<bool> setBankConsentIds(List<String> consentIds) =>
+      _bankConsentIds.setValue(consentIds);
+
+  List<String> getHiddenBankAccounts() => _hiddenBankAccounts.getValue();
+
+  Future<bool> setHiddenBankAccounts(List<String> accounts) =>
+      _hiddenBankAccounts.setValue(accounts);
 
   // --- App-store review prompt ----------------------------------------------
 
