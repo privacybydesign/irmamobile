@@ -7,6 +7,8 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import foundation.privacybydesign.yivi_core.digitalcredentials.DigitalCredentialsRegistrar;
+import foundation.privacybydesign.yivi_core.irma_mobile_bridge.DigitalCredentialsHost;
 import foundation.privacybydesign.yivi_core.irma_mobile_bridge.IrmaMobileBridge;
 import foundation.privacybydesign.yivi_core.plugins.app_integrity.AppIntegrityPlugin;
 import foundation.privacybydesign.yivi_core.plugins.device_security.DeviceSecurityPlugin;
@@ -85,6 +87,11 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         // Don't create the bridge yet; we don't have an Activity.
         // We'll create it in onAttachedToActivity().
 
+        // Advertise Yivi to the Credential Manager as an OpenID4VP Digital
+        // Credentials provider so verifier requests can reach it. Idempotent and
+        // self-guarding, so it is safe to call on every engine attach.
+        DigitalCredentialsRegistrar.register(applicationContext);
+
         webBrowser = new IIABPlugin();
         webBrowser.onAttachedToEngine(binding);
 
@@ -129,6 +136,14 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
             Intent launchIntent = activity.getIntent();
             Uri data = shouldDropDeepLink(launchIntent) ? null : launchIntent.getData();
             bridge = new IrmaMobileBridge(applicationContext, activity, channel, data);
+            // When the app was launched to fulfil a W3C Digital Credentials API
+            // request, the launching Activity is the credential-provider host: it
+            // holds the request to deliver to Dart and the Intent the platform
+            // reads its answer from. Wire it up before the app-ready handshake.
+            if (activity instanceof DigitalCredentialsHost) {
+                DigitalCredentialsHost host = (DigitalCredentialsHost) activity;
+                bridge.setDigitalCredentials(host.getDigitalCredentialsRequestJson(), host);
+            }
             channel.setMethodCallHandler(bridge);
         }
     }

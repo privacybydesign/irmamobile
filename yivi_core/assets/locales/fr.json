@@ -377,7 +377,9 @@
       "blocked": "Votre appli Yivi a été bloquée à distance. Cela a été fait soit via MyYivi, soit parce que vous n'avez pas utilisé Yivi sur cet appareil depuis plus d'un an. Si vous souhaitez continuer à utiliser Yivi sur cet appareil, vous devrez tout recommencer.",
       "expired": "La session a expiré. Veuillez recommencer.",
       "pairing_rejected": "La session a été refusée. Veuillez recommencer.",
-      "no_internet": "Veuillez vérifier que votre appareil dispose d'une connexion internet fonctionnelle."
+      "no_internet": "Veuillez vérifier que votre appareil dispose d'une connexion internet fonctionnelle.",
+      "credential_unavailable_title": "Vous n'avez pas ces données",
+      "credential_unavailable": "Le site web a demandé des données que vous n'avez pas dans Yivi, et il n'existe aucun moyen connu de les obtenir."
     }
   },
   "help": {

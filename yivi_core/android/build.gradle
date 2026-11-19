@@ -65,6 +65,16 @@ android {
         implementation "androidx.browser:browser:1.3.0"
         implementation "com.scottyab:rootbeer-lib:0.1.1"
 
+        // W3C Digital Credentials API registration: makes Yivi discoverable to
+        // the Credential Manager for OpenID4VP requests. registry-provider carries
+        // RegistryManager; -play-services is the GMS backend that actually stores
+        // the registration; -openid supplies the OpenID4VP registry + its bundled
+        // matcher; -sdjwtvc supplies the SD-JWT entry types Yivi credentials map to.
+        implementation "androidx.credentials.registry:registry-provider:1.0.0-alpha05"
+        implementation "androidx.credentials.registry:registry-provider-play-services:1.0.0-alpha05"
+        implementation "androidx.credentials.registry:registry-digitalcredentials-openid:1.0.0-alpha05"
+        implementation "androidx.credentials.registry:registry-digitalcredentials-sdjwtvc:1.0.0-alpha05"
+
         androidTestImplementation 'androidx.test:runner:1.1.0'
         androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
     }

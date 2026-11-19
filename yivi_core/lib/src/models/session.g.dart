@@ -35,6 +35,7 @@ Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) =>
       'protocol': protocolToString(instance.protocol),
       'continue_on_second_device': instance.continueOnSecondDevice,
       'openid4vci_redirect_uri': ?instance.openid4vciRedirectUri,
+      'dc_api': ?instance.dcApi,
     };
 
 SessionError _$SessionErrorFromJson(Map<String, dynamic> json) => SessionError(

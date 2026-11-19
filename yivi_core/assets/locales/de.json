@@ -377,7 +377,9 @@
       "blocked": "Ihre Yivi-App wurde gesperrt. Dies wurde entweder über 'Mijn Yivi' durchgeführt oder weil Sie Yivi auf diesem Gerät mehr als ein Jahr lang nicht verwendet haben. Wenn Sie Yivi auf diesem Gerät weiter nutzen möchten, müssen Sie die Yivi erneut einrichten.",
       "expired": "Die Sitzung ist abgelaufen. Bitte beginnen Sie von vorne.",
       "pairing_rejected": "Die Sitzung wurde abgelehnt. Bitte beginnen Sie von vorne.",
-      "no_internet": "Bitte stellen Sie sicher, dass Ihr Gerät eine funktionierende Internetverbindung hat."
+      "no_internet": "Bitte stellen Sie sicher, dass Ihr Gerät eine funktionierende Internetverbindung hat.",
+      "credential_unavailable_title": "Sie haben diese Daten nicht",
+      "credential_unavailable": "Die Website hat nach Daten gefragt, die Sie nicht in Yivi haben, und es ist kein Weg bekannt, diese zu erhalten."
     }
   },
   "help": {
