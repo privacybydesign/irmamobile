@@ -4,8 +4,10 @@ import "dart:io";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/models/irma_configuration.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/models/translated_value.dart";
 import "package:yivi_core/src/screens/error/session_error_screen.dart";
 import "package:yivi_core/src/screens/need_help/help_problem.dart";
 import "package:yivi_core/src/screens/need_help/need_help_screen.dart";
@@ -48,6 +50,39 @@ SupportParty _org({bool isYivi = false}) => SupportParty(
   email: "info@stichtingcis.nl",
   isYivi: isYivi,
 );
+
+/// Kavelwinkel Almere as the scheme has it: a requestor without an issuer,
+/// on a hostname of its supplier. The site behind that hostname is not the
+/// organisation's.
+SupportParty _kavelwinkel({String? supportEmail, String? supportUrl}) =>
+    SupportParty.resolve(
+      TrustedParty(
+        id: "pbdf-requestors.kavelwinkel-almere",
+        name: "Kavelwinkel Almere",
+        url: null,
+        parent: null,
+        verified: true,
+      ),
+      IrmaConfiguration(
+        schemeManagers: const {},
+        requestorSchemes: const {},
+        requestors: {
+          "almere-irma-prod.level-level.nl": RequestorInfo(
+            id: "pbdf-requestors.kavelwinkel-almere",
+            name: const TranslatedValue.empty(),
+            hostnames: const ["almere-irma-prod.level-level.nl"],
+            unverified: false,
+            supportEmail: supportEmail,
+            supportUrl: supportUrl,
+          ),
+        },
+        issuers: const {},
+        credentialTypes: const {},
+        attributeTypes: const {},
+        issueWizards: const {},
+        path: "",
+      ),
+    )!;
 
 HelpContext _context(
   HelpProblem problem, {
@@ -260,6 +295,70 @@ void main() {
     );
     expect(_openWebsite, findsOneWidget);
     expect(_yiviFallback, findsOneWidget);
+  });
+
+  testWidgets("a requestor without a support address in the scheme", (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      NeedHelpContactScreen(
+        problem: HelpProblems.outcome,
+        organisation: _kavelwinkel(),
+      ),
+    );
+    // Only its supplier's site is known, so Yivi stays within reach.
+    expect(find.text("level-level.nl"), findsOneWidget);
+    expect(_openWebsite, findsOneWidget);
+    expect(_mailOrganisation, findsNothing);
+    expect(_yiviFallback, findsOneWidget);
+  });
+
+  testWidgets("a support address in the scheme gets the mail button", (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      NeedHelpContactScreen(
+        problem: HelpProblems.outcome,
+        organisation: _kavelwinkel(
+          supportEmail: "kavelwinkel@almere.example",
+          supportUrl: "https://almere.example/kavelwinkel/contact",
+        ),
+      ),
+    );
+    expect(find.text("kavelwinkel@almere.example"), findsOneWidget);
+    expect(_mailOrganisation, findsOneWidget);
+    expect(
+      find.text(
+        t("need_help.organisation.send_email", {"org": "Kavelwinkel Almere"}),
+      ),
+      findsOneWidget,
+    );
+    // Its support page is the link below, and the supplier's site is gone.
+    expect(_websiteLink, findsOneWidget);
+    expect(_openWebsite, findsNothing);
+    expect(find.text("level-level.nl"), findsNothing);
+    // The organisation is the one way forward.
+    expect(_yiviFallback, findsNothing);
+  });
+
+  testWidgets("a support page in the scheme is not a guessed website", (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      NeedHelpContactScreen(
+        problem: HelpProblems.outcome,
+        organisation: _kavelwinkel(
+          supportUrl: "https://almere.example/kavelwinkel/contact",
+        ),
+      ),
+    );
+    expect(find.text("almere.example"), findsOneWidget);
+    expect(_openWebsite, findsOneWidget);
+    expect(_mailOrganisation, findsNothing);
+    expect(_yiviFallback, findsNothing);
   });
 
   test("the mail to an organisation names the problem and the error code", () {
