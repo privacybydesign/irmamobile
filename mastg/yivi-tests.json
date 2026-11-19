@@ -1,0 +1,247 @@
+{
+ "_comment": "Our own tests for requirements of the profile. These are not OWASP tests and are scored apart from them. See README.md.",
+ "tests": [
+  {
+   "id": "YIVI-TEST-0001",
+   "title": "No code is loaded at run time in the Android code",
+   "requirements": [
+    49
+   ],
+   "platform": "android",
+   "type": [
+    "static",
+    "code"
+   ],
+   "description": "The Android code of the app and its own plugins does not load code at run time. Libraries are not covered.",
+   "checks": [
+    {
+     "id": "yivi-no-runtime-code-loading",
+     "target": "source",
+     "engine": "regex",
+     "mode": "absent",
+     "title": "A finding is a class loader or System.load call in our Android code.",
+     "files": [
+      "yivi_core/android/src/main/**/*.java",
+      "yivi_core/android/src/main/**/*.kt",
+      "yivi_app/android/app/src/main/**/*.java",
+      "yivi_app/android/app/src/main/**/*.kt",
+      "yivi_fdroid/android/app/src/main/**/*.kt",
+      "yivi_fdroid/android/app/src/main/**/*.java"
+     ],
+     "pattern": "\\b(DexClassLoader|PathClassLoader|InMemoryDexClassLoader)\\b|System\\.load\\("
+    }
+   ]
+  },
+  {
+   "id": "YIVI-TEST-0002",
+   "title": "Clipboard writes in the Dart code",
+   "requirements": [
+    30
+   ],
+   "platform": "all",
+   "type": [
+    "static",
+    "code"
+   ],
+   "description": "Lists every place where the Dart code writes to the clipboard, so that each one is a recorded decision.",
+   "checks": [
+    {
+     "id": "yivi-clipboard-writes",
+     "target": "source",
+     "engine": "regex",
+     "mode": "triage",
+     "title": "A finding is a write to the clipboard; a person checks what is copied.",
+     "files": [
+      "yivi_core/lib/**/*.dart",
+      "yivi_app/lib/**/*.dart",
+      "yivi_fdroid/lib/**/*.dart"
+     ],
+     "pattern": "Clipboard\\.setData\\([^;]*"
+    }
+   ]
+  },
+  {
+   "id": "YIVI-TEST-0003",
+   "title": "Error reports carry no default personal data",
+   "requirements": [
+    68,
+    71
+   ],
+   "platform": "all",
+   "type": [
+    "static",
+    "code"
+   ],
+   "description": "Error reporting never switches on the default personal data of Sentry, and the setting that turns it off is in place.",
+   "checks": [
+    {
+     "id": "yivi-sentry-default-pii-on",
+     "target": "source",
+     "engine": "regex",
+     "mode": "absent",
+     "title": "A finding is sendDefaultPii switched on.",
+     "files": [
+      "yivi_core/lib/**/*.dart",
+      "yivi_app/lib/**/*.dart",
+      "yivi_fdroid/lib/**/*.dart"
+     ],
+     "pattern": "sendDefaultPii\\s*=\\s*true"
+    },
+    {
+     "id": "yivi-sentry-default-pii-off",
+     "target": "source",
+     "engine": "regex",
+     "mode": "present",
+     "title": "Looks for sendDefaultPii switched off.",
+     "files": [
+      "yivi_core/lib/src/sentry/sentry.dart"
+     ],
+     "pattern": "sendDefaultPii\\s*=\\s*false"
+    }
+   ]
+  },
+  {
+   "id": "YIVI-TEST-0004",
+   "title": "Release builds obfuscate the Dart code",
+   "requirements": [
+    59
+   ],
+   "platform": "all",
+   "type": [
+    "static",
+    "code"
+   ],
+   "description": "The fastlane release builds for Android and iOS pass the obfuscation flags. The F-Droid app is not built through fastlane and is not covered.",
+   "checks": [
+    {
+     "id": "yivi-dart-obfuscation-flags",
+     "target": "source",
+     "engine": "regex",
+     "mode": "present",
+     "title": "Looks for --obfuscate with --split-debug-info in the Fastfile.",
+     "files": [
+      "fastlane/Fastfile"
+     ],
+     "pattern": "--obfuscate[\"\\s,]+--split-debug-info"
+    }
+   ]
+  },
+  {
+   "id": "YIVI-TEST-0005",
+   "title": "JavaScript channels exposed to WebViews in the Dart code",
+   "requirements": [
+    33
+   ],
+   "platform": "all",
+   "type": [
+    "static",
+    "code"
+   ],
+   "description": "Lists every JavaScript channel the Dart code gives to a WebView, so that each one is a recorded decision.",
+   "checks": [
+    {
+     "id": "yivi-webview-javascript-channels",
+     "target": "source",
+     "engine": "regex",
+     "mode": "triage",
+     "title": "A finding is a JavaScript channel given to a WebView; a person checks what it exposes.",
+     "files": [
+      "yivi_core/lib/**/*.dart",
+      "yivi_app/lib/**/*.dart",
+      "yivi_fdroid/lib/**/*.dart"
+     ],
+     "pattern": "addJavaScriptChannel\\([^;]*"
+    }
+   ]
+  },
+  {
+   "id": "YIVI-TEST-0006",
+   "title": "Detection of dynamic analysis tools is in the code",
+   "requirements": [
+    65
+   ],
+   "platform": "all",
+   "type": [
+    "static",
+    "code"
+   ],
+   "description": "The Android and iOS plugins still look for instrumentation tools such as Frida. This shows that the measure is in the code; how it behaves is covered by the unit tests in yivi_core/test/app_integrity_test.dart.",
+   "checks": [
+    {
+     "id": "yivi-instrumentation-detection-android",
+     "target": "source",
+     "engine": "regex",
+     "mode": "present",
+     "title": "Looks for the Frida markers in the Android integrity plugin.",
+     "files": [
+      "yivi_core/android/src/main/**/app_integrity/*.java"
+     ],
+     "pattern": "\"frida\""
+    },
+    {
+     "id": "yivi-instrumentation-detection-ios",
+     "target": "source",
+     "engine": "regex",
+     "mode": "present",
+     "title": "Looks for the Frida markers in the iOS integrity plugin.",
+     "files": [
+      "yivi_core/ios/Classes/AppIntegrityPlugin.swift"
+     ],
+     "pattern": "\"frida\""
+    }
+   ]
+  },
+  {
+   "id": "YIVI-TEST-0007",
+   "title": "Detection of app-cloning containers is in the code",
+   "requirements": [
+    52
+   ],
+   "platform": "android",
+   "type": [
+    "static",
+    "code"
+   ],
+   "description": "The Android plugin still checks that the app runs from its own data directory. This shows that the measure is in the code; how it behaves is covered by the Android unit test AppIntegrityPluginTest.kt.",
+   "checks": [
+    {
+     "id": "yivi-app-virtualization-detection",
+     "target": "source",
+     "engine": "regex",
+     "mode": "present",
+     "title": "Looks for the data directory check in the Android integrity plugin.",
+     "files": [
+      "yivi_core/android/src/main/**/app_integrity/*.java"
+     ],
+     "pattern": "isOwnDataDirectory\\("
+    }
+   ]
+  },
+  {
+   "id": "YIVI-TEST-0008",
+   "title": "The privacy policy is linked before enrollment",
+   "requirements": [
+    72
+   ],
+   "platform": "all",
+   "type": [
+    "static",
+    "code"
+   ],
+   "description": "The terms screen of the enrollment still links the privacy policy.",
+   "checks": [
+    {
+     "id": "yivi-privacy-policy-link",
+     "target": "source",
+     "engine": "regex",
+     "mode": "present",
+     "title": "Looks for the privacy policy link on the terms screen.",
+     "files": [
+      "yivi_core/lib/src/screens/enrollment/accept_terms/accept_terms_screen.dart"
+     ],
+     "pattern": "enrollment_privacy_policy_link"
+    }
+   ]
+  }
+ ]
+}
