@@ -22,7 +22,6 @@ Future<void> mailYiviSupport(
   required String topic,
   HelpErrorReport? errorReport,
 }) async {
-  final repo = IrmaRepositoryProvider.of(context);
   String t(String key, [Map<String, String>? params]) =>
       FlutterI18n.translate(context, key, translationParams: params);
 
@@ -60,12 +59,84 @@ Future<void> mailYiviSupport(
     ],
   ].join("\n");
 
-  // Uri(queryParameters:) encodes spaces as "+", which mail apps show as is.
-  final mail =
-      "mailto:$address"
-      "?subject=${Uri.encodeComponent(subject)}"
-      "&body=${Uri.encodeComponent(body)}";
+  if (!context.mounted) return;
+  await _openMail(
+    context,
+    mailtoUri(address: address, subject: subject, body: body),
+    errorTitle: errorTitle,
+    errorBody: errorBody,
+  );
+}
 
+/// Opens the user's mail app with a mail to an organisation's own support.
+/// The subject names the problem; the body asks for a description and adds
+/// the error code when there is one. The error report stays out: that is
+/// about the app, and only of use to Yivi support.
+Future<void> mailOrganisation(
+  BuildContext context, {
+  required String email,
+  required String topic,
+  String? errorCode,
+}) {
+  String t(String key, [Map<String, String>? params]) =>
+      FlutterI18n.translate(context, key, translationParams: params);
+
+  return _openMail(
+    context,
+    mailtoUri(
+      address: email,
+      subject: t("need_help.yivi.mail_subject", {"topic": topic}),
+      body: organisationMailBody(
+        prompt: t("need_help.yivi.mail_prompt"),
+        topicLabel: t("need_help.yivi.mail_topic"),
+        topic: topic,
+        errorCodeLabel: t("need_help.organisation.mail_error_code"),
+        errorCode: errorCode,
+        sentFrom: t("need_help.organisation.mail_sent_from"),
+      ),
+    ),
+    errorTitle: t("help.mail_error_title"),
+    errorBody: t("help.mail_error"),
+  );
+}
+
+/// The body of a mail to an organisation: room to describe the problem,
+/// then what the organisation needs to place the request.
+String organisationMailBody({
+  required String prompt,
+  required String topicLabel,
+  required String topic,
+  required String errorCodeLabel,
+  required String sentFrom,
+  String? errorCode,
+}) => [
+  prompt,
+  "",
+  "",
+  "",
+  "---",
+  "$topicLabel: $topic",
+  if (errorCode != null) "$errorCodeLabel: $errorCode",
+  sentFrom,
+].join("\n");
+
+/// Uri(queryParameters:) encodes spaces as "+", which mail apps show as is.
+String mailtoUri({
+  required String address,
+  required String subject,
+  required String body,
+}) =>
+    "mailto:$address"
+    "?subject=${Uri.encodeComponent(subject)}"
+    "&body=${Uri.encodeComponent(body)}";
+
+Future<void> _openMail(
+  BuildContext context,
+  String mail, {
+  required String errorTitle,
+  required String errorBody,
+}) async {
+  final repo = IrmaRepositoryProvider.of(context);
   try {
     await repo.openURLExternally(mail);
   } catch (_) {

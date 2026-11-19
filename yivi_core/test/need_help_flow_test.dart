@@ -10,6 +10,7 @@ import "package:yivi_core/src/screens/error/session_error_screen.dart";
 import "package:yivi_core/src/screens/need_help/help_problem.dart";
 import "package:yivi_core/src/screens/need_help/need_help_screen.dart";
 import "package:yivi_core/src/screens/need_help/support_party.dart";
+import "package:yivi_core/src/screens/need_help/yivi_support_mail.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
 import "helpers/test_translation_loader.dart";
@@ -112,6 +113,10 @@ final _contextOption = find.byKey(const Key("need_help_context_option"));
 final _notSolved = find.byKey(const Key("need_help_not_solved_button"));
 final _mailYivi = find.byKey(const Key("need_help_mail_yivi_button"));
 final _openWebsite = find.byKey(const Key("need_help_open_website_button"));
+final _mailOrganisation = find.byKey(
+  const Key("need_help_mail_organisation_button"),
+);
+final _websiteLink = find.byKey(const Key("need_help_open_website_link"));
 final _yiviFallback = find.byKey(const Key("need_help_yivi_fallback_link"));
 
 void main() {
@@ -186,7 +191,10 @@ void main() {
       find.text(t("need_help.organisation.title", {"org": "Stichting CIS"})),
       findsOneWidget,
     );
-    expect(_openWebsite, findsOneWidget);
+    // Mailing the organisation comes first, its website second.
+    expect(_mailOrganisation, findsOneWidget);
+    expect(_websiteLink, findsOneWidget);
+    expect(_openWebsite, findsNothing);
     expect(
       find.text(
         t("need_help.organisation.quote_error_code", {"code": "NEXT_SESSION"}),
@@ -218,6 +226,74 @@ void main() {
     expect(_yiviFallback, findsOneWidget);
   });
 
+  testWidgets("an organisation with only a website gets a website button", (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      NeedHelpContactScreen(
+        problem: HelpProblems.outcome,
+        organisation: SupportParty(
+          party: _cisParty,
+          website: Uri.https("stichtingcis.nl"),
+        ),
+      ),
+    );
+    expect(_openWebsite, findsOneWidget);
+    expect(_mailOrganisation, findsNothing);
+    expect(_yiviFallback, findsNothing);
+  });
+
+  testWidgets("a website guessed from a hostname still leaves Yivi", (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      NeedHelpContactScreen(
+        problem: HelpProblems.outcome,
+        organisation: SupportParty(
+          party: _cisParty,
+          website: Uri.https("level-level.nl"),
+          websiteGuessed: true,
+        ),
+      ),
+    );
+    expect(_openWebsite, findsOneWidget);
+    expect(_yiviFallback, findsOneWidget);
+  });
+
+  test("the mail to an organisation names the problem and the error code", () {
+    String body({String? errorCode}) => organisationMailBody(
+      prompt: "Beschrijf hier je vraag of probleem:",
+      topicLabel: "Onderwerp",
+      topic: "Mijn aanvraag is afgewezen",
+      errorCodeLabel: "Foutcode",
+      errorCode: errorCode,
+      sentFrom: "Verstuurd vanuit de Yivi-app",
+    );
+
+    expect(
+      body(errorCode: "NEXT_SESSION"),
+      "Beschrijf hier je vraag of probleem:\n\n\n\n---\n"
+      "Onderwerp: Mijn aanvraag is afgewezen\n"
+      "Foutcode: NEXT_SESSION\n"
+      "Verstuurd vanuit de Yivi-app",
+    );
+    expect(body(), isNot(contains("Foutcode")));
+
+    // Spaces as %20: mail apps show a "+" as is.
+    expect(
+      mailtoUri(
+        address: "info@stichtingcis.nl",
+        subject: "Hulp nodig: a & b",
+        body: "regel 1\nregel 2",
+      ),
+      "mailto:info@stichtingcis.nl"
+      "?subject=Hulp%20nodig%3A%20a%20%26%20b"
+      "&body=regel%201%0Aregel%202",
+    );
+  });
+
   testWidgets("an organisation with only an email gets a mail button", (
     tester,
   ) async {
@@ -226,6 +302,8 @@ void main() {
       NeedHelpContactScreen(problem: HelpProblems.outcome, organisation: _cis),
     );
     expect(_openWebsite, findsNothing);
+    expect(_websiteLink, findsNothing);
+    expect(_yiviFallback, findsNothing);
     expect(
       find.text(
         t("need_help.organisation.send_email", {"org": "Stichting CIS"}),
@@ -425,7 +503,7 @@ void main() {
       await _tap(tester, find.text(t("more_tab.need_help")));
       await _tap(tester, _contextOption);
       await _tap(tester, _notSolved);
-      expect(_openWebsite, findsOneWidget);
+      expect(_mailOrganisation, findsOneWidget);
     });
 
     testWidgets("say it is Yivi when it is", (tester) async {

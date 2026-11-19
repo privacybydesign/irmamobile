@@ -585,7 +585,9 @@
       "quote_error_code": "Nennen Sie den Fehlercode {code}, dann weiß man dort, wo zu suchen ist.",
       "open_website": "Zur Website von {org}",
       "send_email": "E-Mail an {org} senden",
-      "or_email": "Oder per E-Mail an {email}",
+      "or_website": "Oder zur Website von {org}",
+      "mail_error_code": "Fehlercode",
+      "mail_sent_from": "Gesendet aus der Yivi-App",
       "no_contact": "Suchen Sie auf der Website von {org} nach Kontaktdaten.",
       "app_not_working": "Funktioniert die Yivi-App selbst nicht?"
     },

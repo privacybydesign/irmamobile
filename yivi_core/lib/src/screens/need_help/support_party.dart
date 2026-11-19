@@ -12,6 +12,11 @@ class SupportParty {
   /// has one, otherwise its site derived from the requestor's hostname.
   final Uri? website;
 
+  /// The [website] is not from the scheme or the organisation itself, but
+  /// derived from a hostname. It can be a supplier's site, or the wrong
+  /// part of a large organisation, so it is never the only way forward.
+  final bool websiteGuessed;
+
   final String? email;
 
   /// Yivi (or the Privacy by Design Foundation behind it) issued this data or
@@ -21,6 +26,7 @@ class SupportParty {
   const SupportParty({
     required this.party,
     this.website,
+    this.websiteGuessed = false,
     this.email,
     this.isYivi = false,
   });
@@ -52,15 +58,16 @@ class SupportParty {
 
     final issuer = config?.issuers[party.id] ?? _pairedIssuer(party, config);
     final email = _usableEmail(issuer?.contactEmail);
+    final stated = _httpUri(party.url) ?? _httpUri(issuer?.contactAddress);
     final website =
-        _httpUri(party.url) ??
-        _httpUri(issuer?.contactAddress) ??
+        stated ??
         _siteOfRequestor(party, config) ??
         _siteOfUnknownServer(party);
 
     return SupportParty(
       party: party,
       website: website,
+      websiteGuessed: stated == null && website != null,
       email: email,
       isYivi:
           _yiviIds.contains(party.id) ||

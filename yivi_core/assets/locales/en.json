@@ -585,7 +585,9 @@
       "quote_error_code": "Mention error code {code}, so they know where to look.",
       "open_website": "Go to the website of {org}",
       "send_email": "Email {org}",
-      "or_email": "Or email {email}",
+      "or_website": "Or go to the website of {org}",
+      "mail_error_code": "Error code",
+      "mail_sent_from": "Sent from the Yivi app",
       "no_contact": "Look for contact details on the website of {org}.",
       "app_not_working": "Is the Yivi app itself not working?"
     },

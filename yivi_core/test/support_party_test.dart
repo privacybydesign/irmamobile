@@ -57,6 +57,7 @@ void main() {
       ),
     )!;
     expect(org.website, Uri.parse("https://stichtingcis.nl/"));
+    expect(org.websiteGuessed, isFalse);
     expect(org.email, "info@stichtingcis.nl");
     expect(org.isYivi, isFalse);
   });
@@ -100,12 +101,15 @@ void main() {
       ),
     )!;
     expect(org.website, Uri.https("vgz.nl"));
+    // Derived, so it can be a supplier's site: never the only way forward.
+    expect(org.websiteGuessed, isTrue);
     expect(org.email, isNull);
   });
 
   test("no contact details at all", () {
     final org = SupportParty.resolve(_party("pbdf-requestors.x"), _config())!;
     expect(org.website, isNull);
+    expect(org.websiteGuessed, isFalse);
     expect(org.email, isNull);
   });
 
@@ -258,6 +262,7 @@ void main() {
         _config(),
       )!;
       expect(org.website, Uri.https("example.com"));
+      expect(org.websiteGuessed, isTrue);
       expect(org.isYivi, isFalse);
     });
 

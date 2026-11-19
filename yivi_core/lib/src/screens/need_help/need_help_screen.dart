@@ -667,7 +667,7 @@ class _ContactOrganisation extends StatelessWidget {
                         Text(org.name, style: theme.boldBody),
                         if (website != null || email != null)
                           Text(
-                            website?.host ?? email!,
+                            email ?? website!.host,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.neutralExtraDark,
                             ),
@@ -686,18 +686,24 @@ class _ContactOrganisation extends StatelessWidget {
                 ),
               ],
               SizedBox(height: theme.defaultSpacing),
-              if (website != null)
+              if (email != null)
+                YiviThemedButton(
+                  key: const Key("need_help_mail_organisation_button"),
+                  label: tr("need_help.organisation.send_email"),
+                  style: YiviButtonStyle.filled,
+                  onPressed: () => mailOrganisation(
+                    context,
+                    email: email,
+                    topic: tr(screen.problem.titleKey),
+                    errorCode: screen.errorCode,
+                  ),
+                )
+              else if (website != null)
                 YiviThemedButton(
                   key: const Key("need_help_open_website_button"),
                   label: tr("need_help.organisation.open_website"),
                   style: YiviButtonStyle.filled,
                   onPressed: () => open(website),
-                )
-              else if (email != null)
-                YiviThemedButton(
-                  label: tr("need_help.organisation.send_email"),
-                  style: YiviButtonStyle.filled,
-                  onPressed: () => open(Uri(scheme: "mailto", path: email)),
                 )
               else
                 _Paragraph(tr("need_help.organisation.no_contact")),
@@ -705,19 +711,19 @@ class _ContactOrganisation extends StatelessWidget {
                 SizedBox(height: theme.defaultSpacing),
                 Center(
                   child: Link(
-                    label: tr("need_help.organisation.or_email", {
-                      "email": email,
-                    }),
-                    onTap: () => open(Uri(scheme: "mailto", path: email)),
+                    key: const Key("need_help_open_website_link"),
+                    label: tr("need_help.organisation.or_website"),
+                    onTap: () => open(website),
                   ),
                 ),
               ],
             ],
           ),
         ),
-        // Once there is a way to reach the organisation, that is the one
-        // way forward. Without one, the user is not left stuck.
-        if (website == null && email == null) ...[
+        // An address the organisation gave is the one way forward. With no
+        // address, or only a website guessed from a hostname, the user is
+        // not left stuck.
+        if (email == null && (website == null || org.websiteGuessed)) ...[
           SizedBox(height: theme.mediumSpacing),
           _YiviFallback(screen),
         ],
