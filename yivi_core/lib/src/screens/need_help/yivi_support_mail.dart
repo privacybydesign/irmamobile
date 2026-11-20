@@ -6,7 +6,6 @@ import "package:package_info_plus/package_info_plus.dart";
 
 import "../../../sentry_dsn.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../sentry/sentry.dart";
 import "../../widgets/irma_dialog.dart";
 import "../../widgets/yivi_themed_button.dart";
 import "help_problem.dart";
@@ -35,9 +34,7 @@ Future<void> mailYiviSupport(
   final errorTitle = t("help.mail_error_title");
   final errorBody = t("help.mail_error");
 
-  if (errorReport != null && errorReport.reportable) {
-    reportError(errorReport.details, null, userInitiated: true);
-  }
+  errorReport?.send();
 
   final report = errorReport?.details;
   final body = [

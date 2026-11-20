@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The moment the terms were accepted is stored next to the version that was accepted
 
 ### Changed
-- Session error screens say who caused the error when the error shows it: Yivi (keyshare, scheme, cryptography) or the organisation (`NEXT_SESSION`, `https`, `requiredAttributeMissing`). Errors that could come from either side never send the user to the organisation: Yivi support looks first. "Need help?" replaces "Send this message to Yivi"; the error report is sent when the help request ends at Yivi support
+- Session error screens say who caused the error when the error shows it: Yivi (keyshare, scheme, cryptography) or the organisation (`NEXT_SESSION`, `https`, `requiredAttributeMissing`). Errors that could come from either side never send the user to the organisation: Yivi support looks first. "Need help?" replaces "Send this message to Yivi" as the button. Sending the error report without asking for help is a link below the technical details, also for errors the organisation caused; a help request that ends at Yivi support sends it too, once per error
 - The More tab has one "Need help?" tile under App management in place of "Frequently asked questions" and "Contact us"
 - The dialog that confirms deleting all data from Settings now says that the activity history is deleted too, and that this cannot be undone: the deleted data cannot be recovered
 

@@ -333,7 +333,7 @@ void main() {
         helpContext: _context(
           HelpProblems.errorUnknown,
           organisation: _org(),
-          errorReport: const HelpErrorReport(
+          errorReport: HelpErrorReport(
             details: "serverResponse",
             reportable: true,
           ),
@@ -483,6 +483,75 @@ void main() {
       expect(find.text(t("need_help.context.error_unknown")), findsOneWidget);
     });
 
+    group("still let the user send the report without asking for help", () {
+      final sendReport = find.byKey(const Key("error_send_report_link"));
+      final reportSent = find.byKey(const Key("error_report_sent"));
+
+      testWidgets("for an unclear error", (tester) async {
+        await pumpError(
+          tester,
+          SessionError(errorType: "serverResponse", info: ""),
+          organisation: _org(),
+        );
+        expect(find.text(t("error.button_send_report")), findsOneWidget);
+
+        await _tap(tester, sendReport);
+        // Without a Sentry DSN, reportError hands the report to Flutter.
+        expect(tester.takeException(), "serverResponse");
+        expect(sendReport, findsNothing);
+        expect(reportSent, findsOneWidget);
+        expect(find.text(t("error.report_sent")), findsOneWidget);
+        expect(find.text(t("more_tab.need_help")), findsOneWidget);
+      });
+
+      testWidgets("for an error the organisation caused", (tester) async {
+        await pumpError(
+          tester,
+          SessionError(
+            errorType: "api",
+            info: "",
+            remoteError: RemoteError(errorName: "NEXT_SESSION"),
+          ),
+          organisation: _org(),
+        );
+
+        await _tap(tester, sendReport);
+        expect(tester.takeException(), contains("NEXT_SESSION"));
+        expect(reportSent, findsOneWidget);
+      });
+
+      testWidgets("for an error in Yivi", (tester) async {
+        await pumpError(tester, SessionError(errorType: "keyshare", info: ""));
+        expect(sendReport, findsOneWidget);
+      });
+
+      testWidgets("unless the error may not be reported", (tester) async {
+        await pumpError(
+          tester,
+          SessionError(errorType: "https", info: ""),
+          organisation: _org(),
+        );
+        expect(
+          find.text(t("error.types.organisation", {"org": "Stichting CIS"})),
+          findsOneWidget,
+        );
+        expect(sendReport, findsNothing);
+        expect(reportSent, findsNothing);
+      });
+
+      testWidgets("unless the session expired", (tester) async {
+        await pumpError(
+          tester,
+          SessionError(
+            errorType: "",
+            info: "",
+            remoteError: RemoteError(errorName: "SESSION_UNKNOWN"),
+          ),
+        );
+        expect(sendReport, findsNothing);
+      });
+    });
+
     testWidgets("name the organisation when it caused the error", (
       tester,
     ) async {
@@ -513,6 +582,41 @@ void main() {
         find.text(t("error.types.yivi_body_no_organisation")),
         findsOneWidget,
       );
+    });
+  });
+
+  group("an error report", () {
+    late List<Object> reported;
+
+    setUp(() {
+      reported = [];
+      final previous = FlutterError.onError;
+      // Without a Sentry DSN, reportError hands the report to Flutter.
+      FlutterError.onError = (details) => reported.add(details.exception);
+      addTearDown(() => FlutterError.onError = previous);
+    });
+
+    test("goes to Yivi once, from the error screen or the mail", () {
+      final report = HelpErrorReport(
+        details: "serverResponse",
+        reportable: true,
+      );
+      expect(report.sent, isFalse);
+
+      report.send();
+      report.send();
+
+      expect(reported, ["serverResponse"]);
+      expect(report.sent, isTrue);
+    });
+
+    test("that may not leave the device is never sent", () {
+      final report = HelpErrorReport(details: "https", reportable: false);
+
+      report.send();
+
+      expect(reported, isEmpty);
+      expect(report.sent, isFalse);
     });
   });
 }

@@ -73,7 +73,8 @@ class SessionErrorScreen extends StatelessWidget {
       problem: problem,
       organisation: org,
       errorCode: code,
-      // Goes along only if the request ends at Yivi.
+      // The error screen offers to send it, and it goes along if the request
+      // ends at Yivi.
       errorReport: report,
     );
 
@@ -90,6 +91,7 @@ class SessionErrorScreen extends StatelessWidget {
       SessionErrorCause.yivi => ErrorScreen(
         onTapClose: onTapClose,
         details: details,
+        reportable: report.reportable,
         titleTranslationKey: "error.types.yivi",
         bodyTranslationKey: org != null
             ? "error.types.yivi_body"
@@ -100,10 +102,12 @@ class SessionErrorScreen extends StatelessWidget {
           "need_help.context.error_yivi",
         ),
       ),
+      // Yivi wants to know about these too, to tell the organisation before
+      // its users do.
       SessionErrorCause.organisation => ErrorScreen(
         onTapClose: onTapClose,
         details: details,
-        reportable: false,
+        reportable: report.reportable,
         titleTranslationKey: org != null
             ? "error.types.organisation"
             : "error.types.organisation_unknown",
@@ -118,6 +122,7 @@ class SessionErrorScreen extends StatelessWidget {
       SessionErrorCause.unknown => ErrorScreen(
         onTapClose: onTapClose,
         details: details,
+        reportable: report.reportable,
         bodyTranslationKey: org != null
             ? "error.types.unknown_body"
             : "error.types.unknown_body_no_organisation",

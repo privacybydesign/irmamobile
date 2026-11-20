@@ -366,6 +366,8 @@
     "button_ok": "OK",
     "button_send_to_irma": "Envoyer ce message à Yivi",
     "button_show_error": "Afficher les détails techniques",
+    "button_send_report": "Envoyer les détails techniques à Yivi",
+    "report_sent": "Les détails techniques ont été envoyés à Yivi. Merci !",
     "button_retry": "Réessayer",
     "button_back": "Retour",
     "button_reset": "Tout recommencer",

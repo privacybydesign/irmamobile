@@ -366,6 +366,8 @@
     "button_ok": "OK",
     "button_send_to_irma": "Stuur deze melding naar Yivi",
     "button_show_error": "Technische details tonen",
+    "button_send_report": "Technische details naar Yivi sturen",
+    "report_sent": "De technische details zijn naar Yivi gestuurd. Bedankt!",
     "button_retry": "Opnieuw proberen",
     "button_back": "Terug",
     "button_reset": "Begin opnieuw",

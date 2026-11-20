@@ -1,5 +1,6 @@
 import "package:material_ui/material_ui.dart";
 
+import "../../sentry/sentry.dart";
 import "support_party.dart";
 
 /// Who helps when the answer was not enough. [ask] lets the user say.
@@ -183,8 +184,8 @@ abstract final class HelpProblems {
   ];
 }
 
-/// The error behind a help request, sent along when the request ends at
-/// Yivi support.
+/// The error behind a help request. The user can send it to Yivi from the
+/// error screen, and it goes along when the request ends at Yivi support.
 class HelpErrorReport {
   final String details;
 
@@ -192,7 +193,20 @@ class HelpErrorReport {
   /// own reporting rules.
   final bool reportable;
 
-  const HelpErrorReport({required this.details, required this.reportable});
+  bool _sent = false;
+
+  HelpErrorReport({required this.details, required this.reportable});
+
+  /// Whether [send] reported the error already.
+  bool get sent => _sent;
+
+  /// Reports the error to Sentry at the user's request, once: the error
+  /// screen and the mail to Yivi support both offer it for the same error.
+  void send() {
+    if (!reportable || _sent) return;
+    _sent = true;
+    reportError(details, null, userInitiated: true);
+  }
 }
 
 /// What the app already knows when "Hulp nodig?" opens from an activity or

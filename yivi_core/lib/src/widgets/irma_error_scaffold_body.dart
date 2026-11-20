@@ -1,7 +1,9 @@
 import "package:material_ui/material_ui.dart";
 import "../../package_name.dart";
 
+import "../theme/theme.dart";
 import "irma_info_scaffold_body.dart";
+import "translated_text.dart";
 
 enum ErrorType { general, expired, pairingRejected }
 
@@ -22,6 +24,13 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
   final String? bodyTranslationKey;
   final Map<String, String>? translationParams;
 
+  /// Sends the error report to Yivi. Shown as a link, for screens where the
+  /// button is "Hulp nodig?": reporting is not asking for help.
+  final VoidCallback? onReport;
+
+  /// Says the report went to Yivi, in place of the link.
+  final bool reported;
+
   const IrmaErrorScaffoldBody({
     super.key,
     required this.type,
@@ -30,6 +39,8 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
     this.titleTranslationKey,
     this.bodyTranslationKey,
     this.translationParams,
+    this.onReport,
+    this.reported = false,
   });
 
   @override
@@ -43,6 +54,36 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
       bodyTranslationParams: translationParams,
       linkTranslationKey: details != null ? "error.button_show_error" : null,
       linkDialogText: details,
+      footer: _report(context),
+    );
+  }
+
+  Widget? _report(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    if (reported) {
+      return TranslatedText(
+        "error.report_sent",
+        key: const Key("error_report_sent"),
+        style: theme.textTheme.bodyMedium,
+        textAlign: TextAlign.center,
+      );
+    }
+    final report = onReport;
+    if (report == null) return null;
+    return GestureDetector(
+      key: const Key("error_send_report_link"),
+      onTap: () {
+        report();
+        Feedback.forTap(context);
+      },
+      child: TranslatedText(
+        "error.button_send_report",
+        style: theme.textTheme.bodyMedium?.copyWith(
+          decoration: TextDecoration.underline,
+          color: theme.link,
+        ),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }
