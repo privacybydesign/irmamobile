@@ -285,6 +285,14 @@ void main() {
       expect(org.isYivi, isTrue);
     });
 
+    test("is Yivi's when it runs on yiviconnect.nl", () {
+      for (final host in ["yiviconnect.nl", "demo.yiviconnect.nl"]) {
+        final org = SupportParty.resolve(unknownServer(host), _config())!;
+        expect(org.website, Uri.https("yiviconnect.nl"), reason: host);
+        expect(org.isYivi, isTrue, reason: host);
+      }
+    });
+
     test("verified names are not taken for hostnames", () {
       final org = SupportParty.resolve(
         _party("pbdf-requestors.ver-id", name: "Ver.iD"),

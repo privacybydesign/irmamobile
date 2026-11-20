@@ -44,7 +44,7 @@ class SupportParty {
   static const _yiviEmail = "support@yivi.app";
 
   /// Yivi's own domains: a server on one of these is Yivi's, scheme or not.
-  static const _yiviDomains = {"yivi.app", "irma.app"};
+  static const _yiviDomains = {"yivi.app", "irma.app", "yiviconnect.nl"};
 
   /// Tells parties apart. A server that is not in the scheme has no id, only
   /// its hostname as name.
