@@ -87,6 +87,191 @@ void main() {
     expect(org.website, Uri.parse("https://stichtingcis.nl/"));
   });
 
+  group("a requestor with a support address in the scheme", () {
+    RequestorInfo cis({String? supportEmail, String? supportUrl}) =>
+        RequestorInfo(
+          id: "pbdf-requestors.cis",
+          name: const TranslatedValue.empty(),
+          hostnames: const ["inzage.stichtingcis.nl"],
+          supportEmail: supportEmail,
+          supportUrl: supportUrl,
+        );
+
+    final issuer = _issuer(
+      "pbdf",
+      "cis",
+      address: "https://stichtingcis.nl/",
+      email: "integrators@stichtingcis.nl",
+    );
+
+    SupportParty resolve(
+      RequestorInfo requestor, {
+      List<Issuer> issuers = const [],
+      String partyId = "pbdf-requestors.cis",
+      String? partyUrl,
+    }) => SupportParty.resolve(
+      _party(partyId, url: partyUrl),
+      _config(
+        issuers: issuers,
+        requestors: {"inzage.stichtingcis.nl": requestor},
+      ),
+    )!;
+
+    test("comes before the paired issuer", () {
+      final org = resolve(
+        cis(
+          supportEmail: "klantenservice@stichtingcis.nl",
+          supportUrl: "https://stichtingcis.nl/contact",
+        ),
+        issuers: [issuer],
+      );
+      expect(org.email, "klantenservice@stichtingcis.nl");
+      expect(org.website, Uri.parse("https://stichtingcis.nl/contact"));
+      expect(org.websiteGuessed, isFalse);
+      expect(org.isYivi, isFalse);
+    });
+
+    test("only a support address: the website is the issuer's", () {
+      final org = resolve(
+        cis(supportEmail: "klantenservice@stichtingcis.nl"),
+        issuers: [issuer],
+      );
+      expect(org.email, "klantenservice@stichtingcis.nl");
+      expect(org.website, Uri.parse("https://stichtingcis.nl/"));
+      expect(org.websiteGuessed, isFalse);
+    });
+
+    test("only a support page: the address is the issuer's", () {
+      final org = resolve(
+        cis(supportUrl: "https://stichtingcis.nl/contact"),
+        issuers: [issuer],
+      );
+      expect(org.email, "integrators@stichtingcis.nl");
+      expect(org.website, Uri.parse("https://stichtingcis.nl/contact"));
+      expect(org.websiteGuessed, isFalse);
+    });
+
+    test("a support page is not a guessed website", () {
+      // Without it, this requestor only has the site behind its hostname.
+      expect(resolve(cis()).website, Uri.https("stichtingcis.nl"));
+      expect(resolve(cis()).websiteGuessed, isTrue);
+
+      final org = resolve(cis(supportUrl: "https://stichtingcis.nl/contact"));
+      expect(org.website, Uri.parse("https://stichtingcis.nl/contact"));
+      expect(org.websiteGuessed, isFalse);
+      expect(org.email, isNull);
+    });
+
+    test(
+      "without an issuer: mail the organisation, site from its hostname",
+      () {
+        final org = resolve(
+          cis(supportEmail: "klantenservice@stichtingcis.nl"),
+        );
+        expect(org.email, "klantenservice@stichtingcis.nl");
+        expect(org.website, Uri.https("stichtingcis.nl"));
+        expect(org.websiteGuessed, isTrue);
+      },
+    );
+
+    test("the support page comes before the party's own url", () {
+      final org = resolve(
+        cis(supportUrl: "https://stichtingcis.nl/contact"),
+        partyUrl: "https://help.example.org",
+      );
+      expect(org.website, Uri.parse("https://stichtingcis.nl/contact"));
+    });
+
+    test("an unusable value falls back to the issuer", () {
+      for (final requestor in [
+        cis(supportEmail: "no-reply@stichtingcis.nl", supportUrl: "Postbus 1"),
+        cis(supportEmail: "klantenservice", supportUrl: "mailto:a@b.nl"),
+        cis(supportEmail: " ", supportUrl: "javascript:alert(1)"),
+        cis(supportEmail: "", supportUrl: ""),
+      ]) {
+        final org = resolve(requestor, issuers: [issuer]);
+        expect(org.email, "integrators@stichtingcis.nl");
+        expect(org.website, Uri.parse("https://stichtingcis.nl/"));
+        expect(org.websiteGuessed, isFalse);
+      }
+    });
+
+    test("also counts for the issuer it is paired with", () {
+      // Data issued by the organisation leads to the same support address
+      // as a request from it.
+      final org = resolve(
+        cis(
+          supportEmail: "klantenservice@stichtingcis.nl",
+          supportUrl: "https://stichtingcis.nl/contact",
+        ),
+        issuers: [issuer],
+        partyId: "pbdf.cis",
+      );
+      expect(org.email, "klantenservice@stichtingcis.nl");
+      expect(org.website, Uri.parse("https://stichtingcis.nl/contact"));
+      expect(org.websiteGuessed, isFalse);
+    });
+
+    test("is not taken from another requestor", () {
+      final org = SupportParty.resolve(
+        _party("pbdf-requestors.vgz"),
+        _config(
+          requestors: {
+            "inzage.stichtingcis.nl": cis(
+              supportEmail: "klantenservice@stichtingcis.nl",
+            ),
+          },
+        ),
+      )!;
+      expect(org.email, isNull);
+      expect(org.website, isNull);
+    });
+
+    test("Yivi's support address makes it Yivi's", () {
+      final org = resolve(cis(supportEmail: "support@yivi.app"));
+      expect(org.isYivi, isTrue);
+    });
+  });
+
+  group("RequestorInfo from the configuration irmago sends", () {
+    test("with a support address", () {
+      final requestor = RequestorInfo.fromJson({
+        "id": "pbdf-requestors.cis",
+        "scheme": "pbdf-requestors",
+        "name": {"en": "Stichting CIS", "nl": "Stichting CIS"},
+        "industry": null,
+        "hostnames": ["inzage.stichtingcis.nl"],
+        "logo": null,
+        "valid_until": null,
+        "unverified": false,
+        "languages": ["en", "nl"],
+        "wizards": null,
+        "support_email": "klantenservice@stichtingcis.nl",
+        "support_url": "https://stichtingcis.nl/contact",
+      });
+      expect(requestor.supportEmail, "klantenservice@stichtingcis.nl");
+      expect(requestor.supportUrl, "https://stichtingcis.nl/contact");
+    });
+
+    test("without one, as from an irmago that does not know the fields", () {
+      final requestor = RequestorInfo.fromJson({
+        "id": "pbdf-requestors.cis",
+        "scheme": "pbdf-requestors",
+        "name": {"en": "Stichting CIS", "nl": "Stichting CIS"},
+        "industry": null,
+        "hostnames": ["inzage.stichtingcis.nl"],
+        "logo": null,
+        "valid_until": null,
+        "unverified": false,
+        "languages": ["en", "nl"],
+        "wizards": null,
+      });
+      expect(requestor.supportEmail, isNull);
+      expect(requestor.supportUrl, isNull);
+      expect(requestor.hostnames, ["inzage.stichtingcis.nl"]);
+    });
+  });
+
   test("requestor without an issuer: site from its hostname", () {
     final org = SupportParty.resolve(
       _party("pbdf-requestors.vgz"),

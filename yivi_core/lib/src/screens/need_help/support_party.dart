@@ -1,6 +1,7 @@
 import "../../data/irma_repository.dart";
 import "../../models/irma_configuration.dart";
 import "../../models/schemaless/schemaless_events.dart";
+import "../../models/session.dart";
 
 /// An organisation behind an issuer or verifier, and where its own support
 /// lives. Questions about what an organisation does with your data go there,
@@ -17,6 +18,8 @@ class SupportParty {
   /// part of a large organisation, so it is never the only way forward.
   final bool websiteGuessed;
 
+  /// Where to mail the organisation: the support address of its requestor
+  /// when the scheme has one, otherwise the contact address of its issuer.
   final String? email;
 
   /// Yivi (or the Privacy by Design Foundation behind it) issued this data or
@@ -56,9 +59,19 @@ class SupportParty {
   static SupportParty? resolve(TrustedParty? party, IrmaConfiguration? config) {
     if (party == null || party.name.trim().isEmpty) return null;
 
+    // What the organisation states for its end users comes first: the
+    // support address and support page of its requestor. An issuer's
+    // contact details are not always meant for end users, and a hostname
+    // only gives a guess.
+    final requestor = _requestorOf(party, config);
     final issuer = config?.issuers[party.id] ?? _pairedIssuer(party, config);
-    final email = _usableEmail(issuer?.contactEmail);
-    final stated = _httpUri(party.url) ?? _httpUri(issuer?.contactAddress);
+    final email =
+        _usableEmail(requestor?.supportEmail) ??
+        _usableEmail(issuer?.contactEmail);
+    final stated =
+        _httpUri(requestor?.supportUrl) ??
+        _httpUri(party.url) ??
+        _httpUri(issuer?.contactAddress);
     final website =
         stated ??
         _siteOfRequestor(party, config) ??
@@ -145,16 +158,45 @@ class SupportParty {
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   }
 
+  static const _requestorsSuffix = "-requestors";
+
   /// Requestors in a requestor scheme mostly mirror an issuer in the
   /// matching issuer scheme: `pbdf-requestors.cis` and `pbdf.cis`. That
-  /// issuer has contact details the requestor scheme does not.
+  /// issuer has contact details for when the requestor has none.
   static Issuer? _pairedIssuer(TrustedParty party, IrmaConfiguration? config) {
     final dot = party.id.indexOf(".");
     if (config == null || dot < 0) return null;
     final scheme = party.id.substring(0, dot);
-    if (!scheme.endsWith("-requestors")) return null;
-    final issuerScheme = scheme.substring(0, scheme.length - 11);
+    if (!scheme.endsWith(_requestorsSuffix)) return null;
+    final issuerScheme = scheme.substring(
+      0,
+      scheme.length - _requestorsSuffix.length,
+    );
     return config.issuers["$issuerScheme${party.id.substring(dot)}"];
+  }
+
+  /// The requestor behind [party]: the requestor itself, or for an issuer
+  /// the requestor it is paired with (`pbdf.cis` and `pbdf-requestors.cis`),
+  /// so an organisation has the same support address whether the user got
+  /// there from a request or from data it issued.
+  static RequestorInfo? _requestorOf(
+    TrustedParty party,
+    IrmaConfiguration? config,
+  ) {
+    final dot = party.id.indexOf(".");
+    if (config == null || dot < 0) return null;
+    final scheme = party.id.substring(0, dot);
+    final ids = {
+      party.id,
+      if (!scheme.endsWith(_requestorsSuffix))
+        "$scheme$_requestorsSuffix${party.id.substring(dot)}",
+    };
+    for (final id in ids) {
+      for (final requestor in config.requestors.values) {
+        if (requestor.id == id) return requestor;
+      }
+    }
+    return null;
   }
 
   static Uri? _siteOfRequestor(TrustedParty party, IrmaConfiguration? config) {
