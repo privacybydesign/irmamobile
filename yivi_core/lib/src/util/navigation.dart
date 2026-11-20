@@ -88,10 +88,6 @@ extension RoutingHelpers on BuildContext {
     go("/home/settings");
   }
 
-  void goHelpScreen() {
-    go("/home/help");
-  }
-
   void goDebugScreen() {
     go("/home/debug");
   }

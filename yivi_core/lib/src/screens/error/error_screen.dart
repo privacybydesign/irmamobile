@@ -6,6 +6,8 @@ import "../../sentry/sentry.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_error_scaffold_body.dart";
+import "../need_help/help_problem.dart";
+import "../need_help/need_help_screen.dart";
 
 class ErrorScreen extends StatefulWidget {
   final VoidCallback? onTapClose;
@@ -15,20 +17,39 @@ class ErrorScreen extends StatefulWidget {
   final String? details;
   final bool reportable;
 
+  /// When set, "Hulp nodig?" replaces "Send to Yivi" as the button: the user
+  /// first gets an answer, and the error report goes along if they end up at
+  /// Yivi. Sending the report without asking for help stays possible, as a
+  /// link below the details.
+  final HelpContext? helpContext;
+  final String? titleTranslationKey;
+  final String? bodyTranslationKey;
+  final Map<String, String>? translationParams;
+
   /// Display an error screen. The user can optionally choose to report those error details to Sentry.
   factory ErrorScreen({
     required VoidCallback onTapClose,
     ErrorType type = ErrorType.general,
     String? details,
     bool reportable = true,
+    HelpContext? helpContext,
+    String? titleTranslationKey,
+    String? bodyTranslationKey,
+    Map<String, String>? translationParams,
   }) => ErrorScreen._(
     onTapClose: onTapClose,
     type: type,
     details: details,
     reportable: reportable,
     onReportError: reportable
-        ? () => reportError(details, null, userInitiated: true)
+        // One report per error, also when the user mails Yivi support next.
+        ? helpContext?.errorReport?.send ??
+              () => reportError(details, null, userInitiated: true)
         : null,
+    helpContext: helpContext,
+    titleTranslationKey: titleTranslationKey,
+    bodyTranslationKey: bodyTranslationKey,
+    translationParams: translationParams,
   );
 
   /// Display an error screen for an ErrorEvent. The user can choose to report the error to Sentry.
@@ -52,6 +73,10 @@ class ErrorScreen extends StatefulWidget {
     required this.type,
     this.details,
     required this.reportable,
+    this.helpContext,
+    this.titleTranslationKey,
+    this.bodyTranslationKey,
+    this.translationParams,
   }) : super(key: const ValueKey("error_screen"));
 
   @override
@@ -68,6 +93,35 @@ class _ErrorScreenState extends State<ErrorScreen> {
     });
   }
 
+  bool get _reported =>
+      _hasReported || (widget.helpContext?.errorReport?.sent ?? false);
+
+  /// With "Hulp nodig?" as the button, the report is a link in the body.
+  bool get _reportInBody =>
+      widget.helpContext != null && widget.onReportError != null;
+
+  String? _secondaryLabel(BuildContext context) {
+    if (widget.helpContext != null) {
+      return FlutterI18n.translate(context, "more_tab.need_help");
+    }
+    return widget.onReportError != null
+        ? FlutterI18n.translate(context, "error.button_send_to_irma")
+        : null;
+  }
+
+  VoidCallback? _onSecondaryPressed(BuildContext context) {
+    final help = widget.helpContext;
+    if (help != null) {
+      return () async {
+        await openNeedHelp(context, helpContext: help);
+        // A mail to Yivi support sent the report along.
+        if (mounted) setState(() {});
+      };
+    }
+    // Once reported, the button stays visible but disabled.
+    return widget.onReportError != null && !_hasReported ? _onTapReport : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,19 +135,19 @@ class _ErrorScreenState extends State<ErrorScreen> {
         type: widget.type,
         details: widget.details,
         reportable: widget.reportable,
+        titleTranslationKey: widget.titleTranslationKey,
+        bodyTranslationKey: widget.bodyTranslationKey,
+        translationParams: widget.translationParams,
+        onReport: _reportInBody && !_reported ? _onTapReport : null,
+        reported: _reportInBody && _reported,
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: widget.onTapClose != null
             ? FlutterI18n.translate(context, "error.button_ok")
             : null,
         onPrimaryPressed: widget.onTapClose,
-        // If the error has been reported, the secondary button should be disabled, but the label should remain visible.
-        secondaryButtonLabel: widget.onReportError != null
-            ? FlutterI18n.translate(context, "error.button_send_to_irma")
-            : null,
-        onSecondaryPressed: widget.onReportError != null && !_hasReported
-            ? _onTapReport
-            : null,
+        secondaryButtonLabel: _secondaryLabel(context),
+        onSecondaryPressed: _onSecondaryPressed(context),
       ),
     );
   }
