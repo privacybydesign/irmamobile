@@ -44,6 +44,7 @@ import "../util/navigation.dart";
 import "app_language.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
+import "recent_session_parties.dart";
 import "session_repository.dart";
 
 class _CredentialObtainState {
@@ -573,6 +574,11 @@ class IrmaRepository {
   bool isSessionAwaitingInteractionNow(int sessionId) {
     return _sessionRepository.isAwaitingInteractionNow(sessionId);
   }
+
+  /// Who recent sessions were with, including unfinished ones. In memory
+  /// only.
+  List<RecentSessionParty> get recentSessionParties =>
+      _sessionRepository.recentParties.recent;
 
   SessionState? getCurrentSessionStateByOpenID4VCIState(String sessionState) {
     return _sessionRepository.getCurrentSessionStateByOpenID4VCIState(
