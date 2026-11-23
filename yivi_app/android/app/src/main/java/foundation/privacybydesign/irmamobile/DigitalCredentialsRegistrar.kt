@@ -29,10 +29,16 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * The registration lists the credentials the wallet can disclose; the OpenID4VP
  * library's bundled matcher decides at request time whether a `dcql_query` is
- * satisfied by any of them. This registers a single demo entry — the
- * `test.test.email` SD-JWT credential (claim `email`) — matching what the Go
- * core discloses over the DC API; enough for a verifier requesting that
- * credential to offer Yivi.
+ * satisfied by any of them. This registers a single demo entry — the staging
+ * email SD-JWT credential (claim `email`) — matching what the Go core discloses
+ * over the DC API; enough for a verifier requesting that credential to offer
+ * Yivi.
+ *
+ * Because the entry is fixed, it says nothing about what the wallet holds: the
+ * picker would offer Yivi to a user who does not have the credential, who then
+ * lands on an error. And the credential only exists on staging. So only builds
+ * that set `digital_credentials_provider_enabled` register, which is the alpha
+ * build; the same switch keeps [DigitalCredentialsActivity] disabled elsewhere.
  *
  * It lives in this app rather than in the shared `yivi_core` plugin because the
  * registration is stored by Google Play services: the library that does so is
@@ -55,6 +61,9 @@ object DigitalCredentialsRegistrar {
 
     @JvmStatic
     fun register(context: Context) {
+        if (!context.resources.getBoolean(R.bool.digital_credentials_provider_enabled)) {
+            return
+        }
         if (!registered.compareAndSet(false, true)) {
             return
         }

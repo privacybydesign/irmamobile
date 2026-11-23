@@ -32,9 +32,16 @@ class SetLocaleEvent extends Event {
 /// initial-URL [HandleURLEvent]. Its arrival tells the app the launch handshake
 /// is complete and any universal-link pointer has already been queued, so the
 /// lock screen can safely decide whether to auto-fire biometric.
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class AppReadyAckEvent extends Event {
-  AppReadyAckEvent();
+  AppReadyAckEvent({this.sessionIdBase = 0});
+
+  /// Where this engine's session ids start, so they stay apart from those of
+  /// another Flutter engine in the same process: on Android the Activity that
+  /// fulfils a Digital Credentials API request runs a second engine next to the
+  /// launcher's, and both number their sessions in the one Go core. Zero when
+  /// native does not say, which is every platform with a single engine.
+  final int sessionIdBase;
 
   factory AppReadyAckEvent.fromJson(Map<String, dynamic> json) =>
       _$AppReadyAckEventFromJson(json);

@@ -77,9 +77,12 @@
              open until it finishes; it therefore lives outside the launcher task
              with its own affinity. It runs the ordinary Yivi session UI, so it
              wears the Yivi launch theme (logo splash while the engine boots)
-             rather than a bare translucent window. -->
+             rather than a bare translucent window. Enabled only in builds that
+             also register with the Credential Manager; see
+             res/values/digital_credentials.xml. -->
         <activity
             android:name=".DigitalCredentialsActivity"
+            android:enabled="@bool/digital_credentials_provider_enabled"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=":digitalcredentials"

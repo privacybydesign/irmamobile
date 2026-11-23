@@ -10,6 +10,7 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/digital_credentials.dart";
 import "package:yivi_core/src/models/event.dart";
+import "package:yivi_core/src/models/native_events.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/models/session.dart";
@@ -456,6 +457,46 @@ void main() {
       await pumpEventQueue();
 
       expect(failures(bridge), isEmpty);
+    });
+  });
+
+  // On Android the Activity that fulfils a request runs a second Flutter engine
+  // next to the launcher's, and both number their sessions in the one Go core,
+  // which evicts a session when another starts under its id.
+  group("Session ids of an engine", () {
+    test("count up from 1 when native names no base", () async {
+      final repo = await _repo(_RecordingBridge());
+      addTearDown(repo.close);
+
+      repo.dispatch(AppReadyAckEvent.fromJson(const {}));
+      await pumpEventQueue();
+
+      expect(repo.allocateSessionId(), 1);
+      expect(repo.allocateSessionId(), 2);
+    });
+
+    test("count up from the base native gave this engine", () async {
+      final repo = await _repo(_RecordingBridge());
+      addTearDown(repo.close);
+
+      repo.dispatch(
+        AppReadyAckEvent.fromJson(const {"session_id_base": 1000000}),
+      );
+      await pumpEventQueue();
+
+      expect(repo.allocateSessionId(), 1000001);
+      expect(repo.allocateSessionId(), 1000002);
+    });
+
+    test("are not handed out twice when the base arrives late", () async {
+      final repo = await _repo(_RecordingBridge());
+      addTearDown(repo.close);
+
+      expect(repo.allocateSessionId(), 1);
+      repo.dispatch(AppReadyAckEvent.fromJson(const {"session_id_base": 0}));
+      await pumpEventQueue();
+
+      expect(repo.allocateSessionId(), 2);
     });
   });
 }

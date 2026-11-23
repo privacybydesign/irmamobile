@@ -275,6 +275,12 @@ class IrmaRepository {
       // biometric auto-scan on this, so biometric can never win the race against
       // the link and unlock the app before the session pointer is known.
       _startupUrlResolvedSubject.add(true);
+      // No session can have started yet: the handshake comes before any screen
+      // that starts one. Should one have, its id stays, rather than handing
+      // out ids that were given away already.
+      if (_nextSessionId == 0) {
+        _nextSessionId = event.sessionIdBase;
+      }
     } else if (event is NewSessionEvent) {
       // The queued pointer has become this session, so it is not dropped.
       _replacePendingPointer(null, startedSession: event.request);
@@ -606,7 +612,9 @@ class IrmaRepository {
 
   /// Allocates a session id for an outgoing [NewSessionEvent]. Dart owns id
   /// allocation so [SessionScreen] can be pushed synchronously, before Go has
-  /// emitted the first session state.
+  /// emitted the first session state. The ids count up from the base native
+  /// gave this engine in its [AppReadyAckEvent], because the Go core keeps the
+  /// sessions of every engine in the process in one map.
   int allocateSessionId() => ++_nextSessionId;
 
   /// Sessions started from a `DigitalCredentialsRequest` that still owe native

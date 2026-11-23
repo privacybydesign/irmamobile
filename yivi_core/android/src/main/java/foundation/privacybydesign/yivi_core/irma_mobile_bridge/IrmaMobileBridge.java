@@ -34,6 +34,10 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   // The request JSON is delivered to Dart once the app is ready, and the host is
   // the credential-provider Activity that owes the platform an outcome.
   private String pendingDigitalCredentialsRequest;
+
+  // Where this engine's session ids start; see GoBridgeRelay. Zero until the
+  // core is started for this engine, and when that fails.
+  private int sessionIdBase;
   private DigitalCredentialsHost digitalCredentialsHost;
 
   public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
@@ -65,7 +69,7 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       // The core is shared with any other engine in this process, so it is
       // started with the relay rather than with this bridge; see GoBridgeRelay.
       // Starting it a second time only makes this engine the one it talks to.
-      GoBridgeRelay.INSTANCE.attach(this);
+      sessionIdBase = GoBridgeRelay.INSTANCE.attach(this);
       Irmagobridge.start(GoBridgeRelay.INSTANCE, pi.applicationInfo.dataDir,
         copier.destAssetsPath.toString(), new ECDSA(context), aesKey, locale);
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
@@ -135,8 +139,9 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
         // the launch URL (if any) has been delivered. Channel messages are FIFO,
         // so the HandleURLEvent above is always processed first; the lock screen
         // relies on this to hold off biometric until it knows whether the app was
-        // opened with a session.
-        channel.invokeMethod("AppReadyAckEvent", "{}");
+        // opened with a session. It also tells this engine where its session
+        // ids start, which is settled by now: init() above ran on this thread.
+        channel.invokeMethod("AppReadyAckEvent", "{\"session_id_base\":" + sessionIdBase + "}");
 
         break;
 
