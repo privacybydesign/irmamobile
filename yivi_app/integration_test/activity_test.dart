@@ -45,13 +45,13 @@ void main() {
       expect(find.byType(ActivityHeroHeader), findsOneWidget);
 
       expect(find.text("Received from"), findsOneWidget);
-      // The hero: who, and when as one line, e.g. "October 18, 2026 ·
-      // 2:32 PM".
+      // The hero: who, and when as one line, e.g. "Oct 18, 2026, 2:32 PM  ·
+      // Registered with Yivi".
       expect(
         find.descendant(
           of: find.byKey(const Key("activity_hero_date")),
           matching: find.textContaining(
-            RegExp(r"^[A-Z][a-z]+ \d{1,2}, \d{4} · "),
+            RegExp(r"^[A-Z][a-z]{2} \d{1,2}, \d{4}, \d{1,2}:\d{2}"),
           ),
           matchRoot: true,
         ),

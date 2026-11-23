@@ -63,8 +63,8 @@ Future<void> evaluateFeedback(
   WidgetTester tester, {
   isSignatureSession = false,
 }) async {
-  // Expect the success screen: a check and "Shared with …" or "Signed"
-  // (or "Done" when nothing was shared).
+  // Expect the success screen: a check and "Shared with …" or "Signed for
+  // …" (or "Done" when nothing was shared).
   final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
   expect(feedbackScreenFinder, findsOneWidget);
   expect(
@@ -78,7 +78,7 @@ Future<void> evaluateFeedback(
   expect(title, findsOneWidget);
   final text = tester.widget<Text>(title).data!;
   if (isSignatureSession) {
-    expect(text, "Signed");
+    expect(text, startsWith("Signed for "));
   } else {
     expect(text.startsWith("Shared with") || text == "Done", isTrue);
   }
@@ -90,7 +90,7 @@ Future<void> evaluateFeedback(
 }
 
 /// Checks the requestor card of the share screen: the name, "Registered
-/// with Yivi" or "Not checked", and the red wash behind the page for a
+/// with Yivi" or "Not known by Yivi", and the red wash behind the page for a
 /// requestor nobody vouches for. [requestorHeaderFinder] defaults to the
 /// one card on screen.
 Future<void> evaluateRequestorHeader(
@@ -115,7 +115,9 @@ Future<void> evaluateRequestorHeader(
   expect(
     find.descendant(
       of: header,
-      matching: find.text(isVerified ? "Registered with Yivi" : "Not checked"),
+      matching: find.text(
+        isVerified ? "Registered with Yivi" : "Not known by Yivi",
+      ),
     ),
     findsOneWidget,
   );
@@ -175,20 +177,24 @@ String spotTitle(String name) {
   ].join(" or ");
 }
 
-/// The line above the share button ("One more thing to add, then you can
-/// share"), if any.
+/// What is said above the share button: why it cannot share ("Yivi can't
+/// add …"), or else the progress line beside the parts ("One more card to
+/// add, then you can share"); null when neither is there.
 String? shareReason(WidgetTester tester) {
-  final reason = find.byKey(const Key("share_reason"));
-  if (reason.evaluate().isEmpty) return null;
-  final text = tester.widget<Text>(reason);
-  return text.data ?? text.textSpan?.toPlainText().replaceAll("\uFFFC", "");
+  for (final key in const ["share_reason", "share_progress_line"]) {
+    final found = find.byKey(Key(key));
+    if (found.evaluate().isEmpty) continue;
+    final text = tester.widget<Text>(found.first);
+    return text.data ?? text.textSpan?.toPlainText().replaceAll("\uFFFC", "");
+  }
+  return null;
 }
 
 /// Checks that requested item [i] is an empty spot for [title] (the types
 /// it can be filled with, joined with " or "), with [hint] (the issuer of
 /// the one type, "You pick one when adding", "Can't be added in Yivi. …")
-/// when given. With one card to add, the spot also lists the requested
-/// fields as "Not in your app yet"; see [expectEmptySpotRows].
+/// when given. With one card to add, the spot also lists the fields asked
+/// with a set value, marked "Asked"; see [expectEmptySpotRows].
 void expectEmptySpot(int i, String title, {String? hint}) {
   final spot = findEmptySpot(i);
   expect(spot, findsOneWidget, reason: "empty spot $i");
@@ -206,8 +212,8 @@ void expectEmptySpot(int i, String title, {String? hint}) {
   }
 }
 
-/// Checks the rows of empty spot [i]: each requested field [labels], with
-/// "Not in your app yet" (or "Must be …").
+/// Checks the rows of empty spot [i]: each field [labels] the request asks
+/// a set value for, with that value and "Asked".
 void expectEmptySpotRows(int i, List<String> labels) {
   final spot = findEmptySpot(i);
   for (final label in labels) {
@@ -220,17 +226,25 @@ void expectEmptySpotRows(int i, List<String> labels) {
 }
 
 /// Checks that Share waits for [name] (the first empty spot's title): the
-/// button does that next step ("Add data", or "Choose what to add" for a
-/// choice of kinds), with what is left above it. The button does not name
-/// the card; [name] is the spot's.
+/// button does that next step ("Add {name}", "Add card" when that does not
+/// fit, or "Choose what to add" for a choice of kinds), with what is left
+/// above it.
 void expectShareWaitsFor(WidgetTester tester, String name) {
   expect(shareButtonEnabled(tester), isFalse, reason: "share button");
   expect(
     shareReason(tester),
     anyOf(
-      "One more thing to add, then you can share",
-      matches(RegExp(r"^\d+ more things to add, then you can share$")),
-      "Your card doesn't count for this request",
+      matches(
+        RegExp(
+          r"^One more (card to add|thing to sort out), then you can (share|sign)$",
+        ),
+      ),
+      matches(
+        RegExp(
+          r"^\d+ more (cards to add|things to sort out), then you can (share|sign)$",
+        ),
+      ),
+      "Your card does not count for this request",
     ),
   );
   final label = find.descendant(
@@ -240,7 +254,14 @@ void expectShareWaitsFor(WidgetTester tester, String name) {
   final text = tester.widget<Text>(label.first).data;
   expect(
     text,
-    anyOf("Add data", "Get it again", "Choose what to add", "Add both"),
+    anyOf(
+      "Add ${name.split(" or ").first}",
+      "Add card",
+      "Add again",
+      "Get it again",
+      "Choose what to add",
+      "Add both",
+    ),
   );
 }
 
@@ -339,6 +360,9 @@ Future<void> openMoreInSheet(WidgetTester tester) async {
     }),
   );
   if (open.evaluate().isNotEmpty) return;
+  // Under the cards in the app, it can be below the sheet's fold.
+  await tester.ensureVisible(toggle);
+  await tester.pumpAndSettle();
   await tester.tapAndSettle(toggle);
 }
 
@@ -465,7 +489,7 @@ Future<void> pickOwned(WidgetTester tester, String text) async {
 ///
 /// In tests the website does not open (see [pumpYiviApp]); tests then issue
 /// the card directly, as the website would. That issuance shows in the
-/// sheet (step 3), and "Back to {requestor}" closes it with the new card
+/// sheet (step 3), and "Continue sharing" closes it with the new card
 /// selected (and an optional item included); [issueCredentials] does both.
 Future<void> startAdding(WidgetTester tester, String credentialId) async {
   final row = findSheetAddRow(credentialId);

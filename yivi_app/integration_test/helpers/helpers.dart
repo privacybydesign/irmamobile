@@ -418,11 +418,15 @@ Future<void> issueCredentials(
 
   await tester.waitUntilDisappeared(issuancePageFinder);
 
-  // In the sheet: "Success", then "Back to {requestor}" closes it.
+  // In the sheet: "Success", then "Continue sharing" (or "Continue
+  // signing") closes it.
   if (inSheet && !declineOffer) {
     final back = find.byKey(const Key("sheet_back_to_request"));
     await tester.waitFor(back);
-    expect(find.textContaining("Back to "), findsOneWidget);
+    expect(
+      find.descendant(of: back, matching: find.textContaining("Continue ")),
+      findsOneWidget,
+    );
     await tester.tapAndSettle(back);
     await tester.waitUntilDisappeared(
       find.byKey(const Key("disclosure_choice_sheet")),

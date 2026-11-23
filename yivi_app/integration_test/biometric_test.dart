@@ -275,7 +275,9 @@ void main() {
 
       // Log out from the More tab.
       await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
-      await tester.tapAndSettle(find.byKey(const Key("log_out_button")));
+      final logOut = find.byKey(const Key("log_out_button")).hitTestable();
+      await tester.scrollUntilVisible(logOut, 100);
+      await tester.tapAndSettle(logOut);
 
       // The lock screen returns but does NOT auto-scan: still locked, and no
       // second authenticate call. The manual button is still offered.
@@ -301,7 +303,9 @@ void main() {
 
       // Log out — the lock screen returns but the scan is suppressed.
       await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
-      await tester.tapAndSettle(find.byKey(const Key("log_out_button")));
+      final logOut = find.byKey(const Key("log_out_button")).hitTestable();
+      await tester.scrollUntilVisible(logOut, 100);
+      await tester.tapAndSettle(logOut);
       await tester.waitFor(lockScreenBiometricButton);
       expect(fakeAuth.authenticateCalls, 1);
 

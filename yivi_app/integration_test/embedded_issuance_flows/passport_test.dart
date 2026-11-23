@@ -256,12 +256,10 @@ void main() {
 
         // The Yivi face-verification intro appears after the successful readout.
         await tester.waitFor(find.byType(FaceVerificationIntroScreen));
-        // Its "Start" button launches the (fake) liveness session.
+        // Its "Start" button launches the (fake) liveness session. The
+        // button sits in the sheet's own bar slot, not inside the screen.
         await tester.tapAndSettle(
-          find.descendant(
-            of: find.byType(FaceVerificationIntroScreen),
-            matching: find.byKey(const Key("bottom_bar_primary")),
-          ),
+          find.byKey(const Key("bottom_bar_primary")).hitTestable(),
         );
         // The readout and the issuance call sit behind platform-channel round
         // trips that schedule no frames, so pumpAndSettle can return before the

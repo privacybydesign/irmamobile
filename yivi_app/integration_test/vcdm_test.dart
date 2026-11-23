@@ -172,7 +172,7 @@ Future<void> testIssueVcdm(
     isExpired: false,
     attributes: _expectedAttributes,
   );
-  await navigateBack(tester);
+  await closeCredentialDetail(tester);
 
   await verifyMostRecentActivityLog(
     tester,
@@ -399,7 +399,7 @@ Future<void> testIssueAndDiscloseOpenBadge(
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await navigateToCredentialDetailsPage(tester, _badgeCredentialId);
   await _evaluateBadgeCard(tester, card: findCredentialDetail(), images);
-  await navigateBack(tester);
+  await closeCredentialDetail(tester);
 
   final session = await startVeramoVerifierSession(
     _query(

@@ -158,10 +158,11 @@ void main() {
       final expectedScreenText = [
         "Forgot your PIN?",
         "We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
-        // The destructive action first, "Cancel" as text under it.
+        // The app bar's title, then the action bar under the page: the
+        // destructive action first, "Cancel" under it.
+        "Forgot PIN",
         "Start all over",
         "Cancel",
-        "Forgot PIN",
       ];
 
       expect(actualScreenText, expectedScreenText);

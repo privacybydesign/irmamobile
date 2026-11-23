@@ -57,12 +57,13 @@ Future<void> filledOptionalDisjunctionTest(
   // number in the app (by its value, as every option is a mobile number),
   // and both kinds can be added.
   await openOptionalSheet(tester, 1);
+  // Said in the sheet's heading and again in its bar once that scrolls.
   expect(
     find.descendant(
       of: findChoiceSheet(),
       matching: find.text("Do you want to share this too?"),
     ),
-    findsOneWidget,
+    findsWidgets,
   );
   expect(sheetRowSelected(tester, findShareNothing()), isTrue);
   expectSheet(

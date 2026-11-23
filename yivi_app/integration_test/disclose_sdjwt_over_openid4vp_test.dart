@@ -227,7 +227,10 @@ Future<void> testDisclosePassportOpensPassportScanner(
   await tester.tapAndSettle(find.byKey(const Key("sheet_issue_add")));
   final back = find.byKey(const Key("sheet_back_to_request"));
   await tester.waitFor(back);
-  expect(find.textContaining("Back to "), findsOneWidget);
+  expect(
+    find.descendant(of: back, matching: find.text("Continue sharing")),
+    findsOneWidget,
+  );
   await tester.tapAndSettle(back);
   await tester.waitUntilDisappeared(findChoiceSheet());
 
@@ -695,7 +698,14 @@ Future<void> testOptionallyDiscloseExtraCredential(
   // nothing", both e-mail addresses in the app and another one to add.
   final optional = _optionalItemIndex();
   await openOptionalSheet(tester, optional);
-  expect(find.text("Do you want to share this too?"), findsOneWidget);
+  // Said in the sheet's heading and again in its bar once that scrolls.
+  expect(
+    find.descendant(
+      of: findChoiceSheet(),
+      matching: find.text("Do you want to share this too?"),
+    ),
+    findsWidgets,
+  );
   _expectOwnedRows(tester, ["one@example.com", "two@example.com"]);
   expect(findSheetAddRow(_emailId), findsOneWidget);
 
@@ -1051,7 +1061,7 @@ Future<void> testOneCredentialTwoChoices(
 
   // Add a new one: its details in the sheet, then "Add" opens the issuer's
   // website, so the test issues the card the way that website would. The
-  // issuance shows in the sheet; "Back to …" closes it with the new card
+  // issuance shows in the sheet; "Continue sharing" closes it with the new card
   // selected.
   await startAdding(tester, _emailId);
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);

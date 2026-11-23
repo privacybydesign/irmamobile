@@ -323,7 +323,8 @@ Future<void> testDeleteAvMdoc(
     find.byType(ActivityCard, skipOffstage: false).at(0),
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.text("You deleted"), findsOneWidget);
+  // One section: the header says it ("Data deleted from"), no label.
+  expect(find.text("Data deleted from"), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     find.byType(ActivityCredentialTile).first,

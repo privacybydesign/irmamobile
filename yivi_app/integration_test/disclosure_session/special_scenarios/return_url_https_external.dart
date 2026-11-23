@@ -45,12 +45,17 @@ Future<void> returnUrlHttpsExternalTest(
   await tapShare(tester);
   await tester.pumpAndSettle();
 
-  // The done screen first: what was shared, and "Back to {host}" at the
-  // top and as its button. Nothing opens before the user taps it.
-  await tester.waitFor(find.byKey(const Key("share_done_next")));
+  // The done screen first: what was shared, and "Back to {host}" as its
+  // button. Nothing opens before the user taps it.
+  final back = find.byKey(const Key("ok_button"));
+  await tester.waitFor(back);
+  expect(
+    find.descendant(of: back, matching: find.text("Back to example.com")),
+    findsOneWidget,
+  );
   expect(externalLaunches, isEmpty);
   expect(inAppLaunches, isEmpty);
-  await tester.tapAndSettle(find.byKey(const Key("ok_button")));
+  await tester.tapAndSettle(back);
 
   expect(externalLaunches, [_returnUrl]);
   expect(inAppLaunches, isEmpty);

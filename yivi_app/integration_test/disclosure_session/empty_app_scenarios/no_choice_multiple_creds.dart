@@ -36,14 +36,15 @@ Future<void> noChoiceMultipleCredsTest(
   const sidn = "Demo Privacy by Design Foundation via SIDN";
   await waitForRequest(tester);
   expectEmptySpot(0, "Demo Email address", hint: sidn);
-  expectEmptySpot(
-    1,
-    "Demo Mobile phone number",
-    hint: sidn,
-  );
-  // Each spot lists the field it will share, still empty.
-  expectEmptySpotRows(0, ["Email address"]);
-  expectEmptySpotRows(1, ["Mobile phone number"]);
+  expectEmptySpot(1, "Demo Mobile phone number", hint: sidn);
+  // A spot lists only the fields asked with a set value; these ask any
+  // value, so the spots have no rows.
+  for (final (i, label) in [(0, "Email address"), (1, "Mobile phone number")]) {
+    expect(
+      find.descendant(of: findEmptySpot(i), matching: find.text(label)),
+      findsNothing,
+    );
+  }
   expectShareWaitsFor(tester, "Demo Email address");
 
   // The e-mail spot opens its details at once; "Add" opens the website

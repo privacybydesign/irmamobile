@@ -85,10 +85,7 @@ Future<void> multiCredBundleInSheetTest(
   final back = find.byKey(const Key("sheet_back_to_request"));
   await tester.waitFor(back);
   expect(
-    find.text(
-      "The 2 cards are now in your app. Go back to "
-      "is.demo.staging.yivi.app to continue.",
-    ),
+    find.text("The 2 cards are in your app now. Go back to share your data."),
     findsOneWidget,
   );
   await tester.tapAndSettle(back);

@@ -33,19 +33,15 @@ void main() {
       expect(find.byKey(const Key("empty_data_qr")), findsOneWidget);
     });
 
-    testWidgets("empty-app-search-no-crash", (tester) async {
+    testWidgets("empty-app-has-no-search", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
+      // Nothing to search: the empty app shows its explanation and the ways
+      // to start, without a search field.
       expect(countCredentialCards(tester), equals(0));
-
-      await searchWallet(tester, "hello");
-      expect(countCredentialCards(tester), equals(0));
-      // The empty wallet keeps showing its explanation while searching.
+      expect(find.byKey(const Key("search_field")), findsNothing);
       expect(find.text("No data yet"), findsOneWidget);
-
-      await searchWallet(tester, "");
-      expect(countCredentialCards(tester), equals(0));
     });
 
     testWidgets("no-query-all-cards", (tester) async {

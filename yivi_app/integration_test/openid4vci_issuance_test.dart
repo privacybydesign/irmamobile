@@ -714,7 +714,8 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(ActivityCard, skipOffstage: false).at(0),
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.text("You deleted"), findsOneWidget);
+  // One section: the header says it ("Data deleted from"), no label.
+  expect(find.text("Data deleted from"), findsOneWidget);
   expect(find.byType(ActivityCredentialTile), findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -731,7 +732,8 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(ActivityCard, skipOffstage: false).at(1),
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
-  expect(find.text("You deleted"), findsOneWidget);
+  // One section: the header says it ("Data deleted from"), no label.
+  expect(find.text("Data deleted from"), findsOneWidget);
   expect(find.byType(ActivityCredentialTile), findsOneWidget);
   await evaluateCredentialCard(
     tester,

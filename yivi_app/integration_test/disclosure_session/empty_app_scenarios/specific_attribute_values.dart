@@ -63,7 +63,7 @@ Future<void> specificAttributeValuesTest(
     find.descendant(of: notCounted, matching: find.text("Asked: RABONL2U")),
     findsOneWidget,
   );
-  expect(shareReason(tester), "Your card doesn't count for this request");
+  expect(shareReason(tester), "Your card does not count for this request");
   expect(shareButtonEnabled(tester), isFalse);
 
   // Now issue the credential with requested BIC

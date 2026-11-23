@@ -47,7 +47,7 @@ Future<void> choiceTest(
   await startAdding(tester, "irma-demo.sidn-pbdf.email");
 
   // The test issues the card the way that website would. The issuance shows
-  // in the sheet; "Back to …" closes it and the card is in its place.
+  // in the sheet; "Continue sharing" closes it and the card is in its place.
   await issueEmailAddress(tester, irmaBinding);
   await expectAddedInPlace(tester, 0);
   expect(shareButtonEnabled(tester), isTrue);

@@ -42,7 +42,7 @@ Future<void> signingTest(
     isVerified: false,
   );
 
-  expect(find.text("YOU SIGN"), findsOneWidget);
+  expect(find.text("YOU SIGN WITH"), findsOneWidget);
   final quoteFinder = find.byType(SignedMessage);
   expect(quoteFinder, findsOneWidget);
   expect(
