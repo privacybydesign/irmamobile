@@ -812,6 +812,14 @@ class IrmaRepository {
       cred: "irma-demo.PubHubs.account",
       oses: allOperatingSystems,
     ),
+    // The VOG issuer first asks the user to disclose their identity and only
+    // then offers to issue the VOG. Its page has to survive the trip to Yivi
+    // and back, which the in-app browser does not allow.
+    _ExternalBrowserCredtype(cred: "pbdf.pbdf.vog", oses: allOperatingSystems),
+    _ExternalBrowserCredtype(
+      cred: "pbdf-staging.pbdf.vog",
+      oses: allOperatingSystems,
+    ),
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
