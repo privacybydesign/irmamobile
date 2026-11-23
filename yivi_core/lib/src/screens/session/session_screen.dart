@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 import "../../data/irma_repository.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
+import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
@@ -17,6 +18,7 @@ import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
+import "../need_help/support_party.dart";
 import "call_info_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
@@ -234,6 +236,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                 : _buildError(
                     session.error ??
                         SessionError(errorType: "unknown", info: ""),
+                    requestor: session.requestor,
                   ),
           // dismissed and success are handled above
           .dismissed || .success => _buildLoadingScreen(session),
@@ -632,9 +635,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
   }
 
-  Widget _buildError(SessionError error) {
+  Widget _buildError(SessionError error, {TrustedParty? requestor}) {
     HapticFeedback.heavyImpact();
-    return SessionErrorScreen(error: error, onTapClose: _closeSession);
+    return SessionErrorScreen(
+      error: error,
+      onTapClose: _closeSession,
+      organisation: SupportParty.resolveIn(_repo, requestor),
+    );
   }
 
   void _grantPreAuthorizedCode(
