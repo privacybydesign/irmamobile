@@ -154,8 +154,13 @@ class _LockGateState extends ConsumerState<LockGate> with RebuildWhenSafe {
                           // The logout confirmation explains why *this* screen
                           // is asking for a PIN; it has nothing to say on the
                           // reset flow, and the messenger would otherwise keep
-                          // it up over the pushed route.
-                          ScaffoldMessenger.of(innerCtx).hideCurrentSnackBar();
+                          // it up over the pushed route. Removed, not hidden:
+                          // while it slid away it would also be laid out on
+                          // the reset screen, whose action bar leaves no room
+                          // for a toast placed for the top of the PIN screen.
+                          ScaffoldMessenger.of(
+                            innerCtx,
+                          ).removeCurrentSnackBar();
                           Navigator.of(innerCtx).push(
                             MaterialPageRoute<void>(
                               builder: (_) => ResetPinScreen(),

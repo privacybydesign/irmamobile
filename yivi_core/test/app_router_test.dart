@@ -16,6 +16,7 @@ import "package:yivi_core/src/screens/loading/loading_screen.dart";
 import "package:yivi_core/src/screens/name_changed/name_changed_screen.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/required_update/required_update_screen.dart";
+import "package:yivi_core/src/screens/reset_pin/reset_pin_screen.dart";
 import "package:yivi_core/src/screens/rooted_warning/rooted_warning_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 
@@ -201,6 +202,29 @@ void main() {
 
       expect(app.location, "/home");
       expect(find.byType(PinScreen), findsOneWidget);
+      await app.unmount(tester);
+    });
+
+    testWidgets("forgot PIN with the logged-out toast up: the toast does "
+        "not follow onto the reset screen", (tester) async {
+      await app.repo.preferences.acceptedLatestTerms.set(true);
+      await app.pump(tester);
+      // Logged out before the lock screen first shows, so it says so.
+      app.repo.appLock.logOut();
+      app.enrolled();
+      app.schemes();
+      await app.run(tester);
+      expect(find.text("You have been logged out"), findsOneWidget);
+
+      await tester.tap(find.text("I forgot my PIN"));
+      // Through the push; a toast placed for the PIN screen would sit off
+      // the reset screen, above its action bar.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(find.byType(ResetPinScreen), findsOneWidget);
+      expect(find.text("You have been logged out"), findsNothing);
       await app.unmount(tester);
     });
   });
