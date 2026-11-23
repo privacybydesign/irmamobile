@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - The Android app no longer asks for permissions it does not use. Dropped from both flavours: `RECORD_AUDIO` and `WRITE_EXTERNAL_STORAGE`/`READ_EXTERNAL_STORAGE`, which the camera plugin adds for video recording, and `WAKE_LOCK`. The F-Droid app also drops `VIBRATE`; the Play app keeps it, because the face verification SDK declares it
 
+### Fixed
+- Adding a certificate of conduct (VOG) from within the app opens the issuer's page in the external browser. In the in-app browser the page was lost after the identity check, so the VOG was never added; on Android the app then left the screen, which looked like a crash
+
 ### Security
 - Yivi only works on a device with a screen lock (a PIN, pattern, password or passcode, which fingerprint, face unlock, Face ID and Touch ID also use). On a device without one, a screen explains how to set it, both before enrollment and for existing users; on Android it opens the screen lock settings. The app checks again whenever it is reopened, so after setting a screen lock the user continues where they were
 - Links in markdown texts, which can come from issuers (such as the FAQ in EUDI credential metadata), only open when they are `https` or `mailto` links. A link with another scheme, such as `javascript:`, `file:`, `intent:` or another app's custom scheme, is ignored
