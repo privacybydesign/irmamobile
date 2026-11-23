@@ -1,4 +1,4 @@
-package foundation.privacybydesign.yivi_core.digitalcredentials
+package foundation.privacybydesign.irmamobile
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -33,6 +33,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * `test.test.email` SD-JWT credential (claim `email`) — matching what the Go
  * core discloses over the DC API; enough for a verifier requesting that
  * credential to offer Yivi.
+ *
+ * It lives in this app rather than in the shared `yivi_core` plugin because the
+ * registration is stored by Google Play services: the library that does so is
+ * proprietary, and `yivi_core` is also built into the F-Droid app, which must
+ * not carry it. The Activity the platform launches for a request,
+ * [DigitalCredentialsActivity], is in this app for the same reason, so an app
+ * registers exactly when it can also answer.
  *
  * TODO(dc-api): drive the entry list from the wallet's actual held credentials
  * (re-registering when they change) instead of this fixed demo entry.

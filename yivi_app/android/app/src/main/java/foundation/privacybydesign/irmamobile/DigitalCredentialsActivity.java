@@ -58,11 +58,20 @@ public class DigitalCredentialsActivity extends FlutterFragmentActivity
     // the bridge during the engine's onAttachedToActivity, inside super.onCreate.
     requestJson = extractRequestJson();
     super.onCreate(savedInstanceState);
+
+    // Without a request there is nothing to hand to Dart, so no session starts
+    // and nothing would ever report an outcome. Answer the platform here, or
+    // the caller's call stays open until the user backs out by hand.
+    if (requestJson == null) {
+      onDigitalCredentialsFailure("error");
+    }
   }
 
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     GeneratedPluginRegistrant.registerWith(flutterEngine);
+    // Keep the registration current when a request is what started the process.
+    DigitalCredentialsRegistrar.register(getApplicationContext());
   }
 
   @Override
@@ -124,8 +133,8 @@ public class DigitalCredentialsActivity extends FlutterFragmentActivity
   /**
    * Pulls the OpenID4VP request out of the platform's provider request and
    * reshapes it into the {@code HandleDigitalCredentialsRequestEvent} payload,
-   * or returns null if this launch carried no usable request (the session then
-   * ends as a failure, releasing the caller's call).
+   * or returns null if this launch carried no usable request ({@link #onCreate}
+   * then answers the platform with a failure, releasing the caller's call).
    */
   @Nullable
   private String extractRequestJson() {

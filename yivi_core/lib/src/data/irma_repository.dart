@@ -255,7 +255,7 @@ class IrmaRepository {
         }
 
         final pointer = Pointer.fromString(event.url);
-        _pendingPointerSubject.add(pointer);
+        _replacePendingPointer(pointer);
         _resumedWithURLSubject.add(true);
         closeInAppWebView();
       } on MissingPointer catch (e, stackTrace) {
@@ -265,9 +265,7 @@ class IrmaRepository {
       // A Digital Credentials API request carries no URL, so there is nothing to
       // parse: queue it as a pointer and let the normal pending-pointer path
       // unlock the app and start the session.
-      _pendingPointerSubject.add(
-        SessionPointer.digitalCredentials(event.request),
-      );
+      _replacePendingPointer(SessionPointer.digitalCredentials(event.request));
     } else if (event is AppReadyAckEvent) {
       // Native's acknowledgement that the launch handshake is done. It is sent
       // right AFTER any initial-URL `HandleURLEvent`, so on a cold start started
@@ -277,7 +275,8 @@ class IrmaRepository {
       // the link and unlock the app before the session pointer is known.
       _startupUrlResolvedSubject.add(true);
     } else if (event is NewSessionEvent) {
-      _pendingPointerSubject.add(null);
+      // The queued pointer has become this session, so it is not dropped.
+      _replacePendingPointer(null, startedSession: event.request);
     } else if (event is ClearAllDataEvent) {
       _credentialsSubject.add(Credentials({}));
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
@@ -702,7 +701,32 @@ class IrmaRepository {
   /// it once the app is unlocked. Pass `null` to clear a queued pointer
   /// (e.g. the user cancels a pending session from the lock screen).
   void setPendingPointer(Pointer? pointer) {
+    _replacePendingPointer(pointer);
+  }
+
+  /// Every change of the queued pointer goes through here, because a queued
+  /// Digital Credentials API request owes native an outcome just like a started
+  /// session does: the platform holds the caller's call open until it gets one.
+  /// A request that leaves the queue without becoming a session ([startedSession]
+  /// is the pointer a `NewSessionEvent` just started) was dropped — the user
+  /// cancelled it on the lock screen, or another pointer took its place — and
+  /// nothing else would ever tell native so.
+  void _replacePendingPointer(Pointer? pointer, {Pointer? startedSession}) {
+    final previous = _pendingPointerSubject.value;
     _pendingPointerSubject.add(pointer);
+
+    final droppedRequest =
+        previous is SessionPointer &&
+        previous.dcApi != null &&
+        !identical(previous, pointer) &&
+        !identical(previous, startedSession);
+    if (droppedRequest) {
+      bridgedDispatch(
+        DigitalCredentialsFailureEvent(
+          reason: DigitalCredentialsFailureReason.cancelled,
+        ),
+      );
+    }
   }
 
   Stream<bool> getDeveloperMode() {
@@ -1108,7 +1132,7 @@ class IrmaRepository {
   void startTestSessionFromUrl(String url) {
     final sessionPtr = Pointer.fromString(url) as SessionPointer;
     sessionPtr.continueOnSecondDevice = true;
-    _pendingPointerSubject.add(sessionPtr);
+    _replacePendingPointer(sessionPtr);
   }
 
   /// Only meant for testing and debug purposes.
@@ -1120,13 +1144,13 @@ class IrmaRepository {
       requestBody,
       continueOnSecondDevice: continueOnSecondDevice,
     );
-    _pendingPointerSubject.add(sessionPtr);
+    _replacePendingPointer(sessionPtr);
   }
 
   /// Only meant for testing and debug purposes.
   Future<void> startTestIssueWizard(String wizardKey) async {
     final issueWizardPointer = IssueWizardPointer(wizardKey);
-    _pendingPointerSubject.add(issueWizardPointer);
+    _replacePendingPointer(issueWizardPointer);
   }
 }
 

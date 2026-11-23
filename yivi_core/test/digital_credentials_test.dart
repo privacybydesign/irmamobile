@@ -341,4 +341,121 @@ void main() {
       expect(repo.claimDigitalCredentialsSession(started.sessionId), isFalse);
     });
   });
+
+  // A request that is queued but never becomes a session owes native an outcome
+  // too: the platform keeps the caller's call open for it just the same.
+  group("Digital Credentials request that never becomes a session", () {
+    Future<(IrmaRepository, _RecordingBridge)> queued() async {
+      final bridge = _RecordingBridge();
+      final repo = await _repo(bridge);
+      addTearDown(repo.close);
+
+      repo.dispatch(HandleDigitalCredentialsRequestEvent(request: _request()));
+      await pumpEventQueue();
+      expect(repo.pendingPointer, isA<SessionPointer>());
+      return (repo, bridge);
+    }
+
+    List<DigitalCredentialsFailureReason> failures(_RecordingBridge bridge) =>
+        bridge.dispatched
+            .whereType<DigitalCredentialsFailureEvent>()
+            .map((e) => e.reason)
+            .toList();
+
+    test("queueing it reports nothing", () async {
+      final (_, bridge) = await queued();
+
+      expect(failures(bridge), isEmpty);
+    });
+
+    test("cancelling it on the lock screen reports a cancellation", () async {
+      final (repo, bridge) = await queued();
+
+      repo.setPendingPointer(null);
+      await pumpEventQueue();
+
+      expect(failures(bridge), [DigitalCredentialsFailureReason.cancelled]);
+    });
+
+    test("another pointer taking its place reports a cancellation", () async {
+      final (repo, bridge) = await queued();
+
+      repo.setPendingPointer(
+        Pointer.fromString(
+          "openid4vp://?request_uri=https://verifier.example/req/abc"
+          "&client_id=x509_san_dns:verifier.example",
+        ),
+      );
+      await pumpEventQueue();
+
+      expect(failures(bridge), [DigitalCredentialsFailureReason.cancelled]);
+    });
+
+    test(
+      "it is reported once, not again when the queue changes later",
+      () async {
+        final (repo, bridge) = await queued();
+
+        repo.setPendingPointer(null);
+        repo.setPendingPointer(null);
+        await pumpEventQueue();
+
+        expect(failures(bridge), hasLength(1));
+      },
+    );
+
+    test("becoming a session reports nothing", () async {
+      final (repo, bridge) = await queued();
+
+      repo.dispatch(
+        NewSessionEvent(
+          sessionId: repo.allocateSessionId(),
+          request: repo.pendingPointer! as SessionPointer,
+        ),
+      );
+      await pumpEventQueue();
+
+      expect(repo.pendingPointer, isNull);
+      expect(failures(bridge), isEmpty);
+    });
+
+    test(
+      "another session starting in its place reports a cancellation",
+      () async {
+        final (repo, bridge) = await queued();
+
+        repo.dispatch(
+          NewSessionEvent(
+            sessionId: repo.allocateSessionId(),
+            request:
+                Pointer.fromString(
+                      "openid4vp://?request_uri=https://verifier.example/req/abc"
+                      "&client_id=x509_san_dns:verifier.example",
+                    )
+                    as SessionPointer,
+          ),
+        );
+        await pumpEventQueue();
+
+        expect(failures(bridge), [DigitalCredentialsFailureReason.cancelled]);
+      },
+    );
+
+    test("a queued URL pointer being dropped reports nothing", () async {
+      final bridge = _RecordingBridge();
+      final repo = await _repo(bridge);
+      addTearDown(repo.close);
+
+      repo.setPendingPointer(
+        Pointer.fromString(
+          "openid4vp://?request_uri=https://verifier.example/req/abc"
+          "&client_id=x509_san_dns:verifier.example",
+        ),
+      );
+      repo.setPendingPointer(null);
+      await pumpEventQueue();
+
+      expect(failures(bridge), isEmpty);
+    });
+  });
 }

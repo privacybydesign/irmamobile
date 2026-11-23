@@ -62,8 +62,12 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       byte[] aesKey = AESKey.getKey(context);
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
       assert pi.applicationInfo != null;
-      Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(),
-        new ECDSA(context), aesKey, locale);
+      // The core is shared with any other engine in this process, so it is
+      // started with the relay rather than with this bridge; see GoBridgeRelay.
+      // Starting it a second time only makes this engine the one it talks to.
+      GoBridgeRelay.INSTANCE.attach(this);
+      Irmagobridge.start(GoBridgeRelay.INSTANCE, pi.applicationInfo.dataDir,
+        copier.destAssetsPath.toString(), new ECDSA(context), aesKey, locale);
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
       StringBuilder exception = new StringBuilder(e.toString());
       Throwable cause = e.getCause();
@@ -211,7 +215,12 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   }
 
   public void stop() {
-    Irmagobridge.stop();
+    // Another engine may still be using the core. Stopping it here would close
+    // the client under that engine, and everything it sends afterwards would
+    // block waiting for a client that is not coming back.
+    if (GoBridgeRelay.INSTANCE.detach(this)) {
+      Irmagobridge.stop();
+    }
   }
 
   private static String optStringArg(MethodCall call, String key, String fallback) {

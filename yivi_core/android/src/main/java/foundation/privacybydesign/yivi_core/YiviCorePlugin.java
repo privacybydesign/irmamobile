@@ -7,7 +7,6 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import foundation.privacybydesign.yivi_core.digitalcredentials.DigitalCredentialsRegistrar;
 import foundation.privacybydesign.yivi_core.irma_mobile_bridge.DigitalCredentialsHost;
 import foundation.privacybydesign.yivi_core.irma_mobile_bridge.IrmaMobileBridge;
 import foundation.privacybydesign.yivi_core.plugins.app_integrity.AppIntegrityPlugin;
@@ -86,11 +85,6 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         applicationContext = binding.getApplicationContext();
         // Don't create the bridge yet; we don't have an Activity.
         // We'll create it in onAttachedToActivity().
-
-        // Advertise Yivi to the Credential Manager as an OpenID4VP Digital
-        // Credentials provider so verifier requests can reach it. Idempotent and
-        // self-guarding, so it is safe to call on every engine attach.
-        DigitalCredentialsRegistrar.register(applicationContext);
 
         webBrowser = new IIABPlugin();
         webBrowser.onAttachedToEngine(binding);
