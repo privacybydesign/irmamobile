@@ -36,7 +36,8 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
       imagePath: yiviAsset("error/general_error_illustration.svg"),
       titleTranslationKey: _translationKeys[type]!,
       bodyTranslationKey:
-          _bodyTranslationKeys[type] ?? (reportable == true ? "error.report" : null),
+          _bodyTranslationKeys[type] ??
+          (reportable == true ? "error.report" : null),
       linkTranslationKey: details != null ? "error.button_show_error" : null,
       linkDialogText: details,
     );
