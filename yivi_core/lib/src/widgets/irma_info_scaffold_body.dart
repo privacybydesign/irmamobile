@@ -18,6 +18,9 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
   final String? linkTranslationKey;
   final String? linkDialogText;
 
+  /// Shown below everything else, e.g. a second link.
+  final Widget? footer;
+
   const IrmaInfoScaffoldBody({
     super.key,
     required this.titleTranslationKey,
@@ -29,6 +32,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
     this.iconColor,
     this.linkDialogText,
     this.linkTranslationKey,
+    this.footer,
   }) : assert(
          iconColor == null || icon != null,
          "Icon color can only be used when an icon is provided",
@@ -110,6 +114,10 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
+            ],
+            if (footer != null) ...[
+              SizedBox(height: theme.mediumSpacing),
+              footer!,
             ],
           ],
         ),

@@ -454,6 +454,12 @@ class RequestorInfo {
 
   final List<String> hostnames;
 
+  /// Where end users reach the requestor's own support, from the requestor
+  /// scheme. Optional: most requestors have neither.
+  final String? supportEmail;
+
+  final String? supportUrl;
+
   RequestorInfo({
     required this.name,
     this.unverified = true,
@@ -462,6 +468,8 @@ class RequestorInfo {
     this.id,
     this.logo,
     this.logoPath,
+    this.supportEmail,
+    this.supportUrl,
   });
   factory RequestorInfo.fromJson(Map<String, dynamic> json) =>
       _$RequestorInfoFromJson(json);

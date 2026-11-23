@@ -91,6 +91,8 @@ RequestorInfo _$RequestorInfoFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String?,
       logo: json['logo'] as String?,
       logoPath: json['logo_path'] as String?,
+      supportEmail: json['support_email'] as String?,
+      supportUrl: json['support_url'] as String?,
     );
 
 Map<String, dynamic> _$RequestorInfoToJson(RequestorInfo instance) =>
@@ -102,4 +104,6 @@ Map<String, dynamic> _$RequestorInfoToJson(RequestorInfo instance) =>
       'logo_path': instance.logoPath,
       'unverified': instance.unverified,
       'hostnames': instance.hostnames,
+      'support_email': instance.supportEmail,
+      'support_url': instance.supportUrl,
     };
