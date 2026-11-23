@@ -20,6 +20,7 @@ import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart"
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/screens/session/result/card_pile.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/attribute_groups/driving_licence/driving_licence_categories_renderer.dart";
 
 import "missing_data_fixtures.dart";
 import "support/pump_translated.dart";
@@ -177,6 +178,55 @@ void main() {
 
     await tester.tap(find.text("Add 3 cards"));
     expect(added, 1);
+  });
+
+  testWidgets("a driving licence: its categories collapse to the ones held, "
+      "as on its detail screen", (tester) async {
+    Attribute flag(String code, bool held) => Attribute(
+      claimPath: ["category$code"],
+      displayName: "Category $code",
+      value: AttributeValue(type: AttributeType.boolean, boolValue: held),
+    );
+    Attribute date(String code, String kind, String? value) =>
+        _value("category$code$kind", "Category $code $kind", value ?? "");
+    final licence = _card(
+      "irma-demo.pbdf.drivinglicence",
+      attributes: [
+        _value("documentNumber", "Document number", "AB1234567"),
+        for (final code in DrivingLicenceCategoriesRenderer.codes) ...[
+          flag(code, code == "B"),
+          date(code, "DateOfIssue", code == "B" ? "2015-03-01" : null),
+          date(code, "DateOfExpiry", code == "B" ? "2030-03-01" : null),
+        ],
+      ],
+    );
+    await _pump(
+      tester,
+      IssuancePermission(
+        issuedCredentials: [licence],
+        onDismiss: () {},
+        onGivePermission: () {},
+      ),
+    );
+
+    final table = find.byKey(
+      const Key("attribute_group_driving_licence_categories"),
+    );
+    expect(table, findsOneWidget);
+    expect(find.text("Document number"), findsOneWidget);
+    expect(
+      find.byKey(const Key("driving_licence_categories_toggle")),
+      findsOneWidget,
+    );
+    final notHeld = DrivingLicenceCategoriesRenderer.codes.length - 1;
+    expect(
+      find.descendant(
+        of: table,
+        matching: find.text("+ $notHeld categories not held"),
+      ),
+      findsOneWidget,
+    );
+    expect(find.descendant(of: table, matching: find.text("C")), findsNothing);
   });
 
   testWidgets("the band under the bar comes with who gives the card", (

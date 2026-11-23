@@ -15,6 +15,10 @@ import "../models/issuance_view_model.dart";
 /// it, the [mismatched] ones in red. The question whether to add an offer,
 /// the success after it, and the card a requestor gives in return on the
 /// share screen.
+///
+/// The values are the whole card, as on its detail screen, not a share:
+/// groups fold and a driving licence's categories collapse to the ones held.
+/// A card without values has no values row.
 class ReceivedCardTile extends StatelessWidget {
   final Credential card;
   final String subtitle;
@@ -23,18 +27,12 @@ class ReceivedCardTile extends StatelessWidget {
   /// Claim paths ([claimPathKey]) whose value the request cannot use.
   final Set<String> mismatched;
 
-  /// The values are shown as when they are shared: never folded away. The
-  /// share screen's card in return has them foldable, and no values row at
-  /// all when it holds none.
-  final bool disclosure;
-
   const ReceivedCardTile({
     super.key,
     required this.card,
     required this.subtitle,
     this.tag,
     this.mismatched = const {},
-    this.disclosure = true,
   });
 
   @override
@@ -57,12 +55,11 @@ class ReceivedCardTile extends StatelessWidget {
       subtitle: subtitle,
       chip: label == null ? null : StatusChip(label: label, tone: tone!),
       body: [
-        if (disclosure || card.attributes.isNotEmpty)
+        if (card.attributes.isNotEmpty)
           CardAttributeList(
             card.attributes,
             credentialId: card.credentialId,
             namespaced: card.isMdoc,
-            disclosure: disclosure,
             showDividers: true,
             mismatched: mismatched,
           ),

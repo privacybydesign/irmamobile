@@ -486,7 +486,6 @@ class _DisclosureShareScreenState extends ConsumerState<DisclosureShareScreen> {
               key: Key("share_offered_card_$n"),
               card: card,
               subtitle: card.issuer.name,
-              disclosure: false,
             ),
           ),
       ],
