@@ -5,12 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.5.0] - 2026-11-24
 ### Added
 - Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
 - A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
 - Support for French language ([#806](https://github.com/privacybydesign/irmamobile/issues/806))
 - "Need help?" as the one way into support, from the More tab, an activity and a session error. The user picks their problem and first gets a short answer, with a link where one solves it (MyYivi for a lost phone). Only when that doesn't help are they put through: to the organisation for its own requests, outcomes and data, using the website and email from the scheme or the requestor's hostname, and to Yivi support for the app and the data Yivi issues. When adding data fails, the user says whether they get it from Yivi or from another organisation. The mail to Yivi support names the problem and includes the app version, the device and, after an error, the error report. For a problem with an organisation, the user picks it from their recent sessions and activity, or searches every organisation in the scheme. Once there is an organisation to contact, its email or website is the one way forward: with an email address the app opens a mail to the organisation that names the problem and the error code, without the error report. A website that is only derived from a hostname can be the wrong one, so then Yivi support stays within reach. Recent sessions include ones the user never finished, such as a scanned QR code they cancelled, or left at the pairing code before the app knew the organisation: those are named after the server in the QR code. The app keeps them in memory only, until it restarts
-- "Need help?" uses the support address and support page an organisation states for its end users in the requestor scheme (`support_email` and `support_url`). They come before the contact details of the issuer a requestor is paired with, which are not always meant for end users, and before the website derived from the requestor's hostname. A support page from the scheme is not a guessed website, so the way to Yivi support is not shown next to it. The organisation has the same support address when the user gets there from data it issued. The fields reach the app with an irmago release that has them; until then nothing changes
+- "Need help?" uses the support address and support page an organisation states for its end users in the requestor scheme (`support_email` and `support_url`). They come before the contact details of the issuer a requestor is paired with, which are not always meant for end users, and before the website derived from the requestor's hostname. A support page from the scheme is not a guessed website, so the way to Yivi support is not shown next to it. The organisation has the same support address when the user gets there from data it issued. The fields reach the app from irmago v1.6.1 on
 - A link to the privacy policy on the terms screen of the enrollment, so it can be read before any data is processed
 - The moment the terms were accepted is stored next to the version that was accepted
 
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Adding a certificate of conduct (VOG) from within the app opens the issuer's page in the external browser. In the in-app browser the page was lost after the identity check, so the VOG was never added; on Android the app then left the screen, which looked like a crash
+- An OpenID4VP request whose DCQL `credential_sets` option names several credential queries, such as `"options": [["pid", "enrolment"]]`, is no longer refused with "not supported at the moment": such an option asks for those credentials together (irmago v1.6.1)
 
 ### Security
 - Yivi only works on a device with a screen lock (a PIN, pattern, password or passcode, which fingerprint, face unlock, Face ID and Touch ID also use). On a device without one, a screen explains how to set it, both before enrollment and for existing users; on Android it opens the screen lock settings. The app checks again whenever it is reopened, so after setting a screen lock the user continues where they were
@@ -51,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The TLS configuration of the Go bridge (the embedded root certificates and only AEAD cipher suites for TLS 1.2) also applies to the OpenID4VCI, OpenID4VP, status list and did:web traffic. Before, it only reached the IRMA and keyshare traffic
 - In the F-Droid app, the face capture WebView only navigates to `https` pages on the host of the capture page, and cannot read files or content providers
 - The storage key on Android is generated with the default `SecureRandom` instead of `getInstanceStrong()`, which is the same generator there but can block on some devices
+- From irmago v1.6.1, the wallet only encrypts OpenID4VP responses and OpenID4VCI credential requests with JWE algorithms on an allow-list (no `RSA1_5`, `RSA-OAEP` with SHA-1, symmetric or password-based algorithms), and an encrypted credential request uses the content encryption algorithm the issuer supports. The OpenID4VCI authorization code flow always uses PKCE with `S256`. The EUDI database pins its SQLCipher parameters (`cipher_compatibility = 4`, the SQLCipher 4 defaults, so existing databases open unchanged) and is not opened with plain SQLite or SQLCipher 3
 
 ### Internal
 - The Android builds in Status checks and Delivery first remove the runner's preinstalled Android SDK, .NET, GHC, Boost and Docker images, because they ran out of disk space. Our own Android SDK lives in `~/android-sdk`
@@ -64,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enabled Private Vulnerability Reporting on repository and included SECURITY.md
 - Release builds made with fastlane obfuscate the Dart code (`--obfuscate --split-debug-info`). The symbols needed to read a stack trace of such a build are kept as `dart-symbols-*.zip`, uploaded by Delivery as artifacts of their own, apart from the app artifacts. A stack trace is made readable with `flutter symbolize`; Sentry shows addresses until the symbols are uploaded there
 - The names of the events that cross the bridge between Dart and Go are written out instead of taken from the Dart class names, which obfuscation changes. A test compares them with the events the Go bridge handles
+- Upgrade irmago to v1.6.1, and Go to 1.27.4, which irmago declares (the go directive in `yivi_core/go.mod` and the build environment action). The other Go modules move with it, among them `lestrrat-go/jwx/v4` 4.4.0 to 4.6.0 and `golang.org/x/crypto` 0.55.0 to 0.57.0
 - The Android release build states `minifyEnabled` and `shrinkResources` (R8), which were the Flutter defaults
 - `ci_scripts/check_security_config.sh`, run in Status checks, fails when a security setting is undone: backup and cleartext rules in the manifests, certificate validation overrides, run-time code loading, a debuggable manifest, the obfuscation and Go build flags
 - Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
@@ -867,7 +872,8 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
-[Unreleased]: https://github.com/privacybydesign/irmamobile/compare/v8.4.0...HEAD
+[Unreleased]: https://github.com/privacybydesign/irmamobile/compare/v8.5.0...HEAD
+[8.5.0]: https://github.com/privacybydesign/irmamobile/compare/v8.4.0...v8.5.0
 [8.4.0]: https://github.com/privacybydesign/irmamobile/compare/v8.3.3...v8.4.0
 [8.3.3]: https://github.com/privacybydesign/irmamobile/compare/v8.3.2...v8.3.3
 [8.3.2]: https://github.com/privacybydesign/irmamobile/compare/v8.3.1...v8.3.2
