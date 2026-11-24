@@ -1,5 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
+import "../theme/back_swipe_transitions.dart";
+
 import "../theme/yivi_corners.dart";
 import "../theme/yivi_motion.dart";
 import "../theme/yivi_palette.dart";
@@ -225,7 +227,23 @@ class _AdaptiveRoute<T> extends PageRoute<T>
                     padding: EdgeInsets.zero,
                     viewPadding: EdgeInsets.zero,
                   ),
-                  child: child,
+                  // A step over another one in the same sheet comes in and
+                  // goes back inside the sheet's frame, and is swiped back
+                  // as the pages of a sheet are.
+                  child: _stacked
+                      ? _StackedStep(
+                          route: this,
+                          curved: _curved,
+                          child: BackDragDetector(
+                            route: this,
+                            enabled: () =>
+                                isCurrent &&
+                                !isFirst &&
+                                popDisposition == RoutePopDisposition.pop,
+                            child: child,
+                          ),
+                        )
+                      : child,
                 ),
               ),
             ),
@@ -251,18 +269,8 @@ class _AdaptiveRoute<T> extends PageRoute<T>
       if (_page.mode != PresentationMode.sheet) {
         return FadeTransition(opacity: curved, child: child);
       }
-      if (_stacked) {
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween(
-              begin: const Offset(0.06, 0),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          ),
-        );
-      }
+      // Moves inside the sheet's frame instead (see [_StackedStep]).
+      if (_stacked) return child;
       // The dim fades in on its own; the sheet rises and settles.
       return Stack(
         children: [
@@ -301,4 +309,61 @@ class _AdaptiveRoute<T> extends PageRoute<T>
 
   /// Width of the centred column of a full-screen state on a tablet.
   static const fullColumnWidth = 560.0;
+}
+
+/// A sheet step over another one in the same frame on a tablet: it fades in
+/// with a short slide from the side, and while a finger swipes it back it
+/// follows the finger across the sheet's width (then its spring), with the
+/// step under it in view.
+class _StackedStep extends StatelessWidget {
+  final PageRoute<dynamic> route;
+  final Animation<double> curved;
+  final Widget child;
+
+  const _StackedStep({
+    required this.route,
+    required this.curved,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final animation = route.animation!;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    // Rebuilt only when a swipe starts or ends; the transitions move the
+    // step per frame.
+    return ValueListenableBuilder<bool>(
+      valueListenable: route.navigator!.userGestureInProgressNotifier,
+      child: child,
+      // The same widgets in every case, only other animations: the page
+      // inside (and the swipe that holds it) stays as it is when a swipe
+      // starts.
+      builder: (context, swiping, child) {
+        final (
+          Animation<double> opacity,
+          Animation<Offset> position,
+        ) = swiping && route.isActive
+            ? (
+                kAlwaysCompleteAnimation,
+                Tween(
+                  begin: Offset(rtl ? -1 : 1, 0),
+                  end: Offset.zero,
+                ).animate(animation),
+              )
+            : MediaQuery.disableAnimationsOf(context)
+            ? (animation, const AlwaysStoppedAnimation(Offset.zero))
+            : (
+                curved,
+                Tween(
+                  begin: Offset(rtl ? -0.06 : 0.06, 0),
+                  end: Offset.zero,
+                ).animate(curved),
+              );
+        return FadeTransition(
+          opacity: opacity,
+          child: SlideTransition(position: position, child: child),
+        );
+      },
+    );
+  }
 }

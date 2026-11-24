@@ -1,11 +1,8 @@
-import "dart:math";
-
 import "package:cupertino_ui/cupertino_ui.dart"
     show
         CupertinoFullscreenDialogTransition,
         CupertinoPageTransition,
         CupertinoPageTransitionsBuilder;
-import "package:flutter/gestures.dart" show HorizontalDragGestureRecognizer;
 import "package:flutter/physics.dart";
 import "package:flutter/services.dart" show PredictiveBackEvent;
 import "package:material_ui/material_ui.dart";
@@ -24,8 +21,10 @@ import "package:material_ui/material_ui.dart";
 /// and slows down to its end on a spring that does not bounce, and the page
 /// under it follows that, linearly, until the swipe is done.
 ///
-/// On Android too: there the system's back gesture (predictive back) moves
-/// the page instead of a swipe from the screen's edge.
+/// The swipe starts anywhere on the page, as in a sheet's pages
+/// (SheetPages), not only at the screen's edge ([BackDragDetector]). On
+/// Android too, next to the system's back gesture (predictive back), which
+/// moves the page the same way.
 class YiviCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
   const YiviCupertinoPageTransitionsBuilder();
 
@@ -68,13 +67,14 @@ class YiviCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
         child: child,
       );
     }
+    final swipe = BackDragDetector(route: route, child: child);
     return CupertinoPageTransition(
       primaryRouteAnimation: animation,
       secondaryRouteAnimation: secondaryAnimation,
       linearTransition: linear,
       child: switch (Theme.of(context).platform) {
-        TargetPlatform.android => _PredictiveBack(route: route, child: child),
-        _ => _BackSwipeDetector(route: route, child: child),
+        TargetPlatform.android => _PredictiveBack(route: route, child: swipe),
+        _ => swipe,
       },
     );
   }
@@ -174,40 +174,50 @@ class _UnderSlide extends StatelessWidget {
   }
 }
 
-/// How wide the strip at the leading edge is where a back swipe starts, as
-/// on iOS (wider where a notch is).
-const double _edgeWidth = 20;
-
-class _BackSwipeDetector extends StatefulWidget {
+/// The back swipe from anywhere on [route]'s page: a drag towards the
+/// trailing side moves the page with the finger, and it closes when let go
+/// past half way or flung. It wraps the page, so what is on the page takes
+/// a horizontal drag first: a list that scrolls sideways, a swipe on a row,
+/// a slider, selecting text. A drag the other way only holds the page in
+/// place. [enabled] says whether the page can be swiped away now; by
+/// default when the route allows a back gesture.
+class BackDragDetector extends StatefulWidget {
   final PageRoute<dynamic> route;
+  final bool Function()? enabled;
   final Widget child;
 
-  const _BackSwipeDetector({required this.route, required this.child});
+  const BackDragDetector({
+    super.key,
+    required this.route,
+    this.enabled,
+    required this.child,
+  });
 
   @override
-  State<_BackSwipeDetector> createState() => _BackSwipeDetectorState();
+  State<BackDragDetector> createState() => _BackDragDetectorState();
 }
 
-class _BackSwipeDetectorState extends State<_BackSwipeDetector> {
-  late final HorizontalDragGestureRecognizer _recognizer;
+class _BackDragDetectorState extends State<BackDragDetector> {
   _BackSwipe? _swipe;
 
-  @override
-  void initState() {
-    super.initState();
-    _recognizer = HorizontalDragGestureRecognizer(debugOwner: this)
-      ..onStart = _onStart
-      ..onUpdate = _onUpdate
-      ..onEnd = _onEnd
-      ..onCancel = _onCancel;
-  }
+  bool get _enabled => widget.enabled?.call() ?? widget.route.popGestureEnabled;
+
+  double _logical(double value) => switch (Directionality.of(context)) {
+    TextDirection.rtl => -value,
+    TextDirection.ltr => value,
+  };
 
   void _onStart(DragStartDetails details) {
+    if (!_enabled) return;
     _swipe = _BackSwipe.start(widget.route);
   }
 
   void _onUpdate(DragUpdateDetails details) {
-    _swipe?.update(_logical(details.primaryDelta! / context.size!.width));
+    final swipe = _swipe;
+    if (swipe == null) return;
+    swipe.update(_logical(details.primaryDelta! / context.size!.width));
+    // Dragged back past where it started: the page stays fully open.
+    if (swipe.controller.value > 1) swipe.controller.value = 1;
   }
 
   void _onEnd(DragEndDetails details) {
@@ -224,41 +234,23 @@ class _BackSwipeDetectorState extends State<_BackSwipeDetector> {
 
   @override
   void dispose() {
-    _recognizer.dispose();
     _swipe?.abandon();
     super.dispose();
   }
 
-  double _logical(double value) => switch (Directionality.of(context)) {
-    TextDirection.rtl => -value,
-    TextDirection.ltr => value,
-  };
-
   @override
-  Widget build(BuildContext context) {
-    final edge = switch (Directionality.of(context)) {
-      TextDirection.rtl => MediaQuery.paddingOf(context).right,
-      TextDirection.ltr => MediaQuery.paddingOf(context).left,
-    };
-    return Stack(
-      fit: StackFit.passthrough,
-      children: [
-        widget.child,
-        PositionedDirectional(
-          start: 0,
-          width: max(edge, _edgeWidth),
-          top: 0,
-          bottom: 0,
-          child: Listener(
-            behavior: HitTestBehavior.translucent,
-            onPointerDown: (event) {
-              if (widget.route.popGestureEnabled) _recognizer.addPointer(event);
-            },
-          ),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => widget.route.isFirst
+      // Nothing under it to go back to: no drag to claim.
+      ? widget.child
+      : GestureDetector(
+          // Also on the page's empty parts.
+          behavior: HitTestBehavior.translucent,
+          onHorizontalDragStart: _onStart,
+          onHorizontalDragUpdate: _onUpdate,
+          onHorizontalDragEnd: _onEnd,
+          onHorizontalDragCancel: _onCancel,
+          child: widget.child,
+        );
 }
 
 /// One back swipe: moves the route's animation with the finger, and when

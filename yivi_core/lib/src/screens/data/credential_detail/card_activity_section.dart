@@ -203,7 +203,6 @@ CardTransition? _openCard(BuildContext context) =>
 /// back (to the card) at the left and close (the card too) at the right.
 void pushCardActivityEntry(BuildContext context, LogInfo log) {
   Navigator.of(context).push(
-    // The platform's push (on iOS with the app's back swipe).
     MaterialPageRoute<void>(builder: (_) => _CardActivityEntryPage(log: log)),
   );
 }
