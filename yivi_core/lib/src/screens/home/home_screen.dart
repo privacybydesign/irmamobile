@@ -5,13 +5,16 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/native_events.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../providers/pane_selection_provider.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/adaptive_layout.dart";
+import "../../util/after_frame.dart";
 import "../../widgets/bars/floating_bar_placement.dart";
 import "../../widgets/bars/scroll_to_top.dart";
 import "../../widgets/layout/centred_max_width.dart";
 import "../activity/activity_tab.dart";
+import "../data/card_transition/card_origin.dart";
 import "../data/card_transition/card_transition.dart";
 import "../data/card_transition/card_transition_layer.dart";
 import "../data/data_tab.dart";
@@ -61,6 +64,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // a tab that is no longer shown.
       if (previous != next) _openCard(context)?.dismiss();
     });
+    // Turned sideways with a card open: it moves into the pane.
+    if (useHomePanes(context) && _openCard(context) != null) {
+      afterFrame(_handCardToPane);
+    }
     final tabState = ref.watch(homeTabProvider);
     return Builder(
       builder: (context) {
@@ -101,6 +108,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   CardTransition? _openCard(BuildContext context) =>
       CardTransitionScope.maybeOf(context)?.current.value;
+
+  /// The open card, in the pane of the tab it opened from, and its
+  /// transition ended: the layout has a pane now (the phone turned).
+  void _handCardToPane() {
+    if (!mounted || !useHomePanes(context)) return;
+    final t = _openCard(context);
+    if (t == null) return;
+    if (t.origin == CardOrigin.notification) {
+      ref.read(selectedNotificationCardProvider.notifier).select(t.hash);
+      ref.read(selectedNotificationProvider.notifier).select(null);
+    } else {
+      ref.read(homeTabProvider.notifier).select(HomeTab.data);
+      ref.read(selectedCardProvider.notifier).select(t.hash);
+    }
+    t.dismiss();
+  }
 
   /// A phone held upright: the tab bar at the bottom, floating over the tab
   /// on iOS (with the content fading out under it), docked under it on

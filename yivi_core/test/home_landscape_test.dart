@@ -652,9 +652,6 @@ void main() {
         expect(find.byType(CredentialDetailScreen), findsNothing);
       },
       variant: TargetPlatformVariant.only(TargetPlatform.iOS),
-      // Today the details vanish sideways and come back upright; nothing
-      // picks the card in the pane.
-      skip: true,
     );
 
     iosTest("sideways to upright: the list, never the picked card's "
