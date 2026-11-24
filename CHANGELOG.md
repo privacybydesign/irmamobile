@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Adding a certificate of conduct (VOG) from within the app opens the issuer's page in the external browser. In the in-app browser the page was lost after the identity check, so the VOG was never added; on Android the app then left the screen, which looked like a crash
+- When the keyshare server rejects the email address during enrollment, the app goes back to the email screen with the address still filled in and a message under the field, instead of the error screen. The message goes away when the address is edited, and Next stays disabled until then so the same address is not sent again. Other enrollment errors still show the error screen ([#837](https://github.com/privacybydesign/irmamobile/issues/837))
 
 ### Security
 - Yivi only works on a device with a screen lock (a PIN, pattern, password or passcode, which fingerprint, face unlock, Face ID and Touch ID also use). On a device without one, a screen explains how to set it, both before enrollment and for existing users; on Android it opens the screen lock settings. The app checks again whenever it is reopened, so after setting a screen lock the user continues where they were

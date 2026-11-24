@@ -8,7 +8,11 @@ import "../../../../widgets/translated_text.dart";
 class EmailInputField extends StatelessWidget {
   final TextEditingController controller;
 
-  const EmailInputField({required this.controller});
+  /// An address the keyshare server refused. The field reports it as
+  /// invalid until the user changes it.
+  final String? rejectedEmail;
+
+  const EmailInputField({required this.controller, this.rejectedEmail});
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +39,26 @@ class EmailInputField extends StatelessWidget {
           "enrollment.email.provide.input.hint",
         ),
       ),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (email) => email != null && !EmailValidator.validate(email)
-          ? FlutterI18n.translate(
-              context,
-              "enrollment.email.provide.input.invalid",
-            )
-          : null,
+      // The rejection must show right away, without waiting for an edit.
+      autovalidateMode: rejectedEmail != null
+          ? AutovalidateMode.always
+          : AutovalidateMode.onUserInteraction,
+      validator: (email) {
+        if (email == null) return null;
+        if (!EmailValidator.validate(email)) {
+          return FlutterI18n.translate(
+            context,
+            "enrollment.email.provide.input.invalid",
+          );
+        }
+        if (email == rejectedEmail) {
+          return FlutterI18n.translate(
+            context,
+            "enrollment.email.provide.input.rejected",
+          );
+        }
+        return null;
+      },
     );
   }
 }

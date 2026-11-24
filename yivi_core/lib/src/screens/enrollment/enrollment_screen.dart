@@ -137,6 +137,9 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
           if (state is EnrollmentProvideEmail) {
             return ProvideEmailScreen(
               email: state.email,
+              rejectedEmail: state is EnrollmentEmailRejected
+                  ? state.email
+                  : null,
               onPrevious: addOnPreviousPressed,
               onEmailSkipped: () => addEvent(EnrollmentEmailSkipped()),
               onEmailProvided: (email) =>

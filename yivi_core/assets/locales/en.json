@@ -316,7 +316,8 @@
         "input": {
           "label": "E-mail address",
           "hint": "Fill in",
-          "invalid": "Invalid e-mail address"
+          "invalid": "Invalid e-mail address",
+          "rejected": "We can't send an e-mail to this address. Check the spelling."
         },
         "confirm_skip_dialog": {
           "title": "Are you sure?",

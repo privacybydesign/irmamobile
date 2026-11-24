@@ -316,7 +316,8 @@
         "input": {
           "label": "E-Mail-Adresse",
           "hint": "Ausfüllen",
-          "invalid": "Ungültige E-Mail-Adresse"
+          "invalid": "Ungültige E-Mail-Adresse",
+          "rejected": "Wir können keine E-Mail an diese Adresse senden. Überprüfen Sie die Schreibweise."
         },
         "confirm_skip_dialog": {
           "title": "Sind Sie sicher?",
