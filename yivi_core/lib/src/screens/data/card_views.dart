@@ -72,6 +72,7 @@ class _StackView extends ConsumerWidget {
                 width: width,
                 child: _CardButton(
                   credential: c,
+                  origin: CardOrigin.stack,
                   hintText: hintTexts[c.hash],
                   pressDepth: 6,
                   moves: arrangeable
@@ -336,6 +337,10 @@ class _ListRow extends StatelessWidget {
         : null;
     return _CardButton(
       credential: credential,
+      // Results are list rows; they open on the field found.
+      origin: query.trim().isEmpty
+          ? CardOrigin.listRow
+          : CardOrigin.searchResult,
       hintText: hintText,
       matchText: match?.plainText(context),
       found: result?.hits.firstOrNull?.field.claimKey,
@@ -442,6 +447,7 @@ class _GridView extends ConsumerWidget {
               hash: c.hash,
               child: _CardButton(
                 credential: c,
+                origin: CardOrigin.gridCell,
                 hintText: hintTexts[c.hash],
                 pressDepth: 4,
                 moves: arrangeable
@@ -523,6 +529,9 @@ class _GridView extends ConsumerWidget {
 /// "{name}, {hint}, {issuer}".
 class _CardButton extends StatefulWidget {
   final Credential credential;
+
+  /// Where it opens from.
+  final CardOrigin origin;
   final String? hintText;
   final Widget child;
 
@@ -542,6 +551,7 @@ class _CardButton extends StatefulWidget {
 
   const _CardButton({
     required this.credential,
+    required this.origin,
     required this.child,
     this.hintText,
     this.matchText,
@@ -585,7 +595,12 @@ class _CardButtonState extends State<_CardButton> {
         onTapDown: (_) => _press(true),
         onTapUp: (_) => _press(false),
         onTapCancel: () => _press(false),
-        onTap: () => openCard(context, credential, found: widget.found),
+        onTap: () => openCard(
+          context,
+          credential,
+          origin: widget.origin,
+          found: widget.found,
+        ),
         child: TweenAnimationBuilder<double>(
           tween: Tween(end: _pressed && !reduceMotion ? depth : 0),
           duration: Duration(milliseconds: _pressed ? 90 : 260),

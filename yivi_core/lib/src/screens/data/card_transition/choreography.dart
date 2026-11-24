@@ -3,13 +3,23 @@ import "dart:ui";
 
 import "package:flutter/foundation.dart";
 
-/// What is measured once, when a card in the stack is tapped: everything the
-/// transition needs, so nothing is measured again while it runs.
+import "card_origin.dart";
+
+/// What is measured once, when a card is tapped: everything the transition
+/// needs, so nothing is measured again while it runs. A tile (a list row, a
+/// grid cell, a notification) is a stack of one: one rect, [picked] 0.
 class TransitionSnapshot {
-  /// The tapped card's place in the stack.
+  /// Where the card opens from.
+  final CardOrigin origin;
+
+  /// The card shown (changes when a sibling is picked while it is open).
+  final String hash;
+
+  /// The tapped card's place in the stack; 0 for a tile.
   final int picked;
 
-  /// Every card of the stack where it rests, from the top of the screen.
+  /// Every card of the stack where it rests, from the top of the screen; for
+  /// a tile its one picture.
   final List<Rect> cards;
 
   /// Where the picked card rests on the details page.
@@ -18,6 +28,8 @@ class TransitionSnapshot {
   final double screenHeight;
 
   const TransitionSnapshot({
+    required this.origin,
+    required this.hash,
     required this.picked,
     required this.cards,
     required this.target,
@@ -163,6 +175,22 @@ class Choreography {
   double headerOpacity({required double picked, required double top}) {
     if (snapshot.firstSeen < _picked) return 1 - top.clamp(0.0, 1.0);
     return 1 - (picked / 0.35).clamp(0.0, 1.0);
+  }
+
+  /// The tab around a tile (its rows, title, banner) at the picked card's
+  /// progress [picked]: gone by 35 % of the way, back as the card lands. All
+  /// there for the stack (its cards and header follow on their own).
+  double othersOpacity(double picked) =>
+      snapshot.origin.isStack ? 1 : 1 - (picked / 0.35).clamp(0.0, 1.0);
+
+  /// The band and the details under the card at the picked card's progress
+  /// [picked]. The stack: there opening, faded out in the first half of the
+  /// way back. A tile: in from 35 % to 100 % of the way, out the same way.
+  double detailsOpacity(double picked, {required bool closing}) {
+    if (snapshot.origin.isStack) {
+      return closing ? ((picked - 0.5) / 0.5).clamp(0.0, 1.0) : 1;
+    }
+    return ((picked - 0.35) / 0.65).clamp(0.0, 1.0);
   }
 }
 

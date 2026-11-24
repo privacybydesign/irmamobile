@@ -1,6 +1,7 @@
 import "dart:ui";
 
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/data/card_transition/card_origin.dart";
 import "package:yivi_core/src/screens/data/card_transition/choreography.dart";
 
 void main() {
@@ -10,6 +11,8 @@ void main() {
     for (var i = 0; i < 12; i++) Rect.fromLTWH(16, -60 + i * 56.0, 358, 226),
   ];
   final snapshot = TransitionSnapshot(
+    origin: CardOrigin.stack,
+    hash: "picked",
     picked: 4,
     cards: cards,
     target: const Rect.fromLTWH(16, 120, 358, 226),
@@ -127,6 +130,61 @@ void main() {
   test("the header goes and comes with the uppermost card", () {
     expect(c.headerOpacity(picked: 0.5, top: 0.8), closeTo(0.2, 1e-9));
     expect(c.headerOpacity(picked: 0.9, top: 0), 1);
+  });
+
+  test("the stack: the details are there opening, gone in the first half "
+      "of closing; nothing else fades", () {
+    expect(c.detailsOpacity(0.1, closing: false), 1);
+    expect(c.detailsOpacity(1, closing: true), 1);
+    expect(c.detailsOpacity(0.75, closing: true), closeTo(0.5, 1e-9));
+    expect(c.detailsOpacity(0.5, closing: true), 0);
+    expect(c.othersOpacity(0.5), 1);
+  });
+
+  group("a tile is a stack of one", () {
+    final tile = Choreography(
+      const TransitionSnapshot(
+        origin: CardOrigin.listRow,
+        hash: "row",
+        picked: 0,
+        cards: [Rect.fromLTWH(24, 500, 88, 55.5)],
+        target: Rect.fromLTWH(16, 120, 358, 226),
+        screenHeight: 844,
+      ),
+      motion,
+    );
+
+    test("nothing sinks or falls, nothing waits", () {
+      expect(tile.snapshot.firstSeen, 0);
+      expect(tile.openDelay(0), 0);
+      expect(tile.closeDelay(0), 0);
+      expect(tile.pose(0, 1).dy, 0);
+      final end = tile.settled.inMilliseconds.toDouble();
+      expect(tile.opening(0, end), closeTo(1, 0.002));
+    });
+
+    test("the header goes in the first 35 % of the way", () {
+      expect(tile.headerOpacity(picked: 0, top: 0), 1);
+      expect(tile.headerOpacity(picked: 0.35, top: 0.35), 0);
+    });
+
+    test("the tab around it goes by 35 % and comes back as it lands", () {
+      expect(tile.othersOpacity(0), 1);
+      expect(tile.othersOpacity(0.175), closeTo(0.5, 1e-9));
+      expect(tile.othersOpacity(0.35), 0);
+      expect(tile.othersOpacity(1), 0);
+    });
+
+    test("the details come in from 35 % to 100 %, and go the same way", () {
+      for (final closing in [false, true]) {
+        expect(tile.detailsOpacity(0.35, closing: closing), 0);
+        expect(
+          tile.detailsOpacity(0.675, closing: closing),
+          closeTo(0.5, 1e-9),
+        );
+        expect(tile.detailsOpacity(1, closing: closing), 1);
+      }
+    });
   });
 }
 

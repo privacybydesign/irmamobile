@@ -241,9 +241,7 @@ class _RenderOpenCard extends RenderProxyBox with RepaintsWith {
     // move with their card (scrolled, they come down from above with it).
     // (The page's colour laid over them: the details are one layer, drawn
     // once.)
-    final under = t.phase == TransitionPhase.closing
-        ? ((t.progress(t.snapshot.picked) - 0.5) / 0.5).clamp(0.0, 1.0)
-        : 1.0;
+    final under = t.detailsOpacity;
     void draw(PaintingContext context, Offset _) {
       // A little past the card below's top: behind its rounded corners.
       final bandEnd = reveal + 40;

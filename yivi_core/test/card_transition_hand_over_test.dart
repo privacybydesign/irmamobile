@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
+import "package:yivi_core/src/screens/data/card_transition/card_origin.dart";
 import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
 import "package:yivi_core/src/screens/data/card_transition/card_transition_layer.dart";
 import "package:yivi_core/src/screens/data/card_transition/choreography.dart";
@@ -33,6 +34,8 @@ void main() {
     );
     transitions.currentState!.open(
       snapshot: const TransitionSnapshot(
+        origin: CardOrigin.stack,
+        hash: "picked",
         picked: 0,
         cards: [Rect.fromLTWH(16, 400, 368, 232)],
         target: Rect.fromLTWH(16, 80, 368, 232),

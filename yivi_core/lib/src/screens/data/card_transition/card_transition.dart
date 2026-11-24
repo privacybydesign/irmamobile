@@ -3,12 +3,14 @@ import "dart:math";
 import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
+import "card_origin.dart";
 import "card_slots.dart";
 import "choreography.dart";
 
 enum TransitionPhase { opening, open, closing }
 
-/// One card opening from the stack, open, and closing again: its snapshot,
+/// One card opening from where it is (the stack, a list row, a grid cell, a
+/// notification), open, and closing again: its snapshot,
 /// its clock and its phase. Made per tap, disposed when it is closed;
 /// nothing of it is shared with the next one.
 ///
@@ -21,7 +23,8 @@ enum TransitionPhase { opening, open, closing }
 /// the card and its details follow the finger down, and let go
 /// ([letGo]) it closes or opens again from there, at the finger's speed.
 class CardTransition extends ChangeNotifier {
-  final Choreography choreography;
+  Choreography _choreography;
+  Choreography get choreography => _choreography;
 
   /// The details of the card: the card at the top and everything under it,
   /// as on the details page.
@@ -122,13 +125,24 @@ class CardTransition extends ChangeNotifier {
   final ScrollPosition? _list;
   final double _listAt;
 
+  /// Where a card's picture is on screen now (global), null when it is not
+  /// built: closing goes there.
+  final Rect? Function(String hash)? _measure;
+
+  /// Where the card goes back to, measured as it started closing (as at
+  /// the tap, before the list scrolled); null: where it was tapped.
+  Rect? _landing;
+
   CardTransition({
-    required this.choreography,
+    required Choreography choreography,
     required this.details,
     required TickerProvider vsync,
     required VoidCallback onDone,
     ScrollPosition? list,
-  }) : _onDone = onDone,
+    Rect? Function(String hash)? measure,
+  }) : _choreography = choreography,
+       _onDone = onDone,
+       _measure = measure,
        _list = list,
        _listAt = list != null && list.hasPixels ? list.pixels : 0 {
     _ticker = vsync.createTicker(_tick)..start();
@@ -140,9 +154,17 @@ class CardTransition extends ChangeNotifier {
       _list != null && _list.hasPixels ? _listAt - _list.pixels : 0;
 
   /// Card [i]'s place in the stack, on screen now.
-  Rect _slot(int i) => snapshot.cards[i].translate(0, _scrolled);
+  Rect _slot(int i) =>
+      ((i == snapshot.picked ? _landing : null) ?? snapshot.cards[i]).translate(
+        0,
+        _scrolled,
+      );
 
   TransitionSnapshot get snapshot => choreography.snapshot;
+
+  /// The card shown.
+  String get hash => snapshot.hash;
+  CardOrigin get origin => snapshot.origin;
   TransitionPhase get phase => _phase;
   bool get held => _held != null;
 
@@ -251,11 +273,48 @@ class CardTransition extends ChangeNotifier {
   /// How far the bar's buttons have handed over to the details' ✕.
   double get barHandoff => progress(snapshot.picked).clamp(0.0, 1.0);
 
+  /// The tab content around a tile (rows, title, banner): 1 at rest, gone
+  /// by 35 % of the way, back as the card lands. 1 for the stack.
+  double get othersOpacity =>
+      choreography.othersOpacity(progress(snapshot.picked));
+
+  /// The band and the details under the card ([Choreography.detailsOpacity]).
+  double get detailsOpacity => choreography.detailsOpacity(
+    progress(snapshot.picked),
+    closing: _phase == TransitionPhase.closing,
+  );
+
+  /// The details' ✕ while the card moves: its opacity and its turn in
+  /// degrees. Where a + turns into it ([CardOrigin.plusTurnsIntoClose]) it
+  /// takes over from that + at the end; otherwise it turns in from -45° as
+  /// the card goes.
+  (double opacity, double turn) get closeButton {
+    final p = barHandoff;
+    double iv(double a, double b) => ((p - a) / (b - a)).clamp(0.0, 1.0);
+    if (origin.plusTurnsIntoClose) return (iv(0.85, 1), 0);
+    return (iv(0.35, 0.8), -45 * (1 - iv(0.3, 0.9)));
+  }
+
+  /// A sibling picked while open: the card shown and, for the stack, the
+  /// picked place change ([snapshot], measured now). Only while open, where
+  /// every other card is out of sight, so nothing visible moves.
+  void switchCard(String hash, TransitionSnapshot snapshot) {
+    if (_phase != TransitionPhase.open || hash == this.hash) return;
+    _choreography = Choreography(snapshot, choreography.motion);
+    _landing = null;
+    notifyListeners();
+  }
+
   /// Starts a stretch of the motion toward [phase] from where everything
   /// is now, the card going at [velocity] (points per second, down).
   void _go(TransitionPhase phase, {double velocity = 0}) {
     final from = [for (var i = 0; i < snapshot.count; i++) progress(i)];
     final fromRect = pickedRect;
+    if (phase == TransitionPhase.closing) {
+      // Where the card goes now: the list may have been built again, or
+      // its press had not settled at the tap.
+      _landing = _measure?.call(hash)?.translate(0, -_scrolled) ?? _landing;
+    }
     _held = null;
     _drag = 0;
     _from = from;
@@ -417,13 +476,15 @@ class CardTransitionsState extends State<CardTransitions>
     return true;
   }
 
-  /// Opens a card from the stack, with its [details]; false when one is
-  /// already busy.
+  /// Opens a card from where [snapshot] measured it, with its [details];
+  /// false when one is already busy. [measure] finds the card again when it
+  /// closes.
   bool open({
     required TransitionSnapshot snapshot,
     required Widget Function(BuildContext context, CardTransition transition)
     details,
     ScrollPosition? list,
+    Rect? Function(String hash)? measure,
   }) {
     if (busy) return false;
     late final CardTransition transition;
@@ -432,6 +493,7 @@ class CardTransitionsState extends State<CardTransitions>
       details: details,
       vsync: this,
       list: list,
+      measure: measure,
       onDone: () {
         if (current.value == transition) current.value = null;
         transition.dispose();

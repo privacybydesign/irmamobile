@@ -14,7 +14,6 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/search_query_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
-import "../../routing/navigation.dart";
 import "../../search/credential_field_search.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_motion.dart";
@@ -25,7 +24,6 @@ import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "../../util/laid_out_box.dart";
-import "../../widgets/bars/app_bar.dart";
 import "../../widgets/bars/title_scroll_edge.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/buttons/press_scale.dart";
@@ -44,10 +42,10 @@ import "../add_data/add_data_sheet.dart";
 import "../home/widgets/home_tab_top.dart";
 import "../home/widgets/search_tab_controller.dart";
 import "../home/widgets/search_tab_scaffold.dart";
+import "card_transition/card_origin.dart";
 import "card_transition/card_slots.dart";
-import "card_transition/card_transition.dart";
 import "card_transition/card_transition_layer.dart";
-import "card_transition/choreography.dart";
+import "card_transition/open_card.dart";
 import "credential_detail/credential_detail_screen.dart";
 import "empty_data_start.dart";
 import "wallet/card_hero.dart";
@@ -595,91 +593,6 @@ class _CardList extends ConsumerWidget {
       },
     );
   }
-}
-
-/// Opens the detail view of [credential], starting the Wallet-style
-/// transition from [cardContext] (the tapped card).
-/// [found]: the field (a claim path key) a search found it by; it opens on
-/// that field.
-void openCard(
-  BuildContext cardContext,
-  Credential credential, {
-  String? found,
-}) {
-  final container = ProviderScope.containerOf(cardContext, listen: false);
-  container
-      .read(foundCardFieldProvider.notifier)
-      .select(found == null ? null : (hash: credential.hash, claimKey: found));
-  if (useHomePanes(cardContext)) {
-    // The tablet and landscape layouts show the card in the detail pane
-    // next to the list.
-    container.read(selectedCardProvider.notifier).select(credential.hash);
-    return;
-  }
-  // Opened while typing in the search (the keyboard is still on its way
-  // down): it comes back with the search when the card closes.
-  container
-      .read(dataSearchProvider.notifier)
-      .cardOpened(keyboardUp: View.of(cardContext).viewInsets.bottom > 0);
-  // One card at a time: a tap while one opens or closes does nothing.
-  final transitions = CardTransitionScope.maybeOf(cardContext);
-  if (transitions != null && transitions.busy) return;
-  if (transitions != null &&
-      !MediaQuery.disableAnimationsOf(cardContext) &&
-      _openFromStack(cardContext, transitions, credential, found)) {
-    return;
-  }
-  WalletTransition.begin(cardContext, credential.hash);
-  cardContext.pushCredentialDetailScreen(credential.hash, found: found);
-}
-
-/// Opens [credential] from the stack with its card transition: its details
-/// come over the home screen at once, the card where it was tapped, and
-/// stay there while it is open. False when the card is not in the stack
-/// (another view) or the stack is not measured.
-bool _openFromStack(
-  BuildContext cardContext,
-  CardTransitionsState transitions,
-  Credential credential,
-  String? found,
-) {
-  final snapshot = _stackSnapshot(cardContext, credential.hash);
-  if (snapshot == null) return false;
-  return transitions.open(
-    snapshot: snapshot,
-    list: Scrollable.maybeOf(cardContext)?.position,
-    details: (context, transition) => CredentialDetailScreen(
-      hash: credential.hash,
-      found: found,
-      transition: transition,
-    ),
-  );
-}
-
-/// The snapshot for opening [hash] from the stack, or null when it is not
-/// in the stack or the stack is not all laid out (then the card opens
-/// without this transition).
-TransitionSnapshot? _stackSnapshot(BuildContext context, String hash) {
-  final stack = CardSlots.of(context).stack();
-  if (stack == null) return null;
-  final picked = stack.hashes.indexOf(hash);
-  if (picked < 0) return null;
-  final screen = MediaQuery.sizeOf(context);
-  final width = min(
-    screen.width - 32,
-    OpenCardLayer.detailsMaxWidth,
-  ).toDouble();
-  return TransitionSnapshot(
-    picked: picked,
-    cards: stack.rects,
-    target: Rect.fromLTWH(
-      (screen.width - width) / 2,
-      MediaQuery.paddingOf(context).top + YiviAppBar.contentTop,
-      width,
-      width / CredentialCardArt.aspectRatio,
-    ),
-    screenHeight: screen.height,
-  );
 }
 
 /// "16 cards", and the menu that picks the view and arranges the cards.
