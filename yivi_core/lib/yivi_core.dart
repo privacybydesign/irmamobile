@@ -8,6 +8,7 @@ import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
+import "src/providers/digital_credentials_registry_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
@@ -26,6 +27,11 @@ import "src/widgets/preferred_language_builder.dart";
 
 export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
+export "src/providers/digital_credentials_registry_provider.dart"
+    show
+        DigitalCredentialsRegistry,
+        DigitalCredentialsRegistryClaim,
+        DigitalCredentialsRegistryEntry;
 export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/passport_issuer_provider.dart"
@@ -61,6 +67,7 @@ Future<void> runYiviApp({
   SmsRetriever? smsRetriever,
   RegulaFaceServiceBuilder? regulaFaceService,
   StoreReviewService? storeReviewService,
+  DigitalCredentialsRegistry? digitalCredentialsRegistry,
 }) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
@@ -132,6 +139,13 @@ Future<void> runYiviApp({
             // dependency stays out of the FOSS build; null there disables the
             // whole review prompt
             storeReviewServiceProvider.overrideWithValue(storeReviewService),
+
+            // passed in from the outside so the proprietary Play services
+            // registry stays out of the FOSS build; null there means Yivi is
+            // not offered through the Digital Credentials API
+            digitalCredentialsRegistryProvider.overrideWithValue(
+              digitalCredentialsRegistry,
+            ),
 
             // can pass an environment variable to test with errors on passport issuance
             if (passportIssuanceError.isNotEmpty)

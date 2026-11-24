@@ -3,6 +3,7 @@ import "dart:io";
 import "package:smart_auth/smart_auth.dart";
 import "package:yivi_core/yivi_core.dart";
 
+import "digital_credentials_registry.dart";
 import "ocr_processor.dart";
 import "qr_scanner_factory.dart";
 import "regula_face_service.dart";
@@ -28,5 +29,9 @@ void main() {
           : RegulaFaceServiceImpl(serviceUrl: config.faceApiUrl);
     },
     storeReviewService: InAppReviewStoreReviewService(),
+    // Only Android has a credential registry to register with.
+    digitalCredentialsRegistry: Platform.isAndroid
+        ? MethodChannelDigitalCredentialsRegistry()
+        : null,
   );
 }

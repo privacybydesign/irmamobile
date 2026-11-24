@@ -71,7 +71,7 @@ public class DigitalCredentialsActivity extends FlutterFragmentActivity
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     GeneratedPluginRegistrant.registerWith(flutterEngine);
     // Keep the registration current when a request is what started the process.
-    DigitalCredentialsRegistrar.register(getApplicationContext());
+    DigitalCredentialsRegistrar.attach(flutterEngine, getApplicationContext());
   }
 
   @Override

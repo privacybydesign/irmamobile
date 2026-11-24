@@ -36,6 +36,7 @@ import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/version_information.dart";
+import "../providers/digital_credentials_registry_provider.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
 import "../providers/passport_issuer_provider.dart";
@@ -72,7 +73,9 @@ class IrmaRepository {
     required IrmaBridge client,
     required this.preferences,
     this.defaultKeyshareScheme = "pbdf",
-  }) : _bridge = client {
+    DigitalCredentialsRegistry? digitalCredentialsRegistry,
+  }) : _bridge = client,
+       _digitalCredentialsRegistry = digitalCredentialsRegistry {
     _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
@@ -104,7 +107,35 @@ class IrmaRepository {
     _localeSubscription = _appLanguage.changes.listen((locale) {
       bridgedDispatch(SetLocaleEvent(locale: locale));
       bridgedDispatch(LoadLogsEvent(max: 10));
+      // The platform's credential picker shows the names it was registered
+      // with, so they follow the app language too.
+      _registerDigitalCredentials();
     });
+  }
+
+  final DigitalCredentialsRegistry? _digitalCredentialsRegistry;
+
+  /// Tells the platform which credentials a website can ask for through the
+  /// Digital Credentials API: those of the scheme as it is now, named in the
+  /// app language. Does nothing in a build without a registry.
+  void _registerDigitalCredentials() {
+    final registry = _digitalCredentialsRegistry;
+    final configuration = _irmaConfigurationSubject.valueOrNull;
+    if (registry == null || configuration == null) return;
+
+    // A registration that fails only costs being offered in the picker, so it
+    // is reported and otherwise left alone.
+    registry
+        .register(
+          digitalCredentialsRegistryEntries(
+            configuration,
+            language: _appLanguage.current,
+          ),
+        )
+        .catchError(
+          (Object error, StackTrace stackTrace) =>
+              reportError(error, stackTrace),
+        );
   }
 
   final IrmaPreferences preferences;
@@ -212,6 +243,7 @@ class IrmaRepository {
       }
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
+      _registerDigitalCredentials();
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is schemaless.SchemalessCredentialsEvent) {
