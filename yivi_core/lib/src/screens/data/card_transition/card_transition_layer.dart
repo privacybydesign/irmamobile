@@ -350,23 +350,32 @@ class _RenderOpenCard extends RenderProxyBox with RepaintsWith {
       move,
       (context, _) => context.paintChild(child!, offset),
     );
-    if (under >= 1) return draw(context, offset);
-    // The card as it is; under it the details at [under].
-    final split = ((picked.bottom - offset.dy) / size.height).clamp(0.0, 1.0);
-    const white = Color(0xFFFFFFFF);
-    final rest = white.withValues(alpha: under);
-    context.pushLayer(
-      ShaderMaskLayer()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [white, white, rest, rest],
-          stops: [0, split, split, 1],
-        ).createShader(Offset.zero & size)
-        ..maskRect = offset & size
-        ..blendMode = BlendMode.dstIn,
-      draw,
-      offset,
+    final top = picked.bottom.clamp(offset.dy, offset.dy + size.height);
+    final below = Rect.fromLTRB(
+      offset.dx,
+      top,
+      offset.dx + size.width,
+      offset.dy + size.height,
+    );
+    // Not yet there: only the card, over the tab still fading around it.
+    if (under <= 0) {
+      context.pushClipRect(
+        needsCompositing,
+        Offset.zero,
+        Rect.fromLTRB(offset.dx, offset.dy, below.right, top),
+        draw,
+      );
+      return;
+    }
+    draw(context, offset);
+    if (under >= 1) return;
+    // Coming in: the page's colour laid over the details under the card.
+    // They start at 35 % of the way, where the tab around the card has
+    // faded into the page (othersOpacity), so this shows what fading them
+    // over the page would, without a layer of their own each frame.
+    context.canvas.drawRect(
+      below,
+      Paint()..color = background.withValues(alpha: 1 - under),
     );
   }
 
