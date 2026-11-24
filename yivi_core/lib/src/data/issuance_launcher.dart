@@ -128,6 +128,11 @@ class IssuanceLauncher {
       "pbdf.gemeente.personalData",
       "pbdf.PubHubs.account",
       "irma-demo.PubHubs.account",
+      // The VOG issuer first asks the user to disclose their identity and
+      // only then offers to issue the VOG. Its page has to survive the trip
+      // to Yivi and back, which the in-app browser does not allow.
+      "pbdf.pbdf.vog",
+      "pbdf-staging.pbdf.vog",
     },
     TargetPlatform.android: {
       "pbdf.pbdf.idin",
@@ -135,6 +140,11 @@ class IssuanceLauncher {
       "pbdf.pbdf.ageLimits",
       "pbdf.PubHubs.account",
       "irma-demo.PubHubs.account",
+      // The VOG issuer first asks the user to disclose their identity and
+      // only then offers to issue the VOG. Its page has to survive the trip
+      // to Yivi and back, which the in-app browser does not allow.
+      "pbdf.pbdf.vog",
+      "pbdf-staging.pbdf.vog",
     },
   };
 

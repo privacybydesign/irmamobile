@@ -16,10 +16,12 @@ import "package:yivi_core/src/models/error_event.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/scheme_rules.dart";
 import "package:yivi_core/src/models/version_information.dart";
+import "package:yivi_core/src/providers/device_security_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/redirect_state_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
+import "package:yivi_core/src/screens/device_lock/device_security.dart";
 import "package:yivi_core/src/screens/rooted_warning/rooted_device_detector.dart";
 
 import "support/onboarding_v2_harness.dart";
@@ -27,6 +29,15 @@ import "support/onboarding_v2_harness.dart";
 class _NotRooted implements RootedDeviceDetector {
   @override
   Future<bool> isDeviceRooted() async => false;
+}
+
+/// A device with a screen lock: the app may be used.
+class _Secure implements DeviceSecurity {
+  @override
+  Future<bool> isDeviceSecure() async => true;
+
+  @override
+  Future<void> openSecuritySettings() async {}
 }
 
 /// The minimum app build one scheme asks for, per platform.
@@ -92,6 +103,7 @@ void main() {
           irmaRepositoryProvider.overrideWithValue(repo),
           preferencesProvider.overrideWithValue(repo.preferences),
           rootedDeviceDetectorProvider.overrideWithValue(_NotRooted()),
+          deviceSecurityProvider.overrideWithValue(_Secure()),
         ],
         child: Consumer(
           builder: (context, ref, _) {

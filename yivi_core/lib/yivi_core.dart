@@ -50,6 +50,16 @@ export "src/widgets/text/translated_text.dart" show TranslatedText;
 /// is talking to ([faceCaptureUrlProvider]), which is only known at runtime.
 typedef RegulaFaceServiceBuilder = RegulaFaceService? Function(Ref ref);
 
+/// Zone values the whole app runs with.
+///
+/// `flutter.io.allow_http: false` makes every connection from Dart that is not
+/// `https` fail, except to this device itself. Flutter does not apply Android's
+/// network security configuration or iOS' App Transport Security to Dart's own
+/// network stack, so this is what holds for the requests the app makes from
+/// Dart (the e-mail, SMS and document issuers). The Go bridge has its own TLS
+/// configuration.
+const Map<Object?, Object?> appZoneValues = {#flutter.io.allow_http: false};
+
 Future<void> runYiviApp({
   required QrScannerFactory qrScannerFactory,
   OcrProcessor? ocrProcessor,
@@ -64,97 +74,103 @@ Future<void> runYiviApp({
     );
   };
 
-  runZonedGuarded<Future<void>>(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    LicenseRegistry.addLicense(cardFontLicenses);
+  runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      LicenseRegistry.addLicense(cardFontLicenses);
 
-    // Every way up, on phones and tablets.
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+      // Every way up, on phones and tablets.
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
 
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        // Android 15+ enforces edge-to-edge, so bar colors are ignored;
-        // icon brightness is what keeps the bars readable. Until the app's
-        // first frame sets them for its appearance (SystemNavigationBarStyle).
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
-        statusBarBrightness: Brightness.light, // iOS: light bg
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-        // No grey scrim behind Android's navigation buttons: the app draws
-        // what is behind them (SystemNavigationBarStyle).
-        systemNavigationBarContrastEnforced: false,
-      ),
-    );
-
-    final preferences = await IrmaPreferences.fromInstance(
-      // when the terms have changed, these values should be updated in order to trigger a dialog in the app
-      mostRecentTermsUrlNl: "https://yivi.app/terms_and_conditions_v3/",
-      mostRecentTermsUrlEn: "https://yivi.app/en/terms_and_conditions_v3/",
-    );
-
-    await initSentry(preferences: preferences);
-    // How a card opens from the stack, as set in the debug settings.
-    final motion = preferences.cardMotion.value;
-    if (motion.isNotEmpty) CardMotion.current.value = CardMotion.decode(motion);
-    SecurityContextBinding.ensureInitialized();
-
-    const passportIssuanceError = String.fromEnvironment(
-      "YIVI_ERROR_ON_PASSPORT_ISSUANCE",
-    );
-    if (passportIssuanceError.isNotEmpty) {
-      debugPrint(
-        "Configured to throw error on passport issuance: $passportIssuanceError",
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          // Android 15+ enforces edge-to-edge, so bar colors are ignored;
+          // icon brightness is what keeps the bars readable. Until the app's
+          // first frame sets them for its appearance (SystemNavigationBarStyle).
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark, // dark icons for light bg
+          statusBarBrightness: Brightness.light, // iOS: light bg
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          // No grey scrim behind Android's navigation buttons: the app draws
+          // what is behind them (SystemNavigationBarStyle).
+          systemNavigationBarContrastEnforced: false,
+        ),
       );
-    }
-    runApp(
-      ProviderScope(
-        overrides: [
-          // we override this because otherwise we would have to deal with async/future providers everywhere
-          // this is the recommended approach according to
-          // https://riverpod.dev/docs/concepts/scopes#initialization-of-synchronous-provider-for-async-apis
-          preferencesProvider.overrideWithValue(preferences),
 
-          // passed in from the outside so apps are not required to depend on non-FOSS implementations
-          ocrProcessorProvider.overrideWithValue(ocrProcessor),
+      final preferences = await IrmaPreferences.fromInstance(
+        // when the terms have changed, these values should be updated in order to trigger a dialog in the app
+        mostRecentTermsUrlNl: "https://yivi.app/terms_and_conditions_v3/",
+        mostRecentTermsUrlEn: "https://yivi.app/en/terms_and_conditions_v3/",
+      );
 
-          // passed in from the outside so apps are not required to depend on non-FOSS implementations
-          smsRetrieverProvider.overrideWithValue(smsRetriever),
+      await initSentry(preferences: preferences);
+      // How a card opens from the stack, as set in the debug settings.
+      final motion = preferences.cardMotion.value;
+      if (motion.isNotEmpty) {
+        CardMotion.current.value = CardMotion.decode(motion);
+      }
+      SecurityContextBinding.ensureInitialized();
 
-          // passed in from the outside so each app picks a scanner backend
-          // appropriate to its distribution channel (ML Kit vs. zxing-cpp)
-          qrScannerFactoryProvider.overrideWithValue(qrScannerFactory),
+      const passportIssuanceError = String.fromEnvironment(
+        "YIVI_ERROR_ON_PASSPORT_ISSUANCE",
+      );
+      if (passportIssuanceError.isNotEmpty) {
+        debugPrint(
+          "Configured to throw error on passport issuance: $passportIssuanceError",
+        );
+      }
+      runApp(
+        ProviderScope(
+          overrides: [
+            // we override this because otherwise we would have to deal with async/future providers everywhere
+            // this is the recommended approach according to
+            // https://riverpod.dev/docs/concepts/scopes#initialization-of-synchronous-provider-for-async-apis
+            preferencesProvider.overrideWithValue(preferences),
 
-          // passed in from the outside so the FOSS build is not required to
-          // depend on the Regula Face SDK; null disables face verification.
-          // Built from a ref rather than a value so the FOSS capture page can
-          // follow the session's passport issuer.
-          regulaFaceServiceProvider.overrideWith(
-            (ref) => regulaFaceService?.call(ref),
-          ),
+            // passed in from the outside so apps are not required to depend on non-FOSS implementations
+            ocrProcessorProvider.overrideWithValue(ocrProcessor),
 
-          // passed in from the outside so the proprietary in-app-review
-          // dependency stays out of the FOSS build; null there disables the
-          // whole review prompt
-          storeReviewServiceProvider.overrideWithValue(storeReviewService),
+            // passed in from the outside so apps are not required to depend on non-FOSS implementations
+            smsRetrieverProvider.overrideWithValue(smsRetriever),
 
-          // can pass an environment variable to test with errors on passport issuance
-          if (passportIssuanceError.isNotEmpty)
-            passportIssuerProvider.overrideWithValue(
-              ErrorThrowingPassportIssuer(
-                errorToThrowOnIssuance: passportIssuanceError,
-              ),
+            // passed in from the outside so each app picks a scanner backend
+            // appropriate to its distribution channel (ML Kit vs. zxing-cpp)
+            qrScannerFactoryProvider.overrideWithValue(qrScannerFactory),
+
+            // passed in from the outside so the FOSS build is not required to
+            // depend on the Regula Face SDK; null disables face verification.
+            // Built from a ref rather than a value so the FOSS capture page can
+            // follow the session's passport issuer.
+            regulaFaceServiceProvider.overrideWith(
+              (ref) => regulaFaceService?.call(ref),
             ),
-        ],
-        child: YiviApp(),
-      ),
-    );
-  }, (error, stackTrace) => reportError(error, stackTrace));
+
+            // passed in from the outside so the proprietary in-app-review
+            // dependency stays out of the FOSS build; null there disables the
+            // whole review prompt
+            storeReviewServiceProvider.overrideWithValue(storeReviewService),
+
+            // can pass an environment variable to test with errors on passport issuance
+            if (passportIssuanceError.isNotEmpty)
+              passportIssuerProvider.overrideWithValue(
+                ErrorThrowingPassportIssuer(
+                  errorToThrowOnIssuance: passportIssuanceError,
+                ),
+              ),
+          ],
+          child: YiviApp(),
+        ),
+      );
+    },
+    (error, stackTrace) => reportError(error, stackTrace),
+    zoneValues: appZoneValues,
+  );
 }
 
 class YiviApp extends ConsumerWidget {

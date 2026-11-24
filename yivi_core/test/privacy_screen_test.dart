@@ -1,6 +1,11 @@
+import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
+import "package:flutter/widgets.dart";
+import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/platform/privacy_screen.dart";
+
+import "helpers/test_translation_loader.dart";
 
 /// Records what the `privacy_screen` channel is asked to do, so the balance of
 /// suspend/resume calls is observable from a unit test.
@@ -75,5 +80,68 @@ void main() {
     await PrivacyScreen.disablePrivacyScreen();
 
     expect(calls, ["enablePrivacyScreen", "disablePrivacyScreen"]);
+  });
+
+  group("the capture cover text", () {
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    const channel = MethodChannel("privacy_screen");
+
+    List<Object?> recordCoverTexts() {
+      final texts = <Object?>[];
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == "setCaptureCoverText") texts.add(call.arguments);
+        return true;
+      });
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      return texts;
+    }
+
+    Future<void> pumpApp(WidgetTester tester, Locale locale) async {
+      final widget = WidgetsApp(
+        color: const Color(0xFF000000),
+        localizationsDelegates: [
+          FlutterI18nDelegate(
+            translationLoader: TestTranslationLoader(
+              basePath: "assets/locales",
+              forcedLocale: locale,
+            ),
+          ),
+        ],
+        builder: (context, child) =>
+            const CaptureCoverText(child: SizedBox.shrink()),
+      );
+      // The translation loader does real IO, which the fake clock does not
+      // drive.
+      await tester.runAsync(() async {
+        await tester.pumpWidget(widget);
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+      });
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets("is sent to iOS in the language the app is set to", (
+      tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      final texts = recordCoverTexts();
+
+      await pumpApp(tester, const Locale("nl", "NL"));
+
+      expect(texts, [
+        "Yivi is verborgen zolang je scherm wordt opgenomen of gedeeld.",
+      ]);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets("is not sent on Android, which has no cover", (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final texts = recordCoverTexts();
+
+      await pumpApp(tester, const Locale("nl", "NL"));
+
+      expect(texts, isEmpty);
+      debugDefaultTargetPlatformOverride = null;
+    });
   });
 }

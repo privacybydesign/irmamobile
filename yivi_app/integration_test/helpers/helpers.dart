@@ -17,6 +17,8 @@ import "package:yivi_core/src/data/issuance_launcher.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/app_effects.dart";
+import "package:yivi_core/src/providers/app_integrity_provider.dart";
+import "package:yivi_core/src/providers/device_security_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/ocr_processor_provider.dart";
@@ -50,6 +52,8 @@ import "package:yivi_core/yivi_core.dart" show YiviApp;
 
 import "../irma_binding.dart";
 import "../util.dart";
+import "fake_app_integrity.dart";
+import "fake_device_security.dart";
 import "fake_local_auth.dart";
 import "fake_rooted_device_detector.dart";
 
@@ -83,6 +87,7 @@ Future<void> pumpYiviApp(
   Locale? defaultLanguage,
   List<Override>? providerOverrides,
   bool isDeviceRooted = false,
+  bool isDeviceSecure = true,
   Duration? idleLockThreshold,
   // Biometric is off by default in tests (unavailable fake), so the opt-in
   // prompt / button never appear and don't interfere. Biometric tests pass an
@@ -97,6 +102,10 @@ Future<void> pumpYiviApp(
         rootedDeviceDetectorProvider.overrideWithValue(
           FakeRootedDeviceDetector(rooted: isDeviceRooted),
         ),
+        deviceSecurityProvider.overrideWithValue(
+          FakeDeviceSecurity(secure: isDeviceSecure),
+        ),
+        appIntegrityProvider.overrideWithValue(const FakeAppIntegrity()),
         ocrProcessorProvider.overrideWithValue(GoogleMLKitOcrProcessor()),
         localAuthProvider.overrideWithValue(
           localAuth ?? FakeLocalAuthentication(available: false),

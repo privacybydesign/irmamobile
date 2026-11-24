@@ -71,6 +71,10 @@ class DocumentCodeField extends StatelessWidget {
         key: fieldKey,
         controller: controller,
         keyboardType: .text,
+        autocorrect: false,
+        enableSuggestions: false,
+        // No learning from what is typed (Gboard's incognito mode on Android).
+        enableIMEPersonalizedLearning: false,
         textCapitalization: .characters,
         autofillHints: autofillHints,
         cursorColor: YiviPalette.of(context).link,

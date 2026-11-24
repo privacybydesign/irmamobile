@@ -28,6 +28,8 @@ const _unlockedPathPrefixes = {
   "/loading",
   "/enrollment",
   "/reset_pin",
+  "/device_lock_required",
+  "/app_integrity_blocked",
   "/rooted_warning",
   "/update_required",
   "/error",

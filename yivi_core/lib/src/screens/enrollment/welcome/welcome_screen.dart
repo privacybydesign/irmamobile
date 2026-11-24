@@ -48,6 +48,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
     final tablet = isTabletWindow(context);
     final sideways = enrollmentSideways(context);
     // A phone held sideways: the values scroll, the terms and the button
@@ -92,6 +93,16 @@ class WelcomeScreen extends StatelessWidget {
           isAccepted: isAccepted,
           onToggleAccepted: onToggleAccepted,
         ),
+      ),
+      const SizedBox(height: YiviSpace.x8),
+      // Before any data is processed: where to read what happens with it.
+      TranslatedText(
+        "enrollment.terms_and_conditions.privacy_policy_markdown",
+        key: const Key("enrollment_privacy_policy_link"),
+        translationParams: {
+          "privacy_url": context.tr("more_tab.privacy_policy_link"),
+        },
+        style: palette.caption.copyWith(color: palette.secondaryText),
       ),
       const SizedBox(height: YiviSpace.x12),
       PrimaryPillButton(

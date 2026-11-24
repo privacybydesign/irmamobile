@@ -85,12 +85,20 @@ class _SchemeManagementScreenState
     String publicKey;
     try {
       final Uri uri = Uri.parse("$schemeUrl/pk.pem");
-      final request = await HttpClient().getUrl(uri);
-      final response = await request.close();
-      publicKey = await response.transform(utf8.decoder).first;
-      if (response.statusCode != 200) {
-        throw "HTTP status code ${response.statusCode} received";
-      }
+      // A developer serves a scheme under development from their own machine,
+      // over plain http. The app refuses that everywhere else (appZoneValues);
+      // it is allowed for this one fetch, and only in developer mode. The key
+      // that comes back is shown for confirmation below.
+      final allowHttp = await repo.getDeveloperMode().first;
+      publicKey = await runZoned(() async {
+        final request = await HttpClient().getUrl(uri);
+        final response = await request.close();
+        final body = await response.transform(utf8.decoder).first;
+        if (response.statusCode != 200) {
+          throw "HTTP status code ${response.statusCode} received";
+        }
+        return body;
+      }, zoneValues: allowHttp ? {#flutter.io.allow_http: true} : null);
     } catch (e) {
       if (mounted) {
         showSnackbar(context, "Error while fetching scheme: ${e.toString()}.");

@@ -16,8 +16,11 @@ class Browser {
 
   static const _iiabChannel = MethodChannel("irma.app/iiab");
 
-  /// Opens [url] in the browser inside the app.
+  /// Opens [url] in the browser inside the app. That only gets https pages;
+  /// anything else goes to the user's own browser or the app that handles
+  /// the scheme.
   Future<void> openInApp(String url) async {
+    if (!Uri.parse(url).isScheme("https")) return openExternally(url);
     if (Platform.isAndroid) {
       await _iiabChannel.invokeMethod("open_browser", url);
     } else {

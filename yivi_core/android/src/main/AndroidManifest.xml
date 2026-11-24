@@ -1,3 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="foundation.privacybydesign.yivi_core">
+  <!-- Lets PrivacyScreenPlugin hide other apps' overlay windows (Android 12+). A normal
+       permission: granted at install, nothing is shown to the user. -->
+  <uses-permission android:name="android.permission.HIDE_OVERLAY_WINDOWS" />
 </manifest>

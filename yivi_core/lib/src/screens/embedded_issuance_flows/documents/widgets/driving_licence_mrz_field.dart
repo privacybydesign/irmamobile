@@ -17,7 +17,6 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
       controller: controller,
       label: label,
       hint: label,
-      autofillHints: const [AutofillHints.creditCardNumber],
       // Exactly 30 alpha numeric characters (only capital letters allowed)
       pattern: RegExp(r"^[A-Z0-9]{30}$"),
       requiredText: t("mrz_required"),

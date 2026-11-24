@@ -20,6 +20,7 @@ import "enrollment_failed_screen.dart";
 import "enrollment_provider.dart";
 import "enrollment_state.dart";
 import "welcome/welcome_screen.dart";
+import "widgets/wallet_deleted_confirmation.dart";
 
 class EnrollmentScreen extends ConsumerStatefulWidget {
   @override
@@ -69,64 +70,66 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
     });
     final state = ref.watch(enrollmentProvider);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // AnnotatedRegion replaces the whole style; the theme's has readable
-      // bar icons for the current brightness (Android 15+ keeps only those).
-      value:
-          Theme.of(context).appBarTheme.systemOverlayStyle ??
-          (YiviPalette.of(context).isDark
-              ? SystemUiOverlayStyle.light
-              : SystemUiOverlayStyle.dark),
-      child: switch (state) {
-        EnrollmentWelcome(:final isAccepted) => WelcomeScreen(
-          isAccepted: isAccepted,
-          onContinue: () => enrollment.next(language: context.lang),
-          onToggleAccepted: (isAccepted) {
-            ref.read(preferencesProvider).acceptedLatestTerms.set(isAccepted);
-            enrollment.setTermsAccepted(isAccepted);
-          },
-        ),
-        EnrollmentChoosePin(:final step) => ChoosePinScreen(
-          stepLabel: step == null ? null : _step(context, step),
-          onPrevious: enrollment.back,
-          onChoosePin: enrollment.pinChosen,
-          newPinNotifier: _newPin,
-        ),
-        EnrollmentConfirmPin(:final step) => ConfirmPinScreen(
-          stepLabel: step == null ? null : _step(context, step),
-          newPinNotifier: _newPin,
-          onPrevious: enrollment.back,
-          submitConfirmationPin: enrollment.pinConfirmed,
-          onPinMismatch: () {
-            showPinConfirmationFailedDialog(
-              context,
-              onPressed: (context) {
-                enrollment.pinMismatch();
-                context.pop();
-              },
-            );
-          },
-        ),
-        EnrollmentBiometric(:final step) => EnrollmentBiometricScreen(
-          stepLabel: _step(context, step),
-          onDone: enrollment.biometricDone,
-        ),
-        EnrollmentEmail(:final step) => EnrollmentEmailScreen(
-          stepLabel: _step(context, step, key: "enrollment.step_optional"),
-          account: () => enrollment.account,
-          link: enrollment.emailLink!,
-          onDone: enrollment.emailDone,
-          onAccountFailed: enrollment.accountFailed,
-        ),
-        EnrollmentFailed() => EnrollmentFailedScreen(
-          onPrevious: enrollment.back,
-          onRetryEnrollment: enrollment.retry,
-        ),
-        // Waiting for the account after the last step: the logo, a
-        // spinner and "Setting up your app".
-        Enrolling() ||
-        EnrollmentCompleted() => _SettingUp(showText: state is Enrolling),
-      },
+    return WalletDeletedConfirmation(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        // AnnotatedRegion replaces the whole style; the theme's has readable
+        // bar icons for the current brightness (Android 15+ keeps only those).
+        value:
+            Theme.of(context).appBarTheme.systemOverlayStyle ??
+            (YiviPalette.of(context).isDark
+                ? SystemUiOverlayStyle.light
+                : SystemUiOverlayStyle.dark),
+        child: switch (state) {
+          EnrollmentWelcome(:final isAccepted) => WelcomeScreen(
+            isAccepted: isAccepted,
+            onContinue: () => enrollment.next(language: context.lang),
+            onToggleAccepted: (isAccepted) {
+              ref.read(preferencesProvider).acceptLatestTerms(isAccepted);
+              enrollment.setTermsAccepted(isAccepted);
+            },
+          ),
+          EnrollmentChoosePin(:final step) => ChoosePinScreen(
+            stepLabel: step == null ? null : _step(context, step),
+            onPrevious: enrollment.back,
+            onChoosePin: enrollment.pinChosen,
+            newPinNotifier: _newPin,
+          ),
+          EnrollmentConfirmPin(:final step) => ConfirmPinScreen(
+            stepLabel: step == null ? null : _step(context, step),
+            newPinNotifier: _newPin,
+            onPrevious: enrollment.back,
+            submitConfirmationPin: enrollment.pinConfirmed,
+            onPinMismatch: () {
+              showPinConfirmationFailedDialog(
+                context,
+                onPressed: (context) {
+                  enrollment.pinMismatch();
+                  context.pop();
+                },
+              );
+            },
+          ),
+          EnrollmentBiometric(:final step) => EnrollmentBiometricScreen(
+            stepLabel: _step(context, step),
+            onDone: enrollment.biometricDone,
+          ),
+          EnrollmentEmail(:final step) => EnrollmentEmailScreen(
+            stepLabel: _step(context, step, key: "enrollment.step_optional"),
+            account: () => enrollment.account,
+            link: enrollment.emailLink!,
+            onDone: enrollment.emailDone,
+            onAccountFailed: enrollment.accountFailed,
+          ),
+          EnrollmentFailed() => EnrollmentFailedScreen(
+            onPrevious: enrollment.back,
+            onRetryEnrollment: enrollment.retry,
+          ),
+          // Waiting for the account after the last step: the logo, a
+          // spinner and "Setting up your app".
+          Enrolling() ||
+          EnrollmentCompleted() => _SettingUp(showText: state is Enrolling),
+        },
+      ),
     );
   }
 }

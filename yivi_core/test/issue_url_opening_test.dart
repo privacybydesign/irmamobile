@@ -110,6 +110,28 @@ void main() {
     });
 
     testWidgets(
+      "11b. the VOG opens outside the app: its page has to survive the trip "
+      "to Yivi and back",
+      (tester) async {
+        const vogUrl = "https://vog.example.com/issue";
+        final app = await setUpApp(tester);
+        for (final type in ["pbdf.pbdf.vog", "pbdf-staging.pbdf.vog"]) {
+          await tester.runAsync(
+            () => app.ref.read(issuanceLauncherProvider).open(type, vogUrl),
+          );
+        }
+        expect(launches, [
+          (url: vogUrl, inApp: false),
+          (url: vogUrl, inApp: false),
+        ]);
+      },
+      variant: TargetPlatformVariant({
+        TargetPlatform.android,
+        TargetPlatform.iOS,
+      }),
+    );
+
+    testWidgets(
       "11. PubHubs accounts open outside the app",
       (tester) async {
         final app = await setUpApp(tester);
@@ -218,6 +240,17 @@ void main() {
   });
 
   group("Browser.openLink", () {
+    testWidgets("16b. only an https link opens in the app", (tester) async {
+      final app = await setUpApp(tester);
+      for (final url in ["http://example.com", "mailto:support@yivi.app"]) {
+        await tester.runAsync(() => app.ref.read(browserProvider).openLink(url));
+      }
+      expect(launches, [
+        (url: "http://example.com", inApp: false),
+        (url: "mailto:support@yivi.app", inApp: false),
+      ]);
+    });
+
     testWidgets("16. a link opens in the app", (tester) async {
       final app = await setUpApp(tester);
       await tester.runAsync(

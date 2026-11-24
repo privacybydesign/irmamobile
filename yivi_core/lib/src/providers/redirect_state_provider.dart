@@ -3,21 +3,25 @@ import "package:rxdart/rxdart.dart";
 
 import "../models/enrollment_status.dart";
 import "../models/version_information.dart";
-import "../screens/rooted_warning/repository.dart";
+import "device_protection_providers.dart";
 import "irma_repository_provider.dart";
 import "preferences_provider.dart";
-import "rooted_device_detector_provider.dart";
 
-/// What decides where the router must send the user: a rooted device whose
-/// risk is not accepted, the name-changed notice, the version information
-/// and the enrollment status.
+/// What decides where the router must send the user: tampering seen while the
+/// app runs, a device without a screen lock, a device risk (rooted, or an
+/// untrusted environment) that is not accepted, the name-changed notice, the
+/// version information and the enrollment status.
 class RedirectState {
+  final bool integrityBlocked;
+  final bool deviceLockRequired;
   final bool showRootedWarning;
   final bool showNameChanged;
   final VersionInformation? version;
   final EnrollmentStatus enrollment;
 
   const RedirectState({
+    this.integrityBlocked = false,
+    this.deviceLockRequired = false,
     required this.showRootedWarning,
     required this.showNameChanged,
     required this.version,
@@ -32,9 +36,13 @@ class RedirectState {
     enrollment: EnrollmentStatus.undetermined,
   );
 
-  /// Where the router sends the user, or null to let them go where they
-  /// were going.
-  String? redirect() {
+  /// Where the router sends the user from [location], or null to let them go
+  /// where they were going.
+  String? redirect([String location = ""]) {
+    if (integrityBlocked) return "/app_integrity_blocked";
+    if (deviceLockRequired) return "/device_lock_required";
+    // A screen lock was set: on from the page that asked for it.
+    if (location == "/device_lock_required") return "/loading";
     if (showRootedWarning) return "/rooted_warning";
     if (enrollment == EnrollmentStatus.unenrolled) return "/enrollment";
     if (showNameChanged) return "/name_changed";
@@ -46,54 +54,57 @@ class RedirectState {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RedirectState &&
+          integrityBlocked == other.integrityBlocked &&
+          deviceLockRequired == other.deviceLockRequired &&
           showRootedWarning == other.showRootedWarning &&
           showNameChanged == other.showNameChanged &&
           version == other.version &&
           enrollment == other.enrollment;
 
   @override
-  int get hashCode =>
-      Object.hash(showNameChanged, showRootedWarning, version, enrollment);
+  int get hashCode => Object.hash(
+    integrityBlocked,
+    deviceLockRequired,
+    showNameChanged,
+    showRootedWarning,
+    version,
+    enrollment,
+  );
 
   @override
   String toString() =>
-      "enroll: $enrollment, rooted: $showRootedWarning, "
-      "name: $showNameChanged, version: $version";
+      "integrity blocked: $integrityBlocked, "
+      "device lock required: $deviceLockRequired, enroll: $enrollment, "
+      "rooted: $showRootedWarning, name: $showNameChanged, version: $version";
 }
 
-/// The redirect state, from its four inputs. It has no value until each
-/// input has given one, so nothing redirects before the first scheme rules
-/// arrive (or a fatal error ends the version stream).
+/// The redirect state, from its inputs. It has no value until each input has
+/// given one, so nothing redirects before the first scheme rules arrive (or a
+/// fatal error ends the version stream).
 final redirectStateProvider = StreamProvider<RedirectState>((ref) {
   final repo = ref.watch(irmaRepositoryProvider);
   final prefs = ref.watch(preferencesProvider);
-  final rooted = DetectRootedDeviceIrmaPrefsRepository(
-    preferences: prefs,
-    detector: ref.watch(rootedDeviceDetectorProvider),
-  );
-  return Rx.combineLatest4(
-    _rootedWarning(rooted),
+  final guard = ref.watch(appIntegrityGuardProvider);
+  final deviceLock = ref.watch(deviceLockRequirementProvider);
+  return Rx.combineLatest6(
+    guard.blocked,
+    deviceLock.lockRequired,
+    // Waits for the checks: nothing redirects before they are known.
+    watchPendingDeviceRisk(ref).map((risk) => risk != null),
     repo
         .getVersionInformation()
         .map<VersionInformation?>((version) => version)
         .defaultIfEmpty(null),
     prefs.showNameChangedNotification.stream,
     repo.getEnrollmentStatus(),
-    (rooted, version, nameChanged, enrollment) => RedirectState(
-      showRootedWarning: rooted,
-      showNameChanged: nameChanged,
-      version: version,
-      enrollment: enrollment,
-    ),
+    (blocked, lockRequired, risk, version, nameChanged, enrollment) =>
+        RedirectState(
+          integrityBlocked: blocked,
+          deviceLockRequired: lockRequired,
+          showRootedWarning: risk,
+          showNameChanged: nameChanged,
+          version: version,
+          enrollment: enrollment,
+        ),
   ).distinct();
 });
-
-/// Whether the rooted-device warning must show: only on a rooted device,
-/// until its risk is accepted.
-Stream<bool> _rootedWarning(DetectRootedDeviceRepository rooted) async* {
-  if (await rooted.isDeviceRooted()) {
-    yield* rooted.hasAcceptedRootedDeviceRisk().map((accepted) => !accepted);
-  } else {
-    yield false;
-  }
-}

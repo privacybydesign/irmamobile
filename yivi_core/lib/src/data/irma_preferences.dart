@@ -37,6 +37,9 @@ class IrmaPreferences {
        acceptedRootedRisk = Pref.of(
          p.getBool("preference.accepted_rooted_risk", defaultValue: false),
        ),
+       acceptedEnvironmentRisk = Pref.of(
+         p.getBool("preference.accepted_environment_risk", defaultValue: false),
+       ),
        biometricEnabled = Pref.of(
          p.getBool("preference.biometric_enabled", defaultValue: false),
        ),
@@ -66,6 +69,15 @@ class IrmaPreferences {
        ),
        serializedNotifications = Pref.of(
          p.getString("preference.notifications", defaultValue: ""),
+       ),
+       _acceptedTermsUrl = Pref.of(
+         p.getString(
+           "preference.accepted_terms_url",
+           defaultValue: _noTermsAccepted,
+         ),
+       ),
+       _acceptedTermsAt = Pref.of(
+         p.getInt("preference.accepted_terms_at_epoch_ms", defaultValue: 0),
        ),
        acceptedLatestTerms = Pref.mapped<String, bool>(
          p.getString(
@@ -173,6 +185,11 @@ class IrmaPreferences {
   final Pref<bool> reportErrors;
   final Pref<bool> acceptedRootedRisk;
 
+  /// Kept apart from [acceptedRootedRisk]: accepting the risk of a rooted or
+  /// jailbroken device says nothing about an emulator, a cloned app or a
+  /// hooking framework.
+  final Pref<bool> acceptedEnvironmentRisk;
+
   /// Whether the user opted in to biometric app-unlock. Default off (opt-in).
   final Pref<bool> biometricEnabled;
 
@@ -200,6 +217,35 @@ class IrmaPreferences {
   /// Whether the latest terms were accepted: stored as the URL of the terms
   /// accepted, which counts when it is the latest Dutch one.
   final Pref<bool> acceptedLatestTerms;
+
+  /// The stored terms URL, as [acceptedLatestTerms] reads it.
+  final Pref<String> _acceptedTermsUrl;
+
+  /// When the user accepted the terms in [_acceptedTermsUrl] (ms since
+  /// epoch), or 0 when unknown: no terms accepted, or accepted before this
+  /// was recorded. Together with the versioned URL this is the record of the
+  /// consent.
+  final Pref<int> _acceptedTermsAt;
+
+  /// Accepts (or withdraws) the latest terms, and records when.
+  Future<void> acceptLatestTerms(bool accepted) async {
+    await _acceptedTermsAt.set(
+      accepted ? DateTime.now().millisecondsSinceEpoch : 0,
+    );
+    await acceptedLatestTerms.set(accepted);
+  }
+
+  /// The versioned terms URL the user accepted, or null when none was.
+  String? get acceptedTermsUrl {
+    final url = _acceptedTermsUrl.value;
+    return url == _noTermsAccepted ? null : url;
+  }
+
+  /// When the user accepted [acceptedTermsUrl], or null when that is unknown.
+  DateTime? get acceptedTermsAt {
+    final epochMs = _acceptedTermsAt.value;
+    return epochMs == 0 ? null : DateTime.fromMillisecondsSinceEpoch(epochMs);
+  }
 
   /// The preferred order of credential types in the data tab; only read to
   /// seed [cardOrder].

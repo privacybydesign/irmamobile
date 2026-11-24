@@ -24,6 +24,9 @@ extension LanguageName on Locale {
 
       case "de":
         return "Deutsch";
+
+      case "fr":
+        return "Français";
     }
 
     throw UnsupportedError("""

@@ -1,6 +1,5 @@
 import "dart:convert";
 
-import "package:flutter/foundation.dart";
 import "package:http/http.dart" as http;
 
 import "../models/session.dart";
@@ -131,7 +130,6 @@ final class EmailIssuerApi implements ContactIssuerApi {
   @override
   Future<void> send({required String target, required String language}) =>
       _withClient((client) async {
-        debugPrint("Sending email for: $target");
         final response = await client.post(
           Uri.parse("$host/api/embedded/send"),
           headers: {"Content-Type": "application/json"},
@@ -166,8 +164,6 @@ final class SmsIssuerApi implements ContactIssuerApi {
 
   @override
   Future<void> send({required String target, required String language}) async {
-    debugPrint("Sending sms for: $target");
-
     // Solve an ALTCHA proof-of-work challenge before asking the issuer to send
     // an SMS. This taxes automated bulk requests with CPU. Issuers that do not
     // hand out a challenge (ALTCHA disabled, or an older issuer) return null

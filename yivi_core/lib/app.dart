@@ -6,7 +6,9 @@ import "../../routing.dart";
 import "../../src/theme/theme.dart";
 import "package_name.dart";
 import "src/data/irma_preferences.dart";
+import "src/platform/privacy_screen.dart";
 import "src/providers/app_effects.dart";
+import "src/providers/idle_lock.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/data/card_transition/card_transition.dart";
 import "src/screens/home/widgets/system_navigation_bar.dart";
@@ -45,7 +47,12 @@ class AppState extends ConsumerState<App> {
   }
 
   static List<Locale> defaultSupportedLocales() {
-    return const [Locale("en", "US"), Locale("nl", "NL"), Locale("de", "DE")];
+    return const [
+      Locale("en", "US"),
+      Locale("nl", "NL"),
+      Locale("de", "DE"),
+      Locale("fr", "FR"),
+    ];
   }
 
   @override
@@ -79,15 +86,23 @@ class AppState extends ConsumerState<App> {
           // outside a text field puts the keyboard away.
           // Above the navigator: a card opening from the stack runs over
           // the home page and its details page both.
-          builder: (context, child) => CardTransitions(
-            child: StatusBarScrollsToTop(
-              child: SidePanelInset(
-                child: UnfocusOnTapOutside(
-                  child: LegacyMaterialBridge(
-                    child: LockGate(
-                      child: StoreReviewGate(
-                        child: SystemNavigationBarStyle(
-                          child: child ?? const SizedBox.shrink(),
+          // The text of the cover iOS shows while the screen is recorded or
+          // mirrored (see CaptureCoverText), and every touch counts as use
+          // for the idle lock.
+          builder: (context, child) => CaptureCoverText(
+            child: IdleUseListener(
+              onUse: ref.read(idleLockProvider).noteUse,
+              child: CardTransitions(
+                child: StatusBarScrollsToTop(
+                  child: SidePanelInset(
+                    child: UnfocusOnTapOutside(
+                      child: LegacyMaterialBridge(
+                        child: LockGate(
+                          child: StoreReviewGate(
+                            child: SystemNavigationBarStyle(
+                              child: child ?? const SizedBox.shrink(),
+                            ),
+                          ),
                         ),
                       ),
                     ),

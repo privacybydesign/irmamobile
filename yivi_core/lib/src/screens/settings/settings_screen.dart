@@ -131,15 +131,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onChanged: repo.preferences.reportErrors.set,
                   value: ref.watch(reportErrorsProvider),
                 ),
-                if (Platform.isAndroid)
-                  ToggleTile(
-                    key: const Key("screenshot_toggle"),
-                    labelTranslationKey: "settings.enable_screenshots",
-                    subtitleTranslationKey:
-                        "settings.enable_screenshots_explanation",
-                    onChanged: repo.preferences.screenshotsEnabled.set,
-                    value: ref.watch(screenshotsEnabledProvider),
-                  ),
+                // Android keeps the app out of screenshots and recordings; iOS
+                // can only cover the app while the screen is recorded or
+                // shared. The same preference switches both off, under a label
+                // that says what it does on the platform at hand.
+                ToggleTile(
+                  key: const Key("screenshot_toggle"),
+                  labelTranslationKey: Platform.isIOS
+                      ? "settings.enable_screen_recording"
+                      : "settings.enable_screenshots",
+                  subtitleTranslationKey: Platform.isIOS
+                      ? "settings.enable_screen_recording_explanation"
+                      : "settings.enable_screenshots_explanation",
+                  onChanged: repo.preferences.screenshotsEnabled.set,
+                  value: ref.watch(screenshotsEnabledProvider),
+                ),
                 if (showDeveloperModeToggle)
                   ToggleTile(
                     key: const Key("dev_mode_toggle"),

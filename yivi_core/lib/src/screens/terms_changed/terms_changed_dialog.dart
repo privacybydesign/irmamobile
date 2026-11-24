@@ -98,7 +98,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
           label: context.tr("new_terms_and_conditions.accept"),
           size: PillSize.regular,
           onPressed: () async {
-            await prefs.acceptedLatestTerms.set(true);
+            await prefs.acceptLatestTerms(true);
             if (context.mounted) Navigator.of(context).pop();
           },
         ),

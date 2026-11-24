@@ -3,17 +3,19 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
+import "src/providers/device_protection_providers.dart";
 import "src/providers/pane_selection_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/providers/redirect_state_provider.dart";
-import "src/providers/rooted_device_detector_provider.dart";
 import "src/routing/adaptive_page.dart";
 import "src/routing/navigation.dart";
 import "src/screens/activity/activity_detail_screen.dart";
+import "src/screens/app_integrity/app_integrity_blocked_screen.dart";
 import "src/screens/back_to_website/back_to_website_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/debug/debug_screen.dart";
+import "src/screens/device_lock/device_lock_required_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
 import "src/screens/home/home_screen.dart";
@@ -217,17 +219,40 @@ GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
       ),
       _adaptive(
         mode: PresentationMode.full,
-        path: "/rooted_warning",
+        path: "/device_lock_required",
         builder: (context, state) {
-          return RootedWarningScreen(
-            onAcceptRiskButtonPressed: () {
-              DetectRootedDeviceIrmaPrefsRepository(
-                preferences: ref.read(preferencesProvider),
-                detector: ref.read(rootedDeviceDetectorProvider),
-              ).setHasAcceptedRootedDeviceRisk();
-            },
+          final requirement = ref.read(deviceLockRequirementProvider);
+          return DeviceLockRequiredScreen(
+            onOpenSettingsPressed: requirement.openSecuritySettings,
+            onCheckAgainPressed: requirement.recheck,
+            onContinueAnywayPressed: requirement.skipForDebugging,
           );
         },
+      ),
+      _adaptive(
+        mode: PresentationMode.full,
+        path: "/app_integrity_blocked",
+        builder: (context, state) => const AppIntegrityBlockedScreen(),
+      ),
+      _adaptive(
+        mode: PresentationMode.full,
+        path: "/rooted_warning",
+        // The warning follows the risk that is due, so accepting the first
+        // makes way for the second without leaving the route.
+        builder: (context, state) => Consumer(
+          builder: (context, ref, _) {
+            final risk =
+                ref.watch(pendingDeviceRiskProvider).value ?? DeviceRisk.rooted;
+            // The button accepts the risk the screen explains, and only
+            // that one.
+            return RootedWarningScreen(
+              key: ValueKey(risk),
+              explanationTranslationKey: risk.explanationTranslationKey,
+              onAcceptRiskButtonPressed: () =>
+                  acceptDeviceRisk(ref.read(preferencesProvider), risk),
+            );
+          },
+        ),
       ),
       _adaptive(
         mode: PresentationMode.full,
@@ -247,7 +272,8 @@ GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
         builder: (context, state) => RequiredUpdateScreen(),
       ),
     ],
-    redirect: (context, state) => redirectState.value.redirect(),
+    redirect: (context, state) =>
+        redirectState.value.redirect(state.matchedLocation),
   );
 }
 

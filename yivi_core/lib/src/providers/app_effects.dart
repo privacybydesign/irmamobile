@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../models/enrollment_status.dart";
 import "../models/update_schemes_event.dart";
 import "../platform/privacy_screen.dart";
+import "idle_lock.dart";
 import "irma_repository_provider.dart";
 import "preferences_provider.dart";
 
@@ -63,25 +64,20 @@ final idleLockThresholdProvider = Provider<Duration>(
   (ref) => const Duration(minutes: 5),
 );
 
-/// Locks the app when it has been in the background for longer than
-/// [idleLockThresholdProvider]. The lock overlay follows the lock; no
-/// navigation is needed here.
-///
-/// Only `paused` and `resumed` count: `inactive` and `hidden` alone (Apple
-/// Pay, a brief pull of Control Center) are no backgrounding, so they cannot
-/// lock.
-final idleLockProvider = Provider<void>((ref) {
+/// How long the app may stay open and untouched before it locks.
+final foregroundIdleLockThresholdProvider = Provider<Duration>(
+  (ref) => const Duration(minutes: 5),
+);
+
+/// Locks the app when it was left alone (see [IdleLock]). The lock overlay
+/// follows the lock; no navigation is needed here. Use of the app reaches it
+/// through [IdleLock.noteUse], from an [IdleUseListener] around the app.
+final idleLockProvider = Provider<IdleLock>((ref) {
   final repo = ref.watch(irmaRepositoryProvider);
   final lock = ref.watch(appLockProvider);
-  final threshold = ref.watch(idleLockThresholdProvider);
-  DateTime? lastPausedAt;
 
-  Future<void> onResumed() async {
-    final pausedAt = lastPausedAt;
-    lastPausedAt = null;
-    if (pausedAt == null) return;
-    if (DateTime.now().difference(pausedAt) <= threshold) return;
-
+  /// Only a wallet that exists and is open can be locked.
+  Future<void> lockIfOpen() async {
     final status = await repo.getEnrollmentStatus().firstWhere(
       (s) => s != EnrollmentStatus.undetermined,
     );
@@ -94,18 +90,13 @@ final idleLockProvider = Provider<void>((ref) {
     lock.lock();
   }
 
-  final listener = AppLifecycleListener(
-    onStateChange: (state) {
-      switch (state) {
-        case AppLifecycleState.paused:
-          lastPausedAt = DateTime.now();
-        case AppLifecycleState.resumed:
-          onResumed();
-        default:
-      }
-    },
+  final idle = IdleLock(
+    background: ref.watch(idleLockThresholdProvider),
+    foreground: ref.watch(foregroundIdleLockThresholdProvider),
+    lock: lockIfOpen,
   );
-  ref.onDispose(listener.dispose);
+  ref.onDispose(idle.dispose);
+  return idle;
 });
 
 /// Once unenrolled, the name-changed notice is switched off for good: it is
