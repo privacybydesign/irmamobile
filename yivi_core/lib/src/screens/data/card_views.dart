@@ -432,86 +432,76 @@ class _GridView extends ConsumerWidget {
       onMove: onMove,
       builder: (context, i) {
         final c = cards[i];
-        return PushAway(
+        return CardSlot(
           hash: c.hash,
-          fadeWhenOpening: true,
-          child: CardSlot(
+          view: CardSlotView.grid,
+          flightTarget: i == 0,
+          child: IssuanceFlightHidden(
             hash: c.hash,
-            view: CardSlotView.grid,
-            flightTarget: i == 0,
-            child: IssuanceFlightHidden(
-              hash: c.hash,
-              child: _CardButton(
-                credential: c,
-                origin: CardOrigin.gridCell,
-                hintText: hintTexts[c.hash],
-                pressDepth: 4,
-                moves: arrangeable
-                    ? moveActions(
-                        context,
-                        index: i,
-                        count: cards.length,
-                        onMove: onMove,
-                      )
-                    : null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CardSlotPicture(
-                      // The card open in the detail pane: the red border of
-                      // the list's rows, around the card.
-                      child: DecoratedBox(
-                        position: DecorationPosition.foreground,
-                        decoration: ShapeDecoration(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: CredentialCardArt.radiusFor(
-                              cardWidth,
-                            ),
-                            side: BorderSide(
-                              width: 2,
-                              strokeAlign: BorderSide.strokeAlignOutside,
-                              color: c.hash == openHash
-                                  ? palette.primary
-                                  : Colors.transparent,
-                            ),
+            child: _CardButton(
+              credential: c,
+              origin: CardOrigin.gridCell,
+              hintText: hintTexts[c.hash],
+              pressDepth: 4,
+              moves: arrangeable
+                  ? moveActions(
+                      context,
+                      index: i,
+                      count: cards.length,
+                      onMove: onMove,
+                    )
+                  : null,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CardSlotPicture(
+                    // The card open in the detail pane: the red border of
+                    // the list's rows, around the card.
+                    child: DecoratedBox(
+                      position: DecorationPosition.foreground,
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: CredentialCardArt.radiusFor(cardWidth),
+                          side: BorderSide(
+                            width: 2,
+                            strokeAlign: BorderSide.strokeAlignOutside,
+                            color: c.hash == openHash
+                                ? palette.primary
+                                : Colors.transparent,
                           ),
                         ),
-                        child: CardHero(
-                          credential: c,
-                          width: cardWidth,
-                          hintText: hintTexts[c.hash],
-                        ),
+                      ),
+                      child: CredentialCardArt(
+                        credential: c,
+                        width: cardWidth,
+                        hintText: hintTexts[c.hash],
                       ),
                     ),
-                    const SizedBox(height: YiviSpace.x8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: YiviSpace.x4,
-                      ),
-                      child: Text(
-                        c.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .display(14)
-                            .copyWith(color: palette.text),
-                      ),
+                  ),
+                  const SizedBox(height: YiviSpace.x8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: YiviSpace.x4,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: YiviSpace.x4,
-                      ),
-                      child: Text(
-                        hintTexts[c.hash] ?? "",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: palette
-                            .body(12)
-                            .copyWith(color: palette.heading),
-                      ),
+                    child: Text(
+                      c.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette.display(14).copyWith(color: palette.text),
                     ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: YiviSpace.x4,
+                    ),
+                    child: Text(
+                      hintTexts[c.hash] ?? "",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: palette.body(12).copyWith(color: palette.heading),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

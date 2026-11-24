@@ -395,9 +395,6 @@ void main() {
               reason: "landed at ${last.$2}, its place is $sibling",
             );
           },
-          // Today a grid page sets what is open while it builds (an
-          // assertion) and the sibling does not show.
-          skip: origin == _Origin.grid,
         );
       }
 
@@ -455,23 +452,20 @@ void main() {
         expect(reaches(tester, onTile(tester, first), tile(first)), isTrue);
       });
 
-      iosTest(
-        "See all closes the card at once: nothing flies over Activity",
-        (tester) async {
-          await pump(tester, origin);
-          await open(tester, first);
-          final seeAll = find.byKey(const Key("card_activity_see_all"));
-          await tester.ensureVisible(seeAll);
-          await tester.pumpAndSettle();
-          await tester.tap(seeAll);
-          await tester.pump();
-          await tester.pump(const Duration(milliseconds: 16));
-          expect(details(), findsNothing);
-          await tester.pump(const Duration(seconds: 2));
-        },
-        // Today a grid page fades out over the Activity tab.
-        skip: origin == _Origin.grid,
-      );
+      iosTest("See all closes the card at once: nothing flies over Activity", (
+        tester,
+      ) async {
+        await pump(tester, origin);
+        await open(tester, first);
+        final seeAll = find.byKey(const Key("card_activity_see_all"));
+        await tester.ensureVisible(seeAll);
+        await tester.pumpAndSettle();
+        await tester.tap(seeAll);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(details(), findsNothing);
+        await tester.pump(const Duration(seconds: 2));
+      });
 
       iosTest("Reduce Motion: opens and closes, no card moves", (tester) async {
         tester.platformDispatcher.accessibilityFeaturesTestValue =

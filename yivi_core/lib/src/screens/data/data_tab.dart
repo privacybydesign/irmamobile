@@ -48,7 +48,6 @@ import "card_transition/card_transition_layer.dart";
 import "card_transition/open_card.dart";
 import "credential_detail/credential_detail_screen.dart";
 import "empty_data_start.dart";
-import "wallet/card_hero.dart";
 import "wallet/drag_to_arrange.dart";
 import "wallet/issuance_flight.dart";
 import "wallet/wallet_transition.dart";

@@ -48,7 +48,6 @@ void openCard(
   final transitions = CardTransitionScope.maybeOf(from);
   if (transitions != null && transitions.busy) return;
   if (transitions != null &&
-      origin != CardOrigin.gridCell &&
       origin != CardOrigin.notification &&
       _openWithTransition(from, transitions, credential, origin, found)) {
     return;
