@@ -35,6 +35,7 @@ import "../../session/requestor/requestor_card.dart";
 import "../../session/requestor/requestor_trust_sheet.dart";
 import "../card_transition/card_transition.dart";
 import "../card_transition/card_transition_layer.dart";
+import "../card_transition/open_card.dart";
 import "../wallet/card_hero.dart";
 import "../wallet/wallet_detail_scaffold.dart";
 import "card_activity_section.dart";
@@ -99,6 +100,20 @@ class _CredentialDetailScreenState
   }
 
   void _close() => closeCardDetails(context, widget.transition);
+
+  /// Another card of the type, picked in the siblings row: it is shown, and
+  /// closing takes it to its own place.
+  void _switch(String hash) {
+    setState(() => _hash = hash);
+    final transition = widget.transition;
+    if (transition == null) return;
+    final snapshot = cardSnapshot(
+      context,
+      origin: transition.origin,
+      hash: hash,
+    );
+    if (snapshot != null) transition.switchCard(hash, snapshot);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +192,7 @@ class _CredentialDetailScreenState
                         found: _hash == widget.hash ? widget.found : null,
                         siblings: card!.siblings,
                         hintTexts: card.hintTexts,
-                        onSwitch: (hash) => setState(() => _hash = hash),
+                        onSwitch: _switch,
                         // Its place in the stack is gone: no way back.
                         onDeleted: () => transition != null
                             ? transition.dismiss()

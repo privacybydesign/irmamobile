@@ -211,11 +211,13 @@ void main() {
 
   /// The open details' card.
   String openHash(WidgetTester tester) {
-    final art = find.descendant(
-      of: details(),
-      matching: find.byType(CredentialCardArt),
-    );
-    return tester.widget<CredentialCardArt>(art.first).credential.hash;
+    final arts = find
+        .descendant(of: details(), matching: find.byType(CredentialCardArt))
+        .evaluate()
+        .map((e) => e.widget as CredentialCardArt);
+    // The card at the top: the largest (not the compact bar's, or a
+    // sibling's in their row).
+    return arts.reduce((a, b) => b.width > a.width ? b : a).credential.hash;
   }
 
   /// After a close: no details, and the tab works again.
@@ -361,6 +363,19 @@ void main() {
             await tester.pumpAndSettle();
             await tester.tap(pick);
             await tester.pumpAndSettle();
+            // Back up to the card at the top.
+            final scroll = tester
+                .state<ScrollableState>(
+                  find
+                      .descendant(
+                        of: details(),
+                        matching: find.byType(Scrollable),
+                      )
+                      .first,
+                )
+                .position;
+            scroll.jumpTo(scroll.minScrollExtent);
+            await tester.pumpAndSettle();
             expect(openHash(tester), _email2.hash);
 
             await tester.tap(done());
@@ -380,10 +395,9 @@ void main() {
               reason: "landed at ${last.$2}, its place is $sibling",
             );
           },
-          // Today the stack lands the sibling on the first card's place;
-          // a list or grid page sets what is open while it builds (an
+          // Today a list or grid page sets what is open while it builds (an
           // assertion) and the sibling does not show.
-          skip: true,
+          skip: origin != _Origin.stack,
         );
       }
 
