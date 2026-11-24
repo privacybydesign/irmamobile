@@ -3,11 +3,12 @@ import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/routing.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
+import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
+import "package:yivi_core/src/screens/data/card_transition/card_transition_layer.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
@@ -282,7 +283,10 @@ void main() {
         tester,
         repo: repo,
         initialLocation: "/home",
-        observers: [routeObserver],
+        // Above the navigator, as in the app: a row opens with its card
+        // transition, over the tab.
+        appBuilder: (context, child) =>
+            CardTransitions(child: child ?? const SizedBox.shrink()),
         overrides: [
           credentialsProvider.overrideWith(
             (ref) => Stream.value((credentials: _wallet, problematic: [])),
@@ -297,20 +301,13 @@ void main() {
             builder: (_, _) => Scaffold(
               // As the home screen: the keyboard does not squeeze the tab.
               resizeToAvoidBottomInset: false,
-              body: DataTab(),
-            ),
-            routes: [
-              GoRoute(
-                path: "credential",
-                builder: (context, _) => Scaffold(
-                  body: TextButton(
-                    key: const Key("test_card_back"),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text("Back"),
-                  ),
-                ),
+              body: Stack(
+                children: [
+                  Positioned.fill(child: DataTab()),
+                  const Positioned.fill(child: OpenCardLayer()),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       );
@@ -329,10 +326,11 @@ void main() {
       Future<void> openAndReturn() async {
         await tester.tap(tile(_address));
         await tester.pumpAndSettle();
-        expect(find.byKey(const Key("test_card_back")), findsOneWidget);
+        expect(find.byType(CredentialDetailScreen), findsOneWidget);
         tester.view.resetViewInsets();
-        await tester.tap(find.byKey(const Key("test_card_back")));
+        await tester.tap(find.byKey(const Key("credential_detail_done")));
         await tester.pumpAndSettle();
+        expect(find.byType(CredentialDetailScreen), findsNothing);
       }
 
       // Typing, the keyboard up: back from the card, it is up again.

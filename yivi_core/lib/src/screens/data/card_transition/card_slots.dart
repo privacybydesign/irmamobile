@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../util/laid_out_box.dart";
 import "card_transition.dart";
+import "card_transition_layer.dart";
 
 /// Where a card is shown: a view of the Data tab, or the Notifications.
 enum CardSlotView { stack, list, grid, notifications }
@@ -230,6 +231,12 @@ class _CardSlotPictureState extends State<CardSlotPicture> {
     super.dispose();
   }
 
+  // Not drawn while its card is open or on its way (the details draw it),
+  // but with Reduce Motion, where the details fade in over it.
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) => CardTransitionFollow(
+    opacity: (t) => t.hash == _slot?.widget.hash && !t.still ? 0 : 1,
+    touchable: true,
+    child: widget.child,
+  );
 }

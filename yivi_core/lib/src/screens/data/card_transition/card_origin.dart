@@ -21,8 +21,9 @@ enum CardOrigin {
 
   bool get isStack => this == stack;
 
-  /// The bar's + turns into the details' ✕ (Data tab only).
-  bool get plusTurnsIntoClose => this != notification;
+  /// The bar's + turns into the details' ✕ (the Data tab, not while
+  /// searching: then the bar holds the field and Cancel).
+  bool get plusTurnsIntoClose => this != notification && this != searchResult;
 
   /// The view its card is shown in, where closing measures it.
   CardSlotView get view => switch (this) {

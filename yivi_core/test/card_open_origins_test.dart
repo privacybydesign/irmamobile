@@ -395,9 +395,9 @@ void main() {
               reason: "landed at ${last.$2}, its place is $sibling",
             );
           },
-          // Today a list or grid page sets what is open while it builds (an
+          // Today a grid page sets what is open while it builds (an
           // assertion) and the sibling does not show.
-          skip: origin != _Origin.stack,
+          skip: origin == _Origin.grid,
         );
       }
 
@@ -469,8 +469,8 @@ void main() {
           expect(details(), findsNothing);
           await tester.pump(const Duration(seconds: 2));
         },
-        // Today a list or grid page fades out over the Activity tab.
-        skip: origin != _Origin.stack,
+        // Today a grid page fades out over the Activity tab.
+        skip: origin == _Origin.grid,
       );
 
       iosTest("Reduce Motion: opens and closes, no card moves", (tester) async {

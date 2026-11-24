@@ -1,9 +1,13 @@
+import "dart:math";
+
 import "package:flutter/gestures.dart" show Drag;
 import "package:flutter/rendering.dart";
 import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
+import "../../../widgets/bars/app_bar.dart";
+import "../../../widgets/buttons/close_button.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "card_transition.dart";
 import "choreography.dart";
@@ -82,6 +86,11 @@ class _OpenCardState extends State<_OpenCard> {
         fit: StackFit.expand,
         children: [
           card!,
+          // Without a + in the bar below to turn into it (Notifications, a
+          // search), the details' ✕ turns in where it will be, while the
+          // card moves.
+          if (phase != TransitionPhase.open && !t.origin.plusTurnsIntoClose)
+            _TurningClose(transition: t),
           // Kept while a drag that took over scrolls the details.
           if (phase != TransitionPhase.open || _scroll != null)
             _TouchGate(
@@ -138,6 +147,32 @@ class _OpenCardState extends State<_OpenCard> {
       return setState(() => _scroll = null);
     }
     widget.transition.letGo(0);
+  }
+}
+
+/// The details' ✕ while the card moves: it turns in from -45° as the card
+/// goes ([CardTransition.closeButton]), where the details have it once open.
+class _TurningClose extends StatelessWidget {
+  final CardTransition transition;
+
+  const _TurningClose({required this.transition});
+
+  @override
+  Widget build(BuildContext context) {
+    final padding = MediaQuery.paddingOf(context);
+    return Positioned(
+      top: padding.top + YiviAppBar.buttonTop,
+      right: 16 + padding.right,
+      child: IgnorePointer(
+        child: ExcludeSemantics(
+          child: CardTransitionFollow(
+            opacity: (t) => t.closeButton.$1,
+            turn: (t) => t.still ? 0 : t.closeButton.$2 * pi / 180,
+            child: const YiviCloseButton(),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -243,6 +278,9 @@ class _RenderOpenCard extends RenderProxyBox with RepaintsWith {
     // (The page's colour laid over them: the details are one layer, drawn
     // once.)
     final under = t.detailsOpacity;
+    if (!t.origin.isStack) {
+      return _paintTile(context, offset, move, picked, under);
+    }
     void draw(PaintingContext context, Offset _) {
       // A little past the card below's top: behind its rounded corners.
       final bandEnd = reveal + 40;
@@ -292,6 +330,43 @@ class _RenderOpenCard extends RenderProxyBox with RepaintsWith {
       offset & size,
       shown,
       draw,
+    );
+  }
+
+  /// A tile (a list row, a grid cell, a notification): the details grow
+  /// with the card, and what is under the card comes in by itself
+  /// ([under]). The tab around the card fades on its own (othersOpacity),
+  /// so no band of the page's colour covers it.
+  void _paintTile(
+    PaintingContext context,
+    Offset offset,
+    Matrix4 move,
+    Rect picked,
+    double under,
+  ) {
+    void draw(PaintingContext context, Offset _) => context.pushTransform(
+      needsCompositing,
+      Offset.zero,
+      move,
+      (context, _) => context.paintChild(child!, offset),
+    );
+    if (under >= 1) return draw(context, offset);
+    // The card as it is; under it the details at [under].
+    final split = ((picked.bottom - offset.dy) / size.height).clamp(0.0, 1.0);
+    const white = Color(0xFFFFFFFF);
+    final rest = white.withValues(alpha: under);
+    context.pushLayer(
+      ShaderMaskLayer()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [white, white, rest, rest],
+          stops: [0, split, split, 1],
+        ).createShader(Offset.zero & size)
+        ..maskRect = offset & size
+        ..blendMode = BlendMode.dstIn,
+      draw,
+      offset,
     );
   }
 
@@ -411,9 +486,14 @@ class CardTransitionFollow extends StatelessWidget {
 
   /// What [scale] scales about (the top centre by default).
   final Alignment scaleOrigin;
+
+  /// Whether what it draws takes touches while a transition runs (a list
+  /// that scrolls as the card lands); otherwise it takes none then.
+  final bool touchable;
   final Widget child;
 
   const CardTransitionFollow({
+    this.touchable = false,
     this.corner,
     this.scaleOrigin = Alignment.topCenter,
     super.key,
@@ -443,6 +523,7 @@ class CardTransitionFollow extends StatelessWidget {
         fadeTo: fadeTo,
         corner: corner,
         scaleOrigin: scaleOrigin,
+        touchable: touchable,
         child: child,
       ),
       // Kept as a finished picture: only moved and faded per frame.
@@ -461,8 +542,10 @@ class _FollowRender extends SingleChildRenderObjectWidget {
   final Color? fadeTo;
   final Radius? corner;
   final Alignment scaleOrigin;
+  final bool touchable;
 
   const _FollowRender({
+    required this.touchable,
     required this.corner,
     required this.scaleOrigin,
     required this.transition,
@@ -492,7 +575,8 @@ class _FollowRender extends SingleChildRenderObjectWidget {
     ..darkenOf = darken
     ..fadeTo = fadeTo
     ..corner = corner
-    ..scaleOrigin = scaleOrigin;
+    ..scaleOrigin = scaleOrigin
+    ..touchable = touchable;
 }
 
 class _RenderFollow extends RenderProxyBox with RepaintsWith {
@@ -509,6 +593,7 @@ class _RenderFollow extends RenderProxyBox with RepaintsWith {
 
   Radius? corner;
   Alignment scaleOrigin = Alignment.topCenter;
+  bool touchable = false;
 
   CardTransition? get _transition => repaintSource as CardTransition?;
   set transition(CardTransition? value) => repaintSource = value;
@@ -586,5 +671,6 @@ class _RenderFollow extends RenderProxyBox with RepaintsWith {
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
-      _transition == null && super.hitTestChildren(result, position: position);
+      (_transition == null || touchable) &&
+      super.hitTestChildren(result, position: position);
 }

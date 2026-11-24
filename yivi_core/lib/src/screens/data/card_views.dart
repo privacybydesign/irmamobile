@@ -240,31 +240,27 @@ class _ListView extends ConsumerWidget {
       onMove: onMove,
       builder: (context, i) {
         final c = cards[i];
-        return PushAway(
+        return CardSlot(
           hash: c.hash,
-          fadeWhenOpening: true,
-          child: CardSlot(
+          view: CardSlotView.list,
+          // Nothing lands in a search result.
+          flightTarget: i == 0 && results.isEmpty,
+          child: IssuanceFlightHidden(
             hash: c.hash,
-            view: CardSlotView.list,
-            // Nothing lands in a search result.
-            flightTarget: i == 0 && results.isEmpty,
-            child: IssuanceFlightHidden(
-              hash: c.hash,
-              child: _ListRow(
-                credential: c,
-                hintText: hintTexts[c.hash],
-                selected: c.hash == openHash,
-                query: query,
-                result: results[c.hash],
-                moves: arrangeable
-                    ? moveActions(
-                        context,
-                        index: i,
-                        count: cards.length,
-                        onMove: onMove,
-                      )
-                    : null,
-              ),
+            child: _ListRow(
+              credential: c,
+              hintText: hintTexts[c.hash],
+              selected: c.hash == openHash,
+              query: query,
+              result: results[c.hash],
+              moves: arrangeable
+                  ? moveActions(
+                      context,
+                      index: i,
+                      count: cards.length,
+                      onMove: onMove,
+                    )
+                  : null,
             ),
           ),
         );
@@ -353,7 +349,7 @@ class _ListRow extends StatelessWidget {
           spacing: YiviSpace.x16,
           children: [
             CardSlotPicture(
-              child: CardHero(
+              child: CredentialCardArt(
                 credential: credential,
                 width: picture,
                 hintText: hintText,

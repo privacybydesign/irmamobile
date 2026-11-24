@@ -6,7 +6,6 @@ import "package:flutter/semantics.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
-import "../../../routing.dart";
 import "../../models/credential.dart";
 import "../../providers/credentials_provider.dart";
 import "../../providers/email_linking_provider.dart";
@@ -44,6 +43,7 @@ import "../home/widgets/search_tab_controller.dart";
 import "../home/widgets/search_tab_scaffold.dart";
 import "card_transition/card_origin.dart";
 import "card_transition/card_slots.dart";
+import "card_transition/card_transition.dart";
 import "card_transition/card_transition_layer.dart";
 import "card_transition/open_card.dart";
 import "credential_detail/credential_detail_screen.dart";
@@ -64,7 +64,7 @@ class DataTab extends ConsumerStatefulWidget {
   ConsumerState<DataTab> createState() => _DataTabState();
 }
 
-class _DataTabState extends ConsumerState<DataTab> with RouteAware {
+class _DataTabState extends ConsumerState<DataTab> {
   /// The search outlives this State ([dataSearchProvider]): the tab is
   /// built anew when a card opened from the results closes.
   late String _query = ref.read(dataSearchProvider).query;
@@ -87,18 +87,24 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
     _refocus();
   }
 
+  /// The running card transition, watched for its end.
+  ValueNotifier<CardTransition?>? _transitions;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (ModalRoute.of(context) case final PageRoute<dynamic> route) {
-      routeObserver.subscribe(this, route);
+    final transitions = CardTransitionScope.maybeOf(context)?.current;
+    if (transitions != _transitions) {
+      _transitions?.removeListener(_onTransition);
+      _transitions = transitions?..addListener(_onTransition);
     }
   }
 
   /// Back from a card opened while typing in the search: the keyboard comes
-  /// back, to type on.
-  @override
-  void didPopNext() => _refocus();
+  /// back, to type on, once the card has gone.
+  void _onTransition() {
+    if (_transitions?.value == null) _refocus();
+  }
 
   /// Gives the field the keyboard back when it had it as a card opened.
   void _refocus() => _search.showKeyboardWhenOnTop(
@@ -107,7 +113,7 @@ class _DataTabState extends ConsumerState<DataTab> with RouteAware {
 
   @override
   void dispose() {
-    routeObserver.unsubscribe(this);
+    _transitions?.removeListener(_onTransition);
     _search.dispose();
     super.dispose();
   }
@@ -489,113 +495,121 @@ class _CardList extends ConsumerWidget {
           sliver: SliverToBoxAdapter(child: child),
         );
 
-        return CustomScrollView(
-          key: const Key("wallet_scroll"),
-          slivers: [
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: !searching && onStartSearch != null
-                    ? titleTop
-                    : topInset,
+        // Around a card opening from a row, the tab fades (the stack's
+        // cards and title follow on their own). The list still scrolls as
+        // the card lands.
+        return CardTransitionFollow(
+          opacity: (t) => t.othersOpacity,
+          fadeTo: palette.background,
+          touchable: true,
+          child: CustomScrollView(
+            key: const Key("wallet_scroll"),
+            slivers: [
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: !searching && onStartSearch != null
+                      ? titleTop
+                      : topInset,
+                ),
               ),
-            ),
-            if (!searching && onStartSearch != null)
-              box(
-                PushAway(
-                  direction: PushAwayDirection.up,
-                  child: CardTransitionFade(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: YiviSpace.x8),
-                      child: HomeTabHeader(
-                        title: const TabLargeTitle("wallet.title"),
-                        field: HomeTabSearchField(
-                          key: const Key("search_field"),
-                          hint: context.tr("wallet.search_placeholder"),
-                          onTap: onStartSearch!,
+              if (!searching && onStartSearch != null)
+                box(
+                  PushAway(
+                    direction: PushAwayDirection.up,
+                    child: CardTransitionFade(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: YiviSpace.x8),
+                        child: HomeTabHeader(
+                          title: const TabLargeTitle("wallet.title"),
+                          field: HomeTabSearchField(
+                            key: const Key("search_field"),
+                            hint: context.tr("wallet.search_placeholder"),
+                            onTap: onStartSearch!,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            if (!searching && ref.watch(emailBannerVisibleProvider))
-              box(
-                const PushAway(
-                  direction: PushAwayDirection.up,
-                  // Goes and comes with the title as a card opens.
-                  child: CardTransitionFade(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: YiviSpace.x16),
-                      child: EmailLinkBanner(),
+              if (!searching && ref.watch(emailBannerVisibleProvider))
+                box(
+                  const PushAway(
+                    direction: PushAwayDirection.up,
+                    // Goes and comes with the title as a card opens.
+                    child: CardTransitionFade(
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: YiviSpace.x16),
+                        child: EmailLinkBanner(),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            // Next to a pane; on a phone held upright the view menu is in the
-            // bar's top left.
-            if (!searching && onStartSearch == null)
-              box(
-                PushAway(
-                  direction: PushAwayDirection.up,
-                  // In line with the search field above it, in every view.
-                  child: CardTransitionFade(
-                    child: _Header(count: cards.length, view: view),
-                  ),
-                ),
-              ),
-            for (final pc in problematic)
-              box(
-                PushAway(
-                  direction: PushAwayDirection.up,
-                  child: CardTransitionFade(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: YiviSpace.x8),
-                      child: _ProblematicCredentialCard(credential: pc),
+              // Next to a pane; on a phone held upright the view menu is in the
+              // bar's top left.
+              if (!searching && onStartSearch == null)
+                box(
+                  PushAway(
+                    direction: PushAwayDirection.up,
+                    // In line with the search field above it, in every view.
+                    child: CardTransitionFade(
+                      child: _Header(count: cards.length, view: view),
                     ),
                   ),
                 ),
-              ),
-            if (visible.isEmpty)
-              box(_NoResults(palette: palette))
-            else
-              SliverPadding(
-                padding: shownView == WalletView.stack
-                    ? stackPadding
-                    : EdgeInsets.symmetric(horizontal: side),
-                sliver: switch (shownView) {
-                  WalletView.stack => SliverToBoxAdapter(
-                    child: _StackView(
-                      cards: visible,
-                      hintTexts: hintTexts,
-                      width: stackWidth,
-                      arrangeable: arrangeable,
-                      openHash: openHash,
+              for (final pc in problematic)
+                box(
+                  PushAway(
+                    direction: PushAwayDirection.up,
+                    child: CardTransitionFade(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: YiviSpace.x8),
+                        child: _ProblematicCredentialCard(credential: pc),
+                      ),
                     ),
                   ),
-                  WalletView.list => SliverToBoxAdapter(
-                    child: _ListView(
-                      cards: visible,
-                      hintTexts: hintTexts,
-                      width: contentWidth,
-                      arrangeable: arrangeable,
-                      query: query,
-                      results: {for (final r in results) r.hash: r},
-                      openHash: openHash,
+                ),
+              if (visible.isEmpty)
+                box(_NoResults(palette: palette))
+              else
+                SliverPadding(
+                  padding: shownView == WalletView.stack
+                      ? stackPadding
+                      : EdgeInsets.symmetric(horizontal: side),
+                  sliver: switch (shownView) {
+                    WalletView.stack => SliverToBoxAdapter(
+                      child: _StackView(
+                        cards: visible,
+                        hintTexts: hintTexts,
+                        width: stackWidth,
+                        arrangeable: arrangeable,
+                        openHash: openHash,
+                      ),
                     ),
-                  ),
-                  WalletView.grid => SliverToBoxAdapter(
-                    child: _GridView(
-                      cards: visible,
-                      hintTexts: hintTexts,
-                      width: contentWidth,
-                      arrangeable: arrangeable,
-                      openHash: openHash,
+                    WalletView.list => SliverToBoxAdapter(
+                      child: _ListView(
+                        cards: visible,
+                        hintTexts: hintTexts,
+                        width: contentWidth,
+                        arrangeable: arrangeable,
+                        query: query,
+                        results: {for (final r in results) r.hash: r},
+                        openHash: openHash,
+                      ),
                     ),
-                  ),
-                },
-              ),
-            SliverToBoxAdapter(child: SizedBox(height: bottom)),
-          ],
+                    WalletView.grid => SliverToBoxAdapter(
+                      child: _GridView(
+                        cards: visible,
+                        hintTexts: hintTexts,
+                        width: contentWidth,
+                        arrangeable: arrangeable,
+                        openHash: openHash,
+                      ),
+                    ),
+                  },
+                ),
+              SliverToBoxAdapter(child: SizedBox(height: bottom)),
+            ],
+          ),
         );
       },
     );

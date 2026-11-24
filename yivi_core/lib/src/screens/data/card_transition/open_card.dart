@@ -41,13 +41,15 @@ void openCard(
   }
   // Opened while typing in the search (the keyboard is still on its way
   // down): it comes back with the search when the card closes.
+  final keyboardUp = View.of(from).viewInsets.bottom > 0;
   container
       .read(dataSearchProvider.notifier)
-      .cardOpened(keyboardUp: View.of(from).viewInsets.bottom > 0);
+      .cardOpened(keyboardUp: keyboardUp);
   final transitions = CardTransitionScope.maybeOf(from);
   if (transitions != null && transitions.busy) return;
   if (transitions != null &&
-      origin.isStack &&
+      origin != CardOrigin.gridCell &&
+      origin != CardOrigin.notification &&
       _openWithTransition(from, transitions, credential, origin, found)) {
     return;
   }
@@ -108,6 +110,9 @@ bool _openWithTransition(
   final snapshot = cardSnapshot(from, origin: origin, hash: credential.hash);
   if (snapshot == null) return false;
   final slots = CardSlots.of(from);
+  // The details come over the tab, which keeps the focus: the keyboard goes
+  // (and comes back when the card closes).
+  FocusManager.instance.primaryFocus?.unfocus();
   return transitions.open(
     snapshot: snapshot,
     list: Scrollable.maybeOf(from)?.position,

@@ -349,6 +349,17 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                             );
                             // Opened from the bar's +: that + turned is the
                             // close button, here where the bar's was.
+                            // Opened from a notification or a search: no +
+                            // turned into it; the transition turned this ✕
+                            // in.
+                            if (transition != null &&
+                                !transition.origin.plusTurnsIntoClose) {
+                              return YiviCloseButton(
+                                key: widget.closeKey,
+                                onTap: _close,
+                                opacity: chromeOpacity(),
+                              );
+                            }
                             if (transition != null) {
                               return _PlusAsClose(
                                 closeKey: widget.closeKey,
