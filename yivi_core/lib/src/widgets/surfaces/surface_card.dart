@@ -37,6 +37,10 @@ class SurfaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final onTap = this.onTap;
     if (onTap == null) {
+      // The edge is drawn over the fill, not in it: a decoration's border
+      // would take its width from the room for [child], and a row of one
+      // fixed height would lose its last line when picked.
+      final edge = shape(context, selected: selected);
       return Container(
         width: width,
         height: height,
@@ -44,7 +48,13 @@ class SurfaceCard extends StatelessWidget {
         padding: padding,
         alignment: alignment,
         clipBehavior: clipBehavior,
-        decoration: decoration(context, selected: selected),
+        decoration: ShapeDecoration(
+          color: YiviPalette.of(context).surface,
+          shape: edge.copyWith(side: BorderSide.none),
+        ),
+        foregroundDecoration: edge.side == BorderSide.none
+            ? null
+            : ShapeDecoration(shape: edge),
         child: child,
       );
     }
