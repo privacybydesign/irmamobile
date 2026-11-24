@@ -47,3 +47,7 @@ class EnrollmentFailed extends EnrollmentState {
 class EnrollmentRetry extends EnrollmentState {}
 
 class EnrollmentCompleted extends EnrollmentState {}
+
+class EnrollmentEmailRejected extends EnrollmentProvideEmail {
+  EnrollmentEmailRejected({required String super.email});
+}

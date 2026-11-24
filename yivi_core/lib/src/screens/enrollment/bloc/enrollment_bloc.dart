@@ -1,3 +1,5 @@
+import "dart:io";
+
 import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../../data/irma_repository.dart";
@@ -7,6 +9,14 @@ import "../introduction/introduction_screen.dart";
 
 part "enrollment_event.dart";
 part "enrollment_state.dart";
+
+// Message of the keyshare server when it rejects the address, for example
+// because the domain does not exist. The server has no dedicated error name.
+const _invalidEmailMessage = "invalid email address";
+
+bool _isInvalidEmail(SessionError error) =>
+    error.remoteStatus == HttpStatus.badRequest &&
+    error.remoteError?.message == _invalidEmailMessage;
 
 class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
   final String language;
@@ -24,7 +34,11 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       pin: _pin!,
       language: language,
     );
+    final email = _email;
     if (enrollment is EnrollmentFailureEvent) {
+      if (email != null && _isInvalidEmail(enrollment.error)) {
+        return EnrollmentEmailRejected(email: email);
+      }
       return EnrollmentFailed(error: enrollment.error);
     } else if (_email != null) {
       return EnrollmentEmailSent(email: _email!);
