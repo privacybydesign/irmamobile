@@ -522,9 +522,12 @@ class _CardList extends ConsumerWidget {
               box(
                 const PushAway(
                   direction: PushAwayDirection.up,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: YiviSpace.x16),
-                    child: EmailLinkBanner(),
+                  // Goes and comes with the title as a card opens.
+                  child: CardTransitionFade(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: YiviSpace.x16),
+                      child: EmailLinkBanner(),
+                    ),
                   ),
                 ),
               ),
@@ -535,16 +538,20 @@ class _CardList extends ConsumerWidget {
                 PushAway(
                   direction: PushAwayDirection.up,
                   // In line with the search field above it, in every view.
-                  child: _Header(count: cards.length, view: view),
+                  child: CardTransitionFade(
+                    child: _Header(count: cards.length, view: view),
+                  ),
                 ),
               ),
             for (final pc in problematic)
               box(
                 PushAway(
                   direction: PushAwayDirection.up,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: YiviSpace.x8),
-                    child: _ProblematicCredentialCard(credential: pc),
+                  child: CardTransitionFade(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: YiviSpace.x8),
+                      child: _ProblematicCredentialCard(credential: pc),
+                    ),
                   ),
                 ),
               ),
