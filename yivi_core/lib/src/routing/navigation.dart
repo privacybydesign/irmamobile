@@ -65,8 +65,8 @@ extension RoutingHelpers on BuildContext {
     go("/home/settings");
   }
 
-  void goHelpScreen() {
-    go("/home/help");
+  void goNeedHelpScreen() {
+    go("/home/need_help");
   }
 
   void goDebugScreen() {

@@ -27,6 +27,7 @@ import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/models/session_preview.dart";
 import "package:yivi_core/src/models/session_user_interaction.dart";
+import "package:yivi_core/src/models/support_directory.dart";
 import "package:yivi_core/src/models/update_schemes_event.dart";
 import "package:yivi_core/src/screens/debug/debug_schemes.dart";
 
@@ -61,6 +62,7 @@ final _outgoing = <String, BridgeEvent Function()>{
   "RemoveSchemeEvent": () => RemoveSchemeEvent(schemeId: "s"),
   "RemoveRequestorSchemeEvent": () => RemoveRequestorSchemeEvent(schemeId: "s"),
   "RequestDebugSchemesEvent": RequestDebugSchemesEvent.new,
+  "RequestSupportDirectoryEvent": RequestSupportDirectoryEvent.new,
   "InstallCertificateEvent": () =>
       InstallCertificateEvent(type: "ca", pemContent: "pem"),
   "RemoveCertificateEvent": () =>
@@ -73,6 +75,7 @@ final _outgoing = <String, BridgeEvent Function()>{
 const _incoming = [
   "SchemeRulesEvent",
   "DebugSchemesEvent",
+  "SupportDirectoryEvent",
   "EudiConfigurationEvent",
   "CredentialsEvent",
   "CredentialStoreEvent",

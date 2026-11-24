@@ -8,6 +8,7 @@ import "../models/session_events.dart";
 import "../models/session_state.dart";
 import "../models/session_user_interaction.dart";
 import "irma_preferences.dart";
+import "recent_session_parties.dart";
 
 /// SessionRepository manages session states, and sends what the user does
 /// in a session to the bridge.
@@ -39,6 +40,10 @@ class SessionRepository {
   /// the lock screen can withhold biometric the instant a link starts a session,
   /// before Go replies (issue #654). See [hasInFlightSessionStream].
   final _inFlightSessionIds = BehaviorSubject<Set<int>>.seeded({});
+
+  /// Who recent sessions were with, finished or not. See
+  /// [RecentSessionParties].
+  final recentParties = RecentSessionParties();
 
   SessionRepository({
     required Stream<Event> eventStream,
@@ -156,6 +161,7 @@ class SessionRepository {
     if (event is SessionStateEvent) {
       _handleSessionStateEvent(event);
     } else if (event is NewSessionEvent) {
+      recentParties.start(event.sessionId, event.request.u);
       // Mark the session in flight from its start, so the lock screen can
       // withhold biometric before Go replies (see [_inFlightSessionIds]).
       _inFlightSessionIds.add(
@@ -171,6 +177,12 @@ class SessionRepository {
     final state = event.sessionState;
     final prevStates = _states.value;
     final isNew = !prevStates.containsKey(state.id);
+
+    recentParties.record(
+      state.id,
+      state.requestor,
+      completed: state.status == SessionStatus.success,
+    );
 
     // Count a session exactly once, on its transition into success: any
     // SessionStatus.success (disclosure, issuance or signature) drives the

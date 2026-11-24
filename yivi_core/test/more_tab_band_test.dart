@@ -25,7 +25,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     // Short enough for the list to scroll its large title away above
     // Android's docked tab bar, which leaves less room at the bottom.
-    tester.view.physicalSize = const Size(390, 760);
+    tester.view.physicalSize = const Size(390, 700);
     addTearDown(tester.view.reset);
     await pumpHome(
       tester,

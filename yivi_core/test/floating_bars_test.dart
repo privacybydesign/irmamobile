@@ -7,7 +7,7 @@ import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/error/no_internet_screen.dart";
-import "package:yivi_core/src/screens/help/help_screen.dart";
+import "package:yivi_core/src/screens/need_help/need_help_screen.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/widgets/bars/app_bar.dart";
@@ -136,7 +136,7 @@ void main() {
   }
 
   final screens = <String, Widget Function()>{
-    "help": () => HelpScreen(),
+    "need help": () => const NeedHelpScreen(),
     "activity detail": () =>
         ActivityDetailsScreen(args: ActivityDetailsScreenArgs(logEntry: _log)),
     "error": () => ErrorScreen(onTapClose: () {}, details: "details"),

@@ -4,7 +4,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/client_preferences.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
-import "package:yivi_core/src/screens/help/help_screen.dart";
+import "package:yivi_core/src/screens/need_help/need_help_screen.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/feedback/dialog.dart";
 import "package:yivi_core/src/widgets/surfaces/inset_group.dart";
@@ -92,19 +92,20 @@ void main() {
     expect(find.byIcon(Icons.check_rounded), findsOneWidget);
   });
 
-  testWidgets("FAQ: sections as groups and the ask-a-question card", (
+  testWidgets("Need help: the problems in groups, and something else", (
     tester,
   ) async {
     phone(tester);
-    await pumpHome(tester, repo: repo, home: HelpScreen());
+    await pumpHome(tester, repo: repo, home: const NeedHelpScreen());
     await tester.pumpAndSettle();
 
-    expect(find.text("About Yivi"), findsOneWidget);
-    expect(find.text("Security and privacy"), findsOneWidget);
+    expect(find.text("What are you running into?"), findsOneWidget);
+    expect(find.text("With an organization"), findsOneWidget);
+    expect(find.text("Your data"), findsOneWidget);
     await tester.scrollUntilVisible(
-      find.byKey(const Key("help_send_email")),
+      find.byKey(const Key("need_help_problem_other")),
       300,
     );
-    expect(find.text("support@yivi.app"), findsOneWidget);
+    expect(find.text("The Yivi app"), findsOneWidget);
   });
 }

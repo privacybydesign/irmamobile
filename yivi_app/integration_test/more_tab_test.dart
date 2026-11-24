@@ -43,10 +43,9 @@ void main() {
       // Check screen text
       const texts = [
         "Settings",
-        "Frequently asked questions",
+        "Need help?",
         if (kDebugMode) "Debugging",
         "Yivi website",
-        "Contact us",
         "Share Yivi",
         "Yivi's privacy policy",
       ];
@@ -131,64 +130,25 @@ void main() {
       await tester.waitFor(find.text("Enter your PIN").hitTestable());
     });
 
-    testWidgets("faq", (tester) async {
-      // Initialize the app for integration tests
+    testWidgets("need-help", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
-
-      // Open menu
       await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
 
-      // Open help
-      final faqFinder = find.text("Frequently asked questions");
-      // In landscape mode on some devices the FAQ button is not visible so we scroll to it.
-      await tester.scrollUntilVisible(faqFinder, 100);
-      await tester.tapAndSettle(faqFinder);
+      final needHelp = find.byKey(const Key("open_need_help_button"));
+      await tester.scrollUntilVisible(needHelp, 30);
+      await tester.tapAndSettle(needHelp);
+      expect(find.text("What are you running into?"), findsOneWidget);
 
-      // Expand all questions.
-      const questions = [
-        "What can I do with Yivi?",
-        "Why does Yivi exist?",
-        "Who is behind the Yivi app?",
-        "How to use Yivi for logging onto a mobile website?",
-        "How to use Yivi for logging onto a website on my computer?",
-        "What to do if I lose my mobile?",
-        "Can I install Yivi on multiple mobile devices?",
-        "Where is my Yivi data stored?",
-        "What makes Yivi privacy-friendly and secure?",
-        "Why does the data in the Yivi app have limited validity?",
-        "Yivi, privacy and safety",
-      ];
-      for (final question in questions) {
-        final questionFinder = find.text(question).hitTestable();
-        if (!tester.any(questionFinder)) {
-          await tester.scrollUntilVisible(questionFinder, 100);
-        }
-        // Unfold answer.
-        await tester.tapAndSettle(questionFinder);
-        // Fold answer again.
-        await tester.tapAndSettle(questionFinder);
-      }
+      // An app problem: first the answer, then Yivi support.
+      final pinProblem = find.text("Forgot my PIN or the app is blocked");
+      await tester.scrollUntilVisible(pinProblem, 50);
+      await tester.tapAndSettle(pinProblem);
+      expect(find.text("Did this solve your problem?"), findsOneWidget);
 
-      // We select an item without markdown to make testing easier.
-      final questionFinder = find
-          .text("Why does the data in the Yivi app have limited validity?")
-          .hitTestable();
-      await tester.scrollUntilVisible(questionFinder, -50);
-      await tester.tapAndSettle(questionFinder);
-      expect(
-        find
-            .textContaining(
-              "That way you can directly show that you're older than 18.",
-            )
-            .hitTestable(),
-        findsOneWidget,
-      );
-
-      // At the bottom: a way to ask a question, by e-mail.
-      await tester.scrollUntilVisible(
-        find.byKey(const Key("help_send_email")),
-        75,
-      );
+      final notSolved = find.byKey(const Key("need_help_not_solved_button"));
+      await tester.scrollUntilVisible(notSolved, 50);
+      await tester.tapAndSettle(notSolved);
+      expect(find.text("Yivi support can help you further"), findsOneWidget);
     });
   });
 }

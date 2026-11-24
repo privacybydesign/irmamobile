@@ -16,8 +16,8 @@ import "../../widgets/layout/centred_max_width.dart";
 import "../../widgets/layout/tab_layout.dart";
 import "../../widgets/layout/two_pane.dart";
 import "../../widgets/text/section_header.dart";
-import "../help/help_screen.dart";
 import "../home/widgets/home_tab.dart";
+import "../need_help/need_help_screen.dart";
 import "../settings/settings_screen.dart";
 import "widgets/tiles.dart";
 import "widgets/tiles_card.dart";
@@ -37,8 +37,8 @@ class _MoreTabState extends ConsumerState<MoreTab> {
   Widget build(BuildContext context) {
     final showDebugging = ref.watch(developerModeProvider);
     final palette = YiviPalette.of(context);
-    // On a tablet and held sideways Instellingen and Veelgestelde vragen
-    // open in a pane beside the list (Instellingen until another is picked).
+    // On a tablet and held sideways Instellingen and Hulp nodig? open in a
+    // pane beside the list (Instellingen until another is picked).
     final withPane = useHomePanes(context);
     final page = ref.watch(selectedMorePageProvider) ?? MorePage.settings;
     void open(MorePage p, VoidCallback push) => withPane
@@ -63,11 +63,11 @@ class _MoreTabState extends ConsumerState<MoreTab> {
             onTap: () => open(MorePage.settings, context.goSettingsScreen),
           ),
           InternalLinkTile(
-            key: const Key("open_help_screen_button"),
-            labelTranslationKey: "more_tab.faq",
-            iconData: Icons.help_outline_rounded,
-            selected: withPane && page == MorePage.faq,
-            onTap: () => open(MorePage.faq, context.goHelpScreen),
+            key: const Key("open_need_help_button"),
+            labelTranslationKey: "more_tab.need_help",
+            iconData: Icons.support_outlined,
+            selected: withPane && page == MorePage.needHelp,
+            onTap: () => open(MorePage.needHelp, context.goNeedHelpScreen),
           ),
           if (showDebugging)
             InternalLinkTile(
@@ -86,10 +86,6 @@ class _MoreTabState extends ConsumerState<MoreTab> {
             labelTranslationKey: "more_tab.website",
             iconData: Icons.info_outline_rounded,
             urlLinkKey: "more_tab.irma_website_link",
-          ),
-          ContactLinkTile(
-            labelTranslationKey: "more_tab.contact",
-            iconData: Icons.mail_outline_rounded,
           ),
         ],
       ),
@@ -162,8 +158,8 @@ class _MoreTabState extends ConsumerState<MoreTab> {
                   key: Key("more_pane_settings"),
                   embedded: true,
                 ),
-                MorePage.faq => const HelpScreen(
-                  key: Key("more_pane_faq"),
+                MorePage.needHelp => const NeedHelpScreen(
+                  key: Key("more_pane_need_help"),
                   embedded: true,
                 ),
               },

@@ -44,7 +44,7 @@ final selectedNotificationProvider =
 
 /// The pages of the More tab that open in its detail pane (a phone held
 /// sideways).
-enum MorePage { settings, faq }
+enum MorePage { settings, needHelp }
 
 /// The page open in the More tab's detail pane; null: Instellingen.
 final selectedMorePageProvider =

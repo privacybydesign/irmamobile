@@ -13,11 +13,11 @@ import "package:yivi_core/src/providers/pane_selection_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
-import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/home/pane_handoffs.dart";
 import "package:yivi_core/src/screens/home/widgets/home_navigation.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
+import "package:yivi_core/src/screens/need_help/need_help_screen.dart";
 import "package:yivi_core/src/screens/settings/settings_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
@@ -147,11 +147,11 @@ void main() {
                   ),
                 ),
                 GoRoute(
-                  path: "help",
+                  path: "need_help",
                   builder: (context, state) => morePageHandoff(
                     context,
-                    MorePage.faq,
-                    const HelpScreen(),
+                    MorePage.needHelp,
+                    const NeedHelpScreen(),
                   ),
                 ),
               ],
@@ -649,7 +649,7 @@ void main() {
   });
 
   group("more", () {
-    iosTest("Instellingen in the pane; Veelgestelde vragen switches", (
+    iosTest("Instellingen in the pane; Hulp nodig? switches", (
       tester,
     ) async {
       final router = await pump(tester);
@@ -657,10 +657,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key("more_pane_settings")), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key("open_help_screen_button")));
+      await tester.tap(find.byKey(const Key("open_need_help_button")));
       await tester.pumpAndSettle();
       expect(location(router), "/home");
-      expect(find.byKey(const Key("more_pane_faq")), findsOneWidget);
+      expect(find.byKey(const Key("more_pane_need_help")), findsOneWidget);
     });
   });
 }

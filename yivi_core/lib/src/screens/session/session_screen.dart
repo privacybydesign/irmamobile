@@ -7,6 +7,7 @@ import "../../data/browser.dart";
 import "../../data/irma_repository.dart";
 import "../../data/issuance_launcher.dart";
 import "../../data/session_repository.dart";
+import "../../models/credential.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
 import "../../models/session.dart";
@@ -28,6 +29,7 @@ import "../../widgets/feedback/dialog.dart";
 import "../../widgets/feedback/spinner.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
+import "../need_help/support_party.dart";
 import "call_info_screen.dart";
 import "disclosure/disclosure_share_screen.dart";
 import "issuance/issuance_permission.dart";
@@ -247,7 +249,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       ),
       SessionPin() => SessionPinPage(sessionId: widget.sessionId),
       SessionTxLockout() => TxCodeLockoutScreen(onTapClose: _closeSession),
-      SessionFailed(:final error) => _buildError(error),
+      SessionFailed(:final error, :final state) =>
+        _buildError(error, requestor: state?.requestor),
       SessionTxCode(:final state, :final parameters) =>
         OpenID4VCIPreAuthTxCodeScreen(
           sessionId: widget.sessionId,
@@ -502,7 +505,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
   }
 
-  Widget _buildError(SessionError error) {
-    return SessionErrorScreen(error: error, onTapClose: _closeSession);
+  Widget _buildError(SessionError error, {TrustedParty? requestor}) {
+    return SessionErrorScreen(
+      error: error,
+      onTapClose: _closeSession,
+      organisation: SupportParty.resolve(requestor, null),
+    );
   }
 }

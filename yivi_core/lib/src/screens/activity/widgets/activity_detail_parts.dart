@@ -22,6 +22,7 @@ import "../../../widgets/surfaces/status_chip.dart";
 import "../../../widgets/surfaces/surface_card.dart";
 import "../../../widgets/text/section_header.dart";
 import "../../../widgets/text/translated_text.dart";
+import "../../need_help/activity_help.dart";
 import "../activity_entry.dart";
 
 /// The text colour of [kind] on a surface, in both themes.
@@ -590,7 +591,8 @@ class ActivityAllWithParty extends ConsumerWidget {
 
 /// Everything about a log entry, top to bottom: the hero header from edge
 /// to edge, then (16 in, at most [maxWidth] wide) the signed message, the
-/// cards per section, the footnote, and "All activity with …".
+/// cards per section, the footnote, "All activity with …" and "Hulp
+/// nodig?".
 class ActivityDetailBody extends StatelessWidget {
   final ActivityEntry entry;
 
@@ -670,6 +672,7 @@ class ActivityDetailBody extends StatelessWidget {
                 ],
                 ActivityFootnote(entry: entry),
                 ActivityAllWithParty(entry: entry, onAsk: onAsk),
+                ActivityNeedHelp(log: entry.log),
               ],
             ),
           ),

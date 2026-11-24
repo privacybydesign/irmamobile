@@ -34,6 +34,16 @@ class ErrorStatusScreen extends StatelessWidget {
   final bool reportable;
   final Widget? actions;
 
+  /// Instead of the type's heading and text, e.g. to say who caused the
+  /// error. With a [message] the note asking to report the error goes: the
+  /// text says what to do.
+  final String? title;
+  final String? message;
+
+  /// Above the technical details: sending the report as a link, or that it
+  /// was sent.
+  final Widget? report;
+
   const ErrorStatusScreen({
     super.key,
     this.appBar,
@@ -41,6 +51,9 @@ class ErrorStatusScreen extends StatelessWidget {
     this.details,
     this.reportable = false,
     this.actions,
+    this.title,
+    this.message,
+    this.report,
   });
 
   @override
@@ -50,10 +63,19 @@ class ErrorStatusScreen extends StatelessWidget {
       appBar: appBar,
       icon: expired ? Icons.schedule_rounded : Icons.warning_rounded,
       tone: expired ? YiviTone.warning : YiviTone.danger,
-      title: context.tr(_titleKeys[type]!),
-      message: context.tr(_messageKeys[type]!),
-      note: reportable ? context.tr("error.report") : null,
-      footer: details == null ? null : ErrorDetails(details: details!),
+      title: title ?? context.tr(_titleKeys[type]!),
+      message: message ?? context.tr(_messageKeys[type]!),
+      note: reportable && message == null ? context.tr("error.report") : null,
+      footer: report == null && details == null
+          ? null
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: YiviSpace.x8,
+              children: [
+                ?report,
+                if (details != null) ErrorDetails(details: details!),
+              ],
+            ),
       actions: actions,
     );
   }

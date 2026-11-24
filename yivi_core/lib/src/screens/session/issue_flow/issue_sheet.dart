@@ -17,6 +17,7 @@ import "../../../widgets/sheet/sheet_actions.dart";
 import "../../embedded_issuance_flows/documents/document_flow.dart";
 import "../../error/session_error_screen.dart";
 import "../../error/tx_code_lockout_screen.dart";
+import "../../need_help/support_party.dart";
 import "../issuance/issue_island.dart";
 import "../issuance/issue_sheet_progress.dart";
 import "../models/disclosure_view_model.dart";
@@ -324,6 +325,7 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
             // state could not be shown.
             error: state?.status == SessionStatus.error ? state!.error : error,
             onTapClose: () => Navigator.of(context).pop(),
+            organisation: SupportParty.resolve(state?.requestor, null),
           ),
           _ => TxCodeLockoutScreen(
             onTapClose: () => Navigator.of(context).pop(),

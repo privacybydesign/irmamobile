@@ -16,11 +16,12 @@ import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/debug/debug_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
-import "src/screens/help/help_screen.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/home/pane_handoffs.dart";
 import "src/screens/loading/loading_screen.dart";
 import "src/screens/name_changed/name_changed_screen.dart";
+import "src/screens/need_help/help_problem.dart";
+import "src/screens/need_help/need_help_screen.dart";
 import "src/screens/required_update/required_update_screen.dart";
 import "src/screens/reset_pin/reset_pin_screen.dart";
 import "src/screens/rooted_warning/repository.dart";
@@ -146,9 +147,38 @@ GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
           ),
           _adaptive(
             mode: PresentationMode.sheet,
-            path: "help",
-            builder: (context, state) =>
-                morePageHandoff(context, MorePage.faq, const HelpScreen()),
+            path: "need_help",
+            // Opened with what the app knows (from an activity or an
+            // error), it stays a page of its own: the pane would lose that.
+            builder: (context, state) => switch (state.extra) {
+              final HelpContext helpContext => NeedHelpScreen(
+                helpContext: helpContext,
+              ),
+              _ => morePageHandoff(
+                context,
+                MorePage.needHelp,
+                const NeedHelpScreen(),
+              ),
+            },
+            routes: [
+              for (final (path, build)
+                  in <(String, Widget Function(NeedHelpStep))>[
+                    ("answer", (step) => NeedHelpAnswerScreen(step: step)),
+                    ("contact", (step) => NeedHelpContactScreen(step: step)),
+                    (
+                      "search",
+                      (step) => NeedHelpOrganisationSearchScreen(step: step),
+                    ),
+                  ])
+                _adaptive(
+                  mode: PresentationMode.sheet,
+                  path: path,
+                  builder: (context, state) => switch (state.extra) {
+                    final NeedHelpStep step => build(step),
+                    _ => const NeedHelpScreen(),
+                  },
+                ),
+            ],
           ),
           _adaptive(
             mode: PresentationMode.sheet,
