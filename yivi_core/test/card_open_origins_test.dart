@@ -12,9 +12,7 @@ import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/home/pane_handoffs.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
@@ -100,10 +98,7 @@ void main() {
       preferences: await freshPreferences(),
     );
   });
-  tearDown(() {
-    WalletTransition.openKey.value = null;
-    return repo.close();
-  });
+  tearDown(() => repo.close());
 
   ProviderContainer container(WidgetTester tester) =>
       ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));
@@ -137,26 +132,7 @@ void main() {
         ),
       ],
       routes: [
-        GoRoute(
-          path: "/home",
-          builder: (context, state) => HomeScreen(),
-          routes: [
-            GoRoute(
-              path: "credential",
-              pageBuilder: (context, state) => WalletDetailPage(
-                key: state.pageKey,
-                child: cardHandoff(
-                  context,
-                  state.uri.queryParameters["hash"] ?? "",
-                  CredentialDetailScreen(
-                    hash: state.uri.queryParameters["hash"] ?? "",
-                    found: state.uri.queryParameters["found"],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        GoRoute(path: "/home", builder: (context, state) => HomeScreen()),
       ],
     );
     await settle(tester);

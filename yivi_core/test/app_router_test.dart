@@ -8,7 +8,6 @@ import "package:yivi_core/src/models/error_event.dart";
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
-import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
@@ -250,21 +249,6 @@ void main() {
       app.repo.appLock.unlockLocally();
       await app.run(tester);
     }
-
-    testWidgets("a card, by hash and the field it was found by", (
-      tester,
-    ) async {
-      await home(tester);
-      app.router.push("/home/credential?hash=h-1&found=email");
-      await app.run(tester);
-
-      final screen = tester.widget<CredentialDetailScreen>(
-        find.byType(CredentialDetailScreen),
-      );
-      expect(screen.hash, "h-1");
-      expect(screen.found, "email");
-      await app.unmount(tester);
-    });
 
     testWidgets("an activity entry", (tester) async {
       await home(tester);

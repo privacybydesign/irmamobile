@@ -18,7 +18,6 @@ import "../data/card_transition/card_origin.dart";
 import "../data/card_transition/card_transition.dart";
 import "../data/card_transition/card_transition_layer.dart";
 import "../data/data_tab.dart";
-import "../data/wallet/wallet_transition.dart";
 import "../more/more_tab.dart";
 import "../notifications/notifications_provider.dart";
 import "../notifications/notifications_tab.dart";
@@ -152,9 +151,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: CardTransitionDrop(
-              child: PushAway(direction: PushAwayDirection.down, child: bar),
-            ),
+            child: CardTransitionDrop(child: bar),
           )
         else ...[
           // Fades the content out under the floating tab bar (and goes with
@@ -187,12 +184,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             right: 16 + padding.right,
             bottom: FloatingBarPlacement.tabBarBottom(context),
             child: CardTransitionDrop(
-              child: PushAway(
-                direction: PushAwayDirection.down,
-                child: CentredMaxWidth(
-                  maxWidth: mediumContentMaxWidth,
-                  child: bar,
-                ),
+              child: CentredMaxWidth(
+                maxWidth: mediumContentMaxWidth,
+                child: bar,
               ),
             ),
           ),

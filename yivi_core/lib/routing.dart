@@ -13,8 +13,6 @@ import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/back_to_website/back_to_website_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
-import "src/screens/data/credential_detail/credential_detail_screen.dart";
-import "src/screens/data/wallet/wallet_transition.dart";
 import "src/screens/debug/debug_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
@@ -130,24 +128,6 @@ GoRouter _createRouter(Ref ref, ValueListenable<RedirectState> redirectState) {
           );
         },
         routes: [
-          GoRoute(
-            path: "credential",
-            // Moves the data tab's items out of the way while the card
-            // flies (see WalletTransition).
-            pageBuilder: (context, state) {
-              final args = CredentialRouteArgs.fromState(state);
-              return WalletDetailPage(
-                key: state.pageKey,
-                name: "/home/credential",
-                // Turned sideways, the card moves into the tab's detail pane.
-                child: cardHandoff(
-                  context,
-                  args.hash,
-                  CredentialDetailScreen(hash: args.hash, found: args.found),
-                ),
-              );
-            },
-          ),
           // An ordinary page, pushed from the side. On tablets the details
           // show in the pane instead.
           _adaptive(

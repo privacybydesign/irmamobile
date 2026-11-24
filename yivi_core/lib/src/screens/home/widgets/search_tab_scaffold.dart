@@ -115,8 +115,6 @@ class SearchTabScaffold extends StatelessWidget {
         leading: leading,
         trailing: trailing,
         trailingTurnsIntoClose: trailingTurnsIntoClose,
-        // Rows fade where they are as a card opens over them.
-        othersDrop: false,
         child: list,
       );
     } else {

@@ -13,7 +13,6 @@ import "package:yivi_core/src/providers/pane_selection_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
 import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
-import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/screens/home/pane_handoffs.dart";
@@ -111,7 +110,6 @@ void main() {
     WidgetTester tester, {
     Size view = _side,
     FakeViewPadding insets = _sideInsets,
-    bool transitions = false,
   }) async {
     size(tester, view, insets);
     addTearDown(tester.view.reset);
@@ -120,12 +118,10 @@ void main() {
       tester,
       repo: repo,
       initialLocation: "/home",
-      // Above the navigator, as in the app: a card in the stack opens with
-      // its card transition instead of a page.
-      appBuilder: transitions
-          ? (context, child) =>
-                CardTransitions(child: child ?? const SizedBox.shrink())
-          : null,
+      // Above the navigator, as in the app: a card opens with its card
+      // transition.
+      appBuilder: (context, child) =>
+          CardTransitions(child: child ?? const SizedBox.shrink()),
       overrides: [
         credentialsProvider.overrideWith(
           (ref) => Stream.value((credentials: _wallet, problematic: [])),
@@ -142,19 +138,6 @@ void main() {
               path: "/home",
               builder: (context, state) => HomeScreen(),
               routes: [
-                GoRoute(
-                  path: "credential",
-                  pageBuilder: (context, state) => WalletDetailPage(
-                    key: state.pageKey,
-                    child: cardHandoff(
-                      context,
-                      state.uri.queryParameters["hash"] ?? "",
-                      CredentialDetailScreen(
-                        hash: state.uri.queryParameters["hash"] ?? "",
-                      ),
-                    ),
-                  ),
-                ),
                 GoRoute(
                   path: "settings",
                   builder: (context, state) => morePageHandoff(
@@ -593,26 +576,6 @@ void main() {
   });
 
   group("turning the phone", () {
-    iosTest("upright to sideways: an open card moves into the pane", (
-      tester,
-    ) async {
-      final router = await pump(tester, view: _upright, insets: _uprightInsets);
-      await tapCard(tester, "address");
-      expect(location(router), "/home/credential?hash=address");
-
-      size(tester, _side, _sideInsets);
-      await tester.pump();
-      await tester.pump();
-      await tester.pumpAndSettle();
-      expect(location(router), "/home");
-      expect(container(tester).read(selectedCardProvider), "address");
-      expect(container(tester).read(homeTabProvider), HomeTab.data);
-      expect(
-        find.byKey(const Key("credential_detail_pane_address")),
-        findsOneWidget,
-      );
-    });
-
     testWidgets(
       "upright to sideways: a card open from the stack moves into the pane",
       (tester) async {
@@ -620,7 +583,6 @@ void main() {
           tester,
           view: _upright,
           insets: _uprightInsets,
-          transitions: true,
         );
         await tapCard(tester, "address");
         expect(location(router), "/home");

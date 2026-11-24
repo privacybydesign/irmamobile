@@ -8,6 +8,7 @@ import "package:yivi_core/src/screens/data/credential_detail/credential_detail_s
 import "package:yivi_core/src/widgets/sheet/pull_to_dismiss_physics.dart";
 
 import "helpers/credential_factory.dart";
+import "support/card_details_host.dart";
 import "support/onboarding_v2_harness.dart";
 
 class _FixedOrder extends CredentialOrderController {
@@ -45,6 +46,8 @@ void main() {
   });
   tearDown(() => repo.close());
 
+  final host = CardDetailsHost();
+
   Future<void> openDetail(WidgetTester tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
@@ -57,21 +60,10 @@ void main() {
           () => _FixedOrder([_card]),
         ),
       ],
-      home: Builder(
-        builder: (context) => Center(
-          child: TextButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const CredentialDetailScreen(hash: "email"),
-              ),
-            ),
-            child: const Text("open"),
-          ),
-        ),
-      ),
+      home: host.build(),
     );
     await settle(tester);
-    await tester.tap(find.text("open"));
+    host.open("email");
     await tester.pumpAndSettle();
     expect(find.byType(CredentialDetailScreen), findsOneWidget);
   }

@@ -7,9 +7,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
-import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/home/pane_handoffs.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
 import "package:yivi_core/src/screens/notifications/models/credential_status_notification.dart";
 import "package:yivi_core/src/screens/notifications/notifications_provider.dart";
@@ -62,10 +60,7 @@ void main() {
       preferences: await freshPreferences(),
     );
   });
-  tearDown(() {
-    WalletTransition.openKey.value = null;
-    return repo.close();
-  });
+  tearDown(() => repo.close());
 
   ProviderContainer container(WidgetTester tester) =>
       ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));
@@ -89,25 +84,7 @@ void main() {
       appBuilder: (context, child) =>
           CardTransitions(child: child ?? const SizedBox.shrink()),
       routes: [
-        GoRoute(
-          path: "/home",
-          builder: (context, state) => HomeScreen(),
-          routes: [
-            GoRoute(
-              path: "credential",
-              pageBuilder: (context, state) => WalletDetailPage(
-                key: state.pageKey,
-                child: cardHandoff(
-                  context,
-                  state.uri.queryParameters["hash"] ?? "",
-                  CredentialDetailScreen(
-                    hash: state.uri.queryParameters["hash"] ?? "",
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        GoRoute(path: "/home", builder: (context, state) => HomeScreen()),
       ],
     );
     container(

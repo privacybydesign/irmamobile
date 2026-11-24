@@ -2,45 +2,40 @@ import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/data/wallet/wallet_detail_scaffold.dart";
 
+import "support/card_details_host.dart";
 import "support/test_app.dart";
 
 void main() {
-  testWidgets("a hard pull down closes the detail page and only that page", (
+  testWidgets("a hard pull down closes the details and nothing under them", (
     tester,
   ) async {
     // The page below, like home: a pop that reaches it sends the app to the
     // background.
     var popsBelow = 0;
-    late BuildContext below;
+    final host = CardDetailsHost();
     await tester.pumpWidget(
       testApp(
         PopScope(
           canPop: false,
           onPopInvokedWithResult: (_, _) => popsBelow++,
-          child: Builder(
-            builder: (context) {
-              below = context;
-              return const Scaffold(body: Text("below"));
-            },
-          ),
+          child: host.build(below: const Scaffold(body: Text("below"))),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
-    Navigator.of(below).push(
-      MaterialPageRoute<void>(
-        builder: (_) => WalletDetailScaffold(
-          openKey: "detail",
-          closeKey: const Key("detail_close"),
-          builder: (context, physics, animation) => ListView(
-            key: const Key("detail_list"),
-            physics: physics,
-            children: [
-              for (var i = 0; i < 30; i++)
-                SizedBox(height: 80, child: Text("row $i")),
-            ],
-          ),
+    host.open(
+      "detail",
+      details: (context, transition) => WalletDetailScaffold(
+        transition: transition,
+        closeKey: const Key("detail_close"),
+        builder: (context, physics) => ListView(
+          key: const Key("detail_list"),
+          physics: physics,
+          children: [
+            for (var i = 0; i < 30; i++)
+              SizedBox(height: 80, child: Text("row $i")),
+          ],
         ),
       ),
     );
@@ -55,6 +50,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("row 0"), findsNothing);
+    expect(host.current, isNull);
     expect(find.text("below"), findsOneWidget);
     expect(popsBelow, 0);
   });

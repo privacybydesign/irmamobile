@@ -6,12 +6,10 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/credential.dart";
 import "../../../providers/pane_selection_provider.dart";
 import "../../../providers/search_query_provider.dart";
-import "../../../routing/navigation.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../credential_detail/credential_detail_screen.dart";
-import "../wallet/wallet_transition.dart";
 import "card_origin.dart";
 import "card_slots.dart";
 import "card_transition.dart";
@@ -51,10 +49,7 @@ void openCard(
   final transitions = CardTransitionScope.maybeOf(from);
   if (transitions != null) {
     _openWithTransition(from, transitions, credential, origin, found);
-    return;
   }
-  WalletTransition.begin(from, credential.hash);
-  from.pushCredentialDetailScreen(credential.hash, found: found);
 }
 
 /// What a card's transition measures when it opens from [origin]: its
@@ -113,6 +108,7 @@ void _openWithTransition(
   CardOrigin origin,
   String? found,
 ) {
+  if (transitions.busy) return;
   final measured = cardSnapshot(from, origin: origin, hash: credential.hash);
   // Not measurable (not laid out, or another card than the one shown):
   // the details fade in where they are, as with Reduce Motion.

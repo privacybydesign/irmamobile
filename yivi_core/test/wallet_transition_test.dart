@@ -1,7 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
+import "package:yivi_core/src/screens/data/card_transition/card_origin.dart";
+import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
+import "package:yivi_core/src/screens/data/card_transition/choreography.dart";
 import "package:yivi_core/src/widgets/surfaces/base64_image.dart";
 import "package:yivi_core/src/widgets/surfaces/surface.dart";
 
@@ -13,243 +14,30 @@ const _png =
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
 void main() {
-  group("card opening", () {
-    late GoRouter router;
-    late BuildContext tappedCard;
-
-    setUp(() {
-      WalletTransition.openKey.value = null;
-      router = GoRouter(
-        routes: [
-          GoRoute(
-            path: "/",
-            pageBuilder: (context, state) => MaterialPage(
-              child: Scaffold(
-                body: Stack(
-                  children: [
-                    const Positioned(
-                      top: 40,
-                      left: 0,
-                      right: 0,
-                      height: 48,
-                      child: PushAway(
-                        direction: PushAwayDirection.up,
-                        child: SizedBox(key: Key("search"), height: 48),
-                      ),
-                    ),
-                    const Positioned(
-                      top: 120,
-                      left: 0,
-                      right: 0,
-                      height: 100,
-                      child: PushAway(
-                        hash: "above",
-                        child: SizedBox(key: Key("above"), height: 100),
-                      ),
-                    ),
-                    Positioned(
-                      top: 300,
-                      left: 0,
-                      right: 0,
-                      height: 100,
-                      child: PushAway(
-                        hash: "tapped",
-                        child: Builder(
-                          builder: (context) {
-                            tappedCard = context;
-                            return const SizedBox(
-                              key: Key("tapped"),
-                              height: 100,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const Positioned(
-                      top: 500,
-                      left: 0,
-                      right: 0,
-                      height: 100,
-                      child: PushAway(
-                        hash: "below",
-                        child: SizedBox(key: Key("below"), height: 100),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            routes: [
-              GoRoute(
-                path: "detail",
-                pageBuilder: (context, state) => const WalletDetailPage(
-                  child: SizedBox.expand(key: Key("detail")),
-                ),
-              ),
-            ],
-          ),
-        ],
-      );
-    });
-    tearDown(() => router.dispose());
-
-    testWidgets("everything above moves up, below moves down, the card "
-        "stays", (tester) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(390, 844);
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-
-      Offset at(String key) => tester.getTopLeft(find.byKey(Key(key)));
-      final search = at("search");
-      final above = at("above");
-      final tapped = at("tapped");
-      final below = at("below");
-
-      WalletTransition.begin(tappedCard, "tapped");
-      router.push("/detail");
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 200));
-
-      expect(at("search").dy, lessThan(search.dy));
-      expect(at("above").dy, lessThan(above.dy));
-      expect(at("tapped"), tapped);
-      expect(at("below").dy, greaterThan(below.dy));
-
-      // Off screen at the end; the home page itself did not slide away.
-      await tester.pumpAndSettle();
-      expect(at("search").dy + 48, lessThanOrEqualTo(0));
-      expect(at("below").dy, greaterThanOrEqualTo(844));
-      expect(at("tapped"), tapped);
-
-      // And back again when the detail closes, without a bounce: the card
-      // below never runs past its place.
-      router.pop();
-      WalletTransition.openKey.value = "tapped";
-      WalletTransition.closing = true;
-      var highest = double.infinity;
-      for (var i = 0; i < 40; i++) {
-        await tester.pump(const Duration(milliseconds: 16));
-        highest = at("below").dy < highest ? at("below").dy : highest;
-      }
-      expect(highest, greaterThanOrEqualTo(below.dy));
-      WalletTransition.closing = false;
-      await tester.pumpAndSettle();
-      expect(at("search"), search);
-      expect(at("below"), below);
-    });
-  });
-
-  testWidgets("under a home tab's bar, as Wallet: the header fades where it "
-      "is, the other cards drop away, above ones too", (tester) async {
-    tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = const Size(390, 844);
-    addTearDown(tester.view.reset);
-    WalletTransition.openKey.value = null;
-    late BuildContext tappedCard;
-    final router = GoRouter(
-      routes: [
-        GoRoute(
-          path: "/",
-          pageBuilder: (context, state) => MaterialPage(
-            child: Scaffold(
-              body: WalletBar(
-                plusTurnsIntoClose: true,
-                child: Stack(
-                  children: [
-                    const Positioned(
-                      top: 120,
-                      left: 0,
-                      right: 0,
-                      height: 48,
-                      child: PushAway(
-                        direction: PushAwayDirection.up,
-                        child: SizedBox(key: Key("field"), height: 48),
-                      ),
-                    ),
-                    const Positioned(
-                      top: 190,
-                      left: 0,
-                      right: 0,
-                      height: 100,
-                      child: PushAway(
-                        hash: "above",
-                        child: SizedBox(key: Key("above"), height: 100),
-                      ),
-                    ),
-                    Positioned(
-                      top: 300,
-                      left: 0,
-                      right: 0,
-                      height: 100,
-                      child: PushAway(
-                        hash: "tapped",
-                        child: Builder(
-                          builder: (context) {
-                            tappedCard = context;
-                            return const SizedBox(height: 100);
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          routes: [
-            GoRoute(
-              path: "detail",
-              pageBuilder: (context, state) =>
-                  const WalletDetailPage(child: SizedBox.expand()),
-            ),
-          ],
+  test("the details' ✕ takes over from a + at the end, or turns in", () {
+    CardTransition at(CardOrigin origin) => CardTransition(
+      choreography: Choreography(
+        TransitionSnapshot(
+          origin: origin,
+          hash: "card",
+          picked: 0,
+          cards: const [Rect.fromLTWH(24, 600, 88, 55)],
+          target: const Rect.fromLTWH(16, 120, 358, 226),
+          screenHeight: 844,
         ),
-      ],
+        CardMotion.defaults,
+      ),
+      details: (_, _) => const SizedBox(),
+      vsync: const TestVSync(),
+      onDone: () {},
     );
-    addTearDown(router.dispose);
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-
-    WalletTransition.begin(tappedCard, "tapped");
-    // The + of the bar turns into the close button.
-    expect(WalletTransition.closeFromPlus, isTrue);
-    router.push("/detail");
-    await tester.pumpAndSettle();
-
-    // The header: where it was, faded out.
-    final field = tester.getRect(find.byKey(const Key("field")));
-    expect(field.top, 120);
-    expect(
-      tester
-          .widget<Opacity>(
-            find
-                .ancestor(
-                  of: find.byKey(const Key("field")),
-                  matching: find.byType(Opacity),
-                )
-                .first,
-          )
-          .opacity,
-      0,
-    );
-    // The card above the tapped one went down, off the screen (by the
-    // screen and its own height, so even the top one leaves).
-    expect(
-      tester.getTopLeft(find.byKey(const Key("above"))).dy,
-      190 + 844 + 32 + 100,
-    );
-    WalletTransition.openKey.value = null;
-  });
-
-  test("the close button takes over from a + at the end, or turns in", () {
-    WalletTransition.closeFromPlus = true;
-    expect(WalletTransition.closeButton(0.1).$1, 0);
-    expect(WalletTransition.closeButton(1), (1.0, 0.0));
-    WalletTransition.closeFromPlus = false;
-    final (opacity, turn) = WalletTransition.closeButton(0.4);
-    expect(opacity, greaterThan(0));
-    expect(turn, lessThan(0));
-    expect(WalletTransition.closeButton(1), (1.0, 0.0));
+    // Opening, at the tap: the ✕ is not there yet.
+    final fromPlus = at(CardOrigin.listRow);
+    expect(fromPlus.closeButton.$1, 0);
+    final turning = at(CardOrigin.notification);
+    expect(turning.closeButton, (0.0, -45.0));
+    fromPlus.dispose();
+    turning.dispose();
   });
 
   group("card images", () {

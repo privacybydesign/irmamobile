@@ -53,46 +53,43 @@ class _StackView extends ConsumerWidget {
       onMove: onMove,
       builder: (context, i) {
         final c = cards[i];
-        return PushAway(
+        // Measured here, outside the card's press (it gives way under the
+        // finger): the card's place at rest, for the card transition.
+        return CardSlot(
           hash: c.hash,
-          // Measured here, outside the card's press (it gives way under the
-          // finger): the card's place at rest, for the card transition.
-          child: CardSlot(
+          view: CardSlotView.stack,
+          index: i,
+          // Under the next card only its strip shows.
+          revealHeight: i == cards.length - 1 ? null : _stripHeight,
+          flightTarget: i == 0,
+          child: IssuanceFlightHidden(
             hash: c.hash,
-            view: CardSlotView.stack,
-            index: i,
-            // Under the next card only its strip shows.
-            revealHeight: i == cards.length - 1 ? null : _stripHeight,
-            flightTarget: i == 0,
-            child: IssuanceFlightHidden(
-              hash: c.hash,
-              child: _Nudge(
-                key: Key("stack_nudge_${c.hash}"),
-                open: c.hash == openHash,
-                width: width,
-                child: _CardButton(
-                  credential: c,
-                  origin: CardOrigin.stack,
-                  hintText: hintTexts[c.hash],
-                  pressDepth: 6,
-                  moves: arrangeable
-                      ? moveActions(
-                          context,
-                          index: i,
-                          count: cards.length,
-                          onMove: onMove,
-                        )
-                      : null,
-                  // Sinks or falls while a card opens; the open card
-                  // itself is drawn by its details.
-                  child: StackCardFollow(
-                    index: i,
+            child: _Nudge(
+              key: Key("stack_nudge_${c.hash}"),
+              open: c.hash == openHash,
+              width: width,
+              child: _CardButton(
+                credential: c,
+                origin: CardOrigin.stack,
+                hintText: hintTexts[c.hash],
+                pressDepth: 6,
+                moves: arrangeable
+                    ? moveActions(
+                        context,
+                        index: i,
+                        count: cards.length,
+                        onMove: onMove,
+                      )
+                    : null,
+                // Sinks or falls while a card opens; the open card
+                // itself is drawn by its details.
+                child: StackCardFollow(
+                  index: i,
+                  width: width,
+                  child: CredentialCardArt(
+                    credential: c,
                     width: width,
-                    child: CredentialCardArt(
-                      credential: c,
-                      width: width,
-                      hintText: hintTexts[c.hash],
-                    ),
+                    hintText: hintTexts[c.hash],
                   ),
                 ),
               ),

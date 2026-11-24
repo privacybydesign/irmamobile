@@ -36,7 +36,6 @@ import "../../session/requestor/requestor_trust_sheet.dart";
 import "../card_transition/card_transition.dart";
 import "../card_transition/card_transition_layer.dart";
 import "../card_transition/open_card.dart";
-import "../wallet/card_hero.dart";
 import "../wallet/wallet_detail_scaffold.dart";
 import "card_activity_section.dart";
 
@@ -47,11 +46,8 @@ const _maxWidth = OpenCardLayer.detailsMaxWidth;
 
 /// Full-screen detail of one card (credential instance).
 ///
-/// Opened from the Data tab's stack it is part of that card's [transition]:
-/// over the home screen from the tap on, moved with the card while it opens
-/// and closes ([OpenCardLayer]). Opened anywhere else it is a page: the card
-/// flies here as a [CardHero] while the page below pushes its other content
-/// away, then the details fade in from below.
+/// Part of that card's [transition]: over the home screen from the tap on,
+/// moved with the card while it opens and closes ([OpenCardLayer]).
 class CredentialDetailScreen extends ConsumerStatefulWidget {
   final String hash;
 
@@ -59,13 +55,13 @@ class CredentialDetailScreen extends ConsumerStatefulWidget {
   /// brought into view.
   final String? found;
 
-  /// The card transition it is part of, when opened from the stack.
-  final CardTransition? transition;
+  /// The card transition it is part of.
+  final CardTransition transition;
 
   const CredentialDetailScreen({
     required this.hash,
+    required this.transition,
     this.found,
-    this.transition,
   });
 
   @override
@@ -80,7 +76,7 @@ class _CredentialDetailScreenState
   /// Whether the card has scrolled away under the top bar: then a small
   /// one, its name and issuer show in the bar ([CompactBar]).
   final _scrolledPast = ValueNotifier(false);
-  late final _headerKey = widget.transition?.cardKey ?? GlobalKey();
+  GlobalKey get _headerKey => widget.transition.cardKey;
 
   @override
   void dispose() {
@@ -106,7 +102,6 @@ class _CredentialDetailScreenState
   void _switch(String hash) {
     setState(() => _hash = hash);
     final transition = widget.transition;
-    if (transition == null) return;
     final snapshot = cardSnapshot(
       context,
       origin: transition.origin,
@@ -124,7 +119,6 @@ class _CredentialDetailScreenState
 
     final transition = widget.transition;
     return WalletDetailScaffold(
-      openKey: _hash,
       transition: transition,
       closeKey: const Key("credential_detail_done"),
       barBuilder: credential == null
@@ -139,7 +133,7 @@ class _CredentialDetailScreenState
                 subtitle: TextSpan(text: credential.issuer.name),
               ),
             ),
-      builder: (context, physics, animation) {
+      builder: (context, physics) {
         if (credential == null) return const SizedBox.shrink();
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -162,42 +156,28 @@ class _CredentialDetailScreenState
                       label: context.tr("wallet.detail.back_to_cards"),
                       child: GestureDetector(
                         onTap: _close,
-                        // In a card transition the card is just drawn: it
-                        // is already where it goes.
-                        child: transition != null
-                            ? CredentialCardArt(
-                                key: _headerKey,
-                                credential: credential,
-                                width: width,
-                                hintText: hintText,
-                              )
-                            : CardHero(
-                                key: _headerKey,
-                                credential: credential,
-                                width: width,
-                                hintText: hintText,
-                              ),
+                        // Just drawn: the transition moves it.
+                        child: CredentialCardArt(
+                          key: _headerKey,
+                          credential: credential,
+                          width: width,
+                          hintText: hintText,
+                        ),
                       ),
                     ),
                   ),
-                  WalletReveal(
-                    // Always complete in a card transition (no route).
-                    animation: animation,
-                    child: CentredMaxWidth(
-                      maxWidth: _maxWidth,
-                      child: _Details(
-                        credential: credential,
-                        // Only on the card the search found, not on a sibling
-                        // picked after.
-                        found: _hash == widget.hash ? widget.found : null,
-                        siblings: card!.siblings,
-                        hintTexts: card.hintTexts,
-                        onSwitch: _switch,
-                        // Its place in the stack is gone: no way back.
-                        onDeleted: () => transition != null
-                            ? transition.dismiss()
-                            : _close(),
-                      ),
+                  CentredMaxWidth(
+                    maxWidth: _maxWidth,
+                    child: _Details(
+                      credential: credential,
+                      // Only on the card the search found, not on a sibling
+                      // picked after.
+                      found: _hash == widget.hash ? widget.found : null,
+                      siblings: card!.siblings,
+                      hintTexts: card.hintTexts,
+                      onSwitch: _switch,
+                      // Its place in the list is gone: no way back.
+                      onDeleted: transition.dismiss,
                     ),
                   ),
                 ],

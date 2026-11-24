@@ -3,13 +3,11 @@ import "package:material_ui/material_ui.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../widgets/bars/scroll_edge.dart";
 import "../../../widgets/layout/centred_max_width.dart";
-import "../../data/wallet/wallet_transition.dart";
 
 /// The top of a home tab with a floating search row (Data, Activity): the
 /// list ([child]) scrolls under [row], which floats [top] from the top of
 /// the screen, at most [mediumContentMaxWidth] wide, with the hard scroll
-/// edge down to [height] under it. Both are pushed away up when an item
-/// opens. Held sideways the row just floats over the list, with no band
+/// edge down to [height] under it. Held sideways the row just floats over the list, with no band
 /// under it.
 class SearchScrollEdge extends StatelessWidget {
   final double height;
@@ -30,19 +28,13 @@ class SearchScrollEdge extends StatelessWidget {
     height: height,
     band: (context, under) => usePhoneLandscape(context)
         ? const SizedBox.shrink()
-        : PushAway(
-            direction: PushAwayDirection.up,
-            child: ScrollEdgeBand(under: under),
-          ),
+        : ScrollEdgeBand(under: under),
     bar: [
       Positioned(
         left: 16,
         right: 16,
         top: top,
-        child: PushAway(
-          direction: PushAwayDirection.up,
-          child: CentredMaxWidth(maxWidth: mediumContentMaxWidth, child: row),
-        ),
+        child: CentredMaxWidth(maxWidth: mediumContentMaxWidth, child: row),
       ),
     ],
     child: child,

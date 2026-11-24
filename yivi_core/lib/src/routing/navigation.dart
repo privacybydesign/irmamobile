@@ -94,14 +94,6 @@ extension RoutingHelpers on BuildContext {
     push(args.location, extra: args.extra);
   }
 
-  /// Opens the full-screen detail view of one card (credential instance).
-  /// Call [WalletTransition.begin] first when it opens from a card on screen.
-  /// [found]: the field (a claim path key) a search found the card by; the
-  /// card opens on it.
-  void pushCredentialDetailScreen(String hash, {String? found}) {
-    push(CredentialRouteArgs(hash, found: found).location);
-  }
-
   void pushReplacementSessionScreen(SessionRouteParams args) {
     pushReplacement(args.location);
   }
@@ -144,26 +136,6 @@ class SessionRouteParams {
 
   static SessionRouteParams fromState(GoRouterState state) =>
       fromQueryParams(state.uri.queryParameters);
-}
-
-/// `/home/credential`: the card (its hash) and the field a search found it
-/// by, in the query.
-class CredentialRouteArgs {
-  final String hash;
-  final String? found;
-
-  const CredentialRouteArgs(this.hash, {this.found});
-
-  String get location => Uri(
-    path: "/home/credential",
-    queryParameters: {"hash": hash, "found": ?found},
-  ).toString();
-
-  static CredentialRouteArgs fromState(GoRouterState state) =>
-      CredentialRouteArgs(
-        state.uri.queryParameters["hash"] ?? "",
-        found: state.uri.queryParameters["found"],
-      );
 }
 
 /// `/error`: the message to show, carried as the route's extra.

@@ -14,6 +14,7 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_groups/attribute_group.dart";
 
 import "helpers/credential_factory.dart";
+import "support/card_details_host.dart";
 import "support/onboarding_v2_harness.dart";
 
 class _FixedOrder extends CredentialOrderController {
@@ -469,6 +470,8 @@ void main() {
       attributes: [for (var i = 0; i < 20; i++) stringAttr("Field $i", "v$i")],
     );
 
+    final host = CardDetailsHost();
+
     Future<void> open(WidgetTester tester, {String? found}) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(390, 844);
@@ -481,22 +484,10 @@ void main() {
             () => _FixedOrder([long]),
           ),
         ],
-        home: Builder(
-          builder: (context) => Center(
-            child: TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) =>
-                      CredentialDetailScreen(hash: "long", found: found),
-                ),
-              ),
-              child: const Text("open"),
-            ),
-          ),
-        ),
+        home: host.build(),
       );
       await settle(tester);
-      await tester.tap(find.text("open"));
+      host.open("long", found: found);
       await tester.pumpAndSettle();
     }
 

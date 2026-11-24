@@ -50,7 +50,6 @@ import "credential_detail/credential_detail_screen.dart";
 import "empty_data_start.dart";
 import "wallet/drag_to_arrange.dart";
 import "wallet/issuance_flight.dart";
-import "wallet/wallet_transition.dart";
 import "wallet_search.dart";
 import "widgets/email_link_banner.dart";
 
@@ -513,18 +512,15 @@ class _CardList extends ConsumerWidget {
               ),
               if (!searching && onStartSearch != null)
                 box(
-                  PushAway(
-                    direction: PushAwayDirection.up,
-                    child: CardTransitionFade(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: YiviSpace.x8),
-                        child: HomeTabHeader(
-                          title: const TabLargeTitle("wallet.title"),
-                          field: HomeTabSearchField(
-                            key: const Key("search_field"),
-                            hint: context.tr("wallet.search_placeholder"),
-                            onTap: onStartSearch!,
-                          ),
+                  CardTransitionFade(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: YiviSpace.x8),
+                      child: HomeTabHeader(
+                        title: const TabLargeTitle("wallet.title"),
+                        field: HomeTabSearchField(
+                          key: const Key("search_field"),
+                          hint: context.tr("wallet.search_placeholder"),
+                          onTap: onStartSearch!,
                         ),
                       ),
                     ),
@@ -532,14 +528,11 @@ class _CardList extends ConsumerWidget {
                 ),
               if (!searching && ref.watch(emailBannerVisibleProvider))
                 box(
-                  const PushAway(
-                    direction: PushAwayDirection.up,
-                    // Goes and comes with the title as a card opens.
-                    child: CardTransitionFade(
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: YiviSpace.x16),
-                        child: EmailLinkBanner(),
-                      ),
+                  // Goes and comes with the title as a card opens.
+                  const CardTransitionFade(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: YiviSpace.x16),
+                      child: EmailLinkBanner(),
                     ),
                   ),
                 ),
@@ -547,23 +540,17 @@ class _CardList extends ConsumerWidget {
               // bar's top left.
               if (!searching && onStartSearch == null)
                 box(
-                  PushAway(
-                    direction: PushAwayDirection.up,
-                    // In line with the search field above it, in every view.
-                    child: CardTransitionFade(
-                      child: _Header(count: cards.length, view: view),
-                    ),
+                  // In line with the search field above it, in every view.
+                  CardTransitionFade(
+                    child: _Header(count: cards.length, view: view),
                   ),
                 ),
               for (final pc in problematic)
                 box(
-                  PushAway(
-                    direction: PushAwayDirection.up,
-                    child: CardTransitionFade(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: YiviSpace.x8),
-                        child: _ProblematicCredentialCard(credential: pc),
-                      ),
+                  CardTransitionFade(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: YiviSpace.x8),
+                      child: _ProblematicCredentialCard(credential: pc),
                     ),
                   ),
                 ),

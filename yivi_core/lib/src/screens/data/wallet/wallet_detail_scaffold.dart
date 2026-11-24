@@ -5,7 +5,6 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
-import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/bars/scroll_edge.dart";
@@ -13,36 +12,25 @@ import "../../../widgets/buttons/close_button.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/sheet/pull_to_dismiss_physics.dart";
 import "../card_transition/card_transition.dart";
-import "wallet_transition.dart";
 
 /// Builds the scrollable content of a [WalletDetailScaffold]. Give the list
 /// [physics], so pulling down at its top dismisses the page.
 typedef WalletDetailBuilder =
-    Widget Function(
-      BuildContext context,
-      ScrollPhysics physics,
-      Animation<double> animation,
-    );
+    Widget Function(BuildContext context, ScrollPhysics physics);
 
 /// Closes a card's details: through the card [transition] they are part of
-/// (it takes the card back from where it is), else by popping their route.
+/// (it takes the card back from where it is), else (none) by popping the
+/// route on top.
 void closeCardDetails(BuildContext context, CardTransition? transition) {
   if (transition != null) return transition.close();
   Navigator.of(context).maybePop();
 }
 
-/// The page of a detail route opened with the Wallet-style transition
-/// ([WalletDetailPage]): a background that fades in once the other content
-/// has moved away, pull down at the top or swipe to the right to dismiss
-/// (the page follows the finger and shrinks a little), and a floating close
-/// button over a fade.
-///
-/// The content itself flies in as heroes and fades up with [WalletReveal].
+/// A card's details, part of its [transition]: their background and bar
+/// once the card is open, pull down at the top or swipe to the right to
+/// close (the page follows the finger and shrinks a little), and a floating
+/// close button over a fade.
 class WalletDetailScaffold extends StatefulWidget {
-  /// What is open, for [WalletTransition.openKey]: the items of the page
-  /// below with this key stay put while the rest moves away.
-  final String openKey;
-
   final WalletDetailBuilder builder;
 
   /// Key of the close button, for tests.
@@ -52,18 +40,16 @@ class WalletDetailScaffold extends StatefulWidget {
   /// has scrolled away. Gets the opacity the close button has.
   final Widget Function(BuildContext context, double opacity)? barBuilder;
 
-  /// The card transition the page is part of (opened from the stack): then
-  /// the transition moves it, closing closes the transition, and its bar
-  /// shows only while the card is open.
-  final CardTransition? transition;
+  /// The card transition the page is part of: it moves the page, closing
+  /// closes it, and the bar shows only while the card is open.
+  final CardTransition transition;
 
   const WalletDetailScaffold({
     super.key,
-    required this.openKey,
     required this.builder,
     required this.closeKey,
+    required this.transition,
     this.barBuilder,
-    this.transition,
   });
 
   @override
@@ -72,8 +58,6 @@ class WalletDetailScaffold extends StatefulWidget {
 
 class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     with SingleTickerProviderStateMixin {
-  Animation<double>? _routeAnimation;
-
   /// How far the page is pulled down at its top, to dismiss it.
   final _pull = ValueNotifier<double>(0);
 
@@ -111,7 +95,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
       // A new drag takes over from a spring back.
       _springBack.stop();
       return _dragStartedAtTop &&
-          _routeAnimation?.status != AnimationStatus.reverse;
+          widget.transition.phase != TransitionPhase.closing;
     },
     onRelease: _onPullReleased,
   );
@@ -119,7 +103,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   @override
   void initState() {
     super.initState();
-    widget.transition?.phaseListenable.addListener(_onPhase);
+    widget.transition.phaseListenable.addListener(_onPhase);
     _springBack.addListener(() {
       final t = Curves.easeOutBack.transform(_springBack.value);
       _pull.value = (_springFrom * (1 - t)).clamp(0, double.infinity);
@@ -130,7 +114,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   /// In a card transition: pulled down to close, and then pushed back open
   /// by a finger, the page springs back up.
   void _onPhase() {
-    if (widget.transition?.phase != TransitionPhase.open) return;
+    if (widget.transition.phase != TransitionPhase.open) return;
     if (_pull.value <= 0 && _swipe.value <= 0) return;
     _springBack.stop();
     _springFrom = _pull.value;
@@ -140,10 +124,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
 
   void _onSwipeStart(DragStartDetails _) {
     _swiping =
-        _pull.value == 0 &&
-        _routeAnimation?.status != AnimationStatus.reverse &&
-        (widget.transition?.phase ?? TransitionPhase.open) ==
-            TransitionPhase.open;
+        _pull.value == 0 && widget.transition.phase == TransitionPhase.open;
     // A new drag takes over from a spring back.
     if (_swiping) _springBack.stop();
   }
@@ -176,17 +157,12 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   }
 
   void _onPullReleased(double velocity) {
-    // Only while this page is on top: the pull stays as the page closes (the
-    // heroes fly back from where it was pulled to), and its list settles
-    // again during the close, which reported the release once more. A
-    // second close popped the page below too, and from home that sends the
-    // app to the background.
+    // Only while nothing is over the details (an activity entry's page).
     if (ModalRoute.of(context)?.isCurrent != true) return;
     // A downward flick has a negative scroll velocity.
     if (PullToDismissPhysics.shouldDismiss(_pull.value, -velocity)) {
       // From where the page was pulled to, at the finger's speed.
-      if (widget.transition case final t?) return t.close(velocity: -velocity);
-      _close();
+      widget.transition.close(velocity: -velocity);
     } else {
       _springFrom = _pull.value;
       _springBack.forward(from: 0);
@@ -194,51 +170,11 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // In a card transition it is no route of its own.
-    if (widget.transition != null) return;
-    final animation = ModalRoute.of(context)?.animation;
-    if (animation != _routeAnimation) {
-      _routeAnimation?.removeStatusListener(_onRouteStatus);
-      _routeAnimation = animation?..addStatusListener(_onRouteStatus);
-    }
-    // Opened without a tap on the page below (e.g. from a notification):
-    // still let that page know what is open. After this build: the page
-    // below listens.
-    if (WalletTransition.openKey.value == null) {
-      afterFrame(() => WalletTransition.openKey.value ??= widget.openKey);
-    }
-  }
-
-  @override
-  void didUpdateWidget(WalletDetailScaffold oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.openKey != widget.openKey && widget.transition == null) {
-      WalletTransition.openKey.value = widget.openKey;
-    }
-  }
-
-  void _onRouteStatus(AnimationStatus status) {
-    WalletTransition.closing = status == AnimationStatus.reverse;
-    if (status == AnimationStatus.dismissed) {
-      WalletTransition.openKey.value = null;
-    }
-  }
-
-  @override
   void dispose() {
-    widget.transition?.phaseListenable.removeListener(_onPhase);
+    widget.transition.phaseListenable.removeListener(_onPhase);
     _springBack.dispose();
     _pull.dispose();
     _swipe.dispose();
-    _routeAnimation?.removeStatusListener(_onRouteStatus);
-    final key = widget.openKey;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (WalletTransition.openKey.value == key) {
-        WalletTransition.openKey.value = null;
-      }
-    });
     super.dispose();
   }
 
@@ -254,51 +190,37 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     final padding = MediaQuery.paddingOf(context);
-    final animation = _routeAnimation ?? kAlwaysCompleteAnimation;
     final transition = widget.transition;
     final chrome = Listenable.merge([
-      animation,
       _pull,
       _swipe,
-      transition?.phaseListenable,
+      transition.phaseListenable,
     ]);
-    // In a card transition the bar is there only while the card is open:
-    // the + of the bar below turns into its ✕ as it opens.
-    // With Reduce Motion the transition fades the whole page, chrome too.
+    // The bar and the background are there only while the card is open: the
+    // transition draws the card and what is under it while it moves, and
+    // the + of the bar below turns into the ✕. With Reduce Motion the
+    // transition fades the whole page, these too.
     double chromeOpacity() =>
-        (transition != null
-            ? (transition.phase == TransitionPhase.open || transition.still
-                  ? 1.0
-                  : 0.0)
-            : const Interval(0.4, 1).transform(animation.value)) *
+        (transition.phase == TransitionPhase.open || transition.still
+            ? 1.0
+            : 0.0) *
         (1 - _pullProgress);
 
     return Material(
       type: MaterialType.transparency,
       child: Stack(
         children: [
-          // Transparent while the page below moves away, opaque once open.
+          // Opaque once open.
           Positioned.fill(
             child: AnimatedBuilder(
               animation: chrome,
               builder: (context, _) => ColoredBox(
                 color: palette.background.withValues(
                   alpha:
-                      // Closing: clears once the details have gone
-                      // (WalletReveal), so they never lie over the cards
-                      // coming back.
-                      // In a card transition only once it is open: the
-                      // transition paints the band under the card while
-                      // it moves.
-                      (transition != null
-                          ? (transition.phase == TransitionPhase.open ||
-                                    transition.still
-                                ? 1.0
-                                : 0.0)
-                          : (WalletTransition.closing
-                                    ? const Interval(0.55, 0.85)
-                                    : const Interval(0.6, 1))
-                                .transform(animation.value)) *
+                      (transition.phase == TransitionPhase.open ||
+                              transition.still
+                          ? 1.0
+                          : 0.0) *
                       (1 - _pullProgress * 0.5),
                 ),
               ),
@@ -340,56 +262,23 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                         const SizedBox(width: YiviSpace.x8),
                         Builder(
                           builder: (context) {
-                            // Takes over from the bar's buttons below,
-                            // where they were (WalletTransition.closeButton).
-                            final (opacity, turn) =
-                                WalletTransition.closeButton(animation.value);
-                            final still = MediaQuery.disableAnimationsOf(
-                              context,
-                            );
-                            // Opened from the bar's +: that + turned is the
-                            // close button, here where the bar's was.
                             // Opened from a notification or a search: no +
                             // turned into it; the transition turned this ✕
                             // in.
-                            if (transition != null &&
-                                !transition.origin.plusTurnsIntoClose) {
+                            if (!transition.origin.plusTurnsIntoClose) {
                               return YiviCloseButton(
                                 key: widget.closeKey,
                                 onTap: _close,
                                 opacity: chromeOpacity(),
                               );
                             }
-                            if (transition != null) {
-                              return _PlusAsClose(
-                                closeKey: widget.closeKey,
-                                onTap: _close,
-                                opacity: chromeOpacity(),
-                                still: still,
-                              );
-                            }
-                            // From the list: the bar's + is covered by this
-                            // page as it opens, so this one turns over it
-                            // from the start.
-                            if (WalletTransition.closeFromPlus) {
-                              return _PlusAsClose(
-                                closeKey: widget.closeKey,
-                                onTap: _close,
-                                opacity:
-                                    (still ? opacity : 1) * (1 - _pullProgress),
-                                turn: WalletTransition.barProgress(
-                                  animation.value,
-                                ),
-                                still: still,
-                              );
-                            }
-                            return Transform.rotate(
-                              angle: still ? 0 : turn * pi / 180,
-                              child: YiviCloseButton(
-                                key: widget.closeKey,
-                                onTap: _close,
-                                opacity: opacity * (1 - _pullProgress),
-                              ),
+                            // Opened from the Data tab: the bar's + turned is
+                            // the close button, here where the bar's was.
+                            return _PlusAsClose(
+                              closeKey: widget.closeKey,
+                              onTap: _close,
+                              opacity: chromeOpacity(),
+                              still: MediaQuery.disableAnimationsOf(context),
                             );
                           },
                         ),
@@ -410,7 +299,7 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                   animation: Listenable.merge([_pull, _swipe]),
                   child: NotificationListener<ScrollStartNotification>(
                     onNotification: _onScrollStart,
-                    child: widget.builder(context, _physics, animation),
+                    child: widget.builder(context, _physics),
                   ),
                   builder: (context, child) => Transform.translate(
                     offset: Offset(
@@ -435,45 +324,14 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
   }
 }
 
-/// Fades its child in as the route opens, where it is.
-class WalletReveal extends StatelessWidget {
-  final Animation<double> animation;
-  final Widget child;
-
-  const WalletReveal({super.key, required this.animation, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final opening = animation.status != AnimationStatus.reverse;
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        final t = opening
-            ? const Interval(0.35, 1).transform(animation.value)
-            // Closing: gone in the first fifth, before the other cards
-            // come back up under it.
-            : const Interval(0.8, 1).transform(animation.value);
-        return Opacity(
-          opacity: t,
-          // Only fades, where it is: what flies starts and ends there.
-          child: child,
-        );
-      },
-      child: child,
-    );
-  }
-}
-
 /// The close button of a page opened from a bar with a + (the Data tab):
 /// that + turned 45° ([YiviIconButton.plusAsClose]), the same button the
-/// bar's + has turned into, so taking over from it shows nothing; or, with
-/// [turn] less than 1, that + on its way (0 is the + as in the bar). With
+/// bar's + has turned into, so taking over from it shows nothing. With
 /// reduced motion the + does not turn: there it is the ✕.
 class _PlusAsClose extends StatelessWidget {
   final Key closeKey;
   final VoidCallback onTap;
   final double opacity;
-  final double turn;
   final bool still;
 
   const _PlusAsClose({
@@ -481,7 +339,6 @@ class _PlusAsClose extends StatelessWidget {
     required this.onTap,
     required this.opacity,
     required this.still,
-    this.turn = 1,
   });
 
   @override
@@ -490,9 +347,9 @@ class _PlusAsClose extends StatelessWidget {
       return YiviCloseButton(key: closeKey, onTap: onTap, opacity: opacity);
     }
     return Transform.rotate(
-      angle: pi / 4 * turn,
+      angle: pi / 4,
       child: Transform.scale(
-        scale: 1 + (YiviIconButton.plusAsClose - 1) * turn,
+        scale: YiviIconButton.plusAsClose,
         child: YiviIconButton(
           key: closeKey,
           icon: CupertinoIcons.add,
