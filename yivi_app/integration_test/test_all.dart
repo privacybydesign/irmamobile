@@ -1,6 +1,7 @@
 import "activity_test.dart" as activity_test;
 import "biometric_test.dart" as biometric_test;
 import "data_search_test.dart" as search_test;
+import "digital_credentials_test.dart" as digital_credentials_test;
 import "disclose_sdjwt_over_openid4vp_test.dart" as openid4vp_test;
 import "disclosure_session/disclosure_session_test_all.dart"
     as disclosure_session;
@@ -48,6 +49,7 @@ void main() {
   mdoc_issuance_test.main();
   mdoc_disclosure_sessions.main();
   openid4vp_test.main();
+  digital_credentials_test.main();
   eudi_disclosure_sessions.main();
   statuslist_revocation_test.main();
   vcdm_test.main();
