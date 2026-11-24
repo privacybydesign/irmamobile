@@ -5,7 +5,6 @@ import "../../../../package_name.dart";
 import "../../../models/credential.dart";
 import "../../../theme/yivi_edges.dart";
 import "../../surfaces/base64_image.dart";
-import "builtin_card_svgs.dart";
 import "builtin_card_templates.dart";
 import "card_art_support.dart";
 
@@ -191,9 +190,8 @@ class CredentialCardArt extends StatelessWidget {
 
 /// The card Yivi draws for a credential without a design of its own, in
 /// the frame of the built-in cards: the issuer's logo on a white tile, the
-/// credential's name and main value next to it, the issuer and the Yivi
-/// mark at the bottom, on a deep gradient in the logo's
-/// hue with the Yivi facets down the right side (see [yiviCardColors]).
+/// credential's name and main value next to it, on a deep gradient in the
+/// logo's hue with the Yivi facets down the right side (see [yiviCardColors]).
 class _YiviCard extends StatelessWidget {
   final Credential credential;
   final String? hintText;
@@ -218,11 +216,9 @@ class _YiviCard extends StatelessWidget {
       double size,
       FontWeight weight,
       Color color, {
-      bool display = false,
       double spacing = 0,
     }) => TextStyle(
-      package: display ? packageName : null,
-      fontFamily: display ? "Alexandria" : "Open Sans",
+      fontFamily: "Open Sans",
       fontSize: size,
       height: 1.2,
       fontWeight: weight,
@@ -261,41 +257,13 @@ class _YiviCard extends StatelessWidget {
                 credential.name,
                 style(10.5, FontWeight.w700, accent, spacing: 0.4),
               ),
-              if (hint.isNotEmpty)
-                line(hint, style(16, FontWeight.w600, text, display: true)),
+              if (hint.isNotEmpty) line(hint, style(16, FontWeight.w700, text)),
             ],
-          ),
-        ),
-        Positioned(
-          left: 20,
-          right: 60,
-          bottom: 9,
-          child: line(
-            credential.issuer.name,
-            style(10, FontWeight.w600, accent),
-          ),
-        ),
-        Positioned(
-          left: 318.5,
-          top: 205.5,
-          child: SvgPicture.string(
-            '<svg xmlns="http://www.w3.org/2000/svg" '
-            'viewBox="212.686 199.928 765.355 425.197">'
-            '<g fill="${_hex(text)}" fill-opacity="0.8">$builtinYiviMark</g>'
-            "</svg>",
-            width: 765.355 * _markScale,
-            height: 425.197 * _markScale,
           ),
         ),
       ],
     );
   }
-
-  /// The Yivi mark at the size the built-in cards draw it.
-  static const _markScale = 0.0233;
-
-  static String _hex(Color c) =>
-      "#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, "0")}";
 }
 
 /// The ground of the Yivi card: a vertical gradient, and the faceted shards
