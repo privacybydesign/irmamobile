@@ -109,6 +109,7 @@ Future<GoRouter> pumpRoutes(
   List<Override> overrides = const [],
   List<NavigatorObserver> observers = const [],
   Locale locale = const Locale("en", "US"),
+  TransitionBuilder? appBuilder,
 }) async {
   final router = GoRouter(
     initialLocation: initialLocation,
@@ -125,6 +126,7 @@ Future<GoRouter> pumpRoutes(
       builder: (delegates) => MaterialApp.router(
         localizationsDelegates: delegates,
         routerConfig: router,
+        builder: appBuilder,
       ),
     ),
   );

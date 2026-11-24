@@ -11,6 +11,7 @@ import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/pane_selection_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
+import "package:yivi_core/src/screens/data/card_transition/card_transition.dart";
 import "package:yivi_core/src/screens/data/credential_detail/credential_detail_screen.dart";
 import "package:yivi_core/src/screens/data/wallet/wallet_transition.dart";
 import "package:yivi_core/src/screens/help/help_screen.dart";
@@ -110,6 +111,7 @@ void main() {
     WidgetTester tester, {
     Size view = _side,
     FakeViewPadding insets = _sideInsets,
+    bool transitions = false,
   }) async {
     size(tester, view, insets);
     addTearDown(tester.view.reset);
@@ -118,6 +120,12 @@ void main() {
       tester,
       repo: repo,
       initialLocation: "/home",
+      // Above the navigator, as in the app: a card in the stack opens with
+      // its card transition instead of a page.
+      appBuilder: transitions
+          ? (context, child) =>
+                CardTransitions(child: child ?? const SizedBox.shrink())
+          : null,
       overrides: [
         credentialsProvider.overrideWith(
           (ref) => Stream.value((credentials: _wallet, problematic: [])),
@@ -604,6 +612,50 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets(
+      "upright to sideways: a card open from the stack moves into the pane",
+      (tester) async {
+        final router = await pump(
+          tester,
+          view: _upright,
+          insets: _uprightInsets,
+          transitions: true,
+        );
+        await tapCard(tester, "address");
+        expect(location(router), "/home");
+        expect(find.byType(CredentialDetailScreen), findsOneWidget);
+
+        size(tester, _side, _sideInsets);
+        await tester.pump();
+        await tester.pump();
+        await tester.pumpAndSettle();
+        expect(container(tester).read(selectedCardProvider), "address");
+        expect(container(tester).read(homeTabProvider), HomeTab.data);
+        expect(
+          find.byKey(const Key("credential_detail_pane_address")),
+          findsOneWidget,
+        );
+        expect(find.byType(CredentialDetailScreen), findsNothing);
+        expect(
+          CardTransitionScope.maybeOf(
+            tester.element(find.byType(HomeScreen)),
+          )?.current.value,
+          isNull,
+        );
+
+        // Upright again: the list, not the card open again.
+        size(tester, _upright, _uprightInsets);
+        await tester.pump();
+        await tester.pump();
+        await tester.pumpAndSettle();
+        expect(find.byType(CredentialDetailScreen), findsNothing);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+      // Today the details vanish sideways and come back upright; nothing
+      // picks the card in the pane.
+      skip: true,
+    );
 
     iosTest("sideways to upright: the list, never the picked card's "
         "page", (tester) async {
