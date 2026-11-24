@@ -2,7 +2,7 @@ name: yivi
 description: "Yivi App"
 
 # A build number cannot be reused once a build is in use on Android.
-version: 8.4.0+4194524
+version: 8.5.0+4194525
 
 publish_to: none
 

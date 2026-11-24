@@ -5,12 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.5.0] - 2026-11-24
 ### Added
 - Residence permits as their own document. A residence permit is read with the ID-card screens, but issued as the `residencepermit` credential through the passport issuer (vcmrtd v5.0.0). After reading the chip, the app checks that the card is the one picked: an ID card belongs to a national of the issuing state, a residence permit does not. On a mismatch it asks the user to go back and pick the other card, so a residence permit is never added as an ID card or the other way round
 - A confirmation that the wallet was removed and its data deleted, shown on the enrollment screen after the app is reset from Settings, the forgot PIN screen or the blocked screen ([#801](https://github.com/privacybydesign/irmamobile/issues/801))
 - Support for French language ([#806](https://github.com/privacybydesign/irmamobile/issues/806))
 - "Need help?" as the one way into support, from the More tab, an activity and a session error. The user picks their problem and first gets a short answer, with a link where one solves it (MyYivi for a lost phone). Only when that doesn't help are they put through: to the organisation for its own requests, outcomes and data, using the website and email from the scheme or the requestor's hostname, and to Yivi support for the app and the data Yivi issues. When adding data fails, the user says whether they get it from Yivi or from another organisation. The mail to Yivi support names the problem and includes the app version, the device and, after an error, the error report. For a problem with an organisation, the user picks it from their recent sessions and activity, or searches every organisation in the scheme. Once there is an organisation to contact, its email or website is the one way forward: with an email address the app opens a mail to the organisation that names the problem and the error code, without the error report. A website that is only derived from a hostname can be the wrong one, so then Yivi support stays within reach. Recent sessions include ones the user never finished, such as a scanned QR code they cancelled, or left at the pairing code before the app knew the organisation: those are named after the server in the QR code. The app keeps them in memory only, until it restarts
-- "Need help?" uses the support address and support page an organisation states for its end users in the requestor scheme (`support_email` and `support_url`). They come before the contact details of the issuer a requestor is paired with, which are not always meant for end users, and before the website derived from the requestor's hostname. A support page from the scheme is not a guessed website, so the way to Yivi support is not shown next to it. The organisation has the same support address when the user gets there from data it issued. The fields reach the app with an irmago release that has them; until then nothing changes
+- "Need help?" uses the support address and support page an organisation states for its end users in the requestor scheme (`support_email` and `support_url`). They come before the contact details of the issuer a requestor is paired with, which are not always meant for end users, and before the website derived from the requestor's hostname. A support page from the scheme is not a guessed website, so the way to Yivi support is not shown next to it. The organisation has the same support address when the user gets there from data it issued. The fields reach the app with irmago v1.6.1; with an earlier irmago nothing changes
 - A link to the privacy policy on the terms screen of the enrollment, so it can be read before any data is processed
 - The moment the terms were accepted is stored next to the version that was accepted
 
@@ -67,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Android release build states `minifyEnabled` and `shrinkResources` (R8), which were the Flutter defaults
 - `ci_scripts/check_security_config.sh`, run in Status checks, fails when a security setting is undone: backup and cleartext rules in the manifests, certificate validation overrides, run-time code loading, a debuggable manifest, the obfuscation and Go build flags
 - Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
+- Upgrade irmago to v1.6.1. It adds the optional `support_email` and `support_url` of a requestor, a fix for OpenID4VP requests whose DCQL `credential_sets` option names several credential queries, and updated Go dependencies
 
 ## [8.4.0] - 2026-11-03
 ### Added
@@ -867,7 +870,8 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
-[Unreleased]: https://github.com/privacybydesign/irmamobile/compare/v8.4.0...HEAD
+[Unreleased]: https://github.com/privacybydesign/irmamobile/compare/v8.5.0...HEAD
+[8.5.0]: https://github.com/privacybydesign/irmamobile/compare/v8.4.0...v8.5.0
 [8.4.0]: https://github.com/privacybydesign/irmamobile/compare/v8.3.3...v8.4.0
 [8.3.3]: https://github.com/privacybydesign/irmamobile/compare/v8.3.2...v8.3.3
 [8.3.2]: https://github.com/privacybydesign/irmamobile/compare/v8.3.1...v8.3.2
