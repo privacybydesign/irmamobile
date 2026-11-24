@@ -9,12 +9,14 @@ import "widgets/skip_email_confirmation_dialog.dart";
 
 class ProvideEmailScreen extends StatefulWidget {
   final String? email;
+  final String? rejectedEmail;
   final Function(String) onEmailProvided;
   final VoidCallback onEmailSkipped;
   final VoidCallback onPrevious;
 
   const ProvideEmailScreen({
     this.email,
+    this.rejectedEmail,
     required this.onEmailProvided,
     required this.onEmailSkipped,
     required this.onPrevious,
@@ -101,7 +103,10 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                             "enrollment.email.provide.explanation",
                           ),
                           SizedBox(height: theme.mediumSpacing),
-                          EmailInputField(controller: _emailController),
+                          EmailInputField(
+                            controller: _emailController,
+                            rejectedEmail: widget.rejectedEmail,
+                          ),
                         ],
                       ),
                     ),

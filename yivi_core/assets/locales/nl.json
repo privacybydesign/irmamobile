@@ -316,7 +316,8 @@
         "input": {
           "label": "E-mailadres",
           "hint": "Vul in",
-          "invalid": "Incorrect e-mailadres"
+          "invalid": "Incorrect e-mailadres",
+          "rejected": "We kunnen geen e-mail naar dit adres sturen. Controleer of het goed gespeld is."
         },
         "confirm_skip_dialog": {
           "title": "Weet je het zeker?",
