@@ -81,3 +81,13 @@ android {
         }
     }
 }
+
+// Flutter builds an app by running the assemble task in every Gradle
+// project, so also here, where it would package this plugin as an AAR. The
+// app does not use that package: it takes this project's classes and the
+// local irmagobridge.aar straight from the project. Packaging a library with
+// a local .aar inside is refused by the Android Gradle plugin, so that step
+// is switched off.
+tasks.matching { it.name ==~ /bundle\w*Aar/ }.configureEach {
+    enabled = false
+}
