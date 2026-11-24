@@ -1,4 +1,5 @@
 import "package:collection/collection.dart";
+import "package:flutter/rendering.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -12,7 +13,8 @@ import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/flight/flight.dart";
 import "../../home/widgets/home_tab.dart";
-import "wallet_transition.dart";
+import "../card_transition/card_slots.dart";
+import "../card_transition/repaints_with.dart";
 
 /// Where the incoming card is while it flies from the issuance success
 /// screen into the data tab.
@@ -34,8 +36,9 @@ class IssuanceFlightState {
 /// lies, turned a little, carried and put down, 950 ms), while the other
 /// cards slide down to make room from the moment it is picked up.
 ///
-/// Like [WalletTransition], the data tab and the overlay share state through
-/// static notifiers: the overlay outlives the session route.
+/// The data tab and the overlay share state through a static notifier: the
+/// overlay outlives the session route. The flight lands on
+/// [CardSlots.flightTarget].
 class IssuanceFlight {
   IssuanceFlight._();
 
@@ -52,9 +55,6 @@ class IssuanceFlight {
   static const curve = YiviMotion.ease;
 
   static final state = ValueNotifier<IssuanceFlightState?>(null);
-
-  /// The first card slot of the data tab, registered by [IssuanceFlightTarget].
-  static BuildContext? _target;
 
   /// Starts the flight from the card at [source] and switches home to the
   /// data tab. Returns false without doing anything when it cannot fly: no
@@ -95,12 +95,13 @@ class IssuanceFlight {
     container.read(homeTabProvider.notifier).select(HomeTab.data);
 
     final palette = YiviPalette.of(context);
+    final slots = CardSlots.of(context);
     var first = true;
     return Flight.start(
       context,
       from: source,
       to: (overlay) {
-        final rect = _targetRect(overlay, scroll: first);
+        final rect = _targetRect(slots, overlay, scroll: first);
         if (rect != null) first = false;
         return rect;
       },
@@ -140,7 +141,7 @@ class IssuanceFlight {
       },
       // The card in the list shows as the copy lands; the copy goes two
       // frames later.
-      onLanded: () => _finish(container, card.hash),
+      onLanded: () => _finish(container, slots, card.hash),
     );
   }
 
@@ -169,10 +170,14 @@ class IssuanceFlight {
     );
   }
 
-  static void _finish(ProviderContainer container, String hash) {
+  static void _finish(
+    ProviderContainer container,
+    CardSlots slots,
+    String hash,
+  ) {
     state.value = null;
     // With a detail pane (tablet, landscape) the new card opens in it.
-    final target = _target;
+    final target = slots.flightTarget;
     if (target != null && target.mounted && useHomePanes(target)) {
       container.read(selectedCardProvider.notifier).select(hash);
     }
@@ -180,8 +185,12 @@ class IssuanceFlight {
 
   /// The first slot's rect in [overlayBox]'s coordinates, scrolling the data
   /// tab to the top the first time it is found.
-  static Rect? _targetRect(RenderBox overlayBox, {required bool scroll}) {
-    final target = _target;
+  static Rect? _targetRect(
+    CardSlots slots,
+    RenderBox overlayBox, {
+    required bool scroll,
+  }) {
+    final target = slots.flightTarget;
     if (target == null || !target.mounted) return null;
     if (scroll) {
       final position = Scrollable.maybeOf(target)?.position;
@@ -196,32 +205,7 @@ class IssuanceFlight {
   @visibleForTesting
   static void reset() {
     Flight.reset();
-    _target = null;
     state.value = null;
-  }
-}
-
-/// Marks the first card slot of the data tab as where the flight lands.
-class IssuanceFlightTarget extends StatefulWidget {
-  final Widget child;
-
-  const IssuanceFlightTarget({super.key, required this.child});
-
-  @override
-  State<IssuanceFlightTarget> createState() => _IssuanceFlightTargetState();
-}
-
-class _IssuanceFlightTargetState extends State<IssuanceFlightTarget> {
-  @override
-  Widget build(BuildContext context) {
-    IssuanceFlight._target = context;
-    return widget.child;
-  }
-
-  @override
-  void dispose() {
-    if (IssuanceFlight._target == context) IssuanceFlight._target = null;
-    super.dispose();
   }
 }
 
@@ -255,3 +239,89 @@ List<Credential> withoutIncomingCard(
 ) => flight == null || flight.inserted
     ? cards
     : cards.where((c) => c.hash != flight.hash).toList();
+
+/// Hides the part of a flying card that the cards below its place in the
+/// stack cover, every frame ([repaint]), so it slides under them instead of
+/// flying over all of them and jumping under at the end.
+class CoveredByStack extends SingleChildRenderObjectWidget {
+  final String hash;
+
+  /// The card is not in the stack yet: it slides under the first card.
+  final bool incoming;
+  final Listenable repaint;
+
+  const CoveredByStack({
+    super.key,
+    required this.hash,
+    required this.repaint,
+    this.incoming = false,
+    required super.child,
+  });
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      RenderCoveredByStack(CardSlots.of(context), hash, incoming, repaint);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    RenderCoveredByStack renderObject,
+  ) {
+    renderObject
+      ..slots = CardSlots.of(context)
+      ..hash = hash
+      ..incoming = incoming
+      ..repaint = repaint;
+  }
+}
+
+class RenderCoveredByStack extends RenderProxyBox with RepaintsWith {
+  RenderCoveredByStack(
+    this.slots,
+    this.hash,
+    this.incoming,
+    Listenable repaint,
+  ) {
+    repaintSource = repaint;
+  }
+
+  CardSlots slots;
+  String hash;
+  bool incoming;
+
+  set repaint(Listenable value) => repaintSource = value;
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final cover = slots.coverOf(hash, incoming: incoming);
+    if (cover == null || child == null) {
+      super.paint(context, offset);
+      return;
+    }
+    // The covering card in this box's coordinates, reaching far down: the
+    // cards after it cover the rest of the stack.
+    final coverTop = globalToLocal(cover.localToGlobal(Offset.zero));
+    final coverRect = Rect.fromLTWH(
+      coverTop.dx,
+      coverTop.dy,
+      cover.size.width,
+      cover.size.height + 10000,
+    );
+    final covered = CredentialCardArt.shapeFor(
+      cover.size.width,
+    ).getOuterPath(coverRect);
+    // Room around the card for its shadow.
+    final visible = Path.combine(
+      PathOperation.difference,
+      Path()..addRect((Offset.zero & size).inflate(48)),
+      covered,
+    );
+    context.pushClipPath(
+      needsCompositing,
+      offset,
+      (Offset.zero & size).inflate(48),
+      visible,
+      super.paint,
+    );
+  }
+}

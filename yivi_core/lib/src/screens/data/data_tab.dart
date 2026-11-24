@@ -24,6 +24,8 @@ import "../../util/adaptive_layout.dart";
 import "../../util/after_frame.dart";
 import "../../util/haptics.dart";
 import "../../util/i18n.dart";
+import "../../util/laid_out_box.dart";
+import "../../widgets/bars/app_bar.dart";
 import "../../widgets/bars/title_scroll_edge.dart";
 import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/buttons/press_scale.dart";
@@ -42,9 +44,10 @@ import "../add_data/add_data_sheet.dart";
 import "../home/widgets/home_tab_top.dart";
 import "../home/widgets/search_tab_controller.dart";
 import "../home/widgets/search_tab_scaffold.dart";
+import "card_transition/card_slots.dart";
 import "card_transition/card_transition.dart";
 import "card_transition/card_transition_layer.dart";
-import "card_transition/stack_cards.dart";
+import "card_transition/choreography.dart";
 import "credential_detail/credential_detail_screen.dart";
 import "empty_data_start.dart";
 import "wallet/card_hero.dart";
@@ -232,9 +235,9 @@ void _revealCard(
   required double top,
   bool again = true,
 }) {
-  final card = _CardButtonState.shown[hash];
-  final cardBox = card?.context.findRenderObject();
-  if (card == null || cardBox is! RenderBox || !cardBox.hasSize) {
+  final card = CardSlots.of(context).find(hash);
+  final cardBox = card?.context.laidOutBox;
+  if (card == null || cardBox == null) {
     if (again) _scrollTowards(context, hash, top: top);
     return;
   }
@@ -255,7 +258,7 @@ void _revealCard(
     origin.dx,
     origin.dy,
     cardBox.size.width,
-    min(card.widget.revealHeight ?? cardBox.size.height, cardBox.size.height),
+    min(card.revealHeight ?? cardBox.size.height, cardBox.size.height),
   );
   if (target.top >= visible.top && target.bottom <= visible.bottom) return;
   final to = (position.pixels + target.center.dy - visible.center.dy).clamp(
@@ -276,7 +279,7 @@ void _revealCard(
 /// A card that is not built yet: jumps the list to about where it is (by
 /// its place among the cards built), then reveals it properly.
 void _scrollTowards(BuildContext context, String hash, {required double top}) {
-  final built = _CardButtonState.shown.values.where((s) => s.mounted).toList();
+  final built = CardSlots.of(context).built.toList();
   if (built.isEmpty) return;
   final scrollable = Scrollable.maybeOf(built.first.context);
   if (scrollable == null) return;
@@ -289,10 +292,8 @@ void _scrollTowards(BuildContext context, String hash, {required double top}) {
   // The built cards' places and offsets give the room one card takes.
   final placed = <(int, double)>[
     for (final s in built)
-      if (cards.indexWhere((c) => c.hash == s.widget.credential.hash)
-          case final i when i >= 0)
-        if (s.context.findRenderObject() case final RenderBox box
-            when box.hasSize)
+      if (cards.indexWhere((c) => c.hash == s.hash) case final i when i >= 0)
+        if (s.context.laidOutBox case final box?)
           (i, box.localToGlobal(Offset.zero).dy),
   ]..sort((a, b) => a.$1.compareTo(b.$1));
   if (placed.length < 2) return;
@@ -642,9 +643,7 @@ bool _openFromStack(
   Credential credential,
   String? found,
 ) {
-  final picked = StackCards.hashes.indexOf(credential.hash);
-  if (picked < 0) return false;
-  final snapshot = StackCards.snapshot(cardContext, picked);
+  final snapshot = _stackSnapshot(cardContext, credential.hash);
   if (snapshot == null) return false;
   return transitions.open(
     snapshot: snapshot,
@@ -654,6 +653,32 @@ bool _openFromStack(
       found: found,
       transition: transition,
     ),
+  );
+}
+
+/// The snapshot for opening [hash] from the stack, or null when it is not
+/// in the stack or the stack is not all laid out (then the card opens
+/// without this transition).
+TransitionSnapshot? _stackSnapshot(BuildContext context, String hash) {
+  final stack = CardSlots.of(context).stack();
+  if (stack == null) return null;
+  final picked = stack.hashes.indexOf(hash);
+  if (picked < 0) return null;
+  final screen = MediaQuery.sizeOf(context);
+  final width = min(
+    screen.width - 32,
+    OpenCardLayer.detailsMaxWidth,
+  ).toDouble();
+  return TransitionSnapshot(
+    picked: picked,
+    cards: stack.rects,
+    target: Rect.fromLTWH(
+      (screen.width - width) / 2,
+      MediaQuery.paddingOf(context).top + YiviAppBar.contentTop,
+      width,
+      width / CredentialCardArt.aspectRatio,
+    ),
+    screenHeight: screen.height,
   );
 }
 

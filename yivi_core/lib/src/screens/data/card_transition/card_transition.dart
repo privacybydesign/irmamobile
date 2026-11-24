@@ -3,6 +3,7 @@ import "dart:math";
 import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
+import "card_slots.dart";
 import "choreography.dart";
 
 enum TransitionPhase { opening, open, closing }
@@ -400,6 +401,9 @@ class CardTransitions extends StatefulWidget {
 class CardTransitionsState extends State<CardTransitions>
     with TickerProviderStateMixin {
   final current = ValueNotifier<CardTransition?>(null);
+
+  /// Where every card is on screen.
+  final slots = CardSlots();
 
   /// Whether a card is opening, open or closing: then another tap on a card
   /// does nothing.

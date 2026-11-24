@@ -1,3 +1,4 @@
+import "package:flutter/rendering.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -5,6 +6,7 @@ import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
+import "package:yivi_core/src/screens/data/card_transition/card_slots.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/wallet/issuance_flight.dart";
 import "package:yivi_core/src/screens/home/widgets/home_tab.dart";
@@ -257,6 +259,91 @@ void main() {
     await tester.pump();
     expect(dismissed, 1);
     expect(flyingCard, findsNothing);
+  });
+
+  testWidgets("a flying card slides under the card below its place", (
+    tester,
+  ) async {
+    const green = Color(0xFF00FF00), blue = Color(0xFF0000FF);
+    const red = Color(0xFFFF0000);
+    final key = GlobalKey();
+    final fly = AnimationController(vsync: const TestVSync());
+    addTearDown(fly.dispose);
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: RepaintBoundary(
+            key: key,
+            child: SizedBox(
+              width: 300,
+              height: 300,
+              child: Stack(
+                children: [
+                  // The stack: the card at index 1 is drawn over index 0.
+                  const Positioned(
+                    left: 0,
+                    top: 0,
+                    width: 300,
+                    height: 190,
+                    child: CardSlot(
+                      hash: "a",
+                      view: CardSlotView.stack,
+                      index: 0,
+                      child: ColoredBox(color: green),
+                    ),
+                  ),
+                  const Positioned(
+                    left: 0,
+                    top: 64,
+                    width: 300,
+                    height: 190,
+                    child: CardSlot(
+                      hash: "b",
+                      view: CardSlotView.stack,
+                      index: 1,
+                      child: ColoredBox(color: blue),
+                    ),
+                  ),
+                  // Card "a" flying in, drawn over everything.
+                  Positioned(
+                    left: 0,
+                    top: 32,
+                    width: 300,
+                    height: 190,
+                    child: CoveredByStack(
+                      hash: "a",
+                      repaint: fly,
+                      child: const ColoredBox(color: red),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final image = await tester.runAsync(() async {
+      final boundary =
+          key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      final image = await boundary.toImage();
+      return (await image.toByteData())!;
+    });
+    Color at(int x, int y) {
+      final i = (y * 300 + x) * 4;
+      return Color.fromARGB(
+        image!.getUint8(i + 3),
+        image.getUint8(i),
+        image.getUint8(i + 1),
+        image.getUint8(i + 2),
+      );
+    }
+
+    // Over the card above its place, under the card below it.
+    expect(at(150, 48), red);
+    expect(at(150, 150), blue);
   });
 }
 

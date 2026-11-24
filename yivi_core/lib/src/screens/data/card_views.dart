@@ -34,8 +34,6 @@ class _StackView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cardHeight = width / CredentialCardArt.aspectRatio;
     final onMove = _reorder(ref);
-    // What a card transition measures when one of them is tapped.
-    StackCards.hashes = [for (final c in cards) c.hash];
     return DragToArrange(
       keys: [for (final c in cards) c.hash],
       size: Size(width, (cards.length - 1) * _stripHeight + cardHeight),
@@ -59,11 +57,14 @@ class _StackView extends ConsumerWidget {
           hash: c.hash,
           // Measured here, outside the card's press (it gives way under the
           // finger): the card's place at rest, for the card transition.
-          child: WalletStackSlot(
+          child: CardSlot(
             hash: c.hash,
+            view: CardSlotView.stack,
             index: i,
-            child: _flightSlot(
-              first: i == 0,
+            // Under the next card only its strip shows.
+            revealHeight: i == cards.length - 1 ? null : _stripHeight,
+            flightTarget: i == 0,
+            child: IssuanceFlightHidden(
               hash: c.hash,
               child: _Nudge(
                 key: Key("stack_nudge_${c.hash}"),
@@ -81,8 +82,6 @@ class _StackView extends ConsumerWidget {
                           onMove: onMove,
                         )
                       : null,
-                  // Under the next card only its strip shows.
-                  revealHeight: i == cards.length - 1 ? null : _stripHeight,
                   // Sinks or falls while a card opens; the open card
                   // itself is drawn by its details.
                   child: StackCardFollow(
@@ -243,24 +242,28 @@ class _ListView extends ConsumerWidget {
         return PushAway(
           hash: c.hash,
           fadeWhenOpening: true,
-          child: IssuanceFlightHidden(
+          child: CardSlot(
             hash: c.hash,
-            child: _ListRow(
-              credential: c,
-              hintText: hintTexts[c.hash],
-              selected: c.hash == openHash,
-              // Nothing lands in a search result.
-              flightTarget: i == 0 && results.isEmpty,
-              query: query,
-              result: results[c.hash],
-              moves: arrangeable
-                  ? moveActions(
-                      context,
-                      index: i,
-                      count: cards.length,
-                      onMove: onMove,
-                    )
-                  : null,
+            view: CardSlotView.list,
+            // Nothing lands in a search result.
+            flightTarget: i == 0 && results.isEmpty,
+            child: IssuanceFlightHidden(
+              hash: c.hash,
+              child: _ListRow(
+                credential: c,
+                hintText: hintTexts[c.hash],
+                selected: c.hash == openHash,
+                query: query,
+                result: results[c.hash],
+                moves: arrangeable
+                    ? moveActions(
+                        context,
+                        index: i,
+                        count: cards.length,
+                        onMove: onMove,
+                      )
+                    : null,
+              ),
             ),
           ),
         );
@@ -277,9 +280,6 @@ class _ListRow extends StatelessWidget {
   final Credential credential;
   final String? hintText;
 
-  /// The thumbnail is where a received card lands.
-  final bool flightTarget;
-
   /// Whether the detail pane shows this card.
   final bool selected;
 
@@ -293,7 +293,6 @@ class _ListRow extends StatelessWidget {
   const _ListRow({
     required this.credential,
     this.hintText,
-    this.flightTarget = false,
     this.selected = false,
     this.moves,
     this.query = "",
@@ -348,8 +347,7 @@ class _ListRow extends StatelessWidget {
         child: Row(
           spacing: YiviSpace.x16,
           children: [
-            _flightSlot(
-              first: flightTarget,
+            CardSlotPicture(
               child: CardHero(
                 credential: credential,
                 width: picture,
@@ -436,72 +434,82 @@ class _GridView extends ConsumerWidget {
         return PushAway(
           hash: c.hash,
           fadeWhenOpening: true,
-          child: IssuanceFlightHidden(
+          child: CardSlot(
             hash: c.hash,
-            child: _CardButton(
-              credential: c,
-              hintText: hintTexts[c.hash],
-              pressDepth: 4,
-              moves: arrangeable
-                  ? moveActions(
-                      context,
-                      index: i,
-                      count: cards.length,
-                      onMove: onMove,
-                    )
-                  : null,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _flightSlot(
-                    first: i == 0,
-                    // The card open in the detail pane: the red border of
-                    // the list's rows, around the card.
-                    child: DecoratedBox(
-                      position: DecorationPosition.foreground,
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: CredentialCardArt.radiusFor(cardWidth),
-                          side: BorderSide(
-                            width: 2,
-                            strokeAlign: BorderSide.strokeAlignOutside,
-                            color: c.hash == openHash
-                                ? palette.primary
-                                : Colors.transparent,
+            view: CardSlotView.grid,
+            flightTarget: i == 0,
+            child: IssuanceFlightHidden(
+              hash: c.hash,
+              child: _CardButton(
+                credential: c,
+                hintText: hintTexts[c.hash],
+                pressDepth: 4,
+                moves: arrangeable
+                    ? moveActions(
+                        context,
+                        index: i,
+                        count: cards.length,
+                        onMove: onMove,
+                      )
+                    : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CardSlotPicture(
+                      // The card open in the detail pane: the red border of
+                      // the list's rows, around the card.
+                      child: DecoratedBox(
+                        position: DecorationPosition.foreground,
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: CredentialCardArt.radiusFor(
+                              cardWidth,
+                            ),
+                            side: BorderSide(
+                              width: 2,
+                              strokeAlign: BorderSide.strokeAlignOutside,
+                              color: c.hash == openHash
+                                  ? palette.primary
+                                  : Colors.transparent,
+                            ),
                           ),
                         ),
+                        child: CardHero(
+                          credential: c,
+                          width: cardWidth,
+                          hintText: hintTexts[c.hash],
+                        ),
                       ),
-                      child: CardHero(
-                        credential: c,
-                        width: cardWidth,
-                        hintText: hintTexts[c.hash],
+                    ),
+                    const SizedBox(height: YiviSpace.x8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: YiviSpace.x4,
+                      ),
+                      child: Text(
+                        c.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .display(14)
+                            .copyWith(color: palette.text),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: YiviSpace.x8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: YiviSpace.x4,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: YiviSpace.x4,
+                      ),
+                      child: Text(
+                        hintTexts[c.hash] ?? "",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: palette
+                            .body(12)
+                            .copyWith(color: palette.heading),
+                      ),
                     ),
-                    child: Text(
-                      c.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette.display(14).copyWith(color: palette.text),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: YiviSpace.x4,
-                    ),
-                    child: Text(
-                      hintTexts[c.hash] ?? "",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: palette.body(12).copyWith(color: palette.heading),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -523,11 +531,6 @@ class _CardButton extends StatefulWidget {
   /// the list and grid, where the cards are smaller.
   final double pressDepth;
 
-  /// How much of the card, from its top, shows (a card in the stack under
-  /// the next one: its strip); null when all of it does. What has to be in
-  /// view when it opens in the detail pane ([_revealCard]).
-  final double? revealHeight;
-
   /// The screen reader's ways to move it to another place ([moveActions]).
   final Map<CustomSemanticsAction, VoidCallback>? moves;
 
@@ -544,7 +547,6 @@ class _CardButton extends StatefulWidget {
     this.matchText,
     this.found,
     required this.pressDepth,
-    this.revealHeight,
     this.moves,
   });
 
@@ -553,34 +555,7 @@ class _CardButton extends StatefulWidget {
 }
 
 class _CardButtonState extends State<_CardButton> {
-  /// The cards on screen by hash, to bring the one that opens in the
-  /// detail pane into view ([_revealCard]).
-  static final shown = <String, _CardButtonState>{};
-
   bool _pressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    shown[widget.credential.hash] = this;
-  }
-
-  @override
-  void didUpdateWidget(_CardButton old) {
-    super.didUpdateWidget(old);
-    if (old.credential.hash != widget.credential.hash) {
-      if (shown[old.credential.hash] == this) shown.remove(old.credential.hash);
-      shown[widget.credential.hash] = this;
-    }
-  }
-
-  @override
-  void dispose() {
-    if (shown[widget.credential.hash] == this) {
-      shown.remove(widget.credential.hash);
-    }
-    super.dispose();
-  }
 
   void _press(bool pressed) {
     if (mounted && pressed != _pressed) setState(() => _pressed = pressed);
@@ -686,15 +661,6 @@ class _MatchLine extends StatelessWidget {
       style: palette.body(13).copyWith(color: palette.heading),
     );
   }
-}
-
-/// Marks the first card picture as the landing slot of a received card, and
-/// hides the card that is flying in (with [hash]).
-Widget _flightSlot({required bool first, String? hash, required Widget child}) {
-  Widget slot = child;
-  if (hash != null) slot = IssuanceFlightHidden(hash: hash, child: slot);
-  if (first) slot = IssuanceFlightTarget(child: slot);
-  return slot;
 }
 
 /// Moves a card in the user's order ([DragToArrange.onMove]).
