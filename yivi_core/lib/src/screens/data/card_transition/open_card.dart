@@ -19,8 +19,8 @@ import "card_transition_layer.dart";
 import "choreography.dart";
 
 /// Opens [credential]'s details from where it is on screen ([from], the
-/// tapped card). Next to a pane the card is selected in it instead.
-/// One at a time: a tap while one is busy does nothing.
+/// tapped card). Next to a pane the caller selects the card instead; on the
+/// Data tab this does. One at a time: a tap while one is busy does nothing.
 /// [found]: the field (a claim path key) a search found it by; it opens on
 /// that field.
 void openCard(
@@ -30,26 +30,27 @@ void openCard(
   String? found,
 }) {
   final container = ProviderScope.containerOf(from, listen: false);
-  container
-      .read(foundCardFieldProvider.notifier)
-      .select(found == null ? null : (hash: credential.hash, claimKey: found));
-  if (useHomePanes(from)) {
-    // The tablet and landscape layouts show the card in the detail pane
-    // next to the list.
-    container.read(selectedCardProvider.notifier).select(credential.hash);
-    return;
+  if (origin != CardOrigin.notification) {
+    container
+        .read(foundCardFieldProvider.notifier)
+        .select(
+          found == null ? null : (hash: credential.hash, claimKey: found),
+        );
+    if (useHomePanes(from)) {
+      // The tablet and landscape layouts show the card in the detail pane
+      // next to the list.
+      container.read(selectedCardProvider.notifier).select(credential.hash);
+      return;
+    }
+    // Opened while typing in the search (the keyboard is still on its way
+    // down): it comes back with the search when the card closes.
+    container
+        .read(dataSearchProvider.notifier)
+        .cardOpened(keyboardUp: View.of(from).viewInsets.bottom > 0);
   }
-  // Opened while typing in the search (the keyboard is still on its way
-  // down): it comes back with the search when the card closes.
-  final keyboardUp = View.of(from).viewInsets.bottom > 0;
-  container
-      .read(dataSearchProvider.notifier)
-      .cardOpened(keyboardUp: keyboardUp);
   final transitions = CardTransitionScope.maybeOf(from);
-  if (transitions != null && transitions.busy) return;
-  if (transitions != null &&
-      origin != CardOrigin.notification &&
-      _openWithTransition(from, transitions, credential, origin, found)) {
+  if (transitions != null) {
+    _openWithTransition(from, transitions, credential, origin, found);
     return;
   }
   WalletTransition.begin(from, credential.hash);
@@ -79,45 +80,63 @@ TransitionSnapshot? cardSnapshot(
     picked = 0;
     cards = [rect];
   }
-  final screen = MediaQuery.sizeOf(context);
-  final width = min(
-    screen.width - 32,
-    OpenCardLayer.detailsMaxWidth,
-  ).toDouble();
   return TransitionSnapshot(
     origin: origin,
     hash: hash,
     picked: picked,
     cards: cards,
-    target: Rect.fromLTWH(
-      (screen.width - width) / 2,
-      MediaQuery.paddingOf(context).top + YiviAppBar.contentTop,
-      width,
-      width / CredentialCardArt.aspectRatio,
-    ),
-    screenHeight: screen.height,
+    target: _target(context),
+    screenHeight: MediaQuery.sizeOf(context).height,
   );
 }
 
-bool _openWithTransition(
+/// Where the card rests on the details: under the bar, at most
+/// [OpenCardLayer.detailsMaxWidth] wide, in the middle.
+Rect _target(BuildContext context) {
+  final screen = MediaQuery.sizeOf(context);
+  final width = min(
+    screen.width - 32,
+    OpenCardLayer.detailsMaxWidth,
+  ).toDouble();
+  return Rect.fromLTWH(
+    (screen.width - width) / 2,
+    MediaQuery.paddingOf(context).top + YiviAppBar.contentTop,
+    width,
+    width / CredentialCardArt.aspectRatio,
+  );
+}
+
+void _openWithTransition(
   BuildContext from,
   CardTransitionsState transitions,
   Credential credential,
   CardOrigin origin,
   String? found,
 ) {
-  final snapshot = cardSnapshot(from, origin: origin, hash: credential.hash);
-  if (snapshot == null) return false;
+  final measured = cardSnapshot(from, origin: origin, hash: credential.hash);
+  // Not measurable (not laid out, or another card than the one shown):
+  // the details fade in where they are, as with Reduce Motion.
+  final target = _target(from);
+  final snapshot =
+      measured ??
+      TransitionSnapshot(
+        origin: origin,
+        hash: credential.hash,
+        picked: 0,
+        cards: [target],
+        target: target,
+        screenHeight: MediaQuery.sizeOf(from).height,
+      );
   final slots = CardSlots.of(from);
   // The details come over the tab, which keeps the focus: the keyboard goes
   // (and comes back when the card closes).
   FocusManager.instance.primaryFocus?.unfocus();
-  return transitions.open(
+  transitions.open(
     snapshot: snapshot,
     list: Scrollable.maybeOf(from)?.position,
     measure: (hash) => slots.rectOf(hash, origin.view),
     // Reduce Motion: the details fade in over the card, nothing moves.
-    still: MediaQuery.disableAnimationsOf(from),
+    still: measured == null || MediaQuery.disableAnimationsOf(from),
     details: (context, transition) => CredentialDetailScreen(
       hash: credential.hash,
       found: found,

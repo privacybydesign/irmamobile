@@ -13,7 +13,6 @@ import "../../../widgets/surfaces/avatar.dart";
 import "../../../widgets/surfaces/base64_image.dart";
 import "../../../widgets/surfaces/surface_card.dart";
 import "../../data/card_transition/card_slots.dart";
-import "../../data/wallet/card_hero.dart";
 import "../models/credential_status_notification.dart";
 import "../models/notification.dart";
 
@@ -73,11 +72,15 @@ class NotificationCard extends ConsumerWidget {
         picture = CardSlot(
           hash: card.hash,
           view: CardSlotView.notifications,
-          child: greyed
-              // An expired card is not the one in the list any more; keep it
-              // out of the hero flight and just show it washed out.
-              ? CredentialCardArt(credential: card, width: 64, greyedOut: true)
-              : CardHero(credential: card, width: 64),
+          // An expired card is shown washed out; opened, the card flies as it
+          // is in the wallet (the grey goes at take-off).
+          child: CardSlotPicture(
+            child: CredentialCardArt(
+              credential: card,
+              width: 64,
+              greyedOut: greyed,
+            ),
+          ),
         );
       } else {
         picture = Avatar(

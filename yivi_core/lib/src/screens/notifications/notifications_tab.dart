@@ -5,7 +5,6 @@ import "package:material_ui/material_ui.dart" hide Notification;
 import "../../providers/credential_store_provider.dart";
 import "../../providers/pane_selection_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
-import "../../routing/navigation.dart";
 import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
@@ -19,8 +18,10 @@ import "../../widgets/layout/tab_layout.dart";
 import "../../widgets/layout/two_pane.dart";
 import "../../widgets/text/translated_text.dart";
 import "../add_data/add_data_sheet.dart";
+import "../data/card_transition/card_origin.dart";
+import "../data/card_transition/card_transition_layer.dart";
+import "../data/card_transition/open_card.dart";
 import "../data/credential_detail/credential_detail_screen.dart";
-import "../data/wallet/wallet_transition.dart";
 import "models/credential_status_notification.dart";
 import "models/notification.dart";
 import "notifications_provider.dart";
@@ -55,8 +56,7 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
       return;
     }
     if (card != null) {
-      WalletTransition.begin(pictureContext, card.hash);
-      pictureContext.pushCredentialDetailScreen(card.hash);
+      openCard(pictureContext, card, origin: CardOrigin.notification);
       return;
     }
     _addAgain(notification.credentialTypeId);
@@ -161,105 +161,113 @@ class _NotificationsTabState extends ConsumerState<NotificationsTab> {
       body: TitleScrollEdge(
         title: context.tr("notifications.title"),
         largeTitleBottom: tabTitleBottom,
-        child: Builder(
-          builder: (context) {
-            final state = ref.watch(notificationsProvider);
-            if (state is NotificationsLoading) {
-              return Center(child: Spinner());
-            } else if (state is NotificationsLoaded) {
-              final notifications = state.notifications;
-              final unread = state.unreadCount;
-              final panes = useHomePanes(context);
-              final paneHash = panes ? _paneHash(notifications) : null;
-              final openId = panes
-                  ? _paneNotificationId(notifications, paneHash)
-                  : null;
+        // Around a card opening from a notification the list fades.
+        child: CardTransitionFollow(
+          opacity: (t) => t.othersOpacity,
+          fadeTo: palette.background,
+          touchable: true,
+          child: Builder(
+            builder: (context) {
+              final state = ref.watch(notificationsProvider);
+              if (state is NotificationsLoading) {
+                return Center(child: Spinner());
+              } else if (state is NotificationsLoaded) {
+                final notifications = state.notifications;
+                final unread = state.unreadCount;
+                final panes = useHomePanes(context);
+                final paneHash = panes ? _paneHash(notifications) : null;
+                final openId = panes
+                    ? _paneNotificationId(notifications, paneHash)
+                    : null;
 
-              final list = RefreshIndicator(
-                edgeOffset: padding.top,
-                onRefresh: () => Future.sync(_onRefresh),
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: tabPagePadding(context),
-                  children: [
-                    CentredMaxWidth(
-                      maxWidth: mediumContentMaxWidth,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: YiviSpace.x16,
+                final list = RefreshIndicator(
+                  edgeOffset: padding.top,
+                  onRefresh: () => Future.sync(_onRefresh),
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: tabPagePadding(context),
+                    children: [
+                      CentredMaxWidth(
+                        maxWidth: mediumContentMaxWidth,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: YiviSpace.x16,
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Expanded(
+                                    child: const TabLargeTitle(
+                                      "notifications.title",
+                                    ),
+                                  ),
+                                  if (unread > 0)
+                                    Text(
+                                      context.tr("notifications.new_count", {
+                                        "count": "$unread",
+                                      }),
+                                      style: palette
+                                          .body(14)
+                                          .copyWith(color: palette.heading),
+                                    ),
+                                ],
+                              ),
                             ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: [
-                                Expanded(
-                                  child: const TabLargeTitle(
-                                    "notifications.title",
+                            if (notifications.isEmpty)
+                              const NoNotifications()
+                            else ...[
+                              for (final notification in notifications)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: YiviSpace.x8,
+                                  ),
+                                  child: YiviDismissible(
+                                    key: Key(notification.id),
+                                    borderRadius: YiviCorners.cardRadius,
+                                    onDismissed: () =>
+                                        _onNotificationDismiss(notification),
+                                    child: NotificationCard(
+                                      notification: notification,
+                                      selected: notification.id == openId,
+                                      onTap: (pictureContext) =>
+                                          _onNotificationTap(
+                                            notification,
+                                            pictureContext,
+                                          ),
+                                    ),
                                   ),
                                 ),
-                                if (unread > 0)
-                                  Text(
-                                    context.tr("notifications.new_count", {
-                                      "count": "$unread",
-                                    }),
-                                    style: palette
-                                        .body(14)
-                                        .copyWith(color: palette.heading),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          if (notifications.isEmpty)
-                            const NoNotifications()
-                          else ...[
-                            for (final notification in notifications)
                               Padding(
                                 padding: const EdgeInsets.only(
-                                  bottom: YiviSpace.x8,
+                                  top: YiviSpace.x8,
                                 ),
-                                child: YiviDismissible(
-                                  key: Key(notification.id),
-                                  borderRadius: YiviCorners.cardRadius,
-                                  onDismissed: () =>
-                                      _onNotificationDismiss(notification),
-                                  child: NotificationCard(
-                                    notification: notification,
-                                    selected: notification.id == openId,
-                                    onTap: (pictureContext) =>
-                                        _onNotificationTap(
-                                          notification,
-                                          pictureContext,
-                                        ),
-                                  ),
+                                child: TranslatedText(
+                                  "notifications.swipe_hint",
+                                  textAlign: TextAlign.center,
+                                  style: palette
+                                      .body(12)
+                                      .copyWith(color: palette.secondaryText),
                                 ),
                               ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: YiviSpace.x8),
-                              child: TranslatedText(
-                                "notifications.swipe_hint",
-                                textAlign: TextAlign.center,
-                                style: palette
-                                    .body(12)
-                                    .copyWith(color: palette.secondaryText),
-                              ),
-                            ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-              return panes ? _withDetailPane(list, paneHash) : list;
-            }
+                    ],
+                  ),
+                );
+                return panes ? _withDetailPane(list, paneHash) : list;
+              }
 
-            throw Exception(
-              "NotificationsTab does not support this state: $state",
-            );
-          },
+              throw Exception(
+                "NotificationsTab does not support this state: $state",
+              );
+            },
+          ),
         ),
       ),
     );
