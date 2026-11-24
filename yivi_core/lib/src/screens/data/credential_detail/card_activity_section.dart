@@ -234,11 +234,13 @@ class _CardActivityEntryPage extends ConsumerWidget {
       actions: [
         YiviCloseButton(
           key: const Key("card_activity_entry_close"),
-          // Closes the card under it too.
+          // Closes the card under it too. Next to a pane the card is the
+          // pane's pick, not a page: only the entry closes.
           onTap: () {
             final transition = _openCard(context);
+            final panes = useHomePanes(context);
             navigator.pop();
-            closeCardDetails(context, transition);
+            if (!panes) closeCardDetails(context, transition);
           },
         ),
       ],

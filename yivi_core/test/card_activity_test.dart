@@ -205,6 +205,43 @@ void main() {
     expect(find.text("Shop 0"), findsOneWidget);
   });
 
+  testWidgets("next to a pane the entry's close closes the entry only", (
+    tester,
+  ) async {
+    // Held sideways the card is the pane's pick, not a page: the close has
+    // no card to close. A pop of the home page (as Android's back) would
+    // send the app to the background.
+    var homePops = 0;
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(844, 390);
+    addTearDown(tester.view.reset);
+    await pumpHome(
+      tester,
+      repo: repo,
+      overrides: <Override>[
+        credentialOrderControllerProvider.overrideWith(
+          () => _FixedOrder([_card]),
+        ),
+      ],
+      home: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (_, _) => homePops++,
+        child: SingleChildScrollView(
+          child: CardActivitySection(credential: _card),
+        ),
+      ),
+    );
+    await settle(tester);
+
+    await tester.tap(find.byKey(const Key("card_activity_e0")));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key("card_activity_entry_close")));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("card_activity_entry")), findsNothing);
+    expect(find.text("Shop 0"), findsOneWidget);
+    expect(homePops, 0);
+  });
+
   testWidgets("See all opens Activity, asking about this card", (tester) async {
     await pump(tester);
     await tester.tap(find.byKey(const Key("card_activity_see_all")));
