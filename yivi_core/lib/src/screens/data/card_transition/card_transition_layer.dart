@@ -215,6 +215,7 @@ class _RenderOpenCard extends RenderProxyBox with RepaintsWith {
     if (child == null) return;
     if (_open) return context.paintChild(child, offset);
     final t = _transition;
+    if (t.still) return _paintStill(context, offset, t.detailsOpacity);
     final origin = localToGlobal(Offset.zero);
     Rect local(Rect global) => global.shift(offset - origin);
     final picked = local(t.pickedRect);
@@ -294,6 +295,17 @@ class _RenderOpenCard extends RenderProxyBox with RepaintsWith {
     );
   }
 
+  /// Reduce Motion: the details as they are, on the page's colour, faded
+  /// by [opacity] over the tab (where nothing moves).
+  void _paintStill(PaintingContext context, Offset offset, double opacity) {
+    final alpha = (opacity * 255).round();
+    if (alpha == 0) return;
+    context.pushOpacity(offset, alpha, (context, offset) {
+      context.canvas.drawRect(offset & size, Paint()..color = background);
+      context.paintChild(child!, offset);
+    });
+  }
+
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) =>
       _open && super.hitTest(result, position: position);
@@ -319,7 +331,8 @@ class CardTransitionFade extends StatelessWidget {
 /// The tab bar: goes down off the screen while a card opens, up again as
 /// it closes, with the card. Only just off the screen ([distance], as in
 /// the prototype): from further down it would come back in sight only as
-/// the card lands, after everything else.
+/// the card lands, after everything else. With Reduce Motion it fades
+/// instead, with the details.
 class CardTransitionDrop extends StatelessWidget {
   static const double distance = 160;
 
@@ -329,15 +342,18 @@ class CardTransitionDrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => CardTransitionFollow(
-    offset: (t) =>
-        Offset(0, distance * t.progress(t.snapshot.picked).clamp(0.0, 1.0)),
+    offset: (t) => t.still
+        ? Offset.zero
+        : Offset(0, distance * t.progress(t.snapshot.picked).clamp(0.0, 1.0)),
+    opacity: (t) => t.still ? 1 - t.detailsOpacity : 1,
     child: child,
   );
 }
 
 /// A card of the stack while a card opens or closes: above the open one it
 /// sinks into the page, below it it falls away, and the open one itself is
-/// not drawn (its details draw it).
+/// not drawn (its details draw it). With Reduce Motion every card stays,
+/// the open one too, under the details fading in.
 class StackCardFollow extends StatelessWidget {
   /// Its place in the stack.
   final int index;
@@ -359,7 +375,8 @@ class StackCardFollow extends StatelessWidget {
         ? t.choreography.pose(index, t.progress(index))
         : CardPose.rest;
     return CardTransitionFollow(
-      opacity: (t) => index == t.snapshot.picked ? 0 : pose(t).opacity,
+      opacity: (t) =>
+          index == t.snapshot.picked && !t.still ? 0 : pose(t).opacity,
       offset: (t) =>
           Offset(0, index > t.snapshot.picked ? t.fall(index) : pose(t).dy),
       scale: (t) => pose(t).scale,

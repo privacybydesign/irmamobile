@@ -264,9 +264,12 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
     ]);
     // In a card transition the bar is there only while the card is open:
     // the + of the bar below turns into its ✕ as it opens.
+    // With Reduce Motion the transition fades the whole page, chrome too.
     double chromeOpacity() =>
         (transition != null
-            ? (transition.phase == TransitionPhase.open ? 1.0 : 0.0)
+            ? (transition.phase == TransitionPhase.open || transition.still
+                  ? 1.0
+                  : 0.0)
             : const Interval(0.4, 1).transform(animation.value)) *
         (1 - _pullProgress);
 
@@ -288,7 +291,8 @@ class _WalletDetailScaffoldState extends State<WalletDetailScaffold>
                       // transition paints the band under the card while
                       // it moves.
                       (transition != null
-                          ? (transition.phase == TransitionPhase.open
+                          ? (transition.phase == TransitionPhase.open ||
+                                    transition.still
                                 ? 1.0
                                 : 0.0)
                           : (WalletTransition.closing

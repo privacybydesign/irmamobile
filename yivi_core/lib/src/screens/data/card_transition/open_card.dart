@@ -48,7 +48,6 @@ void openCard(
   if (transitions != null && transitions.busy) return;
   if (transitions != null &&
       origin.isStack &&
-      !MediaQuery.disableAnimationsOf(from) &&
       _openWithTransition(from, transitions, credential, origin, found)) {
     return;
   }
@@ -113,6 +112,8 @@ bool _openWithTransition(
     snapshot: snapshot,
     list: Scrollable.maybeOf(from)?.position,
     measure: (hash) => slots.rectOf(hash, origin.view),
+    // Reduce Motion: the details fade in over the card, nothing moves.
+    still: MediaQuery.disableAnimationsOf(from),
     details: (context, transition) => CredentialDetailScreen(
       hash: credential.hash,
       found: found,

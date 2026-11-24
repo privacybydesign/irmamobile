@@ -493,6 +493,8 @@ void main() {
             tester.element(find.byType(HomeScreen)),
           )?.current.value;
           if (t == null) return;
+          // The details fade in over the card where it is.
+          expect(t.still, isTrue);
           for (var i = 0; i < t.snapshot.count; i++) {
             if (i == t.snapshot.picked) continue;
             expect(t.choreography.pose(i, t.progress(i)).dy, 0);

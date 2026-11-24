@@ -3,6 +3,8 @@ import "dart:math";
 import "package:flutter/scheduler.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../theme/yivi_motion.dart";
+
 import "card_origin.dart";
 import "card_slots.dart";
 import "choreography.dart";
@@ -22,6 +24,9 @@ enum TransitionPhase { opening, open, closing }
 /// While it moves a finger can take hold of it ([grab]): everything stops,
 /// the card and its details follow the finger down, and let go
 /// ([letGo]) it closes or opens again from there, at the finger's speed.
+///
+/// With Reduce Motion it is [still]: nothing moves, the details (on the
+/// page's colour) fade in over the card where it is, and out again.
 class CardTransition extends ChangeNotifier {
   Choreography _choreography;
   Choreography get choreography => _choreography;
@@ -95,7 +100,7 @@ class CardTransition extends ChangeNotifier {
   /// once it has arrived: it is open from now on and the touch goes to the
   /// details.
   bool passTouch() {
-    if (held) return false;
+    if (held || still) return false;
     if (_phase == TransitionPhase.closing) {
       return _list != null && progress(snapshot.picked) < 0.25;
     }
@@ -133,6 +138,18 @@ class CardTransition extends ChangeNotifier {
   /// the tap, before the list scrolled); null: where it was tapped.
   Rect? _landing;
 
+  /// Reduce Motion: a cross-fade, nothing moves.
+  final bool still;
+
+  /// How far the details have faded in ([still]): 0 to 1.
+  double _fade = 0;
+
+  /// [_fade] when this stretch of the fade began.
+  double _fadeFrom = 0;
+
+  /// How long the fade takes, in and out.
+  static final _fadeMs = YiviMotion.quick.inMilliseconds.toDouble();
+
   CardTransition({
     required Choreography choreography,
     required this.details,
@@ -140,6 +157,7 @@ class CardTransition extends ChangeNotifier {
     required VoidCallback onDone,
     ScrollPosition? list,
     Rect? Function(String hash)? measure,
+    this.still = false,
   }) : _choreography = choreography,
        _onDone = onDone,
        _measure = measure,
@@ -178,14 +196,15 @@ class CardTransition extends ChangeNotifier {
       _start = elapsed;
     }
     _ms = (elapsed - _start!).inMicroseconds / 1000;
+    if (still) return _tickStill();
     // Done once it has come to rest, not when the spring's last tremble
     // (too small to see) has gone: until then it would still hold the
     // screen.
     final top = pickedRect.top;
-    final still = (top - _lastTop).abs() < 0.3;
+    final resting = (top - _lastTop).abs() < 0.3;
     _lastTop = top;
     if (_ms >= choreography.settled.inMilliseconds ||
-        (_ms > _minMs && still && _near(points: 0.5, progress: 0.004))) {
+        (_ms > _minMs && resting && _near(points: 0.5, progress: 0.004))) {
       _ticker.stop();
       if (_phase == TransitionPhase.opening) {
         _setPhase(TransitionPhase.open);
@@ -193,6 +212,22 @@ class CardTransition extends ChangeNotifier {
         return;
       }
       if (_phase == TransitionPhase.closing) return _finish();
+    }
+    notifyListeners();
+  }
+
+  void _tickStill() {
+    final closing = _phase == TransitionPhase.closing;
+    final way = _ms / _fadeMs;
+    _fade = closing
+        ? (_fadeFrom - way).clamp(0.0, 1.0)
+        : (_fadeFrom + way).clamp(0.0, 1.0);
+    if (!closing && _fade == 1) {
+      _ticker.stop();
+      _setPhase(TransitionPhase.open);
+    } else if (closing && _fade == 0) {
+      _ticker.stop();
+      return _finish();
     }
     notifyListeners();
   }
@@ -209,6 +244,8 @@ class CardTransition extends ChangeNotifier {
   /// Progress (0 rest, 1 open) of part [i]: a card by its place; the
   /// picked card's place is the card and its details.
   double progress(int i) {
+    // Still: only the details fade; no card goes anywhere.
+    if (still) return i == snapshot.picked ? _fade : 0;
     if (_held case final held?) {
       if (i != snapshot.picked) return held[i];
       return held[i] * (1 - (_drag / _pullAll).clamp(0.0, 1.0));
@@ -225,6 +262,7 @@ class CardTransition extends ChangeNotifier {
 
   /// Where the picked card is.
   Rect get pickedRect {
+    if (still) return _detailsCard;
     if (held) {
       // Up only a little, against a resistance.
       final dy = _drag >= 0 ? _drag : _drag * 0.3;
@@ -250,6 +288,7 @@ class CardTransition extends ChangeNotifier {
   /// the choreography says, and never above the picked card as it lands
   /// with its bounce or is pulled down (it pushes them down instead).
   double fall(int i) {
+    if (still) return 0;
     final landing = pickedRect.top - _slot(snapshot.picked).top;
     return max(choreography.pose(i, progress(i)).dy, landing);
   }
@@ -276,13 +315,15 @@ class CardTransition extends ChangeNotifier {
   /// The tab content around a tile (rows, title, banner): 1 at rest, gone
   /// by 35 % of the way, back as the card lands. 1 for the stack.
   double get othersOpacity =>
-      choreography.othersOpacity(progress(snapshot.picked));
+      still ? 1 : choreography.othersOpacity(progress(snapshot.picked));
 
   /// The band and the details under the card ([Choreography.detailsOpacity]).
-  double get detailsOpacity => choreography.detailsOpacity(
-    progress(snapshot.picked),
-    closing: _phase == TransitionPhase.closing,
-  );
+  double get detailsOpacity => still
+      ? _fade
+      : choreography.detailsOpacity(
+          progress(snapshot.picked),
+          closing: _phase == TransitionPhase.closing,
+        );
 
   /// The details' ✕ while the card moves: its opacity and its turn in
   /// degrees. Where a + turns into it ([CardOrigin.plusTurnsIntoClose]) it
@@ -336,6 +377,16 @@ class CardTransition extends ChangeNotifier {
   /// (deleted) it is done at once.
   void close({double velocity = 0}) {
     if (_phase == TransitionPhase.closing && !held) return;
+    if (still) {
+      _fadeFrom = _fade;
+      _setPhase(TransitionPhase.closing);
+      _ms = 0;
+      _start = null;
+      _ticker
+        ..stop()
+        ..start();
+      return notifyListeners();
+    }
     final card = cardKey.currentContext?.findRenderObject();
     if (card is! RenderBox || !card.attached || !card.hasSize) {
       return dismiss();
@@ -366,7 +417,7 @@ class CardTransition extends ChangeNotifier {
 
   /// A finger takes hold while it moves: everything stops where it is.
   void grab() {
-    if (_phase == TransitionPhase.open || held) return;
+    if (_phase == TransitionPhase.open || held || still) return;
     final now = [for (var i = 0; i < snapshot.count; i++) progress(i)];
     _heldRect = pickedRect;
     _held = now;
@@ -485,6 +536,7 @@ class CardTransitionsState extends State<CardTransitions>
     details,
     ScrollPosition? list,
     Rect? Function(String hash)? measure,
+    bool still = false,
   }) {
     if (busy) return false;
     late final CardTransition transition;
@@ -494,6 +546,7 @@ class CardTransitionsState extends State<CardTransitions>
       vsync: this,
       list: list,
       measure: measure,
+      still: still,
       onDone: () {
         if (current.value == transition) current.value = null;
         transition.dispose();
