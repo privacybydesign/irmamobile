@@ -57,6 +57,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (previous == .notifications && next != .notifications) {
         ref.read(notificationsProvider.notifier).markAllRead();
       }
+      // A card open over the tab that goes ends at once: no flight back to
+      // a tab that is no longer shown.
+      if (previous != next) _openCard(context)?.dismiss();
     });
     final tabState = ref.watch(homeTabProvider);
     return Builder(
@@ -95,6 +98,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
     );
   }
+
+  CardTransition? _openCard(BuildContext context) =>
+      CardTransitionScope.maybeOf(context)?.current.value;
 
   /// A phone held upright: the tab bar at the bottom, floating over the tab
   /// on iOS (with the content fading out under it), docked under it on

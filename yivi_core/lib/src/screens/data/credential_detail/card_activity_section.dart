@@ -19,6 +19,8 @@ import "../../activity/activity_entry.dart";
 import "../../activity/widgets/activity_card.dart";
 import "../../activity/widgets/activity_detail_parts.dart";
 import "../../home/widgets/home_tab.dart";
+import "../card_transition/card_transition.dart";
+import "../wallet/wallet_detail_scaffold.dart";
 
 /// The Activity section of a card's details: how often it was shared, then
 /// its newest entries as the Activity tab's rows (which of its fields went
@@ -122,16 +124,11 @@ class _SeeAll extends ConsumerWidget {
     final palette = YiviPalette.of(context);
     return InkWell(
       key: const Key("card_activity_see_all"),
-      onTap: () {
-        _askActivityTab(
-          context,
-          ref,
-          ActivityQuery(card: ActivityCardRef.of(credential)),
-        );
-        // In the tablet layout the card is a pane of the Data tab, not a
-        // page of its own: switching tabs is enough.
-        if (!useHomePanes(context)) Navigator.of(context).maybePop();
-      },
+      onTap: () => _askActivityTab(
+        context,
+        ref,
+        ActivityQuery(card: ActivityCardRef.of(credential)),
+      ),
       child: SizedBox(
         height: 48,
         child: Center(
@@ -182,11 +179,25 @@ class _AddedRow extends StatelessWidget {
   }
 }
 
-/// Asks the Activity tab [query] and switches to it.
+/// Asks the Activity tab [query], switches to it, and closes the card: at
+/// once, without flying back to a tab that is no longer shown. In the
+/// tablet layout the card is a pane of the Data tab, not a page of its own:
+/// switching tabs is enough.
 void _askActivityTab(BuildContext context, WidgetRef ref, ActivityQuery query) {
+  // Taken before the tab switches, which ends the card's transition.
+  final transition = _openCard(context);
+  final panes = useHomePanes(context);
+  final navigator = Navigator.of(context);
   ref.read(activityLogProvider.notifier).setFilter(query);
   ref.read(homeTabProvider.notifier).select(HomeTab.activity);
+  if (panes) return;
+  if (transition != null) return transition.dismiss();
+  navigator.maybePop();
 }
+
+/// The card transition the details are part of, if they are.
+CardTransition? _openCard(BuildContext context) =>
+    CardTransitionScope.maybeOf(context)?.current.value;
 
 /// Opens [log] as a page over the card: it slides in from the side, with
 /// back (to the card) at the left and close (the card too) at the right.
@@ -210,9 +221,8 @@ class _CardActivityEntryPage extends ConsumerWidget {
       log: log,
       // Closes the entry and the card, and asks the Activity tab.
       onAsk: (query) {
-        _askActivityTab(context, ref, query);
         navigator.pop();
-        if (!useHomePanes(context)) navigator.maybePop();
+        _askActivityTab(context, ref, query);
       },
       leading: YiviIconButton(
         key: const Key("card_activity_entry_back"),
@@ -225,9 +235,11 @@ class _CardActivityEntryPage extends ConsumerWidget {
         YiviCloseButton(
           key: const Key("card_activity_entry_close"),
           // Closes the card under it too.
-          onTap: () => navigator
-            ..pop()
-            ..maybePop(),
+          onTap: () {
+            final transition = _openCard(context);
+            navigator.pop();
+            closeCardDetails(context, transition);
+          },
         ),
       ],
     );

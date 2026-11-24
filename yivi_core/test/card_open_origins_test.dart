@@ -469,9 +469,8 @@ void main() {
           expect(details(), findsNothing);
           await tester.pump(const Duration(seconds: 2));
         },
-        // Today the stack's card flies back over the Activity tab, and a
-        // list or grid page fades out over it.
-        skip: true,
+        // Today a list or grid page fades out over the Activity tab.
+        skip: origin != _Origin.stack,
       );
 
       iosTest("Reduce Motion: opens and closes, no card moves", (tester) async {
