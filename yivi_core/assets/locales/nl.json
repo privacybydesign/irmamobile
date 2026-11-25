@@ -346,13 +346,10 @@
     },
     "error_reports": {
       "title": "Help je Yivi beter maken?",
-      "body": "Als er iets misgaat, kan de app een foutmelding sturen, en af en toe zijn status. Nooit je gegevens of wat je deelt.",
       "later": "Je kunt dit later wijzigen in Instellingen.",
-      "what": "Wat wordt er gestuurd?",
       "share": "Meldingen delen",
       "dont_share": "Niet delen",
       "details": {
-        "title": "Details van de rapporten",
         "point_1_title": "Als er iets misgaat",
         "point_1_text": "De app stuurt een foutmelding, zodat we het kunnen oplossen.",
         "point_2_title": "Af en toe de status",

@@ -197,7 +197,7 @@ void main() {
     }
   });
 
-  testWidgets("What is sent? opens the reporting details, in short", (
+  testWidgets("Help improve Yivi? shows what is sent on the page", (
     tester,
   ) async {
     final (size, padding) = _sizes["phone upright"]!;
@@ -210,14 +210,11 @@ void main() {
       ),
     );
     await settle(tester);
-    await tester.tap(find.text("What is sent?"));
-    await settle(tester);
-    await tester.pump(const Duration(milliseconds: 600));
-    expect(find.byKey(const Key("reporting_details_sheet")), findsOneWidget);
-    expect(find.text("Reporting details"), findsOneWidget);
-    expect(find.byKey(const Key("enrollment_sheet_hero")), findsOneWidget);
-    expect(find.text("In short"), findsOneWidget);
+    expect(find.byKey(const Key("error_reports_points")), findsOneWidget);
+    expect(find.text("When something goes wrong"), findsOneWidget);
+    expect(find.text("Now and then, its status"), findsOneWidget);
     expect(find.text("Never your data"), findsOneWidget);
+    expect(find.text("What is sent?"), findsNothing);
   });
 
   group("PIN", () {

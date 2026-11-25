@@ -79,13 +79,10 @@ void main() {
       await tester.tapAndSettle(acceptFinder);
       expect(irmaBinding.repository.preferences.acceptedTermsUrl, isNotNull);
 
-      // Step 2: what is sent explains itself in a sheet.
+      // Step 2: what is sent, in short, on the page itself.
       expect(find.text("Help improve Yivi?"), findsOneWidget);
-      await tester.tapAndSettle(find.text("What is sent?"));
-      expect(find.text("Reporting details"), findsOneWidget);
-      expect(find.byKey(const Key("enrollment_sheet_hero")), findsOneWidget);
-      Navigator.of(tester.element(find.byType(SheetPage))).pop();
-      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("error_reports_points")), findsOneWidget);
+      expect(find.text("Never your data"), findsOneWidget);
 
       expect(
         await irmaBinding.repository.preferences.reportErrors.stream.first,

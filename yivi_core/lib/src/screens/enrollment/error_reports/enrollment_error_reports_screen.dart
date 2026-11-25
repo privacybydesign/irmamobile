@@ -6,20 +6,38 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
-import "../../../widgets/buttons/link.dart";
 import "../../../widgets/surfaces/icon_square.dart";
+import "../../../widgets/surfaces/inset_group.dart";
 import "../widgets/enrollment_actions.dart";
 import "../widgets/enrollment_page.dart";
-import "reporting_details_sheet.dart";
+import "../widgets/enrollment_point_row.dart";
 
 /// Step 2, "Help improve Yivi?": whether the app may send error reports and
-/// now and then its status, in the layout of the Face ID step. Don't share
-/// and Share reports are equal answers ([actions]); either can be changed
-/// later in Settings.
+/// now and then its status, in the layout of the Face ID step, with what is
+/// sent in short on the page itself. Don't share and Share reports are equal
+/// answers ([actions]); either can be changed later in Settings.
 class EnrollmentErrorReportsScreen extends StatelessWidget {
   final EnrollmentStepActions actions;
 
   const EnrollmentErrorReportsScreen({super.key, required this.actions});
+
+  static const _points = [
+    (
+      Icons.error_outline_rounded,
+      "enrollment.error_reports.details.point_1_title",
+      "enrollment.error_reports.details.point_1_text",
+    ),
+    (
+      Icons.monitor_heart_outlined,
+      "enrollment.error_reports.details.point_2_title",
+      "enrollment.error_reports.details.point_2_text",
+    ),
+    (
+      Icons.visibility_off_outlined,
+      "enrollment.error_reports.details.point_3_title",
+      "enrollment.error_reports.details.point_3_text",
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -50,17 +68,21 @@ class EnrollmentErrorReportsScreen extends StatelessWidget {
           : CrossAxisAlignment.center,
       children: [
         EnrollmentTitle("enrollment.error_reports.title", textAlign: align),
-        const SizedBox(height: YiviSpace.x8),
-        EnrollmentLead("enrollment.error_reports.body", textAlign: align),
-        const SizedBox(height: YiviSpace.x8),
+        const SizedBox(height: YiviSpace.x16),
+        // What is sent, in short: what the reporting details sheet held.
+        InsetGroup(
+          key: const Key("error_reports_points"),
+          dividerIndent: 68,
+          children: [
+            for (final (icon, title, text) in _points)
+              EnrollmentPointRow(icon: icon, titleKey: title, textKey: text),
+          ],
+        ),
+        const SizedBox(height: YiviSpace.x12),
         Text(
           context.tr("enrollment.error_reports.later"),
           textAlign: align,
           style: palette.body(14).copyWith(color: palette.secondaryText),
-        ),
-        Link(
-          label: context.tr("enrollment.error_reports.what"),
-          onTap: () => showReportingDetailsSheet(context),
         ),
       ],
     );

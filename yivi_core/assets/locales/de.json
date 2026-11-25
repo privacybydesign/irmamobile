@@ -346,13 +346,10 @@
     },
     "error_reports": {
       "title": "Helfen Sie, Yivi zu verbessern?",
-      "body": "Wenn etwas schiefgeht, kann die App einen Fehlerbericht senden und ab und zu ihren Status. Nie Ihre Daten oder was Sie teilen.",
       "later": "Sie können das später in den Einstellungen ändern.",
-      "what": "Was wird gesendet?",
       "share": "Berichte teilen",
       "dont_share": "Nicht teilen",
       "details": {
-        "title": "Details zu den Berichten",
         "point_1_title": "Wenn etwas schiefgeht",
         "point_1_text": "Die App sendet einen Fehlerbericht, damit wir ihn beheben können.",
         "point_2_title": "Ab und zu den Status",

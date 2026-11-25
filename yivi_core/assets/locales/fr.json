@@ -343,13 +343,10 @@
     },
     "error_reports": {
       "title": "Aider à améliorer Yivi ?",
-      "body": "Quand quelque chose se passe mal, l’appli peut envoyer un rapport d’erreur, et de temps en temps son état. Jamais vos données ni ce que vous partagez.",
       "later": "Vous pourrez changer cela plus tard dans les Paramètres.",
-      "what": "Qu’est-ce qui est envoyé ?",
       "share": "Partager les rapports",
       "dont_share": "Ne pas partager",
       "details": {
-        "title": "Détails des rapports",
         "point_1_title": "Quand quelque chose se passe mal",
         "point_1_text": "L’appli envoie un rapport d’erreur, pour que nous puissions corriger le problème.",
         "point_2_title": "De temps en temps, son état",

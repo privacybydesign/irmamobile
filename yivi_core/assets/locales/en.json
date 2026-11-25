@@ -343,13 +343,10 @@
     },
     "error_reports": {
       "title": "Help improve Yivi?",
-      "body": "When something goes wrong, the app can send an error report, and now and then its status. Never your data or what you share.",
       "later": "You can change this later in Settings.",
-      "what": "What is sent?",
       "share": "Share reports",
       "dont_share": "Don’t share",
       "details": {
-        "title": "Reporting details",
         "point_1_title": "When something goes wrong",
         "point_1_text": "The app sends an error report, so we can fix it.",
         "point_2_title": "Now and then, its status",

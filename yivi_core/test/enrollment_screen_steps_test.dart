@@ -224,7 +224,9 @@ void main() {
     final bottom = tester.getRect(share).top;
     final group = tester
         .getRect(find.byIcon(Icons.bug_report_outlined))
-        .expandToInclude(tester.getRect(find.text("What is sent?")));
+        .expandToInclude(
+          tester.getRect(find.text("You can change this later in Settings.")),
+        );
     expect(group.center.dy, closeTo((top + bottom) / 2, 24));
   });
 
