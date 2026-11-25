@@ -43,6 +43,7 @@ void main() {
         "Yivi website",
         "Share Yivi",
         "Yivi's privacy policy",
+        "Report to the Data Protection Authority",
       ];
       for (final text in texts) {
         await tester.scrollUntilVisible(find.text(text), 30);
