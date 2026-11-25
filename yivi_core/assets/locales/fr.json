@@ -300,12 +300,6 @@
         }
       }
     },
-    "error_reporting": {
-      "dialog": {
-        "title": "Détails des rapports",
-        "explanation": "En activant le signalement des erreurs, vous nous aidez à améliorer l'expérience utilisateur. Cette option permet aussi à votre appli de nous envoyer régulièrement un message sur son état. Nous faisons tout cela sans avoir accès à vos informations personnelles ni à vos transactions."
-      }
-    },
     "wallet_deleted": {
       "title": "Portefeuille supprimé",
       "body": "Votre portefeuille a été supprimé et toutes ses données ont été effacées"
@@ -353,7 +347,16 @@
       "later": "Vous pourrez changer cela plus tard dans les Paramètres.",
       "what": "Qu’est-ce qui est envoyé ?",
       "share": "Partager les rapports",
-      "dont_share": "Ne pas partager"
+      "dont_share": "Ne pas partager",
+      "details": {
+        "title": "Détails des rapports",
+        "point_1_title": "Quand quelque chose se passe mal",
+        "point_1_text": "L’appli envoie un rapport d’erreur, pour que nous puissions corriger le problème.",
+        "point_2_title": "De temps en temps, son état",
+        "point_2_text": "Un court message, pour voir que l’appli fonctionne.",
+        "point_3_title": "Jamais vos données",
+        "point_3_text": "Ni vos données, ni ce que vous partagez, ni avec qui."
+      }
     },
     "biometric": {
       "title_face_id": "Ouvrir Yivi avec Face ID ?",

@@ -196,6 +196,29 @@ void main() {
     }
   });
 
+  testWidgets("What is sent? opens the reporting details, in short", (
+    tester,
+  ) async {
+    final (size, padding) = _sizes["phone upright"]!;
+    _device(tester, size, padding);
+    await pumpHome(
+      tester,
+      repo: repo,
+      home: EnrollmentErrorReportsScreen(
+        actions: EnrollmentStepActions(primary: "Share", onPrimary: () {}),
+      ),
+    );
+    await settle(tester);
+    await tester.tap(find.text("What is sent?"));
+    await settle(tester);
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.byKey(const Key("reporting_details_sheet")), findsOneWidget);
+    expect(find.text("Reporting details"), findsOneWidget);
+    expect(find.byKey(const Key("enrollment_sheet_hero")), findsOneWidget);
+    expect(find.text("In short"), findsOneWidget);
+    expect(find.text("Never your data"), findsOneWidget);
+  });
+
   group("PIN", () {
     /// The PIN page as the enrollment has it: choose, then the same again.
     Future<(List<String>, ValueGetter<String?>)> pumpPinPage(

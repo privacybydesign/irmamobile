@@ -300,12 +300,6 @@
         }
       }
     },
-    "error_reporting": {
-      "dialog": {
-        "title": "Reporting details",
-        "explanation": "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app status message. Of course, we do all of that without having access to your personal information or transactions."
-      }
-    },
     "wallet_deleted": {
       "title": "Wallet removed",
       "body": "Your wallet has been removed and all its data has been deleted"
@@ -353,7 +347,16 @@
       "later": "You can change this later in Settings.",
       "what": "What is sent?",
       "share": "Share reports",
-      "dont_share": "Don’t share"
+      "dont_share": "Don’t share",
+      "details": {
+        "title": "Reporting details",
+        "point_1_title": "When something goes wrong",
+        "point_1_text": "The app sends an error report, so we can fix it.",
+        "point_2_title": "Now and then, its status",
+        "point_2_text": "A short message, so we can see the app works.",
+        "point_3_title": "Never your data",
+        "point_3_text": "Not your data, not what you share, not with whom."
+      }
     },
     "biometric": {
       "title_face_id": "Open Yivi with Face ID?",

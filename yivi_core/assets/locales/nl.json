@@ -303,12 +303,6 @@
         }
       }
     },
-    "error_reporting": {
-      "dialog": {
-        "title": "Details van de rapporten",
-        "explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook stuurt de app periodiek een melding of alles nog goed werkt. Natuurlijk doen we dat allemaal zonder toegang te hebben tot je persoonlijke gegevens of transacties."
-      }
-    },
     "wallet_deleted": {
       "title": "Wallet verwijderd",
       "body": "Je wallet en al je gegevens zijn verwijderd"
@@ -356,7 +350,16 @@
       "later": "Je kunt dit later wijzigen in Instellingen.",
       "what": "Wat wordt er gestuurd?",
       "share": "Meldingen delen",
-      "dont_share": "Niet delen"
+      "dont_share": "Niet delen",
+      "details": {
+        "title": "Details van de rapporten",
+        "point_1_title": "Als er iets misgaat",
+        "point_1_text": "De app stuurt een foutmelding, zodat we het kunnen oplossen.",
+        "point_2_title": "Af en toe de status",
+        "point_2_text": "Een kort bericht, zodat we zien dat de app werkt.",
+        "point_3_title": "Nooit je gegevens",
+        "point_3_text": "Niet je gegevens, niet wat je deelt en niet met wie."
+      }
     },
     "biometric": {
       "title_face_id": "Yivi openen met Face ID?",

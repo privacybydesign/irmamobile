@@ -7,11 +7,10 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/link.dart";
-import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/surfaces/icon_square.dart";
-import "../welcome/widgets/error_reporting_info_bottom_sheet.dart";
 import "../widgets/enrollment_actions.dart";
 import "../widgets/enrollment_page.dart";
+import "reporting_details_sheet.dart";
 
 /// Step 2, "Help improve Yivi?": whether the app may send error reports and
 /// now and then its status, in the layout of the Face ID step. Don't share
@@ -61,11 +60,7 @@ class EnrollmentErrorReportsScreen extends StatelessWidget {
         ),
         Link(
           label: context.tr("enrollment.error_reports.what"),
-          onTap: () => showTitledSheet(
-            context: context,
-            titleKey: "enrollment.error_reporting.dialog.title",
-            child: const ErrorReportingInfoBottomSheet(),
-          ),
+          onTap: () => showReportingDetailsSheet(context),
         ),
       ],
     );

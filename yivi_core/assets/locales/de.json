@@ -303,12 +303,6 @@
         }
       }
     },
-    "error_reporting": {
-      "dialog": {
-        "title": "Details zu den Berichten",
-        "explanation": "Durch die Aktivierung der Fehlerberichterstattung helfen Sie uns, die Benutzererfahrung zu verbessern. Diese Option ermöglicht es Ihrer App auch, uns eine regelmäßige App-Statusmeldung zu senden. Natürlich tun wir all das, ohne Zugriff auf Ihre persönlichen Informationen oder Transaktionen zu haben."
-      }
-    },
     "wallet_deleted": {
       "title": "Wallet entfernt",
       "body": "Ihre Wallet wurde entfernt und alle Ihre Daten wurden gelöscht"
@@ -356,7 +350,16 @@
       "later": "Sie können das später in den Einstellungen ändern.",
       "what": "Was wird gesendet?",
       "share": "Berichte teilen",
-      "dont_share": "Nicht teilen"
+      "dont_share": "Nicht teilen",
+      "details": {
+        "title": "Details zu den Berichten",
+        "point_1_title": "Wenn etwas schiefgeht",
+        "point_1_text": "Die App sendet einen Fehlerbericht, damit wir ihn beheben können.",
+        "point_2_title": "Ab und zu den Status",
+        "point_2_text": "Eine kurze Nachricht, damit wir sehen, dass die App funktioniert.",
+        "point_3_title": "Nie Ihre Daten",
+        "point_3_text": "Nicht Ihre Daten, nicht was Sie teilen und nicht mit wem."
+      }
     },
     "biometric": {
       "title_face_id": "Yivi mit Face ID öffnen?",
