@@ -87,7 +87,8 @@ android {
 // app does not use that package: it takes this project's classes and the
 // local irmagobridge.aar straight from the project. Packaging a library with
 // a local .aar inside is refused by the Android Gradle plugin, so that step
-// is switched off.
-tasks.matching { it.name ==~ /bundle\w*Aar/ }.configureEach {
+// is switched off. The lint copy (bundle…LocalLintAar) stays: the release
+// lint check of the app reads it.
+tasks.matching { it.name ==~ /bundle\w*Aar/ && !(it.name ==~ /bundle\w*LocalLintAar/) }.configureEach {
     enabled = false
 }
