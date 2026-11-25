@@ -51,7 +51,6 @@ import "empty_data_start.dart";
 import "wallet/drag_to_arrange.dart";
 import "wallet/issuance_flight.dart";
 import "wallet_search.dart";
-import "widgets/email_link_banner.dart";
 
 part "card_views.dart";
 part "problematic_card.dart";
@@ -366,8 +365,6 @@ class _Content extends ConsumerWidget {
                 padding: EdgeInsets.only(top: topInset),
                 child: Column(
                   children: [
-                    if (ref.watch(emailBannerVisibleProvider))
-                      const EmailLinkBanner(),
                     Expanded(
                       // Next to the pane only the title; the pane has the
                       // ways to get started.
@@ -523,16 +520,6 @@ class _CardList extends ConsumerWidget {
                           onTap: onStartSearch!,
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              if (!searching && ref.watch(emailBannerVisibleProvider))
-                box(
-                  // Goes and comes with the title as a card opens.
-                  const CardTransitionFade(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: YiviSpace.x16),
-                      child: EmailLinkBanner(),
                     ),
                   ),
                 ),

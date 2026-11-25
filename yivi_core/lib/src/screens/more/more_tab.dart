@@ -15,7 +15,11 @@ import "../../widgets/buttons/pill_buttons.dart";
 import "../../widgets/layout/centred_max_width.dart";
 import "../../widgets/layout/tab_layout.dart";
 import "../../widgets/layout/two_pane.dart";
+import "../../widgets/surfaces/count_badge.dart";
+import "../../widgets/surfaces/icon_square.dart";
+import "../../widgets/surfaces/surface_card.dart";
 import "../../widgets/text/section_header.dart";
+import "../add_data/secure_app.dart";
 import "../home/widgets/home_tab.dart";
 import "../need_help/need_help_screen.dart";
 import "../settings/settings_screen.dart";
@@ -118,6 +122,12 @@ class _MoreTabState extends ConsumerState<MoreTab> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const TabLargeTitle("home.nav_bar.more"),
+              // Until an e-mail address is linked: on top, with a badge.
+              if (ref.watch(setupUnfinishedProvider))
+                const Padding(
+                  padding: EdgeInsets.only(top: YiviSpace.x8),
+                  child: _FinishSetupRow(),
+                ),
               ...appManagement,
               ...about,
               const SizedBox(height: YiviSpace.x32),
@@ -165,6 +175,70 @@ class _MoreTabState extends ConsumerState<MoreTab> {
               },
             )
           : list,
+    );
+  }
+}
+
+/// "Finish setting up Yivi": link an e-mail address, so the app can be
+/// blocked if the phone is lost. Like "Finish setting up your iPhone": it
+/// stays at the top of More, with a badge (and a dot on the tab), until an
+/// address is linked.
+class _FinishSetupRow extends StatelessWidget {
+  const _FinishSetupRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final title = context.tr("secure.finish.title");
+    final text = context.tr("secure.finish.text");
+    return Semantics(
+      button: true,
+      label: "$title, ${context.tr("secure.finish.todo")}. $text",
+      excludeSemantics: true,
+      child: SurfaceCard(
+        key: const Key("more_finish_setup"),
+        onTap: () => secureApp(context),
+        padding: const EdgeInsets.all(YiviSpace.x16),
+        child: Row(
+          spacing: YiviSpace.x16,
+          children: [
+            IconSquare(
+              icon: Icons.shield_outlined,
+              fill: palette.infoSurface,
+              ink: palette.link,
+              size: 44,
+              iconSize: 24,
+              radius: 10,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: palette.display(16, weight: FontWeight.w600),
+                  ),
+                  Text(
+                    text,
+                    style: palette.rowSubtitle.copyWith(
+                      color: palette.secondaryText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            CountBadge(
+              count: 1,
+              fill: palette.primary,
+              ink: Colors.white,
+              size: 22,
+              fontSize: 12,
+              plus: false,
+            ),
+            Icon(Icons.chevron_right_rounded, color: palette.faint),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:flutter/semantics.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
@@ -17,6 +18,7 @@ import "package:yivi_core/src/data/keyshare_email_link_api.dart";
 import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/credential_store.dart";
 import "package:yivi_core/src/models/event.dart";
+import "package:yivi_core/src/models/log_entry.dart" show CredentialFormat;
 import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
@@ -30,8 +32,10 @@ import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/session_launcher.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/routing/navigation.dart";
+import "package:yivi_core/src/screens/add_data/add_data_sheet.dart";
 import "package:yivi_core/src/screens/add_data/email_linking.dart";
-import "package:yivi_core/src/screens/data/widgets/email_link_banner.dart";
+import "package:yivi_core/src/screens/add_data/secure_app.dart";
+import "package:yivi_core/src/providers/session_user_choices_provider.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
@@ -675,154 +679,240 @@ void main() {
     });
   });
 
-  group("banner", () {
-    Future<void> pumpBanner(
-      WidgetTester tester, {
-      bool hasCredentials = true,
+  group("secure your app", () {
+    Credential emailCard(String hash, String address) => Credential(
+      credentialId: "pbdf.sidn-pbdf.email",
+      hash: hash,
+      name: "Email address",
+      issuer: _requestor,
+      credentialInstanceIds: const {},
+      batchInstanceCountsRemaining: const {},
+      attributes: [
+        Attribute(
+          claimPath: ["email"],
+          displayName: "Email address",
+          value: AttributeValue(type: AttributeType.string, string: address),
+        ),
+      ],
+      revoked: false,
+      revocationSupported: false,
+      issueUrl: null,
+    );
+
+    Future<void> pumpSecure(
+      WidgetTester tester,
+      List<Credential> cards, {
+      List<Override> overrides = const [],
     }) async {
       await pumpApp(
         tester,
-        overrides: [hasCredentialsProvider.overrideWithValue(hasCredentials)],
+        overrides: [
+          credentialsProvider.overrideWith(
+            (ref) => Stream.value((
+              credentials: cards,
+              problematic: const <ProblematicCredential>[],
+            )),
+          ),
+          ...overrides,
+        ],
         home: Scaffold(
-          body: Consumer(
-            builder: (context, ref, _) => ref.watch(emailBannerVisibleProvider)
-                ? const EmailLinkBanner()
-                : const Text("no banner"),
+          body: Builder(
+            builder: (context) => TextButton(
+              key: const Key("secure"),
+              onPressed: () => secureApp(context),
+              child: const Text("secure"),
+            ),
           ),
         ),
       );
       await settle(tester);
+      // As on the Data tab, which watches the cards.
+      final cardsLoaded = container.listen(credentialsProvider, (_, _) {});
+      addTearDown(cardsLoaded.close);
+      await settle(tester);
+      await tester.tap(find.byKey(const Key("secure")));
+      for (var i = 0; i < 4; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+        await settle(tester);
+      }
     }
 
-    testWidgets("shows the copy of the design when linking is offered", (
-      tester,
-    ) async {
+    testWidgets("without an e-mail card: the e-mail card's flow, from the "
+        "address", (tester) async {
       linkingOffered = true;
-      await pumpBanner(tester);
-
-      expect(find.text("Secure your Yivi app"), findsOneWidget);
-      expect(
-        find.text(
-          "Link your email address. Then you can block your app if you lose your phone.",
-        ),
-        findsOneWidget,
-      );
-      expect(find.text("Link email address"), findsOneWidget);
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
-    });
-
-    testWidgets("waits for the first credential, so it is not there right "
-        "after enrollment", (tester) async {
-      linkingOffered = true;
-      await pumpBanner(tester, hasCredentials: false);
-
-      expect(find.byType(EmailLinkBanner), findsNothing);
-    });
-
-    testWidgets("is absent when linking is not offered", (tester) async {
-      await pumpBanner(tester);
-
-      expect(find.byType(EmailLinkBanner), findsNothing);
-      expect(find.text("no banner"), findsOneWidget);
-    });
-
-    testWidgets(
-      "the close button opens the sheet, and closing it keeps the banner",
-      (tester) async {
-        linkingOffered = true;
-        await pumpBanner(tester);
-
-        await tester.tap(find.byKey(const Key("email_link_banner_close")));
-        await tester.pumpAndSettle();
-
-        expect(find.text("Remind you later?"), findsOneWidget);
-        expect(
-          find.textContaining("Without a linked email address"),
-          findsOneWidget,
-        );
-        expect(find.text("Ask me later"), findsOneWidget);
-        expect(find.text("Dismiss"), findsOneWidget);
-        // Kept on the page under the sheet (not drawn while it is open).
-        expect(
-          find.byType(EmailLinkBanner, skipOffstage: false),
-          findsOneWidget,
-        );
-      },
-    );
-
-    testWidgets("Ask me later hides the banner for now", (tester) async {
-      linkingOffered = true;
-      await pumpBanner(tester);
-
-      await tester.tap(find.byKey(const Key("email_link_banner_close")));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key("email_link_later_remind")));
-      await settle(tester);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(EmailLinkBanner), findsNothing);
-      expect(find.text("Remind you later?"), findsNothing);
-      expect(await stored(tester, prefs.emailBannerDismissed.stream), isFalse);
-      expect(
-        (await stored(
-          tester,
-          prefs.emailBannerSnoozedUntil.stream,
-        ))!.isAfter(DateTime.now().add(const Duration(days: 1))),
-        isTrue,
-      );
-
-      // The timer that ends the snooze only stops with its container, and the
-      // test checks for pending timers before the tear-down runs.
-      await tester.pumpWidget(const SizedBox());
-      container.dispose();
-    });
-
-    testWidgets("Dismiss hides the banner for good", (tester) async {
-      linkingOffered = true;
-      await pumpBanner(tester);
-
-      await tester.tap(find.byKey(const Key("email_link_banner_close")));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key("email_link_later_dismiss")));
-      await settle(tester);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(EmailLinkBanner), findsNothing);
-      expect(await stored(tester, prefs.emailBannerDismissed.stream), isTrue);
-    });
-
-    testWidgets("the link opens the e-mail flow for linking", (tester) async {
-      linkingOffered = true;
-      await pumpBanner(tester);
-      repo.dispatch(
-        CredentialStoreEvent(
-          credentials: [
-            CredentialStoreItem(
-              credential: CredentialDescriptor(
-                credentialId: "pbdf.sidn-pbdf.email",
-                name: "Email address",
-                issuer: _requestor,
-                category: null,
-                attributes: const [],
-                issueURL: "https://email-issuer.example/issue",
-              ),
-              faq: Faq(intro: null, purpose: null, content: null, howTo: null),
-            ),
-          ],
-        ),
-      );
-      await settle(tester);
-
-      await tester.tap(find.text("Link email address"));
-      await settle(tester);
-      await tester.pumpAndSettle();
-
+      await pumpSecure(tester, const []);
       expect(sheet, findsOneWidget);
       expect(find.text("Link your email address"), findsOneWidget);
-      expect(
-        container.read(emailIssuerUrlProvider),
-        "https://email-issuer.example",
+      expect(find.byKey(const Key("secure_app_sheet")), findsNothing);
+    });
+
+    testWidgets("with one: use that address, no new code", (tester) async {
+      linkingOffered = true;
+      await pumpSecure(tester, [emailCard("h1", "sanne@devries.example")]);
+      expect(find.byKey(const Key("secure_app_sheet")), findsOneWidget);
+      expect(find.text("Use your email address?"), findsOneWidget);
+      expect(find.text("sanne@devries.example"), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key("secure_app_use")).last);
+      await settle(tester);
+      await settle(tester);
+      expect(find.byKey(const Key("secure_app_sheet")), findsNothing);
+      // The keyshare disclosure, not a new e-mail issuance.
+      expect(linkApi.calls, 1);
+      expect(issuerApi.sent, isEmpty);
+    });
+
+    testWidgets("with two: pick one; or use another address", (tester) async {
+      linkingOffered = true;
+      await pumpSecure(tester, [
+        emailCard("h1", "sanne@devries.example"),
+        emailCard("h2", "sanne@werk.example"),
+      ]);
+      expect(find.text("Which email address?"), findsOneWidget);
+      Matcher picked(bool selected) => isSemantics(isSelected: selected);
+      SemanticsNode card(String hash) =>
+          tester.getSemantics(find.byKey(Key("secure_app_card_$hash")));
+      await tester.tap(find.byKey(const Key("secure_app_card_h2")));
+      await tester.pump();
+      expect(card("h2"), picked(true));
+      expect(card("h1"), picked(false));
+
+      await tester.tap(find.byKey(const Key("secure_app_another")));
+      await settle(tester);
+      await settle(tester);
+      expect(find.byKey(const Key("secure_app_sheet")), findsNothing);
+      expect(find.text("Link your email address"), findsOneWidget);
+    });
+
+    testWidgets("an e-mail card added in Add data ends on \"Secure your "
+        "app with it?\"; Not now just closes", (tester) async {
+      linkingOffered = true;
+      final card = emailCard("h9", "jan@example.com");
+      await pumpApp(
+        tester,
+        overrides: [
+          sessionStateProvider.overrideWith(
+            (ref, id) => Stream.value(
+              SessionState(
+                id: id,
+                protocol: "irma",
+                type: SessionType.issuance,
+                status: SessionStatus.success,
+                requestor: _requestor,
+                continueOnSecondDevice: true,
+                offeredCredentials: [card],
+              ),
+            ),
+          ),
+        ],
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              key: const Key("add_email"),
+              onPressed: () => showAddDataSheet(
+                context,
+                addNew: CredentialDescriptor(
+                  credentialId: "pbdf.sidn-pbdf.email",
+                  name: "Email address",
+                  issuer: _requestor,
+                  category: null,
+                  attributes: const [],
+                  issueURL: "https://email-issuer.example/issue",
+                ),
+                flyToDataTab: false,
+              ),
+              child: const Text("add"),
+            ),
+          ),
+        ),
       );
+      await settle(tester);
+      await tester.tap(find.byKey(const Key("add_email")));
+      await settle(tester);
+      await settle(tester);
+      await tester.tap(find.byKey(const Key("sheet_go_button")).last);
+      await settle(tester);
+      await sendEmailTo(tester, "jan@example.com");
+      await tester.enterText(
+        find.byKey(const Key("email_verification_code_input_field")),
+        "ABC123",
+      );
+      for (var i = 0; i < 4; i++) {
+        await settle(tester);
+      }
+      final add = find.byKey(const Key("sheet_issue_add"));
+      if (add.evaluate().isNotEmpty) {
+        await tester.tap(add.last);
+        for (var i = 0; i < 4; i++) {
+          await settle(tester);
+        }
+      }
+
+      expect(find.byKey(const Key("sheet_success_offer")), findsOneWidget);
+      expect(find.text("Secure your app with it?"), findsOneWidget);
+      expect(
+        find.textContaining("Use jan@example.com to secure your app"),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const Key("secure_offer_not_now")).last);
+      await settle(tester);
+      await settle(tester);
+      expect(sheet, findsNothing);
+      expect(linkApi.calls, 0);
+      expect(await stored(tester, prefs.emailLinked.stream), isFalse);
+    });
+
+    test("the chosen card is picked on the share screen", () async {
+      SelectableCredentialInstance instance(String hash) =>
+          SelectableCredentialInstance(
+            credentialId: "pbdf.sidn-pbdf.email",
+            hash: hash,
+            name: "Email address",
+            issuer: _requestor,
+            format: CredentialFormat.idemix,
+            attributes: const [],
+            revoked: false,
+            revocationSupported: false,
+          );
+      final c = ProviderContainer(
+        overrides: [
+          preferencesProvider.overrideWithValue(prefs),
+          irmaRepositoryProvider.overrideWithValue(repo),
+          sessionStateProvider.overrideWith(
+            (ref, id) => Stream.value(
+              SessionState(
+                id: id,
+                protocol: "irma",
+                type: SessionType.disclosure,
+                status: SessionStatus.requestPermission,
+                requestor: _requestor,
+                disclosurePlan: DisclosurePlan(
+                  disclosureChoicesOverview: [
+                    DisclosurePickOne(
+                      optional: false,
+                      ownedOptions: [
+                        DisclosureBundle(credentials: [instance("h1")]),
+                        DisclosureBundle(credentials: [instance("h2")]),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      final keep = c.listen(sessionSelectionsProvider(7), (_, _) {});
+      addTearDown(keep.close);
+
+      preferCardInSession(c, 7, "h2");
+      await pumpEventQueue();
+
+      expect(c.read(sessionSelectionsProvider(7)), {0: 1});
     });
   });
 }

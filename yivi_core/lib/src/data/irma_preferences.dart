@@ -133,13 +133,8 @@ class IrmaPreferences {
        emailLinked = Pref.of(
          p.getBool("preference.email_linked", defaultValue: false),
        ),
-       emailBannerDismissed = Pref.of(
-         p.getBool("preference.email_banner_dismissed", defaultValue: false),
-       ),
-       emailBannerSnoozedUntil = Pref.mapped<int, DateTime>(
-         p.getInt("preference.email_banner_snoozed_until_ms", defaultValue: 0),
-         decode: DateTime.fromMillisecondsSinceEpoch,
-         encode: (date) => date.millisecondsSinceEpoch,
+       secureOfferShown = Pref.of(
+         p.getBool("preference.secure_offer_shown", defaultValue: false),
        ),
        localBackendHost = Pref.of(
          p.getString("preference.local_backend_host", defaultValue: ""),
@@ -294,12 +289,10 @@ class IrmaPreferences {
   /// linking flow.
   final Pref<bool> emailLinked;
 
-  /// Terminal: the user chose "Negeren", so the banner never shows again.
-  final Pref<bool> emailBannerDismissed;
-
-  /// Before when the banner stays hidden, set by "Ask me later"; stored in
-  /// milliseconds.
-  final Pref<DateTime> emailBannerSnoozedUntil;
+  /// Whether "Success" offered to secure the app after the first card added
+  /// in the app. It does so once; after that "Finish setting up Yivi" in
+  /// More stays until an address is linked.
+  final Pref<bool> secureOfferShown;
 
   /// Host of a local backend setup, set in the debug menu, such as
   /// "localhost" with `adb reverse`. Empty means the real backends.

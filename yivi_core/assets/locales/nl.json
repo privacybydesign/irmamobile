@@ -291,8 +291,24 @@
       "art": {
         "email": "E-mailadres",
         "personal": "Persoonsgegevens",
-        "phone": "Mobiel nummer",
-        "municipality": "Je gemeente"
+        "municipality": "Je gemeente",
+        "address": "Adres",
+        "female": "Vrouw",
+        "dutch": "Nederlandse",
+        "labels": {
+          "fullname": "Naam",
+          "dateofbirth": "Geboortedatum",
+          "cityofbirth": "Geboorteplaats",
+          "gender": "Geslacht",
+          "nationality": "Nationaliteit",
+          "street": "Straat",
+          "houseNumber": "Huisnummer",
+          "zipcode": "Postcode",
+          "city": "Woonplaats",
+          "municipality": "Gemeente",
+          "email": "E-mailadres",
+          "domain": "Domein"
+        }
       }
     },
     "confirm_pin": {
@@ -317,7 +333,6 @@
       "body": "Je wallet en al je gegevens zijn verwijderd"
     },
     "step": "Stap {current} van {total}",
-    "step_optional": "Stap {current} van {total} · optioneel",
     "setting_up": "Je app wordt klaargezet",
     "welcome": {
       "title": "Je digitale identiteit, veilig op je telefoon",
@@ -328,6 +343,19 @@
       "value_3_title": "Alleen op je telefoon",
       "value_3_text": "Niemand ziet je gegevens of wat je deelt, ook Yivi niet.",
       "start": "Aan de slag"
+    },
+    "terms": {
+      "title": "Voordat je begint",
+      "terms_header": "Gebruiksvoorwaarden",
+      "improve_header": "Help Yivi beter maken",
+      "point_1_title": "Je pincode beschermt je gegevens",
+      "point_1_text": "De server van Yivi controleert hem, zodat je gegevens veilig blijven als je je telefoon kwijtraakt.",
+      "point_2_title": "Houd je pincode voor jezelf",
+      "point_2_text": "Wie je telefoon en je pincode heeft, kan als jou gegevens delen.",
+      "point_3_title": "Telefoon kwijt?",
+      "point_3_text": "Blokkeer de app in MijnYivi, zodat niemand hem kan gebruiken.",
+      "read_full": "Lees de volledige voorwaarden",
+      "continue": "Doorgaan"
     },
     "biometric": {
       "title_face_id": "Yivi openen met Face ID?",
@@ -340,15 +368,6 @@
       "use_touch_id": "Touch ID gebruiken",
       "use_fingerprint": "Vingerafdruk gebruiken",
       "not_now": "Niet nu"
-    },
-    "email_step": {
-      "title": "Je e-mailadres koppelen?",
-      "body": "Dan kun je inloggen bij MijnYivi om te zien waar je Yivi gebruikte, en je app blokkeren als je je telefoon kwijtraakt. We mailen je een code om te checken dat het adres van jou is, en koppelen het aan je app in MijnYivi.",
-      "code_title": "Kijk in je mail",
-      "code_body": "Vul de code in uit de e-mail die we je stuurden.",
-      "skip": "Overslaan",
-      "try_again": "Opnieuw proberen",
-      "not_linked": "We konden het adres niet koppelen. Probeer het opnieuw, of sla het nu over."
     }
   },
   "error": {
@@ -673,17 +692,6 @@
     }
   },
   "email_linking": {
-    "banner": {
-      "title": "Beveilig je Yivi-app",
-      "body": "Koppel je e-mailadres. Dan kun je je app blokkeren als je telefoon kwijtraakt.",
-      "link": "E-mailadres koppelen"
-    },
-    "later": {
-      "title": "Later herinneren?",
-      "body": "Zonder gekoppeld e-mailadres kun je je app niet op afstand blokkeren. Je kunt het altijd nog koppelen via Meer › Instellingen.",
-      "remind_me": "Vraag het me later",
-      "dismiss": "Negeren"
-    },
     "enter_email": {
       "title": "E-mailadres koppelen",
       "header": "Koppel je e-mailadres",
@@ -1664,5 +1672,39 @@
     "text_bar": "De knop staat altijd onderaan.",
     "text_rail": "De knop staat altijd onder het menu.",
     "ok": "Begrepen"
+  },
+  "secure": {
+    "offer": {
+      "title": "Beveilig nu je app",
+      "text": "Er staan nu gegevens in je app. Koppel je e-mailadres, zodat niemand hem kan gebruiken als je je telefoon kwijtraakt.",
+      "with_title": "Je app ermee beveiligen?",
+      "with_text": "Gebruik {email} om je app te beveiligen, zodat niemand hem kan gebruiken als je je telefoon kwijtraakt.",
+      "secure": "Beveilig je app",
+      "not_now": "Niet nu"
+    },
+    "reason": {
+      "block": "Telefoon kwijt? Blokkeer Yivi in MijnYivi",
+      "activity": "Zie in MijnYivi waar je Yivi gebruikte",
+      "minute": "Kost een minuut: je adres en een code",
+      "no_code": "Geen nieuwe code: het adres is al gecontroleerd"
+    },
+    "added": "{name} toegevoegd",
+    "added_text": "Het staat nu in je app.",
+    "sheet": {
+      "title": "Beveilig je app",
+      "one": "Je e-mailadres gebruiken?",
+      "many": "Welk e-mailadres?",
+      "text": "Het staat al in je app en is gecontroleerd, dus je hebt geen nieuwe code nodig. Hiermee kun je Yivi blokkeren in MijnYivi als je je telefoon kwijtraakt.",
+      "in_app": "In je app",
+      "another": "Of gebruik een ander adres",
+      "use": "Gebruik dit adres"
+    },
+    "finish": {
+      "title": "Maak Yivi helemaal klaar",
+      "text": "Koppel je e-mailadres, zodat je de app kunt blokkeren als je je telefoon kwijtraakt.",
+      "todo": "1 ding te doen"
+    },
+    "chip": "Beveiligt ook je app",
+    "more_todo": "Meer, 1 ding te doen"
   }
 }

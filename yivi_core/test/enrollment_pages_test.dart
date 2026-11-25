@@ -1,31 +1,21 @@
-import "dart:async";
-
 import "package:flutter_test/flutter_test.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/data/keyshare_email_link_api.dart";
 import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
-import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/models/session_state.dart";
-import "package:yivi_core/src/models/session_user_interaction.dart";
 import "package:yivi_core/src/providers/contact_issuance_provider.dart";
-import "package:yivi_core/src/providers/contact_issuer_api_provider.dart";
-import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/screens/back_to_website/back_to_website_screen.dart";
 import "package:yivi_core/src/screens/enrollment/biometric/enrollment_biometric_screen.dart";
 import "package:yivi_core/src/screens/enrollment/choose_pin/choose_pin_screen.dart";
 import "package:yivi_core/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart";
-import "package:yivi_core/src/screens/enrollment/email/enrollment_email_link.dart";
-import "package:yivi_core/src/screens/enrollment/email/enrollment_email_screen.dart";
+import "package:yivi_core/src/screens/enrollment/terms/enrollment_terms_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
-import "package:yivi_core/src/widgets/layout/legacy_material_bridge.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -50,60 +40,6 @@ void _device(WidgetTester tester, Size size, EdgeInsets padding) {
   addTearDown(tester.view.reset);
 }
 
-class _FakeEmailIssuerApi implements ContactIssuerApi {
-  final sent = <String>[];
-  final verified = <String>[];
-  var codeRight = true;
-
-  @override
-  Future<void> send({required String target, required String language}) async =>
-      sent.add(target);
-
-  @override
-  Future<SessionPointer> verify({
-    required String target,
-    required String code,
-  }) async {
-    verified.add(code);
-    if (!codeRight) throw const ContactWrongCode();
-    return SessionPointer(
-      u: "https://email-issuer.example/session",
-      irmaqr: "issuing",
-      protocol: Protocol.irma,
-    );
-  }
-}
-
-class _FakeLinkApi implements KeyshareEmailLinkApi {
-  var calls = 0;
-
-  @override
-  Future<SessionPointer> startSession() async {
-    calls++;
-    return SessionPointer(
-      u: "https://keyshare.example/session",
-      irmaqr: "disclosing",
-      protocol: Protocol.irma,
-    );
-  }
-}
-
-SessionStateEvent _state(int id, SessionStatus status) => SessionStateEvent(
-  sessionState: SessionState(
-    id: id,
-    protocol: "irma",
-    type: SessionType.issuance,
-    status: status,
-    requestor: TrustedParty(
-      id: "yivi",
-      name: "Yivi",
-      url: null,
-      parent: null,
-      verified: true,
-    ),
-  ),
-);
-
 void main() {
   late RecordingBridge bridge;
   late IrmaRepository repo;
@@ -119,23 +55,16 @@ void main() {
 
   group("welcome", () {
     for (final MapEntry(key: name, value: (size, padding)) in _sizes.entries) {
-      testWidgets("$name: the cards, the title, and Get started after the "
-          "terms", (tester) async {
+      testWidgets("$name: the cards, the title, and Get started", (
+        tester,
+      ) async {
         _device(tester, size, padding);
-        var accepted = false;
         var started = 0;
-        Future<void> pump() => pumpHome(
+        await pumpHome(
           tester,
           repo: repo,
-          home: StatefulBuilder(
-            builder: (context, setState) => WelcomeScreen(
-              isAccepted: accepted,
-              onToggleAccepted: (v) => setState(() => accepted = v),
-              onContinue: () => started++,
-            ),
-          ),
+          home: WelcomeScreen(onContinue: () => started++),
         );
-        await pump();
         await tester.pump(const Duration(seconds: 1));
 
         expect(find.byType(CredentialCardArt), findsNWidgets(3));
@@ -144,9 +73,54 @@ void main() {
           findsOneWidget,
         );
         expect(find.text("Only on your phone"), findsOneWidget);
+        // The terms are the next page.
+        expect(find.byKey(const Key("accept_terms_checkbox")), findsNothing);
 
         final start = find.byKey(const Key("enrollment_next_button"));
-        expect(tester.widget<PrimaryPillButton>(start).onPressed, isNull);
+        expect(tester.widget<PrimaryPillButton>(start).onPressed, isNotNull);
+        await tester.ensureVisible(start);
+        await tester.pump();
+        await tester.tap(start);
+        // The cards fly out first, then it goes on.
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(started, 0);
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(started, 1);
+      });
+    }
+  });
+
+  group("terms", () {
+    for (final MapEntry(key: name, value: (size, padding)) in _sizes.entries) {
+      testWidgets("$name: the terms in short, and Continue once accepted", (
+        tester,
+      ) async {
+        _device(tester, size, padding);
+        var accepted = false;
+        var continued = 0;
+        await pumpHome(
+          tester,
+          repo: repo,
+          home: StatefulBuilder(
+            builder: (context, setState) => EnrollmentTermsScreen(
+              isAccepted: accepted,
+              onToggleAccepted: (v) => setState(() => accepted = v),
+              onContinue: () => continued++,
+            ),
+          ),
+        );
+        await settle(tester);
+
+        expect(find.text("Before you start"), findsOneWidget);
+        expect(find.text("Your PIN protects your data"), findsOneWidget);
+        expect(
+          find.byKey(const Key("enrollment_terms_read_full")),
+          findsOneWidget,
+        );
+
+        final go = find.byKey(const Key("enrollment_terms_continue"));
+        expect(tester.widget<PrimaryPillButton>(go).onPressed, isNull);
 
         // A small phone with large text scrolls the page down to the terms.
         await tester.runAsync(
@@ -158,9 +132,9 @@ void main() {
         await tester.pump();
         await tester.tap(find.byKey(const Key("accept_terms_checkbox")));
         await tester.pump();
-        expect(tester.widget<PrimaryPillButton>(start).onPressed, isNotNull);
-        await tester.tap(start);
-        expect(started, 1);
+        expect(tester.widget<PrimaryPillButton>(go).onPressed, isNotNull);
+        await tester.tap(go);
+        expect(continued, 1);
       });
     }
   });
@@ -242,14 +216,10 @@ void main() {
           tester,
           repo: repo,
           overrides: [biometricTypeProvider.overrideWith((ref) async => null)],
-          home: EnrollmentBiometricScreen(
-            stepLabel: "Step 2 of 3",
-            onDone: () => done++,
-          ),
+          home: EnrollmentBiometricScreen(onDone: () => done++),
         );
         await tester.pump();
 
-        expect(find.text("Step 2 of 3"), findsOneWidget);
         expect(find.text("Open Yivi with your fingerprint?"), findsOneWidget);
         await tester.tap(find.byKey(const Key("biometric_not_now")));
         await settle(tester);
@@ -263,256 +233,6 @@ void main() {
         );
       });
     }
-  });
-
-  group("e-mail step", () {
-    late _FakeEmailIssuerApi issuer;
-    late _FakeLinkApi link;
-    late Completer<SessionError?> account;
-    late int done;
-
-    setUp(() {
-      issuer = _FakeEmailIssuerApi();
-      link = _FakeLinkApi();
-      account = Completer();
-      done = 0;
-    });
-
-    Future<void> pumpStep(WidgetTester tester) async {
-      await pumpHome(
-        tester,
-        repo: repo,
-        overrides: [
-          emailIssuerApiProvider.overrideWithValue(issuer),
-          keyshareEmailLinkApiProvider.overrideWithValue(link),
-        ],
-        // The code field needs the core Material the app root gives.
-        home: LegacyMaterialBridge(
-          child: EnrollmentEmailScreen(
-            stepLabel: "Step 3 of 3 · optional",
-            account: () => account.future,
-            link: EnrollmentEmailLink(
-              repo: repo,
-              pin: "12345",
-              api: link,
-              markLinked: () => repo.preferences.emailLinked.set(true),
-            ),
-            onDone: () => done++,
-            onAccountFailed: (_) {},
-          ),
-        ),
-      );
-      await tester.pump();
-    }
-
-    Future<void> enterAddress(WidgetTester tester) async {
-      await tester.enterText(
-        find.byKey(const Key("email_input_field")),
-        "jan@example.com",
-      );
-      await tester.pump();
-    }
-
-    /// irmago: every session asks for permission, then the PIN, and works.
-    void irmago() {
-      bridge.respond = (Event event) {
-        if (event is NewSessionEvent) {
-          return _state(event.sessionId, SessionStatus.requestPermission);
-        }
-        if (event is SessionUserInteractionEvent) {
-          return _state(
-            event.sessionId,
-            event.type == UserInteractionType.permission
-                ? SessionStatus.requestPin
-                : SessionStatus.success,
-          );
-        }
-        return null;
-      };
-    }
-
-    for (final MapEntry(key: name, value: (size, padding)) in _sizes.entries) {
-      testWidgets("$name: address, then the code, then linked", (tester) async {
-        _device(tester, size, padding);
-        irmago();
-        await pumpStep(tester);
-
-        expect(find.text("Link your email address?"), findsOneWidget);
-        expect(find.byKey(const Key("enrollment_email_skip")), findsOneWidget);
-
-        await enterAddress(tester);
-        await tester.ensureVisible(
-          find.byKey(const Key("enrollment_email_send")),
-        );
-        await tester.tap(find.byKey(const Key("enrollment_email_send")));
-        await tester.pump();
-        // The code goes out once the account is there.
-        expect(issuer.sent, isEmpty);
-        account.complete(null);
-        await settle(tester);
-
-        expect(issuer.sent, ["jan@example.com"]);
-        expect(find.text("Check your email"), findsOneWidget);
-        expect(find.text("jan@example.com"), findsOneWidget);
-
-        await tester.enterText(
-          find.byKey(const Key("email_verification_code_input_field")),
-          "ABC123",
-        );
-        for (var i = 0; i < 10; i++) {
-          await settle(tester);
-        }
-
-        expect(link.calls, 1);
-        final pins = bridge.dispatched
-            .whereType<SessionUserInteractionEvent>()
-            .where((e) => e.type == UserInteractionType.enteredPin);
-        // The issuance and the link in MijnYivi, both with this PIN.
-        expect(pins.map((e) => e.payload!["pin"]), ["12345", "12345"]);
-        expect(
-          await tester.runAsync(
-            () => repo.preferences.emailLinked.stream.first,
-          ),
-          isTrue,
-        );
-        expect(
-          find.byKey(const Key("enrollment_email_linked")),
-          findsOneWidget,
-        );
-
-        await tester.pump(const Duration(milliseconds: 1300));
-        expect(done, 1);
-      });
-    }
-
-    testWidgets("Skip goes on without an address", (tester) async {
-      _device(tester, _sizes["phone upright"]!.$1, _sizes["phone upright"]!.$2);
-      await pumpStep(tester);
-
-      await tester.tap(find.byKey(const Key("enrollment_email_skip")));
-      await tester.pump();
-      expect(done, 1);
-      expect(issuer.sent, isEmpty);
-    });
-
-    testWidgets("a wrong code says so and keeps the step", (tester) async {
-      _device(tester, _sizes["phone upright"]!.$1, _sizes["phone upright"]!.$2);
-      account.complete(null);
-      issuer.codeRight = false;
-      await pumpStep(tester);
-      await enterAddress(tester);
-      await tester.tap(find.byKey(const Key("enrollment_email_send")));
-      await settle(tester);
-
-      await tester.enterText(
-        find.byKey(const Key("email_verification_code_input_field")),
-        "ABC123",
-      );
-      await settle(tester);
-
-      expect(
-        find.text("That code is not right. Check it, or send a new one."),
-        findsOneWidget,
-      );
-      expect(link.calls, 0);
-      expect(done, 0);
-    });
-
-    group("the link in the e-mail, while the step shows", () {
-      Future<void> atCode(WidgetTester tester) async {
-        _device(
-          tester,
-          _sizes["phone upright"]!.$1,
-          _sizes["phone upright"]!.$2,
-        );
-        account.complete(null);
-        issuer.codeRight = false;
-        await pumpStep(tester);
-        await enterAddress(tester);
-        await tester.tap(find.byKey(const Key("enrollment_email_send")));
-        await settle(tester);
-      }
-
-      testWidgets("for the typed address: filled in and checked, and taken "
-          "from the queue", (tester) async {
-        await atCode(tester);
-        repo.pendingPointers.put(
-          EmailCodePointer(email: "Jan@Example.com", code: "XYZ789"),
-        );
-        await settle(tester);
-        expect(issuer.verified, ["XYZ789"]);
-        expect(
-          await tester.runAsync(() => repo.pendingPointers.pending.first),
-          isNull,
-        );
-      });
-
-      testWidgets("for another address: ignored", (tester) async {
-        await atCode(tester);
-        repo.pendingPointers.put(
-          EmailCodePointer(email: "evil@example.com", code: "XYZ789"),
-        );
-        await settle(tester);
-        expect(issuer.verified, isEmpty);
-      });
-
-      testWidgets("before a code was asked for: ignored", (tester) async {
-        _device(
-          tester,
-          _sizes["phone upright"]!.$1,
-          _sizes["phone upright"]!.$2,
-        );
-        await pumpStep(tester);
-        repo.pendingPointers.put(
-          EmailCodePointer(email: "jan@example.com", code: "XYZ789"),
-        );
-        await settle(tester);
-        expect(issuer.verified, isEmpty);
-        expect(issuer.sent, isEmpty);
-      });
-    });
-
-    testWidgets("phone sideways with the keyboard: Send code next to the "
-        "field, without the tile and the step", (tester) async {
-      final (size, padding) = _sizes["phone sideways"]!;
-      _device(tester, size, padding);
-      tester.view.viewInsets = const FakeViewPadding(bottom: 196);
-      // Without the harness's Scaffold, which would take the keyboard off.
-      await pumpRoutes(
-        tester,
-        repo: repo,
-        initialLocation: "/",
-        routes: [
-          GoRoute(
-            path: "/",
-            builder: (_, _) => LegacyMaterialBridge(
-              child: EnrollmentEmailScreen(
-                stepLabel: "Step 3 of 3 · optional",
-                account: () => account.future,
-                link: EnrollmentEmailLink(
-                  repo: repo,
-                  pin: "12345",
-                  api: link,
-                  markLinked: () => repo.preferences.emailLinked.set(true),
-                ),
-                onDone: () => done++,
-                onAccountFailed: (_) {},
-              ),
-            ),
-          ),
-        ],
-      );
-      await tester.pump();
-
-      expect(find.text("Step 3 of 3 · optional"), findsNothing);
-      expect(find.byIcon(Icons.mail_rounded), findsNothing);
-      final field = tester.getRect(find.byKey(const Key("email_input_field")));
-      final send = tester.getRect(
-        find.byKey(const Key("enrollment_email_send")),
-      );
-      expect(send.center.dy, closeTo(field.center.dy, 4));
-      expect(send.left, greaterThan(field.right));
-    });
   });
 
   group("back to the website", () {

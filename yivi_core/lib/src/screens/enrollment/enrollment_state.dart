@@ -2,15 +2,20 @@ import "../../models/session.dart";
 
 sealed class EnrollmentState {}
 
-/// The welcome page: what Yivi is, the error-report switch and the terms.
-class EnrollmentWelcome extends EnrollmentState {
+/// The welcome page: what Yivi is, and Get started.
+class EnrollmentWelcome extends EnrollmentState {}
+
+/// Step 1, "Before you start": the terms in short, the error-report switch,
+/// and the terms to accept before Continue.
+class EnrollmentTerms extends EnrollmentState {
+  final EnrollmentStepNumber step;
   final bool isAccepted;
 
-  EnrollmentWelcome({this.isAccepted = false});
+  EnrollmentTerms({required this.step, this.isAccepted = false});
 }
 
-/// Where a step is in the numbered part of the enrollment (the PIN, Face ID,
-/// the e-mail address): "Step [number] of [total]".
+/// Where a step is in the numbered part of the enrollment (the terms, the
+/// PIN twice, Face ID): "Step [number] of [total]".
 class EnrollmentStepNumber {
   final int number;
   final int total;
@@ -35,13 +40,6 @@ class EnrollmentBiometric extends EnrollmentState {
   final EnrollmentStepNumber step;
 
   EnrollmentBiometric({required this.step});
-}
-
-/// The optional step that links an e-mail address to the app.
-class EnrollmentEmail extends EnrollmentState {
-  final EnrollmentStepNumber step;
-
-  EnrollmentEmail({required this.step});
 }
 
 /// Waiting for the account, after the last step.

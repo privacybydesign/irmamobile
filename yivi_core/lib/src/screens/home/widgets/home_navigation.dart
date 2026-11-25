@@ -13,6 +13,7 @@ import "../../../util/i18n.dart";
 import "../../../widgets/bars/floating_bar_placement.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/buttons/press_scale.dart";
+import "../../add_data/secure_app.dart";
 import "../../notifications/notifications_provider.dart";
 import "home_tab.dart";
 import "open_qr_scanner.dart";
@@ -140,34 +141,52 @@ class HomeScanButton extends StatelessWidget {
   );
 }
 
-/// A tab's icon, 26 pt; with [showDot] (the bell) a small primary dot at its
-/// top right while there are unread notifications.
+/// Why a tab's icon may have a dot: unread notifications (the bell), or
+/// setting up that is not finished (More: no e-mail address linked).
+enum TabDot { unread, setup }
+
+/// The dot [tab]'s icon can have, if any.
+TabDot? tabDotOf(HomeTab tab) => switch (tab) {
+  HomeTab.notifications => TabDot.unread,
+  HomeTab.more => TabDot.setup,
+  _ => null,
+};
+
+/// A tab's icon, 26 pt; with a [dot] a small primary dot at its top right
+/// while there is something for it (see [TabDot]).
 class TabIcon extends StatelessWidget {
   final TabGlyph icon;
   final Color color;
-  final bool showDot;
+  final TabDot? dot;
 
   const TabIcon({
     super.key,
     required this.icon,
     required this.color,
-    required this.showDot,
+    required this.dot,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (!showDot) return icon.build(color, 26);
+    final dot = this.dot;
+    if (dot == null) return icon.build(color, 26);
     final palette = YiviPalette.of(context);
     return Consumer(
       builder: (context, ref, _) {
-        final state = ref.watch(notificationsProvider);
-        final unread = state is NotificationsLoaded && state.hasUnread;
+        final unread = switch (dot) {
+          TabDot.unread => switch (ref.watch(notificationsProvider)) {
+            NotificationsLoaded(:final hasUnread) => hasUnread,
+            _ => false,
+          },
+          TabDot.setup => ref.watch(setupUnfinishedProvider),
+        };
         return Stack(
           clipBehavior: Clip.none,
           children: [
             icon.build(color, 26),
             if (unread)
               Positioned(
+                key: Key("tab_dot_${dot.name}"),
                 top: 1,
                 right: 1,
                 child: Container(

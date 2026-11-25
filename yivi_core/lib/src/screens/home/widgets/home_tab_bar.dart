@@ -341,7 +341,7 @@ class _TabRowState extends State<_TabRow> with TickerProviderStateMixin {
                           icon: i == marked ? activeIcon : icon,
                           selected: tab == widget.selectedTab,
                           marked: i == marked,
-                          showDot: tab == HomeTab.notifications,
+                          dot: tabDotOf(tab),
                           labelSize: widget.labelSize,
                           // The icon under the lens grows with how near
                           // the lens's middle is, so it moves with it.
@@ -420,7 +420,7 @@ class _Tab extends StatelessWidget {
   final TabGlyph icon;
   final bool selected;
   final bool? marked;
-  final bool showDot;
+  final TabDot? dot;
   final double labelSize;
   final double scale;
 
@@ -435,7 +435,7 @@ class _Tab extends StatelessWidget {
     required this.icon,
     required this.selected,
     this.marked,
-    required this.showDot,
+    required this.dot,
     required this.labelSize,
     this.scale = 1,
     this.handlesTaps = true,
@@ -453,7 +453,7 @@ class _Tab extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: YiviSpace.x2,
         children: [
-          TabIcon(icon: icon, color: color, showDot: showDot),
+          TabIcon(icon: icon, color: color, dot: dot),
           Text(
             label,
             maxLines: 1,

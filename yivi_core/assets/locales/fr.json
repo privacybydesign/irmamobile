@@ -288,8 +288,24 @@
       "art": {
         "email": "Adresse e-mail",
         "personal": "Données personnelles",
-        "phone": "Numéro de mobile",
-        "municipality": "Votre commune"
+        "municipality": "Votre commune",
+        "address": "Adresse",
+        "female": "Femme",
+        "dutch": "Néerlandaise",
+        "labels": {
+          "fullname": "Nom",
+          "dateofbirth": "Date de naissance",
+          "cityofbirth": "Lieu de naissance",
+          "gender": "Sexe",
+          "nationality": "Nationalité",
+          "street": "Rue",
+          "houseNumber": "Numéro",
+          "zipcode": "Code postal",
+          "city": "Ville",
+          "municipality": "Commune",
+          "email": "Adresse e-mail",
+          "domain": "Domaine"
+        }
       }
     },
     "confirm_pin": {
@@ -314,7 +330,6 @@
       "body": "Votre portefeuille a été supprimé et toutes ses données ont été effacées"
     },
     "step": "Étape {current} sur {total}",
-    "step_optional": "Étape {current} sur {total} · facultative",
     "setting_up": "Configuration de votre appli",
     "welcome": {
       "title": "Votre identité numérique, en sécurité sur votre téléphone",
@@ -325,6 +340,19 @@
       "value_3_title": "Uniquement sur votre téléphone",
       "value_3_text": "Personne ne voit vos données ni ce que vous partagez, pas même Yivi.",
       "start": "Commencer"
+    },
+    "terms": {
+      "title": "Avant de commencer",
+      "terms_header": "Conditions d’utilisation",
+      "improve_header": "Aidez à améliorer Yivi",
+      "point_1_title": "Votre code PIN protège vos données",
+      "point_1_text": "Le serveur de Yivi le vérifie, pour que vos données restent protégées si vous perdez votre téléphone.",
+      "point_2_title": "Gardez votre code PIN pour vous",
+      "point_2_text": "Toute personne qui a votre téléphone et votre code PIN peut partager des données en votre nom.",
+      "point_3_title": "Téléphone perdu ?",
+      "point_3_text": "Bloquez l’appli dans MyYivi, pour que personne ne puisse l’utiliser.",
+      "read_full": "Lire les conditions complètes",
+      "continue": "Continuer"
     },
     "biometric": {
       "title_face_id": "Ouvrir Yivi avec Face ID ?",
@@ -337,15 +365,6 @@
       "use_touch_id": "Utiliser Touch ID",
       "use_fingerprint": "Utiliser l'empreinte digitale",
       "not_now": "Pas maintenant"
-    },
-    "email_step": {
-      "title": "Associer votre adresse e-mail ?",
-      "body": "Vous pourrez alors vous connecter à MyYivi pour voir où vous avez utilisé Yivi, et bloquer l'appli si vous perdez votre téléphone. Nous vous envoyons un code par e-mail pour vérifier que l'adresse est bien la vôtre, puis nous l'associons à votre appli dans MyYivi.",
-      "code_title": "Consultez vos e-mails",
-      "code_body": "Saisissez le code de l'e-mail que nous vous avons envoyé.",
-      "skip": "Passer",
-      "try_again": "Réessayer",
-      "not_linked": "Nous n'avons pas pu associer l'adresse. Réessayez, ou passez cette étape pour l'instant."
     }
   },
   "error": {
@@ -670,17 +689,6 @@
     }
   },
   "email_linking": {
-    "banner": {
-      "title": "Sécurisez votre appli Yivi",
-      "body": "Associez votre adresse e-mail. Vous pourrez alors bloquer votre appli si vous perdez votre téléphone.",
-      "link": "Associer l'adresse e-mail"
-    },
-    "later": {
-      "title": "Vous le rappeler plus tard ?",
-      "body": "Sans adresse e-mail associée, vous ne pouvez pas bloquer votre appli à distance. Vous pouvez toujours l'associer plus tard dans Plus › Paramètres.",
-      "remind_me": "Me le redemander plus tard",
-      "dismiss": "Ignorer"
-    },
     "enter_email": {
       "title": "Associer l'adresse e-mail",
       "header": "Associez votre adresse e-mail",
@@ -1664,5 +1672,39 @@
     "text_bar": "Le bouton est toujours en bas.",
     "text_rail": "Le bouton est toujours sous le menu.",
     "ok": "Compris"
+  },
+  "secure": {
+    "offer": {
+      "title": "Sécurisez maintenant votre appli",
+      "text": "Votre appli contient maintenant des données. Liez votre adresse e-mail, pour que personne ne puisse l’utiliser si vous perdez votre téléphone.",
+      "with_title": "Sécuriser votre appli avec elle ?",
+      "with_text": "Utilisez {email} pour sécuriser votre appli, pour que personne ne puisse l’utiliser si vous perdez votre téléphone.",
+      "secure": "Sécuriser votre appli",
+      "not_now": "Pas maintenant"
+    },
+    "reason": {
+      "block": "Téléphone perdu ? Bloquez Yivi dans MyYivi",
+      "activity": "Voyez dans MyYivi où vous avez utilisé Yivi",
+      "minute": "Une minute suffit : votre adresse et un code",
+      "no_code": "Pas de nouveau code : l’adresse est déjà vérifiée"
+    },
+    "added": "{name} ajouté(e)",
+    "added_text": "C’est maintenant dans votre appli.",
+    "sheet": {
+      "title": "Sécuriser votre appli",
+      "one": "Utiliser votre adresse e-mail ?",
+      "many": "Quelle adresse e-mail ?",
+      "text": "Elle est déjà dans votre appli et vérifiée, pas besoin de nouveau code. Avec elle, vous pouvez bloquer Yivi dans MyYivi si vous perdez votre téléphone.",
+      "in_app": "Dans votre appli",
+      "another": "Ou utiliser une autre adresse",
+      "use": "Utiliser cette adresse"
+    },
+    "finish": {
+      "title": "Terminer la configuration de Yivi",
+      "text": "Liez votre adresse e-mail, pour pouvoir bloquer l’appli si vous perdez votre téléphone.",
+      "todo": "1 chose à faire"
+    },
+    "chip": "Sécurise aussi votre appli",
+    "more_todo": "Plus, 1 chose à faire"
   }
 }

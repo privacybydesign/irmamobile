@@ -8,6 +8,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_launcher.dart";
 import "../../routing/navigation.dart";
 import "add_data_sheet.dart";
+import "secure_app.dart";
 
 /// The e-mail type of the default keyshare scheme in the credential store
 /// (its issue URL names the issuer); null when the store has none.
@@ -58,7 +59,13 @@ Future<void> openEmailLinking(BuildContext context) async {
 /// server, once the linking sheet has added it and gone. Issuance and
 /// keyshare registration stay two sessions: the keyshare server never
 /// issues. [context] outlives the sheet (the root navigator's).
-Future<void> shareEmailWithKeyshare(BuildContext context) async {
+///
+/// [prefer] is the hash of the e-mail card to share, picked on the share
+/// screen when it opens (an address already in the app, chosen before).
+Future<void> shareEmailWithKeyshare(
+  BuildContext context, {
+  String? prefer,
+}) async {
   final container = ProviderScope.containerOf(context, listen: false);
   final linking = container.read(emailLinkingProvider.notifier);
 
@@ -69,6 +76,7 @@ Future<void> shareEmailWithKeyshare(BuildContext context) async {
     final outcome = container.read(sessionLauncherProvider).handle(pointer);
     if (outcome case SessionStarted(:final sessionId)) {
       linking.trackDisclosure(sessionId);
+      if (prefer != null) preferCardInSession(container, sessionId, prefer);
     }
   } catch (e) {
     if (!context.mounted) return;

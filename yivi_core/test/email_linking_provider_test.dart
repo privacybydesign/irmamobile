@@ -1,18 +1,20 @@
 import "dart:io" show HttpStatus;
 
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_riverpod/misc.dart" show Override;
+import "package:flutter_riverpod/misc.dart" show Override, ProviderListenable;
 import "package:flutter_test/flutter_test.dart";
 import "package:http/http.dart" as http;
 import "package:http/testing.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/keyshare_email_link_api.dart";
+import "package:yivi_core/src/models/credential.dart";
 import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/credentials_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/screens/add_data/secure_app.dart";
 
 class _FakeLinkApi implements KeyshareEmailLinkApi {
   int calls = 0;
@@ -48,7 +50,7 @@ void main() {
   });
 
   // Most tests are about an install that already holds a credential, where
-  // the banner may show.
+  // "Finish setting up Yivi" may show.
   ProviderContainer newContainer([
     List<Override> overrides = const [],
     bool hasCredentials = true,
@@ -67,164 +69,61 @@ void main() {
 
   // The preferences stream their values, so a provider reads as unloaded until
   // the event queue has run.
-  Future<bool> readVisible(ProviderContainer container) async {
-    final subscription = container.listen(
-      emailBannerVisibleProvider,
-      (_, _) {},
-    );
+  Future<bool> read(
+    ProviderContainer container,
+    ProviderListenable<bool> provider,
+  ) async {
+    final subscription = container.listen(provider, (_, _) {});
     await pumpEventQueue();
-    final visible = subscription.read();
+    final value = subscription.read();
     subscription.close();
-    return visible;
+    return value;
   }
 
-  group("banner on the Gegevens tab", () {
-    test("is hidden while linking is not offered", () async {
-      expect(await readVisible(newContainer()), isFalse);
+  group("Finish setting up Yivi (More)", () {
+    test("is not there while linking is not offered", () async {
+      expect(await read(newContainer(), setupUnfinishedProvider), isFalse);
     });
 
-    test("shows when offered and nothing is linked or dismissed", () async {
+    test("shows when offered, with data, and nothing linked", () async {
       linkingOffered = true;
 
-      expect(await readVisible(newContainer()), isTrue);
+      expect(await read(newContainer(), setupUnfinishedProvider), isTrue);
     });
 
-    test("is hidden until the data tab has a credential", () async {
+    test("waits for the first credential", () async {
       linkingOffered = true;
 
-      expect(await readVisible(newContainer(const [], false)), isFalse);
-    });
-
-    test("is hidden once an address is linked", () async {
-      linkingOffered = true;
-      await prefs.emailLinked.set(true);
-
-      expect(await readVisible(newContainer()), isFalse);
-    });
-
-    test("is hidden until the snooze has passed", () async {
-      linkingOffered = true;
-
-      await prefs.emailBannerSnoozedUntil.set(
-        DateTime.now().add(const Duration(days: 1)),
+      expect(
+        await read(newContainer(const [], false), setupUnfinishedProvider),
+        isFalse,
       );
-      expect(await readVisible(newContainer()), isFalse);
-
-      await prefs.emailBannerSnoozedUntil.set(
-        DateTime.now().subtract(const Duration(seconds: 1)),
-      );
-      expect(await readVisible(newContainer()), isTrue);
-    });
-
-    test("comes back when the snooze ends while the app stays open", () async {
-      linkingOffered = true;
-      await prefs.emailBannerSnoozedUntil.set(
-        DateTime.now().add(const Duration(milliseconds: 200)),
-      );
-      final container = newContainer();
-      final subscription = container.listen(
-        emailBannerVisibleProvider,
-        (_, _) {},
-      );
-      await pumpEventQueue();
-      expect(subscription.read(), isFalse);
-
-      await Future<void>.delayed(const Duration(milliseconds: 400));
-
-      expect(subscription.read(), isTrue);
     });
 
     test(
-      "stays hidden after Negeren, even when the snooze has passed",
+      "goes once an address is linked, and so does the settings entry",
       () async {
         linkingOffered = true;
-        await prefs.emailBannerSnoozedUntil.set(
-          DateTime.now().subtract(const Duration(days: 30)),
-        );
-        await prefs.emailBannerDismissed.set(true);
-
-        expect(await readVisible(newContainer()), isFalse);
-      },
-    );
-
-    test(
-      "the settings entry stays available after the banner is gone",
-      () async {
-        linkingOffered = true;
-        await prefs.emailBannerDismissed.set(true);
+        await prefs.emailLinked.set(true);
         final container = newContainer();
-        final subscription = container.listen(
-          emailLinkAvailableProvider,
-          (_, _) {},
-        );
-        await pumpEventQueue();
 
-        expect(subscription.read(), isTrue);
+        expect(await read(container, setupUnfinishedProvider), isFalse);
+        expect(await read(container, emailLinkAvailableProvider), isFalse);
       },
     );
-
-    test("the settings entry is gone once an address is linked", () async {
-      linkingOffered = true;
-      await prefs.emailLinked.set(true);
-      final container = newContainer();
-      final subscription = container.listen(
-        emailLinkAvailableProvider,
-        (_, _) {},
-      );
-      await pumpEventQueue();
-
-      expect(subscription.read(), isFalse);
-    });
 
     test("is wiped with the other preferences", () async {
       await prefs.emailLinked.set(true);
-      await prefs.emailBannerDismissed.set(true);
-      await prefs.emailBannerSnoozedUntil.set(DateTime.now());
+      await prefs.secureOfferShown.set(true);
 
       await prefs.clearAll();
 
       expect(await prefs.emailLinked.stream.first, isFalse);
-      expect(await prefs.emailBannerDismissed.stream.first, isFalse);
-      expect(
-        (await prefs.emailBannerSnoozedUntil.stream.first)
-            .millisecondsSinceEpoch,
-        0,
-      );
+      expect(await prefs.secureOfferShown.stream.first, isFalse);
     });
   });
 
   group("EmailLinking", () {
-    test("snoozes the banner by the snooze duration", () async {
-      final container = newContainer();
-      final before = DateTime.now();
-
-      await container.read(emailLinkingProvider.notifier).snoozeBanner();
-
-      final until = await prefs.emailBannerSnoozedUntil.stream.first;
-      expect(
-        until.isAfter(before.add(emailBannerSnoozeDuration)) ||
-            until.isAtSameMomentAs(before.add(emailBannerSnoozeDuration)),
-        isTrue,
-      );
-      expect(
-        until.isBefore(
-          DateTime.now()
-              .add(emailBannerSnoozeDuration)
-              .add(const Duration(seconds: 1)),
-        ),
-        isTrue,
-      );
-      expect(await prefs.emailBannerDismissed.stream.first, isFalse);
-    });
-
-    test("Negeren dismisses the banner for good", () async {
-      final container = newContainer();
-
-      await container.read(emailLinkingProvider.notifier).dismissBanner();
-
-      expect(await prefs.emailBannerDismissed.stream.first, isTrue);
-    });
-
     test("tracks the disclosure session", () {
       final container = newContainer();
       final linking = container.read(emailLinkingProvider.notifier);
@@ -308,6 +207,65 @@ void main() {
         ),
         throwsException,
       );
+    });
+  });
+
+  group("which Success offers to secure the app", () {
+    Credential card(String id) => Credential(
+      credentialId: id,
+      hash: id,
+      name: id,
+      issuer: TrustedParty(
+        id: "i",
+        name: "Issuer",
+        url: null,
+        parent: null,
+        verified: true,
+      ),
+      credentialInstanceIds: const {},
+      batchInstanceCountsRemaining: const {},
+      attributes: const [],
+      revoked: false,
+      revocationSupported: false,
+      issueUrl: null,
+    );
+    final address = card("pbdf.gemeente.address");
+    final email = card("pbdf.sidn-pbdf.email");
+
+    SecureOfferKind? offer(
+      List<Credential> cards, {
+      bool linking = false,
+      bool available = true,
+      bool hadCards = false,
+      bool shownBefore = false,
+    }) => secureOfferFor(
+      cards: cards,
+      linking: linking,
+      available: available,
+      hadCards: hadCards,
+      shownBefore: shownBefore,
+    );
+
+    test("the first card added in the app, once", () {
+      expect(offer([address]), SecureOfferKind.firstCard);
+      expect(offer([address], shownBefore: true), isNull);
+      expect(offer([address], hadCards: true), isNull);
+    });
+
+    test("an e-mail card, also later and after the first offer", () {
+      expect(offer([email]), SecureOfferKind.emailCard);
+      expect(
+        offer([email], hadCards: true, shownBefore: true),
+        SecureOfferKind.emailCard,
+      );
+    });
+
+    test("nothing while linking is not available, while linking, or for "
+        "several cards", () {
+      expect(offer([email], available: false), isNull);
+      expect(offer([address], available: false), isNull);
+      expect(offer([email], linking: true), isNull);
+      expect(offer([address, email]), isNull);
     });
   });
 }

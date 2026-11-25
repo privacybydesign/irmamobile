@@ -16,6 +16,11 @@ import "../../../widgets/feedback/spinner.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
+import "../../../widgets/surfaces/surface_card.dart";
+import "../../../widgets/surfaces/inset_group.dart";
+import "../../../widgets/surfaces/icon_square.dart";
+import "../../../widgets/credential_card/received_check.dart";
+import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../add_data/add_data_details_content.dart";
 import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
@@ -669,6 +674,14 @@ class IssueSuccessPage extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final host = flow.host;
     final keys = flow.keys;
+    final offer = cards.isEmpty ? null : host.successOffer?.call(cards);
+    if (offer != null) {
+      return _SuccessOfferPage(
+        card: cards.first,
+        offer: offer,
+        subject: subject,
+      );
+    }
     final action = host.successAction(cards);
     final link = host.successLink?.call(cards);
     final linkText = link == null
@@ -772,6 +785,164 @@ class IssueSuccessPage extends StatelessWidget {
             ),
           ),
           ?linkButton,
+        ],
+      ),
+    );
+  }
+}
+
+/// "Success" that leads on ([IssueSheetHost.successOffer]): the added
+/// [card] as one row at the top ("Address added"), then a shield, the
+/// offer's title, its text and why. Its buttons: the quiet way out at the
+/// left, the way on at the right, as on every step.
+class _SuccessOfferPage extends StatelessWidget {
+  final Credential card;
+  final IssueSuccessOffer offer;
+  final IssueSheetSubject? subject;
+
+  const _SuccessOfferPage({
+    required this.card,
+    required this.offer,
+    required this.subject,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final action = offer.action;
+    final buttons = SheetActionRow(
+      primaryKey: action.key,
+      primaryLabel: action.label,
+      onPrimary: action.enabled ? action.onTap : null,
+      primaryLeading: action.busy ? const Spinner.onButton() : null,
+      secondaryKey: offer.later.key,
+      secondaryLabel: offer.later.label,
+      onSecondary: offer.later.enabled ? offer.later.onTap : null,
+    );
+    return SheetPage.scroll(
+      key: const Key("sheet_success_offer"),
+      title: SheetTitle(
+        context.tr("issuance.success_feedback.header"),
+        widget: IssueRequestorPill.maybe(subject),
+        centred: true,
+      ),
+      exits: SheetExits(close: SheetClose.none),
+      padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x16),
+      bottom: buttons,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: YiviSpace.x8),
+          SurfaceCard(
+            key: const Key("sheet_success_offer_added"),
+            padding: const EdgeInsets.fromLTRB(12, 12, 16, 12),
+            child: Row(
+              spacing: YiviSpace.x16,
+              children: [
+                ExcludeSemantics(
+                  child: SizedBox(
+                    width: 98,
+                    height: 66,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned(
+                          left: 0,
+                          top: 8,
+                          child: Transform.rotate(
+                            angle: -0.035,
+                            child: CredentialCardArt(
+                              credential: card,
+                              width: 88,
+                            ),
+                          ),
+                        ),
+                        const Positioned(
+                          right: 0,
+                          top: 0,
+                          child: ReceivedCheck(size: 26),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr("secure.added", {"name": card.name}),
+                        style: palette
+                            .body(16, weight: FontWeight.w600)
+                            .copyWith(color: palette.successText),
+                      ),
+                      Text(
+                        context.tr("secure.added_text"),
+                        style: palette.rowSubtitle.copyWith(
+                          color: palette.secondaryText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: YiviSpace.x32),
+          Center(
+            child: ExcludeSemantics(
+              child: IconSquare(
+                icon: Icons.shield_outlined,
+                fill: palette.infoSurface,
+                ink: palette.link,
+                size: 84,
+                iconSize: 42,
+                radius: 42,
+              ),
+            ),
+          ),
+          const SizedBox(height: YiviSpace.x16),
+          Semantics(
+            header: true,
+            child: Text(
+              offer.title,
+              key: const Key("sheet_success_offer_title"),
+              textAlign: TextAlign.center,
+              style: palette.titleStep.copyWith(color: palette.text),
+            ),
+          ),
+          const SizedBox(height: YiviSpace.x8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
+            child: Text(
+              offer.text,
+              textAlign: TextAlign.center,
+              style: palette.body(16).copyWith(height: 24 / 16),
+            ),
+          ),
+          const SizedBox(height: YiviSpace.x24),
+          InsetGroup(
+            dividerIndent: 50,
+            children: [
+              for (final (icon, text) in offer.reasons)
+                MergeSemantics(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: YiviSpace.x16,
+                      vertical: YiviSpace.x12,
+                    ),
+                    child: Row(
+                      spacing: YiviSpace.x12,
+                      children: [
+                        Icon(icon, size: 22, color: palette.link),
+                        Expanded(child: Text(text, style: palette.body(15))),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: YiviSpace.x16),
         ],
       ),
     );

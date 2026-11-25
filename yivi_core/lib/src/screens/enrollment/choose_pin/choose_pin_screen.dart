@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../widgets/bars/app_bar.dart";
+import "../widgets/enrollment_bar.dart";
 import "../../pin/pin_entry.dart";
 import "../../pin/yivi_pin_screen.dart";
 
@@ -11,20 +12,32 @@ class ChoosePinScreen extends StatelessWidget {
   final ValueNotifier<String> newPinNotifier;
   final String? stepLabel;
 
+  /// Under the enrollment's own bar ([EnrollmentBar]), without a bar of its
+  /// own.
+  final bool underBar;
+
   const ChoosePinScreen({
     required this.onChoosePin,
     required this.onPrevious,
     required this.newPinNotifier,
     this.stepLabel,
+    this.underBar = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return YiviPinScaffold(
-      appBar: YiviAppBar(
-        titleString: "",
-        leading: YiviBackButton(onTap: onPrevious),
-      ),
+      // In the enrollment the bar over the steps has the back button: only
+      // its room here.
+      appBar: underBar
+          ? PreferredSize(
+              preferredSize: Size.fromHeight(EnrollmentBarSpace.of(context)),
+              child: const SizedBox.shrink(),
+            )
+          : YiviAppBar(
+              titleString: "",
+              leading: YiviBackButton(onTap: onPrevious),
+            ),
       body: PinEntry(
         mode: ChooseEntry(stepLabel: stepLabel, previous: newPinNotifier.value),
         onSubmit: (pin) {

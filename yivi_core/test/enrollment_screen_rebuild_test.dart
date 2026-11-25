@@ -78,12 +78,17 @@ void main() {
     );
     await settle(tester);
 
+    final start = find.byKey(const Key("enrollment_next_button"));
+    await tester.ensureVisible(start);
+    await settle(tester);
+    await tester.tap(start);
+    await settle(tester);
     final accept = find.byKey(const Key("accept_terms_checkbox"));
     await tester.ensureVisible(accept);
     await settle(tester);
     await tester.tap(accept);
     await settle(tester);
-    final next = find.byKey(const Key("enrollment_next_button"));
+    final next = find.byKey(const Key("enrollment_terms_continue"));
     await tester.ensureVisible(next);
     await settle(tester);
     await tester.tap(next);

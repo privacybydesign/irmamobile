@@ -291,8 +291,24 @@
       "art": {
         "email": "E-Mail-Adresse",
         "personal": "Persönliche Daten",
-        "phone": "Handynummer",
-        "municipality": "Ihre Gemeinde"
+        "municipality": "Ihre Gemeinde",
+        "address": "Adresse",
+        "female": "Weiblich",
+        "dutch": "Niederländisch",
+        "labels": {
+          "fullname": "Name",
+          "dateofbirth": "Geburtsdatum",
+          "cityofbirth": "Geburtsort",
+          "gender": "Geschlecht",
+          "nationality": "Staatsangehörigkeit",
+          "street": "Straße",
+          "houseNumber": "Hausnummer",
+          "zipcode": "Postleitzahl",
+          "city": "Wohnort",
+          "municipality": "Gemeinde",
+          "email": "E-Mail-Adresse",
+          "domain": "Domain"
+        }
       }
     },
     "confirm_pin": {
@@ -317,7 +333,6 @@
       "body": "Ihre Wallet wurde entfernt und alle Ihre Daten wurden gelöscht"
     },
     "step": "Schritt {current} von {total}",
-    "step_optional": "Schritt {current} von {total} · optional",
     "setting_up": "Ihre App wird eingerichtet",
     "welcome": {
       "title": "Ihre digitale Identität, sicher auf Ihrem Handy",
@@ -328,6 +343,19 @@
       "value_3_title": "Nur auf Ihrem Handy",
       "value_3_text": "Niemand sieht Ihre Daten oder was Sie teilen, auch Yivi nicht.",
       "start": "Los geht's"
+    },
+    "terms": {
+      "title": "Bevor Sie beginnen",
+      "terms_header": "Nutzungsbedingungen",
+      "improve_header": "Helfen Sie, Yivi zu verbessern",
+      "point_1_title": "Ihre PIN schützt Ihre Daten",
+      "point_1_text": "Der Server von Yivi prüft sie, damit Ihre Daten sicher bleiben, wenn Sie Ihr Handy verlieren.",
+      "point_2_title": "Behalten Sie Ihre PIN für sich",
+      "point_2_text": "Wer Ihr Handy und Ihre PIN hat, kann in Ihrem Namen Daten teilen.",
+      "point_3_title": "Handy verloren?",
+      "point_3_text": "Sperren Sie die App in MyYivi, damit niemand sie nutzen kann.",
+      "read_full": "Vollständige Bedingungen lesen",
+      "continue": "Fortfahren"
     },
     "biometric": {
       "title_face_id": "Yivi mit Face ID öffnen?",
@@ -340,15 +368,6 @@
       "use_touch_id": "Touch ID verwenden",
       "use_fingerprint": "Fingerabdruck verwenden",
       "not_now": "Jetzt nicht"
-    },
-    "email_step": {
-      "title": "Ihre E-Mail-Adresse verknüpfen?",
-      "body": "Dann können Sie sich bei MyYivi anmelden, um zu sehen, wo Sie Yivi verwendet haben, und die App sperren, wenn Sie Ihr Handy verlieren. Wir senden Ihnen einen Code per E-Mail, um zu prüfen, dass die Adresse Ihnen gehört, und verknüpfen sie in MyYivi mit Ihrer App.",
-      "code_title": "Schauen Sie in Ihre E-Mails",
-      "code_body": "Geben Sie den Code aus der E-Mail ein, die wir Ihnen geschickt haben.",
-      "skip": "Überspringen",
-      "try_again": "Erneut versuchen",
-      "not_linked": "Wir konnten die Adresse nicht verknüpfen. Versuchen Sie es erneut oder überspringen Sie es vorerst."
     }
   },
   "error": {
@@ -673,17 +692,6 @@
     }
   },
   "email_linking": {
-    "banner": {
-      "title": "Sichere deine Yivi-App",
-      "body": "Verknüpfe deine E-Mail-Adresse. Dann kannst du deine App sperren, wenn dein Telefon verloren geht.",
-      "link": "E-Mail-Adresse verknüpfen"
-    },
-    "later": {
-      "title": "Später erinnern?",
-      "body": "Ohne verknüpfte E-Mail-Adresse kannst du deine App nicht aus der Ferne sperren. Du kannst sie jederzeit unter Mehr › Einstellungen verknüpfen.",
-      "remind_me": "Später fragen",
-      "dismiss": "Ignorieren"
-    },
     "enter_email": {
       "title": "E-Mail-Adresse verknüpfen",
       "header": "Verknüpfe deine E-Mail-Adresse",
@@ -1664,5 +1672,39 @@
     "text_bar": "Die Taste ist immer unten.",
     "text_rail": "Die Taste ist immer unter dem Menü.",
     "ok": "Verstanden"
+  },
+  "secure": {
+    "offer": {
+      "title": "Sichern Sie jetzt Ihre App",
+      "text": "Ihre App enthält jetzt Daten. Verknüpfen Sie Ihre E-Mail-Adresse, damit niemand sie nutzen kann, wenn Sie Ihr Handy verlieren.",
+      "with_title": "App damit sichern?",
+      "with_text": "Sichern Sie Ihre App mit {email}, damit niemand sie nutzen kann, wenn Sie Ihr Handy verlieren.",
+      "secure": "App sichern",
+      "not_now": "Nicht jetzt"
+    },
+    "reason": {
+      "block": "Handy verloren? Sperren Sie Yivi in MyYivi",
+      "activity": "Sehen Sie in MyYivi, wo Sie Yivi verwendet haben",
+      "minute": "Dauert eine Minute: Ihre Adresse und ein Code",
+      "no_code": "Kein neuer Code: Die Adresse ist schon geprüft"
+    },
+    "added": "{name} hinzugefügt",
+    "added_text": "Sie ist jetzt in Ihrer App.",
+    "sheet": {
+      "title": "App sichern",
+      "one": "Ihre E-Mail-Adresse verwenden?",
+      "many": "Welche E-Mail-Adresse?",
+      "text": "Sie ist schon in Ihrer App und geprüft, Sie brauchen also keinen neuen Code. Damit können Sie Yivi in MyYivi sperren, wenn Sie Ihr Handy verlieren.",
+      "in_app": "In Ihrer App",
+      "another": "Oder eine andere Adresse verwenden",
+      "use": "Diese Adresse verwenden"
+    },
+    "finish": {
+      "title": "Yivi fertig einrichten",
+      "text": "Verknüpfen Sie Ihre E-Mail-Adresse, damit Sie die App sperren können, wenn Sie Ihr Handy verlieren.",
+      "todo": "1 Sache zu erledigen"
+    },
+    "chip": "Sichert auch Ihre App",
+    "more_todo": "Mehr, 1 Sache zu erledigen"
   }
 }

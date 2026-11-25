@@ -4,8 +4,11 @@ import "package:material_ui/material_ui.dart";
 import "../../models/credential.dart";
 import "../../models/credential_store.dart";
 import "../../providers/credential_store_provider.dart";
+import "../../providers/credentials_provider.dart";
+import "../../providers/email_linking_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/pane_selection_provider.dart";
+import "../../providers/preferences_provider.dart";
 import "../../providers/wallet_cards_provider.dart";
 import "../../search/credentials_search.dart";
 import "../../theme/yivi_corners.dart";
@@ -28,6 +31,7 @@ import "../session/issue_flow/issue_flow_controller.dart";
 import "../session/issue_flow/issue_sheet.dart";
 import "add_data_row.dart";
 import "email_linking.dart";
+import "secure_app.dart";
 
 /// Opens Add data: a sheet over the Data tab with every type of card the
 /// user can add, and the whole of adding one inside it ([AddDataSheet]).
@@ -130,6 +134,19 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet> {
   );
   final _keys = IssueSheetKeys();
 
+  /// Whether the app had data before this sheet: the first card added here
+  /// ends on the offer to secure the app (once).
+  late final bool _hadCards;
+
+  /// The first-card offer was shown on "Success": noted once.
+  var _offerNoted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hadCards = ref.read(hasCredentialsProvider);
+  }
+
   IssueFlowController get _flow =>
       ref.read(issueFlowProvider(_config).notifier);
 
@@ -176,6 +193,55 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet> {
     closeIssueSheet(context, ref, _config);
     shareEmailWithKeyshare(root);
     return true;
+  }
+
+  /// "Success" that leads on to securing the app, while linking is offered
+  /// and nothing is linked yet: after an e-mail card, to use that address
+  /// (no new code); after the first card added in the app, once. Not while
+  /// linking already, and not for several cards at once.
+  IssueSuccessOffer? _successOffer(List<Credential> cards) {
+    final kind = secureOfferFor(
+      cards: cards,
+      linking: widget.linking,
+      available: ref.read(emailLinkAvailableProvider),
+      hadCards: _hadCards,
+      // Shown on this "Success" already counts as not shown before.
+      shownBefore: ref.read(secureOfferShownProvider) && !_offerNoted,
+    );
+    switch (kind) {
+      case null:
+        return null;
+      case SecureOfferKind.emailCard:
+        final card = cards.single;
+        return emailCardOffer(
+          context,
+          card,
+          onSecure: () => _secureWith(card),
+          onNotNow: _done,
+        );
+      case SecureOfferKind.firstCard:
+        if (!_offerNoted) {
+          _offerNoted = true;
+          ref.read(preferencesProvider).secureOfferShown.set(true);
+        }
+        return firstCardOffer(context, onSecure: _secure, onNotNow: _done);
+    }
+  }
+
+  /// Secure your app after the first card: the sheet goes, and securing
+  /// opens (an address to type, or one of the e-mail cards in the app).
+  void _secure() {
+    final root = Navigator.of(context, rootNavigator: true).context;
+    closeIssueSheet(context, ref, _config);
+    secureApp(root);
+  }
+
+  /// Secure your app with the e-mail card just added: the sheet goes and
+  /// the disclosure that links that address comes up.
+  void _secureWith(Credential card) {
+    final root = Navigator.of(context, rootNavigator: true).context;
+    closeIssueSheet(context, ref, _config);
+    linkEmailCard(root, card);
   }
 
   IssueSuccessLink _successLink(List<Credential> cards) => (
@@ -262,6 +328,7 @@ class _AddDataSheetState extends ConsumerState<AddDataSheet> {
         context,
         onDone: _done,
         successLink: _successLink,
+        successOffer: _successOffer,
         onSucceeded: _succeeded,
       ),
       rootKey: "list",
@@ -356,6 +423,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
     };
 
     final landscape = useSheetColumns(context);
+    final securesApp = ref.watch(emailLinkAvailableProvider);
     Widget row(CredentialStoreItem item) {
       final blocked =
           !nfcAvailable && credentialRequiresNfc(item.credential.credentialId);
@@ -363,6 +431,7 @@ class _AddDataListPageState extends ConsumerState<_AddDataListPage> {
         item: item,
         nfcBlocked: blocked,
         owned: owned.contains(item.credential.credentialId),
+        securesApp: securesApp && isEmailCard(item.credential.credentialId),
         onTap: () => widget.onOpen(item, nfcBlocked: blocked),
       );
     }

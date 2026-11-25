@@ -6,6 +6,7 @@ import "package:yivi_core/src/models/enrollment_status.dart";
 import "package:yivi_core/src/screens/enrollment/choose_pin/choose_pin_screen.dart";
 import "package:yivi_core/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
+import "package:yivi_core/src/screens/enrollment/terms/enrollment_terms_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/widgets/error_report_switch.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
@@ -31,6 +32,7 @@ void main() {
 
     final startFinder = find.byKey(const Key("enrollment_next_button"));
     final termsFinder = find.byKey(const Key("accept_terms_checkbox"));
+    final continueFinder = find.byKey(const Key("enrollment_terms_continue"));
 
     // Pumps an unenrolled app with english locale
     Future<void> initEnrollment(WidgetTester tester) async {
@@ -40,9 +42,12 @@ void main() {
 
     Future<void> goThroughWelcome(WidgetTester tester) async {
       expect(find.byType(WelcomeScreen), findsOneWidget);
+      await tester.scrollUntilVisible(startFinder.hitTestable(), 50);
+      await tester.tapAndSettle(startFinder);
+      expect(find.byType(EnrollmentTermsScreen), findsOneWidget);
       await tester.scrollUntilVisible(termsFinder.hitTestable(), 50);
       await tester.tapAndSettle(termsFinder);
-      await tester.tapAndSettle(startFinder);
+      await tester.tapAndSettle(continueFinder);
     }
 
     Future<void> choosePin(WidgetTester tester, [String pin = "12345"]) async {
@@ -59,6 +64,11 @@ void main() {
         find.text("Your digital identity, safe on your phone"),
         findsOneWidget,
       );
+
+      // Get started leads to the terms, step 1.
+      await tester.scrollUntilVisible(startFinder.hitTestable(), 50);
+      await tester.tapAndSettle(startFinder);
+      expect(find.text("Before you start"), findsOneWidget);
 
       // Error reports are off until the switch is turned on.
       final switchFinder = find.byKey(const Key("error_reporting_switch"));
@@ -89,16 +99,20 @@ void main() {
       Navigator.of(tester.element(find.byType(SheetPage))).pop();
       await tester.pumpAndSettle();
 
-      // Get started waits for the terms.
-      expect(tester.widget<PrimaryPillButton>(startFinder).onPressed, isNull);
+      // Continue waits for the terms.
+      await tester.scrollUntilVisible(continueFinder.hitTestable(), 50);
+      expect(
+        tester.widget<PrimaryPillButton>(continueFinder).onPressed,
+        isNull,
+      );
       await tester.scrollUntilVisible(termsFinder.hitTestable(), 50);
       await tester.tapAndSettle(termsFinder);
       expect(
-        tester.widget<PrimaryPillButton>(startFinder).onPressed,
+        tester.widget<PrimaryPillButton>(continueFinder).onPressed,
         isNotNull,
       );
 
-      await tester.tapAndSettle(startFinder);
+      await tester.tapAndSettle(continueFinder);
       expect(find.byType(ChoosePinScreen), findsOneWidget);
     });
 

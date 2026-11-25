@@ -11,6 +11,7 @@ import "../../../widgets/layout/centred_max_width.dart";
 import "../../../widgets/layout/fill_scroll_view.dart";
 import "../../../widgets/surfaces/surface.dart";
 import "../../../widgets/text/translated_text.dart";
+import "enrollment_bar.dart";
 
 /// Whether an enrollment page lays out in two columns: whenever the screen
 /// is wider than high, on a phone and on a tablet.
@@ -34,12 +35,18 @@ const double _topBarHeight = 44;
 /// - a tablet held upright: one centred column of at most
 ///   [enrollmentColumnMaxWidth].
 ///
-/// [trailing] (Skip, or close) floats in a bar at the top. Either part scrolls when it does not fit (a small phone, large text,
-/// the keyboard up).
+/// [trailing] (close) floats in a bar at the top. On the numbered steps the
+/// page leaves room for the [EnrollmentBar] over it ([EnrollmentBarSpace]).
+/// Either part scrolls when it does not fit (a small phone, large text, the
+/// keyboard up).
 class EnrollmentPage extends StatelessWidget {
   final Widget? about;
   final Widget action;
   final Widget? trailing;
+
+  /// On a phone held upright, [about] starts at the top instead of in the
+  /// middle of the room above [action] (a page that reads from the top).
+  final bool aboutAtTop;
 
   /// Gives [action] the full height of its column on a phone held
   /// sideways, so it can keep its buttons at the bottom and scroll the rest.
@@ -51,6 +58,7 @@ class EnrollmentPage extends StatelessWidget {
     required this.action,
     this.trailing,
     this.fillAction = false,
+    this.aboutAtTop = false,
   });
 
   @override
@@ -59,7 +67,10 @@ class EnrollmentPage extends StatelessWidget {
     final sideways = enrollmentSideways(context);
     final tablet = isTabletWindow(context);
     final hasBar = trailing != null;
-    final barSpace = hasBar ? _topBarHeight + 8 : 0.0;
+    final barSpace = max(
+      hasBar ? _topBarHeight + 8 : 0.0,
+      EnrollmentBarSpace.of(context),
+    );
 
     final Widget body;
     if (sideways) {
@@ -77,6 +88,7 @@ class EnrollmentPage extends StatelessWidget {
         about: about,
         action: action,
         top: barSpace,
+        aboutAtTop: aboutAtTop,
         // Read here: inside the Scaffold the keyboard is taken off already.
         keyboard: MediaQuery.viewInsetsOf(context).bottom > 0,
       );
@@ -215,12 +227,14 @@ class _UprightPhone extends StatelessWidget {
   final Widget? about;
   final Widget action;
   final double top;
+  final bool aboutAtTop;
   final bool keyboard;
 
   const _UprightPhone({
     required this.about,
     required this.action,
     required this.top,
+    required this.aboutAtTop,
     required this.keyboard,
   });
 
@@ -238,36 +252,15 @@ class _UprightPhone extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox.shrink(),
+          if (!aboutAtTop) const SizedBox.shrink(),
           if (about != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: YiviSpace.x16),
-              child: Center(child: about),
+              child: aboutAtTop ? about : Center(child: about),
             ),
           action,
         ],
       ),
-    );
-  }
-}
-
-/// "Step 1 of 3" above an enrollment page's title.
-class EnrollmentStepLabel extends StatelessWidget {
-  final String text;
-
-  const EnrollmentStepLabel(this.text, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Text(
-      text,
-      textAlign: enrollmentSideways(context)
-          ? TextAlign.start
-          : TextAlign.center,
-      style: palette
-          .body(isTabletWindow(context) ? 15 : 14)
-          .copyWith(color: palette.secondaryText),
     );
   }
 }

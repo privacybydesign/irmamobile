@@ -10,9 +10,6 @@ import "credentials_provider.dart";
 import "local_backends_provider.dart";
 import "preferences_provider.dart";
 
-/// How long "Ask me later" hides the banner.
-const emailBannerSnoozeDuration = Duration(days: 7);
-
 /// Endpoint of the keyshare server that starts the disclosure linking the
 /// e-mail address, from privacybydesign/irmago#744. Empty until that endpoint
 /// ships and the app is told where it lives; until then only a local backend
@@ -38,31 +35,12 @@ final keyshareEmailLinkApiProvider = Provider<KeyshareEmailLinkApi>(
 );
 
 /// Whether the e-mail linking flow is available: linking is offered and no
-/// address is linked yet. The banner and the settings entry both follow it.
+/// address is linked yet. "Finish setting up Yivi" and the settings entry
+/// follow it.
 final emailLinkAvailableProvider = Provider<bool>((ref) {
-  final offered = ref.watch(emailLinkingOfferedProvider);
-  final linked = ref.watch(emailLinkedProvider);
-  return offered && !linked;
-});
-
-/// Whether the banner on the Data tab shows.
-/// It also waits for the first credential: right after enrollment the tab is
-/// empty, and the banner should not be the first thing a new user sees.
-final emailBannerVisibleProvider = Provider<bool>((ref) {
-  if (!ref.watch(emailLinkAvailableProvider)) return false;
-  if (!ref.watch(hasCredentialsProvider)) return false;
-
-  final dismissed = ref.watch(emailBannerDismissedProvider);
-  final snoozedUntil = ref.watch(emailBannerSnoozedUntilProvider);
-  if (dismissed) return false;
-
-  final snoozeLeft = snoozedUntil.difference(DateTime.now());
-  if (snoozeLeft <= Duration.zero) return true;
-
-  // No preference changes when the snooze ends, so recompute then.
-  final timer = Timer(snoozeLeft, ref.invalidateSelf);
-  ref.onDispose(timer.cancel);
-  return false;
+  // Not offered: nothing else to know (the preferences are not even read).
+  if (!ref.watch(emailLinkingOfferedProvider)) return false;
+  return !ref.watch(emailLinkedProvider);
 });
 
 /// What the code screen does with the code from a link.
@@ -137,14 +115,6 @@ class EmailLinking extends Notifier<EmailLinkingState> {
 
   Future<void> markLinked() =>
       ref.read(preferencesProvider).emailLinked.set(true);
-
-  Future<void> snoozeBanner() => ref
-      .read(preferencesProvider)
-      .emailBannerSnoozedUntil
-      .set(DateTime.now().add(emailBannerSnoozeDuration));
-
-  Future<void> dismissBanner() =>
-      ref.read(preferencesProvider).emailBannerDismissed.set(true);
 }
 
 final emailLinkingProvider = NotifierProvider<EmailLinking, EmailLinkingState>(

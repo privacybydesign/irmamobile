@@ -17,7 +17,7 @@ import "../../util/i18n.dart";
 import "../../util/language.dart";
 import "../../widgets/feedback/dialog.dart";
 import "../../widgets/surfaces/inset_group.dart";
-import "../add_data/email_linking.dart";
+import "../add_data/secure_app.dart";
 import "../more/widgets/more_subpage.dart";
 import "../more/widgets/tiles.dart";
 import "../more/widgets/tiles_radio.dart";
@@ -185,7 +185,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   key: const Key("link_email_link"),
                   iconData: Icons.mail_outline_rounded,
                   labelTranslationKey: "settings.link_email",
-                  onTap: () => openEmailLinking(context),
+                  onTap: () => secureApp(context),
                 ),
               Tile(
                 key: const Key("change_language_link"),

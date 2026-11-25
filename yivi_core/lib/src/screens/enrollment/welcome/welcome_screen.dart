@@ -1,32 +1,78 @@
 import "package:material_ui/material_ui.dart";
 
-import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
+import "../../../util/test_detection.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
-import "../../../widgets/surfaces/icon_square.dart";
 import "../../../widgets/surfaces/inset_group.dart";
-import "../../../widgets/surfaces/surface_card.dart";
-import "../../../widgets/text/translated_text.dart";
 import "../widgets/enrollment_page.dart";
+import "../widgets/enrollment_point_row.dart";
 import "welcome_card_fan.dart";
-import "widgets/error_report_switch.dart";
-import "widgets/terms_check_box.dart";
 
-/// The first page of the enrollment: what Yivi is, whether to share error
-/// reports, and the terms, which must be accepted before Get started.
-class WelcomeScreen extends StatelessWidget {
-  final bool isAccepted;
-  final ValueChanged<bool> onToggleAccepted;
+/// The first page of the enrollment: what Yivi is, and Get started. The
+/// terms come next, as the first step.
+///
+/// Get started first flies the cards up and out of view while the rest
+/// fades, and only then goes on. When the terms go again (back, or a back
+/// swipe), the cards fly back in.
+class WelcomeScreen extends StatefulWidget {
   final VoidCallback onContinue;
 
-  const WelcomeScreen({
-    super.key,
-    required this.isAccepted,
-    required this.onToggleAccepted,
-    required this.onContinue,
-  });
+  const WelcomeScreen({super.key, required this.onContinue});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
+  /// 0: the cards in their fan; 1: flown out.
+  late final _flight = AnimationController(vsync: this);
+
+  static const _out = Duration(milliseconds: 560);
+  static const _in = Duration(milliseconds: 600);
+
+  Animation<double>? _covered;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The terms over this page: their pop (or a back swipe) brings the cards
+    // back; a swipe let go before the end sends them off again.
+    final covered = ModalRoute.of(context)?.secondaryAnimation;
+    if (covered != _covered) {
+      _covered?.removeStatusListener(_coverChanged);
+      _covered = covered?..addStatusListener(_coverChanged);
+    }
+  }
+
+  void _coverChanged(AnimationStatus status) {
+    if (status == AnimationStatus.reverse && _flight.value > 0) {
+      _flight.animateBack(0, duration: _in, curve: const Cubic(.2, .6, .5, 1));
+    } else if (status == AnimationStatus.forward && _flight.value < 1) {
+      _flight.animateTo(1, duration: _out, curve: const Cubic(.5, 0, .8, .4));
+    }
+  }
+
+  @override
+  void dispose() {
+    _covered?.removeStatusListener(_coverChanged);
+    _flight.dispose();
+    super.dispose();
+  }
+
+  Future<void> _start() async {
+    if (_flight.isAnimating) return;
+    if (!motionStill(context)) {
+      await _flight.animateTo(
+        1,
+        duration: _out,
+        curve: const Cubic(.5, 0, .8, .4),
+      );
+    }
+    if (mounted) widget.onContinue();
+  }
 
   static const _values = [
     (
@@ -48,11 +94,10 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
     final tablet = isTabletWindow(context);
     final sideways = enrollmentSideways(context);
-    // A phone held sideways: the values scroll, the terms and the button
-    // stay at the bottom of the column.
+    // A phone held sideways: the values scroll, the button stays at the
+    // bottom of the column.
     final scrollValues = sideways && !tablet;
 
     final cardWidth = tablet ? 300.0 : (sideways ? 180.0 : 240.0);
@@ -61,57 +106,36 @@ class WelcomeScreen extends StatelessWidget {
       children: [
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: WelcomeCardFan(width: cardWidth),
+          child: WelcomeCardFan(width: cardWidth, flight: _flight),
         ),
         const SizedBox(height: YiviSpace.x16),
-        const EnrollmentTitle(
-          "enrollment.welcome.title",
-          textAlign: TextAlign.center,
+        _fades(
+          const EnrollmentTitle(
+            "enrollment.welcome.title",
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
     );
 
-    final values = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        InsetGroup(
-          dividerIndent: 68,
-          children: [
-            for (final (icon, title, text) in _values)
-              _ValueRow(icon: icon, titleKey: title, textKey: text),
-          ],
-        ),
-        const SizedBox(height: YiviSpace.x8),
-        const ErrorReportSwitch(),
-      ],
+    final values = _fades(
+      InsetGroup(
+        dividerIndent: 68,
+        children: [
+          for (final (icon, title, text) in _values)
+            EnrollmentPointRow(icon: icon, titleKey: title, textKey: text),
+        ],
+      ),
     );
 
-    final bottom = [
-      _CheckCard(
-        child: TermsCheckBox(
-          isAccepted: isAccepted,
-          onToggleAccepted: onToggleAccepted,
-        ),
-      ),
-      const SizedBox(height: YiviSpace.x8),
-      // Before any data is processed: where to read what happens with it.
-      TranslatedText(
-        "enrollment.terms_and_conditions.privacy_policy_markdown",
-        key: const Key("enrollment_privacy_policy_link"),
-        translationParams: {
-          "privacy_url": context.tr("more_tab.privacy_policy_link"),
-        },
-        style: palette.caption.copyWith(color: palette.secondaryText),
-      ),
-      const SizedBox(height: YiviSpace.x12),
+    final start = _fades(
       PrimaryPillButton(
         key: const Key("enrollment_next_button"),
         label: context.tr("enrollment.welcome.start"),
         size: tablet ? PillSize.large : PillSize.regular,
-        onPressed: isAccepted ? onContinue : null,
+        onPressed: _start,
       ),
-    ];
+    );
 
     final action = scrollValues
         ? Column(
@@ -126,7 +150,7 @@ class WelcomeScreen extends StatelessWidget {
                   child: values,
                 ),
               ),
-              ...bottom,
+              start,
             ],
           )
         : Column(
@@ -134,91 +158,24 @@ class WelcomeScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               values,
-              const SizedBox(height: YiviSpace.x16),
-              ...bottom,
+              const SizedBox(height: YiviSpace.x24),
+              start,
             ],
           );
 
     return EnrollmentPage(about: about, action: action, fillAction: true);
   }
-}
 
-class _ValueRow extends StatelessWidget {
-  final IconData icon;
-  final String titleKey;
-  final String textKey;
-
-  const _ValueRow({
-    required this.icon,
-    required this.titleKey,
-    required this.textKey,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    final tablet = isTabletWindow(context);
-    return MergeSemantics(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: YiviSpace.x16,
-          vertical: YiviSpace.x12,
-        ),
-        child: Row(
-          spacing: YiviSpace.x12,
-          children: [
-            ExcludeSemantics(
-              child: IconSquare(
-                icon: icon,
-                fill: palette.tint,
-                ink: palette.link,
-                size: 40,
-                iconSize: 22,
-                radius: 10,
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TranslatedText(
-                    titleKey,
-                    style: palette
-                        .body(tablet ? 16 : 15, weight: FontWeight.w700)
-                        .copyWith(color: palette.heading),
-                  ),
-                  TranslatedText(
-                    textKey,
-                    style: palette
-                        .body(tablet ? 14.5 : 13.5)
-                        .copyWith(color: palette.secondaryText),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// A checkbox row on its own rounded surface.
-class _CheckCard extends StatelessWidget {
-  final Widget child;
-
-  const _CheckCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return SurfaceCard(
-      padding: const EdgeInsets.fromLTRB(
-        YiviSpace.x4,
-        YiviSpace.x4,
-        YiviSpace.x16,
-        YiviSpace.x4,
-      ),
-      child: child,
-    );
-  }
+  /// [child] fades out (and a little down) as the cards fly out, and back.
+  Widget _fades(Widget child) => AnimatedBuilder(
+    animation: _flight,
+    builder: (context, child) {
+      final gone = (_flight.value * 1.6).clamp(0.0, 1.0);
+      return Opacity(
+        opacity: 1 - gone,
+        child: Transform.translate(offset: Offset(0, 16 * gone), child: child),
+      );
+    },
+    child: child,
+  );
 }

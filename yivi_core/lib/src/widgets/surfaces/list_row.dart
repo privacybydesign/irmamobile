@@ -45,6 +45,9 @@ class ListRow extends StatelessWidget {
   /// A key on the subtitle, for tests.
   final Key? subtitleKey;
 
+  /// Under the subtitle: a tag (Add data's "Also secures your app").
+  final Widget? below;
+
   /// A short list of one-line rows (the country picker): 52 high, its parts
   /// 12 apart.
   final bool dense;
@@ -67,6 +70,7 @@ class ListRow extends StatelessWidget {
     this.subtitleMaxLines = 1,
     this.semanticsLabel,
     this.subtitleKey,
+    this.below,
     this.dense = false,
   });
 
@@ -134,6 +138,11 @@ class ListRow extends StatelessWidget {
                         height: 20 / 14,
                         color: palette.secondaryText,
                       ),
+                    ),
+                  if (below case final below?)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: below,
                     ),
                 ],
               ),

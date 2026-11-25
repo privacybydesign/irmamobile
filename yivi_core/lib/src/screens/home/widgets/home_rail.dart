@@ -51,7 +51,7 @@ class HomeRail extends StatelessWidget {
                         label: context.tr(labelKey),
                         icon: tab == selectedTab ? activeIcon : icon,
                         selected: tab == selectedTab,
-                        showDot: tab == HomeTab.notifications,
+                        dot: tabDotOf(tab),
                         labelSize: docked ? 12 : 10,
                         onTap: () => onChangeTab(tab),
                       ),
@@ -150,6 +150,7 @@ class HomeSidebar extends StatelessWidget {
               icon: tab == selectedTab ? activeIcon : icon,
               selected: tab == selectedTab,
               showUnread: tab == HomeTab.notifications,
+              showSetup: tab == HomeTab.more,
               onTap: () => onChangeTab(tab),
             ),
           ),
@@ -200,6 +201,9 @@ class _SidebarItem extends StatelessWidget {
   final TabGlyph icon;
   final bool selected;
   final bool showUnread;
+
+  /// More: a dot while setting up is unfinished.
+  final bool showSetup;
   final VoidCallback onTap;
 
   const _SidebarItem({
@@ -208,6 +212,7 @@ class _SidebarItem extends StatelessWidget {
     required this.icon,
     required this.selected,
     required this.showUnread,
+    this.showSetup = false,
     required this.onTap,
   });
 
@@ -253,6 +258,7 @@ class _SidebarItem extends StatelessWidget {
                         ),
                       ),
                       if (showUnread) const _UnreadCount(),
+                      if (showSetup) const _SetupDot(),
                     ],
                   ),
                 ),
@@ -302,6 +308,25 @@ class _UnreadCount extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// The sidebar's More: a primary dot while setting up is unfinished.
+class _SetupDot extends ConsumerWidget {
+  const _SetupDot();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(setupUnfinishedProvider)) return const SizedBox.shrink();
+    return Container(
+      key: const Key("sidebar_setup_dot"),
+      width: 9,
+      height: 9,
+      decoration: BoxDecoration(
+        color: YiviPalette.of(context).primary,
+        shape: BoxShape.circle,
+      ),
     );
   }
 }

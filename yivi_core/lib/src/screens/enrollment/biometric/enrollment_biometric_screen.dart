@@ -23,14 +23,9 @@ import "../widgets/enrollment_page.dart";
 /// Use first confirms with the system prompt and only then turns it on; a
 /// failed or cancelled prompt leaves it off, and the step is done either way.
 class EnrollmentBiometricScreen extends ConsumerStatefulWidget {
-  final String stepLabel;
   final VoidCallback onDone;
 
-  const EnrollmentBiometricScreen({
-    super.key,
-    required this.stepLabel,
-    required this.onDone,
-  });
+  const EnrollmentBiometricScreen({super.key, required this.onDone});
 
   @override
   ConsumerState<EnrollmentBiometricScreen> createState() =>
@@ -88,8 +83,6 @@ class _EnrollmentBiometricScreenState
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        EnrollmentStepLabel(widget.stepLabel),
-        const SizedBox(height: YiviSpace.x8),
         EnrollmentTitle("enrollment.biometric.title_$kind", textAlign: align),
         const SizedBox(height: YiviSpace.x8),
         EnrollmentLead("enrollment.biometric.body", textAlign: align),

@@ -47,6 +47,18 @@ String inSentenceAt(BuildContext context, String name) =>
 /// ([IssueSheetHost.successLink]).
 typedef IssueSuccessLink = ({String label, VoidCallback onTap, Key key});
 
+/// "Success" that leads on (securing the app after a card): the added card
+/// as one row at the top, then [title], [text] and why ([reasons]), with
+/// [action] as the page's way on and [later] as the quiet one
+/// ([IssueSheetHost.successOffer]).
+typedef IssueSuccessOffer = ({
+  String title,
+  String text,
+  List<(IconData, String)> reasons,
+  SheetAction action,
+  SheetAction later,
+});
+
 /// What differs per sheet that adds a card, and needs the sheet's context:
 /// the Change sheet of a request adds a card for that request, Add data and
 /// the lock screen's scanner add one on their own
@@ -75,6 +87,10 @@ final class IssueSheetHost {
   /// The text under "Success", for the added cards.
   final String Function(List<Credential> cards) successText;
 
+  /// Instead of the usual "Success": an offer to go on with, for the added
+  /// cards; null for none.
+  final IssueSuccessOffer? Function(List<Credential> cards)? successOffer;
+
   /// There is something else to choose than the card being added: the
   /// website step then offers "Choose something else".
   final bool hasOtherChoices;
@@ -100,6 +116,7 @@ final class IssueSheetHost {
     this.request,
     this.beforeAdd,
     this.successLink,
+    this.successOffer,
     this.hasOtherChoices = false,
     this.onSucceeded,
     this.onSessionEnded,
@@ -113,6 +130,7 @@ final class IssueSheetHost {
     BuildContext context, {
     required VoidCallback onDone,
     IssueSuccessLink? Function(List<Credential> cards)? successLink,
+    IssueSuccessOffer? Function(List<Credential> cards)? successOffer,
     bool Function(List<Credential> cards)? onSucceeded,
     VoidCallback? onSessionEnded,
     BuildContext Function()? routeContext,
@@ -131,6 +149,7 @@ final class IssueSheetHost {
       onTap: onDone,
     ),
     successLink: successLink,
+    successOffer: successOffer,
     onSucceeded: onSucceeded,
     onSessionEnded: onSessionEnded,
     routeContext: routeContext,

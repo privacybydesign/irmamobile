@@ -55,15 +55,8 @@ final scanTipPendingProvider = prefProvider((p) => p.scanTipPending);
 /// Whether this install has linked an e-mail address.
 final emailLinkedProvider = prefProvider((p) => p.emailLinked);
 
-/// Whether the e-mail banner was dismissed for good.
-final emailBannerDismissedProvider = prefProvider(
-  (p) => p.emailBannerDismissed,
-);
-
-/// Before when the e-mail banner stays hidden.
-final emailBannerSnoozedUntilProvider = prefProvider(
-  (p) => p.emailBannerSnoozedUntil,
-);
+/// Whether "Success" offered to secure the app once already.
+final secureOfferShownProvider = prefProvider((p) => p.secureOfferShown);
 
 /// The local backend host set in the debug menu; empty for the real ones.
 final localBackendHostProvider = prefProvider((p) => p.localBackendHost);

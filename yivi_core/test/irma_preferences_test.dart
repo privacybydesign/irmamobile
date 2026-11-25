@@ -165,18 +165,10 @@ void main() {
           true,
         ),
         (
-          "e-mail banner dismissed",
-          (p) => p.emailBannerDismissed.set(true),
-          "preference.email_banner_dismissed",
+          "secure offer shown",
+          (p) => p.secureOfferShown.set(true),
+          "preference.secure_offer_shown",
           true,
-        ),
-        (
-          "e-mail banner snoozed, in milliseconds",
-          (p) => p.emailBannerSnoozedUntil.set(
-            DateTime.fromMillisecondsSinceEpoch(1700000000123),
-          ),
-          "preference.email_banner_snoozed_until_ms",
-          1700000000123,
         ),
         (
           "local backend host",
@@ -235,14 +227,9 @@ void main() {
         ("scan tip pending", (p) => p.scanTipPending.stream.first, false),
         ("e-mail linked", (p) => p.emailLinked.stream.first, false),
         (
-          "e-mail banner dismissed",
-          (p) => p.emailBannerDismissed.stream.first,
+          "secure offer shown",
+          (p) => p.secureOfferShown.stream.first,
           false,
-        ),
-        (
-          "e-mail banner snoozed",
-          (p) => p.emailBannerSnoozedUntil.stream.first,
-          DateTime.fromMillisecondsSinceEpoch(0),
         ),
         ("local backend host", (p) => p.localBackendHost.stream.first, ""),
       ];

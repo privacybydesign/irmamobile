@@ -288,8 +288,24 @@
       "art": {
         "email": "Email address",
         "personal": "Personal data",
-        "phone": "Mobile number",
-        "municipality": "Your municipality"
+        "municipality": "Your municipality",
+        "address": "Address",
+        "female": "Female",
+        "dutch": "Dutch",
+        "labels": {
+          "fullname": "Name",
+          "dateofbirth": "Date of birth",
+          "cityofbirth": "Place of birth",
+          "gender": "Gender",
+          "nationality": "Nationality",
+          "street": "Street",
+          "houseNumber": "House number",
+          "zipcode": "Postcode",
+          "city": "Town",
+          "municipality": "Municipality",
+          "email": "Email address",
+          "domain": "Domain"
+        }
       }
     },
     "confirm_pin": {
@@ -314,7 +330,6 @@
       "body": "Your wallet has been removed and all its data has been deleted"
     },
     "step": "Step {current} of {total}",
-    "step_optional": "Step {current} of {total} · optional",
     "setting_up": "Setting up your app",
     "welcome": {
       "title": "Your digital identity, safe on your phone",
@@ -325,6 +340,19 @@
       "value_3_title": "Only on your phone",
       "value_3_text": "Nobody sees your data or what you share, not even Yivi.",
       "start": "Get started"
+    },
+    "terms": {
+      "title": "Before you start",
+      "terms_header": "Terms of use",
+      "improve_header": "Help improve Yivi",
+      "point_1_title": "Your PIN protects your data",
+      "point_1_text": "Yivi’s server checks it, so your data stays safe if your phone is lost.",
+      "point_2_title": "Keep your PIN to yourself",
+      "point_2_text": "Anyone with your phone and PIN can share data as you.",
+      "point_3_title": "Lost your phone?",
+      "point_3_text": "Block the app in MyYivi, so nobody can use it.",
+      "read_full": "Read the full terms",
+      "continue": "Continue"
     },
     "biometric": {
       "title_face_id": "Open Yivi with Face ID?",
@@ -337,15 +365,6 @@
       "use_touch_id": "Use Touch ID",
       "use_fingerprint": "Use fingerprint",
       "not_now": "Not now"
-    },
-    "email_step": {
-      "title": "Link your email address?",
-      "body": "Then you can log in to MyYivi to see where you used Yivi, and block the app if you lose your phone. We email you a code to check the address is yours, and link it to your app in MyYivi.",
-      "code_title": "Check your email",
-      "code_body": "Enter the code from the email we sent you.",
-      "skip": "Skip",
-      "try_again": "Try again",
-      "not_linked": "We could not link the address. Try again, or skip for now."
     }
   },
   "error": {
@@ -670,17 +689,6 @@
     }
   },
   "email_linking": {
-    "banner": {
-      "title": "Secure your Yivi app",
-      "body": "Link your email address. Then you can block your app if you lose your phone.",
-      "link": "Link email address"
-    },
-    "later": {
-      "title": "Remind you later?",
-      "body": "Without a linked email address you can't block your app remotely. You can always link it later under More › Settings.",
-      "remind_me": "Ask me later",
-      "dismiss": "Dismiss"
-    },
     "enter_email": {
       "title": "Link email address",
       "header": "Link your email address",
@@ -1664,5 +1672,39 @@
     "text_bar": "The button is always at the bottom.",
     "text_rail": "The button is always under the menu.",
     "ok": "Got it"
+  },
+  "secure": {
+    "offer": {
+      "title": "Now secure your app",
+      "text": "There is data in your app now. Link your email address, so nobody can use it if you lose your phone.",
+      "with_title": "Secure your app with it?",
+      "with_text": "Use {email} to secure your app, so nobody can use it if you lose your phone.",
+      "secure": "Secure your app",
+      "not_now": "Not now"
+    },
+    "reason": {
+      "block": "Lost your phone? Block Yivi in MyYivi",
+      "activity": "See in MyYivi where you used Yivi",
+      "minute": "Takes a minute: your address and a code",
+      "no_code": "No new code: the address is checked already"
+    },
+    "added": "{name} added",
+    "added_text": "It’s in your app now.",
+    "sheet": {
+      "title": "Secure your app",
+      "one": "Use your email address?",
+      "many": "Which email address?",
+      "text": "It’s already in your app and checked, so no new code is needed. With it, you can block Yivi in MyYivi if you lose your phone.",
+      "in_app": "In your app",
+      "another": "Or use another address",
+      "use": "Use this address"
+    },
+    "finish": {
+      "title": "Finish setting up Yivi",
+      "text": "Link your email address, so you can block the app if you lose your phone.",
+      "todo": "1 thing to do"
+    },
+    "chip": "Also secures your app",
+    "more_todo": "More, 1 thing to do"
   }
 }

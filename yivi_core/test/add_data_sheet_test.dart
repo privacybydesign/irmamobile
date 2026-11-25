@@ -22,6 +22,7 @@ import "package:yivi_core/src/providers/contact_issuer_api_provider.dart";
 import "package:yivi_core/src/providers/credential_store_provider.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/nested_issuance_host_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/pane_selection_provider.dart";
@@ -217,6 +218,7 @@ Future<_Calls> _pump(
         ),
         credentialOrderControllerProvider.overrideWith(() => _Wallet(wallet)),
         irmaRepositoryProvider.overrideWithValue(repo),
+        preferencesProvider.overrideWithValue(repo.preferences),
         browserProvider.overrideWithValue(calls.browser),
         routerProvider.overrideWithValue(router),
         for (final MapEntry(key: id, value: states) in nested.entries)
