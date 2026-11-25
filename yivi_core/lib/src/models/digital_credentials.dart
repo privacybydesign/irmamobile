@@ -47,6 +47,28 @@ class HandleDigitalCredentialsRequestEvent extends Event {
   ) => _$HandleDigitalCredentialsRequestEventFromJson(json);
 }
 
+/// Sent by the Go core with the credentials a website can ask Yivi for through
+/// the Digital Credentials API, whenever they may have changed: the schemes,
+/// the stored credentials, the app language or developer mode.
+///
+/// [entries] mirrors `clientmodels.DigitalCredentialsRegistryEntry` in the Go
+/// core, which decides what is listed. Dart only hands the entries on to the
+/// platform's registry, so they are kept as decoded JSON and not modelled.
+class DigitalCredentialsRegistryEvent extends Event {
+  final List<Map<String, dynamic>> entries;
+
+  DigitalCredentialsRegistryEvent({required this.entries});
+
+  factory DigitalCredentialsRegistryEvent.fromJson(Map<String, dynamic> json) =>
+      DigitalCredentialsRegistryEvent(
+        entries: [
+          // The core sends null for an empty list.
+          for (final entry in json["entries"] as List<dynamic>? ?? const [])
+            entry as Map<String, dynamic>,
+        ],
+      );
+}
+
 /// Sent to native once the session produced an Authorization Response, so it can
 /// hand [response] back to the platform as the `data` member of its response.
 ///

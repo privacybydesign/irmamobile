@@ -28,10 +28,7 @@ import "src/widgets/preferred_language_builder.dart";
 export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
 export "src/providers/digital_credentials_registry_provider.dart"
-    show
-        DigitalCredentialsRegistry,
-        DigitalCredentialsRegistryClaim,
-        DigitalCredentialsRegistryEntry;
+    show DigitalCredentialsRegistry;
 export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/passport_issuer_provider.dart"

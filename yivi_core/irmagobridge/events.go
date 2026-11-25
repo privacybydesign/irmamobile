@@ -106,6 +106,13 @@ type schemalessCredentialStoreEvent struct {
 	Credentials []*clientmodels.CredentialStoreItem `json:"credentials"`
 }
 
+// digitalCredentialsRegistryEvent carries the credentials a website can ask the
+// wallet for through the W3C Digital Credentials API, for the app to register
+// with the platform. See client.GetDigitalCredentialsRegistry.
+type digitalCredentialsRegistryEvent struct {
+	Entries []*clientmodels.DigitalCredentialsRegistryEntry `json:"entries"`
+}
+
 type enrollmentStatusEvent struct {
 	EnrolledSchemeManagerIds   []irma.SchemeManagerIdentifier `json:"enrolled_scheme_manager_ids"`
 	UnenrolledSchemeManagerIds []irma.SchemeManagerIdentifier `json:"unenrolled_scheme_manager_ids"`

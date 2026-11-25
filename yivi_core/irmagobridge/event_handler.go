@@ -210,6 +210,8 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 
 func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
 	yiviClient.SetPreferences(event.Preferences)
+	// Developer mode decides whether the demo schemes are registered.
+	dispatchDigitalCredentialsRegistryEvent()
 	return nil
 }
 

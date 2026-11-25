@@ -162,6 +162,23 @@ func dispatchSchemalessCredentialsEvent() {
 
 func dispatchCredentialsEvent() {
 	dispatchSchemalessCredentialsEvent()
+	dispatchDigitalCredentialsRegistryEvent()
+}
+
+// dispatchDigitalCredentialsRegistryEvent tells the app what to register with
+// the platform for the W3C Digital Credentials API. What is registered follows
+// the schemes, the stored credentials, the locale and developer mode, so this
+// goes out whenever one of them may have changed; the app registers again only
+// when the entries did.
+func dispatchDigitalCredentialsRegistryEvent() {
+	entries, err := yiviClient.GetDigitalCredentialsRegistry()
+	if err != nil {
+		// The entries that could be built are still worth registering.
+		reportError(errors.Errorf("Failed to get digital credentials registry: %w", err), false)
+	}
+	dispatchEvent(&digitalCredentialsRegistryEvent{
+		Entries: entries,
+	})
 }
 
 func dispatchEnrollmentStatusEvent() {

@@ -56,6 +56,8 @@ class IrmaClientBridge extends IrmaBridge {
     "HandleURLEvent": (j) => HandleURLEvent.fromJson(j),
     "HandleDigitalCredentialsRequestEvent": (j) =>
         HandleDigitalCredentialsRequestEvent.fromJson(j),
+    "DigitalCredentialsRegistryEvent": (j) =>
+        DigitalCredentialsRegistryEvent.fromJson(j),
     "AppReadyAckEvent": (j) => AppReadyAckEvent.fromJson(j),
     "EnrollmentSuccessEvent": (j) => EnrollmentSuccessEvent.fromJson(j),
     "EnrollmentFailureEvent": (j) => EnrollmentFailureEvent.fromJson(j),
