@@ -71,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade irmago to v1.6.1, and Go to 1.27.4, which irmago declares (the go directive in `yivi_core/go.mod` and the build environment action). The other Go modules move with it, among them `lestrrat-go/jwx/v4` 4.4.0 to 4.6.0 and `golang.org/x/crypto` 0.55.0 to 0.57.0
 - The Android release build states `minifyEnabled` and `shrinkResources` (R8), which were the Flutter defaults
 - `ci_scripts/check_security_config.sh`, run in Status checks, fails when a security setting is undone: backup and cleartext rules in the manifests, certificate validation overrides, run-time code loading, a debuggable manifest, the obfuscation and Go build flags
+- A test bed for the OWASP MAS EUDI Wallet profile in `mastg/`. It runs the OWASP MASTG tests that belong to the profile, next to tests of our own, on the alpha APK and IPA, and shows a score in the summary of the new `mastg` job in Status checks. The job is not part of the gate and never fails the run; `mastg/README.md` explains how to raise the score
 - Every delivery build generates a CycloneDX SBOM of the Play Store and App Store app (`yivi-app.cdx.json` in the alpha and beta app bundles), listing the Dart, Go, CocoaPods and Android dependencies with their licences; `just sbom` generates it locally
 
 ## [8.4.0] - 2026-11-03

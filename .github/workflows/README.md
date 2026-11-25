@@ -11,6 +11,10 @@ Go checks for the Go bridge in `yivi_core` (gofmt, go fix, go mod tidy, govulnch
 and workflow lint (actionlint and zizmor over everything in `.github`). The final job, `Status checks passed`, is the
 one check to require on `master`.
 
+The `mastg` job runs the OWASP MASTG tests of the OWASP MAS EUDI Wallet profile and our own tests on the alpha APK and IPA (on the
+sources only when there is no build) and shows a score in its job summary. It is not part of the gate and does not fail the run; see the
+[README](../../mastg/README.md) of the test bed.
+
 Third-party actions are pinned to a commit SHA; Dependabot keeps them current.
 
 The Firebase Test Lab integration tests are switched off. Set the repository variable `RUN_FIREBASE_INTEGRATION_TESTS`
