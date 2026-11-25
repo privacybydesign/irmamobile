@@ -372,6 +372,10 @@
       "use_touch_id": "Touch ID gebruiken",
       "use_fingerprint": "Vingerafdruk gebruiken",
       "not_now": "Niet nu"
+    },
+    "done": {
+      "title": "Alles staat klaar",
+      "body": "Je app is klaar en beschermd met je pincode."
     }
   },
   "error": {

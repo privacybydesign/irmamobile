@@ -369,6 +369,10 @@
       "use_touch_id": "Use Touch ID",
       "use_fingerprint": "Use fingerprint",
       "not_now": "Not now"
+    },
+    "done": {
+      "title": "You’re all set",
+      "body": "Your app is ready, and protected with your PIN."
     }
   },
   "error": {

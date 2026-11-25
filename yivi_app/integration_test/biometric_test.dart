@@ -84,6 +84,14 @@ void main() {
       await enterPin(tester, "12345");
     }
 
+    // The done page: "You're all set", then Continue into the app.
+    Future<void> continueIntoApp(WidgetTester tester) async {
+      final next = find.byKey(const Key("enrollment_continue"));
+      await tester.waitFor(next);
+      await tester.tapAndSettle(next);
+      await tester.waitFor(homeScreen);
+    }
+
     testWidgets("enable persists the preference and finishes", (tester) async {
       await walkToBiometricDialog(tester, authSucceeds: true);
 
@@ -92,7 +100,7 @@ void main() {
 
       // Wait for the flow to advance (dialog closed, prefs committed) before
       // asserting.
-      await tester.waitFor(homeScreen);
+      await continueIntoApp(tester);
       expect(await enabledPref(), true);
     });
 
@@ -102,7 +110,7 @@ void main() {
       await tester.waitFor(notNowButton);
       await tester.tapAndSettle(notNowButton);
 
-      await tester.waitFor(homeScreen);
+      await continueIntoApp(tester);
       expect(await enabledPref(), false);
       expect(await dismissedPref(), true);
     });
@@ -115,7 +123,7 @@ void main() {
       await tester.waitFor(enableButton);
       await tester.tapAndSettle(enableButton);
 
-      await tester.waitFor(homeScreen);
+      await continueIntoApp(tester);
       // Not enabled, and not dismissed — so the post-unlock prompt can re-ask.
       expect(await enabledPref(), false);
       expect(await dismissedPref(), false);

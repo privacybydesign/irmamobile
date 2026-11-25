@@ -6,6 +6,7 @@ import "package:material_ui/material_ui.dart";
 import "../../providers/preferences_provider.dart";
 import "../../providers/waiting_request_provider.dart";
 import "../../routing/navigation.dart";
+import "../../util/haptics.dart";
 import "../../util/i18n.dart";
 import "pin_feedback.dart";
 import "providers/pin_countdown_provider.dart";
@@ -73,6 +74,8 @@ final class ConfirmEntry extends PinEntryMode {
     required this.onMismatch,
     this.stepLabel,
     this.inPlace = false,
+    this.seal = false,
+    this.againFieldWrapper,
   });
 
   final String chosen;
@@ -80,7 +83,17 @@ final class ConfirmEntry extends PinEntryMode {
   final VoidCallback onMismatch;
   final String? stepLabel;
   final bool inPlace;
+
+  /// In place: a match first turns the dots green and lets the keypad sink
+  /// ([pinSealPause]), then it is sent.
+  final bool seal;
+
+  /// See [YiviPinScreen.againFieldWrapper].
+  final Widget Function(Widget field)? againFieldWrapper;
 }
+
+/// How long a matching PIN shows green before it is sent ([ConfirmEntry.seal]).
+const pinSealPause = Duration(milliseconds: 520);
 
 /// How long "These PINs don't match." shows before choosing starts over.
 const pinMismatchPause = Duration(milliseconds: 1400);
@@ -120,10 +133,13 @@ class _PinEntryState extends ConsumerState<PinEntry> {
   /// until choosing starts over.
   bool _mismatch = false;
   Timer? _mismatchTimer;
+  bool _sealed = false;
+  Timer? _sealTimer;
 
   @override
   void dispose() {
     _mismatchTimer?.cancel();
+    _sealTimer?.cancel();
     super.dispose();
   }
 
@@ -238,9 +254,17 @@ class _PinEntryState extends ConsumerState<PinEntry> {
   Widget _confirmInPlace(ConfirmEntry mode) {
     final length = mode.chosen.length;
     void compare(String pin) {
-      if (_mismatch) return;
+      if (_mismatch || _sealed) return;
       if (pin == mode.chosen) {
-        widget.onSubmit(pin);
+        if (!mode.seal || MediaQuery.disableAnimationsOf(context)) {
+          widget.onSubmit(pin);
+          return;
+        }
+        Haptics.success();
+        setState(() => _sealed = true);
+        _sealTimer = Timer(pinSealPause, () {
+          if (mounted) widget.onSubmit(pin);
+        });
         return;
       }
       setState(() => _mismatch = true);
@@ -257,7 +281,9 @@ class _PinEntryState extends ConsumerState<PinEntry> {
       maxPinSize: length,
       chosenPin: mode.chosen,
       againError: _mismatch ? context.tr("choose_pin.mismatch") : null,
-      enabled: !_mismatch,
+      enabled: !_mismatch && !_sealed,
+      sealed: _sealed,
+      againFieldWrapper: mode.againFieldWrapper,
       onSubmit: compare,
       // Every slot filled, a long PIN too: it checks itself.
       listener: (context, state) {

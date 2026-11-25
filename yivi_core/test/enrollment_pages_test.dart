@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/screens/back_to_website/back_to_website_screen.dart";
 import "package:yivi_core/src/screens/enrollment/biometric/enrollment_biometric_screen.dart";
+import "package:yivi_core/src/screens/enrollment/done/enrollment_done_page.dart";
 import "package:yivi_core/src/screens/enrollment/error_reports/enrollment_error_reports_screen.dart";
 import "package:yivi_core/src/screens/enrollment/pin/enrollment_pin_page.dart";
 import "package:yivi_core/src/screens/enrollment/terms/enrollment_terms_screen.dart";
@@ -359,6 +360,48 @@ void main() {
         } else {
           expect(key.top, greaterThan(title.bottom));
         }
+      });
+    }
+  });
+
+  group("done", () {
+    for (final ready in [false, true]) {
+      testWidgets("ready ${ready ? "from the start" : "later"}: setting up, "
+          "then You're all set", (tester) async {
+        final (size, padding) = _sizes["phone upright"]!;
+        _device(tester, size, padding);
+        var isReady = ready;
+        var shown = false;
+        late StateSetter set;
+        await pumpHome(
+          tester,
+          repo: repo,
+          home: StatefulBuilder(
+            builder: (context, setState) {
+              set = setState;
+              return shown
+                  ? EnrollmentDonePage(ready: isReady)
+                  : const SizedBox();
+            },
+          ),
+        );
+        // Shown after the harness has loaded, as it comes after a step.
+        set(() => shown = true);
+        await tester.pump();
+        expect(find.text("Setting up your app"), findsOneWidget);
+        if (!ready) {
+          await tester.pump(const Duration(seconds: 2));
+          expect(find.text("Setting up your app"), findsOneWidget);
+          set(() => isReady = true);
+        }
+        for (var i = 0; i < 30; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+        expect(find.text("You’re all set"), findsOneWidget);
+        expect(
+          find.text("Your app is ready, and protected with your PIN."),
+          findsOneWidget,
+        );
       });
     }
   });

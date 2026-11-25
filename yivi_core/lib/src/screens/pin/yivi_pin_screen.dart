@@ -167,6 +167,14 @@ class YiviPinScreen extends ConsumerStatefulWidget {
   /// under the field, and the field shakes once.
   final String? againError;
 
+  /// The PIN entered again matched: its dots turn green, the eye goes and
+  /// the keypad sinks away, before the next step comes.
+  final bool sealed;
+
+  /// Wraps the field of the PIN entered again (its dots), for instance in a
+  /// [Hero] that carries them into the next page.
+  final Widget Function(Widget field)? againFieldWrapper;
+
   const YiviPinScreen({
     Key key = const Key("pin_screen"),
     this.instructionKey,
@@ -195,6 +203,8 @@ class YiviPinScreen extends ConsumerStatefulWidget {
     this.listener,
     this.chosenPin,
     this.againError,
+    this.sealed = false,
+    this.againFieldWrapper,
   }) : assert(
          instructionKey != null && instruction == null ||
              instruction != null && instructionKey == null,
@@ -570,7 +580,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
           if (!headerApart) const SizedBox(height: YiviSpace.x16),
           ..._upperPart(context, withHeader: !headerApart),
           SizedBox(height: widget.upperGap),
-          _buildKeypad(),
+          _sinking(_buildKeypad()),
         ],
       ),
     );
@@ -671,7 +681,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
                   child: SizedBox(
                     width: PinKeypad.width * scale,
                     height: PinKeypad.height * scale,
-                    child: FittedBox(child: _buildKeypad()),
+                    child: FittedBox(child: _sinking(_buildKeypad())),
                   ),
                 );
               },
@@ -696,7 +706,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
             children: [
               ..._upperPart(context),
               const SizedBox(height: YiviSpace.x32),
-              _buildKeypad(),
+              _sinking(_buildKeypad()),
               const SizedBox(height: _keypadToLink),
               _buildActionLinkSlot(),
             ],
@@ -710,6 +720,25 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
   /// the screen, and handing back the same widget leaves the keys alone.
   Widget? _keypad;
   List<Object?> _keypadFor = const [];
+
+  /// [keypad], sinking away once the PIN is [YiviPinScreen.sealed].
+  Widget _sinking(Widget keypad) {
+    final duration = YiviMotion.duration(context, YiviMotion.page);
+    return IgnorePointer(
+      ignoring: widget.sealed,
+      child: AnimatedSlide(
+        offset: widget.sealed ? const Offset(0, 0.35) : Offset.zero,
+        duration: duration,
+        curve: YiviMotion.leave,
+        child: AnimatedOpacity(
+          opacity: widget.sealed ? 0 : 1,
+          duration: duration,
+          curve: YiviMotion.leave,
+          child: keypad,
+        ),
+      ),
+    );
+  }
 
   Widget _buildKeypad() {
     final enabled = widget.enabled;
@@ -851,18 +880,25 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(width: 44),
-            _PinIndicator(
-              maxPinSize: widget.maxPinSize,
-              pinVisibilityValue: pinVisibilityValue,
-              pinState: _state,
-              ring: widget.againError != null ? palette.errorText : null,
-              slots: widget.maxPinSize,
+            (widget.againFieldWrapper ?? (field) => field)(
+              _PinIndicator(
+                maxPinSize: widget.maxPinSize,
+                pinVisibilityValue: pinVisibilityValue,
+                pinState: _state,
+                ring: widget.againError != null ? palette.errorText : null,
+                ink: widget.sealed ? palette.successText : null,
+                slots: widget.maxPinSize,
+              ),
             ),
             SizedBox(
               width: 44,
               child: Align(
                 alignment: Alignment.centerRight,
-                child: _buildListeningPinVisibilityButton(),
+                child: AnimatedOpacity(
+                  opacity: widget.sealed ? 0 : 1,
+                  duration: YiviMotion.duration(context, YiviMotion.quick),
+                  child: _buildListeningPinVisibilityButton(),
+                ),
               ),
             ),
           ],

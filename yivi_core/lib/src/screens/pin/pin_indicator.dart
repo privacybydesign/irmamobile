@@ -80,6 +80,10 @@ class _PinIndicator extends StatelessWidget {
   /// The rings' colour: the text colour, or red after a wrong PIN.
   final Color? ring;
 
+  /// The rings and the dots in another colour: green once the PIN entered
+  /// again matches. Null: the text colour.
+  final Color? ink;
+
   /// A fixed number of slots, each with its ring, as for the short PIN: the
   /// chosen PIN's length while it is entered again. Null: the short PIN's
   /// five, or the long PIN's dots as they come.
@@ -90,6 +94,7 @@ class _PinIndicator extends StatelessWidget {
     required this.pinVisibilityValue,
     required this.pinState,
     this.ring,
+    this.ink,
     this.slots,
   });
 
@@ -132,7 +137,7 @@ class _PinIndicator extends StatelessWidget {
     final double scaledEdgeSize = isMaxPin5 ? (small ? 10 : 16) : 6;
 
     final circleFilledDecoration = BoxDecoration(
-      color: isPinVisible ? Colors.transparent : palette.text,
+      color: isPinVisible ? Colors.transparent : ink ?? palette.text,
       shape: BoxShape.circle,
       border: Border.all(color: Colors.transparent, width: 2.0),
     );
@@ -140,7 +145,7 @@ class _PinIndicator extends StatelessWidget {
     final circleOutlinedDecoration = BoxDecoration(
       color: Colors.transparent,
       shape: BoxShape.circle,
-      border: Border.all(color: ring ?? palette.text, width: 2.0),
+      border: Border.all(color: ring ?? ink ?? palette.text, width: 2.0),
     );
 
     // An empty long PIN: only the row's height (fixed slots show their

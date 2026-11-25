@@ -97,7 +97,12 @@ void main() {
 
     await typePin(tester, "86315");
     expect(find.byKey(const Key("pin_again_error")), findsNothing);
+    // The seal, then the done page: Continue goes into the app.
+    await tester.pump(const Duration(seconds: 3));
+    await settle(tester);
     expect(bridge.dispatched.whereType<EnrollEvent>(), hasLength(1));
+    await tester.tap(find.byKey(const Key("enrollment_continue")));
+    await settle(tester);
     expect(currentLocation(router), "/home");
   });
 }

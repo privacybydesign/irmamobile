@@ -4,12 +4,14 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/enrollment_events.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
+import "package:yivi_core/src/screens/enrollment/done/enrollment_done_page.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/enrollment/error_reports/enrollment_error_reports_screen.dart";
 import "package:yivi_core/src/screens/enrollment/pin/enrollment_pin_page.dart";
 import "package:yivi_core/src/screens/enrollment/terms/enrollment_terms_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
 import "package:yivi_core/src/screens/enrollment/widgets/enrollment_actions.dart";
+import "package:yivi_core/src/screens/pin/pin_entry.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
@@ -224,5 +226,61 @@ void main() {
         .getRect(find.byIcon(Icons.bug_report_outlined))
         .expandToInclude(tester.getRect(find.text("What is sent?")));
     expect(group.center.dy, closeTo((top + bottom) / 2, 24));
+  });
+
+  testWidgets("the PIN goes into the lock: setting up, then done, and "
+      "Continue goes into the app", (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    final router = await pumpRoutes(
+      tester,
+      repo: repo,
+      initialLocation: "/enrollment",
+      overrides: [
+        biometricAvailableProvider.overrideWith((ref) async => false),
+        emailLinkingOfferedProvider.overrideWithValue(false),
+      ],
+      routes: [
+        GoRoute(
+          path: "/enrollment",
+          builder: (context, state) => EnrollmentScreen(),
+        ),
+        GoRoute(path: "/home", builder: (context, state) => const SizedBox()),
+      ],
+    );
+    await settle(tester);
+    await tapVisible(tester, start);
+    await tapVisible(tester, accept);
+    await tapVisible(tester, dontShare);
+    Future<void> type(String pin) async {
+      for (final d in pin.split("")) {
+        await tester.tap(find.byKey(Key("number_pad_key_$d")));
+        await tester.pump(const Duration(milliseconds: 60));
+      }
+    }
+
+    await type("58193");
+    await settle(tester);
+    await type("58193");
+    // Matched: green for a moment, then the done page, setting up.
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(EnrollmentDonePage), findsNothing);
+    await tester.pump(pinSealPause);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(EnrollmentDonePage), findsOneWidget);
+    expect(find.text("Setting up your app"), findsOneWidget);
+    expect(find.byKey(const Key("enrollment_continue")), findsNothing);
+
+    // The account is there: done, then Continue.
+    for (var i = 0; i < 30; i++) {
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text("You’re all set"), findsOneWidget);
+    expect(currentLocation(router), "/enrollment");
+    await tester.tap(find.byKey(const Key("enrollment_continue")));
+    await settle(tester);
+    expect(currentLocation(router), "/home");
   });
 }

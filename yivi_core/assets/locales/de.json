@@ -372,6 +372,10 @@
       "use_touch_id": "Touch ID verwenden",
       "use_fingerprint": "Fingerabdruck verwenden",
       "not_now": "Jetzt nicht"
+    },
+    "done": {
+      "title": "Alles ist bereit",
+      "body": "Ihre App ist bereit und mit Ihrer PIN geschützt."
     }
   },
   "error": {

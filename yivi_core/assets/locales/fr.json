@@ -369,6 +369,10 @@
       "use_touch_id": "Utiliser Touch ID",
       "use_fingerprint": "Utiliser l'empreinte digitale",
       "not_now": "Pas maintenant"
+    },
+    "done": {
+      "title": "Tout est prêt",
+      "body": "Votre appli est prête et protégée par votre code PIN."
     }
   },
   "error": {

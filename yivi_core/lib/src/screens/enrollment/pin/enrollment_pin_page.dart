@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../pin/pin_entry.dart";
 import "../../pin/yivi_pin_screen.dart";
+import "../done/enrollment_done_page.dart";
 import "../widgets/enrollment_bar.dart";
 
 /// Steps 3 and 4 on one page: choose a PIN, then enter the same again on the
@@ -42,6 +43,10 @@ class EnrollmentPinPage extends StatelessWidget {
                 instructionKey: "choose_pin.again",
                 onMismatch: onMismatch,
                 inPlace: true,
+                // A match: the dots go green and fly into the lock of the
+                // done page (or Face ID comes first).
+                seal: true,
+                againFieldWrapper: enrollmentLockHero,
               ),
         onSubmit: chosen == null ? onChosen : onConfirmed,
       ),

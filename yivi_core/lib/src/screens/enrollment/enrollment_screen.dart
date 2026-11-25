@@ -1,6 +1,5 @@
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
@@ -9,11 +8,10 @@ import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
-import "../../widgets/feedback/spinner.dart";
 import "../../widgets/sheet/sheet.dart";
-import "../../widgets/text/translated_text.dart";
 import "../pin/providers/biometric_provider.dart";
 import "biometric/enrollment_biometric_screen.dart";
+import "done/enrollment_done_page.dart";
 import "enrollment_failed_screen.dart";
 import "enrollment_provider.dart";
 import "enrollment_state.dart";
@@ -51,7 +49,12 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
     ref.read(preferencesProvider).longPin.set(false);
   }
 
+  var _leaving = false;
+
+  /// Continue on the done page: into the app.
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
+    if (_leaving) return;
+    _leaving = true;
     // The empty Data tab points out the Scan button on the first visit.
     await ref.read(preferencesProvider).scanTipPending.set(true);
     // LockGate handles displaying the PIN overlay if the app is still
@@ -149,6 +152,14 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
           secondaryKey: const Key("biometric_not_now"),
           onSecondary: _biometricBusy ? null : _biometricNotNow,
         );
+      case 5:
+        // Done: Continue, into the app, once the account is there.
+        if (ref.watch(enrollmentProvider) is! EnrollmentCompleted) return null;
+        return EnrollmentStepActions(
+          primary: context.tr("ui.continue"),
+          primaryKey: const Key("enrollment_continue"),
+          onPrimary: () => _onEnrollmentCompleted(context),
+        );
       default:
         return null;
     }
@@ -231,13 +242,17 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
           ),
         )
       else if (depth >= 5)
-        // Waiting for the account after the last step: the logo, a spinner
-        // and "Setting up your app".
+        // After the last step: the app sets up around the lock from the
+        // PIN, then it's done, and Continue goes into the app.
         _FadePage(
-          key: const ValueKey("setting_up"),
+          key: const ValueKey("done"),
+          duration: const Duration(milliseconds: 560),
           child: PopScope(
             canPop: false,
-            child: _SettingUp(showText: state is Enrolling),
+            child: EnrollmentDonePage(
+              ready: state is EnrollmentCompleted,
+              actions: _actionsAt(context, 5),
+            ),
           ),
         ),
     ];
@@ -257,9 +272,6 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
   @override
   Widget build(BuildContext context) {
     final enrollment = ref.read(enrollmentProvider.notifier);
-    ref.listen(enrollmentProvider, (_, state) {
-      if (state is EnrollmentCompleted) _onEnrollmentCompleted(context);
-    });
     final state = ref.watch(enrollmentProvider);
     final step = switch (state) {
       EnrollmentTerms(:final step) => step,
@@ -333,57 +345,55 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
 /// sliding: it is not a step.
 class _FadePage extends Page<void> {
   final Widget child;
+  final Duration duration;
 
-  const _FadePage({super.key, required this.child});
+  const _FadePage({
+    super.key,
+    required this.child,
+    this.duration = YiviMotion.standard,
+  });
 
   @override
-  Route<void> createRoute(BuildContext context) => PageRouteBuilder<void>(
-    settings: this,
-    transitionDuration: YiviMotion.standard,
-    reverseTransitionDuration: YiviMotion.standard,
-    pageBuilder: (context, _, _) => child,
-    transitionsBuilder: (context, animation, _, child) =>
-        FadeTransition(opacity: animation, child: child),
-  );
+  Route<void> createRoute(BuildContext context) => _FadeRoute(this);
 }
 
-class _SettingUp extends StatelessWidget {
-  final bool showText;
+/// Builds from the page it has now, not the one it was made with: the done
+/// page turns ready while it is on screen.
+class _FadeRoute extends PageRoute<void> {
+  _FadeRoute(_FadePage page) : super(settings: page);
 
-  const _SettingUp({required this.showText});
+  _FadePage get _page => settings as _FadePage;
 
   @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Scaffold(
-      backgroundColor: palette.background,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x48),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ExcludeSemantics(
-                child: SvgPicture.asset(
-                  YiviPalette.of(context).logoAsset,
-                  height: 52,
-                ),
-              ),
-              const SizedBox(height: YiviSpace.x48),
-              Spinner(),
-              if (showText) ...[
-                const SizedBox(height: YiviSpace.x24),
-                TranslatedText(
-                  "enrollment.setting_up",
-                  isHeader: true,
-                  textAlign: TextAlign.center,
-                  style: palette.titleSmall,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Duration get transitionDuration => _page.duration;
+
+  @override
+  Duration get reverseTransitionDuration => _page.duration;
+
+  @override
+  bool get opaque => true;
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  String? get barrierLabel => null;
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) => _page.child;
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) => FadeTransition(opacity: animation, child: child);
 }

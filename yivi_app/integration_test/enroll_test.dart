@@ -139,6 +139,9 @@ void main() {
       await choosePin(tester);
       await enterPin(tester, "12345");
 
+      // Setting up around the lock, then done: Continue into the app.
+      await tester.waitFor(find.text("You’re all set"));
+      await tester.tapAndSettle(find.byKey(const Key("enrollment_continue")));
       await tester.waitFor(find.byType(HomeScreen));
       await tester.waitFor(find.text("No data yet"));
       expect(find.byKey(const Key("scan_tip")), findsOneWidget);
