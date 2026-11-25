@@ -22,6 +22,7 @@ import "../../../widgets/surfaces/icon_square.dart";
 import "../../../widgets/credential_card/received_check.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../add_data/add_data_details_content.dart";
+import "../../add_data/secure_app.dart";
 import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
 import "../issuance/issuance_permission.dart";
@@ -307,8 +308,13 @@ class IssueDetailsPage extends StatelessWidget {
       final key? => context.tr(key),
       null => null,
     };
+    // Add data's e-mail card while nothing is linked: adding it also secures
+    // the app (its "Success" offers that), and the page says so. Not when
+    // it is added for a request: then that "Success" doesn't.
+    final mayOffer = flow.host.request == null && isEmailCard(d.credentialId);
     Widget part(AddDataDetailsPart part) => AddDataDetailsContent(
       credential: d,
+      securesApp: mayOffer,
       faq: faq,
       heroKey: keys.hero,
       titleKey: keys.title("details"),

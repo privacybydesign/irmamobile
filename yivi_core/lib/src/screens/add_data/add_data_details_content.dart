@@ -1,5 +1,8 @@
 import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 import "package:material_ui/material_ui.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "../../providers/email_linking_provider.dart";
+import "add_data_row.dart";
 
 import "../../models/credential_store.dart";
 import "../../theme/yivi_palette.dart";
@@ -51,6 +54,10 @@ class AddDataDetailsContent extends StatelessWidget {
   /// Where the issuer's logo is: it flies into the issuer's page and back.
   final GlobalKey? issuerLogoKey;
 
+  /// The e-mail card in Add data: under the intro, "Also secures your app"
+  /// while no address is linked.
+  final bool securesApp;
+
   const AddDataDetailsContent({
     super.key,
     required this.credential,
@@ -61,6 +68,7 @@ class AddDataDetailsContent extends StatelessWidget {
     this.part = AddDataDetailsPart.all,
     this.onIssuer,
     this.issuerLogoKey,
+    this.securesApp = false,
   });
 
   @override
@@ -88,12 +96,25 @@ class AddDataDetailsContent extends StatelessWidget {
                 "credential": credential.name,
               }));
     final upright = part == AddDataDetailsPart.all && !useSheetColumns(context);
-    final introLine = Text(
+    final intro0 = Text(
       introText,
       key: const Key("add_data_details_intro"),
       textAlign: upright ? TextAlign.center : TextAlign.start,
       style: palette.body(15).copyWith(height: 22 / 15, color: palette.heading),
     );
+    final Widget introLine = !securesApp
+        ? intro0
+        : Consumer(
+            builder: (context, ref, _) => !ref.watch(emailLinkAvailableProvider)
+                ? intro0
+                : Column(
+                    crossAxisAlignment: upright
+                        ? CrossAxisAlignment.center
+                        : CrossAxisAlignment.start,
+                    spacing: YiviSpace.x8,
+                    children: [intro0, const SecuresAppChip(center: true)],
+                  ),
+          );
     // Held sideways: the picture (four fifths of the hero), the name, who
     // gives it and the intro, at the left.
     if (part == AddDataDetailsPart.card) {

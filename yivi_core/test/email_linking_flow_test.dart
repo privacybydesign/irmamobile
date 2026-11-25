@@ -832,6 +832,8 @@ void main() {
       await tester.tap(find.byKey(const Key("add_email")));
       await settle(tester);
       await settle(tester);
+      // The details say adding it also secures the app.
+      expect(find.byKey(const Key("secures_app_chip")), findsOneWidget);
       await tester.tap(find.byKey(const Key("sheet_go_button")).last);
       await settle(tester);
       await sendEmailTo(tester, "jan@example.com");

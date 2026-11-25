@@ -465,6 +465,23 @@ class _Tab extends StatelessWidget {
         ],
       ),
     );
+    // More, while setting up is unfinished: "More, 1 thing to do", as its
+    // dot shows.
+    if (dot == TabDot.setup) {
+      return Consumer(
+        builder: (context, ref, _) => _semantics(
+          context,
+          content,
+          ref.watch(setupUnfinishedProvider)
+              ? "$label, ${context.tr("secure.finish.todo")}"
+              : label,
+        ),
+      );
+    }
+    return _semantics(context, content, label);
+  }
+
+  Widget _semantics(BuildContext context, Widget content, String label) {
     return Semantics(
       button: true,
       selected: selected,

@@ -72,14 +72,19 @@ class AddDataRow extends StatelessWidget {
 
 /// "Also secures your app": a small green tag with a shield.
 class SecuresAppChip extends StatelessWidget {
-  const SecuresAppChip({super.key});
+  /// Centred in its row, under centred words; else at the start.
+  final bool center;
+
+  const SecuresAppChip({super.key, this.center = false});
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return ExcludeSemantics(
       child: Align(
-        alignment: AlignmentDirectional.centerStart,
+        alignment: center
+            ? AlignmentDirectional.center
+            : AlignmentDirectional.centerStart,
         child: DecoratedBox(
           key: const Key("secures_app_chip"),
           decoration: BoxDecoration(
