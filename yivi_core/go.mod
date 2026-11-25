@@ -1,12 +1,12 @@
 module github.com/privacybydesign/irmamobile
 
-go 1.27
+go 1.27.4
 
 require (
 	github.com/go-errors/errors v1.5.1
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
-	github.com/privacybydesign/irmago v1.5.0
-	github.com/sirupsen/logrus v1.9.4
+	github.com/privacybydesign/irmago v1.6.2-0.20261125081139-76ecb8861a34
+	github.com/sirupsen/logrus v1.10.2
 	golang.org/x/mobile v0.0.0-20260816165457-f98cc9b3c733
 )
 
@@ -14,19 +14,19 @@ require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/alexandrevicenzi/go-sse v1.6.0 // indirect
 	github.com/bwesterb/byteswriter v1.0.0 // indirect
-	github.com/bwesterb/go-atum v1.1.5 // indirect
+	github.com/bwesterb/go-atum v1.1.6 // indirect
 	github.com/bwesterb/go-exptable v1.0.0 // indirect
 	github.com/bwesterb/go-pow v1.0.0 // indirect
-	github.com/bwesterb/go-xmssmt v1.5.2 // indirect
+	github.com/bwesterb/go-xmssmt v1.6.0 // indirect
 	github.com/cayleygraph/quad v1.3.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1 // indirect
-	github.com/edsrzf/mmap-go v1.1.0 // indirect
+	github.com/edsrzf/mmap-go v1.2.0 // indirect
 	github.com/eknkc/basex v1.0.1 // indirect
 	github.com/fxamacker/cbor v1.5.1 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
+	github.com/fxamacker/cbor/v2 v2.10.0 // indirect
 	github.com/go-co-op/gocron v1.37.0 // indirect
-	github.com/go-co-op/gocron/v2 v2.21.2 // indirect
+	github.com/go-co-op/gocron/v2 v2.23.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
@@ -48,15 +48,15 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.0 // indirect
 	github.com/lestrrat-go/dsig v1.4.0 // indirect
 	github.com/lestrrat-go/dsig-secp256k1 v1.0.0 // indirect
-	github.com/lestrrat-go/jwx/v4 v4.4.0 // indirect
+	github.com/lestrrat-go/jwx/v4 v4.6.0 // indirect
 	github.com/lestrrat-go/option/v3 v3.0.0-alpha1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/microsoft/go-mssqldb v1.8.2 // indirect
+	github.com/microsoft/go-mssqldb v1.9.6 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
-	github.com/mr-tron/base58 v1.2.0 // indirect
+	github.com/mr-tron/base58 v1.3.0 // indirect
 	github.com/multiformats/go-multihash v0.0.11 // indirect
 	github.com/nightlyone/lockfile v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
@@ -64,29 +64,29 @@ require (
 	github.com/piprate/json-gold v0.9.1 // indirect
 	github.com/pquerna/cachecontrol v0.2.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sietseringers/go-sse v0.0.0-20200801161811-e2cf2c63ca50 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
-	github.com/stretchr/testify v1.12.0 // indirect
-	github.com/templexxx/cpu v0.0.9 // indirect
-	github.com/templexxx/xorsimd v0.4.1 // indirect
-	github.com/timshannon/bolthold v0.0.0-20210913165410-232392fc8a6a // indirect
-	github.com/valyala/fastjson v1.6.10 // indirect
+	github.com/stretchr/testify v1.12.1 // indirect
+	github.com/templexxx/cpu v0.1.1 // indirect
+	github.com/templexxx/xorsimd v0.4.4 // indirect
+	github.com/timshannon/bolthold v0.0.0-20240314194003-30aac6950928 // indirect
 	github.com/veraison/go-cose v1.3.0 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	go.etcd.io/bbolt v1.4.3 // indirect
+	go.etcd.io/bbolt v1.5.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
-	golang.org/x/mod v0.39.0 // indirect
-	golang.org/x/sync v0.22.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/term v0.45.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
+	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/term v0.46.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 	golang.org/x/tools v0.49.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
-	gorm.io/driver/postgres v1.6.0 // indirect
-	gorm.io/driver/sqlserver v1.6.3 // indirect
-	gorm.io/gorm v1.31.1 // indirect
+	gorm.io/driver/postgres v1.6.3 // indirect
+	gorm.io/driver/sqlserver v1.6.4 // indirect
+	gorm.io/gorm v1.31.2 // indirect
 )

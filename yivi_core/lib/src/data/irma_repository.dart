@@ -107,31 +107,23 @@ class IrmaRepository {
     _localeSubscription = _appLanguage.changes.listen((locale) {
       bridgedDispatch(SetLocaleEvent(locale: locale));
       bridgedDispatch(LoadLogsEvent(max: 10));
-      // The platform's credential picker shows the names it was registered
-      // with, so they follow the app language too.
-      _registerDigitalCredentials();
     });
   }
 
   final DigitalCredentialsRegistry? _digitalCredentialsRegistry;
 
   /// Tells the platform which credentials a website can ask for through the
-  /// Digital Credentials API: those of the scheme as it is now, named in the
-  /// app language. Does nothing in a build without a registry.
-  void _registerDigitalCredentials() {
+  /// Digital Credentials API. The Go core decides what they are and sends them
+  /// again whenever they may have changed, named in the app language. Does
+  /// nothing in a build without a registry.
+  void _registerDigitalCredentials(List<Map<String, dynamic>> entries) {
     final registry = _digitalCredentialsRegistry;
-    final configuration = _irmaConfigurationSubject.valueOrNull;
-    if (registry == null || configuration == null) return;
+    if (registry == null) return;
 
     // A registration that fails only costs being offered in the picker, so it
     // is reported and otherwise left alone.
     registry
-        .register(
-          digitalCredentialsRegistryEntries(
-            configuration,
-            language: _appLanguage.current,
-          ),
-        )
+        .register(entries)
         .catchError(
           (Object error, StackTrace stackTrace) =>
               reportError(error, stackTrace),
@@ -243,7 +235,8 @@ class IrmaRepository {
       }
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
-      _registerDigitalCredentials();
+    } else if (event is DigitalCredentialsRegistryEvent) {
+      _registerDigitalCredentials(event.entries);
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is schemaless.SchemalessCredentialsEvent) {
