@@ -35,6 +35,18 @@ android {
         disable 'InvalidPackage'
     }
 
+    // The same target for Java and Kotlin, as in yivi_core. Without it Kotlin
+    // follows the JDK the build runs on while Java stays on 11, and Gradle
+    // refuses to compile the module's Kotlin sources.
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11
+    }
+
     defaultConfig {
         applicationId "org.irmacard.cardemu"
         minSdkVersion 26
@@ -128,6 +140,23 @@ flutter {
 
 dependencies {
     implementation "androidx.browser:browser:1.2.0"
+
+    // W3C Digital Credentials API (OpenID4VP) provider support. The base
+    // library carries the provider request/response types and the Digital
+    // Credential type used by DigitalCredentialsActivity.
+    implementation "androidx.credentials:credentials:1.6.0"
+
+    // Registration with the Credential Manager, which makes Yivi discoverable
+    // for OpenID4VP requests. registry-provider carries RegistryManager;
+    // -play-services is the GMS backend that actually stores the registration;
+    // -openid supplies the OpenID4VP registry + its bundled matcher; -sdjwtvc
+    // supplies the SD-JWT entry types Yivi credentials map to. These are
+    // declared here and not in yivi_core, because -play-services is proprietary
+    // and yivi_core is also built into the F-Droid app.
+    implementation "androidx.credentials.registry:registry-provider:1.0.0-alpha05"
+    implementation "androidx.credentials.registry:registry-provider-play-services:1.0.0-alpha05"
+    implementation "androidx.credentials.registry:registry-digitalcredentials-openid:1.0.0-alpha05"
+    implementation "androidx.credentials.registry:registry-digitalcredentials-sdjwtvc:1.0.0-alpha05"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'

@@ -13,7 +13,11 @@ class _UnlistedEvent extends Event {}
 /// bridge and the native plugins switch on.
 void main() {
   // Handled by the native plugins only; the Go bridge ignores them.
-  const nativeOnly = {"AndroidSendToBackgroundEvent"};
+  const nativeOnly = {
+    "AndroidSendToBackgroundEvent",
+    "DigitalCredentialsResponseEvent",
+    "DigitalCredentialsFailureEvent",
+  };
 
   test("an outbound event is sent under its listed name", () {
     expect(

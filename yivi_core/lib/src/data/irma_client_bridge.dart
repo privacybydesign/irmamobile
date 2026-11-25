@@ -10,6 +10,7 @@ import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credential_events.dart";
 import "../models/delete_keyshare_tokens_event.dart";
+import "../models/digital_credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/error_event.dart";
 import "../models/eudi_configuration.dart";
@@ -53,6 +54,8 @@ class IrmaClientBridge extends IrmaBridge {
     "EnrollmentStatusEvent": (j) => EnrollmentStatusEvent.fromJson(j),
     "LogsEvent": (j) => LogsEvent.fromJson(j),
     "HandleURLEvent": (j) => HandleURLEvent.fromJson(j),
+    "HandleDigitalCredentialsRequestEvent": (j) =>
+        HandleDigitalCredentialsRequestEvent.fromJson(j),
     "AppReadyAckEvent": (j) => AppReadyAckEvent.fromJson(j),
     "EnrollmentSuccessEvent": (j) => EnrollmentSuccessEvent.fromJson(j),
     "EnrollmentFailureEvent": (j) => EnrollmentFailureEvent.fromJson(j),
@@ -90,6 +93,8 @@ class IrmaClientBridge extends IrmaBridge {
     RemoveRequestorSchemeEvent: "RemoveRequestorSchemeEvent",
     InstallCertificateEvent: "InstallCertificateEvent",
     RemoveCertificateEvent: "RemoveCertificateEvent",
+    DigitalCredentialsResponseEvent: "DigitalCredentialsResponseEvent",
+    DigitalCredentialsFailureEvent: "DigitalCredentialsFailureEvent",
   };
 
   /// The names of the events the bridge can receive.

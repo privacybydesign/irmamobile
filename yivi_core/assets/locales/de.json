@@ -380,6 +380,8 @@
       "expired": "Die Sitzung ist abgelaufen. Bitte beginnen Sie von vorne.",
       "pairing_rejected": "Die Sitzung wurde abgelehnt. Bitte beginnen Sie von vorne.",
       "no_internet": "Bitte stellen Sie sicher, dass Ihr Gerät eine funktionierende Internetverbindung hat.",
+      "credential_unavailable_title": "Sie haben diese Daten nicht",
+      "credential_unavailable": "Die Website hat nach Daten gefragt, die Sie nicht in Yivi haben, und es ist kein Weg bekannt, diese zu erhalten.",
       "yivi": "Etwas ist in Yivi schiefgelaufen",
       "yivi_body": "Das liegt an Yivi, nicht an {org} oder an Ihnen. Bitte versuchen Sie es später erneut.",
       "yivi_body_no_organisation": "Das liegt an Yivi, nicht an Ihnen. Bitte versuchen Sie es später erneut.",

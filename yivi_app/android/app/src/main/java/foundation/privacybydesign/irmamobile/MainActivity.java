@@ -23,5 +23,9 @@ public class MainActivity extends FlutterFragmentActivity {
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     GeneratedPluginRegistrant.registerWith(flutterEngine);
+
+    // Lets Dart advertise Yivi to the Credential Manager as an OpenID4VP
+    // Digital Credentials provider, so verifier requests can reach it.
+    DigitalCredentialsRegistrar.attach(flutterEngine, getApplicationContext());
   }
 }

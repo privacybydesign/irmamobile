@@ -18,6 +18,7 @@ import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credentials.dart";
 import "../models/delete_keyshare_tokens_event.dart";
+import "../models/digital_credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
@@ -35,6 +36,7 @@ import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/version_information.dart";
+import "../providers/digital_credentials_registry_provider.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
 import "../providers/passport_issuer_provider.dart";
@@ -71,7 +73,9 @@ class IrmaRepository {
     required IrmaBridge client,
     required this.preferences,
     this.defaultKeyshareScheme = "pbdf",
-  }) : _bridge = client {
+    DigitalCredentialsRegistry? digitalCredentialsRegistry,
+  }) : _bridge = client,
+       _digitalCredentialsRegistry = digitalCredentialsRegistry {
     _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
@@ -103,7 +107,35 @@ class IrmaRepository {
     _localeSubscription = _appLanguage.changes.listen((locale) {
       bridgedDispatch(SetLocaleEvent(locale: locale));
       bridgedDispatch(LoadLogsEvent(max: 10));
+      // The platform's credential picker shows the names it was registered
+      // with, so they follow the app language too.
+      _registerDigitalCredentials();
     });
+  }
+
+  final DigitalCredentialsRegistry? _digitalCredentialsRegistry;
+
+  /// Tells the platform which credentials a website can ask for through the
+  /// Digital Credentials API: those of the scheme as it is now, named in the
+  /// app language. Does nothing in a build without a registry.
+  void _registerDigitalCredentials() {
+    final registry = _digitalCredentialsRegistry;
+    final configuration = _irmaConfigurationSubject.valueOrNull;
+    if (registry == null || configuration == null) return;
+
+    // A registration that fails only costs being offered in the picker, so it
+    // is reported and otherwise left alone.
+    registry
+        .register(
+          digitalCredentialsRegistryEntries(
+            configuration,
+            language: _appLanguage.current,
+          ),
+        )
+        .catchError(
+          (Object error, StackTrace stackTrace) =>
+              reportError(error, stackTrace),
+        );
   }
 
   final IrmaPreferences preferences;
@@ -211,6 +243,7 @@ class IrmaRepository {
       }
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
+      _registerDigitalCredentials();
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is schemaless.SchemalessCredentialsEvent) {
@@ -255,12 +288,17 @@ class IrmaRepository {
         }
 
         final pointer = Pointer.fromString(event.url);
-        _pendingPointerSubject.add(pointer);
+        _replacePendingPointer(pointer);
         _resumedWithURLSubject.add(true);
         closeInAppWebView();
       } on MissingPointer catch (e, stackTrace) {
         reportError(e, stackTrace);
       }
+    } else if (event is HandleDigitalCredentialsRequestEvent) {
+      // A Digital Credentials API request carries no URL, so there is nothing to
+      // parse: queue it as a pointer and let the normal pending-pointer path
+      // unlock the app and start the session.
+      _replacePendingPointer(SessionPointer.digitalCredentials(event.request));
     } else if (event is AppReadyAckEvent) {
       // Native's acknowledgement that the launch handshake is done. It is sent
       // right AFTER any initial-URL `HandleURLEvent`, so on a cold start started
@@ -269,8 +307,15 @@ class IrmaRepository {
       // biometric auto-scan on this, so biometric can never win the race against
       // the link and unlock the app before the session pointer is known.
       _startupUrlResolvedSubject.add(true);
+      // No session can have started yet: the handshake comes before any screen
+      // that starts one. Should one have, its id stays, rather than handing
+      // out ids that were given away already.
+      if (_nextSessionId == 0) {
+        _nextSessionId = event.sessionIdBase;
+      }
     } else if (event is NewSessionEvent) {
-      _pendingPointerSubject.add(null);
+      // The queued pointer has become this session, so it is not dropped.
+      _replacePendingPointer(null, startedSession: event.request);
     } else if (event is ClearAllDataEvent) {
       _credentialsSubject.add(Credentials({}));
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
@@ -599,8 +644,30 @@ class IrmaRepository {
 
   /// Allocates a session id for an outgoing [NewSessionEvent]. Dart owns id
   /// allocation so [SessionScreen] can be pushed synchronously, before Go has
-  /// emitted the first session state.
+  /// emitted the first session state. The ids count up from the base native
+  /// gave this engine in its [AppReadyAckEvent], because the Go core keeps the
+  /// sessions of every engine in the process in one map.
   int allocateSessionId() => ++_nextSessionId;
+
+  /// Sessions started from a `DigitalCredentialsRequest` that still owe native
+  /// an outcome. The platform keeps the caller's `navigator.credentials.get()`
+  /// open until it gets one, and no session state says where the request came
+  /// from, so the id has to be remembered from the moment the session starts.
+  final _digitalCredentialsSessionIds = <int>{};
+
+  /// Records that [sessionId] was started from a Digital Credentials API
+  /// request. Called where the `NewSessionEvent` is dispatched.
+  void markDigitalCredentialsSession(int sessionId) {
+    _digitalCredentialsSessionIds.add(sessionId);
+  }
+
+  /// Takes the outcome [sessionId] owes native: true the first time for a
+  /// session started from a Digital Credentials API request, false afterwards
+  /// and for every other session. Both legs claim, so exactly one outcome event
+  /// is sent per session.
+  bool claimDigitalCredentialsSession(int sessionId) {
+    return _digitalCredentialsSessionIds.remove(sessionId);
+  }
 
   bool hasActiveSessions({int? excludeSessionId}) {
     return _sessionRepository.hasActiveSessions(
@@ -680,7 +747,32 @@ class IrmaRepository {
   /// it once the app is unlocked. Pass `null` to clear a queued pointer
   /// (e.g. the user cancels a pending session from the lock screen).
   void setPendingPointer(Pointer? pointer) {
+    _replacePendingPointer(pointer);
+  }
+
+  /// Every change of the queued pointer goes through here, because a queued
+  /// Digital Credentials API request owes native an outcome just like a started
+  /// session does: the platform holds the caller's call open until it gets one.
+  /// A request that leaves the queue without becoming a session ([startedSession]
+  /// is the pointer a `NewSessionEvent` just started) was dropped — the user
+  /// cancelled it on the lock screen, or another pointer took its place — and
+  /// nothing else would ever tell native so.
+  void _replacePendingPointer(Pointer? pointer, {Pointer? startedSession}) {
+    final previous = _pendingPointerSubject.value;
     _pendingPointerSubject.add(pointer);
+
+    final droppedRequest =
+        previous is SessionPointer &&
+        previous.dcApi != null &&
+        !identical(previous, pointer) &&
+        !identical(previous, startedSession);
+    if (droppedRequest) {
+      bridgedDispatch(
+        DigitalCredentialsFailureEvent(
+          reason: DigitalCredentialsFailureReason.cancelled,
+        ),
+      );
+    }
   }
 
   Stream<bool> getDeveloperMode() {
@@ -1094,7 +1186,7 @@ class IrmaRepository {
   void startTestSessionFromUrl(String url) {
     final sessionPtr = Pointer.fromString(url) as SessionPointer;
     sessionPtr.continueOnSecondDevice = true;
-    _pendingPointerSubject.add(sessionPtr);
+    _replacePendingPointer(sessionPtr);
   }
 
   /// Only meant for testing and debug purposes.
@@ -1106,13 +1198,13 @@ class IrmaRepository {
       requestBody,
       continueOnSecondDevice: continueOnSecondDevice,
     );
-    _pendingPointerSubject.add(sessionPtr);
+    _replacePendingPointer(sessionPtr);
   }
 
   /// Only meant for testing and debug purposes.
   Future<void> startTestIssueWizard(String wizardKey) async {
     final issueWizardPointer = IssueWizardPointer(wizardKey);
-    _pendingPointerSubject.add(issueWizardPointer);
+    _replacePendingPointer(issueWizardPointer);
   }
 }
 

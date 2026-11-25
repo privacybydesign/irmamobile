@@ -13,7 +13,9 @@ Map<String, dynamic> _$SetLocaleEventToJson(SetLocaleEvent instance) =>
     <String, dynamic>{'locale': instance.locale};
 
 AppReadyAckEvent _$AppReadyAckEventFromJson(Map<String, dynamic> json) =>
-    AppReadyAckEvent();
+    AppReadyAckEvent(
+      sessionIdBase: (json['session_id_base'] as num?)?.toInt() ?? 0,
+    );
 
 Map<String, dynamic> _$AndroidSendToBackgroundEventToJson(
   AndroidSendToBackgroundEvent instance,

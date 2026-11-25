@@ -380,6 +380,8 @@
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
       "no_internet": "Please make sure your device has a functional internet connection.",
+      "credential_unavailable_title": "You don't have this data",
+      "credential_unavailable": "The website asked for data you don't have in Yivi, and there is no known way to obtain it.",
       "yivi": "Something went wrong in Yivi",
       "yivi_body": "This is caused by Yivi, not by {org} or by you. Please try again later.",
       "yivi_body_no_organisation": "This is caused by Yivi, not by you. Please try again later.",

@@ -380,6 +380,8 @@
       "expired": "Sorry, de sessie is verlopen. Start de sessie opnieuw.",
       "pairing_rejected": "Sorry, de sessie is geweigerd. Start de sessie opnieuw.",
       "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet.",
+      "credential_unavailable_title": "Je hebt deze gegevens niet",
+      "credential_unavailable": "De website vroeg om gegevens die je niet in Yivi hebt, en er is geen bekende manier om deze te verkrijgen.",
       "yivi": "Er ging iets mis in Yivi",
       "yivi_body": "Dit ligt aan Yivi, niet aan {org} of aan jou. Probeer het later opnieuw.",
       "yivi_body_no_organisation": "Dit ligt aan Yivi, niet aan jou. Probeer het later opnieuw.",

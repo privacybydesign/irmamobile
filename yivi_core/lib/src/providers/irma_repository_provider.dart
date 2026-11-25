@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/irma_client_bridge.dart";
 import "../data/irma_repository.dart";
+import "digital_credentials_registry_provider.dart";
 import "preferences_provider.dart";
 
 class IrmaRepositoryProvider extends InheritedWidget {
@@ -37,5 +38,6 @@ final irmaRepositoryProvider = Provider<IrmaRepository>((ref) {
   return IrmaRepository(
     client: IrmaClientBridge(debugLogging: kDebugMode),
     preferences: preferences,
+    digitalCredentialsRegistry: ref.watch(digitalCredentialsRegistryProvider),
   );
 });

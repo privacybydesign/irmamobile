@@ -30,6 +30,16 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   private String nativeError;
   private final Context context;
 
+  // Set when this engine was launched for a W3C Digital Credentials API request.
+  // The request JSON is delivered to Dart once the app is ready, and the host is
+  // the credential-provider Activity that owes the platform an outcome.
+  private String pendingDigitalCredentialsRequest;
+
+  // Where this engine's session ids start; see GoBridgeRelay. Zero until the
+  // core is started for this engine, and when that fails.
+  private int sessionIdBase;
+  private DigitalCredentialsHost digitalCredentialsHost;
+
   public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
     this.activity = activity;
@@ -38,14 +48,30 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     appReady = false;
   }
 
+  /**
+   * Records that this engine is fulfilling a Digital Credentials API request:
+   * [requestJson] is the {@code HandleDigitalCredentialsRequestEvent} payload to
+   * deliver to Dart, and [host] is answered with the outcome. Called before the
+   * app is ready, so the request rides out on the same handshake as an initial
+   * URL.
+   */
+  public void setDigitalCredentials(String requestJson, DigitalCredentialsHost host) {
+    this.pendingDigitalCredentialsRequest = requestJson;
+    this.digitalCredentialsHost = host;
+  }
+
   private void init(String locale) {
     try {
       IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
       byte[] aesKey = AESKey.getKey(context);
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
       assert pi.applicationInfo != null;
-      Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(),
-        new ECDSA(context), aesKey, locale);
+      // The core is shared with any other engine in this process, so it is
+      // started with the relay rather than with this bridge; see GoBridgeRelay.
+      // Starting it a second time only makes this engine the one it talks to.
+      sessionIdBase = GoBridgeRelay.INSTANCE.attach(this);
+      Irmagobridge.start(GoBridgeRelay.INSTANCE, pi.applicationInfo.dataDir,
+        copier.destAssetsPath.toString(), new ECDSA(context), aesKey, locale);
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
       StringBuilder exception = new StringBuilder(e.toString());
       Throwable cause = e.getCause();
@@ -99,18 +125,50 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
           activity.setIntent(new Intent());
         }
 
+        // A Digital Credentials API request carries no URL; deliver it here, on
+        // the same handshake as an initial URL, so the pending-pointer path picks
+        // it up and starts the session. Cleared once sent so a later handshake
+        // (e.g. after a configuration change) does not replay it.
+        if (pendingDigitalCredentialsRequest != null) {
+          channel.invokeMethod("HandleDigitalCredentialsRequestEvent",
+            pendingDigitalCredentialsRequest);
+          pendingDigitalCredentialsRequest = null;
+        }
+
         // Acknowledge the launch handshake AFTER any initial URL, so the UI knows
         // the launch URL (if any) has been delivered. Channel messages are FIFO,
         // so the HandleURLEvent above is always processed first; the lock screen
         // relies on this to hold off biometric until it knows whether the app was
-        // opened with a session.
-        channel.invokeMethod("AppReadyAckEvent", "{}");
+        // opened with a session. It also tells this engine where its session
+        // ids start, which is settled by now: init() above ran on this thread.
+        channel.invokeMethod("AppReadyAckEvent", "{\"session_id_base\":" + sessionIdBase + "}");
 
         break;
 
       case "AndroidSendToBackgroundEvent":
         activity.moveTaskToBack(true);
         break;
+
+      // The outcome of a Digital Credentials API session. These are answered by
+      // the platform through the host, not by the Go core, so they are handled
+      // here and NOT forwarded to native below.
+      case "DigitalCredentialsResponseEvent": {
+        String response = optStringArg(call, "response", "");
+        if (digitalCredentialsHost != null) {
+          activity.runOnUiThread(() -> digitalCredentialsHost.onDigitalCredentialsResponse(response));
+        }
+        result.success(null);
+        return;
+      }
+
+      case "DigitalCredentialsFailureEvent": {
+        String reason = optStringArg(call, "reason", "error");
+        if (digitalCredentialsHost != null) {
+          activity.runOnUiThread(() -> digitalCredentialsHost.onDigitalCredentialsFailure(reason));
+        }
+        result.success(null);
+        return;
+      }
     }
 
     Irmagobridge.dispatchFromNative(call.method, (String) call.arguments);
@@ -162,6 +220,22 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   }
 
   public void stop() {
-    Irmagobridge.stop();
+    // Another engine may still be using the core. Stopping it here would close
+    // the client under that engine, and everything it sends afterwards would
+    // block waiting for a client that is not coming back.
+    if (GoBridgeRelay.INSTANCE.detach(this)) {
+      Irmagobridge.stop();
+    }
+  }
+
+  private static String optStringArg(MethodCall call, String key, String fallback) {
+    if (!(call.arguments instanceof String)) {
+      return fallback;
+    }
+    try {
+      return new JSONObject((String) call.arguments).optString(key, fallback);
+    } catch (JSONException e) {
+      return fallback;
+    }
   }
 }

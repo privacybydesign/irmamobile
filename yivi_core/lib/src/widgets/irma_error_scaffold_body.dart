@@ -5,13 +5,20 @@ import "../theme/theme.dart";
 import "irma_info_scaffold_body.dart";
 import "translated_text.dart";
 
-enum ErrorType { general, expired, pairingRejected }
+enum ErrorType { general, expired, pairingRejected, credentialUnavailable }
 
 class IrmaErrorScaffoldBody extends StatelessWidget {
   static const _translationKeys = {
     ErrorType.general: "error.types.general",
     ErrorType.expired: "error.types.expired",
     ErrorType.pairingRejected: "error.types.pairing_rejected",
+    ErrorType.credentialUnavailable: "error.types.credential_unavailable_title",
+  };
+
+  // Types that carry their own explanatory body instead of the "report this"
+  // prompt: the situation is the request's, not a fault to report.
+  static const _bodyTranslationKeys = {
+    ErrorType.credentialUnavailable: "error.types.credential_unavailable",
   };
 
   final ErrorType type;
@@ -50,7 +57,9 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
       titleTranslationKey: titleTranslationKey ?? _translationKeys[type]!,
       titleTranslationParams: translationParams,
       bodyTranslationKey:
-          bodyTranslationKey ?? (reportable == true ? "error.report" : null),
+          bodyTranslationKey ??
+          _bodyTranslationKeys[type] ??
+          (reportable == true ? "error.report" : null),
       bodyTranslationParams: translationParams,
       linkTranslationKey: details != null ? "error.button_show_error" : null,
       linkDialogText: details,
