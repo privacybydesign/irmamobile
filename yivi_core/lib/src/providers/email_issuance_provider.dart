@@ -52,6 +52,7 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
       final json = jsonDecode(response.body);
       throw switch (json["error"]) {
         "error_invalid_token" => EmailIssuanceInvalidCodeError(),
+        "error_token_invalid" => EmailIssuanceSessionExpiredError(),
         "error_ratelimit" => EmailIssuanceRateLimitError(),
         _ => EmailIssuanceInternalServerError(message: response.body),
       };
@@ -75,6 +76,7 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
       final json = jsonDecode(response.body);
       throw switch (json["error"]) {
         "error_invalid_token" => EmailIssuanceInvalidCodeError(),
+        "error_token_invalid" => EmailIssuanceSessionExpiredError(),
         "error_ratelimit" => EmailIssuanceRateLimitError(),
         _ => EmailIssuanceInternalServerError(message: response.body),
       };
@@ -234,6 +236,18 @@ class EmailIssuanceInvalidCodeError extends EmailIssuanceError {
   @override
   String toString() {
     return "Invalid code";
+  }
+}
+
+/// Thrown when the verification token/session has expired (or no longer
+/// exists) on the issuer server. This is distinct from an invalid code: the
+/// user typically hits this after leaving the app to fetch their code and
+/// returning too late, so the flow must be restarted rather than retried with
+/// the same code.
+class EmailIssuanceSessionExpiredError extends EmailIssuanceError {
+  @override
+  String toString() {
+    return "Session expired";
   }
 }
 
