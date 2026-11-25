@@ -191,8 +191,8 @@ github.com/pquerna/cachecontrol v0.2.0 h1:vBXSNuE5MYP9IJ5kjsdo8uq+w41jSPgvba2DEn
 github.com/pquerna/cachecontrol v0.2.0/go.mod h1:NrUG3Z7Rdu85UNR3vm7SOsl1nFIeSiQnrHV5K9mBcUI=
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750 h1:3RuYOQTlArQ6Uw2TgySusmZGluP+18WdQL56YSfkM3Q=
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750/go.mod h1:QZI8hX8Ff2GfZ7UJuxyWw3nAGgt2s5+U4hxY6rmwQvs=
-github.com/privacybydesign/irmago v1.6.2-0.20261125081139-76ecb8861a34 h1:rycESE4u2I23L0G9Y2UAfMJ/A4uMxqEmrRsQfRC/tEU=
-github.com/privacybydesign/irmago v1.6.2-0.20261125081139-76ecb8861a34/go.mod h1:Lj6a0R2vxVkuT7V+1dNhJdui60LK9MHz34kT6ly2boE=
+github.com/privacybydesign/irmago v1.6.2-0.20261125093031-d267fb331c05 h1:TYbhRkB0nA7LBrDEBhHyuuTQfs/Y+knutJsDVt0XkCY=
+github.com/privacybydesign/irmago v1.6.2-0.20261125093031-d267fb331c05/go.mod h1:Lj6a0R2vxVkuT7V+1dNhJdui60LK9MHz34kT6ly2boE=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
