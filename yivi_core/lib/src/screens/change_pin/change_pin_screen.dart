@@ -6,8 +6,6 @@ import "../../util/i18n.dart";
 import "../../widgets/bars/app_bar.dart";
 import "../../widgets/feedback/app_toast.dart";
 import "../../widgets/feedback/dialog.dart";
-import "../enrollment/choose_pin/choose_pin_screen.dart";
-import "../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
 import "../error/session_error_screen.dart";
 import "../pin/pin_entry.dart";
 import "../pin/yivi_pin_screen.dart";
@@ -38,24 +36,30 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
         child: _EnterOldPin(step: enter),
       ),
     ],
+    // The new PIN, then the same again, on one page: the chosen PIN moves
+    // up, grey, and is entered again under it.
     ChooseNewPin(:final round, :final previous) => [
       MaterialPage(
-        key: ValueKey("choose#$round"),
-        child: ChoosePinScreen(
-          onChoosePin: _flow.choose,
-          onPrevious: context.goSettingsScreen,
-          newPinNotifier: ValueNotifier(previous),
+        key: ValueKey("new#$round"),
+        child: _NewPin(
+          chosen: null,
+          previous: previous,
+          onBack: context.goSettingsScreen,
+          onChosen: _flow.choose,
+          onMismatch: _flow.mismatch,
+          onConfirmed: _confirm,
         ),
       ),
     ],
     ConfirmNewPin(:final chosen, :final choose) => [
-      ...?_pagesOf(choose),
       MaterialPage(
-        key: const ValueKey("confirm"),
-        child: _ConfirmNewPin(
+        key: ValueKey("new#${choose.round}"),
+        child: _NewPin(
           chosen: chosen,
+          previous: choose.previous,
           onBack: _flow.backToChoose,
-          onMismatch: _mismatch,
+          onChosen: _flow.choose,
+          onMismatch: _flow.mismatch,
           onConfirmed: _confirm,
         ),
       ),
@@ -69,14 +73,6 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
     ],
     ChangePinBlocked() || ChangePinDone() => null,
   };
-
-  void _mismatch() => showPinConfirmationFailedDialog(
-    context,
-    onPressed: (dialogContext) {
-      Navigator.pop(dialogContext);
-      _flow.mismatch();
-    },
-  );
 
   Future<void> _confirm(String pin) async {
     final confirmed = await showConfirmDialog(
@@ -150,34 +146,49 @@ class _EnterOldPin extends ConsumerWidget {
   }
 }
 
-/// The new PIN again.
-class _ConfirmNewPin extends StatelessWidget {
-  final String chosen;
+/// The new PIN ([chosen] null), then the same again on the same screen.
+/// Back while entering it again goes back to choosing, here.
+class _NewPin extends StatelessWidget {
+  final String? chosen;
+  final String previous;
   final VoidCallback onBack;
+  final ValueChanged<String> onChosen;
   final VoidCallback onMismatch;
   final ValueChanged<String> onConfirmed;
 
-  const _ConfirmNewPin({
+  const _NewPin({
     required this.chosen,
+    required this.previous,
     required this.onBack,
+    required this.onChosen,
     required this.onMismatch,
     required this.onConfirmed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return YiviPinScaffold(
-      appBar: YiviAppBar(
-        titleString: "",
-        leading: YiviBackButton(onTap: onBack),
-      ),
-      body: PinEntry(
-        mode: ConfirmEntry(
-          chosen: chosen,
-          instructionKey: "change_pin.confirm_pin.instruction",
-          onMismatch: onMismatch,
+    final chosen = this.chosen;
+    return PopScope(
+      canPop: chosen == null,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) onBack();
+      },
+      child: YiviPinScaffold(
+        appBar: YiviAppBar(
+          titleString: "",
+          leading: YiviBackButton(onTap: onBack),
         ),
-        onSubmit: onConfirmed,
+        body: PinEntry(
+          mode: chosen == null
+              ? ChooseEntry(previous: previous)
+              : ConfirmEntry(
+                  chosen: chosen,
+                  instructionKey: "choose_pin.again",
+                  onMismatch: onMismatch,
+                  inPlace: true,
+                ),
+          onSubmit: chosen == null ? onChosen : onConfirmed,
+        ),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -59,19 +61,29 @@ final class ChooseEntry extends PinEntryMode {
 
 /// The chosen PIN again: the same goes to onSubmit, another to
 /// [onMismatch].
+///
+/// [inPlace]: on the same screen it was chosen on. The chosen PIN moves up,
+/// grey, the field gets exactly its number of slots and checks itself once
+/// full, and a PIN that doesn't match says so under the field and shakes it
+/// before [onMismatch] (instead of a dialog).
 final class ConfirmEntry extends PinEntryMode {
   const ConfirmEntry({
     required this.chosen,
     required this.instructionKey,
     required this.onMismatch,
     this.stepLabel,
+    this.inPlace = false,
   });
 
   final String chosen;
   final String instructionKey;
   final VoidCallback onMismatch;
   final String? stepLabel;
+  final bool inPlace;
 }
+
+/// How long "These PINs don't match." shows before choosing starts over.
+const pinMismatchPause = Duration(milliseconds: 1400);
 
 /// The PIN pad with what every host needs around it: the tries left or the
 /// block under the title, a fresh pad after a wrong PIN
@@ -103,6 +115,17 @@ class _PinEntryState extends ConsumerState<PinEntry> {
 
   /// Choosing: long or short, once switched.
   bool? _longChosen;
+
+  /// Entering it again in place went wrong: the line under the field shows
+  /// until choosing starts over.
+  bool _mismatch = false;
+  Timer? _mismatchTimer;
+
+  @override
+  void dispose() {
+    _mismatchTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(PinEntry old) {
@@ -199,6 +222,7 @@ class _PinEntryState extends ConsumerState<PinEntry> {
   }
 
   Widget _confirm(ConfirmEntry mode, int maxPinSize) {
+    if (mode.inPlace) return _confirmInPlace(mode);
     void compare(String pin) =>
         pin == mode.chosen ? widget.onSubmit(pin) : mode.onMismatch();
     return YiviPinScreen(
@@ -208,6 +232,37 @@ class _PinEntryState extends ConsumerState<PinEntry> {
       maxPinSize: maxPinSize,
       onSubmit: compare,
       listener: submitWhenFull(maxPinSize, compare),
+    );
+  }
+
+  Widget _confirmInPlace(ConfirmEntry mode) {
+    final length = mode.chosen.length;
+    void compare(String pin) {
+      if (_mismatch) return;
+      if (pin == mode.chosen) {
+        widget.onSubmit(pin);
+        return;
+      }
+      setState(() => _mismatch = true);
+      _mismatchTimer = Timer(pinMismatchPause, () {
+        if (!mounted) return;
+        setState(() => _mismatch = false);
+        mode.onMismatch();
+      });
+    }
+
+    return YiviPinScreen(
+      lockIcon: true,
+      instructionKey: mode.instructionKey,
+      maxPinSize: length,
+      chosenPin: mode.chosen,
+      againError: _mismatch ? context.tr("choose_pin.mismatch") : null,
+      enabled: !_mismatch,
+      onSubmit: compare,
+      // Every slot filled, a long PIN too: it checks itself.
+      listener: (context, state) {
+        if (state.pin.length == length) compare(state.toString());
+      },
     );
   }
 

@@ -6,6 +6,7 @@ import "../../../util/i18n.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/surfaces/inset_group.dart";
+import "../widgets/enrollment_actions.dart";
 import "../widgets/enrollment_page.dart";
 import "../widgets/enrollment_point_row.dart";
 import "welcome_card_fan.dart";
@@ -22,10 +23,11 @@ class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key, required this.onContinue});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
+  State<WelcomeScreen> createState() => WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen>
+/// Public for the enrollment's button layer, which starts it ([start]).
+class WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   /// 0: the cards in their fan; 1: flown out.
   late final _flight = AnimationController(vsync: this);
@@ -62,7 +64,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     super.dispose();
   }
 
-  Future<void> _start() async {
+  /// Get started: the cards fly out first, then on to the terms.
+  Future<void> start() async {
     if (_flight.isAnimating) return;
     if (!motionStill(context)) {
       await _flight.animateTo(
@@ -104,9 +107,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final about = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: WelcomeCardFan(width: cardWidth, flight: _flight),
+        // A little higher above the title: more room under the fan.
+        Transform.translate(
+          offset: const Offset(0, -32),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: WelcomeCardFan(width: cardWidth, flight: _flight),
+          ),
         ),
         const SizedBox(height: YiviSpace.x16),
         _fades(
@@ -128,14 +135,18 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       ),
     );
 
-    final start = _fades(
-      PrimaryPillButton(
-        key: const Key("enrollment_next_button"),
-        label: context.tr("enrollment.welcome.start"),
-        size: tablet ? PillSize.large : PillSize.regular,
-        onPressed: _start,
-      ),
-    );
+    // Upright on a phone the button is the enrollment's (it turns into the
+    // next step's); else this page's own, fading with the rest.
+    final startButton = EnrollmentActionsScope.layeredOf(context)
+        ? const SizedBox(height: PillSize.regularHeight)
+        : _fades(
+            PrimaryPillButton(
+              key: const Key("enrollment_next_button"),
+              label: context.tr("enrollment.welcome.start"),
+              size: tablet ? PillSize.large : PillSize.regular,
+              onPressed: start,
+            ),
+          );
 
     final action = scrollValues
         ? Column(
@@ -150,7 +161,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   child: values,
                 ),
               ),
-              start,
+              startButton,
             ],
           )
         : Column(
@@ -159,7 +170,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             children: [
               values,
               const SizedBox(height: YiviSpace.x24),
-              start,
+              startButton,
             ],
           );
 

@@ -8,6 +8,7 @@ import "package:yivi_core/src/models/change_pin_events.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/screens/change_pin/change_pin_screen.dart";
+import "package:yivi_core/src/screens/pin/pin_entry.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -96,7 +97,7 @@ void main() {
   final enterOld = find.text("Enter your current PIN");
   final chooseShort = find.text("Choose a 5-digit PIN");
   final chooseLong = find.text("Choose a PIN");
-  final confirm = find.text("Enter your new PIN again");
+  final confirm = find.text("Enter the same PIN again");
 
   testWidgets("a wrong old PIN: the enter page again, with the tries left", (
     tester,
@@ -138,16 +139,21 @@ void main() {
     expect(chooseLong, findsOneWidget);
   });
 
-  testWidgets("a mismatch: the dialog, then choose again, empty, as short as "
-      "before", (tester) async {
+  testWidgets("a mismatch: said in place, then choose again, empty, as short "
+      "as before", (tester) async {
     await pump(tester);
     await type(tester, right);
     await type(tester, "58193");
     expect(confirm, findsOneWidget);
+    expect(find.byKey(const Key("pin_chosen_row")), findsOneWidget);
     await type(tester, "58194");
-    expect(find.text("PIN entered incorrectly"), findsOneWidget);
-    await tester.tap(find.text("OK"));
+    expect(
+      find.text("These PINs don't match. Choose one again."),
+      findsOneWidget,
+    );
+    await tester.pump(pinMismatchPause);
     await idle(tester);
+    expect(find.byKey(const Key("pin_chosen_row")), findsNothing);
     expect(chooseShort, findsOneWidget);
     expect(find.bySemanticsLabel("No pin code entered"), findsOneWidget);
   });

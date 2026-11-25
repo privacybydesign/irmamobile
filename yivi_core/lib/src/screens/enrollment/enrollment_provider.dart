@@ -37,10 +37,6 @@ class EnrollmentNotifier extends Notifier<EnrollmentState> {
   String? _pin;
   var _offerBiometric = false;
 
-  /// Whether the terms are ticked: kept when going back to the welcome page
-  /// and on again, so they need ticking only once.
-  var _termsAccepted = false;
-
   /// The account being made, from the moment the PIN is confirmed: null when
   /// it worked, else the error.
   Future<SessionError?>? _account;
@@ -58,17 +54,20 @@ class EnrollmentNotifier extends Notifier<EnrollmentState> {
       .enroll(email: "", pin: _pin!, language: _language)
       .then((event) => event is EnrollmentFailureEvent ? event.error : null);
 
-  /// The terms, the PIN, the PIN again, and Face ID when it is offered.
-  int get _stepCount => 3 + (_offerBiometric ? 1 : 0);
+  /// The terms, error reports, the PIN, the PIN again, and Face ID when it
+  /// is offered.
+  int get _stepCount => 4 + (_offerBiometric ? 1 : 0);
 
   EnrollmentStepNumber get _termsStep => EnrollmentStepNumber(1, _stepCount);
 
-  EnrollmentStepNumber get _pinStep => EnrollmentStepNumber(2, _stepCount);
+  EnrollmentStepNumber get _errorsStep => EnrollmentStepNumber(2, _stepCount);
 
-  EnrollmentStepNumber get _confirmStep => EnrollmentStepNumber(3, _stepCount);
+  EnrollmentStepNumber get _pinStep => EnrollmentStepNumber(3, _stepCount);
+
+  EnrollmentStepNumber get _confirmStep => EnrollmentStepNumber(4, _stepCount);
 
   EnrollmentState _biometricOrDone() => _offerBiometric
-      ? EnrollmentBiometric(step: EnrollmentStepNumber(4, _stepCount))
+      ? EnrollmentBiometric(step: EnrollmentStepNumber(5, _stepCount))
       : Enrolling();
 
   /// Runs [job] after every action before it.
@@ -95,13 +94,6 @@ class EnrollmentNotifier extends Notifier<EnrollmentState> {
     }
   }
 
-  void setTermsAccepted(bool accepted) => _run(() {
-    if (state is EnrollmentTerms) {
-      _termsAccepted = accepted;
-      state = EnrollmentTerms(step: _termsStep, isAccepted: accepted);
-    }
-  });
-
   /// Get started on the welcome page, in [language]: on to the terms.
   Future<void> next({required String language}) => _run(() async {
     if (state is! EnrollmentWelcome) return;
@@ -114,13 +106,24 @@ class EnrollmentNotifier extends Notifier<EnrollmentState> {
         available &&
         !ref.read(biometricEnabledProvider) &&
         !ref.read(biometricPromptDismissedProvider);
-    state = EnrollmentTerms(step: _termsStep, isAccepted: _termsAccepted);
+    state = EnrollmentTerms(step: _termsStep);
   });
 
-  /// Continue on the terms, once they are accepted: on to the PIN.
-  void termsAccepted() => _run(() {
-    final current = state;
-    if (current is! EnrollmentTerms || !current.isAccepted) return;
+  /// Accept and continue: the latest terms are accepted (which version, and
+  /// when), on to error reports.
+  void termsAccepted() => _run(() async {
+    if (state is! EnrollmentTerms) return;
+    await ref.read(preferencesProvider).acceptLatestTerms(true);
+    if (!ref.mounted) return;
+    state = EnrollmentErrorReports(step: _errorsStep);
+  });
+
+  /// Help improve Yivi?: Share reports ([share]) or Don't share. Stored as
+  /// the error-report setting (also in Settings), then on to the PIN.
+  void errorReportsChosen({required bool share}) => _run(() async {
+    if (state is! EnrollmentErrorReports) return;
+    await ref.read(preferencesProvider).reportErrors.set(share);
+    if (!ref.mounted) return;
     state = EnrollmentChoosePin(step: _pinStep);
   });
 
@@ -128,9 +131,10 @@ class EnrollmentNotifier extends Notifier<EnrollmentState> {
     switch (state) {
       case EnrollmentTerms():
         state = EnrollmentWelcome();
+      case EnrollmentErrorReports():
+        state = EnrollmentTerms(step: _termsStep);
       case EnrollmentChoosePin():
-        // The terms were accepted to get here.
-        state = EnrollmentTerms(step: _termsStep, isAccepted: _termsAccepted);
+        state = EnrollmentErrorReports(step: _errorsStep);
       case EnrollmentConfirmPin():
         state = EnrollmentChoosePin(step: _pinStep);
       case EnrollmentFailed():

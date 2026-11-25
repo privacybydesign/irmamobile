@@ -12,6 +12,7 @@ import "../../data/pref.dart";
 import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
 import "../../theme/yivi_edges.dart";
+import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../theme/yivi_tone.dart";
@@ -156,6 +157,16 @@ class YiviPinScreen extends ConsumerStatefulWidget {
   final bool enabled;
   final void Function(BuildContext, EnterPinState)? listener;
 
+  /// The PIN chosen a moment ago, while it is entered again on the same
+  /// screen: it moves up from the field, smaller and grey (always as dots),
+  /// and the field under it gets exactly as many slots, so it checks itself
+  /// once full ([maxPinSize] is its length). Null while choosing.
+  final String? chosenPin;
+
+  /// Entering it again went wrong ("These PINs don't match."): a red line
+  /// under the field, and the field shakes once.
+  final String? againError;
+
   const YiviPinScreen({
     Key key = const Key("pin_screen"),
     this.instructionKey,
@@ -182,6 +193,8 @@ class YiviPinScreen extends ConsumerStatefulWidget {
     this.submitLabel = "choose_pin.next",
     this.enabled = true,
     this.listener,
+    this.chosenPin,
+    this.againError,
   }) : assert(
          instructionKey != null && instruction == null ||
              instruction != null && instructionKey == null,
@@ -193,7 +206,7 @@ class YiviPinScreen extends ConsumerStatefulWidget {
 }
 
 class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final pinVisibilityValue = ValueNotifier(false);
   EnterPinState _state = EnterPinState.empty();
 
@@ -210,6 +223,24 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
   late final Animation<double> _jumpScale = CurvedAnimation(
     parent: _jumpController,
     curve: _dotPop,
+  );
+
+  /// 0 while choosing, 1 once the chosen PIN has moved up to be entered
+  /// again ([YiviPinScreen.chosenPin]).
+  late final _again = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+    value: widget.chosenPin == null ? 0 : 1,
+  );
+  late final Animation<double> _againT = CurvedAnimation(
+    parent: _again,
+    curve: YiviMotion.ease,
+  );
+
+  /// One shake of the field when entering it again went wrong.
+  late final _shake = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
   );
 
   // The "Why?" after a PIN that is possibly not secure.
@@ -230,11 +261,26 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
   @override
   void didUpdateWidget(covariant YiviPinScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Switching between short and long PIN starts a fresh entry.
-    if (widget.maxPinSize != oldWidget.maxPinSize) {
+    // Switching between short and long PIN starts a fresh entry, and so do
+    // going on to enter it again and coming back to choose.
+    final againChanged =
+        (widget.chosenPin == null) != (oldWidget.chosenPin == null);
+    if (widget.maxPinSize != oldWidget.maxPinSize || againChanged) {
       _state = EnterPinState.empty();
       _presses.clear();
       _commitWaiting = false;
+    }
+    if (againChanged) {
+      final still = MediaQuery.disableAnimationsOf(context);
+      if (widget.chosenPin != null) {
+        still ? _again.value = 1 : _again.forward(from: 0);
+      } else {
+        _again.value = 0;
+      }
+    }
+    if (widget.againError != null && oldWidget.againError == null) {
+      if (!MediaQuery.disableAnimationsOf(context)) _shake.forward(from: 0);
+      Haptics.error();
     }
   }
 
@@ -242,6 +288,8 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
   void dispose() {
     _whyRecognizer.dispose();
     _jumpController.dispose();
+    _again.dispose();
+    _shake.dispose();
     pinVisibilityValue.dispose();
     super.dispose();
   }
@@ -366,6 +414,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
   /// The mark (or header), title, line and PIN field: everything above the
   /// keypad, the same in every layout.
   List<Widget> _upperPart(BuildContext context, {bool withHeader = true}) {
+    if (widget.chosenPin case final chosen?) return [_againPart(chosen)];
     final header = widget.header;
     return [
       if (header != null && withHeader) ...[
@@ -392,6 +441,110 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
       const SizedBox(height: YiviSpace.x24),
       _buildPinField(context),
     ];
+  }
+
+  /// Entering the chosen PIN again, on the same screen: the lock folds away,
+  /// the title moves up and becomes the new one, the chosen PIN moves up out
+  /// of the field (smaller, grey, dots only) and a fresh field fades in where
+  /// it was. The field keeps its place, so the keypad doesn't move.
+  Widget _againPart(String chosen) {
+    final palette = YiviPalette.of(context);
+    final long = chosen.length != shortPinSize;
+    // From the field's middle up to the grey row's middle.
+    const rowHeight = 20.0;
+    const rowGap = 16.0;
+    const rise = rowHeight / 2 + rowGap + _pinFieldHeight / 2;
+    final grey = _ChosenPinRow(length: chosen.length, long: long);
+    return AnimatedBuilder(
+      animation: Listenable.merge([_againT, _shake]),
+      builder: (context, _) {
+        final t = _againT.value;
+        // The mark goes first; the new field comes once the PIN has risen.
+        final markLeft = (1 - t * 1.6).clamp(0.0, 1.0);
+        final fieldIn = ((t - 0.35) / 0.65).clamp(0.0, 1.0);
+        final shake = sin(_shake.value * pi * 6) * 8 * (1 - _shake.value);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.showMark)
+              ClipRect(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  heightFactor: markLeft,
+                  child: Opacity(
+                    opacity: markLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: YiviSpace.x24),
+                      child: _buildHeaderMark(context),
+                    ),
+                  ),
+                ),
+              ),
+            _buildInstructionText(context),
+            // The grey row's room opens as it rises, so the title moves up.
+            ClipRect(
+              clipBehavior: Clip.none,
+              child: Align(
+                alignment: Alignment.topCenter,
+                heightFactor: t,
+                child: const SizedBox(height: rowGap + rowHeight + rowGap),
+              ),
+            ),
+            SizedBox(
+              height: _pinFieldHeight,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Opacity(
+                    opacity: fieldIn,
+                    child: Transform.translate(
+                      offset: Offset(shake, 0),
+                      child: _buildPinField(context),
+                    ),
+                  ),
+                  // The chosen PIN: in the field at first, then up and grey.
+                  Transform.translate(
+                    offset: Offset(0, -rise * t),
+                    child: Transform.scale(
+                      scale: 1 - 0.22 * t,
+                      child: Opacity(
+                        opacity: 1 - 0.45 * t,
+                        child: ExcludeSemantics(child: grey),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // The mismatch, under the field; its room is always there, so
+            // nothing moves when it comes.
+            SizedBox(
+              height: 28,
+              child: widget.againError == null
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.only(top: YiviSpace.x8),
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          widget.againError!,
+                          key: const Key("pin_again_error"),
+                          textAlign: TextAlign.center,
+                          style: palette
+                              .body(14, weight: FontWeight.w600)
+                              .copyWith(
+                                height: 20 / 14,
+                                color: palette.errorText,
+                              ),
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   /// Portrait phone: one column low on the screen, in reach of the thumb. The
@@ -688,7 +841,34 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
     final error = widget.pinError && _state.pin.isEmpty;
     final dim = !widget.enabled;
     Widget field;
-    if (_isLong) {
+    if (widget.chosenPin != null) {
+      // Entering it again: as many slots as the chosen PIN, the eye beside
+      // them (with the same setting as while choosing), no arrow and no
+      // counter: it checks itself once full.
+      field = SizedBox(
+        height: _pinFieldHeight,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(width: 44),
+            _PinIndicator(
+              maxPinSize: widget.maxPinSize,
+              pinVisibilityValue: pinVisibilityValue,
+              pinState: _state,
+              ring: widget.againError != null ? palette.errorText : null,
+              slots: widget.maxPinSize,
+            ),
+            SizedBox(
+              width: 44,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: _buildListeningPinVisibilityButton(),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_isLong) {
       final edge = error
           ? palette.errorText
           : warning

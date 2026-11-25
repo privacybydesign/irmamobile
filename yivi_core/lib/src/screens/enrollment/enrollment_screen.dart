@@ -1,7 +1,6 @@
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
@@ -11,17 +10,20 @@ import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
 import "../../util/i18n.dart";
 import "../../widgets/feedback/spinner.dart";
+import "../../widgets/sheet/sheet.dart";
 import "../../widgets/text/translated_text.dart";
+import "../pin/providers/biometric_provider.dart";
 import "biometric/enrollment_biometric_screen.dart";
-import "choose_pin/choose_pin_screen.dart";
-import "confirm_pin/confirm_pin_screen.dart";
-import "confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
 import "enrollment_failed_screen.dart";
 import "enrollment_provider.dart";
 import "enrollment_state.dart";
+import "error_reports/enrollment_error_reports_screen.dart";
+import "pin/enrollment_pin_page.dart";
 import "terms/enrollment_terms_screen.dart";
 import "welcome/welcome_screen.dart";
+import "widgets/enrollment_actions.dart";
 import "widgets/enrollment_bar.dart";
+import "widgets/enrollment_step_page.dart";
 import "widgets/wallet_deleted_confirmation.dart";
 
 class EnrollmentScreen extends ConsumerStatefulWidget {
@@ -30,16 +32,16 @@ class EnrollmentScreen extends ConsumerStatefulWidget {
 }
 
 class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
-  /// The PIN chosen in the first step, for the confirm step to compare
-  /// with. Kept here, not in build: anything that rebuilds the screen
-  /// between the two steps (a theme change) would otherwise forget it.
-  final _newPin = ValueNotifier("");
+  /// The PIN chosen in step 3, for step 4 to compare with. Kept here, not in
+  /// build: anything that rebuilds the screen between the two (a theme
+  /// change) would otherwise forget it.
+  String _chosenPin = "";
 
   final _navigator = GlobalKey<NavigatorState>();
+  final _welcome = GlobalKey<WelcomeScreenState>();
 
-  /// Goes up after a second PIN that did not match, so choosing starts over
-  /// on a fresh PIN page.
-  var _chooseRound = 0;
+  /// Use Face ID waits for the system prompt.
+  var _biometricBusy = false;
 
   @override
   void initState() {
@@ -47,12 +49,6 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
     // The default for this value is intentionally
     // different for the fresh install and upgrade flows.
     ref.read(preferencesProvider).longPin.set(false);
-  }
-
-  @override
-  void dispose() {
-    _newPin.dispose();
-    super.dispose();
   }
 
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
@@ -69,12 +65,13 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
   );
 
   /// How far into the steps [state] is: the pages up to it are stacked, so
-  /// each step is pushed over the one before and back pops it.
+  /// each step comes in over the one before and back takes it away. The PIN
+  /// is one page, chosen and then entered again on it.
   static int _depth(EnrollmentState state) => switch (state) {
     EnrollmentWelcome() => 0,
     EnrollmentTerms() => 1,
-    EnrollmentChoosePin() => 2,
-    EnrollmentConfirmPin() => 3,
+    EnrollmentErrorReports() => 2,
+    EnrollmentChoosePin() || EnrollmentConfirmPin() => 3,
     EnrollmentBiometric() => 4,
     // Setting up or failed: over the last step.
     _ => 5,
@@ -83,18 +80,79 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
   static const _keys = [
     ValueKey("welcome"),
     ValueKey("terms"),
-    ValueKey("choose_pin"),
-    ValueKey("confirm_pin"),
+    ValueKey("error_reports"),
+    ValueKey("pin"),
     ValueKey("biometric"),
   ];
 
-  /// The step a back swipe or the system back button may leave: the terms
-  /// and the two PIN pages. Face ID can't go back (the account is being
-  /// made), nor can setting up.
+  /// The steps a back swipe or the system back button may leave: the terms,
+  /// error reports and choosing the PIN (back while entering it again goes
+  /// back to choosing, on the same page). Face ID can't go back (the account
+  /// is being made), nor can setting up.
   static bool _canGoBack(EnrollmentState state) =>
       state is EnrollmentTerms ||
-      state is EnrollmentChoosePin ||
-      state is EnrollmentConfirmPin;
+      state is EnrollmentErrorReports ||
+      state is EnrollmentChoosePin;
+
+  static bool _hasBack(EnrollmentState state) =>
+      _canGoBack(state) || state is EnrollmentConfirmPin;
+
+  Future<void> _useBiometric() async {
+    setState(() => _biometricBusy = true);
+    await ref
+        .read(biometricServiceProvider)
+        .confirmAndEnable(
+          localizedReason: context.tr("pin.biometric_confirm_reason"),
+        );
+    if (!mounted) return;
+    setState(() => _biometricBusy = false);
+    ref.read(enrollmentProvider.notifier).biometricDone();
+  }
+
+  void _biometricNotNow() {
+    ref.read(biometricServiceProvider).dismissPrompt();
+    ref.read(enrollmentProvider.notifier).biometricDone();
+  }
+
+  /// The buttons of the step at [depth] (null: none, as on the PIN).
+  EnrollmentStepActions? _actionsAt(BuildContext context, int depth) {
+    final enrollment = ref.read(enrollmentProvider.notifier);
+    switch (depth) {
+      case 0:
+        return EnrollmentStepActions(
+          primary: context.tr("enrollment.welcome.start"),
+          primaryKey: const Key("enrollment_next_button"),
+          onPrimary: () => _welcome.currentState?.start(),
+        );
+      case 1:
+        return EnrollmentStepActions(
+          primary: context.tr("enrollment.terms.accept"),
+          primaryKey: const Key("enrollment_terms_continue"),
+          onPrimary: enrollment.termsAccepted,
+        );
+      case 2:
+        return EnrollmentStepActions(
+          primary: context.tr("enrollment.error_reports.share"),
+          primaryKey: const Key("error_reports_share"),
+          onPrimary: () => enrollment.errorReportsChosen(share: true),
+          secondary: context.tr("enrollment.error_reports.dont_share"),
+          secondaryKey: const Key("error_reports_dont_share"),
+          onSecondary: () => enrollment.errorReportsChosen(share: false),
+        );
+      case 4:
+        final kind = biometricKindOf(ref.watch(biometricTypeProvider).value);
+        return EnrollmentStepActions(
+          primary: context.tr("enrollment.biometric.use_$kind"),
+          primaryKey: const Key("biometric_enable"),
+          onPrimary: _biometricBusy ? null : _useBiometric,
+          secondary: context.tr("enrollment.biometric.not_now"),
+          secondaryKey: const Key("biometric_not_now"),
+          onSecondary: _biometricBusy ? null : _biometricNotNow,
+        );
+      default:
+        return null;
+    }
+  }
 
   List<Page<Object?>> _pages(BuildContext context, EnrollmentState state) {
     final enrollment = ref.read(enrollmentProvider.notifier);
@@ -103,77 +161,62 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
     Widget step(Widget child) =>
         EnrollmentBarSpace(height: space, child: child);
     Page<Object?> page(int index, Widget child, {bool canPop = true}) =>
-        MaterialPage(
+        EnrollmentStepPage(
           key: _keys[index],
-          child: PopScope(canPop: canPop, child: child),
+          child: PopScope(
+            canPop: canPop,
+            // Entering the PIN again: back goes back to choosing, here.
+            onPopInvokedWithResult: (didPop, _) {
+              if (!didPop && state is EnrollmentConfirmPin && index == 3) {
+                enrollment.back();
+              }
+            },
+            child: child,
+          ),
         );
 
     return [
       page(
         0,
         WelcomeScreen(
+          key: _welcome,
           onContinue: () => enrollment.next(language: context.lang),
         ),
       ),
       if (depth >= 1)
         page(
           1,
-          step(
-            EnrollmentTermsScreen(
-              // Below the PIN the terms were accepted to get there.
-              isAccepted: state is EnrollmentTerms ? state.isAccepted : true,
-              onContinue: enrollment.termsAccepted,
-              onToggleAccepted: (isAccepted) {
-                ref.read(preferencesProvider).acceptLatestTerms(isAccepted);
-                enrollment.setTermsAccepted(isAccepted);
-              },
-            ),
-          ),
+          step(EnrollmentTermsScreen(actions: _actionsAt(context, 1)!)),
           canPop: state is EnrollmentTerms,
         ),
       if (depth >= 2)
         page(
           2,
-          step(
-            KeyedSubtree(
-              key: ValueKey(_chooseRound),
-              child: ChoosePinScreen(
-                underBar: true,
-                onPrevious: enrollment.back,
-                onChoosePin: enrollment.pinChosen,
-                newPinNotifier: _newPin,
-              ),
-            ),
-          ),
-          canPop: state is EnrollmentChoosePin,
+          step(EnrollmentErrorReportsScreen(actions: _actionsAt(context, 2)!)),
+          canPop: state is EnrollmentErrorReports,
         ),
       if (depth >= 3)
         page(
           3,
           step(
-            ConfirmPinScreen(
-              underBar: true,
-              newPinNotifier: _newPin,
-              onPrevious: enrollment.back,
-              submitConfirmationPin: enrollment.pinConfirmed,
-              onPinMismatch: () {
-                showPinConfirmationFailedDialog(
-                  context,
-                  onPressed: (context) {
-                    setState(() => _chooseRound++);
-                    enrollment.pinMismatch();
-                    context.pop();
-                  },
-                );
+            EnrollmentPinPage(
+              // Chosen until choosing starts over: confirmed, the page
+              // stays as it is while the next comes in.
+              chosen: state is EnrollmentChoosePin ? null : _chosenPin,
+              onChosen: (pin) {
+                _chosenPin = pin;
+                enrollment.pinChosen(pin);
               },
+              onConfirmed: enrollment.pinConfirmed,
+              onMismatch: enrollment.pinMismatch,
             ),
           ),
-          canPop: state is EnrollmentConfirmPin,
+          canPop: state is EnrollmentChoosePin,
         ),
       if (depth >= 4 && state is! EnrollmentFailed)
         page(
           4,
-          step(EnrollmentBiometricScreen(onDone: enrollment.biometricDone)),
+          step(EnrollmentBiometricScreen(actions: _actionsAt(context, 4)!)),
           canPop: false,
         ),
       if (state case EnrollmentFailed())
@@ -220,11 +263,13 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
     final state = ref.watch(enrollmentProvider);
     final step = switch (state) {
       EnrollmentTerms(:final step) => step,
+      EnrollmentErrorReports(:final step) => step,
       EnrollmentChoosePin(:final step) => step,
       EnrollmentConfirmPin(:final step) => step,
       EnrollmentBiometric(:final step) => step,
       _ => null,
     };
+    final layered = EnrollmentActionsScope.fits(context);
 
     return WalletDeletedConfirmation(
       child: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -235,33 +280,49 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
             (YiviPalette.of(context).isDark
                 ? SystemUiOverlayStyle.light
                 : SystemUiOverlayStyle.dark),
-        child: Stack(
-          children: [
-            // The system back button goes back a step, as the bar's does.
-            NavigatorPopHandler(
-              enabled: _canGoBack(state),
-              onPopWithResult: (_) => _navigator.currentState?.maybePop(),
-              child: HeroControllerScope(
-                controller: MaterialApp.createMaterialHeroController(),
-                child: Navigator(
-                  key: _navigator,
-                  pages: _pages(context, state),
-                  onDidRemovePage: _removed,
+        child: EnrollmentActionsScope(
+          layered: layered,
+          // The page colour under the steps: while one fades out and the
+          // next in, neither covers the screen.
+          child: ColoredBox(
+            color: YiviPalette.of(context).background,
+            child: Stack(
+              children: [
+                // The system back button goes back a step, as the bar's does.
+                NavigatorPopHandler(
+                  enabled: _hasBack(state),
+                  onPopWithResult: (_) => _navigator.currentState?.maybePop(),
+                  child: HeroControllerScope(
+                    controller: MaterialApp.createMaterialHeroController(),
+                    // A sheet goes over the bar and the buttons too.
+                    child: SheetsOverEverything(
+                      child: Navigator(
+                        key: _navigator,
+                        pages: _pages(context, state),
+                        onDidRemovePage: _removed,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                // Over the pages, so it stays put while they change under it.
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  child: EnrollmentBar(
+                    step: step,
+                    label: step == null ? "" : _step(context, step),
+                    onBack: _hasBack(state) ? enrollment.back : null,
+                  ),
+                ),
+                // The buttons too, on a phone held upright.
+                if (layered)
+                  EnrollmentActionsLayer(
+                    actions: _actionsAt(context, _depth(state)),
+                  ),
+              ],
             ),
-            // Over the pages, so it stays put while they slide under it.
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              child: EnrollmentBar(
-                step: step,
-                label: step == null ? "" : _step(context, step),
-                onBack: _canGoBack(state) ? enrollment.back : null,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

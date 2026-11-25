@@ -80,11 +80,17 @@ class _PinIndicator extends StatelessWidget {
   /// The rings' colour: the text colour, or red after a wrong PIN.
   final Color? ring;
 
+  /// A fixed number of slots, each with its ring, as for the short PIN: the
+  /// chosen PIN's length while it is entered again. Null: the short PIN's
+  /// five, or the long PIN's dots as they come.
+  final int? slots;
+
   const _PinIndicator({
     required this.maxPinSize,
     required this.pinVisibilityValue,
     required this.pinState,
     this.ring,
+    this.slots,
   });
 
   @override
@@ -103,23 +109,27 @@ class _PinIndicator extends StatelessWidget {
 
     final textColor = isPinVisible ? palette.heading : Colors.transparent;
 
-    final isMaxPin5 = maxPinSize == shortPinSize;
+    // Fixed slots, each with a ring: the short PIN's five, or as many as the
+    // chosen PIN while it is entered again (smaller from six on, to fit).
+    final isMaxPin5 = slots != null || maxPinSize == shortPinSize;
+    final slotCount = slots ?? shortPinSize;
+    final small = slotCount > shortPinSize;
     final pinSize = pinState.pin.length;
 
     // Long PIN shrinks as it fills, so a full 16-digit PIN lands at 12px while
     // shorter entries stay ~20px. Short PIN is a fixed 24px.
     final fontSize = isMaxPin5
-        ? 24.0
+        ? (small ? 16.0 : 24.0)
         : 20 - (pinSize - 1).clamp(0, 15) / 15 * 8;
     final style = theme.textTheme.displayMedium?.copyWith(
       color: textColor,
       fontSize: fontSize,
     );
     // Each digit's box tracks the glyph size so the row fits without clipping.
-    final boxWidth = isMaxPin5 ? 14.0 : fontSize * 0.8;
+    final boxWidth = isMaxPin5 ? (small ? 10.0 : 14.0) : fontSize * 0.8;
 
     // The design's 16 pt rings for the short PIN, small dots for the long.
-    final double scaledEdgeSize = maxPinSize != shortPinSize ? 6 : 16;
+    final double scaledEdgeSize = isMaxPin5 ? (small ? 10 : 16) : 6;
 
     final circleFilledDecoration = BoxDecoration(
       color: isPinVisible ? Colors.transparent : palette.text,
@@ -133,8 +143,9 @@ class _PinIndicator extends StatelessWidget {
       border: Border.all(color: ring ?? palette.text, width: 2.0),
     );
 
-    // prevent the row from collapsing
-    if (pinSize == 0 && maxPinSize != shortPinSize) {
+    // An empty long PIN: only the row's height (fixed slots show their
+    // rings from the start).
+    if (pinSize == 0 && !isMaxPin5) {
       return SizedBox(width: 0, height: 19.scaleToDesignSize(context));
     }
 
@@ -149,10 +160,10 @@ class _PinIndicator extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       // 16 between the short PIN's rings, as in the design.
-      spacing: isMaxPin5 ? 16 : 0,
+      spacing: isMaxPin5 ? (small ? 7 : 16) : 0,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: List.generate(
-        isMaxPin5 ? shortPinSize : pinSize,
+        isMaxPin5 ? slotCount : pinSize,
         (i) => Stack(
           key: ValueKey("pin_dot_$i"),
           alignment: Alignment.center,
@@ -214,6 +225,36 @@ class _PinIndicator extends StatelessWidget {
         // fit, so it isn't fitted.
         child: isMaxPin5 ? row : FittedBox(fit: BoxFit.scaleDown, child: row),
       ),
+    );
+  }
+}
+
+/// The chosen PIN while it is entered again: grey dots, never its digits.
+class _ChosenPinRow extends StatelessWidget {
+  final int length;
+  final bool long;
+
+  const _ChosenPinRow({required this.length, required this.long});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final size = long ? 10.0 : 16.0;
+    return Row(
+      key: const Key("pin_chosen_row"),
+      mainAxisSize: MainAxisSize.min,
+      spacing: long ? 7 : 16,
+      children: [
+        for (var i = 0; i < length; i++)
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: palette.faint,
+              shape: BoxShape.circle,
+            ),
+          ),
+      ],
     );
   }
 }

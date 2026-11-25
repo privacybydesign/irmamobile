@@ -1,4 +1,3 @@
-import "dart:async";
 import "dart:io";
 
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -10,63 +9,44 @@ import "../../../theme/yivi_edges.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
-import "../../../util/i18n.dart";
-import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/surfaces/icon_square.dart";
 import "../../pin/providers/biometric_provider.dart";
 import "../../pin/widgets/biometric_glyph.dart";
+import "../widgets/enrollment_actions.dart";
 import "../widgets/enrollment_page.dart";
+
+/// What the device calls its biometric, for the strings
+/// `enrollment.biometric.*_<kind>`: Face ID or Touch ID on iOS, face unlock
+/// or fingerprint on Android.
+String biometricKindOf(BiometricType? type) => switch (type) {
+  BiometricType.face => Platform.isIOS ? "face_id" : "face",
+  BiometricType.fingerprint => Platform.isIOS ? "touch_id" : "fingerprint",
+  _ => "fingerprint",
+};
 
 /// The enrollment step that offers Face ID, Touch ID or the fingerprint to
 /// open the app. Sharing data still asks for the PIN.
 ///
-/// Use first confirms with the system prompt and only then turns it on; a
-/// failed or cancelled prompt leaves it off, and the step is done either way.
-class EnrollmentBiometricScreen extends ConsumerStatefulWidget {
-  final VoidCallback onDone;
+/// Its buttons ([actions]: Not now, Use …) belong to the enrollment: Use
+/// first confirms with the system prompt and only then turns it on; a failed
+/// or cancelled prompt leaves it off, and the step is done either way.
+class EnrollmentBiometricScreen extends ConsumerWidget {
+  final EnrollmentStepActions actions;
 
-  const EnrollmentBiometricScreen({super.key, required this.onDone});
-
-  @override
-  ConsumerState<EnrollmentBiometricScreen> createState() =>
-      _EnrollmentBiometricScreenState();
-}
-
-class _EnrollmentBiometricScreenState
-    extends ConsumerState<EnrollmentBiometricScreen> {
-  bool _busy = false;
-
-  Future<void> _use() async {
-    setState(() => _busy = true);
-    await ref
-        .read(biometricServiceProvider)
-        .confirmAndEnable(
-          localizedReason: context.tr("pin.biometric_confirm_reason"),
-        );
-    if (mounted) widget.onDone();
-  }
-
-  void _notNow() {
-    ref.read(biometricServiceProvider).dismissPrompt();
-    widget.onDone();
-  }
+  const EnrollmentBiometricScreen({super.key, required this.actions});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = YiviPalette.of(context);
     final tablet = isTabletWindow(context);
     final sideways = enrollmentSideways(context);
     final type = ref.watch(biometricTypeProvider).value;
-    final kind = switch (type) {
-      BiometricType.face => Platform.isIOS ? "face_id" : "face",
-      BiometricType.fingerprint => Platform.isIOS ? "touch_id" : "fingerprint",
-      _ => "fingerprint",
-    };
+    final kind = biometricKindOf(type);
     final align = sideways ? TextAlign.start : TextAlign.center;
 
     final tile = tablet ? 168.0 : 132.0;
     final glyph = tablet ? 92.0 : 72.0;
-    final about = Center(
+    final icon = Center(
       child: ExcludeSemantics(
         child: IconSquare(
           fill: palette.surface,
@@ -78,40 +58,44 @@ class _EnrollmentBiometricScreenState
       ),
     );
 
-    final size = tablet ? PillSize.large : PillSize.regular;
-    final action = Column(
+    final text = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         EnrollmentTitle("enrollment.biometric.title_$kind", textAlign: align),
         const SizedBox(height: YiviSpace.x8),
         EnrollmentLead("enrollment.biometric.body", textAlign: align),
-        const SizedBox(height: YiviSpace.x24),
-        Row(
-          spacing: YiviSpace.x8,
-          children: [
-            Expanded(
-              child: PillButton(
-                key: const Key("biometric_not_now"),
-                label: context.tr("enrollment.biometric.not_now"),
-                style: PillStyle.text,
-                size: size,
-                onPressed: _busy ? null : _notNow,
-              ),
-            ),
-            Expanded(
-              child: PrimaryPillButton(
-                key: const Key("biometric_enable"),
-                label: context.tr("enrollment.biometric.use_$kind"),
-                size: size,
-                onPressed: _busy ? null : _use,
-              ),
-            ),
-          ],
-        ),
       ],
     );
+    final buttons = EnrollmentStepButtons(actions: actions);
 
-    return EnrollmentPage(about: about, action: action);
+    // Upright the icon and the text together in the middle, the buttons
+    // low; sideways the text with the buttons beside the icon.
+    if (!sideways) {
+      return EnrollmentPage(
+        about: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            icon,
+            const SizedBox(height: YiviSpace.x24),
+            text,
+          ],
+        ),
+        action: buttons,
+      );
+    }
+    return EnrollmentPage(
+      about: icon,
+      action: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          text,
+          const SizedBox(height: YiviSpace.x24),
+          buttons,
+        ],
+      ),
+    );
   }
 }

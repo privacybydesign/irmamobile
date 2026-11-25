@@ -1,18 +1,13 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/data/keyshare_email_link_api.dart";
-import "package:yivi_core/src/models/credential.dart";
-import "package:yivi_core/src/models/protocol.dart";
-import "package:yivi_core/src/models/session.dart";
-import "package:yivi_core/src/models/session_state.dart";
-import "package:yivi_core/src/providers/contact_issuance_provider.dart";
 import "package:yivi_core/src/screens/back_to_website/back_to_website_screen.dart";
 import "package:yivi_core/src/screens/enrollment/biometric/enrollment_biometric_screen.dart";
-import "package:yivi_core/src/screens/enrollment/choose_pin/choose_pin_screen.dart";
-import "package:yivi_core/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart";
+import "package:yivi_core/src/screens/enrollment/error_reports/enrollment_error_reports_screen.dart";
+import "package:yivi_core/src/screens/enrollment/pin/enrollment_pin_page.dart";
 import "package:yivi_core/src/screens/enrollment/terms/enrollment_terms_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
+import "package:yivi_core/src/screens/enrollment/widgets/enrollment_actions.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
@@ -93,83 +88,233 @@ void main() {
 
   group("terms", () {
     for (final MapEntry(key: name, value: (size, padding)) in _sizes.entries) {
-      testWidgets("$name: the terms in short, and Continue once accepted", (
+      testWidgets("$name: both documents, and Accept and continue", (
         tester,
       ) async {
         _device(tester, size, padding);
-        var accepted = false;
-        var continued = 0;
+        var accepted = 0;
         await pumpHome(
           tester,
           repo: repo,
-          home: StatefulBuilder(
-            builder: (context, setState) => EnrollmentTermsScreen(
-              isAccepted: accepted,
-              onToggleAccepted: (v) => setState(() => accepted = v),
-              onContinue: () => continued++,
+          home: EnrollmentTermsScreen(
+            actions: EnrollmentStepActions(
+              primary: "Accept and continue",
+              primaryKey: const Key("enrollment_terms_continue"),
+              onPrimary: () => accepted++,
             ),
           ),
         );
         await settle(tester);
 
         expect(find.text("Before you start"), findsOneWidget);
-        expect(find.text("Your PIN protects your data"), findsOneWidget);
+        expect(find.byKey(const Key("enrollment_terms_open")), findsOneWidget);
         expect(
-          find.byKey(const Key("enrollment_terms_read_full")),
+          find.byKey(const Key("enrollment_privacy_open")),
           findsOneWidget,
         );
+        expect(find.byKey(const Key("enrollment_terms_agree")), findsOneWidget);
+        // No checkbox: the tap on the button is the agreement.
+        expect(find.byType(Checkbox), findsNothing);
 
         final go = find.byKey(const Key("enrollment_terms_continue"));
-        expect(tester.widget<PrimaryPillButton>(go).onPressed, isNull);
+        await tester.ensureVisible(go);
+        await tester.pump();
+        await tester.tap(go);
+        expect(accepted, 1);
+      });
+    }
 
-        // A small phone with large text scrolls the page down to the terms.
-        await tester.runAsync(
-          () => Scrollable.ensureVisible(
-            tester.element(find.byKey(const Key("accept_terms_checkbox"))),
-            alignment: 0.5,
+    for (final (row, sheet) in [
+      ("enrollment_terms_open", "legal_sheet_terms"),
+      ("enrollment_privacy_open", "legal_sheet_privacy"),
+    ]) {
+      testWidgets("$row opens the document in short, and the full text", (
+        tester,
+      ) async {
+        final (size, padding) = _sizes["phone upright"]!;
+        _device(tester, size, padding);
+        await pumpHome(
+          tester,
+          repo: repo,
+          home: EnrollmentTermsScreen(
+            actions: EnrollmentStepActions(primary: "Go", onPrimary: () {}),
           ),
         );
+        await settle(tester);
+
+        await tester.tap(find.byKey(Key(row)));
+        await settle(tester);
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(find.byKey(Key(sheet)), findsOneWidget);
+        expect(find.text("In short"), findsOneWidget);
+        expect(find.byKey(const Key("enrollment_sheet_hero")), findsOneWidget);
+        expect(find.byKey(const Key("legal_sheet_read_full")), findsOneWidget);
+      });
+    }
+  });
+
+  group("error reports", () {
+    for (final MapEntry(key: name, value: (size, padding)) in _sizes.entries) {
+      testWidgets("$name: Don't share and Share reports side by side", (
+        tester,
+      ) async {
+        _device(tester, size, padding);
+        final answers = <bool>[];
+        await pumpHome(
+          tester,
+          repo: repo,
+          home: EnrollmentErrorReportsScreen(
+            actions: EnrollmentStepActions(
+              primary: "Share reports",
+              primaryKey: const Key("error_reports_share"),
+              onPrimary: () => answers.add(true),
+              secondary: "Don't share",
+              secondaryKey: const Key("error_reports_dont_share"),
+              onSecondary: () => answers.add(false),
+            ),
+          ),
+        );
+        await settle(tester);
+
+        expect(find.text("Help improve Yivi?"), findsOneWidget);
+        final share = find.byKey(const Key("error_reports_share"));
+        final dontShare = find.byKey(const Key("error_reports_dont_share"));
+        await tester.ensureVisible(share);
         await tester.pump();
-        await tester.tap(find.byKey(const Key("accept_terms_checkbox")));
-        await tester.pump();
-        expect(tester.widget<PrimaryPillButton>(go).onPressed, isNotNull);
-        await tester.tap(go);
-        expect(continued, 1);
+        expect(
+          tester.getCenter(dontShare).dx,
+          lessThan(tester.getCenter(share).dx),
+        );
+        expect(
+          tester.getCenter(dontShare).dy,
+          moreOrLessEquals(tester.getCenter(share).dy),
+        );
+        await tester.tap(dontShare);
+        await tester.tap(share);
+        expect(answers, [false, true]);
       });
     }
   });
 
   group("PIN", () {
-    testWidgets("confirming a different PIN says so and sends nothing", (
-      tester,
-    ) async {
-      final (size, padding) = _sizes["tablet upright"]!;
-      _device(tester, size, padding);
-      var mismatches = 0;
+    /// The PIN page as the enrollment has it: choose, then the same again.
+    Future<(List<String>, ValueGetter<String?>)> pumpPinPage(
+      WidgetTester tester, {
+      bool short = true,
+    }) async {
       final confirmed = <String>[];
+      String? chosen;
       await pumpHome(
         tester,
         repo: repo,
-        home: ConfirmPinScreen(
-          stepLabel: "Step 2 of 3",
-          submitConfirmationPin: confirmed.add,
-          onPrevious: () {},
-          newPinNotifier: ValueNotifier("58193"),
-          onPinMismatch: () => mismatches++,
+        home: StatefulBuilder(
+          builder: (context, setState) => EnrollmentPinPage(
+            chosen: chosen,
+            onChosen: (pin) => setState(() => chosen = pin),
+            onConfirmed: confirmed.add,
+            onMismatch: () => setState(() => chosen = null),
+          ),
         ),
       );
+      // The long-PIN preference streams in; a long PIN is the default.
       await settle(tester);
-      Future<void> type(String digits) async {
-        for (final d in digits.split("")) {
-          await tester.tap(find.text(d));
-          await tester.pump();
-        }
-        await tester.pump(const Duration(milliseconds: 300));
+      if (short) {
+        await tester.tap(find.text("Prefer a shorter PIN?"));
+        await settle(tester);
       }
+      return (confirmed, () => chosen);
+    }
 
-      await type("58194");
-      expect(mismatches, 1);
+    Future<void> type(WidgetTester tester, String digits) async {
+      for (final d in digits.split("")) {
+        await tester.tap(find.byKey(Key("number_pad_key_$d")));
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.pump(const Duration(milliseconds: 600));
+    }
+
+    testWidgets("the chosen PIN moves up, grey, and the same again confirms", (
+      tester,
+    ) async {
+      final (size, padding) = _sizes["phone upright"]!;
+      _device(tester, size, padding);
+      final (confirmed, chosen) = await pumpPinPage(tester);
+
+      await type(tester, "58193");
+      await settle(tester);
+      expect(chosen(), "58193");
+      expect(find.byKey(const Key("pin_chosen_row")), findsOneWidget);
+      expect(find.text("Enter the same PIN again"), findsOneWidget);
+
+      await type(tester, "58193");
+      expect(confirmed, ["58193"]);
+    });
+
+    testWidgets("a different PIN says so in place, then choosing starts over", (
+      tester,
+    ) async {
+      final (size, padding) = _sizes["phone upright"]!;
+      _device(tester, size, padding);
+      final (confirmed, chosen) = await pumpPinPage(tester);
+
+      await type(tester, "58193");
+      await settle(tester);
+      await type(tester, "58194");
+      expect(find.byKey(const Key("pin_again_error")), findsOneWidget);
       expect(confirmed, isEmpty);
+      expect(chosen(), "58193");
+
+      await tester.pump(const Duration(milliseconds: 1500));
+      await settle(tester);
+      expect(chosen(), isNull);
+      expect(find.byKey(const Key("pin_chosen_row")), findsNothing);
+      expect(find.text("Choose a 5-digit PIN"), findsOneWidget);
+    });
+
+    testWidgets("a PIN that is possibly not secure waits for the arrow", (
+      tester,
+    ) async {
+      final (size, padding) = _sizes["phone upright"]!;
+      _device(tester, size, padding);
+      final (_, chosen) = await pumpPinPage(tester);
+
+      await type(tester, "12345");
+      await settle(tester);
+      expect(chosen(), isNull);
+      expect(
+        find.textContaining("This PIN is possibly not secure."),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const Key("pin_next")));
+      await settle(tester);
+      expect(chosen(), "12345");
+      expect(find.byKey(const Key("pin_chosen_row")), findsOneWidget);
+    });
+
+    testWidgets("a long PIN goes on by the arrow, its second entry by itself", (
+      tester,
+    ) async {
+      final (size, padding) = _sizes["phone upright"]!;
+      _device(tester, size, padding);
+      final (confirmed, chosen) = await pumpPinPage(tester, short: false);
+
+      await type(tester, "582917");
+      expect(find.text("At least 6 digits"), findsOneWidget);
+      expect(chosen(), isNull);
+      await tester.tap(find.byKey(const Key("pin_next")));
+      await settle(tester);
+      expect(chosen(), "582917");
+      expect(find.byKey(const Key("pin_chosen_row")), findsOneWidget);
+      // As many empty slots as the chosen PIN, before the first digit.
+      for (var i = 0; i < 6; i++) {
+        expect(find.byKey(ValueKey("pin_dot_$i")), findsOneWidget);
+      }
+      expect(find.byKey(const ValueKey("pin_dot_6")), findsNothing);
+
+      // Full, it is checked.
+      await type(tester, "582917");
+      expect(confirmed, ["582917"]);
     });
 
     for (final name in [
@@ -182,18 +327,7 @@ void main() {
       ) async {
         final (size, padding) = _sizes[name]!;
         _device(tester, size, padding);
-        await pumpHome(
-          tester,
-          repo: repo,
-          home: ChoosePinScreen(
-            stepLabel: "Step 1 of 3",
-            onChoosePin: (_) {},
-            onPrevious: () {},
-            newPinNotifier: ValueNotifier(""),
-          ),
-        );
-        // The long-PIN preference streams in.
-        await settle(tester);
+        await pumpPinPage(tester);
 
         final title = tester.getRect(find.textContaining("Choose a"));
         final key = tester.getRect(find.text("1"));
@@ -202,35 +336,37 @@ void main() {
         } else {
           expect(key.top, greaterThan(title.bottom));
         }
-        expect(find.text("Step 1 of 3"), findsOneWidget);
       });
     }
   });
 
   group("Face ID", () {
     for (final MapEntry(key: name, value: (size, padding)) in _sizes.entries) {
-      testWidgets("$name: Not now declines and goes on", (tester) async {
+      testWidgets("$name: Not now and Use, side by side", (tester) async {
         _device(tester, size, padding);
-        var done = 0;
+        final answers = <bool>[];
         await pumpHome(
           tester,
           repo: repo,
           overrides: [biometricTypeProvider.overrideWith((ref) async => null)],
-          home: EnrollmentBiometricScreen(onDone: () => done++),
+          home: EnrollmentBiometricScreen(
+            actions: EnrollmentStepActions(
+              primary: "Use fingerprint",
+              primaryKey: const Key("biometric_enable"),
+              onPrimary: () => answers.add(true),
+              secondary: "Not now",
+              secondaryKey: const Key("biometric_not_now"),
+              onSecondary: () => answers.add(false),
+            ),
+          ),
         );
         await tester.pump();
 
         expect(find.text("Open Yivi with your fingerprint?"), findsOneWidget);
+        await tester.ensureVisible(find.byKey(const Key("biometric_not_now")));
+        await tester.pump();
         await tester.tap(find.byKey(const Key("biometric_not_now")));
-        await settle(tester);
-
-        expect(done, 1);
-        expect(
-          await tester.runAsync(
-            () => repo.preferences.biometricPromptDismissed.stream.first,
-          ),
-          isTrue,
-        );
+        expect(answers, [false]);
       });
     }
   });

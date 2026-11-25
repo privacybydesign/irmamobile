@@ -103,13 +103,14 @@ class ChangePinFlow extends Notifier<ChangePinStep> {
     if (choosing is ChooseNewPin) state = ConfirmNewPin(pin, choose: choosing);
   }
 
-  /// The confirmation was another PIN: choose again, on a fresh page.
+  /// The confirmation was another PIN (said on the page itself): choose
+  /// again, on the same page.
   void mismatch() {
     final confirming = state;
     if (confirming is! ConfirmNewPin) return;
     state = ChooseNewPin(
       previous: confirming.chosen,
-      round: confirming.choose.round + 1,
+      round: confirming.choose.round,
     );
   }
 

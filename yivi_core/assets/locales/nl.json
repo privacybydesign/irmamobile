@@ -145,9 +145,6 @@
     "toast": "Gelukt! De nieuwe pincode is opgeslagen",
     "enter_pin": {
       "instruction": "Vul eerst je huidige pincode in"
-    },
-    "confirm_pin": {
-      "instruction": "Vul je nieuwe pincode nog een keer in."
     }
   },
   "choose_pin": {
@@ -160,14 +157,9 @@
       "long": "Liever een langere pincode?",
       "short": "Liever een kortere pincode?"
     },
-    "long_rule": "Minstens 6 cijfers"
-  },
-  "confirm_pin": {
-    "error": {
-      "title": "Pincode onjuist ingevoerd",
-      "body": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
-      "action": "OK"
-    }
+    "long_rule": "Minstens 6 cijfers",
+    "again": "Voer dezelfde pincode nog eens in",
+    "mismatch": "Deze pincodes zijn niet gelijk. Kies er opnieuw een."
   },
   "credential": {
     "no_data": "Geen gegevens",
@@ -311,20 +303,9 @@
         }
       }
     },
-    "confirm_pin": {
-      "instruction": "Vul je pincode nog een keer in"
-    },
-    "terms_and_conditions": {
-      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})",
-      "privacy_policy_markdown": "Lees in onze [privacyverklaring]({privacy_url}) hoe Yivi met je gegevens omgaat."
-    },
     "error_reporting": {
-      "accept": {
-        "share_errors": "Foutmeldingen en app status delen",
-        "with_yivi": "met Yivi"
-      },
       "dialog": {
-        "title": "Foutmeldingen en app status delen",
+        "title": "Details van de rapporten",
         "explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook stuurt de app periodiek een melding of alles nog goed werkt. Natuurlijk doen we dat allemaal zonder toegang te hebben tot je persoonlijke gegevens of transacties."
       }
     },
@@ -346,16 +327,36 @@
     },
     "terms": {
       "title": "Voordat je begint",
-      "terms_header": "Gebruiksvoorwaarden",
-      "improve_header": "Help Yivi beter maken",
       "point_1_title": "Je pincode beschermt je gegevens",
       "point_1_text": "De server van Yivi controleert hem, zodat je gegevens veilig blijven als je je telefoon kwijtraakt.",
       "point_2_title": "Houd je pincode voor jezelf",
       "point_2_text": "Wie je telefoon en je pincode heeft, kan als jou gegevens delen.",
       "point_3_title": "Telefoon kwijt?",
       "point_3_text": "Blokkeer de app in MijnYivi, zodat niemand hem kan gebruiken.",
-      "read_full": "Lees de volledige voorwaarden",
-      "continue": "Doorgaan"
+      "lead": "Hoe Yivi voor je werkt, en wat er met je gegevens gebeurt. Bovenaan elk staat de korte versie.",
+      "terms_row_title": "Gebruiksvoorwaarden",
+      "terms_row_text": "Je pincode, een kwijtgeraakte telefoon, en waar je mee instemt",
+      "privacy_row_title": "Privacyverklaring",
+      "privacy_row_text": "Wat Yivi met je gegevens doet, en wat Yivi niet kan zien",
+      "agree": "Door op Accepteren en doorgaan te tikken, ga je akkoord met de gebruiksvoorwaarden.",
+      "accept": "Accepteren en doorgaan",
+      "in_short": "In het kort",
+      "read_terms": "Lees de volledige voorwaarden op yivi.app",
+      "read_privacy": "Lees de volledige privacyverklaring op yivi.app",
+      "privacy_point_1_title": "Je gegevens blijven op je telefoon",
+      "privacy_point_1_text": "Niet op een server van Yivi. Niemand ziet ze, ook Yivi niet.",
+      "privacy_point_2_title": "Wat de server van Yivi bewaart",
+      "privacy_point_2_text": "Alleen wat nodig is voor je pincode: geen gegevens, niets over wat je deelt.",
+      "privacy_point_3_title": "Jij bepaalt wat je deelt",
+      "privacy_point_3_text": "Elke keer, met wie, en alleen wat er gevraagd wordt."
+    },
+    "error_reports": {
+      "title": "Help je Yivi beter maken?",
+      "body": "Als er iets misgaat, kan de app een foutmelding sturen, en af en toe zijn status. Nooit je gegevens of wat je deelt.",
+      "later": "Je kunt dit later wijzigen in Instellingen.",
+      "what": "Wat wordt er gestuurd?",
+      "share": "Meldingen delen",
+      "dont_share": "Niet delen"
     },
     "biometric": {
       "title_face_id": "Yivi openen met Face ID?",

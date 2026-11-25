@@ -145,9 +145,6 @@
     "toast": "Votre nouveau code PIN a bien été enregistré",
     "enter_pin": {
       "instruction": "Saisissez votre code PIN actuel"
-    },
-    "confirm_pin": {
-      "instruction": "Saisissez à nouveau votre nouveau code PIN"
     }
   },
   "choose_pin": {
@@ -160,14 +157,9 @@
       "long": "Vous préférez un code PIN plus long ?",
       "short": "Vous préférez un code PIN plus court ?"
     },
-    "long_rule": "Au moins 6 chiffres"
-  },
-  "confirm_pin": {
-    "error": {
-      "title": "Code PIN saisi incorrectement",
-      "body": "Les codes PIN ne correspondent pas. Choisissez un nouveau code PIN et réessayez.",
-      "action": "OK"
-    }
+    "long_rule": "Au moins 6 chiffres",
+    "again": "Saisissez à nouveau le même code PIN",
+    "mismatch": "Ces codes PIN ne correspondent pas. Choisissez-en un autre."
   },
   "credential": {
     "no_data": "Aucune donnée",
@@ -308,20 +300,9 @@
         }
       }
     },
-    "confirm_pin": {
-      "instruction": "Saisissez à nouveau votre code PIN"
-    },
-    "terms_and_conditions": {
-      "accept_markdown": "Oui, j'accepte les [conditions générales]({terms_url})",
-      "privacy_policy_markdown": "Lisez dans notre [politique de confidentialité]({privacy_url}) comment Yivi traite vos données."
-    },
     "error_reporting": {
-      "accept": {
-        "share_errors": "Partager les messages d'erreur et l'état de l'appli",
-        "with_yivi": "avec Yivi"
-      },
       "dialog": {
-        "title": "Signalement des erreurs et de l'état de l'appli",
+        "title": "Détails des rapports",
         "explanation": "En activant le signalement des erreurs, vous nous aidez à améliorer l'expérience utilisateur. Cette option permet aussi à votre appli de nous envoyer régulièrement un message sur son état. Nous faisons tout cela sans avoir accès à vos informations personnelles ni à vos transactions."
       }
     },
@@ -343,16 +324,36 @@
     },
     "terms": {
       "title": "Avant de commencer",
-      "terms_header": "Conditions d’utilisation",
-      "improve_header": "Aidez à améliorer Yivi",
       "point_1_title": "Votre code PIN protège vos données",
       "point_1_text": "Le serveur de Yivi le vérifie, pour que vos données restent protégées si vous perdez votre téléphone.",
       "point_2_title": "Gardez votre code PIN pour vous",
       "point_2_text": "Toute personne qui a votre téléphone et votre code PIN peut partager des données en votre nom.",
       "point_3_title": "Téléphone perdu ?",
       "point_3_text": "Bloquez l’appli dans MyYivi, pour que personne ne puisse l’utiliser.",
-      "read_full": "Lire les conditions complètes",
-      "continue": "Continuer"
+      "lead": "Comment Yivi fonctionne pour vous, et ce qu’il advient de vos données. La version courte figure en haut de chacun.",
+      "terms_row_title": "Conditions d’utilisation",
+      "terms_row_text": "Votre code PIN, un téléphone perdu, et ce que vous acceptez",
+      "privacy_row_title": "Politique de confidentialité",
+      "privacy_row_text": "Ce que Yivi fait de vos données, et ce que Yivi ne peut pas voir",
+      "agree": "En touchant Accepter et continuer, vous acceptez les conditions d’utilisation.",
+      "accept": "Accepter et continuer",
+      "in_short": "En bref",
+      "read_terms": "Lire les conditions complètes sur yivi.app",
+      "read_privacy": "Lire la politique de confidentialité complète sur yivi.app",
+      "privacy_point_1_title": "Vos données restent sur votre téléphone",
+      "privacy_point_1_text": "Pas sur un serveur de Yivi. Personne ne les voit, pas même Yivi.",
+      "privacy_point_2_title": "Ce que garde le serveur de Yivi",
+      "privacy_point_2_text": "Seulement ce qu’il faut pour votre code PIN : aucune donnée, rien sur ce que vous partagez.",
+      "privacy_point_3_title": "Vous décidez de ce que vous partagez",
+      "privacy_point_3_text": "À chaque fois, avec qui, et seulement ce qui est demandé."
+    },
+    "error_reports": {
+      "title": "Aider à améliorer Yivi ?",
+      "body": "Quand quelque chose se passe mal, l’appli peut envoyer un rapport d’erreur, et de temps en temps son état. Jamais vos données ni ce que vous partagez.",
+      "later": "Vous pourrez changer cela plus tard dans les Paramètres.",
+      "what": "Qu’est-ce qui est envoyé ?",
+      "share": "Partager les rapports",
+      "dont_share": "Ne pas partager"
     },
     "biometric": {
       "title_face_id": "Ouvrir Yivi avec Face ID ?",

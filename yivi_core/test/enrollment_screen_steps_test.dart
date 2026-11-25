@@ -4,12 +4,14 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/enrollment_events.dart";
 import "package:yivi_core/src/providers/email_linking_provider.dart";
-import "package:yivi_core/src/screens/enrollment/choose_pin/choose_pin_screen.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
+import "package:yivi_core/src/screens/enrollment/error_reports/enrollment_error_reports_screen.dart";
+import "package:yivi_core/src/screens/enrollment/pin/enrollment_pin_page.dart";
 import "package:yivi_core/src/screens/enrollment/terms/enrollment_terms_screen.dart";
 import "package:yivi_core/src/screens/enrollment/welcome/welcome_screen.dart";
+import "package:yivi_core/src/screens/enrollment/widgets/enrollment_actions.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
-import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
+import "package:yivi_core/src/widgets/sheet/sheet.dart";
 
 import "support/onboarding_v2_harness.dart";
 
@@ -70,8 +72,9 @@ void main() {
   }
 
   final start = find.byKey(const Key("enrollment_next_button"));
-  final accept = find.byKey(const Key("accept_terms_checkbox"));
-  final next = find.byKey(const Key("enrollment_terms_continue"));
+  final accept = find.byKey(const Key("enrollment_terms_continue"));
+  final share = find.byKey(const Key("error_reports_share"));
+  final dontShare = find.byKey(const Key("error_reports_dont_share"));
   final barBack = find.descendant(
     of: find.byKey(const Key("enrollment_bar")),
     matching: find.byKey(const Key("irma_app_bar_leading")),
@@ -86,13 +89,18 @@ void main() {
 
     await tapVisible(tester, start);
     expect(find.text("Before you start"), findsOneWidget);
-    expect(label(tester), "Step 1 of 3");
+    expect(label(tester), "Step 1 of 4");
 
     // Back from the terms: the welcome page again, without the bar, and
     // the cards and the rest back in place. Twice: it goes again.
     double shown() => tester
         .widget<Opacity>(
-          find.ancestor(of: start, matching: find.byType(Opacity)).first,
+          find
+              .ancestor(
+                of: find.text("Your digital identity, safe on your phone"),
+                matching: find.byType(Opacity),
+              )
+              .first,
         )
         .opacity;
     for (var round = 0; round < 2; round++) {
@@ -101,48 +109,120 @@ void main() {
       expect(find.byType(EnrollmentTermsScreen), findsNothing);
       expect(label(tester), "");
       expect(shown(), 1);
+      expect(start, findsOneWidget);
       if (round == 0) await tapVisible(tester, start);
     }
 
     await tapVisible(tester, start);
     await tapVisible(tester, accept);
-    await tapVisible(tester, next);
-    expect(find.byType(ChoosePinScreen), findsOneWidget);
-    expect(label(tester), "Step 2 of 3");
+    expect(find.byType(EnrollmentErrorReportsScreen), findsOneWidget);
+    expect(label(tester), "Step 2 of 4");
+
+    await tapVisible(tester, dontShare);
+    expect(find.byType(EnrollmentPinPage), findsOneWidget);
+    expect(label(tester), "Step 3 of 4");
+
+    await tester.tap(barBack);
+    await settle(tester);
+    expect(find.byType(EnrollmentErrorReportsScreen), findsOneWidget);
+    expect(label(tester), "Step 2 of 4");
   });
 
-  testWidgets("a step slides over the one before, which stays under it", (
+  testWidgets("accepting records the terms, the answer the reports", (
     tester,
   ) async {
     await pumpEnrollment(tester);
     await tapVisible(tester, start);
     await tapVisible(tester, accept);
-    await tester.ensureVisible(next);
+    expect(repo.preferences.acceptedTermsUrl, isNotNull);
+    await tapVisible(tester, share);
+    expect(
+      await tester.runAsync(() => repo.preferences.reportErrors.stream.first),
+      isTrue,
+    );
+  });
+
+  testWidgets("the buttons stay over the pages: the red one narrows into "
+      "Share reports", (tester) async {
+    await pumpEnrollment(tester);
+    await tapVisible(tester, start);
+    expect(find.byType(EnrollmentActionsLayer), findsOneWidget);
+    final full = tester.getSize(accept).width;
+    final bottom = tester.getRect(accept).bottom;
+
+    await tester.tap(accept);
+    await settle(tester);
+    expect(tester.getSize(share).width, lessThan(full * 0.6));
+    expect(tester.getRect(share).bottom, bottom);
+    expect(
+      tester.getCenter(dontShare).dx,
+      lessThan(tester.getCenter(share).dx),
+    );
+    // Once: the pages only keep their room.
+    expect(share, findsOneWidget);
+  });
+
+  testWidgets("a step comes in on a shared axis, over the one before", (
+    tester,
+  ) async {
+    await pumpEnrollment(tester);
+    await tapVisible(tester, start);
+    await tester.ensureVisible(accept);
     await settle(tester);
 
-    await tester.tap(next);
+    await tester.tap(accept);
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 120));
-    // Mid-push: both pages are there, the bar once.
-    expect(find.byType(ChoosePinScreen), findsOneWidget);
+    // Mid-change: both pages are there, the bar once.
+    expect(find.byType(EnrollmentErrorReportsScreen), findsOneWidget);
     expect(find.byType(EnrollmentTermsScreen), findsOneWidget);
     expect(find.byKey(const Key("enrollment_bar")), findsOneWidget);
     await settle(tester);
+    expect(
+      find.byType(EnrollmentTermsScreen, skipOffstage: true),
+      findsNothing,
+    );
   });
 
-  testWidgets("the system back button goes back a step, the terms still "
-      "accepted", (tester) async {
+  testWidgets("the system back button goes back a step", (tester) async {
     await pumpEnrollment(tester);
     await tapVisible(tester, start);
     await tapVisible(tester, accept);
-    await tapVisible(tester, next);
-    expect(find.byType(ChoosePinScreen), findsOneWidget);
+    await tapVisible(tester, dontShare);
+    expect(find.byType(EnrollmentPinPage), findsOneWidget);
 
     await tester.binding.handlePopRoute();
     await settle(tester);
-    expect(find.byType(ChoosePinScreen), findsNothing);
-    expect(label(tester), "Step 1 of 3");
-    expect(tester.widget<PrimaryPillButton>(next).onPressed, isNotNull);
+    expect(find.byType(EnrollmentPinPage), findsNothing);
+    expect(label(tester), "Step 2 of 4");
+  });
+
+  testWidgets("a sheet goes over the bar and the buttons", (tester) async {
+    await pumpEnrollment(tester);
+    await tapVisible(tester, start);
+    await tester.tap(find.byKey(const Key("enrollment_terms_open")));
+    await settle(tester);
+    final sheet = find.byKey(const Key("legal_sheet_terms"));
+    expect(sheet, findsOneWidget);
+    // On the root navigator, not the steps' own under the bar.
+    expect(
+      find.ancestor(of: sheet, matching: find.byType(SheetsOverEverything)),
+      findsNothing,
+    );
+  });
+
+  testWidgets("Help improve Yivi?: the icon and the text in the middle", (
+    tester,
+  ) async {
+    await pumpEnrollment(tester);
+    await tapVisible(tester, start);
+    await tapVisible(tester, accept);
+    final top = tester.getRect(find.byKey(const Key("enrollment_bar"))).bottom;
+    final bottom = tester.getRect(share).top;
+    final group = tester
+        .getRect(find.byIcon(Icons.bug_report_outlined))
+        .expandToInclude(tester.getRect(find.text("What is sent?")));
+    expect(group.center.dy, closeTo((top + bottom) / 2, 24));
   });
 }

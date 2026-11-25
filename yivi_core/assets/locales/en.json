@@ -145,9 +145,6 @@
     "toast": "Success! Your new PIN has been saved",
     "enter_pin": {
       "instruction": "Enter your current PIN"
-    },
-    "confirm_pin": {
-      "instruction": "Enter your new PIN again"
     }
   },
   "choose_pin": {
@@ -160,14 +157,9 @@
       "long": "Prefer a longer PIN?",
       "short": "Prefer a shorter PIN?"
     },
-    "long_rule": "At least 6 digits"
-  },
-  "confirm_pin": {
-    "error": {
-      "title": "PIN entered incorrectly",
-      "body": "PINs do not match. Choose a new PIN and try again.",
-      "action": "OK"
-    }
+    "long_rule": "At least 6 digits",
+    "again": "Enter the same PIN again",
+    "mismatch": "These PINs don't match. Choose one again."
   },
   "credential": {
     "no_data": "No data",
@@ -308,20 +300,9 @@
         }
       }
     },
-    "confirm_pin": {
-      "instruction": "Enter your PIN again"
-    },
-    "terms_and_conditions": {
-      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})",
-      "privacy_policy_markdown": "Read in our [privacy policy]({privacy_url}) how Yivi handles your data."
-    },
     "error_reporting": {
-      "accept": {
-        "share_errors": "Share error messages and app status",
-        "with_yivi": "with Yivi"
-      },
       "dialog": {
-        "title": "Error and app status reporting",
+        "title": "Reporting details",
         "explanation": "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app status message. Of course, we do all of that without having access to your personal information or transactions."
       }
     },
@@ -343,16 +324,36 @@
     },
     "terms": {
       "title": "Before you start",
-      "terms_header": "Terms of use",
-      "improve_header": "Help improve Yivi",
       "point_1_title": "Your PIN protects your data",
       "point_1_text": "Yivi’s server checks it, so your data stays safe if your phone is lost.",
       "point_2_title": "Keep your PIN to yourself",
       "point_2_text": "Anyone with your phone and PIN can share data as you.",
       "point_3_title": "Lost your phone?",
       "point_3_text": "Block the app in MyYivi, so nobody can use it.",
-      "read_full": "Read the full terms",
-      "continue": "Continue"
+      "lead": "How Yivi works for you, and what happens with your data. The short versions are at the top of each.",
+      "terms_row_title": "Terms of use",
+      "terms_row_text": "Your PIN, a lost phone, and what you agree to",
+      "privacy_row_title": "Privacy policy",
+      "privacy_row_text": "What Yivi does with your data, and what it can’t see",
+      "agree": "By tapping Accept and continue, you agree to the terms of use.",
+      "accept": "Accept and continue",
+      "in_short": "In short",
+      "read_terms": "Read the full terms on yivi.app",
+      "read_privacy": "Read the full privacy policy on yivi.app",
+      "privacy_point_1_title": "Your data stays on your phone",
+      "privacy_point_1_text": "Not on a server of Yivi. Nobody sees it, not even Yivi.",
+      "privacy_point_2_title": "What Yivi’s server keeps",
+      "privacy_point_2_text": "Only what it needs for your PIN: no data, nothing about what you share.",
+      "privacy_point_3_title": "You decide what you share",
+      "privacy_point_3_text": "Each time, with whom, and only what is asked."
+    },
+    "error_reports": {
+      "title": "Help improve Yivi?",
+      "body": "When something goes wrong, the app can send an error report, and now and then its status. Never your data or what you share.",
+      "later": "You can change this later in Settings.",
+      "what": "What is sent?",
+      "share": "Share reports",
+      "dont_share": "Don’t share"
     },
     "biometric": {
       "title_face_id": "Open Yivi with Face ID?",

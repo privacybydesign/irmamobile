@@ -18,9 +18,9 @@ SessionError _error() => SessionError(errorType: "transport", info: "offline");
 // What the user does, as the steps of the enrollment report it.
 sealed class _Action {}
 
-class EnrollmentTermsUpdated extends _Action {
-  final bool isAccepted;
-  EnrollmentTermsUpdated({required this.isAccepted});
+class EnrollmentErrorReportsChosen extends _Action {
+  final bool share;
+  EnrollmentErrorReportsChosen({required this.share});
 }
 
 class EnrollmentNextPressed extends _Action {}
@@ -62,8 +62,8 @@ class _Enrollment {
   Future<SessionError?> get account => _n.account;
 
   void add(_Action action) => switch (action) {
-    EnrollmentTermsUpdated(:final isAccepted) => _n.setTermsAccepted(
-      isAccepted,
+    EnrollmentErrorReportsChosen(:final share) => _n.errorReportsChosen(
+      share: share,
     ),
     EnrollmentNextPressed() => _n.next(language: "en"),
     EnrollmentTermsContinued() => _n.termsAccepted(),
@@ -141,8 +141,8 @@ void main() {
   /// Through the welcome page and the terms, to the PIN.
   Future<EnrollmentState> toPin(_Enrollment enrollment) async {
     await next(enrollment, EnrollmentNextPressed());
-    await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
-    return next(enrollment, EnrollmentTermsContinued());
+    await next(enrollment, EnrollmentTermsContinued());
+    return next(enrollment, EnrollmentErrorReportsChosen(share: false));
   }
 
   /// Through the welcome page, the terms and both PIN pages.
@@ -154,62 +154,75 @@ void main() {
 
   int enrollments() => bridge.dispatched.whereType<EnrollEvent>().length;
 
-  test("the steps are numbered: terms, PIN, PIN again, Face ID", () async {
+  test("the steps are numbered: terms, error reports, PIN, PIN again, "
+      "Face ID", () async {
     final enrollment = newEnrollment();
     final terms = await next(enrollment, EnrollmentNextPressed());
     expect(terms, isA<EnrollmentTerms>());
     expect((terms as EnrollmentTerms).step.number, 1);
-    expect(terms.step.total, 4);
-    expect(terms.isAccepted, isFalse);
+    expect(terms.step.total, 5);
 
-    await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
-    final pin = await next(enrollment, EnrollmentTermsContinued());
-    expect(pin, isA<EnrollmentChoosePin>());
-    expect((pin as EnrollmentChoosePin).step?.number, 2);
+    final errors = await next(enrollment, EnrollmentTermsContinued());
+    expect((errors as EnrollmentErrorReports).step.number, 2);
+    final pin = await next(
+      enrollment,
+      EnrollmentErrorReportsChosen(share: false),
+    );
+    expect((pin as EnrollmentChoosePin).step?.number, 3);
 
     final confirm = await next(enrollment, EnrollmentPinChosen("12345"));
-    expect((confirm as EnrollmentConfirmPin).step?.number, 3);
+    expect((confirm as EnrollmentConfirmPin).step?.number, 4);
     final bio = await next(enrollment, EnrollmentPinConfirmed("12345"));
     expect(bio, isA<EnrollmentBiometric>());
-    expect((bio as EnrollmentBiometric).step.number, 4);
-
-    expect(bio.step.total, 4);
+    expect((bio as EnrollmentBiometric).step.number, 5);
+    expect(bio.step.total, 5);
   });
 
-  test("Continue on the terms needs them accepted", () async {
+  test("Accept and continue accepts the latest terms", () async {
     final enrollment = newEnrollment();
     await next(enrollment, EnrollmentNextPressed());
-    enrollment.add(EnrollmentTermsContinued());
-    await Future<void>.delayed(const Duration(milliseconds: 20));
-    expect(enrollment.state, isA<EnrollmentTerms>());
+    expect(repo.preferences.acceptedTermsUrl, isNull);
+    await next(enrollment, EnrollmentTermsContinued());
+    expect(repo.preferences.acceptedTermsUrl, isNotNull);
+  });
 
-    await next(enrollment, EnrollmentTermsUpdated(isAccepted: true));
-    expect(
-      await next(enrollment, EnrollmentTermsContinued()),
-      isA<EnrollmentChoosePin>(),
-    );
+  test("the error-report answer is the setting", () async {
+    for (final share in [true, false]) {
+      final enrollment = newEnrollment();
+      await next(enrollment, EnrollmentNextPressed());
+      await next(enrollment, EnrollmentTermsContinued());
+      await next(enrollment, EnrollmentErrorReportsChosen(share: share));
+      expect(await repo.preferences.reportErrors.stream.first, share);
+    }
   });
 
   test(
-    "terms ticked once stay ticked after going back to the welcome page",
+    "back: PIN to error reports, to the terms, to the welcome page",
     () async {
       final enrollment = newEnrollment();
       await toPin(enrollment);
-      await next(enrollment, EnrollmentPreviousPressed());
-      await next(enrollment, EnrollmentPreviousPressed());
-      final terms = await next(enrollment, EnrollmentNextPressed());
-      expect((terms as EnrollmentTerms).isAccepted, isTrue);
+      expect(
+        await next(enrollment, EnrollmentPreviousPressed()),
+        isA<EnrollmentErrorReports>(),
+      );
+      expect(
+        await next(enrollment, EnrollmentPreviousPressed()),
+        isA<EnrollmentTerms>(),
+      );
+      expect(
+        await next(enrollment, EnrollmentPreviousPressed()),
+        isA<EnrollmentWelcome>(),
+      );
     },
   );
 
-  test("back: PIN to the accepted terms, terms to the welcome page", () async {
+  test("back while entering the PIN again: choosing it", () async {
     final enrollment = newEnrollment();
     await toPin(enrollment);
-    final terms = await next(enrollment, EnrollmentPreviousPressed());
-    expect((terms as EnrollmentTerms).isAccepted, isTrue);
+    await next(enrollment, EnrollmentPinChosen("13579"));
     expect(
       await next(enrollment, EnrollmentPreviousPressed()),
-      isA<EnrollmentWelcome>(),
+      isA<EnrollmentChoosePin>(),
     );
   });
 
@@ -228,7 +241,7 @@ void main() {
   test("Face ID is the last step", () async {
     final enrollment = newEnrollment();
     final bio = await toAfterPin(enrollment);
-    expect((bio as EnrollmentBiometric).step.total, 4);
+    expect((bio as EnrollmentBiometric).step.total, 5);
 
     enrollment.add(EnrollmentBiometricDone());
     await expectLater(
@@ -237,11 +250,11 @@ void main() {
     );
   });
 
-  test("without Face ID there are 3 steps and the app is set up straight "
+  test("without Face ID there are 4 steps and the app is set up straight "
       "after the PIN", () async {
     final enrollment = newEnrollment(biometric: false);
     final pin = await toPin(enrollment);
-    expect((pin as EnrollmentChoosePin).step?.total, 3);
+    expect((pin as EnrollmentChoosePin).step?.total, 4);
 
     await next(enrollment, EnrollmentPinChosen("12345"));
     enrollment.add(EnrollmentPinConfirmed("12345"));
@@ -315,12 +328,5 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 50));
     expect(enrollment.state, isA<EnrollmentTerms>());
     expect(states.whereType<EnrollmentTerms>().length, 1);
-  });
-
-  test("ticking the terms on the welcome page does nothing", () async {
-    final enrollment = newEnrollment();
-    enrollment.add(EnrollmentTermsUpdated(isAccepted: true));
-    await Future<void>.delayed(const Duration(milliseconds: 20));
-    expect(enrollment.state, isA<EnrollmentWelcome>());
   });
 }

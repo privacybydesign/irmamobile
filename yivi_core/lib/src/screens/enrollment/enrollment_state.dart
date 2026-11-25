@@ -5,17 +5,23 @@ sealed class EnrollmentState {}
 /// The welcome page: what Yivi is, and Get started.
 class EnrollmentWelcome extends EnrollmentState {}
 
-/// Step 1, "Before you start": the terms in short, the error-report switch,
-/// and the terms to accept before Continue.
+/// Step 1, "Before you start": the terms of use and the privacy policy to
+/// read, and Accept and continue.
 class EnrollmentTerms extends EnrollmentState {
   final EnrollmentStepNumber step;
-  final bool isAccepted;
 
-  EnrollmentTerms({required this.step, this.isAccepted = false});
+  EnrollmentTerms({required this.step});
 }
 
-/// Where a step is in the numbered part of the enrollment (the terms, the
-/// PIN twice, Face ID): "Step [number] of [total]".
+/// Step 2, "Help improve Yivi?": share error reports, or don't.
+class EnrollmentErrorReports extends EnrollmentState {
+  final EnrollmentStepNumber step;
+
+  EnrollmentErrorReports({required this.step});
+}
+
+/// Where a step is in the numbered part of the enrollment (the terms, error
+/// reports, the PIN twice, Face ID): "Step [number] of [total]".
 class EnrollmentStepNumber {
   final int number;
   final int total;

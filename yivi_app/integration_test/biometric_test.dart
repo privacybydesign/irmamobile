@@ -67,14 +67,14 @@ void main() {
       );
       expect(find.byType(EnrollmentScreen), findsOneWidget);
 
-      // Welcome, then the terms: accept them and continue
+      // Welcome, the terms (accept and continue), no error reports.
       await tester.scrollUntilVisible(nextButton.hitTestable(), 50);
       await tester.tapAndSettle(nextButton);
-      final checkbox = find.byKey(const Key("accept_terms_checkbox"));
-      await tester.scrollUntilVisible(checkbox.hitTestable(), 50);
-      await tester.tapAndSettle(checkbox);
       await tester.tapAndSettle(
         find.byKey(const Key("enrollment_terms_continue")),
+      );
+      await tester.tapAndSettle(
+        find.byKey(const Key("error_reports_dont_share")),
       );
 
       // Choose + confirm PIN

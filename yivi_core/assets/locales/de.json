@@ -145,9 +145,6 @@
     "toast": "Erfolgreich! Ihre neue PIN wurde gespeichert",
     "enter_pin": {
       "instruction": "Geben Sie Ihre aktuelle PIN ein"
-    },
-    "confirm_pin": {
-      "instruction": "Geben Sie Ihre neue PIN zur Bestätigung erneut ein"
     }
   },
   "choose_pin": {
@@ -160,14 +157,9 @@
       "long": "Bevorzugen Sie eine längere PIN?",
       "short": "Bevorzugen Sie eine kürzere PIN?"
     },
-    "long_rule": "Mindestens 6 Ziffern"
-  },
-  "confirm_pin": {
-    "error": {
-      "title": "PIN falsch eingegeben",
-      "body": "Die PINs stimmen nicht überein. Wählen Sie eine neue PIN und versuchen Sie es erneut.",
-      "action": "OK"
-    }
+    "long_rule": "Mindestens 6 Ziffern",
+    "again": "Geben Sie dieselbe PIN noch einmal ein",
+    "mismatch": "Die PINs stimmen nicht überein. Wählen Sie erneut eine."
   },
   "credential": {
     "no_data": "Keine Daten vorhanden",
@@ -311,20 +303,9 @@
         }
       }
     },
-    "confirm_pin": {
-      "instruction": "Geben Sie Ihre PIN erneut ein"
-    },
-    "terms_and_conditions": {
-      "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})",
-      "privacy_policy_markdown": "Lesen Sie in unserer [Datenschutzerklärung]({privacy_url}), wie Yivi mit Ihren Daten umgeht."
-    },
     "error_reporting": {
-      "accept": {
-        "share_errors": "Fehlermeldungen und App-Status teilen",
-        "with_yivi": "mit Yivi"
-      },
       "dialog": {
-        "title": "Fehler- und App-Status-Berichterstattung",
+        "title": "Details zu den Berichten",
         "explanation": "Durch die Aktivierung der Fehlerberichterstattung helfen Sie uns, die Benutzererfahrung zu verbessern. Diese Option ermöglicht es Ihrer App auch, uns eine regelmäßige App-Statusmeldung zu senden. Natürlich tun wir all das, ohne Zugriff auf Ihre persönlichen Informationen oder Transaktionen zu haben."
       }
     },
@@ -346,16 +327,36 @@
     },
     "terms": {
       "title": "Bevor Sie beginnen",
-      "terms_header": "Nutzungsbedingungen",
-      "improve_header": "Helfen Sie, Yivi zu verbessern",
       "point_1_title": "Ihre PIN schützt Ihre Daten",
       "point_1_text": "Der Server von Yivi prüft sie, damit Ihre Daten sicher bleiben, wenn Sie Ihr Handy verlieren.",
       "point_2_title": "Behalten Sie Ihre PIN für sich",
       "point_2_text": "Wer Ihr Handy und Ihre PIN hat, kann in Ihrem Namen Daten teilen.",
       "point_3_title": "Handy verloren?",
       "point_3_text": "Sperren Sie die App in MyYivi, damit niemand sie nutzen kann.",
-      "read_full": "Vollständige Bedingungen lesen",
-      "continue": "Fortfahren"
+      "lead": "Wie Yivi für Sie funktioniert und was mit Ihren Daten geschieht. Oben steht jeweils die Kurzfassung.",
+      "terms_row_title": "Nutzungsbedingungen",
+      "terms_row_text": "Ihre PIN, ein verlorenes Handy und was Sie akzeptieren",
+      "privacy_row_title": "Datenschutzerklärung",
+      "privacy_row_text": "Was Yivi mit Ihren Daten macht und was Yivi nicht sehen kann",
+      "agree": "Mit Tippen auf Akzeptieren und fortfahren stimmen Sie den Nutzungsbedingungen zu.",
+      "accept": "Akzeptieren und fortfahren",
+      "in_short": "Kurz gesagt",
+      "read_terms": "Vollständige Bedingungen auf yivi.app lesen",
+      "read_privacy": "Vollständige Datenschutzerklärung auf yivi.app lesen",
+      "privacy_point_1_title": "Ihre Daten bleiben auf Ihrem Handy",
+      "privacy_point_1_text": "Nicht auf einem Server von Yivi. Niemand sieht sie, auch Yivi nicht.",
+      "privacy_point_2_title": "Was der Server von Yivi speichert",
+      "privacy_point_2_text": "Nur was er für Ihre PIN braucht: keine Daten, nichts darüber, was Sie teilen.",
+      "privacy_point_3_title": "Sie entscheiden, was Sie teilen",
+      "privacy_point_3_text": "Jedes Mal, mit wem, und nur was gefragt wird."
+    },
+    "error_reports": {
+      "title": "Helfen Sie, Yivi zu verbessern?",
+      "body": "Wenn etwas schiefgeht, kann die App einen Fehlerbericht senden und ab und zu ihren Status. Nie Ihre Daten oder was Sie teilen.",
+      "later": "Sie können das später in den Einstellungen ändern.",
+      "what": "Was wird gesendet?",
+      "share": "Berichte teilen",
+      "dont_share": "Nicht teilen"
     },
     "biometric": {
       "title_face_id": "Yivi mit Face ID öffnen?",

@@ -28,6 +28,19 @@ part "sheet_header.dart";
 part "sheet_page.dart";
 part "sheet_pages.dart";
 
+/// Under [child] (pages in a navigator of their own, with a bar or buttons
+/// over it), a sheet opens over everything: on the app's root navigator
+/// instead of the nearest one.
+class SheetsOverEverything extends InheritedWidget {
+  const SheetsOverEverything({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<SheetsOverEverything>() != null;
+
+  @override
+  bool updateShouldNotify(SheetsOverEverything oldWidget) => false;
+}
+
 /// Shows [builder]'s content in the app's one sheet: a full-width sheet
 /// attached to the bottom of the screen, as tall as a native iOS sheet (its
 /// top at the top of the safe area, where the Data tab's search field
@@ -60,7 +73,10 @@ Future<T?> showSheet<T>({
       ),
     );
   }
-  return Navigator.of(context).push(
+  return Navigator.of(
+    context,
+    rootNavigator: SheetsOverEverything.of(context),
+  ).push(
     _SheetRoute<T>(
       builder: builder,
       motion: motion,
