@@ -153,12 +153,6 @@ void main() {
           true,
         ),
         (
-          "scan tip pending",
-          (p) => p.scanTipPending.set(true),
-          "preference.scan_tip_pending",
-          true,
-        ),
-        (
           "e-mail linked",
           (p) => p.emailLinked.set(true),
           "preference.email_linked",
@@ -224,13 +218,8 @@ void main() {
         ("review times asked", (p) async => p.reviewTimesAsked.value, 0),
         ("review last asked", (p) async => p.reviewLastAskEpochMs.value, 0),
         ("review done", (p) async => p.reviewDone.value, false),
-        ("scan tip pending", (p) => p.scanTipPending.stream.first, false),
         ("e-mail linked", (p) => p.emailLinked.stream.first, false),
-        (
-          "secure offer shown",
-          (p) => p.secureOfferShown.stream.first,
-          false,
-        ),
+        ("secure offer shown", (p) => p.secureOfferShown.stream.first, false),
         ("local backend host", (p) => p.localBackendHost.stream.first, ""),
       ];
 

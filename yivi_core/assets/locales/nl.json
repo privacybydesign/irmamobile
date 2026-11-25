@@ -1675,12 +1675,6 @@
       "keep": "Doorgaan"
     }
   },
-  "scan_tip": {
-    "title": "Scan hier QR-codes",
-    "text_bar": "De knop staat altijd onderaan.",
-    "text_rail": "De knop staat altijd onder het menu.",
-    "ok": "Begrepen"
-  },
   "secure": {
     "offer": {
       "title": "Beveilig nu je app",

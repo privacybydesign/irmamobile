@@ -132,8 +132,8 @@ void main() {
 
     // Without biometrics on the test device and without the MijnYivi link
     // endpoint, the PIN is the last step: the app sets up and opens on the
-    // empty Data tab, which points out the Scan button.
-    testWidgets("ends on the empty home with the scan tip", (tester) async {
+    // empty Data tab.
+    testWidgets("ends on the empty home", (tester) async {
       await initEnrollment(tester);
       await goThroughWelcome(tester);
       await choosePin(tester);
@@ -144,10 +144,6 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key("enrollment_continue")));
       await tester.waitFor(find.byType(HomeScreen));
       await tester.waitFor(find.text("No data yet"));
-      expect(find.byKey(const Key("scan_tip")), findsOneWidget);
-
-      await tester.tapAndSettle(find.byKey(const Key("scan_tip_ok")));
-      expect(find.byKey(const Key("scan_tip")), findsNothing);
     });
   });
 }

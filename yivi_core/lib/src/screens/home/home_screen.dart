@@ -1,5 +1,3 @@
-import "dart:math";
-
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -24,7 +22,6 @@ import "../notifications/notifications_tab.dart";
 import "widgets/home_navigation.dart";
 import "widgets/home_tab.dart";
 import "widgets/pending_pointer_listener.dart";
-import "widgets/scan_tip.dart";
 
 class HomeScreen extends ConsumerStatefulWidget {
   @override
@@ -139,7 +136,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Stack(
       children: [
         Positioned.fill(child: _tab(tab)),
-        if (tab == .data) _scanTipOverBar(context),
         // A card opened from the stack, over the tab.
         const Positioned.fill(child: OpenCardLayer()),
         // The tab bar over that: it goes down off the screen as a card
@@ -260,49 +256,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
-        if (tab == .data) _scanTipBesideRail(context, railLeft + railWidth),
       ],
-    );
-  }
-
-  /// The first-visit tip above the Scan button, at the right end of the tab
-  /// bar (which is centred and at most 640 wide).
-  Widget _scanTipOverBar(BuildContext context) {
-    final padding = MediaQuery.paddingOf(context);
-    final width = MediaQuery.sizeOf(context).width;
-    final docked = HomeNavigation.docked(context);
-    final available = width - 32 - padding.left - padding.right;
-    return Positioned(
-      // Only on the Data tab: keyed, so the children after it (the tab bar
-      // among them) keep their state when it comes or goes, rather than
-      // being matched to the child before them and built anew.
-      key: const ValueKey("scan_tip_over_bar"),
-      right: docked
-          ? padding.right + 10
-          : 16 +
-                padding.right +
-                max(0.0, (available - mediumContentMaxWidth) / 2),
-      bottom: HomeTabBar.topFromBottom(context) + 12,
-      child: const _ScanTipWhenDue(rail: false),
-    );
-  }
-
-  /// The first-visit tip beside the rail's Scan button, the bottom of the
-  /// rail, which is centred top to bottom.
-  Widget _scanTipBesideRail(BuildContext context, double railRight) {
-    final padding = MediaQuery.paddingOf(context);
-    final height = MediaQuery.sizeOf(context).height;
-    final railMiddle =
-        padding.top + (height - padding.top - padding.bottom) / 2;
-    final scanMiddle =
-        railMiddle + HomeRail.height / 2 - 10 - HomeScanButton.size / 2;
-    return Positioned(
-      left: railRight + 12,
-      top: scanMiddle,
-      child: const FractionalTranslation(
-        translation: Offset(0, -0.5),
-        child: _ScanTipWhenDue(rail: true),
-      ),
     );
   }
 
@@ -396,16 +350,4 @@ class _KeptTabsState extends State<_KeptTabs> {
       ),
     ),
   );
-}
-
-class _ScanTipWhenDue extends ConsumerWidget {
-  final bool rail;
-
-  const _ScanTipWhenDue({required this.rail});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) =>
-      ref.watch(scanTipVisibleProvider)
-      ? ScanTip(rail: rail)
-      : const SizedBox.shrink();
 }

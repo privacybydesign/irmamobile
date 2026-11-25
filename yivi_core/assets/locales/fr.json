@@ -1675,12 +1675,6 @@
       "keep": "Garder"
     }
   },
-  "scan_tip": {
-    "title": "Scannez les codes QR ici",
-    "text_bar": "Le bouton est toujours en bas.",
-    "text_rail": "Le bouton est toujours sous le menu.",
-    "ok": "Compris"
-  },
   "secure": {
     "offer": {
       "title": "Sécurisez maintenant votre appli",

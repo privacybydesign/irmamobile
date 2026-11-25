@@ -127,9 +127,6 @@ class IrmaPreferences {
        reviewDone = Pref.of(
          p.getBool("preference.review_done", defaultValue: false),
        ),
-       scanTipPending = Pref.of(
-         p.getBool("preference.scan_tip_pending", defaultValue: false),
-       ),
        emailLinked = Pref.of(
          p.getBool("preference.email_linked", defaultValue: false),
        ),
@@ -277,10 +274,6 @@ class IrmaPreferences {
   /// Terminal flag: set once the user answered the gate (yes or not-really)
   /// or the second ask was reached. Never ask again once true.
   final Pref<bool> reviewDone;
-
-  /// Set when the enrollment completes, until the empty Data tab has pointed
-  /// out the Scan button once.
-  final Pref<bool> scanTipPending;
 
   // --- E-mail linking (all wiped by clearAll()) ----------------------------
 

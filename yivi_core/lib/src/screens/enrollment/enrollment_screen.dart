@@ -55,8 +55,6 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
     if (_leaving) return;
     _leaving = true;
-    // The empty Data tab points out the Scan button on the first visit.
-    await ref.read(preferencesProvider).scanTipPending.set(true);
     // LockGate handles displaying the PIN overlay if the app is still
     // locked after enrollment.
     if (context.mounted) context.goHomeScreen();

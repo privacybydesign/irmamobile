@@ -49,9 +49,6 @@ final biometricPromptDismissedProvider = prefProvider(
   (p) => p.biometricPromptDismissed,
 );
 
-/// Set when the enrollment completes, until the Scan button was pointed out.
-final scanTipPendingProvider = prefProvider((p) => p.scanTipPending);
-
 /// Whether this install has linked an e-mail address.
 final emailLinkedProvider = prefProvider((p) => p.emailLinked);
 

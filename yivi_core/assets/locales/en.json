@@ -1675,12 +1675,6 @@
       "keep": "Keep it"
     }
   },
-  "scan_tip": {
-    "title": "Scan QR codes here",
-    "text_bar": "The button is always at the bottom.",
-    "text_rail": "The button is always under the menu.",
-    "ok": "Got it"
-  },
   "secure": {
     "offer": {
       "title": "Now secure your app",

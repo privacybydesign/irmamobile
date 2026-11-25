@@ -1675,12 +1675,6 @@
       "keep": "Weiter"
     }
   },
-  "scan_tip": {
-    "title": "Hier QR-Codes scannen",
-    "text_bar": "Die Taste ist immer unten.",
-    "text_rail": "Die Taste ist immer unter dem Menü.",
-    "ok": "Verstanden"
-  },
   "secure": {
     "offer": {
       "title": "Sichern Sie jetzt Ihre App",
