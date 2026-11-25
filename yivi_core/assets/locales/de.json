@@ -279,6 +279,9 @@
     "known_party": "Bekannte Partei"
   },
   "enrollment": {
+    "failed": {
+      "message": "Yivi konnte Ihre App nicht einrichten: {reason}"
+    },
     "introduction": {
       "art": {
         "email": "E-Mail-Adresse",

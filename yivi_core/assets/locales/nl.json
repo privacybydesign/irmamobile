@@ -279,6 +279,9 @@
     "known_party": "Bekende partij"
   },
   "enrollment": {
+    "failed": {
+      "message": "Yivi kon je app niet instellen: {reason}"
+    },
     "introduction": {
       "art": {
         "email": "E-mailadres",

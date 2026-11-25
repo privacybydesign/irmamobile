@@ -276,6 +276,9 @@
     }
   },
   "enrollment": {
+    "failed": {
+      "message": "Yivi could not set up your app: {reason}"
+    },
     "introduction": {
       "art": {
         "email": "Email address",

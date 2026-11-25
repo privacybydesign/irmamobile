@@ -228,12 +228,13 @@ class _EnrollmentScreenState extends ConsumerState<EnrollmentScreen> {
           step(EnrollmentBiometricScreen(actions: _actionsAt(context, 4)!)),
           canPop: false,
         ),
-      if (state case EnrollmentFailed())
+      if (state case EnrollmentFailed(:final error))
         _FadePage(
           key: const ValueKey("failed"),
           child: PopScope(
             canPop: false,
             child: EnrollmentFailedScreen(
+              error: error,
               onPrevious: enrollment.back,
               onRetryEnrollment: enrollment.retry,
             ),
