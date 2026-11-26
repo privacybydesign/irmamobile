@@ -860,7 +860,6 @@
     "pairing": {
       "title": "Extra safety check",
       "instruction": "Enter this verification code on the website for extra security.",
-      "waiting": "Waiting for the website…",
       "heading": "Enter this code on the website",
       "explanation": "{requestor} shows a field for it. It links this phone to that screen, so nobody else can use your QR code."
     }
@@ -1417,11 +1416,14 @@
       "shared_one": "{name} has been shared.",
       "shared_many": "{count} cards have been shared.",
       "other_device": "Continue on your other device.",
-      "back_website": "Back to the website"
+      "back_website": "Back to the website",
+      "signed_text": "You signed this message.",
+      "more": "{requestor} has another request.",
+      "continue": "Continue"
     },
     "call": {
       "title": "Shared. Now call {requestor}",
-      "text": "The person who answers can see the data you just shared, so you don't have to spell anything out.",
+      "text": "Call to continue. You'll find this in Activity.",
       "button": "Call {requestor}"
     },
     "spot": {
@@ -1648,7 +1650,8 @@
     "receive": {
       "section": "You get in return",
       "button": "Share and receive",
-      "button_only": "Receive"
+      "button_only": "Receive",
+      "done_text": "{name} is now in your app. You'll find this in Activity."
     },
     "nothing": {
       "title": "Do you want to share data with",
@@ -1740,6 +1743,12 @@
       "title_sign": "Which combination do you use?",
       "still_add": "Still to add: {names}",
       "add": "Add"
+    },
+    "mail": {
+      "bar": "Mail via Yivi",
+      "title": "Shared. Now mail {requestor}",
+      "text": "Send an e-mail to continue. You'll find this in Activity.",
+      "button": "Mail {requestor}"
     }
   },
   "contact_sheet": {

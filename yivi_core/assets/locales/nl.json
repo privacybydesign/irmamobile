@@ -863,7 +863,6 @@
     "pairing": {
       "title": "Extra veiligheidscontrole",
       "instruction": "Vul deze extra verificatiecode in op de website.",
-      "waiting": "Wachten op de website…",
       "heading": "Vul deze code in op de website",
       "explanation": "{requestor} toont er een veld voor. Zo wordt deze telefoon aan dat scherm gekoppeld en kan niemand anders je QR-code gebruiken."
     }
@@ -1417,11 +1416,14 @@
       "shared_one": "{name} is gedeeld.",
       "shared_many": "{count} kaartjes zijn gedeeld.",
       "other_device": "Ga verder op je andere apparaat.",
-      "back_website": "Terug naar de website"
+      "back_website": "Terug naar de website",
+      "signed_text": "Je hebt dit bericht ondertekend.",
+      "more": "{requestor} heeft nog een verzoek.",
+      "continue": "Verder"
     },
     "call": {
       "title": "Gedeeld. Bel nu {requestor}",
-      "text": "Degene die opneemt ziet de gegevens die je net hebt gedeeld, dus je hoeft niets te spellen.",
+      "text": "Bel om verder te gaan. Je vindt dit terug in Activiteit.",
       "button": "Bel {requestor}"
     },
     "spot": {
@@ -1648,7 +1650,8 @@
     "receive": {
       "section": "Dit krijg je terug",
       "button": "Delen en ontvangen",
-      "button_only": "Ontvangen"
+      "button_only": "Ontvangen",
+      "done_text": "{name} staat nu in je app. Je vindt dit terug in Activiteit."
     },
     "nothing": {
       "title": "Wil je gegevens delen met",
@@ -1740,6 +1743,12 @@
       "title_sign": "Welke combinatie gebruik je?",
       "still_add": "Nog toevoegen: {names}",
       "add": "Toevoegen"
+    },
+    "mail": {
+      "bar": "Mail via Yivi",
+      "title": "Gedeeld. Mail nu {requestor}",
+      "text": "Stuur een e-mail om verder te gaan. Je vindt dit terug in Activiteit.",
+      "button": "Mail {requestor}"
     }
   },
   "contact_sheet": {

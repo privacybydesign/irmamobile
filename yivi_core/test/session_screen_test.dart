@@ -132,6 +132,36 @@ class _Linking extends EmailLinking {
 }
 
 void main() {
+  group("a follow-up request", () {
+    testWidgets("Verder starts it on the same screen", (tester) async {
+      final h = await pumpSessionScreen(tester, sessionId: _id);
+      h.emit(
+        SessionState(
+          id: _id,
+          protocol: "irma",
+          type: SessionType.disclosure,
+          status: SessionStatus.success,
+          requestor: testParty("Webshop"),
+          clientReturnUrl: "https://shop.example/done",
+          nextSessionPending: true,
+        ),
+      );
+      await _settle(tester);
+      expect(find.byKey(const Key("share_done_continue")), findsOneWidget);
+      expect(
+        find.textContaining("Webshop has another request."),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const Key("share_done_continue")));
+      await _settle(tester);
+      expect(h.of(UserInteractionType.continueNextSession), hasLength(1));
+
+      h.emit(_issuance(SessionStatus.requestPermission));
+      await _settle(tester);
+      expect(find.byType(IssuancePermission), findsOneWidget);
+    });
+  });
+
   group("waiting", () {
     testWidgets("no state yet: a spinner", (tester) async {
       await pumpSessionScreen(tester, sessionId: _id);

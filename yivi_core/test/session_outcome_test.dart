@@ -12,6 +12,7 @@ SessionFacts _facts({
   bool inAppLaunched = false,
   bool forRequest = false,
   bool keyshareLink = false,
+  bool nextPending = false,
 }) => SessionFacts(
   type: type,
   returnUrl: ReturnURL.parse(returnUrl),
@@ -20,6 +21,7 @@ SessionFacts _facts({
   inAppLaunched: inAppLaunched,
   forRequest: forRequest,
   keyshareLink: keyshareLink,
+  nextPending: nextPending,
 );
 
 const _web = "https://www.shop.example/done";
@@ -219,5 +221,51 @@ void main() {
         });
       });
     }
+  });
+
+  group("mail and follow-up requests", () {
+    const mail = "mailto:loket@gemeente.example?subject=Aanvraag";
+
+    test("a mailto return URL: mail it via Yivi, any device", () {
+      for (final second in [false, true]) {
+        final o = sessionOutcomeOf(
+          _facts(returnUrl: mail, secondDevice: second),
+        );
+        expect(o, isA<MailVia>());
+        expect((o as MailVia).url.emailAddress, "loket@gemeente.example");
+      }
+    });
+
+    test("a mailto return URL is never reopened on close", () {
+      final close = sessionCloseOf(_facts(returnUrl: mail), error: null);
+      expect(close.reopen, isNull);
+    });
+
+    test("a follow-up request wins over every way back", () {
+      for (final url in [null, _web, _tel, mail]) {
+        for (final second in [false, true]) {
+          for (final type in [SessionType.disclosure, SessionType.signature]) {
+            expect(
+              sessionOutcomeOf(
+                _facts(
+                  type: type,
+                  returnUrl: url,
+                  secondDevice: second,
+                  nextPending: true,
+                ),
+              ),
+              isA<SharedMoreToCome>(),
+            );
+          }
+        }
+      }
+    });
+
+    test("an issuance with a follow-up ends as an issuance", () {
+      expect(
+        sessionOutcomeOf(_facts(type: SessionType.issuance, nextPending: true)),
+        isNot(isA<SharedMoreToCome>()),
+      );
+    });
   });
 }

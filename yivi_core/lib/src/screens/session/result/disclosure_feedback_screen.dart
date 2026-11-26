@@ -21,6 +21,7 @@ import "../models/disclosure_plan_view.dart";
 import "../requestor/requestor_card.dart";
 import "done_flight.dart";
 import "session_result.dart";
+import "signature_stroke.dart";
 
 /// "Shared with {requestor}" (or "Signed for {requestor}"), after the share
 /// button: the shared cards handed to the requestor's logo, which ends with
@@ -63,6 +64,14 @@ class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
   /// puts Yivi in the background ([onBackToWebsite]).
   final VoidCallback? onBackToWebsite;
 
+  /// The cards received in return (share and receive): the text says the
+  /// first is in the app now.
+  final List<Credential> received;
+
+  /// The requestor has a follow-up request: the text says so, and the
+  /// button is "Verder", which starts it (2.14). Closing gives it up.
+  final VoidCallback? onContinue;
+
   const DisclosureFeedbackScreen({
     super.key,
     required this.requestor,
@@ -75,6 +84,8 @@ class DisclosureFeedbackScreen extends ConsumerStatefulWidget {
     this.onReturn,
     this.goBackYourself = false,
     this.onBackToWebsite,
+    this.received = const [],
+    this.onContinue,
   });
 
   @override
@@ -207,22 +218,31 @@ class DisclosureFeedbackScreenState
     final what = shared.length == 1
         ? shared.single.name
         : context.tr("share.done.cards", {"count": "${shared.length}"});
+    final more = widget.onContinue != null;
     final text = [
       if (shared.isEmpty && !sign)
         context.tr("share.done.text_none", {"requestor": requestor})
-      else ...[
+      else if (widget.received.isNotEmpty && !sign) ...[
+        context.tr("share.receive.done_text", {
+          "name": widget.received.first.name,
+        }),
+        if (widget.onOtherDevice && !more)
+          context.tr("share.done.other_device"),
+      ] else ...[
         sign
-            ? context.tr("share.done.signed_with", {"what": what})
+            ? context.tr("share.done.signed_text")
             : shared.length == 1
             ? context.tr("share.done.shared_one", {"name": what})
             : context.tr("share.done.shared_many", {
                 "count": "${shared.length}",
               }),
-        if (widget.onOtherDevice) context.tr("share.done.other_device"),
+        if (widget.onOtherDevice && !more)
+          context.tr("share.done.other_device"),
         context.tr("share.done.in_activity"),
       ],
+      if (more) context.tr("share.done.more", {"requestor": requestor}),
     ].join(" ");
-    final nextBox = widget.goBackYourself
+    final nextBox = widget.goBackYourself && !more
         ? _NextBox(
             head: context.tr("share.done.next.back_head"),
             text: context.tr("share.done.next.back_text"),
@@ -240,7 +260,13 @@ class DisclosureFeedbackScreenState
         : widget.onDismiss(context);
     // On iOS on the same phone there is nothing to do but go back with ◀
     // (or close): no button.
-    final button = widget.goBackYourself
+    final button = more
+        ? PrimaryPillButton(
+            key: const Key("share_done_continue"),
+            label: context.tr("share.done.continue"),
+            onPressed: widget.onContinue,
+          )
+        : widget.goBackYourself
         ? null
         : PrimaryPillButton(
             key: const Key("ok_button"),
@@ -286,7 +312,12 @@ class DisclosureFeedbackScreenState
       below: nextBox,
       action: button,
       // The words come up once the cards have flown in.
-      words: (words) => _FadeUp(on: _arriving, child: words),
+      words: (words) => _FadeUp(
+        on: _arriving,
+        // A signed message: once the signature is drawn.
+        at: _message != null ? _Paper.signAt(true) + 750 : 380,
+        child: words,
+      ),
     );
   }
 
@@ -305,18 +336,22 @@ class _FadeUp extends StatelessWidget {
   final bool on;
   final Widget child;
 
-  const _FadeUp({required this.on, required this.child});
+  /// When the words start to come up, in ms.
+  final int at;
+
+  const _FadeUp({required this.on, required this.child, this.at = 380});
 
   @override
   Widget build(BuildContext context) {
     if (!on || MediaQuery.disableAnimationsOf(context)) return child;
+    final total = at + 320;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 700),
+      duration: Duration(milliseconds: total),
       child: child,
       builder: (context, t, child) {
         final local = Curves.easeOut.transform(
-          ((t * 700 - 380) / 320).clamp(0.0, 1.0),
+          ((t * total - at) / 320).clamp(0.0, 1.0),
         );
         return Opacity(
           opacity: local,
@@ -336,17 +371,21 @@ class _CheckPop extends StatelessWidget {
   final bool on;
   final Widget child;
 
-  const _CheckPop({required this.on, required this.child});
+  /// When the check pops on, in ms.
+  final int at;
+
+  const _CheckPop({required this.on, required this.child, this.at = 600});
 
   @override
   Widget build(BuildContext context) {
     if (!on || MediaQuery.disableAnimationsOf(context)) return child;
+    final total = at + 360;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 960),
+      duration: Duration(milliseconds: total),
       child: child,
       builder: (context, t, child) {
-        final local = ((t * 960 - 600) / 360).clamp(0.0, 1.0);
+        final local = ((t * total - at) / 360).clamp(0.0, 1.0);
         final eased = Curves.easeOut.transform(local);
         final scale = eased < 0.7
             ? 1.12 * eased / 0.7
@@ -772,6 +811,9 @@ class _Paper extends StatelessWidget {
     required this.onReadAll,
   });
 
+  /// When the signature starts to draw, in ms: after the cards are down.
+  static int signAt(bool arriving) => arriving ? 1850 : 300;
+
   static const _seal = [
     (0.0, 0.0, -5.0),
     (14.0, -7.0, 2.0),
@@ -813,10 +855,20 @@ class _Paper extends StatelessWidget {
                 ),
               ),
             ),
+            // The signature, drawn once the cards are down (2.7).
+            Positioned(
+              right: 58,
+              bottom: 30 + 6,
+              child: SignatureStroke(
+                delay: Duration(milliseconds: _Paper.signAt(arriving)),
+              ),
+            ),
             Positioned(
               right: -12,
               top: -16,
               child: _CheckPop(
+                // Once the signature is drawn.
+                at: _Paper.signAt(arriving) + 850,
                 on: arriving,
                 child: const ReceivedCheck(key: Key("share_done_check")),
               ),

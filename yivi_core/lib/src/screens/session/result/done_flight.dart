@@ -123,13 +123,18 @@ class DoneFlight {
         duration: duration,
         curve: YiviMotion.carry,
         hide: [paper],
-        copy: (context, frame) => SizedBox.fromSize(
-          size: frame.size,
-          child: ClipRect(
-            child: OverflowBox(
-              alignment: Alignment.topLeft,
-              maxHeight: double.infinity,
-              child: SizedBox(width: frame.size.width, child: paperCopy),
+        // On a transparent material: the copy's text has the app's
+        // style, not the bare one (yellow underlines) outside a page.
+        copy: (context, frame) => Material(
+          type: MaterialType.transparency,
+          child: SizedBox.fromSize(
+            size: frame.size,
+            child: ClipRect(
+              child: OverflowBox(
+                alignment: Alignment.topLeft,
+                maxHeight: double.infinity,
+                child: SizedBox(width: frame.size.width, child: paperCopy),
+              ),
             ),
           ),
         ),

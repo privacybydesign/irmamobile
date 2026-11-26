@@ -863,7 +863,6 @@
     "pairing": {
       "title": "Zusätzliche Sicherheitsprüfung",
       "instruction": "Geben Sie diesen Bestätigungscode auf der Webseite ein, um die Sicherheit zu erhöhen.",
-      "waiting": "Warten auf die Website…",
       "heading": "Gib diesen Code auf der Website ein",
       "explanation": "{requestor} zeigt dafür ein Feld an. So wird dieses Telefon mit dem Bildschirm verbunden und niemand sonst kann deinen QR-Code verwenden."
     }
@@ -1417,11 +1416,14 @@
       "shared_one": "{name} wurde geteilt.",
       "shared_many": "{count} Karten wurden geteilt.",
       "other_device": "Mach auf deinem anderen Gerät weiter.",
-      "back_website": "Zurück zur Website"
+      "back_website": "Zurück zur Website",
+      "signed_text": "Du hast diese Nachricht unterschrieben.",
+      "more": "{requestor} hat noch eine Anfrage.",
+      "continue": "Weiter"
     },
     "call": {
       "title": "Geteilt. Ruf jetzt {requestor} an",
-      "text": "Die Person, die abnimmt, sieht die Daten, die du gerade geteilt hast. Du musst also nichts buchstabieren.",
+      "text": "Ruf an, um weiterzumachen. Du findest das unter Aktivität.",
       "button": "{requestor} anrufen"
     },
     "spot": {
@@ -1648,7 +1650,8 @@
     "receive": {
       "section": "Das bekommst du zurück",
       "button": "Teilen und empfangen",
-      "button_only": "Empfangen"
+      "button_only": "Empfangen",
+      "done_text": "{name} ist jetzt in deiner App. Du findest das unter Aktivität."
     },
     "nothing": {
       "title": "Möchtest du Daten teilen mit",
@@ -1740,6 +1743,12 @@
       "title_sign": "Welche Kombination verwendest du?",
       "still_add": "Noch hinzufügen: {names}",
       "add": "Hinzufügen"
+    },
+    "mail": {
+      "bar": "Mail über Yivi",
+      "title": "Geteilt. Schreib jetzt {requestor}",
+      "text": "Schick eine E-Mail, um weiterzumachen. Du findest das unter Aktivität.",
+      "button": "{requestor} mailen"
     }
   },
   "contact_sheet": {

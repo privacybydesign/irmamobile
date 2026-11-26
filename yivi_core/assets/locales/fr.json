@@ -860,7 +860,6 @@
     "pairing": {
       "title": "Contrôle de sécurité supplémentaire",
       "instruction": "Saisissez ce code de vérification sur le site web pour plus de sécurité.",
-      "waiting": "En attente du site web…",
       "heading": "Saisissez ce code sur le site web",
       "explanation": "{requestor} affiche un champ pour cela. Il relie ce téléphone à cet écran, pour que personne d'autre ne puisse utiliser votre code QR."
     }
@@ -1417,11 +1416,14 @@
       "shared_one": "{name} a été partagé.",
       "shared_many": "{count} cartes ont été partagées.",
       "other_device": "Continuez sur votre autre appareil.",
-      "back_website": "Retour au site web"
+      "back_website": "Retour au site web",
+      "signed_text": "Vous avez signé ce message.",
+      "more": "{requestor} a une autre demande.",
+      "continue": "Continuer"
     },
     "call": {
       "title": "Partagé. Appelez maintenant {requestor}",
-      "text": "La personne qui répond voit les données que vous venez de partager, vous n'avez donc rien à épeler.",
+      "text": "Appelez pour continuer. Vous le retrouverez dans Activité.",
       "button": "Appeler {requestor}"
     },
     "spot": {
@@ -1648,7 +1650,8 @@
     "receive": {
       "section": "Ce que vous recevez en retour",
       "button": "Partager et recevoir",
-      "button_only": "Recevoir"
+      "button_only": "Recevoir",
+      "done_text": "{name} est maintenant dans votre appli. Vous le retrouverez dans Activité."
     },
     "nothing": {
       "title": "Voulez-vous partager des données avec",
@@ -1740,6 +1743,12 @@
       "title_sign": "Quelle combinaison utilisez-vous ?",
       "still_add": "Encore à ajouter : {names}",
       "add": "Ajouter"
+    },
+    "mail": {
+      "bar": "E-mail via Yivi",
+      "title": "Partagé. Écrivez maintenant à {requestor}",
+      "text": "Envoyez un e-mail pour continuer. Vous le retrouverez dans Activité.",
+      "button": "Écrire à {requestor}"
     }
   },
   "contact_sheet": {

@@ -41,6 +41,12 @@ class ReturnURL {
   const ReturnURL._(this.uri);
 
   bool get isPhoneNumber => uri.isScheme("tel");
+
+  /// An e-mail address (`mailto:`): mail it via Yivi.
+  bool get isEmail => uri.isScheme("mailto");
+
+  /// The address of a `mailto:` URL, without its query.
+  String get emailAddress => isEmail ? uri.path : "";
   String get phoneNumber =>
       isPhoneNumber ? toString().substring(4).split(",").first : "";
 

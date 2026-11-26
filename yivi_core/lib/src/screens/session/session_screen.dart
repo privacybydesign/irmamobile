@@ -17,6 +17,7 @@ import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_flow_provider.dart";
 import "../../providers/session_state_provider.dart";
+import "../../providers/session_user_choices_provider.dart";
 import "../../routing/navigation.dart";
 import "../../sentry/sentry.dart";
 import "../../theme/yivi_tone.dart";
@@ -159,6 +160,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         inAppLaunched: !keyshareLink && flow.inAppLaunchedOnSuccess(session),
         forRequest: widget.hasUnderlyingSession,
         keyshareLink: keyshareLink,
+        nextPending: session.nextSessionPending,
       ),
     );
   }
@@ -306,6 +308,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   void _grantPermission(List<ChoiceSelection> choices) => _flow.grant(choices);
 
+  /// Starts the follow-up request; what was picked for this one is
+  /// forgotten, so the next one starts fresh.
+  void _continueNext() {
+    _outcome = null;
+    _sharedInstances = const [];
+    ref.invalidate(disclosureSelectionProvider(widget.sessionId));
+    ref.invalidate(fixedChoicesProvider(widget.sessionId));
+    _flow.continueNext();
+  }
+
   /// Shares [choices]; [shared] are the cards that go, for the done screen.
   void _share(
     List<ChoiceSelection> choices,
@@ -323,17 +335,26 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       VoidCallback? onReturn,
       bool goBackYourself = false,
       VoidCallback? onBackToWebsite,
+      VoidCallback? onContinue,
     }) => DisclosureFeedbackScreen(
       isSignatureSession: session.type == .signature,
       message: session.type == .signature ? session.messageToSign : null,
       requestor: session.requestor,
-      onDismiss: (_) => _popToUnderlyingOrHome(),
+      onDismiss: (_) {
+        // Closed before a follow-up request: it is given up.
+        if (onContinue != null) _sessions.dismissSession(widget.sessionId);
+        _popToUnderlyingOrHome();
+      },
       shared: _sharedInstances,
       onOtherDevice: onOtherDevice,
       returnHost: returnHost,
       onReturn: onReturn,
       goBackYourself: goBackYourself,
       onBackToWebsite: onBackToWebsite,
+      onContinue: onContinue,
+      received: session.type == .disclosure
+          ? session.offeredCredentials ?? const []
+          : const [],
     );
 
     return switch (outcome) {
@@ -376,6 +397,20 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         onContinue: () =>
             _openReturnUrl(url, alwaysExternal: true, popOnSuccess: true),
         onCancel: _closeSession,
+      ),
+      MailVia(:final url) => CallInfoScreen(
+        otherParty: session.requestor.name,
+        phoneNumber: url.emailAddress,
+        mail: true,
+        onContinue: () =>
+            _openReturnUrl(url, alwaysExternal: true, popOnSuccess: true),
+        onCancel: _closeSession,
+      ),
+      // A follow-up request: "Verder" starts it on this screen; closing
+      // gives it up (the share stays done).
+      SharedMoreToCome() => shared(
+        onOtherDevice: session.continueOnSecondDevice,
+        onContinue: _continueNext,
       ),
       Shared(next: OtherDevice()) => shared(onOtherDevice: true),
       // A return URL that could not be opened: the error, until closed.

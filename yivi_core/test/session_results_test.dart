@@ -243,6 +243,8 @@ void main() {
       bool goBackYourself = false,
       VoidCallback? onBackToWebsite,
       VoidCallback? onDone,
+      VoidCallback? onContinue,
+      List<Credential> received = const [],
       bool settle = true,
     }) => _pump(
       tester,
@@ -258,6 +260,8 @@ void main() {
         onBackToWebsite: onBackToWebsite,
         shared: shared,
         onDismiss: (_) => onDone?.call(),
+        onContinue: onContinue,
+        received: received,
       ),
     );
 
@@ -266,6 +270,39 @@ void main() {
       "Email address",
       attributes: [_value("email", "Email address", "anna@example.com")],
     );
+
+    testWidgets("before a follow-up request: Verder, no way back", (
+      tester,
+    ) async {
+      var more = 0;
+      await pump(
+        tester,
+        shared: [email],
+        returnHost: "shop.example",
+        onContinue: () => more++,
+      );
+      expect(
+        find.textContaining("Webshop has another request."),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("ok_button")), findsNothing);
+      await tester.tap(find.byKey(const Key("share_done_continue")));
+      expect(more, 1);
+    });
+
+    testWidgets("share and receive: the card that came in", (tester) async {
+      await pump(
+        tester,
+        shared: [email],
+        received: [testCredential("diploma")],
+      );
+      expect(
+        find.textContaining(
+          "is now in your app. You'll find this in Activity.",
+        ),
+        findsOneWidget,
+      );
+    });
 
     testWidgets("with whom, the card handed to their logo, and Done", (
       tester,
@@ -347,7 +384,7 @@ void main() {
         ),
         findsNWidgets(5),
       );
-      expect(find.textContaining("5 cards"), findsOneWidget);
+      expect(find.textContaining("You signed this message."), findsOneWidget);
     });
 
     testWidgets("from the share screen the logo flies in from where it was, "
@@ -493,10 +530,8 @@ void main() {
       expect(find.text("Signed for Webshop"), findsOneWidget);
       expect(find.byKey(const Key("share_done_paper")), findsOneWidget);
       expect(find.text("I agree"), findsOneWidget);
-      expect(
-        find.textContaining("You signed this message with Email address."),
-        findsOneWidget,
-      );
+      expect(find.textContaining("You signed this message."), findsOneWidget);
+      expect(find.byKey(const Key("share_done_signature")), findsOneWidget);
     });
 
     testWidgets("a disclosure with an empty message: no paper", (tester) async {
@@ -547,6 +582,34 @@ void main() {
     expect(find.text("+31612345678"), findsOneWidget);
     await tester.tap(find.text("Call Gemeente"));
     expect(called, 1);
+    // It says nothing about what the other side sees.
+    expect(
+      find.text("Call to continue. You'll find this in Activity."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("mail: shared, now mail, with the address", (tester) async {
+    var mailed = 0;
+    await _pump(
+      tester,
+      CallInfoScreen(
+        otherParty: "Gemeente",
+        phoneNumber: "loket@gemeente.example",
+        mail: true,
+        onContinue: () => mailed++,
+      ),
+    );
+
+    expect(find.byKey(const Key("mail_title")), findsOneWidget);
+    expect(find.text("Shared. Now mail Gemeente"), findsOneWidget);
+    expect(find.text("loket@gemeente.example"), findsOneWidget);
+    expect(
+      find.text("Send an e-mail to continue. You'll find this in Activity."),
+      findsOneWidget,
+    );
+    await tester.tap(find.text("Mail Gemeente"));
+    expect(mailed, 1);
   });
 
   testWidgets("pairing: who asks, and what the code is for", (tester) async {

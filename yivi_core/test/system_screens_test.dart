@@ -157,7 +157,8 @@ void main() {
       }
       expect(find.byKey(const Key("pairing_code_box_4")), findsNothing);
       expect(find.bySemanticsLabel("8 K 4 Q"), findsOneWidget);
-      expect(find.text("Waiting for the website…"), findsOneWidget);
+      // The screen ends at the code: no waiting line, no spinner.
+      expect(find.textContaining("Waiting"), findsNothing);
       handle.dispose();
     });
   });

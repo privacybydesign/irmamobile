@@ -20,6 +20,7 @@ final class SessionFacts {
     required this.inAppLaunched,
     required this.forRequest,
     required this.keyshareLink,
+    this.nextPending = false,
   });
 
   final SessionType type;
@@ -37,6 +38,9 @@ final class SessionFacts {
 
   /// The disclosure that links an e-mail address to the keyshare account.
   final bool keyshareLink;
+
+  /// The requestor has a follow-up request waiting (IRMA `nextSession`).
+  final bool nextPending;
 
   bool get _issuance => type == SessionType.issuance;
 }
@@ -65,6 +69,18 @@ final class Added extends SessionOutcome {
 final class CallVia extends SessionOutcome {
   const CallVia(this.url);
   final ReturnURL url;
+}
+
+/// The return URL is an e-mail address: mail it via Yivi.
+final class MailVia extends SessionOutcome {
+  const MailVia(this.url);
+  final ReturnURL url;
+}
+
+/// Shared (or signed), and the requestor has a follow-up request: "Verder"
+/// starts it; no return URL is followed (2.14).
+final class SharedMoreToCome extends SessionOutcome {
+  const SharedMoreToCome();
 }
 
 /// "Shared with {requestor}", with what to do [next].
@@ -125,12 +141,16 @@ SessionOutcome sessionOutcomeOf(SessionFacts f) {
   return switch (f) {
     // E-mail linking ends on its own screen once MijnYivi has the address.
     SessionFacts(keyshareLink: true) => const EmailLinked(),
+    // A follow-up request wins over every way back.
+    SessionFacts(nextPending: true, _issuance: false) =>
+      const SharedMoreToCome(),
     SessionFacts(forRequest: true, _issuance: true) => const AddedForRequest(),
     // Started from inside the app: stay in the app, whatever return URL
     // the issuer set.
     SessionFacts(inAppLaunched: true) => const Added(),
     // The phone places the call, whichever device started the session.
     _ when url != null && url.isPhoneNumber => CallVia(url),
+    _ when url != null && url.isEmail => MailVia(url),
     // The result lives on the other device, whose browser honours any
     // return URL there; nothing opens on the phone.
     SessionFacts(secondDevice: true, _issuance: true) => const Added(),
@@ -172,6 +192,7 @@ enum CallerReturn {
   final reopen =
       url != null &&
       !url.isPhoneNumber &&
+      !url.isEmail &&
       // On a second device the browser is on the other device.
       !f.secondDevice &&
       error?.errorType != "clientReturnUrl" &&

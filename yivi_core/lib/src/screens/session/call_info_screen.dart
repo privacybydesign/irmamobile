@@ -11,13 +11,16 @@ import "../../widgets/surfaces/surface.dart";
 import "layout/session_layout.dart";
 import "result/session_result.dart";
 
-/// After sharing for a phone call (a `tel:` return URL): the data is
-/// shared, now call. The button opens the phone app with the number.
+/// After sharing for a phone call (a `tel:` return URL) or an e-mail (a
+/// `mailto:` one, [mail]): the data is shared, now call or mail. The button
+/// opens the phone or mail app.
 class CallInfoScreen extends StatelessWidget {
   final String otherParty;
 
-  /// The number to call, shown as it will be dialled.
+  /// The number to call, shown as it will be dialled; or with [mail] the
+  /// address to mail.
   final String? phoneNumber;
+  final bool mail;
   final Function()? onContinue;
   final Function()? onCancel;
 
@@ -25,6 +28,7 @@ class CallInfoScreen extends StatelessWidget {
     super.key,
     required this.otherParty,
     this.phoneNumber,
+    this.mail = false,
     this.onContinue,
     this.onCancel,
   });
@@ -35,17 +39,17 @@ class CallInfoScreen extends StatelessWidget {
     String t(String key) => context.tr(key, {"requestor": otherParty});
     final number = phoneNumber;
     return SessionResult(
-      appBarTitle: "disclosure_permission.call.title",
+      appBarTitle: mail ? "share.mail.bar" : "disclosure_permission.call.title",
       onBack: () => onCancel?.call(),
-      hero: const ToneDisc(
-        icon: Icons.phone_outlined,
+      hero: ToneDisc(
+        icon: mail ? Icons.mail_outline_rounded : Icons.phone_outlined,
         tone: YiviTone.success,
         size: 84,
         iconSize: 40,
       ),
-      title: t("share.call.title"),
-      titleKey: const Key("call_title"),
-      text: t("share.call.text"),
+      title: t(mail ? "share.mail.title" : "share.call.title"),
+      titleKey: Key(mail ? "mail_title" : "call_title"),
+      text: t(mail ? "share.mail.text" : "share.call.text"),
       below: number == null || number.isEmpty
           ? null
           : Align(
@@ -74,7 +78,7 @@ class CallInfoScreen extends StatelessWidget {
               ),
             ),
       action: ActionBar.primary(
-        label: t("share.call.button"),
+        label: t(mail ? "share.mail.button" : "share.call.button"),
         onTap: () => onContinue?.call(),
       ),
     );
