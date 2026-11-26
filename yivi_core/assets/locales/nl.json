@@ -1721,6 +1721,25 @@
       "pick_several": "Kies welke je deelt",
       "pick_combination": "Andere combinatie kiezen",
       "not_sharing": "Niet delen"
+    },
+    "pick": {
+      "title": "Welk kaartje deel je?",
+      "title_sign": "Welk kaartje gebruik je?",
+      "title_many": "Welke kaartjes deel je?",
+      "title_many_sign": "Welke kaartjes gebruik je?",
+      "one_needed": "{requestor} heeft er maar één nodig.",
+      "optional": "{requestor} vraagt hierom, maar het hoeft niet.",
+      "same_values": "{count} kaartjes met dezelfde gegevens",
+      "add_another": "{another} toevoegen",
+      "add_card": "Ander kaartje toevoegen",
+      "choose": "Kies",
+      "linked": "Dit kaartje telt voor twee vragen in dit verzoek: je kiest het voor allebei."
+    },
+    "combination": {
+      "title": "Welke combinatie deel je?",
+      "title_sign": "Welke combinatie gebruik je?",
+      "still_add": "Nog toevoegen: {names}",
+      "add": "Toevoegen"
     }
   },
   "contact_sheet": {

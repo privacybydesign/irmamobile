@@ -1721,6 +1721,25 @@
       "pick_several": "Choisir ce que vous partagez",
       "pick_combination": "Choisir une autre combinaison",
       "not_sharing": "Ne pas partager"
+    },
+    "pick": {
+      "title": "Quelle carte partagez-vous ?",
+      "title_sign": "Quelle carte utilisez-vous ?",
+      "title_many": "Quelles cartes partagez-vous ?",
+      "title_many_sign": "Quelles cartes utilisez-vous ?",
+      "one_needed": "{requestor} n'en a besoin que d'une.",
+      "optional": "{requestor} le demande, mais ce n'est pas obligatoire.",
+      "same_values": "{count} cartes avec les mêmes données",
+      "add_another": "Ajouter {another}",
+      "add_card": "Ajouter une autre carte",
+      "choose": "Choisir",
+      "linked": "Cette carte compte pour deux questions de cette demande : vous la choisissez pour les deux."
+    },
+    "combination": {
+      "title": "Quelle combinaison partagez-vous ?",
+      "title_sign": "Quelle combinaison utilisez-vous ?",
+      "still_add": "Encore à ajouter : {names}",
+      "add": "Ajouter"
     }
   },
   "contact_sheet": {

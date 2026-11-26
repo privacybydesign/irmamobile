@@ -10,6 +10,8 @@ import "add_first_page.dart";
 import "add_picker_page.dart";
 import "disclosure_change_page.dart";
 import "disclosure_overview_page.dart";
+import "which_card_sheet.dart";
+import "which_combination_sheet.dart";
 
 /// The disclosure (and signature) request of [session], in phases on one
 /// route: first "Eerst toevoegen" when a required choice could not be
@@ -56,11 +58,27 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
     _changeTo = choice;
   });
 
-  /// The sheets of the change page (2.5); set by [_sheets].
+  /// The sheets of the change page (2.5).
   late final _actions = ChangeActions(
-    pickCard: (i) => _sheets?.pickCard(i),
-    pickSlot: (i, slot) => _sheets?.pickSlot(i, slot),
-    pickCombination: (i) => _sheets?.pickCombination(i),
+    pickCard: (i) => showWhichCardSheet(
+      context: context,
+      sessionId: _id,
+      choice: i,
+      onAdd: _add,
+    ),
+    pickSlot: (i, slot) => showWhichCardSheet(
+      context: context,
+      sessionId: _id,
+      choice: i,
+      slot: slot,
+      onAdd: _add,
+    ),
+    pickCombination: (i) => showWhichCombinationSheet(
+      context: context,
+      sessionId: _id,
+      choice: i,
+      onAdd: _add,
+    ),
     add: _add,
   );
 
@@ -68,9 +86,6 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
   /// overview → change page) or back.
   _Phase? _phase;
   bool _forward = true;
-
-  /// The choice sheets, once they exist.
-  ChangeActions? get _sheets => null;
 
   final _landing = <int, GlobalKey>{};
 

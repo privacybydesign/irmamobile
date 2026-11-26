@@ -1721,6 +1721,25 @@
       "pick_several": "Choose which you share",
       "pick_combination": "Choose another combination",
       "not_sharing": "Don't share"
+    },
+    "pick": {
+      "title": "Which card do you share?",
+      "title_sign": "Which card do you use?",
+      "title_many": "Which cards do you share?",
+      "title_many_sign": "Which cards do you use?",
+      "one_needed": "{requestor} only needs one.",
+      "optional": "{requestor} asks for this, but you don't have to.",
+      "same_values": "{count} cards with the same data",
+      "add_another": "Add {another}",
+      "add_card": "Add another card",
+      "choose": "Choose",
+      "linked": "This card counts for two questions in this request: you choose it for both."
+    },
+    "combination": {
+      "title": "Which combination do you share?",
+      "title_sign": "Which combination do you use?",
+      "still_add": "Still to add: {names}",
+      "add": "Add"
     }
   },
   "contact_sheet": {
