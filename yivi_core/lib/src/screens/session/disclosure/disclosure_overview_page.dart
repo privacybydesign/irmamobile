@@ -33,6 +33,7 @@ import "../requestor/requestor_trust_sheet.dart";
 import "../result/done_flight.dart";
 import "disclosure_keys.dart";
 import "disclosure_value_list.dart";
+import "disclosure_words.dart";
 import "signed_message.dart";
 
 /// "Het overzicht" (2.2): who asks, one list of what is shared, the pile of
@@ -440,17 +441,6 @@ class _DisclosureOverviewPageState
         ) ??
         false;
   }
-}
-
-/// [n] as a word up to five ("twee"), else as digits.
-String countWord(BuildContext context, int n) =>
-    n >= 2 && n <= 5 ? context.tr("share.count.$n") : "$n";
-
-/// [names] joined with commas and the language's "and" before the last.
-String joinAnd(BuildContext context, List<String> names) {
-  if (names.length < 2) return names.firstOrNull ?? "";
-  return "${names.sublist(0, names.length - 1).join(", ")}"
-      "${context.tr("share.and")}${names.last}";
 }
 
 /// The room above a section label.

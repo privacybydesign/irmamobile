@@ -62,12 +62,16 @@ class CompactBar extends StatelessWidget {
   final InlineSpan subtitle;
   final double opacity;
 
+  /// After the title, at the end of the row (an ⓘ).
+  final Widget? trailing;
+
   const CompactBar({
     super.key,
     required this.leading,
     required this.title,
     required this.subtitle,
     this.opacity = 1,
+    this.trailing,
   });
 
   @override
@@ -103,6 +107,7 @@ class CompactBar extends StatelessWidget {
                 ],
               ),
             ),
+            ?trailing,
           ],
         ),
       ),

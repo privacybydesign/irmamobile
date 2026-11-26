@@ -402,7 +402,10 @@ void main() {
     expect(
       find.descendant(
         of: box,
-        matching: find.text("This card doesn't count for Test Verifier"),
+        matching: find.text(
+          "This card has another value than Test Verifier asks for. "
+          "You can add it, but you can't share this with it.",
+        ),
       ),
       findsOneWidget,
     );
@@ -414,7 +417,9 @@ void main() {
       find.descendant(of: box, matching: find.text("BIC INGBNL2A")),
       findsOneWidget,
     );
-    expect(find.text("Doesn't count"), findsOneWidget);
+    // No verdict on the card: its value says what is asked beside it.
+    expect(find.text("Doesn't count"), findsNothing);
+    expect(find.text("Asked: BIC RABONL2U"), findsOneWidget);
   });
 
   String buttonLabel(WidgetTester tester) => tester

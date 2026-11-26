@@ -142,7 +142,7 @@ class _LeafContent extends StatelessWidget {
           ValueTag(
             key: Key(node.match ? "value_tag_match" : "value_tag_mismatch"),
             text: tag,
-            tone: node.match ? ValueTagTone.match : ValueTagTone.mismatch,
+            tone: node.match ? ValueTagTone.match : ValueTagTone.asked,
           ),
         ],
       );

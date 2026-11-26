@@ -1329,7 +1329,13 @@
       "revoked": "Revoked",
       "revoked_note": "This card has been revoked and can't be used any more.",
       "expired": "Expired",
-      "expired_note": "This card has expired and can't be used any more."
+      "expired_note": "This card has expired and can't be used any more.",
+      "add_again": "{problem}. Add it again.",
+      "one_of_bad": "{name} is {problem}. Choose one to add.",
+      "cant_share": "{problem}. You can no longer share this card.",
+      "cant_use": "{problem}. You can no longer use this card.",
+      "used_up": "Used up",
+      "not_revocable": "Can't be checked"
     },
     "bar": {
       "share": "Share data",
@@ -1492,7 +1498,8 @@
           "register": "Ask them to register",
           "register_text": "At portal.yivi.app"
         }
-      }
+      },
+      "more": "More about this party"
     },
     "tech": {
       "link": "Technical details",
@@ -1586,12 +1593,6 @@
     "also_choose": "You have another one",
     "also_add": "In your app",
     "match_tag": "Exactly what they ask",
-    "not_counted": {
-      "chip": "Doesn't count",
-      "asked": "Asked: {value}",
-      "text_single": "{requestor} asks for {field} {value}. Your app has {have}. Has that changed? Then get the card again. If not, you can't share this.",
-      "text": "{requestor} asks for {field} {value}. Your app has {have}. Has that changed? Then add a new card. If not, you can't share this."
-    },
     "how": {
       "email": "You get a code by e-mail",
       "phone": "You get a code by text message",
@@ -1601,25 +1602,22 @@
     "offer": {
       "add": "Add",
       "add_many": "Add {count} cards",
-      "retry": "Try again",
-      "dont_replace": "Don't replace",
       "add_anyway": "Add anyway",
       "replace_anyway": "Replace anyway",
-      "not_counted": "This card doesn't count for {requestor}",
       "asks": "{requestor} asks",
       "has": "This card has",
-      "tag_not_counted": "Doesn't count",
       "tag_extra": "Comes too",
-      "done_not_counted": "The card is now in your app, but it doesn't count for {requestor}. Asked: {field} {value}.",
-      "done_replaced_not_counted": "The card in your app has been replaced, but it doesn't count for {requestor}. Asked: {field} {value}."
+      "other_value": "This card has another value than {requestor} asks for. You can add it, but you can't share this with it.",
+      "other_value_sign": "This card has another value than {requestor} asks for. You can add it, but you can't sign this with it.",
+      "dont_add": "Don't add",
+      "wrong_kind": "{name} is now in your app, but it is not what {requestor} asks for."
     },
     "progress": {
       "add_one": "One more card to add, then you can share",
       "add_many": "{count} more cards to add, then you can share",
       "add_one_sign": "One more card to add, then you can sign",
       "add_many_sign": "{count} more cards to add, then you can sign",
-      "ready": "All set",
-      "not_counted": "Your card does not count for this request"
+      "ready": "All set"
     },
     "message_sheet": {
       "lead": "You sign this for {requestor}.",
@@ -1654,6 +1652,54 @@
       "3": "three",
       "4": "four",
       "5": "five"
+    },
+    "addstep": {
+      "title_one": "First add a card",
+      "title_many": "First add {count} cards",
+      "title_things": "First add what is missing",
+      "title_done": "Everything is added",
+      "lead": "{requestor} asks for data that is not in your app yet. Then you'll see exactly what you share.",
+      "lead_sign": "{requestor} asks for data that is not in your app yet. Then you'll see exactly what you sign.",
+      "lead_done": "Now look at what you share with {requestor}. You haven't shared anything yet.",
+      "lead_done_sign": "Now look at what you sign for {requestor}. You haven't signed anything yet.",
+      "one_enough": "One is enough. Choose one.",
+      "ways": "Choose from {count} options",
+      "together": "Go together · {have} of {total} in your app",
+      "added": "Now in your app",
+      "other_title": "Your app has something else",
+      "other_lead": "{requestor} asks for another value than your card has.",
+      "in_app": "In your app: {name} {value}",
+      "other_help": "Is that no longer right? Get the card again. If it is right, you can't share this.",
+      "other_help_sign": "Is that no longer right? Get the card again. If it is right, you can't sign this.",
+      "asked": "Asked: {name} {value}",
+      "asked_more": "{values} or {count} others",
+      "asked_section": "{requestor} asks for one of these",
+      "line_one": "One more card, then you'll see what you share",
+      "line_many": "{count} more cards, then you'll see what you share",
+      "line_thing": "One more thing, then you'll see what you share",
+      "line_things": "{count} more things, then you'll see what you share",
+      "line_done": "Everything is in your app",
+      "add": "Add {name}",
+      "add_again": "Add {name} again",
+      "fetch_again": "Get {name} again",
+      "choose": "Choose what to add",
+      "review": "See what you share",
+      "review_sign": "See what you sign"
+    },
+    "blocked": {
+      "title": "You can't share this now",
+      "title_sign": "You can't sign this now",
+      "lead": "{requestor} asks for a card Yivi can't get for you. Arrange it with the issuer first, then open this request again.",
+      "line": "You share nothing",
+      "line_sign": "You sign nothing",
+      "cant_add": "Can't be added in Yivi. Get it from {issuer} first.",
+      "cant_add_unknown": "Can't be added in Yivi.",
+      "cant_renew": "{problem}. Yivi can't renew this card. Ask {issuer} for a new one."
+    },
+    "addpicker": {
+      "title": "Choose what to add",
+      "cards": "{count} cards · {issuers}",
+      "with_owned": "Together with {names} from your app"
     }
   },
   "contact_sheet": {

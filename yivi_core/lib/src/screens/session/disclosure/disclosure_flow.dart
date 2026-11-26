@@ -1,13 +1,20 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/session_state.dart";
 import "../../../models/session_user_interaction.dart";
+import "../../../providers/session_user_choices_provider.dart";
+import "../../../theme/yivi_motion.dart";
+import "../models/disclosure_plan_view.dart";
+import "add_first_page.dart";
+import "add_picker_page.dart";
 import "disclosure_overview_page.dart";
 
-/// The disclosure (and signature) request of [session]. For now the
-/// overview; the add step (before it) and "Kies wat je deelt" (from its
-/// pile row) join it.
-class DisclosureFlow extends StatelessWidget {
+/// The disclosure (and signature) request of [session], in phases on one
+/// route: first "Eerst toevoegen" when a required choice could not be
+/// answered when it opened (or the request cannot be finished at all), then
+/// the overview. The phases change with a shared-axis page change.
+class DisclosureFlow extends ConsumerStatefulWidget {
   final SessionState session;
   final VoidCallback onDismiss;
 
@@ -30,10 +37,108 @@ class DisclosureFlow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => DisclosureOverviewPage(
-    session: session,
-    onDismiss: onDismiss,
-    onClose: onClose,
-    onShare: onShare,
+  ConsumerState<DisclosureFlow> createState() => _DisclosureFlowState();
+}
+
+enum _Phase { add, overview }
+
+class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
+  /// "Bekijk wat je deelt" was tapped: the add step is done with.
+  bool _reviewed = false;
+
+  final _landing = <int, GlobalKey>{};
+
+  GlobalKey _landingKey(int choice) =>
+      _landing[choice] ??= GlobalKey(debugLabel: "add_row_$choice");
+
+  int get _id => widget.session.id;
+
+  void _add(int choice, AddWay? way) {
+    final plan = widget.session.disclosurePlan;
+    if (plan == null || choice >= plan.choices.length) return;
+    showAddSheet(
+      context: context,
+      sessionId: _id,
+      choice: choice,
+      ways: addWays(plan.choices[choice]),
+      way: way,
+      landing: _landingKey(choice),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final plan =
+        widget.session.disclosurePlan ?? DisclosurePlan(choices: const []);
+    final fixed = ref.watch(fixedChoicesProvider(_id)) ?? const <int>[];
+    final blocked = blockedChoices(plan).isNotEmpty;
+    final phase = !_reviewed && (fixed.isNotEmpty || blocked)
+        ? _Phase.add
+        : _Phase.overview;
+    final page = switch (phase) {
+      _Phase.add => AddFirstPage(
+        key: const ValueKey(_Phase.add),
+        session: widget.session,
+        fixed: fixed,
+        onDismiss: widget.onDismiss,
+        onClose: widget.onClose,
+        onReview: () => setState(() => _reviewed = true),
+        onAdd: _add,
+        landingKey: _landingKey,
+      ),
+      _Phase.overview => DisclosureOverviewPage(
+        key: const ValueKey(_Phase.overview),
+        session: widget.session,
+        onDismiss: widget.onDismiss,
+        onClose: widget.onClose,
+        onShare: widget.onShare,
+      ),
+    };
+    return AnimatedSwitcher(
+      duration: YiviMotion.duration(context, const Duration(milliseconds: 380)),
+      transitionBuilder: (child, animation) => _SharedAxis(
+        animation: animation,
+        forward: child.key == const ValueKey(_Phase.overview),
+        child: child,
+      ),
+      layoutBuilder: (current, previous) =>
+          Stack(children: [...previous, ?current]),
+      child: page,
+    );
+  }
+}
+
+/// The app's shared-axis page change: the new page comes in from 30 pt to
+/// the side while fading in; the old one goes the other way, fading out.
+class _SharedAxis extends StatelessWidget {
+  final Animation<double> animation;
+  final bool forward;
+  final Widget child;
+
+  const _SharedAxis({
+    required this.animation,
+    required this.forward,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: animation,
+    child: child,
+    builder: (context, child) {
+      final t = YiviMotion.ease.transform(animation.value);
+      final status = animation.status;
+      final leaving =
+          status == AnimationStatus.reverse ||
+          status == AnimationStatus.dismissed;
+      final side = (forward ? 1 : -1) * (leaving ? -1 : 1);
+      return Opacity(
+        opacity: t,
+        child: Transform.translate(
+          offset: Offset(30.0 * (1 - t) * side, 0),
+          child: child,
+        ),
+      );
+    },
   );
 }

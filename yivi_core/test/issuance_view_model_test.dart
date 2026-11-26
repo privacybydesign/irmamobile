@@ -122,7 +122,7 @@ void main() {
       expect(s.link, isNull);
     });
 
-    test("in the sheet a card that does not count: try again first", () {
+    test("in the sheet a card with another value: Toch toevoegen", () {
       final s = issuanceOfferOf(
         [_bad],
         forRequest: _request(),
@@ -131,13 +131,13 @@ void main() {
       expect(s.mismatched, isTrue);
       expect(s.note?.attributeName, "bic");
       expect(s.requestor?.name, "Webshop");
-      expect(s.primary, IssuancePrimary.retry);
-      expect(s.link, IssuanceLink.addAnyway);
+      expect(s.primary, IssuancePrimary.addOther);
+      expect(s.link, IssuanceLink.dontAdd);
       expect(s.perCard.single.tag, OfferTag.notCounted);
       expect(s.perCard.single.mismatchedPaths, {'["bic"]'});
     });
 
-    test("a card that replaces one: don't replace, replace anyway", () {
+    test("a card that replaces one: Toch vervangen", () {
       final s = issuanceOfferOf(
         [
           _offered("ideal", [_string("bic", "INGBNL2A")], singleton: true),
@@ -145,8 +145,8 @@ void main() {
         forRequest: _request(),
         retryOnMismatch: true,
       );
-      expect(s.primary, IssuancePrimary.dontReplace);
-      expect(s.link, IssuanceLink.replaceAnyway);
+      expect(s.primary, IssuancePrimary.replaceOther);
+      expect(s.link, IssuanceLink.dontAdd);
     });
 
     test("full screen a card that does not count: still add", () {
@@ -170,7 +170,7 @@ void main() {
         retryOnMismatch: true,
       );
       expect(s.risky, isFalse);
-      expect(s.primary, IssuancePrimary.retry);
+      expect(s.primary, IssuancePrimary.addOther);
     });
 
     test("several cards in a request: asked and comes too", () {

@@ -12,19 +12,23 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/adaptive_layout.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
+import "../../../widgets/credential_card/attribute_groups/attribute_value_formatting.dart";
+import "../../../widgets/credential_card/card_art/card_art_support.dart";
+import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/credential_card/received_check.dart";
 import "../../../widgets/feedback/spinner.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_layout.dart";
-import "../../../widgets/surfaces/surface_card.dart";
-import "../../../widgets/surfaces/inset_group.dart";
 import "../../../widgets/surfaces/icon_square.dart";
-import "../../../widgets/credential_card/received_check.dart";
-import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/surfaces/inset_group.dart";
+import "../../../widgets/surfaces/surface_card.dart";
+import "../../../widgets/text/caps_label.dart";
 import "../../add_data/add_data_details_content.dart";
 import "../../add_data/secure_app.dart";
 import "../../embedded_issuance_flows/documents/document_sheet_step.dart";
 import "../../embedded_issuance_flows/widgets/contact_sheet_step.dart";
+import "../disclosure/disclosure_words.dart";
 import "../issuance/issuance_permission.dart";
 import "../issuance/issue_sheet_progress.dart";
 import "../issuance/issue_website_step.dart";
@@ -339,6 +343,16 @@ class IssueDetailsPage extends StatelessWidget {
       close: direct ? SheetClose.start : SheetClose.none,
     );
     final bottom = IssueSheetProgress(step: 1, total: total);
+    // Inside a request, a claim it allows several values of: which.
+    final requestor = flow.host.request?.requestor.name;
+    final choices = [
+      if (requestor != null)
+        for (final a in d.attributes)
+          if (allowedValues(a).length > 1) a,
+    ];
+    final oneOf = choices.isEmpty
+        ? null
+        : AllowedValuesSection(requestor: requestor!, attributes: choices);
     // A phone held sideways: the card, its name and the intro at the left,
     // what you get at the right; the way on is in the bar.
     if (useSheetColumns(context)) {
@@ -353,7 +367,7 @@ class IssueDetailsPage extends StatelessWidget {
           end: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: YiviSpace.x12,
-            children: [part(AddDataDetailsPart.rest)],
+            children: [part(AddDataDetailsPart.rest), ?oneOf],
           ),
         ),
       );
@@ -367,8 +381,69 @@ class IssueDetailsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: YiviSpace.x16,
-        children: [part(AddDataDetailsPart.all)],
+        children: [part(AddDataDetailsPart.all), ?oneOf],
       ),
+    );
+  }
+}
+
+/// "{requestor} vraagt een van deze" (2.12): per claim the request allows
+/// several values of, its name above the full list.
+class AllowedValuesSection extends StatelessWidget {
+  final String requestor;
+  final List<Attribute> attributes;
+
+  const AllowedValuesSection({
+    super.key,
+    required this.requestor,
+    required this.attributes,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    return Column(
+      key: const Key("add_details_one_of"),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: YiviSpace.x8,
+      children: [
+        CapsLabel(
+          context.tr("share.addstep.asked_section", {"requestor": requestor}),
+          padding: const EdgeInsets.symmetric(horizontal: YiviSpace.x8),
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: palette.surface,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(YiviSpace.x16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: YiviSpace.x12,
+              children: [
+                for (final a in attributes)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        a.effectiveDisplayName,
+                        style: attributeLabelStyle(context),
+                      ),
+                      Text(
+                        joinOr(context, [
+                          for (final v in allowedValues(a))
+                            localizedAttributeText(context, v) ?? "",
+                        ]),
+                        style: attributeValueStyle(context, palette.text),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -425,16 +500,16 @@ class IssueOfferPage extends StatelessWidget {
     final issuer = offerState.issuer;
     final risky = offerState.risky;
     final action = switch (offerState.primary) {
-      IssuancePrimary.retry || IssuancePrimary.dontReplace => SheetAction(
-        key: const Key("sheet_issue_retry"),
+      IssuancePrimary.addOther || IssuancePrimary.replaceOther => SheetAction(
+        key: const Key("sheet_issue_add"),
         label: context.tr(
-          offerState.primary == IssuancePrimary.dontReplace
-              ? "share.offer.dont_replace"
-              : "share.offer.retry",
+          offerState.primary == IssuancePrimary.replaceOther
+              ? "share.offer.replace_anyway"
+              : "share.offer.add_anyway",
         ),
-        onTap: offerState.primary == IssuancePrimary.dontReplace
-            ? flow.close
-            : flow.controller.retry,
+        neutral: true,
+        busy: awaiting,
+        onTap: grant,
       ),
       IssuancePrimary.add || IssuancePrimary.addAnyway => SheetAction(
         key: const Key("sheet_issue_add"),
@@ -447,15 +522,12 @@ class IssueOfferPage extends StatelessWidget {
         onTap: grant,
       ),
     };
-    final anyway = switch (offerState.link) {
-      final link? => Center(
+    final dontAdd = switch (offerState.link) {
+      IssuanceLink.dontAdd => Center(
         child: TextLink(
-          key: const Key("sheet_issue_add"),
-          label: context.tr(switch (link) {
-            IssuanceLink.replaceAnyway => "share.offer.replace_anyway",
-            IssuanceLink.addAnyway => "share.offer.add_anyway",
-          }),
-          onPressed: awaiting ? null : grant,
+          key: const Key("add_offer_dont_add"),
+          label: context.tr("share.offer.dont_add"),
+          onPressed: awaiting ? null : flow.close,
         ),
       ),
       null => null,
@@ -463,7 +535,26 @@ class IssueOfferPage extends StatelessWidget {
     final sideways = useSheetColumns(context);
     // Above the button: why it says "anyway" for an issuer nobody vouches
     // for (no progress then: it is the last step anyway); else the progress.
-    final bottom = risky
+    final requestor = offerState.requestor?.name ?? "";
+    final signing = flow.host.request?.type == SessionType.signature;
+    final bottom = offerState.mismatched && offerState.link != null
+        ? Text(
+            context.tr(
+              signing
+                  ? "share.offer.other_value_sign"
+                  : "share.offer.other_value",
+              {"requestor": requestor},
+            ),
+            key: const Key("add_offer_warning"),
+            textAlign: sideways ? TextAlign.start : TextAlign.center,
+            style: YiviPalette.of(context)
+                .body(14, weight: FontWeight.w600)
+                .copyWith(
+                  height: 20 / 14,
+                  color: YiviPalette.of(context).errorText,
+                ),
+          )
+        : risky
         ? IssuanceRiskyReason(
             issuer: issuer!,
             textAlign: sideways ? TextAlign.start : TextAlign.center,
@@ -485,9 +576,8 @@ class IssueOfferPage extends StatelessWidget {
     // The cards: their values in tiles, the mismatch note above them.
     List<Widget> cardsAndValues(IssuanceOfferState content) => [
       const YouGetLabel(),
-      ?IssuanceMismatchNote.maybe(content),
       ...receivedCardTiles(context, content),
-      ?anyway,
+      ?dontAdd,
     ];
     // The question is the page's heading; the bar names the page once that
     // has scrolled away. The issuer sticks under the bar once their card
@@ -507,7 +597,7 @@ class IssueOfferPage extends StatelessWidget {
             action: action,
             // The progress in the bar sideways; the reason stays with the
             // button.
-            bottomInBar: !risky,
+            bottomInBar: !risky && !offerState.mismatched,
             bottom: bottom,
             // A phone held sideways: the issuer and the question at the left
             // with the button under them; the cards at the right.

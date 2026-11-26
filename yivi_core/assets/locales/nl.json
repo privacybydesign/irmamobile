@@ -1329,7 +1329,13 @@
       "revoked": "Ingetrokken",
       "revoked_note": "Dit kaartje is ingetrokken en kan niet meer gebruikt worden.",
       "expired": "Verlopen",
-      "expired_note": "Dit kaartje is verlopen en kan niet meer gebruikt worden."
+      "expired_note": "Dit kaartje is verlopen en kan niet meer gebruikt worden.",
+      "add_again": "{problem}. Voeg het opnieuw toe.",
+      "one_of_bad": "{name} is {problem}. Kies er één om toe te voegen.",
+      "cant_share": "{problem}. Dit kaartje kun je niet meer delen.",
+      "cant_use": "{problem}. Dit kaartje kun je niet meer gebruiken.",
+      "used_up": "Opgebruikt",
+      "not_revocable": "Niet te controleren"
     },
     "bar": {
       "share": "Gegevens delen",
@@ -1492,7 +1498,8 @@
           "register": "Vraag ze zich te registreren",
           "register_text": "Op portal.yivi.app"
         }
-      }
+      },
+      "more": "Meer over deze partij"
     },
     "tech": {
       "link": "Technische details",
@@ -1586,12 +1593,6 @@
     "also_choose": "Je hebt er nog een",
     "also_add": "Staat in je app",
     "match_tag": "Precies wat ze vragen",
-    "not_counted": {
-      "chip": "Telt niet mee",
-      "asked": "Gevraagd: {value}",
-      "text_single": "{requestor} vraagt {field} {value}. In je app staat {have}. Is dat veranderd? Haal het kaartje dan opnieuw op. Zo niet, dan kun je dit niet delen.",
-      "text": "{requestor} vraagt {field} {value}. In je app staat {have}. Is dat veranderd? Voeg dan een nieuw kaartje toe. Zo niet, dan kun je dit niet delen."
-    },
     "how": {
       "email": "Je krijgt een code per e-mail",
       "phone": "Je krijgt een code per sms",
@@ -1601,25 +1602,22 @@
     "offer": {
       "add": "Toevoegen",
       "add_many": "{count} kaartjes toevoegen",
-      "retry": "Opnieuw proberen",
-      "dont_replace": "Niet vervangen",
       "add_anyway": "Toch toevoegen",
       "replace_anyway": "Toch vervangen",
-      "not_counted": "Dit kaartje telt niet mee voor {requestor}",
       "asks": "{requestor} vraagt",
       "has": "Dit kaartje heeft",
-      "tag_not_counted": "Telt niet mee",
       "tag_extra": "Komt er ook bij",
-      "done_not_counted": "Het kaartje staat nu in je app, maar telt niet mee voor {requestor}. Gevraagd: {field} {value}.",
-      "done_replaced_not_counted": "Het kaartje in je app is vervangen, maar telt niet mee voor {requestor}. Gevraagd: {field} {value}."
+      "other_value": "Dit kaartje heeft een andere waarde dan {requestor} vraagt. Je kunt het toevoegen, maar je kunt dit er niet mee delen.",
+      "other_value_sign": "Dit kaartje heeft een andere waarde dan {requestor} vraagt. Je kunt het toevoegen, maar je kunt dit er niet mee ondertekenen.",
+      "dont_add": "Niet toevoegen",
+      "wrong_kind": "{name} staat nu in je app, maar is niet wat {requestor} vraagt."
     },
     "progress": {
       "add_one": "Nog één kaartje toevoegen, dan kun je delen",
       "add_many": "Nog {count} kaartjes toevoegen, dan kun je delen",
       "add_one_sign": "Nog één kaartje toevoegen, dan kun je ondertekenen",
       "add_many_sign": "Nog {count} kaartjes toevoegen, dan kun je ondertekenen",
-      "ready": "Alles staat klaar",
-      "not_counted": "Je kaartje telt niet mee voor dit verzoek"
+      "ready": "Alles staat klaar"
     },
     "message_sheet": {
       "lead": "Dit onderteken je voor {requestor}.",
@@ -1654,6 +1652,54 @@
       "3": "drie",
       "4": "vier",
       "5": "vijf"
+    },
+    "addstep": {
+      "title_one": "Voeg eerst een kaartje toe",
+      "title_many": "Voeg eerst {count} kaartjes toe",
+      "title_things": "Voeg eerst toe wat nog ontbreekt",
+      "title_done": "Alles is toegevoegd",
+      "lead": "{requestor} vraagt om gegevens die nog niet in je app staan. Daarna zie je precies wat je deelt.",
+      "lead_sign": "{requestor} vraagt om gegevens die nog niet in je app staan. Daarna zie je precies wat je ondertekent.",
+      "lead_done": "Bekijk nu wat je deelt met {requestor}. Je deelt nog niets.",
+      "lead_done_sign": "Bekijk nu wat je ondertekent voor {requestor}. Je ondertekent nog niets.",
+      "one_enough": "Eén is genoeg. Kies er één.",
+      "ways": "Kies uit {count} mogelijkheden",
+      "together": "Horen bij elkaar · {have} van {total} in je app",
+      "added": "Staat nu in je app",
+      "other_title": "In je app staat iets anders",
+      "other_lead": "{requestor} vraagt een andere waarde dan in je kaartje staat.",
+      "in_app": "In je app: {name} {value}",
+      "other_help": "Klopt dat niet meer? Haal het kaartje opnieuw op. Klopt het wel, dan kun je dit niet delen.",
+      "other_help_sign": "Klopt dat niet meer? Haal het kaartje opnieuw op. Klopt het wel, dan kun je dit niet ondertekenen.",
+      "asked": "Gevraagd: {name} {value}",
+      "asked_more": "{values} of nog {count} andere",
+      "asked_section": "{requestor} vraagt een van deze",
+      "line_one": "Nog één kaartje, dan zie je wat je deelt",
+      "line_many": "Nog {count} kaartjes, dan zie je wat je deelt",
+      "line_thing": "Nog één ding, dan zie je wat je deelt",
+      "line_things": "Nog {count} dingen, dan zie je wat je deelt",
+      "line_done": "Alles staat in je app",
+      "add": "{name} toevoegen",
+      "add_again": "{name} opnieuw toevoegen",
+      "fetch_again": "{name} opnieuw ophalen",
+      "choose": "Kies wat je toevoegt",
+      "review": "Bekijk wat je deelt",
+      "review_sign": "Bekijk wat je ondertekent"
+    },
+    "blocked": {
+      "title": "Dit kun je nu niet delen",
+      "title_sign": "Dit kun je nu niet ondertekenen",
+      "lead": "{requestor} vraagt om een kaartje dat Yivi niet voor je kan ophalen. Regel het eerst bij de uitgever en open dit verzoek daarna opnieuw.",
+      "line": "Je deelt niets",
+      "line_sign": "Je ondertekent niets",
+      "cant_add": "Kan niet in Yivi worden toegevoegd. Haal het eerst bij {issuer}.",
+      "cant_add_unknown": "Kan niet in Yivi worden toegevoegd.",
+      "cant_renew": "{problem}. Yivi kan dit kaartje niet vernieuwen. Vraag {issuer} om een nieuw kaartje."
+    },
+    "addpicker": {
+      "title": "Kies wat je toevoegt",
+      "cards": "{count} kaartjes · {issuers}",
+      "with_owned": "Samen met {names} uit je app"
     }
   },
   "contact_sheet": {

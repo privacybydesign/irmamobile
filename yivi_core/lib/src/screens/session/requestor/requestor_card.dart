@@ -451,12 +451,16 @@ class RequestorCompactBar extends StatelessWidget {
   /// Where the logo is, for a flight from it.
   final GlobalKey? logoKey;
 
+  /// An ⓘ at the end that opens who the requestor is; none when null.
+  final VoidCallback? onInfo;
+
   const RequestorCompactBar({
     super.key,
     required this.requestor,
     required this.subtitle,
     this.opacity = 1,
     this.logoKey,
+    this.onInfo,
   });
 
   @override
@@ -490,6 +494,23 @@ class RequestorCompactBar extends StatelessWidget {
       ),
       title: requestor.name,
       subtitle: TextSpan(text: subtitle),
+      trailing: onInfo == null
+          ? null
+          : IconButton(
+              key: const Key("requestor_compact_info"),
+              tooltip: context.tr("share.trust.more"),
+              onPressed: onInfo,
+              style: IconButton.styleFrom(
+                splashFactory: NoSplash.splashFactory,
+              ),
+              icon: Icon(
+                Icons.info_outline_rounded,
+                size: 24,
+                color: style.trust == RequestorTrust.unknown
+                    ? YiviPalette.of(context).errorText
+                    : YiviPalette.of(context).link,
+              ),
+            ),
     );
   }
 }

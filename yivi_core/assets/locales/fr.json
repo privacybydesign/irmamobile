@@ -1329,7 +1329,13 @@
       "revoked": "Révoquée",
       "revoked_note": "Cette carte a été révoquée et ne peut plus être utilisée.",
       "expired": "Expirée",
-      "expired_note": "Cette carte a expiré et ne peut plus être utilisée."
+      "expired_note": "Cette carte a expiré et ne peut plus être utilisée.",
+      "add_again": "{problem}. Ajoutez-la à nouveau.",
+      "one_of_bad": "{name} est {problem}. Choisissez-en une à ajouter.",
+      "cant_share": "{problem}. Vous ne pouvez plus partager cette carte.",
+      "cant_use": "{problem}. Vous ne pouvez plus utiliser cette carte.",
+      "used_up": "Épuisée",
+      "not_revocable": "Non vérifiable"
     },
     "bar": {
       "share": "Partager des données",
@@ -1492,7 +1498,8 @@
           "register": "Leur demander de s'enregistrer",
           "register_text": "Sur portal.yivi.app"
         }
-      }
+      },
+      "more": "En savoir plus sur cette partie"
     },
     "tech": {
       "link": "Détails techniques",
@@ -1586,12 +1593,6 @@
     "also_choose": "Vous en avez une autre",
     "also_add": "Dans votre appli",
     "match_tag": "Exactement ce qui est demandé",
-    "not_counted": {
-      "chip": "Ne compte pas",
-      "asked": "Demandé : {value}",
-      "text_single": "{requestor} demande {field} {value}. Votre appli contient {have}. Cela a changé ? Obtenez alors à nouveau la carte. Sinon, vous ne pouvez pas partager ceci.",
-      "text": "{requestor} demande {field} {value}. Votre appli contient {have}. Cela a changé ? Ajoutez alors une nouvelle carte. Sinon, vous ne pouvez pas partager ceci."
-    },
     "how": {
       "email": "Vous recevez un code par e-mail",
       "phone": "Vous recevez un code par SMS",
@@ -1601,25 +1602,22 @@
     "offer": {
       "add": "Ajouter",
       "add_many": "Ajouter {count} cartes",
-      "retry": "Réessayer",
-      "dont_replace": "Ne pas remplacer",
       "add_anyway": "Ajouter quand même",
       "replace_anyway": "Remplacer quand même",
-      "not_counted": "Cette carte ne compte pas pour {requestor}",
       "asks": "{requestor} demande",
       "has": "Cette carte contient",
-      "tag_not_counted": "Ne compte pas",
       "tag_extra": "Vient en plus",
-      "done_not_counted": "La carte est maintenant dans votre appli, mais elle ne compte pas pour {requestor}. Demandé : {field} {value}.",
-      "done_replaced_not_counted": "La carte de votre appli a été remplacée, mais elle ne compte pas pour {requestor}. Demandé : {field} {value}."
+      "other_value": "Cette carte a une autre valeur que celle demandée par {requestor}. Vous pouvez l'ajouter, mais pas partager ceci avec elle.",
+      "other_value_sign": "Cette carte a une autre valeur que celle demandée par {requestor}. Vous pouvez l'ajouter, mais pas signer ceci avec elle.",
+      "dont_add": "Ne pas ajouter",
+      "wrong_kind": "{name} est maintenant dans votre appli, mais ce n'est pas ce que {requestor} demande."
     },
     "progress": {
       "add_one": "Encore une carte à ajouter, puis vous pourrez partager",
       "add_many": "Encore {count} cartes à ajouter, puis vous pourrez partager",
       "add_one_sign": "Encore une carte à ajouter, puis vous pourrez signer",
       "add_many_sign": "Encore {count} cartes à ajouter, puis vous pourrez signer",
-      "ready": "Tout est prêt",
-      "not_counted": "Votre carte ne compte pas pour cette demande"
+      "ready": "Tout est prêt"
     },
     "message_sheet": {
       "lead": "Vous signez ceci pour {requestor}.",
@@ -1654,6 +1652,54 @@
       "3": "trois",
       "4": "quatre",
       "5": "cinq"
+    },
+    "addstep": {
+      "title_one": "Ajoutez d'abord une carte",
+      "title_many": "Ajoutez d'abord {count} cartes",
+      "title_things": "Ajoutez d'abord ce qui manque",
+      "title_done": "Tout est ajouté",
+      "lead": "{requestor} demande des données qui ne sont pas encore dans votre appli. Ensuite, vous verrez exactement ce que vous partagez.",
+      "lead_sign": "{requestor} demande des données qui ne sont pas encore dans votre appli. Ensuite, vous verrez exactement ce que vous signez.",
+      "lead_done": "Regardez maintenant ce que vous partagez avec {requestor}. Vous n'avez encore rien partagé.",
+      "lead_done_sign": "Regardez maintenant ce que vous signez pour {requestor}. Vous n'avez encore rien signé.",
+      "one_enough": "Une seule suffit. Choisissez-en une.",
+      "ways": "Choisissez parmi {count} possibilités",
+      "together": "Vont ensemble · {have} sur {total} dans votre appli",
+      "added": "Maintenant dans votre appli",
+      "other_title": "Votre appli contient autre chose",
+      "other_lead": "{requestor} demande une autre valeur que celle de votre carte.",
+      "in_app": "Dans votre appli : {name} {value}",
+      "other_help": "Ce n'est plus juste ? Récupérez la carte à nouveau. Si c'est juste, vous ne pouvez pas partager ceci.",
+      "other_help_sign": "Ce n'est plus juste ? Récupérez la carte à nouveau. Si c'est juste, vous ne pouvez pas signer ceci.",
+      "asked": "Demandé : {name} {value}",
+      "asked_more": "{values} ou {count} autres",
+      "asked_section": "{requestor} demande l'une de ces valeurs",
+      "line_one": "Encore une carte, puis vous verrez ce que vous partagez",
+      "line_many": "Encore {count} cartes, puis vous verrez ce que vous partagez",
+      "line_thing": "Encore une chose, puis vous verrez ce que vous partagez",
+      "line_things": "Encore {count} choses, puis vous verrez ce que vous partagez",
+      "line_done": "Tout est dans votre appli",
+      "add": "Ajouter {name}",
+      "add_again": "Ajouter {name} à nouveau",
+      "fetch_again": "Récupérer {name} à nouveau",
+      "choose": "Choisir quoi ajouter",
+      "review": "Voir ce que vous partagez",
+      "review_sign": "Voir ce que vous signez"
+    },
+    "blocked": {
+      "title": "Vous ne pouvez pas partager ceci maintenant",
+      "title_sign": "Vous ne pouvez pas signer ceci maintenant",
+      "lead": "{requestor} demande une carte que Yivi ne peut pas obtenir pour vous. Réglez cela d'abord avec l'émetteur, puis rouvrez cette demande.",
+      "line": "Vous ne partagez rien",
+      "line_sign": "Vous ne signez rien",
+      "cant_add": "Ne peut pas être ajoutée dans Yivi. Obtenez-la d'abord auprès de {issuer}.",
+      "cant_add_unknown": "Ne peut pas être ajoutée dans Yivi.",
+      "cant_renew": "{problem}. Yivi ne peut pas renouveler cette carte. Demandez-en une nouvelle à {issuer}."
+    },
+    "addpicker": {
+      "title": "Choisir quoi ajouter",
+      "cards": "{count} cartes · {issuers}",
+      "with_owned": "Avec {names} de votre appli"
     }
   },
   "contact_sheet": {

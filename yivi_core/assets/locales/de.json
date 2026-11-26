@@ -1329,7 +1329,13 @@
       "revoked": "Widerrufen",
       "revoked_note": "Diese Karte wurde widerrufen und kann nicht mehr verwendet werden.",
       "expired": "Abgelaufen",
-      "expired_note": "Diese Karte ist abgelaufen und kann nicht mehr verwendet werden."
+      "expired_note": "Diese Karte ist abgelaufen und kann nicht mehr verwendet werden.",
+      "add_again": "{problem}. Füge sie erneut hinzu.",
+      "one_of_bad": "{name} ist {problem}. Wähle eine zum Hinzufügen.",
+      "cant_share": "{problem}. Diese Karte kannst du nicht mehr teilen.",
+      "cant_use": "{problem}. Diese Karte kannst du nicht mehr verwenden.",
+      "used_up": "Aufgebraucht",
+      "not_revocable": "Nicht prüfbar"
     },
     "bar": {
       "share": "Daten teilen",
@@ -1492,7 +1498,8 @@
           "register": "Bitte sie, sich zu registrieren",
           "register_text": "Auf portal.yivi.app"
         }
-      }
+      },
+      "more": "Mehr über diese Partei"
     },
     "tech": {
       "link": "Technische Details",
@@ -1586,12 +1593,6 @@
     "also_choose": "Du hast noch eine",
     "also_add": "In deiner App",
     "match_tag": "Genau, was sie fragen",
-    "not_counted": {
-      "chip": "Zählt nicht",
-      "asked": "Gefragt: {value}",
-      "text_single": "{requestor} fragt nach {field} {value}. In deiner App steht {have}. Hat sich das geändert? Dann rufe die Karte erneut ab. Wenn nicht, kannst du das nicht teilen.",
-      "text": "{requestor} fragt nach {field} {value}. In deiner App steht {have}. Hat sich das geändert? Dann füge eine neue Karte hinzu. Wenn nicht, kannst du das nicht teilen."
-    },
     "how": {
       "email": "Du bekommst einen Code per E-Mail",
       "phone": "Du bekommst einen Code per SMS",
@@ -1601,25 +1602,22 @@
     "offer": {
       "add": "Hinzufügen",
       "add_many": "{count} Karten hinzufügen",
-      "retry": "Erneut versuchen",
-      "dont_replace": "Nicht ersetzen",
       "add_anyway": "Trotzdem hinzufügen",
       "replace_anyway": "Trotzdem ersetzen",
-      "not_counted": "Diese Karte zählt für {requestor} nicht",
       "asks": "{requestor} fragt",
       "has": "Diese Karte hat",
-      "tag_not_counted": "Zählt nicht",
       "tag_extra": "Kommt dazu",
-      "done_not_counted": "Die Karte ist jetzt in deiner App, zählt aber für {requestor} nicht. Gefragt: {field} {value}.",
-      "done_replaced_not_counted": "Die Karte in deiner App wurde ersetzt, zählt aber für {requestor} nicht. Gefragt: {field} {value}."
+      "other_value": "Diese Karte hat einen anderen Wert, als {requestor} fragt. Du kannst sie hinzufügen, aber damit nicht teilen.",
+      "other_value_sign": "Diese Karte hat einen anderen Wert, als {requestor} fragt. Du kannst sie hinzufügen, aber damit nicht unterschreiben.",
+      "dont_add": "Nicht hinzufügen",
+      "wrong_kind": "{name} ist jetzt in deiner App, aber nicht das, wonach {requestor} fragt."
     },
     "progress": {
       "add_one": "Noch eine Karte hinzufügen, dann kannst du teilen",
       "add_many": "Noch {count} Karten hinzufügen, dann kannst du teilen",
       "add_one_sign": "Noch eine Karte hinzufügen, dann kannst du unterschreiben",
       "add_many_sign": "Noch {count} Karten hinzufügen, dann kannst du unterschreiben",
-      "ready": "Alles bereit",
-      "not_counted": "Deine Karte zählt für diese Anfrage nicht"
+      "ready": "Alles bereit"
     },
     "message_sheet": {
       "lead": "Das unterschreibst du für {requestor}.",
@@ -1654,6 +1652,54 @@
       "3": "drei",
       "4": "vier",
       "5": "fünf"
+    },
+    "addstep": {
+      "title_one": "Füge zuerst eine Karte hinzu",
+      "title_many": "Füge zuerst {count} Karten hinzu",
+      "title_things": "Füge zuerst hinzu, was noch fehlt",
+      "title_done": "Alles ist hinzugefügt",
+      "lead": "{requestor} fragt nach Daten, die noch nicht in deiner App sind. Danach siehst du genau, was du teilst.",
+      "lead_sign": "{requestor} fragt nach Daten, die noch nicht in deiner App sind. Danach siehst du genau, was du unterschreibst.",
+      "lead_done": "Sieh dir jetzt an, was du mit {requestor} teilst. Du teilst noch nichts.",
+      "lead_done_sign": "Sieh dir jetzt an, was du für {requestor} unterschreibst. Du unterschreibst noch nichts.",
+      "one_enough": "Eine reicht. Wähle eine aus.",
+      "ways": "Wähle aus {count} Möglichkeiten",
+      "together": "Gehören zusammen · {have} von {total} in deiner App",
+      "added": "Jetzt in deiner App",
+      "other_title": "In deiner App steht etwas anderes",
+      "other_lead": "{requestor} fragt nach einem anderen Wert, als auf deiner Karte steht.",
+      "in_app": "In deiner App: {name} {value}",
+      "other_help": "Stimmt das nicht mehr? Hol die Karte erneut. Stimmt es, dann kannst du das nicht teilen.",
+      "other_help_sign": "Stimmt das nicht mehr? Hol die Karte erneut. Stimmt es, dann kannst du das nicht unterschreiben.",
+      "asked": "Gefragt: {name} {value}",
+      "asked_more": "{values} oder {count} andere",
+      "asked_section": "{requestor} fragt nach einem davon",
+      "line_one": "Noch eine Karte, dann siehst du, was du teilst",
+      "line_many": "Noch {count} Karten, dann siehst du, was du teilst",
+      "line_thing": "Noch eine Sache, dann siehst du, was du teilst",
+      "line_things": "Noch {count} Sachen, dann siehst du, was du teilst",
+      "line_done": "Alles ist in deiner App",
+      "add": "{name} hinzufügen",
+      "add_again": "{name} erneut hinzufügen",
+      "fetch_again": "{name} erneut holen",
+      "choose": "Wähle, was du hinzufügst",
+      "review": "Ansehen, was du teilst",
+      "review_sign": "Ansehen, was du unterschreibst"
+    },
+    "blocked": {
+      "title": "Das kannst du jetzt nicht teilen",
+      "title_sign": "Das kannst du jetzt nicht unterschreiben",
+      "lead": "{requestor} fragt nach einer Karte, die Yivi nicht für dich holen kann. Kläre das zuerst mit dem Aussteller und öffne diese Anfrage dann erneut.",
+      "line": "Du teilst nichts",
+      "line_sign": "Du unterschreibst nichts",
+      "cant_add": "Kann nicht in Yivi hinzugefügt werden. Hol sie zuerst bei {issuer}.",
+      "cant_add_unknown": "Kann nicht in Yivi hinzugefügt werden.",
+      "cant_renew": "{problem}. Yivi kann diese Karte nicht erneuern. Bitte {issuer} um eine neue Karte."
+    },
+    "addpicker": {
+      "title": "Wähle, was du hinzufügst",
+      "cards": "{count} Karten · {issuers}",
+      "with_owned": "Zusammen mit {names} aus deiner App"
     }
   },
   "contact_sheet": {

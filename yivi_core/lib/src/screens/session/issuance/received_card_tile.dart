@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
@@ -8,6 +9,7 @@ import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/card_attribute_list.dart";
 import "../../../widgets/credential_card/card_tile.dart";
 import "../../../widgets/surfaces/status_chip.dart";
+import "../disclosure/disclosure_words.dart";
 import "../models/issuance_view_model.dart";
 
 /// A card that comes into the app: its picture, name and [subtitle], a
@@ -27,21 +29,24 @@ class ReceivedCardTile extends StatelessWidget {
   /// Claim paths ([claimPathKey]) whose value the request cannot use.
   final Set<String> mismatched;
 
+  /// Beside a [mismatched] value: what is asked ("Gevraagd: Woonplaats
+  /// Rijnstad").
+  final String? mismatchedTag;
+
   const ReceivedCardTile({
     super.key,
     required this.card,
     required this.subtitle,
     this.tag,
     this.mismatched = const {},
+    this.mismatchedTag,
   });
 
   @override
   Widget build(BuildContext context) {
     final (label, tone) = switch (tag) {
-      OfferTag.notCounted => (
-        context.tr("share.offer.tag_not_counted"),
-        YiviTone.danger,
-      ),
+      // The value that differs says it, with what is asked beside it.
+      OfferTag.notCounted => (null, null),
       OfferTag.asked => (context.tr("share.spot.asked"), YiviTone.info),
       OfferTag.comesToo => (
         context.tr("share.offer.tag_extra"),
@@ -62,6 +67,7 @@ class ReceivedCardTile extends StatelessWidget {
             namespaced: card.isMdoc,
             showDividers: true,
             mismatched: mismatched,
+            mismatchedTag: mismatchedTag,
           ),
       ],
     );
@@ -95,6 +101,12 @@ List<Widget> receivedCardTiles(
         subtitle: receivedValidUntil(context, o.card) ?? o.card.issuer.name,
         tag: o.tag,
         mismatched: o.mismatchedPaths,
+        mismatchedTag: switch (offer.mismatches.firstWhereOrNull(
+          (m) => m.credentialId == o.card.credentialId,
+        )) {
+          final m? => askedText(context, m.asked),
+          null => null,
+        },
       ),
     ),
 ];

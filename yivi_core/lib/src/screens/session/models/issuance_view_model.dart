@@ -24,14 +24,16 @@ import "disclosure_plan_view.dart"
 /// - [add]: "Add" ("Add {n} cards").
 /// - [addAnyway]: nobody vouches for the issuer: a neutral "Add anyway",
 ///   with the reason above it.
-/// - [retry]: in the sheet, a card that does not count for the request:
-///   back to the step before, to try again.
-/// - [dontReplace]: the same for a card that replaces the one in the app.
-enum IssuancePrimary { add, addAnyway, retry, dontReplace }
+/// - [addOther]: in the sheet, a card with another value than the request
+///   asks: a dark "Toch toevoegen", with why above it (2.1).
+/// - [replaceOther]: the same for a card that replaces the one in the app
+///   ("Toch vervangen").
+enum IssuancePrimary { add, addAnyway, addOther, replaceOther }
 
-/// Under the cards, when [IssuancePrimary.retry] or
-/// [IssuancePrimary.dontReplace] is the way on: adding it all the same.
-enum IssuanceLink { addAnyway, replaceAnyway }
+/// Under the cards, when [IssuancePrimary.addOther] or
+/// [IssuancePrimary.replaceOther] is the way on: "Niet toevoegen", back to
+/// the request without adding.
+enum IssuanceLink { dontAdd }
 
 /// The chip of an offered card inside a request.
 ///
@@ -98,10 +100,9 @@ final class IssuanceOfferState {
 }
 
 /// The question whether to add [cards]. Inside a request ([forRequest]) a
-/// card whose value the request cannot use does not count; with
-/// [retryOnMismatch] (the sheet, which has a step to go back to) trying
-/// again then comes first and adding it anyway second. The full-screen
-/// permission keeps "Add".
+/// card whose value the request cannot use is said so; with
+/// [retryOnMismatch] (the sheet) adding it is "Toch toevoegen", with "Niet
+/// toevoegen" under it. The full-screen permission keeps "Add".
 IssuanceOfferState issuanceOfferOf(
   List<Credential> cards, {
   SessionState? forRequest,
@@ -138,13 +139,11 @@ IssuanceOfferState issuanceOfferOf(
     mismatches: mismatches,
     risky: risky,
     primary: retry
-        ? (singleton ? IssuancePrimary.dontReplace : IssuancePrimary.retry)
+        ? (singleton ? IssuancePrimary.replaceOther : IssuancePrimary.addOther)
         : risky
         ? IssuancePrimary.addAnyway
         : IssuancePrimary.add,
-    link: retry
-        ? (singleton ? IssuanceLink.replaceAnyway : IssuanceLink.addAnyway)
-        : null,
+    link: retry ? IssuanceLink.dontAdd : null,
     singleton: singleton,
     perCard: [
       for (final card in cards)
@@ -170,12 +169,16 @@ class IssuanceMismatch {
   final AttributeValue? offered;
   final AttributeValue required;
 
+  /// What the request asks of the value: its name and allowed values.
+  final Attribute asked;
+
   const IssuanceMismatch({
     required this.credentialId,
     required this.claimPath,
     required this.attributeName,
     required this.offered,
     required this.required,
+    required this.asked,
   });
 }
 
@@ -209,6 +212,7 @@ List<IssuanceMismatch> issuanceMismatches(
             attributeName: wanted.effectiveDisplayName,
             offered: got?.value,
             required: allowed.first,
+            asked: wanted,
           ),
         );
       }

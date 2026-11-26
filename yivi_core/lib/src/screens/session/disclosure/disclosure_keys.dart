@@ -16,6 +16,19 @@ abstract final class DisclosureKeys {
   static const title = Key("share_title");
   static Key offered(int n) => Key("share_offered_card_$n");
 
+  // The add step.
+  static const addStep = Key("add_step");
+  static const addStepLine = Key("add_step_progress_line");
+  static const addStepHelp = Key("add_step_help");
+  static const addStepWrongKind = Key("add_step_wrong_kind");
+  static const next = Key("share_next");
+
+  // The add picker and the offer.
+  static const addPicker = Key("add_picker");
+  static Key addPickerRow(int option) => Key("add_picker_row_$option");
+  static const offerWarning = Key("add_offer_warning");
+  static const offerDontAdd = Key("add_offer_dont_add");
+
   // The bottom bar.
   static const button = Key("share_button");
   static const reason = Key("share_reason");

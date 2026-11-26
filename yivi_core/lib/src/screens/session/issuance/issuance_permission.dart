@@ -276,7 +276,7 @@ class IssuanceMismatchNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _MismatchBox(
-    head: context.tr("share.offer.not_counted", {"requestor": requestor}),
+    head: context.tr("share.offer.other_value", {"requestor": requestor}),
     asks: context.tr("share.offer.asks", {"requestor": requestor}),
     asked:
         "${miss.attributeName} ${localizedAttributeText(context, miss.required) ?? ""}",
