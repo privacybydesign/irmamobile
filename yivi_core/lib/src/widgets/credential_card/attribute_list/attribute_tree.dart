@@ -567,24 +567,11 @@ String groupLabel(GroupNode g) =>
     g.label ??
     g.path.lastWhere((s) => s is String, orElse: () => "").toString();
 
-/// An item's title: its first value, when that is text.
-RowNode? itemTitleRow(ItemNode item) {
-  final first = item.children.firstOrNull;
-  if (first is RowNode && first.attribute.value?.type == AttributeType.string) {
-    return first;
-  }
-  return null;
-}
-
 /// The item's place in the credential's list, counted from 1.
 int itemNumber(ItemNode item) {
   final last = item.path.lastOrNull;
   return last is num ? last.toInt() + 1 : item.itemIndex;
 }
-
-/// What an item holds, without its title.
-List<AttributeNode> itemBody(ItemNode item) =>
-    itemTitleRow(item) == null ? item.children : item.children.sublist(1);
 
 /// The tree the attribute list draws for [attributes]: what the group
 /// renderers for [credentialId] (or [renderers]) claim placed among the

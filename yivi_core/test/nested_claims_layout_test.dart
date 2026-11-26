@@ -95,16 +95,43 @@ void main() {
       expect(find.text("History"), findsOneWidget);
     });
 
-    testWidgets("a card folds on its own to what it holds", (tester) async {
+    testWidgets("an item folds on its own at its place", (tester) async {
       await tester.pumpWidget(_wrap(CardAttributeList(_university())));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text("Faculty of Arts"));
+      await tester.ensureVisible(find.text("2 of 2").first);
+      await tester.tap(find.text("2 of 2").first);
       await tester.pumpAndSettle();
-      expect(find.text("History, Linguistics"), findsOneWidget);
+      expect(find.text("Faculty of Arts"), findsOneWidget);
       expect(find.text("Phonetics"), findsNothing);
-      // The other card stays open.
+      // The other item stays open.
       expect(find.text("Cryptography"), findsOneWidget);
+    });
+
+    testWidgets("an item box inside an open box folds at its header", (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(CardAttributeList(_university())));
+      await tester.pumpAndSettle();
+
+      // Faculty of Arts has two departments: "1 of 2" and "2 of 2" again.
+      expect(find.text("2 of 2"), findsNWidgets(2));
+      await tester.ensureVisible(find.text("2 of 2").last);
+      await tester.tap(find.text("2 of 2").last);
+      await tester.pumpAndSettle();
+      expect(find.text("Linguistics"), findsOneWidget);
+      expect(find.text("Phonetics"), findsNothing);
+      expect(find.text("Medieval Europe"), findsOneWidget);
+    });
+
+    testWidgets("no value is a title: every value is a labelled row", (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(CardAttributeList(_university())));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Faculty"), findsNWidgets(2));
+      expect(find.text("Department"), findsNWidgets(3));
     });
 
     testWidgets("a top-level object is one card", (tester) async {
@@ -139,7 +166,20 @@ void main() {
       expect(find.text("Phonetics"), findsOneWidget);
     });
 
-    testWidgets("an item without its title is named by its place", (
+    testWidgets("folds when asked to", (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          CardAttributeList(_university(), disclosure: true, foldable: true),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text("Faculties"));
+      await tester.pumpAndSettle();
+      expect(find.text("Faculty of Science, Faculty of Arts"), findsOneWidget);
+    });
+
+    testWidgets("a one-item list has no header, a longer one its places", (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -162,7 +202,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text("Faculties 2"), findsOneWidget);
+      expect(find.text("1 of 1"), findsNothing);
+      expect(find.text("1 of 2"), findsOneWidget);
+      expect(find.text("2 of 2"), findsOneWidget);
       expect(find.text("Faculty of Arts"), findsNothing);
       expect(find.text("History"), findsOneWidget);
       expect(find.text("Linguistics"), findsOneWidget);

@@ -72,6 +72,11 @@ class YiviPalette {
   final Color successText;
   final Color warningSurface;
   final Color warningText;
+
+  /// Behind what a requestor keeps of the shared data ("{requestor}
+  /// bewaart"), and its text and icon: a warm tint.
+  final Color keepSurface;
+  final Color keepText;
   final Color errorSurface;
   final Color errorText;
 
@@ -125,6 +130,8 @@ class YiviPalette {
     required this.successText,
     required this.warningSurface,
     required this.warningText,
+    required this.keepSurface,
+    required this.keepText,
     required this.errorSurface,
     required this.errorText,
     required this.errorOutline,
@@ -158,6 +165,8 @@ class YiviPalette {
     successText: Color(0xFF00602A),
     warningSurface: Color(0xFFFBEFD8),
     warningText: Color(0xFF7A4F00),
+    keepSurface: Color(0xFFFFF1D6),
+    keepText: Color(0xFF3D2700),
     errorSurface: Color(0xFFF5DBDB),
     errorText: Color(0xFF9E1414),
     errorOutline: Color(0xFFEABEBE),
@@ -191,6 +200,8 @@ class YiviPalette {
     successText: Color(0xFF7EDBA4),
     warningSurface: Color(0xFF33270F),
     warningText: Color(0xFFF2C46B),
+    keepSurface: Color(0xFF3A2B12),
+    keepText: Color(0xFFF6DDB0),
     errorSurface: Color(0xFF3A1A1C),
     errorText: Color(0xFFFF9A9A),
     errorOutline: Color(0xFF5A2A2E),
@@ -246,6 +257,8 @@ class YiviPalette {
     successText: successText,
     warningSurface: warningSurface,
     warningText: warningText,
+    keepSurface: keepSurface,
+    keepText: keepText,
     errorSurface: errorSurface,
     errorText: errorText,
     errorOutline: errorOutline,

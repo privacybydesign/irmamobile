@@ -147,6 +147,27 @@ class _LeafContent extends StatelessWidget {
         ],
       );
     }
+    // The requestor keeps this value: a small archive box right after it.
+    if (found == null &&
+        ctx.keptLabel != null &&
+        node.attribute.intentToRetain == true) {
+      return Wrap(
+        spacing: 7,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(text, style: style),
+          Semantics(
+            key: const Key("value_kept"),
+            label: ctx.keptLabel,
+            child: Icon(
+              Icons.inventory_2_outlined,
+              size: 15,
+              color: YiviPalette.of(context).keepText,
+            ),
+          ),
+        ],
+      );
+    }
     // Plain text unless a search found this row: readers of the list (and
     // tests) look for its values as plain Text.
     if (found == null) return Text(text, style: style);

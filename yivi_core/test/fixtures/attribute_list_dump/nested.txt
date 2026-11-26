@@ -4,13 +4,17 @@ Radboud University
 Faculties
 2
 
-Science
+1 of 2
 
+Faculty
+Science
 Courses
 Cryptography
 Distributed Systems
-Arts
+2 of 2
 
+Faculty
+Arts
 Courses
 Medieval Europe
 Address
@@ -26,10 +30,14 @@ BE
 Name
 Radboud University
 Faculties, 2
+1 of 2
+Faculty
 Science
 Courses
 Cryptography
 Distributed Systems
+2 of 2
+Faculty
 Arts
 Courses
 Medieval Europe

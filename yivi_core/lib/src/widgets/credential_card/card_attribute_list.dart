@@ -48,6 +48,14 @@ class CardAttributeList extends StatelessWidget {
 
   /// The attributes are being shared (a disclosure), not the whole credential.
   final bool disclosure;
+
+  /// Whether nested objects and items fold. By default only a credential's
+  /// own values do: not when they are shared ([disclosure]) or compared.
+  final bool? foldable;
+
+  /// A value the requestor keeps (its [Attribute.intentToRetain]) gets a
+  /// marker, with this as what a screen reader says of it. Null: no markers.
+  final String? keptLabel;
   final AgeDisplay ageDisplay;
   final CredentialCardLayout layout;
 
@@ -85,6 +93,8 @@ class CardAttributeList extends StatelessWidget {
     this.credentialId,
     this.renderers,
     this.disclosure = false,
+    this.foldable,
+    this.keptLabel,
     this.ageDisplay = AgeDisplay.perAttribute,
     this.layout = CredentialCardLayout.standard,
     this.mismatched = const {},
@@ -114,14 +124,14 @@ class CardAttributeList extends StatelessWidget {
       collapseAges: ageDisplay == AgeDisplay.collapsed,
     );
     final ctx = _Ctx(
-      // Shared or compared values are never folded away.
-      foldable: !disclosure && compareTo == null,
+      foldable: foldable ?? (!disclosure && compareTo == null),
       showDividers: showDividers,
       disclosure: disclosure,
       layout: layout,
       matchedTag: matchedTag,
       mismatchedTag: mismatchedTag,
       hideLabel: attributes.length == 1 ? hideLabel : null,
+      keptLabel: keptLabel,
     );
     return _NestedList(nodes: nodes, ctx: ctx);
   }

@@ -210,7 +210,8 @@
       "chip_no": "Plus de {age} ans : non"
     },
     "nested": {
-      "item": "{label} {number}"
+      "item": "{label} {number}",
+      "place": "{index} sur {count}"
     }
   },
   "data": {
@@ -1563,7 +1564,12 @@
     "and": " et ",
     "optional": {
       "also": "Vous partagez ceci",
-      "not_shared": "Vous ne partagez pas ceci"
+      "not_shared": "Vous ne partagez pas ceci",
+      "chip": "Facultatif",
+      "hint_one": "Vous pouvez encore partager une chose si vous voulez",
+      "hint_many": "Vous pouvez encore partager {count} choses si vous voulez",
+      "hint_one_sign": "Vous pouvez encore ajouter une chose si vous voulez",
+      "hint_many_sign": "Vous pouvez encore ajouter {count} choses si vous voulez"
     },
     "title": {
       "share": "Vous partagez des données avec",
@@ -1618,6 +1624,36 @@
     "message_sheet": {
       "lead": "Vous signez ceci pour {requestor}.",
       "lead_done": "Vous avez signé ceci pour {requestor}."
+    },
+    "overview": {
+      "from_one": "Depuis 1 carte dans votre appli",
+      "from_many": "Depuis {count} cartes dans votre appli",
+      "change": "Modifier",
+      "view": "Voir"
+    },
+    "values": {
+      "bare": "Seulement que vous avez cette carte"
+    },
+    "keep": {
+      "head": "{requestor} conserve",
+      "marker_label": "conservé par {requestor}"
+    },
+    "receive": {
+      "section": "Ce que vous recevez en retour",
+      "button": "Partager et recevoir",
+      "button_only": "Recevoir"
+    },
+    "nothing": {
+      "title": "Voulez-vous partager des données avec",
+      "lead": "Rien n'est obligatoire.",
+      "lead_sign": "Vous n'avez pas besoin d'ajouter de données.",
+      "button": "Continuer sans partager"
+    },
+    "count": {
+      "2": "deux",
+      "3": "trois",
+      "4": "quatre",
+      "5": "cinq"
     }
   },
   "contact_sheet": {

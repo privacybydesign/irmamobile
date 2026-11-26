@@ -1136,16 +1136,11 @@ List<_ExpectedRow> _flattenExpected(List<AttrRow> rows) {
         } else if (value.every(isValue)) {
           out.add((label: label, values: value.cast<Object>()));
         } else if (value.every((v) => v is List)) {
-          // List<Block>: array of items. Recurse into each item. An item's
-          // first value, when it is text, is its name (a heading), not a
-          // row: the renderer names the item by it.
+          // List<Block>: array of items. Recurse into each item: every
+          // value is a labelled row (an item's header is its place, a
+          // heading the renderer marks).
           for (final item in value) {
-            final rows = (item as List).cast<AttrRow>();
-            walk(
-              rows.isNotEmpty && rows.first.$2 is String
-                  ? rows.sublist(1)
-                  : rows,
-            );
+            walk((item as List).cast<AttrRow>());
           }
         } else if (value.every((v) => v is AttrRow)) {
           // List<AttrRow>: a nested group. Recurse into its children without

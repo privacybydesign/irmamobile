@@ -9,7 +9,7 @@ import "support/test_app.dart";
 // irmago sends them: leaves only, no header attributes, keys sorted. The shape
 // is that of MBO Beek's OpenBadge credential (eduwallet), where the arrays used
 // to show as "ITEM 1/4" .. "ITEM 4/4", numbered across three different arrays.
-// Lists show as a section with a count; an item is titled by its first value.
+// Lists show as a section with a count; an item is a box, headed by its place.
 
 Widget _wrap(Widget child) =>
     testApp(Scaffold(body: SingleChildScrollView(child: child)));
@@ -72,7 +72,7 @@ void main() {
     expect(find.text("Result"), findsOneWidget);
     expect(find.textContaining("Item"), findsNothing);
 
-    // Each alignment is titled by its first value, its fields under it.
+    // Each alignment is a box with its fields, in order.
     expect(_top(tester, "AV-11BR.001.01"), lessThan(_top(tester, "4")));
     expect(_top(tester, "4"), lessThan(_top(tester, "EQF level 4")));
     expect(
@@ -147,7 +147,8 @@ void main() {
   testWidgets("keys without a display name are made readable", (tester) async {
     await _pump(tester, CardAttributeList(_badge));
 
-    // The target codes title their items, so only the names keep a label.
+    // No value is a title: the codes keep their label too.
+    expect(find.text("Target code"), findsNWidgets(2));
     expect(find.text("Target name"), findsNWidgets(2));
     expect(find.text("Narrative"), findsOneWidget);
     expect(find.text("Value max"), findsOneWidget);
@@ -167,13 +168,11 @@ void main() {
       ]),
     );
 
-    // Untitled (the first value is a list), the items go by their number.
-    expect(find.text("Alignment 1"), findsOneWidget);
-    expect(find.text("Alignment 2"), findsOneWidget);
-    expect(_top(tester, "Alignment 1"), lessThan(_top(tester, "A")));
-    expect(_top(tester, "A"), lessThan(_top(tester, "Alignment 2")));
+    // The items go by their place, each with its own list of values.
+    expect(_top(tester, "1 of 2"), lessThan(_top(tester, "A")));
+    expect(_top(tester, "A"), lessThan(_top(tester, "2 of 2")));
     expect(
-      _top(tester, "Alignment 2"),
+      _top(tester, "2 of 2"),
       lessThan(tester.getTopLeft(find.text("Alignment").last).dy),
     );
   });

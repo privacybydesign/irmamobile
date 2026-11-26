@@ -210,7 +210,8 @@
       "chip_no": "Älter als {age}: nein"
     },
     "nested": {
-      "item": "{label} {number}"
+      "item": "{label} {number}",
+      "place": "{index} von {count}"
     }
   },
   "data": {
@@ -1563,7 +1564,12 @@
     "and": " und ",
     "optional": {
       "also": "Teilst du",
-      "not_shared": "Teilst du nicht"
+      "not_shared": "Teilst du nicht",
+      "chip": "Nicht erforderlich",
+      "hint_one": "Du kannst noch eine Sache teilen, wenn du willst",
+      "hint_many": "Du kannst noch {count} Sachen teilen, wenn du willst",
+      "hint_one_sign": "Du kannst noch eine Sache hinzufügen, wenn du willst",
+      "hint_many_sign": "Du kannst noch {count} Sachen hinzufügen, wenn du willst"
     },
     "title": {
       "share": "Du teilst Daten mit",
@@ -1618,6 +1624,36 @@
     "message_sheet": {
       "lead": "Das unterschreibst du für {requestor}.",
       "lead_done": "Das hast du für {requestor} unterschrieben."
+    },
+    "overview": {
+      "from_one": "Aus 1 Karte in deiner App",
+      "from_many": "Aus {count} Karten in deiner App",
+      "change": "Ändern",
+      "view": "Ansehen"
+    },
+    "values": {
+      "bare": "Nur, dass du diese Karte hast"
+    },
+    "keep": {
+      "head": "{requestor} speichert",
+      "marker_label": "wird von {requestor} gespeichert"
+    },
+    "receive": {
+      "section": "Das bekommst du zurück",
+      "button": "Teilen und empfangen",
+      "button_only": "Empfangen"
+    },
+    "nothing": {
+      "title": "Möchtest du Daten teilen mit",
+      "lead": "Nichts ist erforderlich.",
+      "lead_sign": "Du musst keine Daten hinzufügen.",
+      "button": "Weiter ohne zu teilen"
+    },
+    "count": {
+      "2": "zwei",
+      "3": "drei",
+      "4": "vier",
+      "5": "fünf"
     }
   },
   "contact_sheet": {

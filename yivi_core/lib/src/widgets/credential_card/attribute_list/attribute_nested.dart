@@ -3,15 +3,16 @@ part of "../card_attribute_list.dart";
 // ─────────────────────────────────────────────────────────────────────────────
 // Nested claims.
 //
-// A top-level object or list is a row that folds it in place; the items of a
-// list are cards in one column, each folding on its own. Everything starts
-// open, so nothing needs a tap to be read. Whatever a card holds, at any
-// depth, is drawn inside it. When the values are being shared or compared,
-// nothing folds at all.
+// Panels in panels. A top-level object or list is a row that folds it in
+// place, above a box with the object's fields or a box per item. Every object
+// and every item is a box, at every level, the name of a field outside the
+// box it names. The items of a list of more than one have a header with
+// their place ("1 van 2") that folds them, also inside an open box.
+// Everything starts open. Where [_Ctx.foldable] is off, nothing folds.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _Ctx {
-  // Folding is offered; false when the values are shared or compared.
+  // Folding is offered.
   final bool foldable;
   final bool showDividers;
   final bool disclosure;
@@ -19,6 +20,10 @@ class _Ctx {
   final String? matchedTag;
   final String? mismatchedTag;
   final String? hideLabel;
+
+  /// Said of a value the requestor keeps, beside its marker; null: no
+  /// markers.
+  final String? keptLabel;
 
   const _Ctx({
     required this.foldable,
@@ -28,6 +33,7 @@ class _Ctx {
     this.matchedTag,
     this.mismatchedTag,
     this.hideLabel,
+    this.keptLabel,
   });
 }
 
@@ -141,20 +147,24 @@ class _FoldState extends State<_Fold> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: YiviSpace.x8,
               children: list
                   ? [
-                      for (final item in g.children.cast<ItemNode>())
-                        _ItemCard(
+                      for (final (i, item)
+                          in g.children.cast<ItemNode>().indexed)
+                        _ItemBox(
                           key: ValueKey(claimPathKey(item.path)),
                           item: item,
+                          index: i,
+                          count: g.children.length,
                           listLabel: label,
+                          level: 0,
                           ctx: ctx,
                         ),
                     ]
                   : [
-                      _Card(
-                        child: _CardBody(nodes: g.children, ctx: ctx),
+                      _Box(
+                        level: 0,
+                        child: _BoxBody(nodes: g.children, level: 0, ctx: ctx),
                       ),
                     ],
             ),
@@ -255,155 +265,184 @@ class _FoldHeader extends StatelessWidget {
   }
 }
 
-/// One item of a top-level list. Folds on its own to its name and a
-/// summary; starts open.
-class _ItemCard extends StatefulWidget {
+/// One box of the value list: an object, or an item of a list. Boxes
+/// alternate: tinted in the white card ([level] 0, 2, …), white in a tinted
+/// one. Every box is the same: 8 above it, 12 inside it, corners 8; the
+/// outermost keeps the card's 16 at its sides.
+class _Box extends StatelessWidget {
+  final int level;
+  final Widget child;
+  const _Box({super.key, required this.level, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = YiviPalette.of(context);
+    final tinted = level.isEven;
+    return Padding(
+      padding: const EdgeInsets.only(top: YiviSpace.x8),
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          // The design's panel: a step off the white group it sits in,
+          // lighter than the page tint.
+          color: tinted
+              ? (palette.isDark
+                    ? const Color(0xFF222831)
+                    : const Color(0xFFF2F7FA))
+              : palette.surface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: level == 0 ? YiviSpace.x16 : YiviSpace.x12,
+            vertical: YiviSpace.x12 - YiviSpace.x4,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// One item of a list, in its own box. A list of more than one item gives
+/// every item the same header, its place ("1 van 2"), which folds it; the
+/// item of a one-item list has no header and does not fold on its own. No
+/// value is ever the item's title: every value is a labelled row.
+class _ItemBox extends StatefulWidget {
   final ItemNode item;
+  final int index;
+  final int count;
   final String listLabel;
+  final int level;
   final _Ctx ctx;
 
-  const _ItemCard({
+  const _ItemBox({
     super.key,
     required this.item,
+    required this.index,
+    required this.count,
     required this.listLabel,
+    required this.level,
     required this.ctx,
   });
 
   @override
-  State<_ItemCard> createState() => _ItemCardState();
+  State<_ItemBox> createState() => _ItemBoxState();
 }
 
-class _ItemCardState extends State<_ItemCard> {
+class _ItemBoxState extends State<_ItemBox> {
   bool _open = true;
 
   @override
   Widget build(BuildContext context) {
     final ctx = widget.ctx;
     final palette = YiviPalette.of(context);
-    final name = _itemName(context, widget.item, widget.listLabel);
-    final body = itemBody(widget.item);
-    final open = _open || !ctx.foldable || body.isEmpty;
+    final body = widget.item.children;
+    final header = widget.count > 1;
+    final foldable = header && ctx.foldable && body.isNotEmpty;
+    final open = _open || !foldable;
 
-    return _Card(
+    return _Box(
+      level: widget.level,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _FoldHeader(
-            title: name.text,
-            titleMuted: name.muted,
-            count: null,
-            summary: open ? null : _summary(context, body),
-            titleStyle: palette.display(15),
-            summaryStyle: palette
-                .body(13)
-                .copyWith(color: palette.secondaryText),
-            minHeight: 44,
-            open: open,
-            onTap: ctx.foldable && body.isNotEmpty
-                ? () => setState(() => _open = !_open)
-                : null,
-          ),
-          if (open && body.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: YiviSpace.x4),
-              child: _CardBody(nodes: body, ctx: ctx),
+          if (header)
+            _FoldHeader(
+              title: context.tr("credential.nested.place", {
+                "index": "${widget.index + 1}",
+                "count": "${widget.count}",
+              }),
+              titleMuted: true,
+              count: null,
+              summary: open ? null : _summary(context, body),
+              titleStyle: palette.display(14),
+              summaryStyle: palette
+                  .body(13)
+                  .copyWith(color: palette.secondaryText),
+              minHeight: 36,
+              open: open,
+              onTap: foldable ? () => setState(() => _open = !_open) : null,
             ),
+          if (open && body.isNotEmpty)
+            _BoxBody(nodes: body, level: widget.level, ctx: ctx),
         ],
       ),
     );
   }
 }
 
-class _Card extends StatelessWidget {
-  final Widget child;
-  const _Card({required this.child});
+// ── Inside a box ─────────────────────────────────────────────────────────────
 
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        // The design's panel: a step off the white group it sits in, lighter
-        // than the page tint.
-        color: palette.isDark
-            ? const Color(0xFF222831)
-            : const Color(0xFFF2F7FA),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          YiviSpace.x16,
-          YiviSpace.x4,
-          YiviSpace.x16,
-          YiviSpace.x8,
-        ),
-        child: child,
-      ),
-    );
-  }
-}
-
-// ── Inside a card: everything drawn, nothing folds ───────────────────────────
-
-/// What a card holds, at any depth: values as rows; a list as a small heading
-/// with its count and each item as a named block under a thin line; an
-/// object as a named block.
-class _CardBody extends StatelessWidget {
+/// What a box holds, at any depth: values as rows; an object as its name
+/// (the small grey label, outside the box) and a box with its fields; a list
+/// as its name with a count and a box per item.
+class _BoxBody extends StatelessWidget {
   final List<AttributeNode> nodes;
+  final int level;
   final _Ctx ctx;
 
-  const _CardBody({required this.nodes, required this.ctx});
+  const _BoxBody({required this.nodes, required this.level, required this.ctx});
 
   @override
   Widget build(BuildContext context) {
-    final children = <Widget>[];
-    void add(List<AttributeNode> nodes) {
-      for (final n in nodes) {
-        if (!isNestedNode(n)) {
-          children.add(_FlatRow(node: n, isFirst: false, ctx: ctx));
-          continue;
-        }
-        final g = n as GroupNode;
-        final label = groupLabel(g);
-        if (!isListNode(g)) {
-          children.add(_BlockName(text: label, line: children.isNotEmpty));
-          add(g.children);
-          continue;
-        }
-        children.add(_ListHeading(label: label, count: g.children.length));
-        for (final (i, item) in g.children.cast<ItemNode>().indexed) {
-          final name = _itemName(context, item, label);
-          children.add(
-            _BlockName(text: name.text, muted: name.muted, line: i > 0),
-          );
-          add(itemBody(item));
-        }
-      }
-    }
-
-    add(nodes);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children,
+      children: [
+        for (final n in nodes)
+          if (!isNestedNode(n))
+            _FlatRow(node: n, isFirst: false, ctx: ctx)
+          else
+            ..._nested(context, n as GroupNode),
+      ],
     );
+  }
+
+  List<Widget> _nested(BuildContext context, GroupNode g) {
+    final label = groupLabel(g);
+    if (!isListNode(g)) {
+      return [
+        _FieldName(text: label),
+        _Box(
+          key: ValueKey(claimPathKey(g.path)),
+          level: level + 1,
+          child: _BoxBody(nodes: g.children, level: level + 1, ctx: ctx),
+        ),
+      ];
+    }
+    final items = g.children.cast<ItemNode>();
+    return [
+      _FieldName(text: label, count: items.length),
+      for (final (i, item) in items.indexed)
+        _ItemBox(
+          key: ValueKey(claimPathKey(item.path)),
+          item: item,
+          index: i,
+          count: items.length,
+          listLabel: label,
+          level: level + 1,
+          ctx: ctx,
+        ),
+    ];
   }
 }
 
-class _ListHeading extends StatelessWidget {
-  final String label;
-  final int count;
-  const _ListHeading({required this.label, required this.count});
+/// The name of an object or list inside a box: the small grey label, with
+/// the count of a list.
+class _FieldName extends StatelessWidget {
+  final String text;
+  final int? count;
+  const _FieldName({required this.text, this.count});
 
   @override
   Widget build(BuildContext context) {
     final palette = YiviPalette.of(context);
     return Padding(
       key: _FoldHeader.headingKey,
-      padding: const EdgeInsets.only(top: YiviSpace.x12, bottom: YiviSpace.x2),
+      padding: const EdgeInsets.only(top: YiviSpace.x12),
       child: Semantics(
         header: true,
         child: Row(
@@ -411,13 +450,13 @@ class _ListHeading extends StatelessWidget {
           children: [
             Flexible(
               child: Text(
-                label,
+                text,
                 style: palette
                     .body(12, weight: FontWeight.w600)
                     .copyWith(color: palette.secondaryText),
               ),
             ),
-            StatusChip(label: "$count"),
+            if (count case final count?) StatusChip(label: "$count"),
           ],
         ),
       ),
@@ -425,63 +464,7 @@ class _ListHeading extends StatelessWidget {
   }
 }
 
-/// The name of an item or object inside a card, under a thin line unless it
-/// comes right after its list's heading.
-class _BlockName extends StatelessWidget {
-  final String text;
-  final bool muted;
-  final bool line;
-  const _BlockName({required this.text, this.muted = false, this.line = true});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = YiviPalette.of(context);
-    return Container(
-      key: _FoldHeader.headingKey,
-      margin: const EdgeInsets.only(top: YiviSpace.x8),
-      padding: EdgeInsets.only(top: line ? 8 : 0),
-      decoration: line
-          ? BoxDecoration(
-              border: Border(top: BorderSide(color: palette.divider)),
-            )
-          : null,
-      child: Semantics(
-        header: true,
-        child: Text(
-          text,
-          style: palette
-              .body(14, weight: FontWeight.w600)
-              .copyWith(color: muted ? palette.secondaryText : palette.text),
-        ),
-      ),
-    );
-  }
-}
-
 // ── Words for the tree ──────────────────────────────────────────────────────
-
-/// The item's name: its title, or else its place in the list. Without a
-/// title it is drawn muted, so it does not read as a shared value.
-({String text, bool muted}) _itemName(
-  BuildContext context,
-  ItemNode item,
-  String listLabel,
-) {
-  final title = itemTitleRow(item);
-  if (title != null) {
-    return (
-      text: formatAttributeValue(context, title.attribute.value!),
-      muted: false,
-    );
-  }
-  return (
-    text: context.tr("credential.nested.item", {
-      "label": listLabel,
-      "number": "${itemNumber(item)}",
-    }),
-    muted: true,
-  );
-}
 
 Iterable<String> _values(BuildContext context, AttributeNode n) sync* {
   switch (n) {
@@ -499,13 +482,34 @@ Iterable<String> _values(BuildContext context, AttributeNode n) sync* {
   }
 }
 
-/// One line for something folded: a list's item names, else its values.
+/// An item's first value, for a summary: its first text value, else its
+/// place in the list ("Alignment 2").
+String _itemFirst(BuildContext context, ItemNode item, String listLabel) {
+  final first = item.children.firstWhereOrNull(
+    (c) => c is RowNode && c.attribute.value?.type == AttributeType.string,
+  );
+  if (first is RowNode) {
+    return formatAttributeValue(context, first.attribute.value!);
+  }
+  return context.tr("credential.nested.item", {
+    "label": listLabel,
+    "number": "${itemNumber(item)}",
+  });
+}
+
+/// One line for something folded: its own plain values; else the first
+/// values of the items of its lists; else every value in it.
 String _summary(BuildContext context, List<AttributeNode> nodes) {
+  final plain = [
+    for (final n in nodes)
+      if (n is RowNode) ..._values(context, n),
+  ];
+  if (plain.isNotEmpty) return plain.join(", ");
   final names = [
     for (final n in nodes)
       if (isListNode(n))
         for (final i in (n as GroupNode).children.cast<ItemNode>())
-          _itemName(context, i, groupLabel(n)).text,
+          _itemFirst(context, i, groupLabel(n)),
   ];
   if (names.isNotEmpty) return names.join(", ");
   return nodes.expand((n) => _values(context, n)).join(", ");

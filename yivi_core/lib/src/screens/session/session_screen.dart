@@ -243,6 +243,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       SessionShare(:final state) => DisclosureFlow(
         session: state,
         onDismiss: _showDismissDialog,
+        onClose: _dismissSession,
         onShare: _share,
       ),
       SessionPin() => SessionPinPage(sessionId: widget.sessionId),

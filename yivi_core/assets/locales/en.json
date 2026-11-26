@@ -210,7 +210,8 @@
       "chip_no": "Older than {age}: no"
     },
     "nested": {
-      "item": "{label} {number}"
+      "item": "{label} {number}",
+      "place": "{index} of {count}"
     }
   },
   "data": {
@@ -1563,7 +1564,12 @@
     "and": " and ",
     "optional": {
       "also": "You share this",
-      "not_shared": "You don't share this"
+      "not_shared": "You don't share this",
+      "chip": "Not required",
+      "hint_one": "You can share one more thing if you like",
+      "hint_many": "You can share {count} more things if you like",
+      "hint_one_sign": "You can add one more thing if you like",
+      "hint_many_sign": "You can add {count} more things if you like"
     },
     "title": {
       "share": "You share data with",
@@ -1618,6 +1624,36 @@
     "message_sheet": {
       "lead": "You sign this for {requestor}.",
       "lead_done": "You signed this for {requestor}."
+    },
+    "overview": {
+      "from_one": "From 1 card in your app",
+      "from_many": "From {count} cards in your app",
+      "change": "Change",
+      "view": "View"
+    },
+    "values": {
+      "bare": "Only that you have this card"
+    },
+    "keep": {
+      "head": "{requestor} keeps",
+      "marker_label": "kept by {requestor}"
+    },
+    "receive": {
+      "section": "You get in return",
+      "button": "Share and receive",
+      "button_only": "Receive"
+    },
+    "nothing": {
+      "title": "Do you want to share data with",
+      "lead": "Nothing is required.",
+      "lead_sign": "You don't have to add any data.",
+      "button": "Continue without sharing"
+    },
+    "count": {
+      "2": "two",
+      "3": "three",
+      "4": "four",
+      "5": "five"
     }
   },
   "contact_sheet": {

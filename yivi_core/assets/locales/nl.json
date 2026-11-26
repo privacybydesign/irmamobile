@@ -210,7 +210,8 @@
       "chip_no": "Ouder dan {age}: nee"
     },
     "nested": {
-      "item": "{label} {number}"
+      "item": "{label} {number}",
+      "place": "{index} van {count}"
     }
   },
   "data": {
@@ -1563,7 +1564,12 @@
     "and": " en ",
     "optional": {
       "also": "Deel je wel",
-      "not_shared": "Deel je niet"
+      "not_shared": "Deel je niet",
+      "chip": "Niet verplicht",
+      "hint_one": "Je kunt nog één ding delen als je wil",
+      "hint_many": "Je kunt nog {count} dingen delen als je wil",
+      "hint_one_sign": "Je kunt nog één ding toevoegen als je wil",
+      "hint_many_sign": "Je kunt nog {count} dingen toevoegen als je wil"
     },
     "title": {
       "share": "Je deelt gegevens met",
@@ -1618,6 +1624,36 @@
     "message_sheet": {
       "lead": "Dit onderteken je voor {requestor}.",
       "lead_done": "Dit heb je ondertekend voor {requestor}."
+    },
+    "overview": {
+      "from_one": "Uit 1 kaartje in je app",
+      "from_many": "Uit {count} kaartjes in je app",
+      "change": "Wijzig",
+      "view": "Bekijk"
+    },
+    "values": {
+      "bare": "Alleen dat je dit kaartje hebt"
+    },
+    "keep": {
+      "head": "{requestor} bewaart",
+      "marker_label": "wordt bewaard door {requestor}"
+    },
+    "receive": {
+      "section": "Dit krijg je terug",
+      "button": "Delen en ontvangen",
+      "button_only": "Ontvangen"
+    },
+    "nothing": {
+      "title": "Wil je gegevens delen met",
+      "lead": "Niets is verplicht.",
+      "lead_sign": "Je hoeft er geen gegevens onder te zetten.",
+      "button": "Doorgaan zonder te delen"
+    },
+    "count": {
+      "2": "twee",
+      "3": "drie",
+      "4": "vier",
+      "5": "vijf"
     }
   },
   "contact_sheet": {
