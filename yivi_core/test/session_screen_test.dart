@@ -12,7 +12,7 @@ import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/screens/error/session_error_screen.dart";
 import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/call_info_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/issuance/issue_website_step.dart";
 import "package:yivi_core/src/screens/session/issuance/openid4vci_preauth_txcode_screen.dart";
@@ -86,7 +86,7 @@ SessionState _disclosure(
   SessionError? error,
 }) => _state(
   status,
-  plan: DisclosurePlan(disclosureChoicesOverview: const []),
+  plan: DisclosurePlan(choices: const []),
   returnUrl: returnUrl,
   secondDevice: secondDevice,
   error: error,
@@ -208,7 +208,7 @@ void main() {
       h.emit(_issuance(SessionStatus.requestPermission));
       await _settle(tester);
       expect(find.byType(IssuancePermission), findsOneWidget);
-      expect(find.byType(DisclosureShareScreen), findsNothing);
+      expect(find.byType(DisclosureFlow), findsNothing);
     });
 
     testWidgets("an issuance that asks for data first: the share screen", (
@@ -221,8 +221,8 @@ void main() {
           type: SessionType.issuance,
           offered: [testCredential("email")],
           plan: testSession(
-            steps: [
-              testStep([
+            missing: [
+              testMissing([
                 [testDescriptor("pbdf.pbdf.email")],
               ]),
             ],
@@ -231,7 +231,7 @@ void main() {
         ),
       );
       await _settle(tester);
-      expect(find.byType(DisclosureShareScreen), findsOneWidget);
+      expect(find.byType(DisclosureFlow), findsOneWidget);
       expect(find.byType(IssuancePermission), findsNothing);
     });
 
@@ -239,7 +239,7 @@ void main() {
       final h = await pumpSessionScreen(tester, sessionId: _id);
       h.emit(_disclosure(SessionStatus.requestPermission));
       await _settle(tester);
-      expect(find.byType(DisclosureShareScreen), findsOneWidget);
+      expect(find.byType(DisclosureFlow), findsOneWidget);
     });
 
     testWidgets("a transaction code: its screen; submit sends the code", (
@@ -440,7 +440,7 @@ void main() {
         sessionId: _id,
         underlyingId: _requestId,
       );
-      h.emit(testSession(steps: const []));
+      h.emit(testSession(missing: const []));
       h.emit(_issuance(SessionStatus.requestPermission));
       await _settle(tester);
       h.emit(

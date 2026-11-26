@@ -118,17 +118,10 @@ void preferCardInSession(
       scheduleMicrotask(sub.close);
       return;
     }
-    final pickOnes =
-        session?.disclosurePlan?.disclosureChoicesOverview ?? const [];
-    for (final (i, pickOne) in pickOnes.indexed) {
-      for (final bundle in pickOne.ownedOptions ?? const []) {
-        if (bundle.credentialHashes.contains(hash)) {
-          container
-              .read(sessionUserChoicesProvider(sessionId).notifier)
-              .setBundle(i, bundle);
-          done = true;
-        }
-      }
+    if (session?.disclosurePlan case final plan?) {
+      done = container
+          .read(disclosureSelectionProvider(sessionId).notifier)
+          .preferCard(plan, hash);
     }
     if (done) scheduleMicrotask(sub.close);
   }

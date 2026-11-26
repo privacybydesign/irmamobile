@@ -878,6 +878,7 @@ void main() {
             attributes: const [],
             revoked: false,
             revocationSupported: false,
+            usable: true,
           );
       final c = ProviderContainer(
         overrides: [
@@ -892,12 +893,19 @@ void main() {
                 status: SessionStatus.requestPermission,
                 requestor: _requestor,
                 disclosurePlan: DisclosurePlan(
-                  disclosureChoicesOverview: [
-                    DisclosurePickOne(
+                  choices: [
+                    DisclosureChoice(
                       optional: false,
-                      ownedOptions: [
-                        DisclosureBundle(credentials: [instance("h1")]),
-                        DisclosureBundle(credentials: [instance("h2")]),
+                      options: [
+                        DisclosureOption(
+                          slots: [
+                            DisclosureSlot(
+                              id: "email",
+                              candidates: [instance("h1"), instance("h2")],
+                              obtainable: const [],
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ],
@@ -908,13 +916,15 @@ void main() {
         ],
       );
       addTearDown(c.dispose);
-      final keep = c.listen(sessionSelectionsProvider(7), (_, _) {});
+      final keep = c.listen(disclosureSelectionProvider(7), (_, _) {});
       addTearDown(keep.close);
 
       preferCardInSession(c, 7, "h2");
       await pumpEventQueue();
 
-      expect(c.read(sessionSelectionsProvider(7)), {0: 1});
+      expect(c.read(disclosureSelectionProvider(7)).cards, {
+        "email": ["h2"],
+      });
     });
   });
 }

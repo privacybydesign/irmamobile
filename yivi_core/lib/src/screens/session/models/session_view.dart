@@ -158,4 +158,4 @@ SessionView sessionViewOf(
 bool _isOffer(SessionState s) =>
     s.type == SessionType.issuance &&
     s.offeredCredentials != null &&
-    !(s.disclosurePlan?.disclosureChoicesOverview?.isNotEmpty ?? false);
+    !(s.disclosurePlan?.choices.isNotEmpty ?? false);

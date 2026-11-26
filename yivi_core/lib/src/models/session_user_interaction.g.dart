@@ -13,9 +13,14 @@ Map<String, dynamic> _$SelectedCredentialToJson(SelectedCredential instance) =>
       'attribute_paths': instance.attributePaths,
     };
 
-Map<String, dynamic> _$DisclosureDisconSelectionToJson(
-  DisclosureDisconSelection instance,
-) => <String, dynamic>{'credentials': instance.credentials};
+Map<String, dynamic> _$ChoiceSelectionToJson(ChoiceSelection instance) =>
+    <String, dynamic>{'option': instance.option, 'slots': instance.slots};
+
+Map<String, dynamic> _$SlotSelectionToJson(SlotSelection instance) =>
+    <String, dynamic>{
+      'slot_id': instance.slotId,
+      'credentials': instance.credentials,
+    };
 
 Map<String, dynamic> _$SessionUserInteractionEventToJson(
   SessionUserInteractionEvent instance,
@@ -31,4 +36,5 @@ const _$UserInteractionTypeEnumMap = {
   UserInteractionType.dismiss: 'dismiss',
   UserInteractionType.authorizationCode: 'authorization_code',
   UserInteractionType.preAuthorizedCode: 'pre_authorized_code',
+  UserInteractionType.continueNextSession: 'continue_next_session',
 };

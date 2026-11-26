@@ -17,7 +17,6 @@ import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_flow_provider.dart";
 import "../../providers/session_state_provider.dart";
-import "../../providers/session_user_choices_provider.dart";
 import "../../routing/navigation.dart";
 import "../../sentry/sentry.dart";
 import "../../theme/yivi_tone.dart";
@@ -31,12 +30,12 @@ import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "../need_help/support_party.dart";
 import "call_info_screen.dart";
-import "disclosure/disclosure_share_screen.dart";
+import "disclosure/disclosure_flow.dart";
 import "issuance/issuance_permission.dart";
 import "issuance/issue_website_step.dart";
 import "issuance/openid4vci_preauth_txcode_screen.dart";
 import "layout/session_scaffold.dart";
-import "models/disclosure_view_model.dart";
+import "models/disclosure_plan_view.dart";
 import "models/session_outcome.dart";
 import "models/session_view.dart";
 import "pairing_required.dart";
@@ -241,16 +240,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       ),
       // The whole request at once; a card that is not in the app yet is an
       // empty spot, added in the Change sheet.
-      SessionShare(:final state) => DisclosureShareScreen(
+      SessionShare(:final state) => DisclosureFlow(
         session: state,
         onDismiss: _showDismissDialog,
-        onClose: _dismissSession,
-        onShare: _grantPermission,
+        onShare: _share,
       ),
       SessionPin() => SessionPinPage(sessionId: widget.sessionId),
       SessionTxLockout() => TxCodeLockoutScreen(onTapClose: _closeSession),
-      SessionFailed(:final error, :final state) =>
-        _buildError(error, requestor: state?.requestor),
+      SessionFailed(:final error, :final state) => _buildError(
+        error,
+        requestor: state?.requestor,
+      ),
       SessionTxCode(:final state, :final parameters) =>
         OpenID4VCIPreAuthTxCodeScreen(
           sessionId: widget.sessionId,
@@ -303,14 +303,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
   }
 
-  void _grantPermission(List<DisclosureDisconSelection> disclosureChoices) {
-    // What the share screen shared: the bundles in use, as it chose them.
-    _sharedInstances = sharedInstancesOf(
-      _lastState?.disclosurePlan?.disclosureChoicesOverview ??
-          const <DisclosurePickOne>[],
-      ref.read(sessionSelectionsProvider(widget.sessionId)),
-    );
-    _flow.grant(disclosureChoices);
+  void _grantPermission(List<ChoiceSelection> choices) => _flow.grant(choices);
+
+  /// Shares [choices]; [shared] are the cards that go, for the done screen.
+  void _share(
+    List<ChoiceSelection> choices,
+    List<SelectableCredentialInstance> shared,
+  ) {
+    _sharedInstances = shared;
+    _flow.grant(choices);
   }
 
   Widget _buildSuccess(SessionState session, SessionOutcome outcome) {

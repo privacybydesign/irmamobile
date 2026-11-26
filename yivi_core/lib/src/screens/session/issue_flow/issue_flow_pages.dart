@@ -30,7 +30,7 @@ import "../issuance/issue_sheet_progress.dart";
 import "../issuance/issue_website_step.dart";
 import "../issuance/openid4vci_preauth_txcode_screen.dart";
 import "../issuance/received_card_tile.dart";
-import "../models/disclosure_view_model.dart";
+import "../models/disclosure_plan_view.dart";
 import "../models/issuance_view_model.dart";
 import "../models/session_view.dart";
 import "../models/technical_details.dart";

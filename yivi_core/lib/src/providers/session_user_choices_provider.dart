@@ -1,175 +1,88 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/session_state.dart";
-import "../screens/session/models/disclosure_view_model.dart";
-import "last_shared_provider.dart";
+import "../screens/session/models/disclosure_plan_view.dart";
 import "session_state_provider.dart";
 
-class SessionUserChoices {
-  final Map<int, DisclosureBundle> disclosureChoices;
-  final Set<int> addedOptionalIndices;
-
-  const SessionUserChoices({
-    this.disclosureChoices = const {},
-    this.addedOptionalIndices = const {},
-  });
-
-  SessionUserChoices withBundle(int disconIndex, DisclosureBundle bundle) {
-    return SessionUserChoices(
-      disclosureChoices: {...disclosureChoices, disconIndex: bundle},
-      addedOptionalIndices: addedOptionalIndices,
-    );
-  }
-
-  SessionUserChoices withOptionalAdded(int disconIndex) {
-    return SessionUserChoices(
-      disclosureChoices: disclosureChoices,
-      addedOptionalIndices: {...addedOptionalIndices, disconIndex},
-    );
-  }
-
-  SessionUserChoices withOptionalRemoved(int disconIndex) {
-    return SessionUserChoices(
-      disclosureChoices: Map.of(disclosureChoices)..remove(disconIndex),
-      addedOptionalIndices: Set.of(addedOptionalIndices)..remove(disconIndex),
-    );
-  }
-}
-
-class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
+/// What the user picked in the request of session [sessionId]. A card issued
+/// while the request waits is picked as soon as it arrives: its slot's card,
+/// its option and, for an optional choice, sharing it.
+class DisclosureSelectionNotifier extends Notifier<DisclosureSelection> {
   final int sessionId;
 
-  /// Tracks which owned credential hashes existed per discon index (flattened
-  /// across bundles), so we can detect newly issued credentials and auto-select
-  /// the bundle containing them.
-  Map<int, Set<String>> _previousOwnedHashes = {};
+  /// The candidate hashes per slot id in the last plan seen, so a card that
+  /// was not there before is recognised.
+  Map<String, Set<String>> _previous = const {};
 
-  /// Optional pick-ones the user went to add a card for: they are included
-  /// as soon as that card arrives (and not before, so leaving the issuer's
-  /// website without adding anything changes nothing).
-  final Set<int> _includeWhenAdded = {};
-
-  SessionUserChoicesNotifier(this.sessionId);
+  DisclosureSelectionNotifier(this.sessionId);
 
   @override
-  SessionUserChoices build() {
-    final session = ref.read(sessionStateProvider(sessionId)).value;
-    if (session != null) {
-      _previousOwnedHashes = _buildOwnedHashesMap(
-        session.disclosurePlan?.disclosureChoicesOverview ?? [],
-      );
-    }
-
-    ref.listen(sessionStateProvider(sessionId), (previous, next) {
-      final session = next.value;
-      if (session != null) {
-        _autoSelectNewlyIssuedCredentials(session);
-      }
+  DisclosureSelection build() {
+    _previous = _candidatesBySlot(
+      ref.read(sessionStateProvider(sessionId)).value?.disclosurePlan,
+    );
+    ref.listen(sessionStateProvider(sessionId), (_, next) {
+      if (next.value?.disclosurePlan case final plan?) _pickNewCards(plan);
     });
-
-    return const SessionUserChoices();
+    return const DisclosureSelection();
   }
 
-  void setBundle(int disconIndex, DisclosureBundle bundle) {
-    state = state.withBundle(disconIndex, bundle);
-  }
+  void chooseOption(int choice, int option) =>
+      state = state.withOption(choice, option);
 
-  void addOptional(int disconIndex) {
-    state = state.withOptionalAdded(disconIndex);
-  }
+  void chooseCards(String slotId, List<String> hashes) =>
+      state = state.withCards(slotId, hashes);
 
-  void removeOptional(int disconIndex) {
-    state = state.withOptionalRemoved(disconIndex);
-  }
+  void share(int choice, {required bool on}) =>
+      state = state.withOptional(choice, on: on);
 
-  /// Includes optional pick-one [disconIndex] once a new card for it is
-  /// added (the user tapped "Go to …" for it).
-  void includeOptionalWhenAdded(int disconIndex) {
-    _includeWhenAdded.add(disconIndex);
-  }
-
-  void _autoSelectNewlyIssuedCredentials(SessionState session) {
-    final choices = session.disclosurePlan?.disclosureChoicesOverview ?? [];
-    final currentHashes = _buildOwnedHashesMap(choices);
-
-    if (_previousOwnedHashes.isNotEmpty) {
-      var updated = state;
-      var changed = false;
-      for (var i = 0; i < choices.length; i++) {
-        final bundles = choices[i].ownedOptions ?? [];
-        final previousHashes = _previousOwnedHashes[i] ?? {};
-
-        bool hasNew(DisclosureBundle b) =>
-            b.credentialHashes.any((h) => !previousHashes.contains(h));
-
-        // Prefer the bundle the user already selected if it also contains a
-        // newly-issued credential. This avoids silently switching the user's
-        // choice when a credential is shared across bundles.
-        final existing = updated.disclosureChoices[i];
-        DisclosureBundle? target;
-        if (existing != null && hasNew(existing)) {
-          target = existing;
-        } else {
-          for (final bundle in bundles) {
-            if (hasNew(bundle)) {
-              target = bundle;
-              break;
-            }
-          }
-        }
-
-        if (target != null && target != existing) {
-          updated = updated.withBundle(i, target);
-          changed = true;
-        }
-        if (target != null && _includeWhenAdded.remove(i)) {
-          updated = updated.withOptionalAdded(i);
-          changed = true;
+  /// Picks the card with [hash] wherever the plan has it: its card, its
+  /// option and, for an optional choice, sharing it. False when the plan has
+  /// no such candidate.
+  bool preferCard(DisclosurePlan plan, String hash) {
+    var next = state;
+    var found = false;
+    for (final (i, choice) in plan.choices.indexed) {
+      for (final (o, option) in choice.options.indexed) {
+        for (final slot in option.slots) {
+          final has = slot.candidates.any((c) => c.hash == hash && usable(c));
+          if (!has) continue;
+          found = true;
+          next = next.withCards(slot.id, [hash]).withOption(i, o);
+          if (choice.optional) next = next.withOptional(i, on: true);
         }
       }
-      if (changed) state = updated;
     }
-
-    _previousOwnedHashes = currentHashes;
+    if (found) state = next;
+    return found;
   }
 
-  static Map<int, Set<String>> _buildOwnedHashesMap(
-    List<DisclosurePickOne> choices,
-  ) {
-    return {
-      for (var i = 0; i < choices.length; i++)
-        i: {
-          for (final bundle in choices[i].ownedOptions ?? [])
-            for (final cred in bundle.credentials) cred.hash,
-        },
-    };
+  void _pickNewCards(DisclosurePlan plan) {
+    final current = _candidatesBySlot(plan);
+    if (_previous.isNotEmpty) {
+      final added = {
+        for (final entry in current.entries)
+          for (final hash in entry.value)
+            if (!(_previous[entry.key]?.contains(hash) ?? false)) hash,
+      };
+      for (final hash in added) {
+        preferCard(plan, hash);
+      }
+    }
+    _previous = current;
   }
+
+  static Map<String, Set<String>> _candidatesBySlot(DisclosurePlan? plan) => {
+    for (final choice in plan?.choices ?? const <DisclosureChoice>[])
+      for (final option in choice.options)
+        for (final slot in option.slots)
+          slot.id: {for (final c in slot.candidates) c.hash},
+  };
 }
 
-final sessionUserChoicesProvider =
+final disclosureSelectionProvider =
     NotifierProvider.family<
-      SessionUserChoicesNotifier,
-      SessionUserChoices,
+      DisclosureSelectionNotifier,
+      DisclosureSelection,
       int
-    >((sessionId) => SessionUserChoicesNotifier(sessionId));
-
-/// The owned option in use per pick-one of session [sessionId]
-/// ([selectionsFrom]): what the user picked, else what was shared before,
-/// else the default. The share screen and the Change sheet both read it.
-final sessionSelectionsProvider = Provider.autoDispose
-    .family<Map<int, int>, int>((ref, sessionId) {
-      final pickOnes =
-          ref
-              .watch(sessionStateProvider(sessionId))
-              .value
-              ?.disclosurePlan
-              ?.disclosureChoicesOverview ??
-          const <DisclosurePickOne>[];
-      final choices = ref.watch(sessionUserChoicesProvider(sessionId));
-      return selectionsFrom(
-        pickOnes,
-        choices.disclosureChoices,
-        choices.addedOptionalIndices,
-        preferred: ref.watch(lastSharedBundlesProvider(sessionId)),
-      );
-    });
+    >((sessionId) => DisclosureSelectionNotifier(sessionId));

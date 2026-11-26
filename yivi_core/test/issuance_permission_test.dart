@@ -111,10 +111,10 @@ void main() {
     attributes: [_value("email", "Email address", "me@example.com")],
   );
   final twoSteps = [
-    testStep([
+    testMissing([
       [_wanted("idin")],
     ]),
-    testStep([
+    testMissing([
       [_wanted("email")],
     ]),
   ];
@@ -326,7 +326,7 @@ void main() {
       tester,
       IssuancePermission(
         issuedCredentials: [email, phone],
-        forRequest: testSession(steps: twoSteps),
+        forRequest: testSession(missing: twoSteps),
         onDismiss: () {},
         onGivePermission: () {},
       ),
@@ -353,7 +353,7 @@ void main() {
       tester,
       IssuancePermission(
         issuedCredentials: [email],
-        forRequest: testSession(steps: twoSteps),
+        forRequest: testSession(missing: twoSteps),
         onDismiss: () {},
         onGivePermission: () {},
       ),
@@ -372,8 +372,8 @@ void main() {
       IssuancePermission(
         issuedCredentials: [bank],
         forRequest: testSession(
-          steps: [
-            testStep([
+          missing: [
+            testMissing([
               [
                 _wanted(
                   "bank",
@@ -435,8 +435,8 @@ void main() {
       IssuancePermission(
         issuedCredentials: [bank],
         forRequest: testSession(
-          steps: [
-            testStep([
+          missing: [
+            testMissing([
               [
                 _wanted(
                   "bank",
@@ -505,8 +505,8 @@ void main() {
       IssuancePermission(
         issuedCredentials: [email],
         forRequest: testSession(
-          steps: [
-            testStep([
+          missing: [
+            testMissing([
               [
                 _wanted(
                   "email",
@@ -546,7 +546,7 @@ void main() {
         ),
         underlyingDisclosureProvider(
           nestedId,
-        ).overrideWith((ref) => Stream.value(testSession(steps: twoSteps))),
+        ).overrideWith((ref) => Stream.value(testSession(missing: twoSteps))),
       ],
     );
 
@@ -579,7 +579,7 @@ void main() {
     void emit(SessionState s) => events.add(SessionStateEvent(sessionState: s));
 
     test("is the request waiting under the issuance", () async {
-      emit(testSession(steps: twoSteps));
+      emit(testSession(missing: twoSteps));
       emit(_issuance(2, [email]));
       await Future<void>.delayed(Duration.zero);
 
@@ -602,7 +602,7 @@ void main() {
           type: SessionType.disclosure,
           status: SessionStatus.requestPermission,
           requestor: testParty("Later"),
-          disclosurePlan: DisclosurePlan(),
+          disclosurePlan: DisclosurePlan(choices: const []),
         ),
       );
       await Future<void>.delayed(Duration.zero);

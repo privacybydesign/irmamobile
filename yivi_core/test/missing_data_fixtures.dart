@@ -40,9 +40,25 @@ CredentialDescriptor testDescriptor(
   issueURL: issueURL,
 );
 
-IssuanceStep testStep(List<List<CredentialDescriptor>> options) => IssuanceStep(
-  options: [for (final o in options) IssuanceBundle(credentials: o)],
-);
+/// A required choice that cannot be answered yet: per option, a slot per
+/// descriptor, with no card and the descriptor to add.
+DisclosureChoice testMissing(List<List<CredentialDescriptor>> options) =>
+    DisclosureChoice(
+      optional: false,
+      options: [
+        for (final o in options)
+          DisclosureOption(
+            slots: [
+              for (final d in o)
+                DisclosureSlot(
+                  id: d.credentialId,
+                  candidates: const [],
+                  obtainable: [d],
+                ),
+            ],
+          ),
+      ],
+    );
 
 SelectableCredentialInstance _instance(String id) =>
     SelectableCredentialInstance(
@@ -54,6 +70,7 @@ SelectableCredentialInstance _instance(String id) =>
       attributes: const [],
       revoked: false,
       revocationSupported: false,
+      usable: true,
     );
 
 Credential testCredential(String id) => Credential(
@@ -69,12 +86,13 @@ Credential testCredential(String id) => Credential(
   issueUrl: null,
 );
 
-/// A disclosure session of "Test Verifier" waiting for permission, with
-/// [steps] still to obtain except for the [issued] credentials. With
-/// [withChoices] it also has the overview irmago adds once nothing is missing,
-/// and [wrongCredential] is the credential irmago reports as not matching.
+/// A disclosure session of "Test Verifier" waiting for permission, with the
+/// [missing] choices that cannot be answered yet; [issued] are the types
+/// issued for it. With [withChoices] the first option of each of them has its
+/// cards, as once nothing is missing, and [wrongCredential] is the credential
+/// irmago reports as not matching.
 SessionState testSession({
-  required List<IssuanceStep> steps,
+  required List<DisclosureChoice> missing,
   Set<String> issued = const {},
   Credential? wrongCredential,
   bool withChoices = false,
@@ -87,27 +105,31 @@ SessionState testSession({
   status: SessionStatus.requestPermission,
   requestor: testParty("Test Verifier", verified: verified),
   disclosurePlan: DisclosurePlan(
-    issueDuringDisclosure: IssueDuringDisclosure(
-      steps: steps,
-      issuedCredentialIds: {for (final id in issued) id: null},
-      wrongCredentialIssued: wrongCredential,
-    ),
-    disclosureChoicesOverview: withChoices
-        ? [
-            for (final step in steps)
-              DisclosurePickOne(
-                optional: false,
-                ownedOptions: [
-                  DisclosureBundle(
-                    credentials: [
-                      for (final c in step.options.first.credentials)
-                        _instance(c.credentialId),
-                    ],
-                  ),
+    choices: [
+      for (final choice in missing)
+        withChoices
+            ? DisclosureChoice(
+                optional: choice.optional,
+                options: [
+                  for (final (k, option) in choice.options.indexed)
+                    DisclosureOption(
+                      slots: [
+                        for (final slot in option.slots)
+                          DisclosureSlot(
+                            id: slot.id,
+                            candidates: k == 0
+                                ? [_instance(slot.id)]
+                                : const [],
+                            obtainable: slot.obtainable,
+                          ),
+                      ],
+                    ),
                 ],
-              ),
-          ]
-        : null,
+              )
+            : choice,
+    ],
+    issuedCredentialIds: {for (final id in issued) id: null},
+    wrongCredentialIssued: wrongCredential,
   ),
 );
 

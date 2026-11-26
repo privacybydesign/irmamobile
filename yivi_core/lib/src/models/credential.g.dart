@@ -6,20 +6,20 @@ part of 'credential.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CredentialsEvent _$CredentialsEventFromJson(
-  Map<String, dynamic> json,
-) => CredentialsEvent(
-  credentials: (json['credentials'] as List<dynamic>)
-      .map((e) => Credential.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  problematic:
-      (json['problematic'] as List<dynamic>?)
-          ?.map(
-            (e) => ProblematicCredential.fromJson(e as Map<String, dynamic>),
-          )
-          .toList() ??
-      const [],
-);
+CredentialsEvent _$CredentialsEventFromJson(Map<String, dynamic> json) =>
+    CredentialsEvent(
+      credentials: (json['credentials'] as List<dynamic>)
+          .map((e) => Credential.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      problematic:
+          (json['problematic'] as List<dynamic>?)
+              ?.map(
+                (e) =>
+                    ProblematicCredential.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          const [],
+    );
 
 ProblematicCredential _$ProblematicCredentialFromJson(
   Map<String, dynamic> json,
@@ -94,6 +94,11 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
       : AttributeValue.fromJson(
           json['requested_value'] as Map<String, dynamic>,
         ),
+  requestedValues:
+      (json['requested_values'] as List<dynamic>?)
+          ?.map((e) => AttributeValue.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      [],
   intentToRetain: json['intent_to_retain'] as bool?,
   svgId: json['svg_id'] as String?,
 );
@@ -104,6 +109,7 @@ Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
   'description': instance.description,
   'value': instance.value,
   'requested_value': instance.requestedValue,
+  'requested_values': instance.requestedValues,
   'intent_to_retain': instance.intentToRetain,
   'svg_id': instance.svgId,
 };

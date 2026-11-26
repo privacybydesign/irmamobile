@@ -146,7 +146,11 @@ func (ah *eventHandler) handleUserInteraction(event *sessionUserInteractionEvent
 		interaction.Payload = payload
 	}
 
-	yiviClient.HandleUserInteraction(interaction)
+	// A refused answer has already ended the session with an error state; the
+	// reason is only logged here.
+	if err := yiviClient.HandleUserInteraction(interaction); err != nil {
+		irma.Logger.Warnf("session %d: %s interaction failed: %v", event.SessionId, event.Type, err)
+	}
 	return nil
 }
 

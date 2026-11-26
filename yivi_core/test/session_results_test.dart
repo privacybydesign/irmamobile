@@ -222,7 +222,7 @@ void main() {
           ),
           underlyingDisclosureProvider(
             nestedId,
-          ).overrideWith((ref) => Stream.value(testSession(steps: const []))),
+          ).overrideWith((ref) => Stream.value(testSession(missing: const []))),
         ],
       );
 

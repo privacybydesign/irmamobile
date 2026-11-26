@@ -79,6 +79,12 @@ class SessionState {
   /// when irmago does not send it.
   final String? responseMode;
 
+  /// With [SessionStatus.success]: the requestor chained a follow-up request.
+  /// This session is done; the follow-up starts on
+  /// `SessionUserInteractionEvent.continueNextSession`, and is dropped when
+  /// the session is dismissed.
+  final bool nextSessionPending;
+
   SessionState({
     required this.id,
     required this.protocol,
@@ -98,6 +104,7 @@ class SessionState {
     this.openID4VCIState,
     this.authorizationRequestUrl,
     this.transactionCodeParameters,
+    this.nextSessionPending = false,
     this.remainingTxCodeAttempts,
     this.responseMode,
   });
@@ -108,114 +115,94 @@ class SessionState {
   ReturnURL? get parsedClientReturnUrl => ReturnURL.parse(clientReturnUrl);
 }
 
+/// A disclosure (or signature) request as irmago describes it: choices →
+/// options → slots → candidates.
 @JsonSerializable(createToJson: false, fieldRename: .snake)
 class DisclosurePlan {
-  final IssueDuringDisclosure? issueDuringDisclosure;
-  final List<DisclosurePickOne>? disclosureChoicesOverview;
+  /// One per IRMA discon, DCQL credential set, or DCQL query without sets,
+  /// in request order.
+  @JsonKey(defaultValue: <DisclosureChoice>[])
+  final List<DisclosureChoice> choices;
 
-  DisclosurePlan({this.issueDuringDisclosure, this.disclosureChoicesOverview});
+  /// The types issued since the request was first shown.
+  final Map<String, dynamic>? issuedCredentialIds;
+
+  /// A card added for the request that does not satisfy it, with only the
+  /// attributes that do not match.
+  final Credential? wrongCredentialIssued;
+
+  DisclosurePlan({
+    required this.choices,
+    this.issuedCredentialIds,
+    this.wrongCredentialIssued,
+  });
 
   factory DisclosurePlan.fromJson(Map<String, dynamic> json) =>
       _$DisclosurePlanFromJson(json);
 }
 
+/// One thing the requestor wants answered. Exactly one option is shared, or
+/// none when it is [optional].
 @JsonSerializable(createToJson: false, fieldRename: .snake)
-class IssueDuringDisclosure {
-  final List<IssuanceStep> steps;
-  final Map<String, dynamic>? issuedCredentialIds;
-  final Credential? wrongCredentialIssued;
-
-  IssueDuringDisclosure({
-    required this.steps,
-    this.issuedCredentialIds,
-    this.wrongCredentialIssued,
-  });
-
-  factory IssueDuringDisclosure.fromJson(Map<String, dynamic> json) =>
-      _$IssueDuringDisclosureFromJson(json);
-}
-
-@JsonSerializable(createToJson: false, fieldRename: .snake)
-class IssuanceStep {
-  final List<IssuanceBundle> options;
-
-  // A step with no bundles cannot be rendered or progressed. We reject it at
-  // the boundary so a malformed backend response surfaces here, instead of as
-  // a RangeError deep in the UI when `options[selectedIndex]` is indexed.
-  IssuanceStep({required this.options}) {
-    if (options.isEmpty) {
-      throw ArgumentError.value(
-        options,
-        "options",
-        "IssuanceStep.options must be non-empty",
-      );
-    }
-  }
-
-  factory IssuanceStep.fromJson(Map<String, dynamic> json) =>
-      _$IssuanceStepFromJson(json);
-}
-
-@JsonSerializable(createToJson: false, fieldRename: .snake)
-class IssuanceBundle {
-  final List<CredentialDescriptor> credentials;
-
-  IssuanceBundle({required this.credentials});
-
-  factory IssuanceBundle.fromJson(Map<String, dynamic> json) =>
-      _$IssuanceBundleFromJson(json);
-}
-
-@JsonSerializable(createToJson: false, fieldRename: .snake)
-class DisclosurePickOne {
+class DisclosureChoice {
   final bool optional;
-  final List<DisclosureBundle>? ownedOptions;
-  final List<CredentialDescriptor>? obtainableOptions;
+  @JsonKey(defaultValue: <DisclosureOption>[])
+  final List<DisclosureOption> options;
 
-  /// Per option that cannot be shared yet: what of it is in the app and
-  /// which types are missing, so cards that only go together stay together.
-  /// Null from an irmago without it, and for OpenID4VP requests.
-  final List<ObtainableBundle>? obtainableBundles;
+  DisclosureChoice({required this.optional, required this.options});
 
-  DisclosurePickOne({
-    required this.optional,
-    this.ownedOptions,
-    this.obtainableOptions,
-    this.obtainableBundles,
+  factory DisclosureChoice.fromJson(Map<String, dynamic> json) =>
+      _$DisclosureChoiceFromJson(json);
+}
+
+/// One way to answer a choice: all its slots are shared together.
+@JsonSerializable(createToJson: false, fieldRename: .snake)
+class DisclosureOption {
+  @JsonKey(defaultValue: <DisclosureSlot>[])
+  final List<DisclosureSlot> slots;
+
+  DisclosureOption({required this.slots});
+
+  factory DisclosureOption.fromJson(Map<String, dynamic> json) =>
+      _$DisclosureOptionFromJson(json);
+}
+
+/// One card an option needs: a DCQL query, or one credential type of an IRMA
+/// con.
+@JsonSerializable(createToJson: false, fieldRename: .snake)
+class DisclosureSlot {
+  /// DCQL: the query id; one query in two sets is one slot with one
+  /// selection. IRMA: "{discon index}:{credential type id}".
+  final String id;
+
+  /// Takes one or more cards (DCQL `multiple`).
+  final bool multiple;
+
+  /// The cards in the app that fit, best first, each with only what it would
+  /// share. Unusable ones are included, with [SelectableCredentialInstance.usable]
+  /// false.
+  @JsonKey(defaultValue: <SelectableCredentialInstance>[])
+  final List<SelectableCredentialInstance> candidates;
+
+  /// What can be added for this slot. A descriptor without an issue URL says
+  /// what is asked when it cannot be added.
+  @JsonKey(defaultValue: <CredentialDescriptor>[])
+  final List<CredentialDescriptor> obtainable;
+
+  DisclosureSlot({
+    required this.id,
+    this.multiple = false,
+    required this.candidates,
+    required this.obtainable,
   });
 
-  factory DisclosurePickOne.fromJson(Map<String, dynamic> json) =>
-      _$DisclosurePickOneFromJson(json);
+  factory DisclosureSlot.fromJson(Map<String, dynamic> json) =>
+      _$DisclosureSlotFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: .snake)
-class ObtainableBundle {
-  /// The cards of the option in the app, each with this option's fields.
-  /// Go sends an empty list as null.
-  @JsonKey(defaultValue: <SelectableCredentialInstance>[])
-  final List<SelectableCredentialInstance> owned;
-
-  /// The types still to add.
-  @JsonKey(defaultValue: <CredentialDescriptor>[])
-  final List<CredentialDescriptor> missing;
-
-  ObtainableBundle({required this.owned, required this.missing});
-
-  factory ObtainableBundle.fromJson(Map<String, dynamic> json) =>
-      _$ObtainableBundleFromJson(json);
-}
-
-@JsonSerializable(createToJson: false, fieldRename: .snake)
-class DisclosureBundle {
-  final List<SelectableCredentialInstance> credentials;
-
-  DisclosureBundle({required this.credentials});
-
-  factory DisclosureBundle.fromJson(Map<String, dynamic> json) =>
-      _$DisclosureBundleFromJson(json);
-
-  Set<String> get credentialHashes => credentials.map((c) => c.hash).toSet();
-}
+/// Why a candidate cannot be shared for this request.
+@JsonEnum(fieldRename: .snake)
+enum UnusableReason { revoked, expired, usedUp, notRevocable }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
 class SelectableCredentialInstance {
@@ -239,6 +226,14 @@ class SelectableCredentialInstance {
   /// without a scheme entry.
   final bool isSingleton;
 
+  /// irmago's verdict for this request: the card can be shared. Never derived
+  /// in the app from [expiryDate] or [revoked].
+  final bool usable;
+
+  /// Why the card cannot be shared; null when [usable].
+  @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
+  final UnusableReason? unusableReason;
+
   SelectableCredentialInstance({
     required this.credentialId,
     required this.hash,
@@ -255,6 +250,8 @@ class SelectableCredentialInstance {
     this.batchInstanceCountRemaining,
     this.issueUrl,
     this.isSingleton = false,
+    this.usable = false,
+    this.unusableReason,
   });
 
   factory SelectableCredentialInstance.fromJson(Map<String, dynamic> json) =>

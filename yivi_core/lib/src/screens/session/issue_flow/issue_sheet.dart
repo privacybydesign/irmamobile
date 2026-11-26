@@ -20,7 +20,7 @@ import "../../error/tx_code_lockout_screen.dart";
 import "../../need_help/support_party.dart";
 import "../issuance/issue_island.dart";
 import "../issuance/issue_sheet_progress.dart";
-import "../models/disclosure_view_model.dart";
+import "../models/disclosure_plan_view.dart";
 import "../models/issuance_view_model.dart";
 import "../models/session_view.dart";
 import "../requestor/requestor_card.dart";

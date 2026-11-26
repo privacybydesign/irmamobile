@@ -142,6 +142,12 @@ class Attribute {
   final AttributeValue? value;
   final AttributeValue? requestedValue;
 
+  /// Every value the request allows for this attribute, in request order
+  /// (DCQL `values`; one for an IRMA required value). Empty when any value
+  /// will do. [requestedValue] is kept next to it.
+  @JsonKey(defaultValue: <AttributeValue>[])
+  final List<AttributeValue> requestedValues;
+
   /// Whether the verifier declared it will retain this attribute after the
   /// session. Only mdoc requests can say this: set (true or false) on every
   /// mdoc attribute, null for every other format. Decoded so nothing is lost;
@@ -159,6 +165,7 @@ class Attribute {
     this.description,
     this.value,
     this.requestedValue,
+    this.requestedValues = const [],
     this.intentToRetain,
     this.svgId,
   });

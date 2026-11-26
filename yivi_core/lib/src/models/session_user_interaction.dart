@@ -12,6 +12,10 @@ enum UserInteractionType {
   dismiss,
   authorizationCode,
   preAuthorizedCode,
+
+  /// Start the follow-up of a session that succeeded with
+  /// [SessionState.nextSessionPending]. Dismissing instead drops it.
+  continueNextSession,
 }
 
 @JsonSerializable(createFactory: false, fieldRename: .snake)
@@ -29,13 +33,31 @@ class SelectedCredential {
   Map<String, dynamic> toJson() => _$SelectedCredentialToJson(this);
 }
 
+/// The answer for one choice of the plan: the chosen option, and a card (or
+/// several, for a multiple slot) per slot of it.
 @JsonSerializable(createFactory: false, fieldRename: .snake)
-class DisclosureDisconSelection {
+class ChoiceSelection {
+  /// Index into the choice's options; -1 shares nothing (only for an
+  /// optional choice).
+  final int option;
+  final List<SlotSelection> slots;
+
+  ChoiceSelection({required this.option, required this.slots});
+
+  /// Nothing shared for an optional choice.
+  ChoiceSelection.none() : option = -1, slots = const [];
+
+  Map<String, dynamic> toJson() => _$ChoiceSelectionToJson(this);
+}
+
+@JsonSerializable(createFactory: false, fieldRename: .snake)
+class SlotSelection {
+  final String slotId;
   final List<SelectedCredential> credentials;
 
-  DisclosureDisconSelection({required this.credentials});
+  SlotSelection({required this.slotId, required this.credentials});
 
-  Map<String, dynamic> toJson() => _$DisclosureDisconSelectionToJson(this);
+  Map<String, dynamic> toJson() => _$SlotSelectionToJson(this);
 }
 
 @JsonSerializable(createFactory: false, fieldRename: .snake)
@@ -56,13 +78,13 @@ class SessionUserInteractionEvent extends SessionEvent implements BridgeEvent {
   factory SessionUserInteractionEvent.permission({
     required int sessionId,
     required bool granted,
-    required List<DisclosureDisconSelection> disclosureChoices,
+    required List<ChoiceSelection> choices,
   }) => SessionUserInteractionEvent._(
     sessionId: sessionId,
     type: .permission,
     payload: {
       "granted": granted,
-      "disclosure_choices": disclosureChoices.map((d) => d.toJson()).toList(),
+      "choices": choices.map((c) => c.toJson()).toList(),
     },
   );
 
@@ -81,6 +103,14 @@ class SessionUserInteractionEvent extends SessionEvent implements BridgeEvent {
         sessionId: sessionId,
         type: UserInteractionType.dismiss,
       );
+
+  /// Starts the follow-up request of a chained session.
+  factory SessionUserInteractionEvent.continueNextSession({
+    required int sessionId,
+  }) => SessionUserInteractionEvent._(
+    sessionId: sessionId,
+    type: UserInteractionType.continueNextSession,
+  );
 
   factory SessionUserInteractionEvent.authCallback({
     required int sessionId,

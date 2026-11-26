@@ -54,6 +54,9 @@ Attribute _string(String path, String value, {String? requested}) => Attribute(
       : AttributeValue(type: AttributeType.string, string: requested),
 );
 
+AttributeValue _value(String v) =>
+    AttributeValue(type: AttributeType.string, string: v);
+
 /// A request of "Webshop" that still needs an iDIN card and an iDEAL card
 /// with BIC RABONL2U.
 SessionState _request() => SessionState(
@@ -63,29 +66,33 @@ SessionState _request() => SessionState(
   status: SessionStatus.requestPermission,
   requestor: _party("Webshop"),
   disclosurePlan: DisclosurePlan(
-    issueDuringDisclosure: IssueDuringDisclosure(
-      steps: [
-        IssuanceStep(
-          options: [
-            IssuanceBundle(credentials: [_descriptor("idin")]),
-          ],
+    choices: [
+      _missing(_descriptor("idin")),
+      _missing(
+        _descriptor(
+          "ideal",
+          attributes: [_string("bic", "", requested: "RABONL2U")],
         ),
-        IssuanceStep(
-          options: [
-            IssuanceBundle(
-              credentials: [
-                _descriptor(
-                  "ideal",
-                  attributes: [_string("bic", "", requested: "RABONL2U")],
-                ),
-              ],
-            ),
-          ],
+      ),
+    ],
+    issuedCredentialIds: const {},
+  ),
+);
+
+/// A required choice whose one slot has no card and offers [d].
+DisclosureChoice _missing(CredentialDescriptor d) => DisclosureChoice(
+  optional: false,
+  options: [
+    DisclosureOption(
+      slots: [
+        DisclosureSlot(
+          id: d.credentialId,
+          candidates: const [],
+          obtainable: [d],
         ),
       ],
-      issuedCredentialIds: const {},
     ),
-  ),
+  ],
 );
 
 final _bad = _offered("ideal", [_string("bic", "INGBNL2A")]);
@@ -232,22 +239,10 @@ void main() {
 
   group("a value the request cannot use", () {
     final steps = [
-      IssuanceStep(
-        options: [
-          IssuanceBundle(credentials: [_descriptor("idin")]),
-        ],
-      ),
-      IssuanceStep(
-        options: [
-          IssuanceBundle(
-            credentials: [
-              _descriptor(
-                "ideal",
-                attributes: [_string("bic", "", requested: "RABONL2U")],
-              ),
-            ],
-          ),
-        ],
+      _descriptor("idin"),
+      _descriptor(
+        "ideal",
+        attributes: [_string("bic", "", requested: "RABONL2U")],
       ),
     ];
 
@@ -268,6 +263,40 @@ void main() {
         ], steps),
         isEmpty,
       );
+    });
+
+    test("any of several allowed values is no mismatch", () {
+      final anyOf = CredentialDescriptor(
+        credentialId: "ideal",
+        name: "iDEAL",
+        issuer: _party("Issuer"),
+        category: null,
+        attributes: [
+          Attribute(
+            claimPath: const ["bic"],
+            displayName: "bic",
+            requestedValue: _value("RABONL2U"),
+            requestedValues: [_value("RABONL2U"), _value("INGBNL2A")],
+          ),
+        ],
+        issueURL: "https://issuer",
+      );
+      expect(
+        issuanceMismatches(
+          [
+            _offered("ideal", [_string("bic", "INGBNL2A")]),
+          ],
+          [anyOf],
+        ),
+        isEmpty,
+      );
+      final mismatches = issuanceMismatches(
+        [
+          _offered("ideal", [_string("bic", "ABNANL2A")]),
+        ],
+        [anyOf],
+      );
+      expect(mismatches.single.required.string, "RABONL2U");
     });
   });
 }

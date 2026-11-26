@@ -46,6 +46,7 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
       : PreAuthorizationCodeTransactionCodeParameters.fromJson(
           json['transaction_code_parameters'] as Map<String, dynamic>,
         ),
+  nextSessionPending: json['next_session_pending'] as bool? ?? false,
   remainingTxCodeAttempts: (json['remaining_tx_code_attempts'] as num?)
       ?.toInt(),
   responseMode: json['response_mode'] as String?,
@@ -70,64 +71,45 @@ const _$SessionStatusEnumMap = {
 
 DisclosurePlan _$DisclosurePlanFromJson(Map<String, dynamic> json) =>
     DisclosurePlan(
-      issueDuringDisclosure: json['issue_during_disclosure'] == null
+      choices:
+          (json['choices'] as List<dynamic>?)
+              ?.map((e) => DisclosureChoice.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      issuedCredentialIds:
+          json['issued_credential_ids'] as Map<String, dynamic>?,
+      wrongCredentialIssued: json['wrong_credential_issued'] == null
           ? null
-          : IssueDuringDisclosure.fromJson(
-              json['issue_during_disclosure'] as Map<String, dynamic>,
+          : Credential.fromJson(
+              json['wrong_credential_issued'] as Map<String, dynamic>,
             ),
-      disclosureChoicesOverview:
-          (json['disclosure_choices_overview'] as List<dynamic>?)
-              ?.map(
-                (e) => DisclosurePickOne.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
     );
 
-IssueDuringDisclosure _$IssueDuringDisclosureFromJson(
-  Map<String, dynamic> json,
-) => IssueDuringDisclosure(
-  steps: (json['steps'] as List<dynamic>)
-      .map((e) => IssuanceStep.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  issuedCredentialIds: json['issued_credential_ids'] as Map<String, dynamic>?,
-  wrongCredentialIssued: json['wrong_credential_issued'] == null
-      ? null
-      : Credential.fromJson(
-          json['wrong_credential_issued'] as Map<String, dynamic>,
-        ),
-);
-
-IssuanceStep _$IssuanceStepFromJson(Map<String, dynamic> json) => IssuanceStep(
-  options: (json['options'] as List<dynamic>)
-      .map((e) => IssuanceBundle.fromJson(e as Map<String, dynamic>))
-      .toList(),
-);
-
-IssuanceBundle _$IssuanceBundleFromJson(Map<String, dynamic> json) =>
-    IssuanceBundle(
-      credentials: (json['credentials'] as List<dynamic>)
-          .map((e) => CredentialDescriptor.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-
-DisclosurePickOne _$DisclosurePickOneFromJson(Map<String, dynamic> json) =>
-    DisclosurePickOne(
+DisclosureChoice _$DisclosureChoiceFromJson(Map<String, dynamic> json) =>
+    DisclosureChoice(
       optional: json['optional'] as bool,
-      ownedOptions: (json['owned_options'] as List<dynamic>?)
-          ?.map((e) => DisclosureBundle.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      obtainableOptions: (json['obtainable_options'] as List<dynamic>?)
-          ?.map((e) => CredentialDescriptor.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      obtainableBundles: (json['obtainable_bundles'] as List<dynamic>?)
-          ?.map((e) => ObtainableBundle.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      options:
+          (json['options'] as List<dynamic>?)
+              ?.map((e) => DisclosureOption.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
 
-ObtainableBundle _$ObtainableBundleFromJson(Map<String, dynamic> json) =>
-    ObtainableBundle(
-      owned:
-          (json['owned'] as List<dynamic>?)
+DisclosureOption _$DisclosureOptionFromJson(Map<String, dynamic> json) =>
+    DisclosureOption(
+      slots:
+          (json['slots'] as List<dynamic>?)
+              ?.map((e) => DisclosureSlot.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+
+DisclosureSlot _$DisclosureSlotFromJson(Map<String, dynamic> json) =>
+    DisclosureSlot(
+      id: json['id'] as String,
+      multiple: json['multiple'] as bool? ?? false,
+      candidates:
+          (json['candidates'] as List<dynamic>?)
               ?.map(
                 (e) => SelectableCredentialInstance.fromJson(
                   e as Map<String, dynamic>,
@@ -135,24 +117,13 @@ ObtainableBundle _$ObtainableBundleFromJson(Map<String, dynamic> json) =>
               )
               .toList() ??
           [],
-      missing:
-          (json['missing'] as List<dynamic>?)
+      obtainable:
+          (json['obtainable'] as List<dynamic>?)
               ?.map(
                 (e) => CredentialDescriptor.fromJson(e as Map<String, dynamic>),
               )
               .toList() ??
           [],
-    );
-
-DisclosureBundle _$DisclosureBundleFromJson(Map<String, dynamic> json) =>
-    DisclosureBundle(
-      credentials: (json['credentials'] as List<dynamic>)
-          .map(
-            (e) => SelectableCredentialInstance.fromJson(
-              e as Map<String, dynamic>,
-            ),
-          )
-          .toList(),
     );
 
 SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
@@ -178,6 +149,12 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
       ?.toInt(),
   issueUrl: json['issue_url'] as String?,
   isSingleton: json['is_singleton'] as bool? ?? false,
+  usable: json['usable'] as bool? ?? false,
+  unusableReason: $enumDecodeNullable(
+    _$UnusableReasonEnumMap,
+    json['unusable_reason'],
+    unknownValue: JsonKey.nullForUndefinedEnumValue,
+  ),
 );
 
 const _$CredentialFormatEnumMap = {
@@ -185,6 +162,13 @@ const _$CredentialFormatEnumMap = {
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
   CredentialFormat.sdjwtVcdm: 'vc+sd-jwt',
   CredentialFormat.msoMdoc: 'mso_mdoc',
+};
+
+const _$UnusableReasonEnumMap = {
+  UnusableReason.revoked: 'revoked',
+  UnusableReason.expired: 'expired',
+  UnusableReason.usedUp: 'used_up',
+  UnusableReason.notRevocable: 'not_revocable',
 };
 
 PreAuthorizationCodeTransactionCodeParameters

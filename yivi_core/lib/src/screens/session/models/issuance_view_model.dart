@@ -9,7 +9,8 @@ import "../../../models/requestor_trust.dart";
 import "../../../models/session_state.dart";
 import "../../../widgets/credential_card/attribute_groups/attribute_group.dart"
     show claimPathKey;
-import "disclosure_view_model.dart" show sameValue;
+import "disclosure_plan_view.dart"
+    show allowedValues, missingDescriptors, sameValue;
 
 // What the screens that ask whether to add a card show, worked out from the
 // offer and the request waiting underneath only. Pure, so the rules can be
@@ -106,11 +107,10 @@ IssuanceOfferState issuanceOfferOf(
   SessionState? forRequest,
   required bool retryOnMismatch,
 }) {
-  final steps = forRequest == null
-      ? const <IssuanceStep>[]
-      : forRequest.disclosurePlan?.issueDuringDisclosure?.steps ??
-            const <IssuanceStep>[];
-  final mismatches = issuanceMismatches(cards, steps);
+  final missing = forRequest == null
+      ? const <CredentialDescriptor>[]
+      : missingDescriptors(forRequest.disclosurePlan);
+  final mismatches = issuanceMismatches(cards, missing);
   final mismatched = mismatches.isNotEmpty;
   final issuer = cards.firstOrNull?.issuer;
   final risky =
@@ -119,14 +119,10 @@ IssuanceOfferState issuanceOfferOf(
       requestorTrustOf(issuer) == RequestorTrust.unknown;
   final singleton = cards.any((c) => c.isSingleton);
   final retry = mismatched && retryOnMismatch;
-  final used = {
-    for (final step in steps)
-      for (final b in step.options)
-        for (final d in b.credentials) d.credentialId,
-  };
+  final used = {for (final d in missing) d.credentialId};
   OfferTag? tagOf(Credential card) {
     if (forRequest == null) return null;
-    if (issuanceMismatches([card], steps).isNotEmpty) {
+    if (issuanceMismatches([card], missing).isNotEmpty) {
       return OfferTag.notCounted;
     }
     if (cards.length == 1) return null;
@@ -183,38 +179,36 @@ class IssuanceMismatch {
   });
 }
 
-/// The values of [offered] that differ from a `requested_value` in the
-/// missing-data [steps] of the request waiting underneath.
+/// The values of [offered] that are none of the values the request waiting
+/// underneath allows, per [missing] descriptor of the card's type.
 List<IssuanceMismatch> issuanceMismatches(
   List<Credential> offered,
-  List<IssuanceStep> steps,
+  List<CredentialDescriptor> missing,
 ) {
   final out = <IssuanceMismatch>[];
   for (final card in offered) {
     final templates = [
-      for (final step in steps)
-        for (final bundle in step.options)
-          for (final d in bundle.credentials)
-            if (d.credentialId == card.credentialId) d,
+      for (final d in missing)
+        if (d.credentialId == card.credentialId) d,
     ];
     for (final template in templates) {
       for (final wanted in template.attributes) {
-        final requiredValue = wanted.requestedValue;
-        if (requiredValue == null || !requiredValue.hasConcreteValue) continue;
+        final allowed = allowedValues(wanted);
+        if (allowed.isEmpty) continue;
         final got = card.attributes.firstWhereOrNull(
           (a) => const ListEquality<dynamic>().equals(
             a.claimPath,
             wanted.claimPath,
           ),
         );
-        if (sameValue(got?.value, requiredValue)) continue;
+        if (allowed.any((v) => sameValue(got?.value, v))) continue;
         out.add(
           IssuanceMismatch(
             credentialId: card.credentialId,
             claimPath: wanted.claimPath,
             attributeName: wanted.effectiveDisplayName,
             offered: got?.value,
-            required: requiredValue,
+            required: allowed.first,
           ),
         );
       }

@@ -125,9 +125,13 @@ class SessionFlow extends Notifier<SessionView> {
 
   void enterPin(String pin) => _sessions.enterSessionPin(sessionId, pin);
 
-  /// Says yes, sharing [choices].
-  void grant([List<DisclosureDisconSelection> choices = const []]) =>
+  /// Says yes, sharing [choices] (one per choice of the disclosure plan).
+  void grant([List<ChoiceSelection> choices = const []]) =>
       _sessions.grantSession(sessionId, choices);
+
+  /// Starts the follow-up request after this session succeeded with
+  /// [SessionState.nextSessionPending].
+  void continueNext() => _sessions.continueNextSession(sessionId);
 
   void dismiss() => _sessions.dismissSession(sessionId);
 

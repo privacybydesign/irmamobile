@@ -47,8 +47,8 @@ final _txCode = PreAuthorizationCodeTransactionCodeParameters(
 );
 
 DisclosurePlan _choices() => testSession(
-  steps: [
-    testStep([
+  missing: [
+    testMissing([
       [testDescriptor("email")],
     ]),
   ],
@@ -102,7 +102,7 @@ void main() {
             SessionStatus.requestPermission,
             type: SessionType.issuance,
             offered: [testCredential("email")],
-            plan: DisclosurePlan(disclosureChoicesOverview: const []),
+            plan: DisclosurePlan(choices: const []),
           ),
         ),
         isA<SessionOffer>(),

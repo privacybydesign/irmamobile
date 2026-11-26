@@ -86,16 +86,23 @@ class SessionRepository {
     ),
   );
 
-  /// Says yes to session [sessionId], sharing [choices].
+  /// Says yes to session [sessionId], sharing [choices]: one per choice of
+  /// its disclosure plan (none when it has no plan or no choices).
   void grantSession(
     int sessionId, [
-    List<DisclosureDisconSelection> choices = const [],
+    List<ChoiceSelection> choices = const [],
   ]) => _dispatch(
     SessionUserInteractionEvent.permission(
       sessionId: sessionId,
       granted: true,
-      disclosureChoices: choices,
+      choices: choices,
     ),
+  );
+
+  /// Starts the follow-up request of session [sessionId], which succeeded
+  /// with [SessionState.nextSessionPending].
+  void continueNextSession(int sessionId) => _dispatch(
+    SessionUserInteractionEvent.continueNextSession(sessionId: sessionId),
   );
 
   /// Says yes to the offer of session [sessionId], with the

@@ -83,19 +83,18 @@ void main() {
   test("a co-requested SD-JWT candidate survives an mso_mdoc one", () {
     // The failure is the whole document, not one field: a session requesting an
     // mdoc credential alongside an SD-JWT one used to lose both, so assert the
-    // bundle decodes as a unit.
-    final bundle = DisclosureBundle.fromJson({
-      "credentials": [
+    // slot decodes as a unit.
+    final slot = DisclosureSlot.fromJson({
+      "id": "q1",
+      "candidates": [
         _selectableInstance(format: "mso_mdoc", hash: "mdoc-hash"),
         _selectableInstance(format: "dc+sd-jwt", hash: "sdjwt-hash"),
       ],
     });
 
-    expect(bundle.credentials.map((c) => c.format.name), [
-      "msoMdoc",
-      "sdjwtvc",
-    ]);
-    expect(bundle.credentialHashes, {"mdoc-hash", "sdjwt-hash"});
+    expect(slot.candidates.map((c) => c.format.name), ["msoMdoc", "sdjwtvc"]);
+    expect(slot.candidates.map((c) => c.hash), ["mdoc-hash", "sdjwt-hash"]);
+    expect(slot.obtainable, isEmpty, reason: "an absent list is empty");
   });
 
   test("SelectableCredentialInstance decodes a vc+sd-jwt candidate", () {
