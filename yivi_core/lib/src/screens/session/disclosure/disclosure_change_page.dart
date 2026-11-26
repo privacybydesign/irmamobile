@@ -19,9 +19,11 @@ import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/flight/flight.dart";
 import "../../../widgets/layout/fill_scroll_view.dart";
 import "../../../widgets/text/caps_label.dart";
+import "../layout/session_layout.dart";
 import "../layout/session_scaffold.dart";
 import "../models/disclosure_plan_view.dart";
 import "card_spots.dart";
+import "disclosure_keys.dart";
 import "disclosure_value_list.dart";
 import "disclosure_words.dart";
 
@@ -193,79 +195,96 @@ class _DisclosureChangePageState extends ConsumerState<DisclosureChangePage> {
       }
     }
 
-    final bar = ActionBar(
-      actions: [
-        KeyedSubtree(
-          key: const Key("change_done"),
-          child: PrimaryPillButton(
-            label: t("share.change.done"),
-            onPressed: widget.onDone,
-          ),
-        ),
-      ],
+    final done = KeyedSubtree(
+      key: const Key("change_done"),
+      child: PrimaryPillButton(
+        label: t("share.change.done"),
+        onPressed: widget.onDone,
+      ),
     );
+    final titleBlock = <Widget>[
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(
+          title,
+          key: _titleKey,
+          style: palette
+              .display(24, weight: FontWeight.w700)
+              .copyWith(height: 30 / 24, color: palette.heading),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+        child: Text(
+          t(signing ? "share.change.lead_sign" : "share.change.lead"),
+          style: palette
+              .body(15)
+              .copyWith(height: 21 / 15, color: palette.text),
+        ),
+      ),
+    ];
+    final split = SessionLayout.of(context).split;
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) widget.onDone();
       },
-      child: SessionScaffold(
-        appBarTitle: signing ? "share.change.title_sign" : "share.change.title",
-        barTitleVisibility: _titleUnder,
-        scrollsUnderBars: true,
-        bottomNavigationBar: bar,
-        body: Builder(
-          builder: (context) {
-            final insets = BarInsets.of(context);
-            return NotificationListener<ScrollNotification>(
-              onNotification: (_) {
-                _checkTitle();
-                return false;
-              },
-              child: FillScrollView(
-                key: const Key("change_page"),
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  16 + insets.left,
-                  16 + insets.top,
-                  16 + insets.right,
-                  16 + insets.bottom,
+      // Held sideways, and on a tablet: the title and "Klaar" in the panel
+      // at the left; the cards at the right (5.6).
+      child: split
+          ? SessionScaffold(
+              wide: true,
+              scrollsUnderBars: true,
+              cornerClose: true,
+              body: SidewaysLayout(
+                panel: SessionPanel(
+                  key: DisclosureKeys.panel,
+                  top: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: titleBlock,
+                  ),
+                  action: done,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        title,
-                        key: _titleKey,
-                        style: palette
-                            .display(24, weight: FontWeight.w700)
-                            .copyWith(height: 30 / 24, color: palette.heading),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-                      child: Text(
-                        t(
-                          signing
-                              ? "share.change.lead_sign"
-                              : "share.change.lead",
-                        ),
-                        style: palette
-                            .body(15)
-                            .copyWith(height: 21 / 15, color: palette.text),
-                      ),
-                    ),
-                    ...items,
-                  ],
+                content: SessionPanelContent(
+                  key: const Key("change_page"),
+                  children: items.skipWhile((w) => w is SizedBox).toList(),
                 ),
               ),
-            );
-          },
-        ),
-      ),
+            )
+          : SessionScaffold(
+              appBarTitle: signing
+                  ? "share.change.title_sign"
+                  : "share.change.title",
+              barTitleVisibility: _titleUnder,
+              scrollsUnderBars: true,
+              bottomNavigationBar: ActionBar(actions: [done]),
+              body: Builder(
+                builder: (context) {
+                  final insets = BarInsets.of(context);
+                  return NotificationListener<ScrollNotification>(
+                    onNotification: (_) {
+                      _checkTitle();
+                      return false;
+                    },
+                    child: FillScrollView(
+                      key: const Key("change_page"),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.fromLTRB(
+                        16 + insets.left,
+                        16 + insets.top,
+                        16 + insets.right,
+                        16 + insets.bottom,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [...titleBlock, ...items],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

@@ -52,6 +52,7 @@ Future<_Run> _pump(
   WidgetTester tester,
   SessionState first, {
   List<Credential> wallet = const [],
+  Size size = const Size(390, 844),
 }) async {
   final states = StreamController<SessionState>.broadcast();
   addTearDown(states.close);
@@ -69,7 +70,7 @@ Future<_Run> _pump(
         onShare: (_, _) {},
       ),
     ),
-    size: const Size(390, 844),
+    size: size,
     locale: const Locale("nl", "NL"),
     overrides: [
       sessionStateProvider(_id).overrideWith((ref) async* {
@@ -344,4 +345,32 @@ void main() {
       expect(find.byType(AddSheet), findsOneWidget);
     });
   });
+
+  for (final (name, size) in [
+    ("held sideways", const Size(874, 402)),
+    ("on a tablet", const Size(1024, 1366)),
+  ]) {
+    testWidgets("$name: title and button in the panel, the rows beside", (
+      tester,
+    ) async {
+      await _pump(tester, _session(gemeente()), size: size);
+      final panel = find.byKey(DisclosureKeys.panel);
+      expect(panel, findsOneWidget);
+      expect(
+        find.descendant(of: panel, matching: find.byKey(DisclosureKeys.next)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: panel,
+          matching: find.text("Voeg eerst twee kaartjes toe"),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        tester.getTopLeft(_row(0)).dx,
+        greaterThan(tester.getTopRight(panel).dx),
+      );
+    });
+  }
 }

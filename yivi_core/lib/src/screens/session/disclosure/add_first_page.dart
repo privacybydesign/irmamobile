@@ -6,6 +6,7 @@ import "../../../models/credential_store.dart";
 import "../../../models/session_state.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_palette.dart";
+import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/app_bar.dart";
@@ -16,6 +17,7 @@ import "../../../widgets/credential_card/credential_type_thumbnail.dart";
 import "../../../widgets/feedback/progress_part.dart";
 import "../../../widgets/flight/flight.dart";
 import "../../../widgets/layout/fill_scroll_view.dart";
+import "../layout/session_layout.dart";
 import "../layout/session_scaffold.dart";
 import "../models/disclosure_plan_view.dart";
 import "../models/technical_details.dart";
@@ -140,42 +142,138 @@ class AddFirstPage extends ConsumerWidget {
       technicalDetails: technicalDetailsOf(session, const [], t),
     );
 
-    final bar = ActionBar(
-      actions: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 10,
-          children: [
-            _Progress(
-              parts: header.line == AddStepLine.nothing ? 0 : rows.length,
-              filled: rows.where((r) => r.state == AddRowState.done).length,
-              line: line,
-            ),
-            KeyedSubtree(
-              key: next.kind == NextKind.review
-                  ? DisclosureKeys.button
-                  : DisclosureKeys.next,
-              child: PrimaryPillButton(label: label, onPressed: go),
-            ),
-          ],
+    final barContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 10,
+      children: [
+        _Progress(
+          parts: header.line == AddStepLine.nothing ? 0 : rows.length,
+          filled: rows.where((r) => r.state == AddRowState.done).length,
+          line: line,
+        ),
+        KeyedSubtree(
+          key: next.kind == NextKind.review
+              ? DisclosureKeys.button
+              : DisclosureKeys.next,
+          child: PrimaryPillButton(label: label, onPressed: go),
         ),
       ],
     );
+    final requestorBar = RequestorCompactBar(
+      requestor: session.requestor,
+      subtitle: [
+        t("share.ask.$kind"),
+        if (trust.label case final l?) inSentenceOf(context, l),
+      ].join(" · "),
+      onInfo: openTrust,
+    );
+    final heading = <Widget>[
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(
+          title,
+          key: DisclosureKeys.title,
+          style: palette
+              .display(24, weight: FontWeight.w700)
+              .copyWith(height: 30 / 24, color: palette.heading),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+        child: Text(
+          lead,
+          style: palette
+              .body(15)
+              .copyWith(height: 21 / 15, color: palette.text),
+        ),
+      ),
+    ];
+    final list = <Widget>[
+      DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.surface,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (n, row) in rows.indexed)
+              _AddRow(
+                key: Key(
+                  row.state == AddRowState.done
+                      ? "add_step_done_${row.choice}"
+                      : "add_step_row_${row.choice}",
+                ),
+                plan: plan,
+                row: row,
+                line: n > 0,
+                requestor: requestor,
+                landingKey: landingKey(row.choice),
+                spots: spots,
+                drawn: drawn,
+                onTap: !row.todo
+                    ? null
+                    : () => onAdd(
+                        row.choice,
+                        row.ways.length == 1 ? row.ways.single : null,
+                      ),
+              ),
+          ],
+        ),
+      ),
+      if (header.otherValueHelp)
+        _Help(
+          key: DisclosureKeys.addStepHelp,
+          text: t("share.addstep.other_help$sign"),
+        ),
+      if (wrong != null)
+        _Help(
+          key: DisclosureKeys.addStepWrongKind,
+          text: t("share.offer.wrong_kind", {
+            "name": wrong.name,
+            "requestor": requestor,
+          }),
+        ),
+    ];
+
+    // Held sideways, and on a tablet: who asks, the title, the lead and the
+    // button in the panel at the left; the rows at the right (5.6).
+    if (SessionLayout.of(context).split) {
+      return SessionScaffold(
+        appBarTitle: "share.bar.$kind",
+        onDismiss: onDismiss,
+        wide: true,
+        scrollsUnderBars: true,
+        cornerClose: true,
+        body: SidewaysLayout(
+          panel: SessionPanel(
+            key: DisclosureKeys.panel,
+            top: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                requestorBar,
+                const SizedBox(height: YiviSpace.x16),
+                ...heading,
+              ],
+            ),
+            action: barContent,
+          ),
+          content: SessionPanelContent(
+            key: DisclosureKeys.addStep,
+            scrollKey: DisclosureKeys.scrollView,
+            children: list,
+          ),
+        ),
+      );
+    }
 
     return SessionScaffold(
       appBarTitle: "share.bar.$kind",
       onDismiss: onDismiss,
       scrollsUnderBars: true,
-      bottomNavigationBar: bar,
-      startBar: RequestorCompactBar(
-        requestor: session.requestor,
-        subtitle: [
-          t("share.ask.$kind"),
-          if (trust.label case final l?) inSentenceOf(context, l),
-        ].join(" · "),
-        onInfo: openTrust,
-      ),
+      bottomNavigationBar: ActionBar(actions: [barContent]),
+      startBar: requestorBar,
       body: Builder(
         builder: (context) {
           final insets = BarInsets.of(context);
@@ -191,73 +289,7 @@ class AddFirstPage extends ConsumerWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    title,
-                    key: DisclosureKeys.title,
-                    style: palette
-                        .display(24, weight: FontWeight.w700)
-                        .copyWith(height: 30 / 24, color: palette.heading),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-                  child: Text(
-                    lead,
-                    style: palette
-                        .body(15)
-                        .copyWith(height: 21 / 15, color: palette.text),
-                  ),
-                ),
-                const SizedBox(height: 22),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: palette.surface,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final (n, row) in rows.indexed)
-                        _AddRow(
-                          key: Key(
-                            row.state == AddRowState.done
-                                ? "add_step_done_${row.choice}"
-                                : "add_step_row_${row.choice}",
-                          ),
-                          plan: plan,
-                          row: row,
-                          line: n > 0,
-                          requestor: requestor,
-                          landingKey: landingKey(row.choice),
-                          spots: spots,
-                          drawn: drawn,
-                          onTap: !row.todo
-                              ? null
-                              : () => onAdd(
-                                  row.choice,
-                                  row.ways.length == 1 ? row.ways.single : null,
-                                ),
-                        ),
-                    ],
-                  ),
-                ),
-                if (header.otherValueHelp)
-                  _Help(
-                    key: DisclosureKeys.addStepHelp,
-                    text: t("share.addstep.other_help$sign"),
-                  ),
-                if (wrong != null)
-                  _Help(
-                    key: DisclosureKeys.addStepWrongKind,
-                    text: t("share.offer.wrong_kind", {
-                      "name": wrong.name,
-                      "requestor": requestor,
-                    }),
-                  ),
-              ],
+              children: [...heading, const SizedBox(height: 22), ...list],
             ),
           );
         },

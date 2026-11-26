@@ -38,6 +38,7 @@ Future<void> _pump(
   WidgetTester tester,
   SessionState state, {
   Key via = DisclosureKeys.pile,
+  Size size = const Size(390, 844),
 }) async {
   await pumpTestApp(
     tester,
@@ -47,7 +48,7 @@ Future<void> _pump(
       onClose: () {},
       onShare: (_, _) {},
     ),
-    size: const Size(390, 844),
+    size: size,
     locale: const Locale("nl", "NL"),
     overrides: [
       sessionStateProvider(_id).overrideWith((ref) => Stream.value(state)),
@@ -58,6 +59,8 @@ Future<void> _pump(
       ),
     ],
   );
+  await tester.pumpAndSettle();
+  await tester.ensureVisible(find.byKey(via));
   await tester.pumpAndSettle();
   await tester.tap(find.byKey(via));
   await tester.pumpAndSettle();
@@ -187,7 +190,10 @@ void main() {
       overrides: [
         sessionStateProvider(_id).overrideWith((ref) => Stream.value(state)),
         walletCardsProvider.overrideWithValue(const []),
-        sharesOfProvider(_id).overrideWith((ref) => (_) => LastShared.never),
+        sharesOfProvider(_id).overrideWith(
+          (ref) =>
+              (_) => LastShared.never,
+        ),
       ],
     );
     await tester.pumpAndSettle();
@@ -221,4 +227,28 @@ void main() {
       findsOneWidget,
     );
   });
+
+  for (final (name, size) in [
+    ("held sideways", const Size(874, 402)),
+    ("on a tablet", const Size(1024, 1366)),
+  ]) {
+    testWidgets("$name: the title and Klaar in the panel, the cards beside", (
+      tester,
+    ) async {
+      await _pump(tester, _session(drie()), size: size);
+      final panel = find.byKey(DisclosureKeys.panel);
+      expect(panel, findsOneWidget);
+      expect(
+        find.descendant(
+          of: panel,
+          matching: find.byKey(const Key("change_done")),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        tester.getTopLeft(find.byKey(const Key("change_card_0"))).dx,
+        greaterThan(tester.getTopRight(panel).dx),
+      );
+    });
+  }
 }
