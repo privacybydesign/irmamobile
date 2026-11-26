@@ -1576,7 +1576,15 @@
       "hint_one": "Vous pouvez encore partager une chose si vous voulez",
       "hint_many": "Vous pouvez encore partager {count} choses si vous voulez",
       "hint_one_sign": "Vous pouvez encore ajouter une chose si vous voulez",
-      "hint_many_sign": "Vous pouvez encore ajouter {count} choses si vous voulez"
+      "hint_many_sign": "Vous pouvez encore ajouter {count} choses si vous voulez",
+      "heading": "Facultatif",
+      "ways": "{count} possibilités",
+      "choose_combination": "Choisir une combinaison",
+      "choose_card": "Choisir une carte",
+      "also_share": "Partager aussi",
+      "add": "Ajouter {name}",
+      "add_card": "Ajouter une carte",
+      "stop": "Ne pas partager"
     },
     "title": {
       "share": "Vous partagez des données avec",
@@ -1627,7 +1635,8 @@
       "from_one": "Depuis 1 carte dans votre appli",
       "from_many": "Depuis {count} cartes dans votre appli",
       "change": "Modifier",
-      "view": "Voir"
+      "view": "Voir",
+      "not_in_app": "Pas encore dans votre appli"
     },
     "values": {
       "bare": "Seulement que vous avez cette carte"
@@ -1700,6 +1709,18 @@
       "title": "Choisir quoi ajouter",
       "cards": "{count} cartes · {issuers}",
       "with_owned": "Avec {names} de votre appli"
+    },
+    "change": {
+      "title": "Choisissez ce que vous partagez",
+      "title_sign": "Choisissez avec quoi vous signez",
+      "lead": "Vos données viennent de ces cartes.",
+      "lead_sign": "Vous signez le message avec ces cartes.",
+      "done": "Terminé",
+      "pick_card": "Choisir une autre carte",
+      "pick_kind": "Choisir {another}",
+      "pick_several": "Choisir ce que vous partagez",
+      "pick_combination": "Choisir une autre combinaison",
+      "not_sharing": "Ne pas partager"
     }
   },
   "contact_sheet": {

@@ -1576,7 +1576,15 @@
       "hint_one": "Je kunt nog één ding delen als je wil",
       "hint_many": "Je kunt nog {count} dingen delen als je wil",
       "hint_one_sign": "Je kunt nog één ding toevoegen als je wil",
-      "hint_many_sign": "Je kunt nog {count} dingen toevoegen als je wil"
+      "hint_many_sign": "Je kunt nog {count} dingen toevoegen als je wil",
+      "heading": "Optioneel",
+      "ways": "{count} mogelijkheden",
+      "choose_combination": "Combinatie kiezen",
+      "choose_card": "Kaartje kiezen",
+      "also_share": "Ook delen",
+      "add": "{name} toevoegen",
+      "add_card": "Kaartje toevoegen",
+      "stop": "Niet delen"
     },
     "title": {
       "share": "Je deelt gegevens met",
@@ -1627,7 +1635,8 @@
       "from_one": "Uit 1 kaartje in je app",
       "from_many": "Uit {count} kaartjes in je app",
       "change": "Wijzig",
-      "view": "Bekijk"
+      "view": "Bekijk",
+      "not_in_app": "Nog niet in je app"
     },
     "values": {
       "bare": "Alleen dat je dit kaartje hebt"
@@ -1700,6 +1709,18 @@
       "title": "Kies wat je toevoegt",
       "cards": "{count} kaartjes · {issuers}",
       "with_owned": "Samen met {names} uit je app"
+    },
+    "change": {
+      "title": "Kies wat je deelt",
+      "title_sign": "Kies waarmee je ondertekent",
+      "lead": "Uit deze kaartjes komen je gegevens.",
+      "lead_sign": "Met deze kaartjes onderteken je het bericht.",
+      "done": "Klaar",
+      "pick_card": "Ander kaartje kiezen",
+      "pick_kind": "{another} kiezen",
+      "pick_several": "Kies welke je deelt",
+      "pick_combination": "Andere combinatie kiezen",
+      "not_sharing": "Niet delen"
     }
   },
   "contact_sheet": {

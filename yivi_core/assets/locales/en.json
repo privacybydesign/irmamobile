@@ -1576,7 +1576,15 @@
       "hint_one": "You can share one more thing if you like",
       "hint_many": "You can share {count} more things if you like",
       "hint_one_sign": "You can add one more thing if you like",
-      "hint_many_sign": "You can add {count} more things if you like"
+      "hint_many_sign": "You can add {count} more things if you like",
+      "heading": "Optional",
+      "ways": "{count} options",
+      "choose_combination": "Choose a combination",
+      "choose_card": "Choose a card",
+      "also_share": "Share this too",
+      "add": "Add {name}",
+      "add_card": "Add a card",
+      "stop": "Don't share"
     },
     "title": {
       "share": "You share data with",
@@ -1627,7 +1635,8 @@
       "from_one": "From 1 card in your app",
       "from_many": "From {count} cards in your app",
       "change": "Change",
-      "view": "View"
+      "view": "View",
+      "not_in_app": "Not in your app yet"
     },
     "values": {
       "bare": "Only that you have this card"
@@ -1700,6 +1709,18 @@
       "title": "Choose what to add",
       "cards": "{count} cards · {issuers}",
       "with_owned": "Together with {names} from your app"
+    },
+    "change": {
+      "title": "Choose what you share",
+      "title_sign": "Choose what you sign with",
+      "lead": "Your data comes from these cards.",
+      "lead_sign": "You sign the message with these cards.",
+      "done": "Done",
+      "pick_card": "Choose another card",
+      "pick_kind": "Choose {another}",
+      "pick_several": "Choose which you share",
+      "pick_combination": "Choose another combination",
+      "not_sharing": "Don't share"
     }
   },
   "contact_sheet": {

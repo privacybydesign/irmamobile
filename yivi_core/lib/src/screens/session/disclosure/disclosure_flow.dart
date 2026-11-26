@@ -8,6 +8,7 @@ import "../../../theme/yivi_motion.dart";
 import "../models/disclosure_plan_view.dart";
 import "add_first_page.dart";
 import "add_picker_page.dart";
+import "disclosure_change_page.dart";
 import "disclosure_overview_page.dart";
 
 /// The disclosure (and signature) request of [session], in phases on one
@@ -40,11 +41,36 @@ class DisclosureFlow extends ConsumerStatefulWidget {
   ConsumerState<DisclosureFlow> createState() => _DisclosureFlowState();
 }
 
-enum _Phase { add, overview }
+enum _Phase { add, overview, change }
 
 class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
   /// "Bekijk wat je deelt" was tapped: the add step is done with.
   bool _reviewed = false;
+
+  /// "Kies wat je deelt" is open, brought to [_changeTo] when set.
+  bool _changing = false;
+  int? _changeTo;
+
+  void _openChange(int? choice) => setState(() {
+    _changing = true;
+    _changeTo = choice;
+  });
+
+  /// The sheets of the change page (2.5); set by [_sheets].
+  late final _actions = ChangeActions(
+    pickCard: (i) => _sheets?.pickCard(i),
+    pickSlot: (i, slot) => _sheets?.pickSlot(i, slot),
+    pickCombination: (i) => _sheets?.pickCombination(i),
+    add: _add,
+  );
+
+  /// The phase shown, and whether the last change went deeper (add step →
+  /// overview → change page) or back.
+  _Phase? _phase;
+  bool _forward = true;
+
+  /// The choice sheets, once they exist.
+  ChangeActions? get _sheets => null;
 
   final _landing = <int, GlobalKey>{};
 
@@ -74,7 +100,13 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
     final blocked = blockedChoices(plan).isNotEmpty;
     final phase = !_reviewed && (fixed.isNotEmpty || blocked)
         ? _Phase.add
+        : _changing
+        ? _Phase.change
         : _Phase.overview;
+    if (phase != _phase) {
+      _forward = phase.index > (_phase?.index ?? -1);
+      _phase = phase;
+    }
     final page = switch (phase) {
       _Phase.add => AddFirstPage(
         key: const ValueKey(_Phase.add),
@@ -92,15 +124,20 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         onDismiss: widget.onDismiss,
         onClose: widget.onClose,
         onShare: widget.onShare,
+        onChange: _openChange,
+      ),
+      _Phase.change => DisclosureChangePage(
+        key: const ValueKey(_Phase.change),
+        session: widget.session,
+        actions: _actions,
+        scrollTo: _changeTo,
+        onDone: () => setState(() => _changing = false),
       ),
     };
     return AnimatedSwitcher(
       duration: YiviMotion.duration(context, const Duration(milliseconds: 380)),
-      transitionBuilder: (child, animation) => _SharedAxis(
-        animation: animation,
-        forward: child.key == const ValueKey(_Phase.overview),
-        child: child,
-      ),
+      transitionBuilder: (child, animation) =>
+          _SharedAxis(animation: animation, forward: _forward, child: child),
       layoutBuilder: (current, previous) =>
           Stack(children: [...previous, ?current]),
       child: page,

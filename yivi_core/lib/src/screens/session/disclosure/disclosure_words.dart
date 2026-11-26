@@ -66,3 +66,66 @@ String problemWord(BuildContext context, CardProblem problem) =>
       CardProblem.usedUp => "share.problem.used_up",
       CardProblem.notRevocable => "share.problem.not_revocable",
     });
+
+/// "Ander e-mailadres" / "Andere identiteitskaart": another card of the type
+/// [name], at the start of a link. Dutch guesses de/het from the last word
+/// and falls back to "Ander(e)"; the other languages say "another …" in
+/// their own way.
+String anotherOf(BuildContext context, String name) {
+  final lang = context.lang;
+  final lower = inSentence(name, language: lang);
+  switch (lang) {
+    case "nl":
+      final last = name.toLowerCase().split(RegExp(r"[\s-]+")).last;
+      final prefix = _hetEndings.any(last.endsWith)
+          ? "Ander"
+          : _deEndings.any(last.endsWith)
+          ? "Andere"
+          : "Ander(e)";
+      return "$prefix $lower";
+    case "de":
+      return "Andere Karte „$name“";
+    case "fr":
+      return "une autre carte « $name »";
+    default:
+      return "another $lower";
+  }
+}
+
+const _hetEndings = [
+  "adres",
+  "nummer",
+  "bewijs",
+  "paspoort",
+  "diploma",
+  "certificaat",
+  "document",
+  "kaartje",
+  "abonnement",
+  "lidmaatschap",
+  "getuigschrift",
+  "ticket",
+  "account",
+  "profiel",
+  "uittreksel",
+];
+
+const _deEndings = [
+  "gegevens",
+  "kaart",
+  "rekening",
+  "ing",
+  "heid",
+  "pas",
+  "verklaring",
+  "polis",
+  "sleutel",
+  "naam",
+  "datum",
+  "licentie",
+  "identiteit",
+];
+
+/// [text] with its first letter as a capital ("Twee mogelijkheden").
+String capitalised(String text) =>
+    text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
