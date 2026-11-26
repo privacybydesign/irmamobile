@@ -3,6 +3,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/session_state.dart";
 import "../../../models/session_user_interaction.dart";
+import "../../../providers/last_shared_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/yivi_palette.dart";
 import "../../../util/i18n.dart";
@@ -38,8 +39,9 @@ class DisclosureFlow extends ConsumerWidget {
     final palette = YiviPalette.of(context);
     final plan = session.disclosurePlan ?? DisclosurePlan(choices: const []);
     final selection = ref.watch(disclosureSelectionProvider(session.id));
+    final sharesOf = ref.watch(sharesOfProvider(session.id));
     final signing = session.type == SessionType.signature;
-    final cards = sharedCards(plan, selection);
+    final cards = usedCards(plan, selection, sharesOf: sharesOf);
     final missing = missingDescriptors(plan);
     final ready = canShare(plan);
 
@@ -55,7 +57,10 @@ class DisclosureFlow extends ConsumerWidget {
               signing ? "share.button.sign_and_share" : "share.button.share",
             ),
             onPressed: ready
-                ? () => onShare(answerFor(plan, selection), cards)
+                ? () => onShare(
+                    answerFor(plan, selection, sharesOf: sharesOf),
+                    cards,
+                  )
                 : null,
           ),
         ),

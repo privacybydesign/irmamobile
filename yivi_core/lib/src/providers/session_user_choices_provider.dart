@@ -2,6 +2,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/session_state.dart";
 import "../screens/session/models/disclosure_plan_view.dart";
+import "last_shared_provider.dart";
 import "session_state_provider.dart";
 
 /// What the user picked in the request of session [sessionId]. A card issued
@@ -86,3 +87,52 @@ final disclosureSelectionProvider =
       DisclosureSelection,
       int
     >((sessionId) => DisclosureSelectionNotifier(sessionId));
+
+/// The choices of the request of [sessionId] that needed work when it opened:
+/// the add step's rows, kept (with a check) after they are done. Set once,
+/// from the first plan.
+class FixedChoicesNotifier extends Notifier<List<int>?> {
+  final int sessionId;
+
+  FixedChoicesNotifier(this.sessionId);
+
+  @override
+  List<int>? build() {
+    final first = _of(ref.read(sessionStateProvider(sessionId)).value);
+    if (first == null) {
+      ref.listen(sessionStateProvider(sessionId), (_, next) {
+        if (state == null) state = _of(next.value);
+      });
+    }
+    return first;
+  }
+
+  static List<int>? _of(SessionState? session) {
+    final plan = session?.disclosurePlan;
+    if (plan == null) return null;
+    return [
+      for (final (i, choice) in plan.choices.indexed)
+        if (needsWork(choice)) i,
+    ];
+  }
+}
+
+final fixedChoicesProvider =
+    NotifierProvider.family<FixedChoicesNotifier, List<int>?, int>(
+      (sessionId) => FixedChoicesNotifier(sessionId),
+    );
+
+/// The request of [sessionId] with the user's selection and what was shared
+/// before worked out ([resolve]); null while there is no plan.
+final chosenProvider = Provider.autoDispose.family<Chosen?, int>((
+  ref,
+  sessionId,
+) {
+  final plan = ref.watch(sessionStateProvider(sessionId)).value?.disclosurePlan;
+  if (plan == null) return null;
+  return resolve(
+    plan,
+    ref.watch(disclosureSelectionProvider(sessionId)),
+    sharesOf: ref.watch(sharesOfProvider(sessionId)),
+  );
+});

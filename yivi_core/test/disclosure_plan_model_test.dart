@@ -88,7 +88,7 @@ void main() {
         {"option": -1, "slots": []},
       ]),
     );
-    expect(sharedCards(plan, const DisclosureSelection()).map((c) => c.hash), [
+    expect(usedCards(plan, const DisclosureSelection()).map((c) => c.hash), [
       "e-1",
     ]);
   });
