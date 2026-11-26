@@ -16,10 +16,12 @@ import "../../../widgets/bars/compact_bar.dart";
 import "../../../widgets/buttons/pill_buttons.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/layout/fill_scroll_view.dart";
 import "../../../widgets/text/caps_label.dart";
 import "../layout/session_scaffold.dart";
 import "../models/disclosure_plan_view.dart";
+import "card_spots.dart";
 import "disclosure_value_list.dart";
 import "disclosure_words.dart";
 
@@ -57,11 +59,15 @@ class DisclosureChangePage extends ConsumerStatefulWidget {
   /// on the overview).
   final int? scrollTo;
 
+  /// Where each card is drawn: the heads' pictures are these places.
+  final CardSpots spots;
+
   const DisclosureChangePage({
     super.key,
     required this.session,
     required this.actions,
     required this.onDone,
+    required this.spots,
     this.scrollTo,
   });
 
@@ -125,6 +131,7 @@ class _DisclosureChangePageState extends ConsumerState<DisclosureChangePage> {
     final notifier = ref.read(disclosureSelectionProvider(id).notifier);
 
     final items = <Widget>[];
+    final drawn = <String>{};
     String? heading;
     for (final (i, choice) in plan.choices.indexed) {
       final card = cards[i];
@@ -156,6 +163,8 @@ class _DisclosureChangePageState extends ConsumerState<DisclosureChangePage> {
                 : Key("change_card_$i"),
             change: card,
             chosen: chosen,
+            spots: widget.spots,
+            drawn: drawn,
             requestor: requestor,
             actions: widget.actions,
             onStop: choice.optional ? () => notifier.share(i, on: false) : null,
@@ -268,6 +277,8 @@ class _ChoiceCard extends ConsumerWidget {
   final Key cardKey;
   final ChangeCard change;
   final Chosen chosen;
+  final CardSpots spots;
+  final Set<String> drawn;
   final String requestor;
   final ChangeActions actions;
   final VoidCallback? onStop;
@@ -277,6 +288,8 @@ class _ChoiceCard extends ConsumerWidget {
     required this.cardKey,
     required this.change,
     required this.chosen,
+    required this.spots,
+    required this.drawn,
     required this.requestor,
     required this.actions,
     required this.onStop,
@@ -312,9 +325,12 @@ class _ChoiceCard extends ConsumerWidget {
               for (final (k, card) in shown.indexed) ...[
                 if (k > 0) const SizedBox(height: 12),
                 CardHead(
-                  art: CredentialCardArt(
-                    credential: sharedCardFor(card, wallet),
-                    width: 40,
+                  art: FlightSpot.maybe(
+                    spots.firstOf("change", card.hash, drawn),
+                    CredentialCardArt(
+                      credential: sharedCardFor(card, wallet),
+                      width: 40,
+                    ),
                   ),
                   name: card.name,
                   issuer: card.issuer.name,

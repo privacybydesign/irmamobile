@@ -170,6 +170,41 @@ void main() {
     });
   });
 
+  testWidgets("the card flies from the pile to its head, and back", (
+    tester,
+  ) async {
+    final state = _session(eenvoudig());
+    await pumpTestApp(
+      tester,
+      DisclosureFlow(
+        session: state,
+        onDismiss: () {},
+        onClose: () {},
+        onShare: (_, _) {},
+      ),
+      size: const Size(390, 844),
+      locale: const Locale("nl", "NL"),
+      overrides: [
+        sessionStateProvider(_id).overrideWith((ref) => Stream.value(state)),
+        walletCardsProvider.overrideWithValue(const []),
+        sharesOfProvider(_id).overrideWith((ref) => (_) => LastShared.never),
+      ],
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(DisclosureKeys.pile));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byKey(const Key("spot_flight_e-1")), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key("spot_flight_e-1")), findsNothing);
+    await tester.tap(find.byKey(const Key("change_done")));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byKey(const Key("spot_flight_e-1")), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.byKey(DisclosureKeys.overview), findsOneWidget);
+  });
+
   testWidgets("Klaar returns to the overview", (tester) async {
     await _pump(tester, _session(drie()));
     await tester.tap(find.byKey(const Key("change_done")));

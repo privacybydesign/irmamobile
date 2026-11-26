@@ -3,11 +3,14 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/session_state.dart";
 import "../../../models/session_user_interaction.dart";
+import "../../../providers/last_shared_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
+import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
 import "../models/disclosure_plan_view.dart";
 import "add_first_page.dart";
 import "add_picker_page.dart";
+import "card_spots.dart";
 import "disclosure_change_page.dart";
 import "disclosure_overview_page.dart";
 import "which_card_sheet.dart";
@@ -53,32 +56,102 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
   bool _changing = false;
   int? _changeTo;
 
-  void _openChange(int? choice) => setState(() {
+  final _spots = CardSpots();
+
+  /// Changes the page with [change], carrying the cards drawn on [from] to
+  /// their places on [to] (2.8).
+  void _carry(String from, String to, VoidCallback change) {
+    final boxes = _spots.boxes(context, from);
+    setState(change);
+    _spots.carry(
+      context,
+      from: boxes,
+      page: to,
+      card: (h) => candidateOf(widget.session.disclosurePlan, h),
+      wallet: ref.read(walletCardsProvider),
+    );
+  }
+
+  void _openChange(int? choice) => _carry("overview", "change", () {
     _changing = true;
     _changeTo = choice;
   });
 
+  /// A sheet over the change page closed: the cards in it go back to their
+  /// places there ([boxes] taken as it went).
+  void _sheetLeft(Map<String, Rect> boxes) => _spots.carry(
+    context,
+    from: boxes,
+    page: "change",
+    card: (h) => candidateOf(widget.session.disclosurePlan, h),
+    wallet: ref.read(walletCardsProvider),
+  );
+
+  /// Opens a sheet over the change page: the cards of [choice] in use fly
+  /// from their heads into it.
+  void _intoSheet(int choice) {
+    final plan = widget.session.disclosurePlan;
+    if (plan == null) return;
+    final chosen = resolve(
+      plan,
+      ref.read(disclosureSelectionProvider(_id)),
+      sharesOf: ref.read(sharesOfProvider(_id)),
+    );
+    final hashes = {
+      for (final s
+          in chosen.optionOf(choice)?.slots ?? const <DisclosureSlot>[])
+        for (final c in chosen.of(s)) c.hash,
+    };
+    final boxes = {
+      for (final MapEntry(:key, :value)
+          in _spots.boxes(context, "change").entries)
+        if (hashes.contains(key)) key: value,
+    };
+    _spots.carry(
+      context,
+      from: boxes,
+      page: "sheet",
+      card: (h) => candidateOf(plan, h),
+      wallet: ref.read(walletCardsProvider),
+    );
+  }
+
   /// The sheets of the change page (2.5).
   late final _actions = ChangeActions(
-    pickCard: (i) => showWhichCardSheet(
-      context: context,
-      sessionId: _id,
-      choice: i,
-      onAdd: _add,
-    ),
-    pickSlot: (i, slot) => showWhichCardSheet(
-      context: context,
-      sessionId: _id,
-      choice: i,
-      slot: slot,
-      onAdd: _add,
-    ),
-    pickCombination: (i) => showWhichCombinationSheet(
-      context: context,
-      sessionId: _id,
-      choice: i,
-      onAdd: _add,
-    ),
+    pickCard: (i) {
+      _intoSheet(i);
+      showWhichCardSheet(
+        context: context,
+        sessionId: _id,
+        choice: i,
+        onAdd: _add,
+        spots: _spots,
+        onLeave: _sheetLeft,
+      );
+    },
+    pickSlot: (i, slot) {
+      _intoSheet(i);
+      showWhichCardSheet(
+        context: context,
+        sessionId: _id,
+        choice: i,
+        slot: slot,
+        onAdd: _add,
+        spots: _spots,
+        onLeave: _sheetLeft,
+      );
+    },
+    pickCombination: (i) {
+      _intoSheet(i);
+      showWhichCombinationSheet(
+        context: context,
+        sessionId: _id,
+        choice: i,
+        onAdd: _add,
+        spots: _spots,
+        onLeave: _sheetLeft,
+      );
+    },
     add: _add,
   );
 
@@ -104,6 +177,7 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
       ways: addWays(plan.choices[choice]),
       way: way,
       landing: _landingKey(choice),
+      liftFrom: way == null ? null : _landingKey(choice),
     );
   }
 
@@ -129,9 +203,10 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         fixed: fixed,
         onDismiss: widget.onDismiss,
         onClose: widget.onClose,
-        onReview: () => setState(() => _reviewed = true),
+        onReview: () => _carry("add", "overview", () => _reviewed = true),
         onAdd: _add,
         landingKey: _landingKey,
+        spots: _spots,
       ),
       _Phase.overview => DisclosureOverviewPage(
         key: const ValueKey(_Phase.overview),
@@ -140,13 +215,15 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         onClose: widget.onClose,
         onShare: widget.onShare,
         onChange: _openChange,
+        spots: _spots,
       ),
       _Phase.change => DisclosureChangePage(
         key: const ValueKey(_Phase.change),
         session: widget.session,
         actions: _actions,
         scrollTo: _changeTo,
-        onDone: () => setState(() => _changing = false),
+        spots: _spots,
+        onDone: () => _carry("change", "overview", () => _changing = false),
       ),
     };
     return AnimatedSwitcher(

@@ -35,6 +35,7 @@ Future<void> showAddSheet({
   required List<AddWay> ways,
   AddWay? way,
   GlobalKey? landing,
+  GlobalKey? liftFrom,
 }) => showSheet<void>(
   context: context,
   motion: way != null ? SheetMotion.issue : SheetMotion.share,
@@ -45,6 +46,7 @@ Future<void> showAddSheet({
     ways: ways,
     way: way,
     landing: landing,
+    liftFrom: liftFrom,
   ),
 );
 
@@ -55,6 +57,10 @@ class AddSheet extends ConsumerStatefulWidget {
   final AddWay? way;
   final GlobalKey? landing;
 
+  /// The picture the sheet opened from (a row of the add step): it rises
+  /// into the first page's picture.
+  final GlobalKey? liftFrom;
+
   const AddSheet({
     super.key,
     required this.sessionId,
@@ -62,6 +68,7 @@ class AddSheet extends ConsumerStatefulWidget {
     required this.ways,
     this.way,
     this.landing,
+    this.liftFrom,
   });
 
   @override
@@ -95,9 +102,54 @@ class _AddSheetState extends ConsumerState<AddSheet> {
     for (final s in way.todo) ?addableFor(s),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    final from = widget.liftFrom;
+    final d = _queue.firstOrNull;
+    if (from != null && d != null) _rise(from, d);
+  }
+
+  /// Per way, where its pictures are in the picker.
+  final _wayKeys = <int, GlobalKey>{};
+
+  GlobalKey _wayKey(int option) =>
+      _wayKeys[option] ??= GlobalKey(debugLabel: "add_way_$option");
+
   void _pick(AddWay way) {
     setState(() => _queue = _descriptors(way));
-    if (_queue.isNotEmpty) _flow.open(_queue.first);
+    if (_queue.isEmpty) return;
+    _flow.open(_queue.first);
+    _rise(_wayKey(way.option), _queue.first);
+  }
+
+  /// The picture at [from] rises into the details' picture of [d] as its
+  /// page comes in (2.8).
+  void _rise(GlobalKey from, CredentialDescriptor d) {
+    Flight.hide([_keys.hero]);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final flew = Flight.start(
+        context,
+        from: from,
+        to: Flight.boxOf(_keys.hero),
+        keys: FlightKey.carry(startOpacity: 0.6),
+        duration: const Duration(milliseconds: 620),
+        lift: Flight.liftCarried,
+        shadow: Flight.shadowCarried,
+        radius: const BorderRadius.all(Radius.circular(4)),
+        hide: [_keys.hero],
+        copy: (context, frame) => SizedBox.fromSize(
+          size: frame.size,
+          child: FittedBox(
+            fit: BoxFit.fill,
+            child: CredentialTypeThumbnail(descriptor: d, width: 200),
+          ),
+        ),
+        onLanded: () => Flight.show([_keys.hero]),
+      );
+      if (!flew) Flight.show([_keys.hero]);
+    });
   }
 
   /// After [added], the card of the way still to add.
@@ -281,6 +333,7 @@ class _AddSheetState extends ConsumerState<AddSheet> {
                           addableFor(s)?.name ?? slotName(s),
                     ],
                     line: n > 0,
+                    artKey: _wayKey(way.option),
                     onTap: () => _pick(way),
                   ),
               ],
@@ -298,6 +351,7 @@ class _WayRow extends StatelessWidget {
   final AddWay way;
   final List<String> names;
   final bool line;
+  final GlobalKey artKey;
   final VoidCallback onTap;
 
   const _WayRow({
@@ -305,6 +359,7 @@ class _WayRow extends StatelessWidget {
     required this.way,
     required this.names,
     required this.line,
+    required this.artKey,
     required this.onTap,
   });
 
@@ -340,25 +395,28 @@ class _WayRow extends StatelessWidget {
           child: Row(
             spacing: 14,
             children: [
-              SizedBox(
-                width: 66,
-                height: 46,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    for (final (i, d) in todo.take(3).indexed)
-                      Positioned(
-                        left: i * 6.0,
-                        top: 4 + i * 2.0,
-                        child: Opacity(
-                          opacity: 0.45,
-                          child: CredentialTypeThumbnail(
-                            descriptor: d,
-                            width: 58,
+              FlightSpot(
+                flightKey: artKey,
+                child: SizedBox(
+                  width: 66,
+                  height: 46,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      for (final (i, d) in todo.take(3).indexed)
+                        Positioned(
+                          left: i * 6.0,
+                          top: 4 + i * 2.0,
+                          child: Opacity(
+                            opacity: 0.45,
+                            child: CredentialTypeThumbnail(
+                              descriptor: d,
+                              width: 58,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Expanded(

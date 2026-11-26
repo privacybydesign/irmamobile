@@ -21,6 +21,7 @@ import "../models/disclosure_plan_view.dart";
 import "../models/technical_details.dart";
 import "../requestor/requestor_card.dart";
 import "../requestor/requestor_trust_sheet.dart";
+import "card_spots.dart";
 import "disclosure_keys.dart";
 import "disclosure_words.dart";
 
@@ -47,6 +48,9 @@ class AddFirstPage extends ConsumerWidget {
   /// Per choice, where its row's picture is: an added card lands there.
   final GlobalKey Function(int choice) landingKey;
 
+  /// Where each card in the app is drawn, for the flights between pages.
+  final CardSpots spots;
+
   const AddFirstPage({
     super.key,
     required this.session,
@@ -56,6 +60,7 @@ class AddFirstPage extends ConsumerWidget {
     required this.onReview,
     required this.onAdd,
     required this.landingKey,
+    required this.spots,
   });
 
   @override
@@ -68,6 +73,7 @@ class AddFirstPage extends ConsumerWidget {
     final signing = session.type == SessionType.signature;
     final sign = signing ? "_sign" : "";
     final rows = addStepRows(plan, fixed, wallet: wallet);
+    final drawn = <String>{};
     final header = addStepHeader(plan, fixed, wallet: wallet);
     final next = nextAction(plan, fixed, wallet: wallet);
     final count = countWord(context, header.count);
@@ -226,6 +232,8 @@ class AddFirstPage extends ConsumerWidget {
                           line: n > 0,
                           requestor: requestor,
                           landingKey: landingKey(row.choice),
+                          spots: spots,
+                          drawn: drawn,
                           onTap: !row.todo
                               ? null
                               : () => onAdd(
@@ -265,6 +273,8 @@ class _AddRow extends StatelessWidget {
   final bool line;
   final String requestor;
   final GlobalKey landingKey;
+  final CardSpots spots;
+  final Set<String> drawn;
   final VoidCallback? onTap;
 
   const _AddRow({
@@ -274,6 +284,8 @@ class _AddRow extends StatelessWidget {
     required this.line,
     required this.requestor,
     required this.landingKey,
+    required this.spots,
+    required this.drawn,
     required this.onTap,
   });
 
@@ -297,7 +309,7 @@ class _AddRow extends StatelessWidget {
         arts = [
           for (final s in option.slots)
             if (s.candidates.firstWhereOrNull(usable) case final c?)
-              _OwnedArt(card: c),
+              _OwnedArt(card: c, spot: spots.firstOf("add", c.hash, drawn)),
         ];
         title = [for (final s in option.slots) slotName(s)].join(" + ");
         sub = t("share.addstep.added");
@@ -328,7 +340,7 @@ class _AddRow extends StatelessWidget {
               else
                 _Blank()
             else if (s.candidates.firstWhereOrNull(usable) case final c?)
-              _OwnedArt(card: c),
+              _OwnedArt(card: c, spot: spots.firstOf("add", c.hash, drawn)),
         ];
         title = [for (final s in option.slots) name(s)].join(" + ");
         if (row.otherValue case final o?) {
@@ -539,12 +551,16 @@ class _TypeArt extends StatelessWidget {
 /// A card in the app: its picture, solid.
 class _OwnedArt extends ConsumerWidget {
   final SelectableCredentialInstance card;
-  const _OwnedArt({required this.card});
+  final GlobalKey? spot;
+  const _OwnedArt({required this.card, required this.spot});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => CredentialCardArt(
-    credential: sharedCardFor(card, ref.watch(walletCardsProvider)),
-    width: 58,
+  Widget build(BuildContext context, WidgetRef ref) => FlightSpot.maybe(
+    spot,
+    CredentialCardArt(
+      credential: sharedCardFor(card, ref.watch(walletCardsProvider)),
+      width: 58,
+    ),
   );
 }
 

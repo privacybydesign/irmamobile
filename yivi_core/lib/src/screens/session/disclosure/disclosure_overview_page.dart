@@ -31,6 +31,7 @@ import "../models/technical_details.dart";
 import "../requestor/requestor_card.dart";
 import "../requestor/requestor_trust_sheet.dart";
 import "../result/done_flight.dart";
+import "card_spots.dart";
 import "disclosure_keys.dart";
 import "disclosure_value_list.dart";
 import "disclosure_words.dart";
@@ -62,6 +63,9 @@ class DisclosureOverviewPage extends ConsumerStatefulWidget {
   /// Null while there is no such page.
   final void Function(int? choice)? onChange;
 
+  /// Where each card is drawn: the pile's pictures are these places.
+  final CardSpots? spots;
+
   const DisclosureOverviewPage({
     super.key,
     required this.session,
@@ -69,6 +73,7 @@ class DisclosureOverviewPage extends ConsumerStatefulWidget {
     required this.onClose,
     required this.onShare,
     this.onChange,
+    this.spots,
   });
 
   @override
@@ -89,10 +94,9 @@ class _DisclosureOverviewPageState
   final _messageKey = GlobalKey(debugLabel: "share_message");
   final _logoKey = GlobalKey(debugLabel: "share_requestor_logo");
   final _barLogoKey = GlobalKey(debugLabel: "share_bar_logo");
-  final _pileKeys = <String, GlobalKey>{};
+  late final _spots = widget.spots ?? CardSpots();
 
-  GlobalKey _pileKey(String hash) =>
-      _pileKeys[hash] ??= GlobalKey(debugLabel: "share_pile_$hash");
+  GlobalKey _pileKey(String hash) => _spots.of("overview", hash);
 
   @override
   void dispose() {
@@ -247,10 +251,7 @@ class _DisclosureOverviewPageState
         context,
         messageKey: _messageKey,
         logoKey: _scrolledPast.value ? _barLogoKey : _logoKey,
-        cards: [
-          for (final c in cards.take(4))
-            if (_pileKeys[c.hash] case final key?) (key, c.hash),
-        ],
+        cards: [for (final c in cards.take(4)) (_pileKey(c.hash), c.hash)],
       );
       widget.onShare(answerFor(plan, selection, sharesOf: sharesOf), cards);
     }

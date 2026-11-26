@@ -13,10 +13,12 @@ import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/credential_card/credential_type_thumbnail.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
 import "../models/disclosure_plan_view.dart";
+import "card_spots.dart";
 import "disclosure_change_page.dart" show CardHead, ChangeLinkRow;
 import "disclosure_value_list.dart";
 import "which_card_sheet.dart" show PickRow;
@@ -30,6 +32,8 @@ Future<void> showWhichCombinationSheet({
   required int sessionId,
   required int choice,
   required void Function(int choice, AddWay? way) onAdd,
+  CardSpots? spots,
+  void Function(Map<String, Rect> boxes)? onLeave,
 }) => showSheet<void>(
   context: context,
   motion: SheetMotion.share,
@@ -38,6 +42,8 @@ Future<void> showWhichCombinationSheet({
     sessionId: sessionId,
     choice: choice,
     onAdd: onAdd,
+    spots: spots,
+    onLeave: onLeave,
   ),
 );
 
@@ -46,11 +52,19 @@ class WhichCombinationSheetView extends ConsumerStatefulWidget {
   final int choice;
   final void Function(int choice, AddWay? way) onAdd;
 
+  /// Where the cards are drawn: the rows' pictures are the "sheet" places.
+  final CardSpots? spots;
+
+  /// The sheet goes: the boxes of its cards, for the flight back.
+  final void Function(Map<String, Rect> boxes)? onLeave;
+
   const WhichCombinationSheetView({
     super.key,
     required this.sessionId,
     required this.choice,
     required this.onAdd,
+    this.spots,
+    this.onLeave,
   });
 
   @override
@@ -135,6 +149,7 @@ class _WhichCombinationSheetState
             selection: selection,
             requestor: requestor,
             wallet: wallet,
+            spots: b.selected ? widget.spots : null,
             onTap: b.complete ? () => setState(() => _pick = b.option) : null,
             onAdd: b.complete
                 ? null
@@ -151,35 +166,46 @@ class _WhichCombinationSheetState
         ),
     ];
 
-    return SheetPage.scroll(
-      title: SheetTitle(title),
-      padding: const EdgeInsets.fromLTRB(
-        YiviSpace.x16,
-        0,
-        YiviSpace.x16,
-        YiviSpace.x24,
-      ),
-      action: sheet.choose
-          ? SheetAction(
-              key: const Key("combination_choose"),
-              label: t("share.pick.choose"),
-              onTap: apply,
-            )
-          : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: YiviSpace.x8,
-        children: [
-          SheetHeading(
-            title: title,
-            lead: t(
-              choice.optional ? "share.pick.optional" : "share.pick.one_needed",
-              {"requestor": requestor},
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          widget.onLeave?.call(
+            widget.spots?.boxes(context, "sheet") ?? const {},
+          );
+        }
+      },
+      child: SheetPage.scroll(
+        title: SheetTitle(title),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          0,
+          YiviSpace.x16,
+          YiviSpace.x24,
+        ),
+        action: sheet.choose
+            ? SheetAction(
+                key: const Key("combination_choose"),
+                label: t("share.pick.choose"),
+                onTap: apply,
+              )
+            : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: YiviSpace.x8,
+          children: [
+            SheetHeading(
+              title: title,
+              lead: t(
+                choice.optional
+                    ? "share.pick.optional"
+                    : "share.pick.one_needed",
+                {"requestor": requestor},
+              ),
             ),
-          ),
-          const SizedBox(height: YiviSpace.x8),
-          ...blocks,
-        ],
+            const SizedBox(height: YiviSpace.x8),
+            ...blocks,
+          ],
+        ),
       ),
     );
   }
@@ -210,6 +236,7 @@ class _OptionBlock extends StatelessWidget {
   final DisclosureSelection selection;
   final String requestor;
   final List<Credential> wallet;
+  final CardSpots? spots;
   final VoidCallback? onTap;
   final VoidCallback? onAdd;
 
@@ -222,6 +249,7 @@ class _OptionBlock extends StatelessWidget {
     required this.selection,
     required this.requestor,
     required this.wallet,
+    this.spots,
     required this.onTap,
     required this.onAdd,
   });
@@ -255,9 +283,12 @@ class _OptionBlock extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   CardHead(
-                    art: CredentialCardArt(
-                      credential: sharedCardFor(card, wallet),
-                      width: 40,
+                    art: FlightSpot.maybe(
+                      spots?.of("sheet", card.hash),
+                      CredentialCardArt(
+                        credential: sharedCardFor(card, wallet),
+                        width: 40,
+                      ),
                     ),
                     name: card.name,
                     issuer: card.issuer.name,

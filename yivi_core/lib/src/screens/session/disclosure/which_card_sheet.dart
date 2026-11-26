@@ -11,10 +11,12 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/i18n.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
+import "../../../widgets/flight/flight.dart";
 import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
 import "../models/disclosure_plan_view.dart";
+import "card_spots.dart";
 import "disclosure_change_page.dart" show CardHead, ChangeLinkRow;
 import "disclosure_value_list.dart";
 import "disclosure_words.dart";
@@ -30,6 +32,8 @@ Future<void> showWhichCardSheet({
   required int choice,
   DisclosureSlot? slot,
   required void Function(int choice, AddWay? way) onAdd,
+  CardSpots? spots,
+  void Function(Map<String, Rect> boxes)? onLeave,
 }) => showSheet<void>(
   context: context,
   motion: SheetMotion.share,
@@ -39,6 +43,8 @@ Future<void> showWhichCardSheet({
     choice: choice,
     slot: slot,
     onAdd: onAdd,
+    spots: spots,
+    onLeave: onLeave,
   ),
 );
 
@@ -48,12 +54,20 @@ class WhichCardSheetView extends ConsumerStatefulWidget {
   final DisclosureSlot? slot;
   final void Function(int choice, AddWay? way) onAdd;
 
+  /// Where the cards are drawn: the rows' pictures are the "sheet" places.
+  final CardSpots? spots;
+
+  /// The sheet goes: the boxes of its cards, for the flight back.
+  final void Function(Map<String, Rect> boxes)? onLeave;
+
   const WhichCardSheetView({
     super.key,
     required this.sessionId,
     required this.choice,
     this.slot,
     required this.onAdd,
+    this.spots,
+    this.onLeave,
   });
 
   @override
@@ -195,9 +209,15 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
           child: CardHead(
-            art: CredentialCardArt(
-              credential: sharedCardFor(first.group.first, wallet),
-              width: 40,
+            art: FlightSpot.maybe(
+              widget.spots?.of(
+                "sheet",
+                (inUse.firstOrNull ?? first).group.first.hash,
+              ),
+              CredentialCardArt(
+                credential: sharedCardFor(first.group.first, wallet),
+                width: 40,
+              ),
             ),
             name: first.group.first.name,
             issuer: first.group.first.issuer.name,
@@ -216,9 +236,12 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
             children: [
               if (!sheet.oneKind) ...[
                 CardHead(
-                  art: CredentialCardArt(
-                    credential: sharedCardFor(r.group.first, wallet),
-                    width: 40,
+                  art: FlightSpot.maybe(
+                    widget.spots?.of("sheet", r.group.first.hash),
+                    CredentialCardArt(
+                      credential: sharedCardFor(r.group.first, wallet),
+                      width: 40,
+                    ),
                   ),
                   name: r.group.first.name,
                   issuer: r.group.first.issuer.name,
@@ -270,73 +293,82 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
         ),
     ];
 
-    return SheetPage.scroll(
-      title: SheetTitle(title),
-      padding: const EdgeInsets.fromLTRB(
-        YiviSpace.x16,
-        0,
-        YiviSpace.x16,
-        YiviSpace.x24,
-      ),
-      action: sheet.radios
-          ? SheetAction(
-              key: Key(
-                sheet.multiple ? "which_card_done" : "which_card_choose",
-              ),
-              label: t(
-                sheet.multiple ? "share.change.done" : "share.pick.choose",
-              ),
-              onTap: apply,
-            )
-          : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SheetHeading(
-            title: title,
-            // A slot that takes several: not "only needs one".
-            lead: sheet.multiple
-                ? null
-                : t(
-                    choice.optional
-                        ? "share.pick.optional"
-                        : "share.pick.one_needed",
-                    {"requestor": requestor},
-                  ),
-          ),
-          if (sheet.linked)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-              child: Text(
-                t("share.pick.linked"),
-                key: const Key("which_card_linked"),
-                style: palette.body(14).copyWith(color: palette.text),
-              ),
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          widget.onLeave?.call(
+            widget.spots?.boxes(context, "sheet") ?? const {},
+          );
+        }
+      },
+      child: SheetPage.scroll(
+        title: SheetTitle(title),
+        padding: const EdgeInsets.fromLTRB(
+          YiviSpace.x16,
+          0,
+          YiviSpace.x16,
+          YiviSpace.x24,
+        ),
+        action: sheet.radios
+            ? SheetAction(
+                key: Key(
+                  sheet.multiple ? "which_card_done" : "which_card_choose",
+                ),
+                label: t(
+                  sheet.multiple ? "share.change.done" : "share.pick.choose",
+                ),
+                onTap: apply,
+              )
+            : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SheetHeading(
+              title: title,
+              // A slot that takes several: not "only needs one".
+              lead: sheet.multiple
+                  ? null
+                  : t(
+                      choice.optional
+                          ? "share.pick.optional"
+                          : "share.pick.one_needed",
+                      {"requestor": requestor},
+                    ),
             ),
-          const SizedBox(height: YiviSpace.x16),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: palette.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final (n, c) in children.indexed)
-                  n == 0 || c is Padding
-                      ? c
-                      : DecoratedBox(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: BorderSide(color: palette.divider),
+            if (sheet.linked)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                child: Text(
+                  t("share.pick.linked"),
+                  key: const Key("which_card_linked"),
+                  style: palette.body(14).copyWith(color: palette.text),
+                ),
+              ),
+            const SizedBox(height: YiviSpace.x16),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.surface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final (n, c) in children.indexed)
+                    n == 0 || c is Padding
+                        ? c
+                        : DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(color: palette.divider),
+                              ),
                             ),
+                            child: c,
                           ),
-                          child: c,
-                        ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
