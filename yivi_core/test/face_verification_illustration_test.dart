@@ -1,0 +1,185 @@
+import "package:flutter/services.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
+import "package:vcmrtd/extensions.dart";
+import "package:vcmrtd/vcmrtd.dart";
+import "package:yivi_core/src/models/mrz.dart";
+import "package:yivi_core/src/providers/document_reader_providers.dart";
+import "package:yivi_core/src/providers/passport_issuer_provider.dart";
+import "package:yivi_core/src/providers/regula_face_service_provider.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/face_frame_illustration.dart";
+
+import "helpers/document_flow_test_app.dart";
+
+/// A DG1 blob the real parser accepts, the fixture the integration helpers use.
+/// The screen checks its nationality, so a fake would not do.
+PassportData _passportData() {
+  const dg1Hex =
+      "615D5F1F5A503C4E4C44584938353933354638363939393939393939303C3C3C3C3C"
+      "3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E"
+      "3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345";
+  return PassportData(
+    mrz: PassportParser().parseDG1(dg1Hex.parseHex())!.mrz,
+    photoImageData: Uint8List(0),
+    photoImageType: .jpeg2000,
+    photoImageWidth: 0,
+    photoImageHeight: 0,
+  );
+}
+
+/// Reader that finishes the read at once, so the flow moves on to the intro.
+class _SucceedingReader extends DocumentReader<PassportData> {
+  _SucceedingReader()
+    : super(
+        nfc: NfcProvider(),
+        documentParser: PassportParser(),
+        config: DocumentReaderConfig(readIfAvailable: {DataGroups.dg1}),
+        dataGroupReader: DataGroupReader(
+          NfcProvider(),
+          "".parseHex(),
+          paceAccessKey: DBAKey("", DateTime(1990), DateTime(2030)),
+        ),
+      );
+
+  int readCount = 0;
+
+  @override
+  DocumentReaderState build() => DocumentReaderPending();
+
+  @override
+  Future<void> checkNfcAvailability() async {}
+
+  @override
+  Future<void> cancel() async {}
+
+  @override
+  void reset() {}
+
+  @override
+  Future<(PassportData, RawDocumentData)?> readDocument({
+    required IosNfcMessageMapper iosNfcMessages,
+    NonceAndSessionId? activeAuthenticationParams,
+  }) async {
+    readCount += 1;
+    return (_passportData(), RawDocumentData(dataGroups: const {}, efSod: ""));
+  }
+}
+
+/// Announces face verification, so the flow reaches the intro screen.
+class _AnnouncingIssuer implements PassportIssuer {
+  @override
+  Future<StartValidationResult> startSessionAtPassportIssuer() async =>
+      StartValidationResult(
+        nonceAndSessionId: NonceAndSessionId(
+          nonce: "d4e5f6a7d4e5f6a7",
+          sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+        ),
+        faceVerification: const FaceVerificationConfig(
+          faceApiUrl: "https://face.example",
+        ),
+      );
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Liveness session that never ends: the test only looks at the intro.
+class _IdleFaceService implements RegulaFaceService {
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<RegulaLivenessResult> captureLiveness({String? languageCode}) =>
+      Future<RegulaLivenessResult>.delayed(const Duration(days: 1));
+}
+
+NfcReadingTranslationKeys _translationKeys() {
+  const key = "passport.nfc";
+  return NfcReadingTranslationKeys(
+    cancelDialogTitle: "$key.cancel_dialog.title",
+    cancelDialogExplanation: "$key.cancel_dialog.explanation",
+    cancelDialogDecline: "$key.cancel_dialog.decline",
+    cancelDialogConfirm: "$key.cancel_dialog.confirm",
+    error: "$key.error",
+    errorGeneric: "$key.error_generic",
+    title: "$key.title",
+    cancelledByUser: "$key.cancelled_by_user",
+    cancelled: "$key.cancelled",
+    cancelling: "$key.cancelling",
+    failedToInitiateSession: "$key.failed_initiate_session",
+  );
+}
+
+void main() {
+  group("the intro after reading a document", () {
+    // One per time the screen watches the autoDispose provider anew.
+    late List<_SucceedingReader> readers;
+
+    setUp(() {
+      readers = [];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel("privacy_screen"),
+            (call) async => true,
+          );
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(
+              const MethodChannel("privacy_screen"),
+              null,
+            ),
+      );
+    });
+
+    // On Android the read starts by itself and lands on the intro.
+    Future<void> pumpUntilIntro(WidgetTester tester) async {
+      await pumpDocumentFlow(
+        tester,
+        NfcReadingScreen(
+          mrz: ScannedPassportMrz(
+            documentNumber: "AB1234567",
+            countryCode: "NLD",
+            dateOfBirth: DateTime(1990, 1, 1),
+            dateOfExpiry: DateTime(2030, 12, 31),
+          ),
+          translationKeys: _translationKeys(),
+        ),
+        overrides: [
+          passportReaderProvider.overrideWith2((mrz) {
+            final reader = _SucceedingReader();
+            readers.add(reader);
+            return reader;
+          }),
+          passportIssuerProvider.overrideWithValue(_AnnouncingIssuer()),
+          regulaFaceServiceProvider.overrideWithValue(_IdleFaceService()),
+          // The done stage's hold has its own test.
+          nfcDoneHoldProvider.overrideWithValue(Duration.zero),
+        ],
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets("a still picture and a Start button", (tester) async {
+      await pumpUntilIntro(tester);
+
+      expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
+      expect(find.byType(FaceFrameIllustration), findsOneWidget);
+      expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
+      expect(find.byKey(const Key("bottom_bar_secondary")), findsNothing);
+    }, variant: const TargetPlatformVariant({TargetPlatform.android}));
+
+    testWidgets("leaving the intro starts a new read on Android", (
+      tester,
+    ) async {
+      await pumpUntilIntro(tester);
+      await tester.tap(find.byKey(const Key("irma_app_bar_leading")));
+      await tester.pumpAndSettle();
+
+      // The first reader is dropped while the loader shows. The one the
+      // screen watches after the cancel has to be read too.
+      expect(readers.map((reader) => reader.readCount), [1, 1]);
+    }, variant: const TargetPlatformVariant({TargetPlatform.android}));
+  });
+}
