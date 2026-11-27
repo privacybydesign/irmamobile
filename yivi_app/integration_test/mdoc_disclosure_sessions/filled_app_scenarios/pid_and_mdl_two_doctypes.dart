@@ -49,7 +49,7 @@ Future<void> pidAndMdlTwoDoctypesTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
   expect(cardsFinder, findsNWidgets(2));

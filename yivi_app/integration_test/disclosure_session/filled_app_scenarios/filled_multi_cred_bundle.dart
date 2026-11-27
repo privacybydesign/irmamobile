@@ -39,7 +39,7 @@ Future<void> filledMultiCredBundleTest(
   await waitForRequest(tester);
 
   // Straight to overview — nothing needs to be obtained.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await toOverview(tester);
 
   // On the change page: the root and the name (one set), and the e-mail.

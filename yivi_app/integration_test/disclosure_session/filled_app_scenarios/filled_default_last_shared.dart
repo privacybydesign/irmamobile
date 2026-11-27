@@ -40,7 +40,7 @@ Future<void> filledDefaultLastSharedTest(
   /// Starts the request and checks the card it starts on.
   Future<void> startsOn(String email) async {
     await irmaBinding.repository.startTestSession(sessionRequest);
-    await tester.waitFor(find.byType(DisclosureFlow));
+    await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
     // The activity is looked up as the screen opens.
     await tester.pumpAndSettle(const Duration(milliseconds: 100));
     final cards = findCredentialCards();
@@ -59,7 +59,7 @@ Future<void> filledDefaultLastSharedTest(
 
   // Nothing shared yet: one of the two; share the other.
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await tester.waitFor(find.byType(DisclosureFlow));
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
   final first = await shownOf(tester, emails);
   final other = emails.firstWhere((e) => e != first);
   await changeChoice(tester, 0);

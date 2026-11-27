@@ -38,7 +38,7 @@ Future<void> ageSingleClaimTest(
 
   final session = await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await evaluateRequestorHeader(
     tester,
     find.byType(RequestorCard),

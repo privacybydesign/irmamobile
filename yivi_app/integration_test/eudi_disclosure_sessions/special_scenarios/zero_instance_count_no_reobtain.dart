@@ -59,7 +59,7 @@ Future<void> zeroInstanceCountNoReobtainTest(
     // transition. The share button is then still outside the viewport and
     // tap() fails the hit test. waitFor pumps and settles, so the transition
     // has finished before we tap.
-    await tester.waitFor(find.byType(DisclosureFlow));
+    await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
     await shareAndFinishEudiDisclosure(tester);
   }
 

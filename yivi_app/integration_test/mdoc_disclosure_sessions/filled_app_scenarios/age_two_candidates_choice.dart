@@ -45,7 +45,7 @@ Future<void> ageTwoCandidatesChoiceTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final overviewCard = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
   expect(overviewCard, findsOneWidget);

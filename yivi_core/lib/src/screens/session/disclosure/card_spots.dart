@@ -1,3 +1,4 @@
+import "package:flutter/rendering.dart" show RenderFractionalTranslation;
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
@@ -54,6 +55,26 @@ class CardSpots {
     RenderBox overlay,
   ) => key.currentContext.placeIn(overlay);
 
+  /// [_placeOf] as it will be once the pages around it stop moving: without
+  /// the slides between it and [overlay] (a page sliding in, the page under
+  /// it sliding back), which all come to rest at nothing.
+  static Rect? _settledPlaceOf(GlobalKey key, RenderBox overlay) {
+    final place = _placeOf(key, overlay);
+    final box = key.currentContext?.findRenderObject();
+    if (place == null || box == null) return null;
+    var shift = Offset.zero;
+    for (var node = box.parent; node != null; node = node.parent) {
+      if (node == overlay) break;
+      if (node is RenderFractionalTranslation && node.hasSize) {
+        shift += Offset(
+          node.translation.dx * node.size.width,
+          node.translation.dy * node.size.height,
+        );
+      }
+    }
+    return place.rect.shift(-shift);
+  }
+
   /// [keys] in the order they are painted under [root]: the last is on top.
   static List<GlobalKey> _paintOrder(
     Iterable<GlobalKey> keys,
@@ -79,7 +100,9 @@ class CardSpots {
   /// Their places on [fromPage] are hidden while they fly, so a card is
   /// never seen twice (one going down with a sheet). [path]: carried over a
   /// sheet's edge; into a sheet ([FlightPath.into]) it flies to where its
-  /// place will be once the sheet is up, not after the sheet as it slides.
+  /// place will be once the sheet is up, not after the sheet as it slides;
+  /// [settled]: to where its place will be once the pages stop sliding (a
+  /// page pushed over another, or popped).
   /// It lands turned as its place is, and the cards lie on top of each
   /// other in the order they are drawn there. Call [boxes] for [fromPage]
   /// first. Call before the change that builds [page]; the flights
@@ -91,6 +114,7 @@ class CardSpots {
     required String page,
     String? fromPage,
     FlightPath? path,
+    bool settled = false,
     required SelectableCredentialInstance? Function(String hash) card,
     required List<Credential> wallet,
     Duration duration = const Duration(milliseconds: 560),
@@ -130,6 +154,8 @@ class CardSpots {
           fromRect: rect,
           to: path?.into ?? false
               ? (overlay) => Sheet.settledBox(to, overlay)
+              : settled
+              ? (overlay) => _settledPlaceOf(to, overlay)
               : (overlay) => _placeOf(to, overlay)?.rect,
           keys: FlightKey.carry(
             lift: 0.2,

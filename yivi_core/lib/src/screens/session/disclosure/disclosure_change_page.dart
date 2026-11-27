@@ -211,7 +211,7 @@ class _DisclosureChangePageState extends ConsumerState<DisclosureChangePage> {
           key: _titleKey,
           style: palette
               .display(24, weight: FontWeight.w700)
-              .copyWith(height: 30 / 24, color: palette.heading),
+              .copyWith(height: 30 / 24),
         ),
       ),
       Padding(
@@ -225,75 +225,70 @@ class _DisclosureChangePageState extends ConsumerState<DisclosureChangePage> {
       ),
     ];
     final split = SessionLayout.of(context).split;
-    // Back to the share screen, as "Klaar" and the system back do.
+    // Back to the share screen, as "Klaar", the system back and a swipe
+    // anywhere on the page do: it is a page of its own.
     final back = YiviBackButton(
       key: const Key("change_back"),
       onTap: widget.onDone,
     );
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) widget.onDone();
-      },
-      // Held sideways, and on a tablet: the title and "Klaar" in the panel
-      // at the left; the cards at the right (5.6).
-      child: split
-          ? SessionScaffold(
-              wide: true,
-              scrollsUnderBars: true,
-              cornerClose: true,
-              leading: back,
-              body: SidewaysLayout(
-                panel: SessionPanel(
-                  key: DisclosureKeys.panel,
-                  top: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: titleBlock,
-                  ),
-                  action: done,
+    // Held sideways, and on a tablet: the title and "Klaar" in the panel at
+    // the left; the cards at the right (5.6).
+    return split
+        ? SessionScaffold(
+            wide: true,
+            scrollsUnderBars: true,
+            cornerClose: true,
+            leading: back,
+            body: SidewaysLayout(
+              panel: SessionPanel(
+                key: DisclosureKeys.panel,
+                top: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: titleBlock,
                 ),
-                content: SessionPanelContent(
-                  key: const Key("change_page"),
-                  children: items.skipWhile((w) => w is SizedBox).toList(),
-                ),
+                action: done,
               ),
-            )
-          : SessionScaffold(
-              appBarTitle: signing
-                  ? "share.change.title_sign"
-                  : "share.change.title",
-              barTitleVisibility: _titleUnder,
-              scrollsUnderBars: true,
-              leading: back,
-              bottomNavigationBar: ActionBar(actions: [done]),
-              body: Builder(
-                builder: (context) {
-                  final insets = BarInsets.of(context);
-                  return NotificationListener<ScrollNotification>(
-                    onNotification: (_) {
-                      _checkTitle();
-                      return false;
-                    },
-                    child: FillScrollView(
-                      key: const Key("change_page"),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.fromLTRB(
-                        16 + insets.left,
-                        16 + insets.top,
-                        16 + insets.right,
-                        16 + insets.bottom,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [...titleBlock, ...items],
-                      ),
-                    ),
-                  );
-                },
+              content: SessionPanelContent(
+                key: const Key("change_page"),
+                children: items.skipWhile((w) => w is SizedBox).toList(),
               ),
             ),
-    );
+          )
+        : SessionScaffold(
+            appBarTitle: signing
+                ? "share.change.title_sign"
+                : "share.change.title",
+            barTitleVisibility: _titleUnder,
+            scrollsUnderBars: true,
+            leading: back,
+            bottomNavigationBar: ActionBar(actions: [done]),
+            body: Builder(
+              builder: (context) {
+                final insets = BarInsets.of(context);
+                return NotificationListener<ScrollNotification>(
+                  onNotification: (_) {
+                    _checkTitle();
+                    return false;
+                  },
+                  child: FillScrollView(
+                    key: const Key("change_page"),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      16 + insets.left,
+                      16 + insets.top,
+                      16 + insets.right,
+                      16 + insets.bottom,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [...titleBlock, ...items],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
   }
 }
 

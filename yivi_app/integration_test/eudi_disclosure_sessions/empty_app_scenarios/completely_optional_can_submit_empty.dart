@@ -49,7 +49,7 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
 
   // No required cred is missing, so the share screen has no empty spot.
   expect(findEmptySpot(0), findsNothing);
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // Nothing is included: the button shares without data.
   expect(

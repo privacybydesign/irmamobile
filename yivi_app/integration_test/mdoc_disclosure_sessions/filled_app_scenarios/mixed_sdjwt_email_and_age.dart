@@ -66,11 +66,18 @@ Future<void> mixedSdJwtEmailAndAgeTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
   expect(cardsFinder, findsNWidgets(2));
-  expect(find.text(email, skipOffstage: false), findsOneWidget);
+  // On the change page (the share screen is under it).
+  expect(
+    find.descendant(
+      of: find.byKey(const Key("change_page")),
+      matching: find.text(email, skipOffstage: false),
+    ),
+    findsOneWidget,
+  );
 
   final ageCard = find
       .ancestor(

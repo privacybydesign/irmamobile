@@ -64,7 +64,7 @@ Future<void> activityLogAfterDisclosureTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.waitFor(find.byType(DisclosureFlow));
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
 
   await evaluateCredentialCard(
     tester,

@@ -297,7 +297,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   await waitForRequest(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   final cardsFinder = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
@@ -310,8 +310,8 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   final session2Url = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session2Url);
 
-  await tester.waitFor(find.byType(DisclosureFlow));
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // The card is used up: irmago marks it unusable, so it is an add-step
   // row to add again (2.10), and nothing can be shared yet.
@@ -417,7 +417,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   await waitForRequest(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   final cardsFinder = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
@@ -500,7 +500,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
@@ -578,7 +578,7 @@ Future<void> testClaimValueOnePresentOneNot(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
@@ -689,7 +689,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
 
   await openChangePage(tester);
@@ -831,7 +831,7 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
@@ -945,7 +945,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   // Each card can be changed: both types have two cards in the app.
   for (final i in [0, 1]) {
     await expectCanChange(tester, i, true);
@@ -1062,7 +1062,7 @@ Future<void> testOneCredentialTwoChoices(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
@@ -1079,7 +1079,7 @@ Future<void> testOneCredentialTwoChoices(
   await tester.waitUntilDisappeared(findChoiceSheet());
 
   // Back on the share screen, with the newly issued card selected.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final overviewCardsFinder = findCredentialCards(skipOffstage: false);
   expect(overviewCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
@@ -1493,7 +1493,7 @@ Future<void> testDiscloseSdJwtWithChoices(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // expect one card, namely the email credential
   final cardFinder = findCredentialCards();

@@ -137,7 +137,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
             header: true,
             child: Text(
               _getTextReplacements(headerTemplate, context),
-              style: palette.titleCompact.copyWith(color: palette.heading),
+              style: palette.titleCompact,
             ),
           ),
         ),

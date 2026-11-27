@@ -39,7 +39,7 @@ Future<void> combinedDisclosureIssuanceSessionTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // One screen for both: what is shared, and the card that is received.
-  await tester.waitFor(find.byType(DisclosureFlow));
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
   expect(find.text("You share data with"), findsOneWidget);
   expect(find.text("YOU GET THIS IN RETURN"), findsOneWidget);
   expect(find.text("Demo Login data"), findsWidgets);

@@ -36,7 +36,7 @@ Future<void> completelyOptionalTest(
 
   // Nothing is required: the overview opens directly (no add step), with
   // the e-mail address as optional data that is not in the app yet.
-  await tester.waitFor(find.byType(DisclosureFlow));
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
   expect(find.byKey(const Key("share_lead")), findsOneWidget);
   expect(findShareSlot(0), findsNothing);
 

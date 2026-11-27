@@ -43,7 +43,7 @@ Future<void> filledNoChoiceSameCredsTest(
 
   // The share screen starts with one of the two addresses (both issued
   // this week: irmago's order does not tell them apart).
-  await tester.waitFor(find.byType(DisclosureFlow));
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
   final credentialCardsFinder = findCredentialCards();
   const demoEmailCredentialName = "Demo Email address";
   const demoEmailIssuerName = "Demo Privacy by Design Foundation via SIDN";
@@ -67,7 +67,7 @@ Future<void> filledNoChoiceSameCredsTest(
   await pickOwned(tester, other);
 
   // The only card on the share screen is now the other address.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await openChangePage(tester);
   expect(credentialCardsFinder, findsOneWidget);
   await evaluateCredentialCard(

@@ -47,7 +47,7 @@ Future<void> pidRequestedValueTwoMatchTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await openChangePage(tester);
   expect(findCredentialCards(skipOffstage: false), findsOneWidget);
 

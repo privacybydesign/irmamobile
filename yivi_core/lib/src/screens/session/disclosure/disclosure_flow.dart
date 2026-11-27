@@ -4,6 +4,7 @@ import "package:material_ui/material_ui.dart";
 import "../../../models/session_state.dart";
 import "../../../models/session_user_interaction.dart";
 import "../../../providers/last_shared_provider.dart";
+import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
@@ -20,7 +21,8 @@ import "which_combination_sheet.dart";
 /// The disclosure (and signature) request of [session], in phases on one
 /// route: first "Eerst toevoegen" when a required choice could not be
 /// answered when it opened (or the request cannot be finished at all), then
-/// the overview. The phases change with a shared-axis page change.
+/// the overview. The phases change with a shared-axis page change. "Kies
+/// wat je deelt" is a page of its own over it, pushed as every page is.
 class DisclosureFlow extends ConsumerStatefulWidget {
   final SessionState session;
   final VoidCallback onDismiss;
@@ -47,15 +49,14 @@ class DisclosureFlow extends ConsumerStatefulWidget {
   ConsumerState<DisclosureFlow> createState() => _DisclosureFlowState();
 }
 
-enum _Phase { add, overview, change }
+enum _Phase { add, overview }
 
 class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
   /// "Bekijk wat je deelt" was tapped: the add step is done with.
   bool _reviewed = false;
 
-  /// "Kies wat je deelt" is open, brought to [_changeTo] when set.
-  bool _changing = false;
-  int? _changeTo;
+  /// "Kies wat je deelt", while it is open.
+  Route<void>? _changeRoute;
 
   final _spots = CardSpots();
 
@@ -74,10 +75,68 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
     );
   }
 
-  void _openChange(int? choice) => _carry("overview", "change", () {
-    _changing = true;
-    _changeTo = choice;
-  });
+  /// Opens "Kies wat je deelt" as a page of its own, brought to [choice]
+  /// when set: it slides in as every page does, the cards flying from the
+  /// pile to their places on it; back takes it away again (2.8).
+  void _openChange(int? choice) {
+    if (_changeRoute?.isActive ?? false) return;
+    final boxes = _spots.boxes(context, "overview");
+    final route = MaterialPageRoute<void>(
+      builder: (_) => Consumer(
+        builder: (context, ref, _) => DisclosureChangePage(
+          session: ref.watch(sessionStateProvider(_id)).value ?? widget.session,
+          actions: _actions,
+          scrollTo: choice,
+          spots: _spots,
+          onDone: _closeChange,
+        ),
+      ),
+    );
+    _changeRoute = route;
+    Navigator.of(context).push(route).whenComplete(() {
+      if (_changeRoute == route) _changeRoute = null;
+    });
+    _carryBetweenPages(boxes, from: "overview", to: "change");
+  }
+
+  /// "Klaar" or back on "Kies wat je deelt": the page goes and its cards
+  /// fly back into the pile. A swipe takes the page away under the finger,
+  /// its cards with it.
+  void _closeChange() {
+    final route = _changeRoute;
+    if (route == null || !route.isCurrent) return;
+    final boxes = _spots.boxes(context, "change");
+    route.navigator?.pop();
+    _carryBetweenPages(boxes, from: "change", to: "overview");
+  }
+
+  /// The cards at [boxes] on page [from] fly to their places on page [to]
+  /// while the pages slide, landing where those will be once they stop.
+  void _carryBetweenPages(
+    Map<String, Rect> boxes, {
+    required String from,
+    required String to,
+  }) => _spots.carry(
+    context,
+    from: boxes,
+    page: to,
+    fromPage: from,
+    settled: true,
+    card: (h) => candidateOf(widget.session.disclosurePlan, h),
+    wallet: ref.read(walletCardsProvider),
+  );
+
+  @override
+  void dispose() {
+    // The request ended while "Kies wat je deelt" was open: it goes too.
+    final route = _changeRoute;
+    if (route != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (route.isActive) route.navigator?.removeRoute(route);
+      });
+    }
+    super.dispose();
+  }
 
   /// A sheet over the change page closed: the cards in it go back to their
   /// places there ([boxes] taken as it went).
@@ -206,8 +265,6 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
     final blocked = blockedChoices(plan).isNotEmpty;
     final phase = !_reviewed && (fixed.isNotEmpty || blocked)
         ? _Phase.add
-        : _changing
-        ? _Phase.change
         : _Phase.overview;
     if (phase != _phase) {
       _forward = phase.index > (_phase?.index ?? -1);
@@ -233,14 +290,6 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         onShare: widget.onShare,
         onChange: _openChange,
         spots: _spots,
-      ),
-      _Phase.change => DisclosureChangePage(
-        key: const ValueKey(_Phase.change),
-        session: widget.session,
-        actions: _actions,
-        scrollTo: _changeTo,
-        spots: _spots,
-        onDone: () => _carry("change", "overview", () => _changing = false),
       ),
     };
     return AnimatedSwitcher(

@@ -97,7 +97,7 @@ class DocumentSheetHeading extends StatelessWidget {
 /// The heading of a document step in the left column of a sheet held
 /// sideways ([useSheetColumns]).
 TextStyle documentSplitHeadingStyle(YiviPalette palette) =>
-    palette.titleSmall.copyWith(height: 28 / 20, color: palette.heading);
+    palette.titleSmall.copyWith(height: 28 / 20);
 
 /// The text under [documentSplitHeadingStyle].
 TextStyle documentSplitBodyStyle(YiviPalette palette) =>

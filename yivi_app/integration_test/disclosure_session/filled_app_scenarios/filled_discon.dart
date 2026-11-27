@@ -40,7 +40,7 @@ Future<void> filledDisconTest(
 
   // Both cards are already obtained
   // Expect choices screen.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // Expect cards to have the right content
   final cardsFinder = findCredentialCards();
@@ -83,7 +83,7 @@ Future<void> filledDisconTest(
   await issueIdin(tester, irmaBinding);
 
   // Back on the share screen with iDIN selected.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await changeChoice(tester, 0);
   expectSheet(
     tester,
@@ -104,7 +104,7 @@ Future<void> filledDisconTest(
 
   // Leave the choices as they are.
   await closeChoiceSheet(tester);
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
 

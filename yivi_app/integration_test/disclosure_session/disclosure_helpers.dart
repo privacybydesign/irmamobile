@@ -53,7 +53,9 @@ Future<void> toOverview(WidgetTester tester) async {
 Future<void> openChangePage(WidgetTester tester) async {
   await tester.pumpAndSettle();
   if (onChangePage()) return;
-  if (find.byType(DisclosureFlow).evaluate().isEmpty) return;
+  if (find.byType(DisclosureFlow, skipOffstage: false).evaluate().isEmpty) {
+    return;
+  }
   await toOverview(tester);
   await tester.pumpAndSettle();
   // Still adding cards: the change page is not there yet.
@@ -700,7 +702,7 @@ Future<void> _scrollToCentre(WidgetTester tester, Finder finder) async {
 
 /// Waits for a started request to show: the add step or the overview.
 Future<void> waitForRequest(WidgetTester tester) =>
-    tester.waitFor(find.byType(DisclosureFlow));
+    tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
 
 /// Checks whether requested item [i] can be changed: on the change page its
 /// card has a link ("Choose another card", "Choose another …", "Choose

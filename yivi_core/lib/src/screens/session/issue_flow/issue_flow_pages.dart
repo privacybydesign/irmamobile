@@ -64,10 +64,13 @@ List<Widget> issueFlowPages(IssueSheetFlow flow) {
     subject = flow.host.subject(adding);
     total = flow.stepsOf(adding);
   } else {
-    final requestor = nested == null
-        ? null
-        : ref.watch(sessionStateProvider(nested)).value?.requestor;
-    subject = requestor == null ? null : IssueSheetSubject.request(requestor);
+    // "For …" names who asks for the card: only a request behind the
+    // sheet does (a disclosure the card is added during), never the issuer
+    // of a session scanned on its own.
+    final request = flow.host.request;
+    subject = request == null
+        ? const IssueSheetSubject.none()
+        : IssueSheetSubject.request(request.requestor);
     total = 0;
   }
   final offer = s.lastOffer;

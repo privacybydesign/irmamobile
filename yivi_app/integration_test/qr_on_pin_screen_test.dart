@@ -274,7 +274,9 @@ Future<void> testDisclosureGoesFullScreen(
   await tester.waitFor(find.textContaining("is asking for data"));
 
   await unlock(tester);
-  await tester.waitFor(find.byType(DisclosureFlow).hitTestable());
+  await tester.waitFor(
+    find.byType(DisclosureFlow, skipOffstage: false).hitTestable(),
+  );
   expect(find.byType(LockScannerSheet), findsNothing);
 }
 

@@ -51,7 +51,7 @@ Future<void> oneCredentialTwoChoicesTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // The default is irmago's first candidate: the newest e-mail address.
   await evaluateCredentialCard(

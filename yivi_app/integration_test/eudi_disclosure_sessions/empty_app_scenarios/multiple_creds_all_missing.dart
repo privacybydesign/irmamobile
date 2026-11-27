@@ -52,7 +52,7 @@ Future<void> multipleCredsAllMissingTest(
   await waitForRequest(tester);
 
   // One empty spot per missing credential.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   expect(findEmptySpot(0), findsOneWidget);
   expect(findEmptySpot(1), findsOneWidget);
 

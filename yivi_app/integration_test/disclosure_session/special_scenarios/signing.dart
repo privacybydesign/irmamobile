@@ -32,7 +32,7 @@ Future<void> signingTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   final requestorHeaderFinder = find.byType(RequestorCard);
   await evaluateRequestorHeader(

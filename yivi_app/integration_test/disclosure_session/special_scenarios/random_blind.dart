@@ -69,7 +69,7 @@ Future<void> randomBlindTest(
   await waitForRequest(tester);
 
   // We should go straight to the overview screen.
-  final overViewScreenFinder = find.byType(DisclosureFlow);
+  final overViewScreenFinder = find.byType(DisclosureFlow, skipOffstage: false);
   await tester.pumpUntilFound(
     overViewScreenFinder,
     timeout: const Duration(seconds: 5),

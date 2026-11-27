@@ -145,7 +145,7 @@ Future<void> _issueAndRevokeDemoCredential(
     }
   ''');
 
-  await tester.waitFor(find.byType(DisclosureFlow));
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
 
   await tester.tapAndSettle(find.byType(YiviCloseButton));
   await tester.tapAndSettle(find.text("Yes"));

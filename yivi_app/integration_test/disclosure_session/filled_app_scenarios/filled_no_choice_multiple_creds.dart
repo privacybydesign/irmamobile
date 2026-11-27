@@ -89,7 +89,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
 
   // Close it without changing anything.
   await closeChoiceSheet(tester);
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // Now two filled cards should be visible
   await openChangePage(tester);

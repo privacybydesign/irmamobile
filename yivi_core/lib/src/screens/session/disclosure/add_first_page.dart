@@ -185,7 +185,7 @@ class AddFirstPage extends ConsumerWidget {
           key: DisclosureKeys.title,
           style: palette
               .display(24, weight: FontWeight.w700)
-              .copyWith(height: 30 / 24, color: palette.heading),
+              .copyWith(height: 30 / 24),
         ),
       ),
       Padding(

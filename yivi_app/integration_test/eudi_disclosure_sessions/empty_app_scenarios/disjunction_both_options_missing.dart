@@ -61,7 +61,7 @@ Future<void> disjunctionBothOptionsMissingTest(
   await waitForRequest(tester);
 
   // One empty spot for either option; neither can be added (no IssueURL).
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   expect(findEmptySpot(0), findsOneWidget);
   expect(findEmptySpot(1), findsNothing);
   // Neither option can be added: the dead end (2.10).

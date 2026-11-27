@@ -54,7 +54,7 @@ Future<void> credMissingTest(
   // One empty spot, named from VCT type metadata. The bridge payload
   // returns `issuer.name == null` for missing-cred descriptors, so no issuer
   // assertion is meaningful here.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   expectEmptySpot(0, "Email Credential (SD-JWT)");
   expect(findEmptySpot(1), findsNothing);
 

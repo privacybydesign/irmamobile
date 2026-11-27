@@ -204,7 +204,7 @@ Future<void> _testRevokedCredentialFlaggedInDisclosure(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpUntilFound(find.byType(DisclosureFlow));
+  await tester.pumpUntilFound(find.byType(DisclosureFlow, skipOffstage: false));
 
   // The revoked instance is still offered, flagged: irmago marks it
   // unusable, so it is on the add step, said to be revoked (2.10).

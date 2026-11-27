@@ -34,7 +34,7 @@ Future<void> filledChoiceMixedTest(
 
   // Should go straight to overview screen,
   // because the address has already been obtained
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await toOverview(tester);
 
   // Expect the already obtained municipality address
@@ -68,7 +68,7 @@ Future<void> filledChoiceMixedTest(
   await issueIdin(tester, irmaBinding);
 
   // Back on the share screen with the new iDIN selected.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await toOverview(tester);
   await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
@@ -91,7 +91,7 @@ Future<void> filledChoiceMixedTest(
   await closeChoiceSheet(tester);
 
   // Still the iDIN on the share screen.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
   await openChangePage(tester);

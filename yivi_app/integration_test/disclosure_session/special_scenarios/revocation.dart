@@ -56,7 +56,7 @@ Future<void> revocationTest(
 
   // The card is revoked and a non-revocation proof is asked: the add step,
   // to add it again (2.10).
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   expect(
     find.descendant(
       of: findEmptySpot(0),
@@ -138,8 +138,8 @@ Future<void> revocationTest(
       ''');
 
   // Introduction was already completed in the first session, so it's skipped.
-  await tester.waitFor(find.byType(DisclosureFlow));
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // The revoked card cannot be shared: the add step shows it, to add again
   // (2.10), and nothing can be shared yet.

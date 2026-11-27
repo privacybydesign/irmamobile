@@ -224,7 +224,7 @@ Future<void> testDiscloseVcdm(
 
   // The verifier asks for two fields, but none is selectively disclosable, so
   // the card shows the whole credentialSubject: what the verifier will get.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final cardFinder = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
   expect(cardFinder, findsOneWidget);
@@ -351,7 +351,7 @@ Future<Map<String, dynamic>> _awaitReceived(String state) async {
 /// The request still opens, as one choice the wallet can fill with nothing:
 /// the VCDM credential is not offered, and nothing can be obtained for it.
 void _expectVcdmNotOffered() {
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   expect(findCredentialCards(skipOffstage: false), findsNothing);
 }
 
@@ -414,7 +414,7 @@ Future<void> testIssueAndDiscloseOpenBadge(
   await waitForRequest(tester);
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final cardFinder = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
   expect(cardFinder, findsOneWidget);

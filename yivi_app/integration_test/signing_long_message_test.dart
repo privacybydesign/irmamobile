@@ -68,8 +68,8 @@ void main() {
       await irmaBinding.repository.startTestSession(sessionRequest);
 
       // The signing screen rendered (i.e. did not freeze).
-      await tester.waitFor(find.byType(DisclosureFlow));
-      expect(find.byType(DisclosureFlow), findsOneWidget);
+      await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
+      expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
       expect(find.text("THE MESSAGE"), findsOneWidget);
 
       // The message is cut after a few lines with a fade, and "Read the whole

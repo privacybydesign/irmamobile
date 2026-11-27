@@ -78,7 +78,7 @@ Future<void> selectOneOfTwoEmailsAndTwoPhonesTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 

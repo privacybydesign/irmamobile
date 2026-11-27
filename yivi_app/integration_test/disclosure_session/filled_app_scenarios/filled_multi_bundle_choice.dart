@@ -46,7 +46,7 @@ Future<void> filledMultiBundleChoiceTest(
   await waitForRequest(tester);
 
   // Straight to overview — Bundle A satisfies the discon.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await toOverview(tester);
 
   final cardsFinder = findCredentialCards();

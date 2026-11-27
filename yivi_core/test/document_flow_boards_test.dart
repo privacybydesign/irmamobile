@@ -32,7 +32,8 @@ enum _Over { yes, no }
 const _phone = Size(390, 844);
 const _dutch = Locale("nl", "NL");
 
-const _textColor = Color(0xFF484747);
+/// Big titles, from 20: pure black.
+const _textColor = Color(0xFF000000);
 
 Future<void> _pump(
   WidgetTester tester,
@@ -163,7 +164,7 @@ void main() {
       onPressed: () {},
     );
 
-    testWidgets("G3: picture area 360, phone 300, title 24 bold in grey", (
+    testWidgets("G3: picture area 360, phone 300, title 24 bold in black", (
       tester,
     ) async {
       await _pump(

@@ -211,6 +211,49 @@ void main() {
     expect(find.byKey(DisclosureKeys.overview), findsOneWidget);
   });
 
+  testWidgets("a page of its own: a swipe anywhere takes it back", (
+    tester,
+  ) async {
+    final state = _session(eenvoudig());
+    await pumpTestApp(
+      tester,
+      DisclosureFlow(
+        session: state,
+        onDismiss: () {},
+        onClose: () {},
+        onShare: (_, _) {},
+      ),
+      size: const Size(390, 844),
+      locale: const Locale("nl", "NL"),
+      overrides: [
+        sessionStateProvider(_id).overrideWith((ref) => Stream.value(state)),
+        walletCardsProvider.overrideWithValue(const []),
+        sharesOfProvider(_id).overrideWith(
+          (ref) =>
+              (_) => LastShared.never,
+        ),
+      ],
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(DisclosureKeys.pile));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    // It slides in from the side, over the share screen.
+    final coming = tester.getTopLeft(find.byKey(const Key("change_page")));
+    expect(coming.dx, greaterThan(0));
+    await tester.pumpAndSettle();
+    expect(_page, findsOneWidget);
+    expect(
+      find.byKey(DisclosureKeys.overview, skipOffstage: false),
+      findsOneWidget,
+    );
+    // A swipe from the middle of the page, not only from the edge.
+    await tester.dragFrom(const Offset(195, 500), const Offset(300, 0));
+    await tester.pumpAndSettle();
+    expect(_page, findsNothing);
+    expect(find.byKey(DisclosureKeys.overview), findsOneWidget);
+  });
+
   testWidgets("Klaar returns to the overview", (tester) async {
     await _pump(tester, _session(drie()));
     await tester.tap(find.byKey(const Key("change_done")));

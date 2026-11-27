@@ -38,7 +38,7 @@ Future<void> attributeOrderTest(
   await waitForRequest(tester);
 
   // Expect the choices screen
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // Check the attribute order.
   await evaluateCredentialCard(

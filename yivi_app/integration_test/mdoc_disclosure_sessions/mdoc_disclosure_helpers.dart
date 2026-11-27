@@ -23,7 +23,7 @@ Future<EudiVerifierSession> startMdocDisclosure(
 ) async {
   final session = await startEudiVerifierSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session.uri);
-  await tester.waitFor(find.byType(DisclosureFlow));
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
   await tester.pumpAndSettle();
   return session;
 }
@@ -33,7 +33,7 @@ Future<EudiVerifierSession> startMdocDisclosure(
 /// row that "Can't be added in Yivi", and "Close" (2.10).
 /// Then taps Close.
 Future<void> expectCannotAddAndClose(WidgetTester tester) async {
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   expect(findEmptySpot(0), findsOneWidget);
   expect(findEmptySpot(1), findsNothing);
   expectCannotAdd(tester, 0);

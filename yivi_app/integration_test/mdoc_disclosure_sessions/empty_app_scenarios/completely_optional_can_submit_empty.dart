@@ -42,7 +42,7 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
   // spot: nothing is required, the age mdoc is an optional row, and the
   // button shares nothing.
   expect(find.byKey(const Key("add_step")), findsNothing);
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   expect(find.byKey(const Key("share_lead")), findsOneWidget);
   expect(
     find.byKey(const Key("share_add_optional_0"), skipOffstage: false),

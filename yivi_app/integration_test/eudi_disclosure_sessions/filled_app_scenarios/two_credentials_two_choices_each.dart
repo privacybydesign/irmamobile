@@ -70,7 +70,7 @@ Future<void> twoCredentialsTwoChoicesEachTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   // One card per requested credential, each with a Change pill.
   await openChangePage(tester);
   expect(findShareSlot(0), findsOneWidget);

@@ -25,7 +25,7 @@ Future<void> credentialSetAgeOrPidTest(
 
   // Only the age mdoc owned: it is the selection.
   await startMdocDisclosure(tester, irmaBinding, _ageOrPidDcql);
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   final overviewCards = findCredentialCards(skipOffstage: false);
   await openChangePage(tester);
   expect(overviewCards, findsOneWidget);
@@ -56,7 +56,7 @@ Future<void> credentialSetAgeOrPidTest(
   await issuePidMdoc(tester, irmaBinding);
 
   await startMdocDisclosure(tester, irmaBinding, _ageOrPidDcql);
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   await openChangePage(tester);
   expect(overviewCards, findsOneWidget);
 

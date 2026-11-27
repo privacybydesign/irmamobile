@@ -312,7 +312,9 @@ class YiviPalette {
   static YiviPalette forBrightness(Brightness brightness) =>
       brightness == Brightness.dark ? dark : light;
 
-  /// Alexandria, the display face used for headings in the redesign.
+  /// Alexandria, the display face used for headings in the redesign. A
+  /// big title (from 20) is in [text], pure black in light; smaller
+  /// headings in [heading].
   TextStyle display(double size, {FontWeight weight = FontWeight.w600}) =>
       TextStyle(
         package: packageName,
@@ -320,7 +322,7 @@ class YiviPalette {
         fontSize: size,
         height: size <= 16 ? 1.4 : 1.3,
         fontWeight: weight,
-        color: heading,
+        color: size >= 20 ? text : heading,
       );
 
   /// The title of a result or status screen.

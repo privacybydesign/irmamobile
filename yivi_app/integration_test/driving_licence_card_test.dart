@@ -366,7 +366,7 @@ Future<void> _startDisclosure(
       "disclose": [[[ $requested ]]]
     }
   ''');
-  await tester.waitFor(find.byType(DisclosureFlow));
+  await tester.waitFor(find.byType(DisclosureFlow, skipOffstage: false));
   await tester.ensureVisible(_table);
   await tester.pumpAndSettle();
 }

@@ -35,7 +35,7 @@ Future<void> filledChoiceTest(
   await waitForRequest(tester);
 
   // Expect the choices screen
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   // Expect one credential card to be present
   final cardFinder = findCredentialCards();
@@ -70,7 +70,7 @@ Future<void> filledChoiceTest(
   await issueMobileNumber(tester, irmaBinding);
 
   // Back on the share screen with the new mobile number selected.
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
   expect(findChoiceSheet(), findsNothing);
   await openChangePage(tester);
   expect(cardFinder, findsOneWidget);
@@ -94,7 +94,7 @@ Future<void> filledChoiceTest(
 
   // Keep it as it is.
   await closeChoiceSheet(tester);
-  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(find.byType(DisclosureFlow, skipOffstage: false), findsOneWidget);
 
   await evaluateRequestorHeader(
     tester,
