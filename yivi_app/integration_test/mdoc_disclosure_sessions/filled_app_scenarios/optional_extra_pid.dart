@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -50,8 +50,9 @@ Future<void> optionalExtraPidTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   // Default selection is the required credential.
@@ -67,7 +68,8 @@ Future<void> optionalExtraPidTest(
   // shares it. Once shared, "Change choice" opens the sheet again.
   final optional = optionalItemIndex(tester);
   await addOptional(tester, optional);
-  expect(find.byKey(Key("share_change_$optional")), findsOneWidget);
+  await expectCanChange(tester, optional, true);
+  await openChangePage(tester);
   expect(cardsFinder, findsNWidgets(2));
   final pidSlot = findShareSlot(optional);
   await tester.scrollUntilVisible(pidSlot, 100);
@@ -82,9 +84,10 @@ Future<void> optionalExtraPidTest(
   // Leave the optional PID out again and share only the age claim.
   await removeOptional(tester, optional);
   expect(
-    find.byKey(Key("share_add_optional_$optional"), skipOffstage: false),
+    find.byKey(Key("change_optional_link_$optional"), skipOffstage: false),
     findsOneWidget,
   );
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   await shareAndFinishEudiDisclosure(tester);

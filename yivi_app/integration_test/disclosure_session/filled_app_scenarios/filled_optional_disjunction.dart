@@ -1,5 +1,4 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
@@ -39,17 +38,20 @@ Future<void> filledOptionalDisjunctionTest(
   // optional mobile number an "Add" row.
   await waitForRequest(tester);
   expectEmptySpot(0, "Demo Email address");
-  expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
+  // Optional data is never part of the add step.
+  expect(findEmptySpot(1), findsNothing);
   expectShareWaitsFor(tester, "Demo Email address");
 
   // The test issues the card the way the issuer's website would: it lands
   // in its spot.
   await issueEmailAddress(tester, irmaBinding);
   await expectAddedInPlace(tester, 0);
+  await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
 
   // The mobile number is optional and starts left out.
   final cardsFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   expect(findShareSlot(1), findsNothing);
 
@@ -61,7 +63,7 @@ Future<void> filledOptionalDisjunctionTest(
   expect(
     find.descendant(
       of: findChoiceSheet(),
-      matching: find.text("Do you want to share this too?"),
+      matching: find.text("Which card do you share?"),
     ),
     findsWidgets,
   );
@@ -79,8 +81,12 @@ Future<void> filledOptionalDisjunctionTest(
 
   // Keep the mobile number in the app: the sheet closes and it is shared.
   await pickOwned(tester, "0612345678");
+  await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
+  await openChangePage(tester);
   expect(findShareSlot(1), findsOneWidget);
+
+  await openChangePage(tester);
 
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(

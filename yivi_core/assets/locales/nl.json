@@ -1648,7 +1648,6 @@
       "marker_label": "wordt bewaard door {requestor}"
     },
     "receive": {
-      "section": "Dit krijg je terug",
       "button": "Delen en ontvangen",
       "button_only": "Ontvangen",
       "done_text": "{name} staat nu in je app. Je vindt dit terug in Activiteit."

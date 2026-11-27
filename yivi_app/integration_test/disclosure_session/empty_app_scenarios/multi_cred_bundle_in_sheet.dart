@@ -35,13 +35,10 @@ Future<void> multiCredBundleInSheetTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
   await waitForRequest(tester);
 
+  // One way to fill the row, two cards: the sheet opens on the first.
   await tapSpot(tester, 0);
-  expect(find.byKey(const Key("sheet_together")), findsOneWidget);
 
   // Card 1 of 2.
-  await tester.tapAndSettle(
-    find.byKey(const Key("sheet_add_irma-demo.MijnOverheid.root")),
-  );
   expect(
     find.text("For is.demo.staging.yivi.app · card 1 of 2"),
     findsOneWidget,

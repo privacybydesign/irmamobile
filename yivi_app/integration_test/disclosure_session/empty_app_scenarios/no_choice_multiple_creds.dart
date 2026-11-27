@@ -1,5 +1,4 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -61,8 +60,8 @@ Future<void> noChoiceMultipleCredsTest(
 
   // A Change button on both: another e-mail address or number can still be
   // added.
-  expect(find.byKey(const Key("share_change_0")), findsOneWidget);
-  expect(find.byKey(const Key("share_change_1")), findsOneWidget);
+  await expectCanChange(tester, 0, true);
+  await expectCanChange(tester, 1, true);
   await tapShare(tester);
   await evaluateFeedback(tester);
 }

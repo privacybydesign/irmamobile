@@ -7,7 +7,7 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/notifications/notifications_provider.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/widgets/bars/title_scroll_edge.dart";
@@ -145,7 +145,7 @@ Future<void> _issueAndRevokeDemoCredential(
     }
   ''');
 
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await tester.waitFor(find.byType(DisclosureFlow));
 
   await tester.tapAndSettle(find.byType(YiviCloseButton));
   await tester.tapAndSettle(find.text("Yes"));

@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -49,13 +49,13 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
 
   // No required cred is missing, so the share screen has no empty spot.
   expect(findEmptySpot(0), findsNothing);
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   // Nothing is included: the button shares without data.
   expect(
     find.descendant(
       of: find.byKey(const Key("share_button")),
-      matching: find.text("Share without data"),
+      matching: find.text("Continue without sharing"),
     ),
     findsOneWidget,
   );

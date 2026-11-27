@@ -1,8 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 
 import "../../helpers/helpers.dart";
@@ -55,14 +54,16 @@ Future<void> revocationTest(
       ''');
   await waitForRequest(tester);
 
-  // The disclosure permission overview screen should be visible.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  expect(find.text("You share data with"), findsOneWidget);
-  expect(find.byType(RequestorCard), findsOneWidget);
-
-  // Find all credential cards
-  final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsOneWidget);
+  // The card is revoked and a non-revocation proof is asked: the add step,
+  // to add it again (2.10).
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  expect(
+    find.descendant(
+      of: findEmptySpot(0),
+      matching: find.text("Revoked. Add it again."),
+    ),
+    findsOneWidget,
+  );
 
   // Close the session
   await tester.tapAndSettle(find.byType(YiviCloseButton));
@@ -122,7 +123,8 @@ Future<void> revocationTest(
   // Close the detail view
   await closeCredentialDetail(tester);
 
-  // Start the disclosure session again
+  // Start the disclosure session again, again asking for a non-revocation
+  // proof: only then is a revoked card unusable (irmago decides, 2.14)
   await irmaBinding.repository.startTestSession('''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",
@@ -130,36 +132,27 @@ Future<void> revocationTest(
             [
               [ "irma-demo.MijnOverheid.root.BSN" ]
             ]
-          ]
+          ],
+          "revocation": [ "irma-demo.MijnOverheid.root" ]
         }
       ''');
 
   // Introduction was already completed in the first session, so it's skipped.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureFlow));
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
-  // Find the revoked credential card and evaluate it
-  final demoCredentialCardFinder = cardsFinder.first;
-  await _evaluateDemoCredentialCard(
-    tester,
-    demoCredentialCardFinder,
-    isRevoked: true,
-  );
-
-  // The button doesn't share: it gets a new card (or, without a way to in
-  // Yivi, closes), with what is left above it. The card itself has no
-  // button.
-  expect(shareButtonEnabled(tester), isFalse);
+  // The revoked card cannot be shared: the add step shows it, to add again
+  // (2.10), and nothing can be shared yet.
+  expect(findEmptySpot(0), findsOneWidget);
   expect(
-    shareReason(tester),
-    anyOf(
-      "One more thing to sort out, then you can share",
-      contains("can't renew"),
+    find.descendant(
+      of: findEmptySpot(0),
+      matching: find.text("Revoked. Add it again."),
     ),
+    findsOneWidget,
   );
-  expect(find.byKey(const Key("shared_card_fix")), findsNothing);
-
-  expect(find.byKey(const Key("share_change_0")), findsNothing);
+  expectShareWaitsFor(tester, "Demo Root");
+  expect(shareButtonEnabled(tester), isFalse);
 
   // Now reobtain the card.
   await issueCredentials(
@@ -169,15 +162,15 @@ Future<void> revocationTest(
     revocationKeys: {"irma-demo.MijnOverheid.root": generateRevocationKey()},
   );
 
-  // Revoked card should be visible here too.
+  // The new card is in, and it is the one shared.
+  await expectAddedInPlace(tester, 0);
+  expect(shareButtonEnabled(tester), isTrue);
+  await toOverview(tester);
   await _evaluateDemoCredentialCard(
     tester,
-    demoCredentialCardFinder,
+    findCredentialCards().first,
     isRevoked: false,
   );
-
-  // The share button is enabled now.
-  expect(shareButtonEnabled(tester), isTrue);
 
   await tapShare(tester);
   await evaluateFeedback(tester);

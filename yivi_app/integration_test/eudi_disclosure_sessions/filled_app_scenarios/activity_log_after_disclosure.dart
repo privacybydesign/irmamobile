@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -64,7 +64,7 @@ Future<void> activityLogAfterDisclosureTest(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await tester.waitFor(find.byType(DisclosureFlow));
 
   await evaluateCredentialCard(
     tester,

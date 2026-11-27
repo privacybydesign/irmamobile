@@ -41,10 +41,17 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     "irma-demo.sidn-pbdf.email.domain": "demo.com",
   });
 
-  // Still the card that doesn't count, now the one just added.
+  // Still a card with another value than asked, now the one just added:
+  // the row stays to do, saying what is in the app.
   await tester.pumpAndSettle();
   expect(findNotCounted(0), findsOneWidget);
-  expect(findEmptySpot(0), findsNothing);
+  expect(
+    find.descendant(
+      of: findNotCounted(0),
+      matching: find.textContaining("In your app:"),
+    ),
+    findsOneWidget,
+  );
 
   // Now the issuer adds the right one: it lands in its spot.
   await issueCredentials(tester, irmaBinding, {
@@ -53,9 +60,11 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   });
   await expectAddedInPlace(tester, 0);
   expect(findNotCounted(0), findsNothing);
+  await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

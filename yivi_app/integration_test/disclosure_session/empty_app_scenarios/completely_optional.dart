@@ -3,7 +3,7 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -34,9 +34,9 @@ Future<void> completelyOptionalTest(
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Nothing is required: the share screen opens directly, with the e-mail
-  // address as optional data that is not in the app yet.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  // Nothing is required: the overview opens directly (no add step), with
+  // the e-mail address as optional data that is not in the app yet.
+  await tester.waitFor(find.byType(DisclosureFlow));
   expect(find.byKey(const Key("share_lead")), findsOneWidget);
   expect(findShareSlot(0), findsNothing);
 
@@ -61,7 +61,8 @@ Future<void> completelyOptionalTest(
   // Leave the optional data out again.
   await removeOptional(tester, 0);
   expect(findShareSlot(0), findsNothing);
-  expect(find.text("Share without data"), findsOneWidget);
+  await toOverview(tester);
+  expect(find.text("Continue without sharing"), findsOneWidget);
 
   await tapShare(tester);
   await evaluateFeedback(tester);

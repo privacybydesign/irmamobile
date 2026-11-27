@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -73,8 +73,9 @@ Future<void> optionalExtraCredentialTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   // Default selection is the required cred (phone).
@@ -93,7 +94,7 @@ Future<void> optionalExtraCredentialTest(
   expect(
     find.descendant(
       of: findChoiceSheet(),
-      matching: find.text("Do you want to share this too?"),
+      matching: find.text("Which card do you share?"),
     ),
     findsWidgets,
   );
@@ -103,23 +104,24 @@ Future<void> optionalExtraCredentialTest(
   expect(sheetOwnedRowsWith("one@example.com"), findsOneWidget);
   expect(sheetOwnedRowsWith("two@example.com"), findsOneWidget);
 
-  // One tap includes the first and closes the sheet.
+  // A tap selects the first, "Choose" shares it.
   await pickOwned(tester, "one@example.com");
 
   // Overview now shows two cards: phone + chosen email.
+  await openChangePage(tester);
   expect(cardsFinder, findsNWidgets(2));
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
+    findShareSlot(optional),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
     attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
   );
 
-  // Leave the optional card out again: the add row is back.
+  // Leave the optional card out again: its link is back.
   await removeOptional(tester, optional);
-  expect(find.byKey(Key("share_add_optional_$optional")), findsOneWidget);
+  expect(find.byKey(Key("change_optional_link_$optional")), findsOneWidget);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   await shareAndFinishEudiDisclosure(tester);

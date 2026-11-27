@@ -68,6 +68,11 @@ Future<void> callingSessionTest(
     findsOneWidget,
   );
   expect(find.text("Call is.demo.staging.yivi.app"), findsOneWidget);
+  // It says nothing about what the other side sees.
+  expect(
+    find.text("Call to continue. You'll find this in Activity."),
+    findsOneWidget,
+  );
 
   // Note: We don't press the call button because this will initiate the call,
   // which is not supported in integration tests.

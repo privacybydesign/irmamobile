@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -10,9 +10,10 @@ import "../eudi_choice_helpers.dart";
 /// DCQL claim_sets — verifier offers two satisfying claim sets:
 ///   1. email-cond: email == "one@example.com"
 ///   2. domain-cond: domain == "template.com" + email-general (any email)
-/// Wallet has three emails, two of which satisfy a claim set. Asserts the
-/// first satisfying credential is preselected and that the Change
-/// sheet lists exactly the two matching owned credentials.
+/// Wallet has three emails, two of which satisfy a claim set. Asserts
+/// irmago's first candidate (the newest) is preselected, sharing the claims
+/// of the claim set it satisfies, and that the sheet lists exactly the two
+/// matching owned credentials.
 ///
 /// Unlike the IRMA-issued SD-JWT spine, the sheet has no "Not in your app
 /// yet" part: the irmago backend leaves `obtainable_options == null` for
@@ -76,20 +77,22 @@ Future<void> claimSetsPickFirstSatisfyingTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await openChangePage(tester);
   expect(findCredentialCards(skipOffstage: false), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
-  // Two owned (matching emails), in this order, and nothing to add.
+  // Two owned (matching emails), in irmago's order (newest first), and
+  // nothing to add.
   expectOnlyOwnedInSheet(2);
   final rows = findSheetOwnedRows();
   expect(
-    find.descendant(of: rows.at(0), matching: find.text("one@example.com")),
+    find.descendant(of: rows.at(0), matching: find.text("two@template.com")),
     findsOneWidget,
   );
   expect(
-    find.descendant(of: rows.at(1), matching: find.text("two@template.com")),
+    find.descendant(of: rows.at(1), matching: find.text("one@example.com")),
     findsOneWidget,
   );
 
@@ -103,7 +106,7 @@ Future<void> claimSetsPickFirstSatisfyingTest(
       (
         credentialName: "Email Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [("Email", "one@example.com")],
+        attributes: [("Email", "two@template.com"), ("Domain", "template.com")],
       ),
     ],
   );

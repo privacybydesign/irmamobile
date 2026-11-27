@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
@@ -38,7 +38,8 @@ Future<void> filledNoChoiceMultipleCredsTest(
   // The request shows at once: the e-mail address in place, the mobile
   // number an empty spot that Share waits for.
   await waitForRequest(tester);
-  expect(findShareSlot(0), findsOneWidget);
+  // The e-mail address is in the app: no row for it.
+  expect(findEmptySpot(0), findsNothing);
   expectEmptySpot(1, "Demo Mobile phone number");
   expectShareWaitsFor(tester, "Demo Mobile phone number");
 
@@ -52,10 +53,12 @@ Future<void> filledNoChoiceMultipleCredsTest(
   await expectAddedInPlace(tester, 1);
 
   // The requestor header should be present
+  await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
 
   // Two cards should be visible: email and mobile phone
   final cardsFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,
@@ -86,9 +89,10 @@ Future<void> filledNoChoiceMultipleCredsTest(
 
   // Close it without changing anything.
   await closeChoiceSheet(tester);
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   // Now two filled cards should be visible
+  await openChangePage(tester);
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,

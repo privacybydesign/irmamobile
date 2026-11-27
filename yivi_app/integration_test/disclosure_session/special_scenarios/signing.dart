@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/disclosure/signed_message.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
@@ -32,7 +32,7 @@ Future<void> signingTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   final requestorHeaderFinder = find.byType(RequestorCard);
   await evaluateRequestorHeader(
@@ -50,9 +50,12 @@ Future<void> signingTest(
     "Message to be signed by user",
   );
 
+  await toOverview(tester);
+
   expect(find.byType(RequestorCard), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

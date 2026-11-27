@@ -34,10 +34,17 @@ Future<void> filledSpecificAttributeValuesMatchTest(
   // The e-mail address is missing (the one in the app has another domain):
   // the address is in place, the e-mail address an empty spot.
   await waitForRequest(tester);
-  expect(findShareSlot(0), findsOneWidget);
-  // The e-mail address in the app doesn't count: it shows in place, with
-  // what they ask beside its domain.
+  expect(findEmptySpot(0), findsNothing);
+  // The e-mail address in the app has another domain: its row says what is
+  // in the app and what is asked.
   expect(findNotCounted(1), findsOneWidget);
+  expect(
+    find.descendant(
+      of: findNotCounted(1),
+      matching: find.textContaining("In your app:"),
+    ),
+    findsOneWidget,
+  );
   expectShareWaitsFor(tester, "Demo Email address");
 
   // The issuer adds an e-mail address with the wrong domain.
@@ -46,10 +53,16 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     "irma-demo.sidn-pbdf.email.domain": "demo.com",
   });
 
-  // Still the card that doesn't count, now the one just added.
+  // Still a card with another value: the row stays to do.
   await tester.pumpAndSettle();
   expect(findNotCounted(1), findsOneWidget);
-  expect(findEmptySpot(1), findsNothing);
+  expect(
+    find.descendant(
+      of: findNotCounted(1),
+      matching: find.textContaining("In your app:"),
+    ),
+    findsOneWidget,
+  );
 
   // Now the issuer adds the right one: it lands in its spot.
   await issueCredentials(tester, irmaBinding, {
@@ -58,9 +71,11 @@ Future<void> filledSpecificAttributeValuesMatchTest(
   });
   await expectAddedInPlace(tester, 1);
   expect(findNotCounted(1), findsNothing);
+  await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
 
   final cardsFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,

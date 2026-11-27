@@ -11,7 +11,7 @@ import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/pin/widgets/waiting_request_announcement.dart";
 import "package:yivi_core/src/screens/scanner/lock_scanner_sheet.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/widgets/bars/app_bar.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 
@@ -274,7 +274,7 @@ Future<void> testDisclosureGoesFullScreen(
   await tester.waitFor(find.textContaining("is asking for data"));
 
   await unlock(tester);
-  await tester.waitFor(find.byType(DisclosureShareScreen).hitTestable());
+  await tester.waitFor(find.byType(DisclosureFlow).hitTestable());
   expect(find.byType(LockScannerSheet), findsNothing);
 }
 

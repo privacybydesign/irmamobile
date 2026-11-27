@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/disclosure/signed_message.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
@@ -38,20 +38,17 @@ Future<void> randomBlindTest(
     "Demo Voting Card",
     hint: "Can't be added in Yivi. Get it from Demo Voting Card Issuer first.",
   );
-  expect(
-    shareReason(tester),
-    "Yivi can't add demo Voting Card. Get it from Demo Voting Card Issuer "
-    "first, then scan the QR code again.",
-  );
+  // The dead end of 2.10: nothing is shared (this is a signature).
+  expect(shareReason(tester), "You sign nothing");
   expect(
     find.descendant(
-      of: find.byKey(const Key("share_button")),
+      of: find.byKey(const Key("share_next")),
       matching: find.text("Close"),
     ),
     findsOneWidget,
   );
 
-  await tapShare(tester);
+  await tester.tapAndSettle(find.byKey(const Key("share_next")));
 
   // Session flow should be over now
   expect(find.byType(SessionScreen), findsNothing);
@@ -72,7 +69,7 @@ Future<void> randomBlindTest(
   await waitForRequest(tester);
 
   // We should go straight to the overview screen.
-  final overViewScreenFinder = find.byType(DisclosureShareScreen);
+  final overViewScreenFinder = find.byType(DisclosureFlow);
   await tester.pumpUntilFound(
     overViewScreenFinder,
     timeout: const Duration(seconds: 5),
@@ -89,6 +86,7 @@ Future<void> randomBlindTest(
 
   // One IrmaCredentialCard should be present
   final credentialCardFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(credentialCardFinder, findsOneWidget);
 
   // The credential should be a stempas credential

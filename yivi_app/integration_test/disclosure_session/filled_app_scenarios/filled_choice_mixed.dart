@@ -1,12 +1,11 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 import "sheet_checks.dart";
 
@@ -35,11 +34,12 @@ Future<void> filledChoiceMixedTest(
 
   // Should go straight to overview screen,
   // because the address has already been obtained
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(RequestorCard));
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await toOverview(tester);
 
   // Expect the already obtained municipality address
   final cardsFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -68,11 +68,9 @@ Future<void> filledChoiceMixedTest(
   await issueIdin(tester, irmaBinding);
 
   // Back on the share screen with the new iDIN selected.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(
-    find.byType(RequestorCard),
-    timeout: const Duration(seconds: 5),
-  );
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await toOverview(tester);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -93,8 +91,10 @@ Future<void> filledChoiceMixedTest(
   await closeChoiceSheet(tester);
 
   // Still the iDIN on the share screen.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

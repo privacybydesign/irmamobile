@@ -279,6 +279,13 @@ void main() {
   });
 
   group("an unknown requestor", () {
+    testWidgets("sharing nothing: no warning", (tester) async {
+      await _pump(tester, _session(nietsnodig(), verified: false));
+      expect(find.byKey(DisclosureKeys.trustWash), findsOneWidget);
+      expect(find.byKey(DisclosureKeys.reason), findsNothing);
+      expect(find.text("Doorgaan zonder te delen"), findsOneWidget);
+    });
+
     testWidgets("the reason, Toch delen, and the dialog first", (tester) async {
       final spy = await _pump(tester, _session(eenvoudig(), verified: false));
       expect(find.byKey(DisclosureKeys.trustWash), findsOneWidget);

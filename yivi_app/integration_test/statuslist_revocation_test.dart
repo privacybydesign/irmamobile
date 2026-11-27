@@ -3,11 +3,12 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/refresh_credential_statuses_event.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
+import "disclosure_session/disclosure_helpers.dart";
 import "helpers/eudi_issuance_helpers.dart";
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -203,21 +204,17 @@ Future<void> _testRevokedCredentialFlaggedInDisclosure(
 
   final sessionUrl = await startVeramoVPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
-  await tester.pumpUntilFound(find.byType(DisclosureShareScreen));
+  await tester.pumpUntilFound(find.byType(DisclosureFlow));
 
-  final cardsFinder = findCredentialCards();
+  // The revoked instance is still offered, flagged: irmago marks it
+  // unusable, so it is on the add step, said to be revoked (2.10).
+  expect(find.byKey(const Key("add_step")), findsOneWidget);
   expect(
-    cardsFinder,
+    find.descendant(
+      of: findEmptySpot(0),
+      matching: find.textContaining("Revoked"),
+    ),
     findsOneWidget,
-    reason: "the revoked instance must still be offered as an option",
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: _credentialName,
-    issuerName: _issuerName,
-    isRevoked: true,
-    expectReobtainButton: false,
   );
 
   // Leave no session behind for the next test.

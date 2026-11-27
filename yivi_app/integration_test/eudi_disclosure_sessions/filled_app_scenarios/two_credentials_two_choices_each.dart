@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -70,9 +70,11 @@ Future<void> twoCredentialsTwoChoicesEachTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   // One card per requested credential, each with a Change pill.
+  await openChangePage(tester);
   expect(findShareSlot(0), findsOneWidget);
+  await openChangePage(tester);
   expect(findShareSlot(1), findsOneWidget);
 
   // Email sheet: two owned options only. Close it without changing.
@@ -97,12 +99,12 @@ Future<void> twoCredentialsTwoChoicesEachTest(
       (
         credentialName: "Email Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
+        attributes: [("Email", "two@template.com"), ("Domain", "template.com")],
       ),
       (
         credentialName: "Phone Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [("Phone Number", "0612345678")],
+        attributes: [("Phone Number", "0687654321")],
       ),
     ],
   );

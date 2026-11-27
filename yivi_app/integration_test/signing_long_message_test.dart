@@ -3,7 +3,7 @@ import "dart:convert";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/disclosure/signature_message_text.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 
@@ -68,8 +68,8 @@ void main() {
       await irmaBinding.repository.startTestSession(sessionRequest);
 
       // The signing screen rendered (i.e. did not freeze).
-      await tester.waitFor(find.byType(DisclosureShareScreen));
-      expect(find.byType(DisclosureShareScreen), findsOneWidget);
+      await tester.waitFor(find.byType(DisclosureFlow));
+      expect(find.byType(DisclosureFlow), findsOneWidget);
       expect(find.text("THE MESSAGE"), findsOneWidget);
 
       // The message is cut after a few lines with a fade, and "Read the whole

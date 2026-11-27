@@ -4,6 +4,7 @@ import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -61,6 +62,7 @@ Future<void> activityLogAfterDisclosureTest(
 
   // What went.
   final cardsFinder = find.byType(ActivityCredentialTile, skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

@@ -1648,7 +1648,6 @@
       "marker_label": "wird von {requestor} gespeichert"
     },
     "receive": {
-      "section": "Das bekommst du zurück",
       "button": "Teilen und empfangen",
       "button_only": "Empfangen",
       "done_text": "{name} ist jetzt in deiner App. Du findest das unter Aktivität."

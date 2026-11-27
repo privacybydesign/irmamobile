@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../disclosure_session/disclosure_helpers.dart";
 import "../helpers/eudi_stack_helpers.dart";
@@ -23,21 +23,20 @@ Future<EudiVerifierSession> startMdocDisclosure(
 ) async {
   final session = await startEudiVerifierSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session.uri);
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await tester.waitFor(find.byType(DisclosureFlow));
   await tester.pumpAndSettle();
   return session;
 }
 
 /// Checks the share screen for an mdoc that nothing in the wallet satisfies
 /// and that Yivi cannot add (an mdoc descriptor has no issue URL): one empty
-/// spot that "Can't be added in Yivi", and "Close" with where to get it.
+/// row that "Can't be added in Yivi", and "Close" (2.10).
 /// Then taps Close.
 Future<void> expectCannotAddAndClose(WidgetTester tester) async {
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   expect(findEmptySpot(0), findsOneWidget);
   expect(findEmptySpot(1), findsNothing);
   expectCannotAdd(tester, 0);
-  expect(shareReason(tester), contains("Get it from"));
   await tapShare(tester);
 }
 
@@ -69,33 +68,34 @@ bool isSheetRowSelected(WidgetTester tester, Finder row) =>
               .descendant(
                 of: row,
                 matching: find.byWidgetPredicate(
-                  (w) =>
-                      w is Semantics &&
-                      w.properties.inMutuallyExclusiveGroup == true,
+                  (w) => w is Semantics && w.properties.selected != null,
                 ),
+                matchRoot: true,
               )
               .first,
         )
         .properties
-        .checked ==
+        .selected ==
     true;
 
 /// The index of the one optional item on the share screen that is not
 /// shared yet (its "Add" row, `share_add_optional_<i>`). Requested items are
 /// numbered in the order irmago sends them, which a DCQL query does not fix.
 int optionalItemIndex(WidgetTester tester) {
+  // On the change page optional data that is not shared has its link.
+  final prefix = onChangePage()
+      ? "change_optional_link_"
+      : "share_add_optional_";
   final keys = find
       .byWidgetPredicate(
         (w) =>
             w.key is ValueKey<String> &&
-            (w.key! as ValueKey<String>).value.startsWith(
-              "share_add_optional_",
-            ),
+            (w.key! as ValueKey<String>).value.startsWith(prefix),
         skipOffstage: false,
       )
       .evaluate()
       .map((e) => (e.widget.key! as ValueKey<String>).value)
       .toList();
   expect(keys, hasLength(1), reason: "one optional item to add");
-  return int.parse(keys.single.substring("share_add_optional_".length));
+  return int.parse(keys.single.substring(prefix.length));
 }

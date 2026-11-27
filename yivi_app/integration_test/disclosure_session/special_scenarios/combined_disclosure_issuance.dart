@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 
@@ -39,7 +39,7 @@ Future<void> combinedDisclosureIssuanceSessionTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // One screen for both: what is shared, and the card that is received.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await tester.waitFor(find.byType(DisclosureFlow));
   expect(find.text("You share data with"), findsOneWidget);
   expect(find.text("YOU GET THIS IN RETURN"), findsOneWidget);
   expect(find.text("Demo Login data"), findsWidgets);

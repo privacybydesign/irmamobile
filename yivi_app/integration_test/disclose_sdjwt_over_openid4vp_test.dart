@@ -14,7 +14,7 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dar
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
@@ -300,9 +300,10 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   await waitForRequest(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(tester, cardsFinder);
 
@@ -312,13 +313,19 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   final session2Url = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session2Url);
 
-  await tester.waitFor(find.byType(DisclosureShareScreen));
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureFlow));
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
-  expect(cardsFinder, findsOneWidget);
-  await evaluateCredentialCard(tester, cardsFinder, isExpired: true);
-
-  // make sure the share button is disabled, so it can't be pressed...
+  // The card is used up: irmago marks it unusable, so it is an add-step
+  // row to add again (2.10), and nothing can be shared yet.
+  expect(findEmptySpot(0), findsOneWidget);
+  expect(
+    find.descendant(
+      of: findEmptySpot(0),
+      matching: find.textContaining("Add it again."),
+    ),
+    findsOneWidget,
+  );
   expect(shareButtonEnabled(tester), isFalse);
 
   // issue it again...
@@ -413,9 +420,10 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   await waitForRequest(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   await tapChangeChoicesButton(tester);
@@ -495,8 +503,9 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   await evaluateCredentialCard(
@@ -505,7 +514,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: [
-      ("Email address", "one@example.com"),
+      ("Email address", "three@example.com"),
       ("Email domain name", "example.com"),
     ],
   );
@@ -572,8 +581,9 @@ Future<void> testClaimValueOnePresentOneNot(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   await evaluateCredentialCard(
@@ -682,8 +692,10 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
+
+  await openChangePage(tester);
 
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
@@ -702,7 +714,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
   expect(
     find.descendant(
       of: findChoiceSheet(),
-      matching: find.text("Do you want to share this too?"),
+      matching: find.text("Which card do you share?"),
     ),
     findsWidgets,
   );
@@ -711,6 +723,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   // Picking one includes it and closes the sheet.
   await pickOwned(tester, "one@example.com");
+  await openChangePage(tester);
   expect(cardsFinder, findsNWidgets(2));
   final emailSlot = findShareSlot(optional);
   await tester.scrollUntilVisible(emailSlot, 100);
@@ -728,9 +741,10 @@ Future<void> testOptionallyDiscloseExtraCredential(
   // Leave it out again.
   await removeOptional(tester, optional);
   expect(
-    find.byKey(Key("share_add_optional_$optional"), skipOffstage: false),
+    find.byKey(Key("change_optional_link_$optional"), skipOffstage: false),
     findsOneWidget,
   );
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   await shareAndFinishDisclosureSession(tester);
@@ -820,7 +834,7 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
@@ -934,13 +948,10 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   // Each card can be changed: both types have two cards in the app.
   for (final i in [0, 1]) {
-    expect(
-      find.byKey(Key("share_change_$i"), skipOffstage: false),
-      findsOneWidget,
-    );
+    await expectCanChange(tester, i, true);
   }
 
   // The e-mail address: both in the app, and another to add.
@@ -962,6 +973,8 @@ Future<void> testTwoCredentialsTwoChoicesEach(
   final cardsFinder = find.byType(ActivityCredentialTile, skipOffstage: false);
   const expectedNumCards = 2;
 
+  await openChangePage(tester);
+
   expect(cardsFinder, findsExactly(expectedNumCards));
 
   // email and mobilenumber should both be there, but the order is not predefined fixed
@@ -982,8 +995,9 @@ Future<void> testTwoCredentialsTwoChoicesEach(
         issuerName: "Demo Privacy by Design Foundation via SIDN",
         credentialName: "Demo Email address",
         attributes: [
-          ("Email address", "one@example.com"),
-          ("Email domain name", "example.com"),
+          // irmago's first candidate: the newest card.
+          ("Email address", "two@template.com"),
+          ("Email domain name", "template.com"),
         ],
       );
       emailFound = true;
@@ -1051,7 +1065,7 @@ Future<void> testOneCredentialTwoChoices(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
@@ -1068,7 +1082,7 @@ Future<void> testOneCredentialTwoChoices(
   await tester.waitUntilDisappeared(findChoiceSheet());
 
   // Back on the share screen, with the newly issued card selected.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final overviewCardsFinder = findCredentialCards(skipOffstage: false);
   expect(overviewCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
@@ -1141,7 +1155,7 @@ Future<void> testOneMissingOnePresent(
   // The phone number is missing: the e-mail address is in place, the phone
   // number an empty spot that Share waits for.
   await waitForRequest(tester);
-  expect(findShareSlot(0), findsOneWidget);
+  expect(findEmptySpot(0), findsNothing);
   expectEmptySpot(1, "Demo Mobile phone number", hint: _sidn);
   expectShareWaitsFor(tester, "Demo Mobile phone number");
 
@@ -1482,10 +1496,11 @@ Future<void> testDiscloseSdJwtWithChoices(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   // expect one card, namely the email credential
   final cardFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -1665,24 +1680,25 @@ Future<void> _pickOwnedContaining(WidgetTester tester, String text) async {
         .first,
   );
   await tester.tapAndSettle(row);
-  await tester.waitUntilDisappeared(findChoiceSheet());
+  await chooseInSheet(tester);
 }
 
 /// The index of the one optional item on the share screen that is not
 /// shared yet (its "Add" row, `share_add_optional_<i>`).
 int _optionalItemIndex() {
+  final prefix = onChangePage()
+      ? "change_optional_link_"
+      : "share_add_optional_";
   final keys = find
       .byWidgetPredicate(
         (w) =>
             w.key is ValueKey<String> &&
-            (w.key! as ValueKey<String>).value.startsWith(
-              "share_add_optional_",
-            ),
+            (w.key! as ValueKey<String>).value.startsWith(prefix),
         skipOffstage: false,
       )
       .evaluate()
       .map((e) => (e.widget.key! as ValueKey<String>).value)
       .toList();
   expect(keys, hasLength(1), reason: "one optional item to add");
-  return int.parse(keys.single.substring("share_add_optional_".length));
+  return int.parse(keys.single.substring(prefix.length));
 }

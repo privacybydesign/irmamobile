@@ -20,7 +20,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 import "package:yivi_core/src/widgets/buttons/close_button.dart";
 import "package:yivi_core/src/widgets/credential_card/attribute_photo.dart";
@@ -224,8 +224,9 @@ Future<void> testDiscloseVcdm(
 
   // The verifier asks for two fields, but none is selectively disclosable, so
   // the card shows the whole credentialSubject: what the verifier will get.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -350,7 +351,7 @@ Future<Map<String, dynamic>> _awaitReceived(String state) async {
 /// The request still opens, as one choice the wallet can fill with nothing:
 /// the VCDM credential is not offered, and nothing can be obtained for it.
 void _expectVcdmNotOffered() {
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   expect(findCredentialCards(skipOffstage: false), findsNothing);
 }
 
@@ -413,8 +414,9 @@ Future<void> testIssueAndDiscloseOpenBadge(
   await waitForRequest(tester);
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardFinder, findsOneWidget);
   await _evaluateBadgeCard(tester, card: cardFinder, images);
 

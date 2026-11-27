@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
 import "../../helpers/helpers.dart";
@@ -35,10 +35,11 @@ Future<void> filledChoiceTest(
   await waitForRequest(tester);
 
   // Expect the choices screen
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   // Expect one credential card to be present
   final cardFinder = findCredentialCards();
+  await openChangePage(tester);
   expect(cardFinder, findsOneWidget);
 
   // Card should be filled and have correct header
@@ -69,8 +70,9 @@ Future<void> filledChoiceTest(
   await issueMobileNumber(tester, irmaBinding);
 
   // Back on the share screen with the new mobile number selected.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   expect(findChoiceSheet(), findsNothing);
+  await openChangePage(tester);
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -92,7 +94,7 @@ Future<void> filledChoiceTest(
 
   // Keep it as it is.
   await closeChoiceSheet(tester);
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   await evaluateRequestorHeader(
     tester,
@@ -102,6 +104,7 @@ Future<void> filledChoiceTest(
   );
 
   // Only the selected card is shared.
+  await openChangePage(tester);
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

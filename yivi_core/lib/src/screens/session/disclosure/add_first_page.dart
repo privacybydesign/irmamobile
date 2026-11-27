@@ -153,9 +153,7 @@ class AddFirstPage extends ConsumerWidget {
           line: line,
         ),
         KeyedSubtree(
-          key: next.kind == NextKind.review
-              ? DisclosureKeys.button
-              : DisclosureKeys.next,
+          key: DisclosureKeys.next,
           child: PrimaryPillButton(label: label, onPressed: go),
         ),
       ],

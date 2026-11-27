@@ -38,7 +38,7 @@ Future<void> choiceMixedTest(
   expectEmptySpot(
     0,
     "Demo Address or Demo iDIN",
-    hint: "You pick one when adding",
+    hint: "One is enough. Choose one.",
   );
   expectEmptySpot(1, "Demo Vektis agb by Nuts");
   expectShareWaitsFor(tester, "Demo Address or Demo iDIN");
@@ -60,7 +60,7 @@ Future<void> choiceMixedTest(
   await issueIdin(tester, irmaBinding);
   await expectAddedInPlace(tester, 0);
   // Its name and its issuer are both "Demo iDIN".
-  expect(findCardText(findShareSlot(0), "Demo iDIN"), findsWidgets);
+  expect(findCardText(findAddedNote(0), "Demo iDIN"), findsWidgets);
 
   // The AGB code is what Share waits for now.
   expectShareWaitsFor(tester, "Demo Vektis agb by Nuts");

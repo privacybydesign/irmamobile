@@ -1648,7 +1648,6 @@
       "marker_label": "conservé par {requestor}"
     },
     "receive": {
-      "section": "Ce que vous recevez en retour",
       "button": "Partager et recevoir",
       "button_only": "Recevoir",
       "done_text": "{name} est maintenant dans votre appli. Vous le retrouverez dans Activité."

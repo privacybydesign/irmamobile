@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -59,7 +59,7 @@ Future<void> zeroInstanceCountNoReobtainTest(
     // transition. The share button is then still outside the viewport and
     // tap() fails the hit test. waitFor pumps and settles, so the transition
     // has finished before we tap.
-    await tester.waitFor(find.byType(DisclosureShareScreen));
+    await tester.waitFor(find.byType(DisclosureFlow));
     await shareAndFinishEudiDisclosure(tester);
   }
 

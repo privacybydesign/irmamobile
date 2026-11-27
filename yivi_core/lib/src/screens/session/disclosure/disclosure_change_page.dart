@@ -343,22 +343,27 @@ class _ChoiceCard extends ConsumerWidget {
             children: [
               for (final (k, card) in shown.indexed) ...[
                 if (k > 0) const SizedBox(height: 12),
-                CardHead(
-                  art: FlightSpot.maybe(
-                    spots.firstOf("change", card.hash, drawn),
-                    CredentialCardArt(
-                      credential: sharedCardFor(card, wallet),
-                      width: 40,
-                    ),
-                  ),
-                  name: card.name,
-                  issuer: card.issuer.name,
-                ),
-                const SizedBox(height: 6),
-                DisclosureValueList(
+                SharedCardBlock(
                   card: card,
-                  requestor: requestor,
-                  foldable: true,
+                  children: [
+                    CardHead(
+                      art: FlightSpot.maybe(
+                        spots.firstOf("change", card.hash, drawn),
+                        CredentialCardArt(
+                          credential: sharedCardFor(card, wallet),
+                          width: 40,
+                        ),
+                      ),
+                      name: card.name,
+                      issuer: card.issuer.name,
+                    ),
+                    const SizedBox(height: 6),
+                    DisclosureValueList(
+                      card: card,
+                      requestor: requestor,
+                      foldable: true,
+                    ),
+                  ],
                 ),
               ],
               if (change.slotLinks[slot.id] case final link?)
@@ -544,6 +549,24 @@ class _WhiteCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
     ),
     child: child,
+  );
+}
+
+/// One card that is shared, on the change page: its head and its values.
+class SharedCardBlock extends StatelessWidget {
+  final SelectableCredentialInstance card;
+  final List<Widget> children;
+
+  const SharedCardBlock({
+    super.key,
+    required this.card,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: children,
   );
 }
 

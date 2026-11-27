@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -47,7 +47,8 @@ Future<void> pidRequestedValueTwoMatchTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await openChangePage(tester);
   expect(findCredentialCards(skipOffstage: false), findsOneWidget);
 
   await changeChoice(tester, 0);
@@ -59,9 +60,9 @@ Future<void> pidRequestedValueTwoMatchTest(
   expect(find.text("Rotterdam", skipOffstage: false), findsNothing);
 
   // Both rows lead with the family name ("Doe"), so go by position: oldest
-  // first, the Amsterdam PID. Pick it explicitly; the sheet closes.
+  // first, the Amsterdam PID. Pick it and choose; the sheet closes.
   await tester.tapAndSettle(rows.at(0));
-  await tester.waitUntilDisappeared(findChoiceSheet());
+  await chooseInSheet(tester);
   await evaluateCredentialCard(
     tester,
     findShareSlot(0),

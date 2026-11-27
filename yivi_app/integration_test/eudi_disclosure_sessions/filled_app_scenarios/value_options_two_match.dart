@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -50,8 +50,9 @@ Future<void> valueOptionsTwoMatchTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   await evaluateCredentialCard(
@@ -59,22 +60,22 @@ Future<void> valueOptionsTwoMatchTest(
     cardsFinder,
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
+    attributes: [("Email", "three@example.com"), ("Domain", "example.com")],
   );
 
   await tapChangeChoicesButton(tester);
 
-  // Two matching owned creds, in this order; nothing to add for OID4VCI
+  // Two matching owned creds, in irmago's order (newest first); nothing to add for OID4VCI
   // (backend leaves `obtainable_options == null` because the cred type has
   // no IssueURL). The non-matching two@ is not offered.
   expectOnlyOwnedInSheet(2);
   final rows = findSheetOwnedRows();
   expect(
-    find.descendant(of: rows.at(0), matching: find.text("one@example.com")),
+    find.descendant(of: rows.at(0), matching: find.text("three@example.com")),
     findsOneWidget,
   );
   expect(
-    find.descendant(of: rows.at(1), matching: find.text("three@example.com")),
+    find.descendant(of: rows.at(1), matching: find.text("one@example.com")),
     findsOneWidget,
   );
   expect(sheetOwnedRowsWith("two@example.com"), findsNothing);
@@ -89,7 +90,7 @@ Future<void> valueOptionsTwoMatchTest(
       (
         credentialName: "Email Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
+        attributes: [("Email", "three@example.com"), ("Domain", "example.com")],
       ),
     ],
   );

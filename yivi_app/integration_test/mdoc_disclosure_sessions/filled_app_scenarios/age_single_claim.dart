@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
@@ -38,7 +38,7 @@ Future<void> ageSingleClaimTest(
 
   final session = await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   await evaluateRequestorHeader(
     tester,
     find.byType(RequestorCard),
@@ -47,6 +47,7 @@ Future<void> ageSingleClaimTest(
   );
 
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

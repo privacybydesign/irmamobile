@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -42,10 +42,11 @@ Future<void> filledNoChoiceSameCredsTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // The share screen starts with the first e-mail address.
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await tester.waitFor(find.byType(DisclosureFlow));
   final credentialCardsFinder = findCredentialCards();
   const demoEmailCredentialName = "Demo Email address";
   const demoEmailIssuerName = "Demo Privacy by Design Foundation via SIDN";
+  await openChangePage(tester);
   expect(credentialCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -67,7 +68,8 @@ Future<void> filledNoChoiceSameCredsTest(
   await pickOwned(tester, "second-email@example.com");
 
   // The only card on the share screen is now the second address.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await openChangePage(tester);
   expect(credentialCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

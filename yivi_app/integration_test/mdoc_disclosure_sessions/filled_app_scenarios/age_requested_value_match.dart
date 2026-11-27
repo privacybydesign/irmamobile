@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -37,8 +37,9 @@ Future<void> ageRequestedValueMatchTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -48,10 +49,7 @@ Future<void> ageRequestedValueMatchTest(
     attributes: [(avLabel(18), booleanYes)],
   );
   // One candidate: nothing to change.
-  expect(
-    find.byKey(const Key("share_change_0"), skipOffstage: false),
-    findsNothing,
-  );
+  await expectCanChange(tester, 0, false);
 
   await shareAndFinishEudiDisclosure(tester);
 

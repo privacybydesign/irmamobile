@@ -64,8 +64,9 @@ Future<void> partialOverlapOneOwnedOneMissingTest(
   // The owned email in place, the missing phone an empty spot with its
   // name from VCT metadata. The bridge payload returns `issuer.name ==
   // null` — see cred_missing.dart.
-  expect(findShareSlot(0), findsOneWidget);
-  expect(find.text("test@example.com"), findsOneWidget);
+  // The phone cannot be added from Yivi: only the row that stops the
+  // request is listed (2.10).
+  expect(findEmptySpot(0), findsNothing);
   expectEmptySpot(1, "Phone Credential (SD-JWT)");
 
   // "Close", because the missing cred has no IssueURL, and why.

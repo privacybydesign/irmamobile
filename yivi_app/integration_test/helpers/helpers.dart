@@ -35,9 +35,9 @@ import "package:yivi_core/src/screens/notifications/notifications_provider.dart"
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/pin/lock_gate.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
-import "package:yivi_core/src/screens/session/disclosure/change_choice_sheet.dart";
-import "package:yivi_core/src/screens/session/disclosure/shared_card_tile.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_change_page.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/issue_flow/issue_sheet.dart";
 import "package:yivi_core/src/screens/session/result/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/util/test_detection.dart";
@@ -373,9 +373,11 @@ Future<void> issueCredentials(
   }
 
   // Check whether all attributes are displayed (order-independent).
-  final attributeTexts = attributeRowTexts(
-    find.byType(CardAttributeList),
-  ).map((t) => t.data!).toList();
+  // Without the tag beside a value the request asks otherwise ("Asked: …").
+  final attributeTexts = attributeRowTexts(find.byType(CardAttributeList))
+      .map((t) => t.data!)
+      .where((t) => !t.startsWith("Asked: "))
+      .toList();
 
   // Build a map of displayed attribute name -> value pairs.
   final displayedAttributes = <String, String>{};
@@ -437,9 +439,7 @@ Future<void> issueCredentials(
       findsOneWidget,
     );
     await tester.tapAndSettle(back);
-    await tester.waitUntilDisappeared(
-      find.byKey(const Key("disclosure_choice_sheet")),
-    );
+    await tester.waitUntilDisappeared(find.byKey(const Key("add_sheet")));
     return;
   }
 
@@ -514,12 +514,12 @@ typedef AttrRow = (String label, Object value);
 /// Ordered list of rows, used for nested groups and as item children.
 typedef Block = List<AttrRow>;
 
-/// Finds the credential cards shown in a session or a log: the owned
-/// candidates of a disclosure ([SharedCardTile]) and the credentials of an
+/// Finds the credential cards shown in a session or a log: the cards a
+/// disclosure shares, on its change page ([SharedCardBlock]) and the credentials of an
 /// activity ([ActivityCredentialTile]). Tree order is kept, so `.at(i)` follows the screen order.
 Finder findCredentialCards({bool skipOffstage = true}) =>
     find.byWidgetPredicate(
-      (w) => w is SharedCardTile || w is ActivityCredentialTile,
+      (w) => w is SharedCardBlock || w is ActivityCredentialTile,
       skipOffstage: skipOffstage,
     );
 
@@ -549,7 +549,7 @@ Finder findIssuanceCards({bool skipOffstage = false}) => find.descendant(
 Finder findCredentialDetail() => find.byType(CredentialDetailScreen);
 
 bool _isCardRoot(Widget w) =>
-    w is SharedCardTile ||
+    w is SharedCardBlock ||
     w is ActivityCredentialTile ||
     w is CredentialDetailScreen ||
     w is CredentialCardArt;
@@ -570,7 +570,7 @@ Element _cardRoot(Finder finder) {
         of: finder,
         matching: find.byWidgetPredicate(
           (w) =>
-              w is SharedCardTile ||
+              w is SharedCardBlock ||
               w is ActivityCredentialTile ||
               w is CredentialDetailScreen,
         ),
@@ -596,7 +596,7 @@ String? _statusName(CredentialCardStatus status) => status.revoked
 
 /// Checks a credential card. Works on every way the app draws a credential:
 /// - [ActivityCredentialTile] (activity details);
-/// - [SharedCardTile] (owned candidates in a disclosure);
+/// - [SharedCardBlock] (a shared card on a disclosure's change page);
 /// - [CredentialDetailScreen] (the data tab's card detail; see
 ///   [navigateToCredentialDetailsPage] and [findCredentialDetail]);
 /// - [CredentialCardArt] on the issuance permission (see [findIssuanceCards]).
@@ -634,6 +634,36 @@ Future<void> evaluateCredentialCard(
   /// in a warning state).
   bool? expectReobtainButton,
 }) async {
+  // The cards a disclosure shares are on its change page: the overview has
+  // only names and values. Open it when the card is not on screen.
+  final pile = find.byKey(const Key("share_pile"));
+  bool missing() {
+    try {
+      return credentialCardFinder.evaluate().isEmpty;
+      // `.first` or `.at(i)` of nothing.
+      // ignore: avoid_catching_errors
+    } on Error {
+      return true;
+    }
+  }
+
+  // A finished add step: on to the overview ("See what you share").
+  final next = find.byKey(const Key("share_next"));
+  if (missing() &&
+      find
+          .descendant(of: next, matching: find.textContaining("See what you"))
+          .evaluate()
+          .isNotEmpty) {
+    await tester.tap(next);
+    await tester.pumpAndSettle();
+  }
+  if (missing() && pile.evaluate().isNotEmpty) {
+    await tester.ensureVisible(pile);
+    await tester.pumpAndSettle();
+    await tester.tap(pile);
+    await tester.pumpAndSettle();
+    await tester.waitFor(find.byKey(const Key("change_page")));
+  }
   final root = _cardRoot(credentialCardFinder);
   final rootFinder = find.byElementPredicate((e) => e == root);
   final widget = root.widget;
@@ -646,10 +676,10 @@ Future<void> evaluateCredentialCard(
   final CredentialCardStatus status;
   final Finder attributeListFinder;
   switch (widget) {
-    case SharedCardTile():
-      // A card (or cards that go together) on the share screen: what is
-      // shared is what is selected, so there is no selection to check.
-      final instance = widget.bundle.credentials.first;
+    case SharedCardBlock():
+      // A card on the change page: what is shared is what is selected, so
+      // there is no selection to check.
+      final instance = widget.card;
       status = CredentialCardStatus(
         expiryDateUnix: instance.expiryDate,
         revoked: instance.revoked,
@@ -909,7 +939,7 @@ Future<void> evaluateCredentialCard(
       } else if (expectReobtainButton == false) {
         expect(reobtain, findsNothing);
       }
-    } else if (widget is SharedCardTile) {
+    } else if (widget is SharedCardBlock) {
       // No button on the tile: check the credential would offer one.
       expect(status.showReobtain, isReobtainable, reason: "reobtainable");
     }

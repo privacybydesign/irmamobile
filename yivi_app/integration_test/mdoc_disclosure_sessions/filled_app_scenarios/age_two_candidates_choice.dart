@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -14,13 +14,10 @@ import "../mdoc_disclosure_helpers.dart";
 /// chronological, oldest first, and the default choice is the first candidate.
 /// The user switches to the other one and shares it.
 ///
-/// TODO(#657): the default should be the most recently issued candidate
-/// (issuance counts as first use), which would make the newest one
-/// pre-selected here. irmago owns that policy and does not express it yet --
-/// there is no recency signal in the disclosure plan, and both candidates
-/// carry the same issuance_date -- so the app falls back to the first owned
-/// option. When #657 lands, the two selection expectations below and the
-/// shared candidate flip over.
+/// The order is irmago's (issue #804, `SortCandidates`): usable first, then
+/// most uses left, then valid longest. These two cards tie on all three, so
+/// they keep the order they were issued in, and the default is the first:
+/// nothing was shared with this verifier before.
 Future<void> ageTwoCandidatesChoiceTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -48,8 +45,9 @@ Future<void> ageTwoCandidatesChoiceTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final overviewCard = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(overviewCard, findsOneWidget);
 
   // Default choice: the first (oldest) candidate.
@@ -71,9 +69,9 @@ Future<void> ageTwoCandidatesChoiceTest(
   expect(isSheetRowSelected(tester, rows.at(0)), isTrue);
   expect(isSheetRowSelected(tester, rows.at(1)), isFalse);
 
-  // Switch to the newer one: one tap picks it and closes the sheet.
+  // Switch to the newer one: a tap selects it, "Choose" applies it.
   await tester.tapAndSettle(rows.at(1));
-  await tester.waitUntilDisappeared(findChoiceSheet());
+  await chooseInSheet(tester);
 
   await evaluateCredentialCard(
     tester,

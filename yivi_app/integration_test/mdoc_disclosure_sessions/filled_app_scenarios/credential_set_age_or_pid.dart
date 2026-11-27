@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -25,8 +25,9 @@ Future<void> credentialSetAgeOrPidTest(
 
   // Only the age mdoc owned: it is the selection.
   await startMdocDisclosure(tester, irmaBinding, _ageOrPidDcql);
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final overviewCards = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(overviewCards, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -55,7 +56,8 @@ Future<void> credentialSetAgeOrPidTest(
   await issuePidMdoc(tester, irmaBinding);
 
   await startMdocDisclosure(tester, irmaBinding, _ageOrPidDcql);
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await openChangePage(tester);
   expect(overviewCards, findsOneWidget);
 
   // The Change sheet offers both cards in the app; pick the PID. One tap

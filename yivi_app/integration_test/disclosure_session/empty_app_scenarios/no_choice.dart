@@ -1,5 +1,4 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -48,7 +47,7 @@ Future<void> noChoiceTest(
   // The card is in its place, added and selected. There is nothing to
   // choose, so no "Change".
   await expectAddedInPlace(tester, 0);
-  expect(find.byKey(const Key("share_change_0")), findsNothing);
+  await expectCanChange(tester, 0, false);
 
   final requestorHeaderFinder = find.byType(RequestorCard);
   await evaluateRequestorHeader(

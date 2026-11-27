@@ -11,17 +11,29 @@ Finder sheetOwnedRowWith(String text) => findSheetOwnedRowShowing(text);
 
 /// Whether the "In your app" [row] is the selected one (its radio).
 bool sheetRowSelected(WidgetTester tester, Finder row) {
+  // One card and nothing else to pick: no radio, it is the one in use.
+  final radios = find.descendant(
+    of: row,
+    matching: find.byWidgetPredicate(
+      (w) => w is Semantics && w.properties.selected != null,
+    ),
+    matchRoot: true,
+  );
+  if (radios.evaluate().isEmpty) {
+    return findSheetOwnedRows().evaluate().length == 1;
+  }
   final semantics = tester
       .widgetList<Semantics>(
         find.descendant(
           of: row,
           matching: find.byWidgetPredicate(
-            (w) => w is Semantics && w.properties.checked != null,
+            (w) => w is Semantics && w.properties.selected != null,
           ),
+          matchRoot: true,
         ),
       )
       .first;
-  return semantics.properties.checked!;
+  return semantics.properties.selected!;
 }
 
 /// Checks the open sheet: the "In your app" rows showing [owned] (in order,
@@ -47,18 +59,23 @@ void expectSheet(
     }
   }
   if (addable == null) return;
+  // One add link ("＋ Add another card") can add several types.
   for (final id in addable) {
     expect(findSheetAddRow(id), findsOneWidget, reason: "add row for $id");
   }
-  expect(
-    find.descendant(
-      of: findChoiceSheet(),
-      matching: find.byWidgetPredicate(
-        (w) =>
-            w.key is ValueKey<String> &&
-            (w.key! as ValueKey<String>).value.startsWith("sheet_add_"),
-      ),
-    ),
-    findsNWidgets(addable.length),
-  );
+  final offered = {
+    for (final e
+        in find
+            .descendant(
+              of: findChoiceSheet(),
+              matching: find.byWidgetPredicate(
+                (w) =>
+                    w.key is ValueKey<String> &&
+                    (w.key! as ValueKey<String>).value.startsWith("sheet_add_"),
+              ),
+            )
+            .evaluate())
+      ...(e.widget.key! as ValueKey<String>).value.substring(10).split("+"),
+  };
+  expect(offered, unorderedEquals(addable));
 }

@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
@@ -40,10 +40,12 @@ Future<void> filledDisconTest(
 
   // Both cards are already obtained
   // Expect choices screen.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
   // Expect cards to have the right content
   final cardsFinder = findCredentialCards();
+
+  await openChangePage(tester);
 
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
@@ -81,7 +83,7 @@ Future<void> filledDisconTest(
   await issueIdin(tester, irmaBinding);
 
   // Back on the share screen with iDIN selected.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   await changeChoice(tester, 0);
   expectSheet(
     tester,
@@ -102,8 +104,11 @@ Future<void> filledDisconTest(
 
   // Leave the choices as they are.
   await closeChoiceSheet(tester);
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await toOverview(tester);
   expect(find.byType(RequestorCard), findsOneWidget);
+
+  await openChangePage(tester);
 
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(

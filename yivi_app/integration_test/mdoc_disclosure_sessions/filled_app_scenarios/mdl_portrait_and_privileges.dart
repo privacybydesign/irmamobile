@@ -1,8 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/widgets/credential_card/card_attribute_list.dart";
 
+import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
 import "../../helpers/eudi_stack_helpers.dart";
 import "../../helpers/helpers.dart";
@@ -40,16 +41,21 @@ Future<void> mdlPortraitAndPrivilegesTest(
 
   await startMdocDisclosure(tester, irmaBinding, dcql);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   final cardsFinder = findCredentialCards(skipOffstage: false);
+  await openChangePage(tester);
   expect(cardsFinder, findsOneWidget);
 
   // Metadata order, except that CardAttributeList sorts image
   // attributes to the bottom of the card, so the portrait renders last even
   // though irmago sends it second. The portrait row has a label and a picture,
-  // no text value. The privileges are one item, named by its first value
-  // (the category code), with nothing else in it.
-  const rows = [("Licence number", mdlLicenceNumber), ("Portrait", <String>[])];
+  // no text value. The privileges are one item: a box with its value as a
+  // labelled row (no value is an item's title, 2.11).
+  const rows = [
+    ("Licence number", mdlLicenceNumber),
+    ("Vehicle category code", "B"),
+    ("Portrait", <String>[]),
+  ];
   await evaluateCredentialCard(
     tester,
     cardsFinder,

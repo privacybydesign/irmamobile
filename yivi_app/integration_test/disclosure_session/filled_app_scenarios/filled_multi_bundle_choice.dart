@@ -1,13 +1,10 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 /// Two-bundle choice with Bundle A fully pre-issued. The discon offers two
@@ -49,28 +46,33 @@ Future<void> filledMultiBundleChoiceTest(
   await waitForRequest(tester);
 
   // Straight to overview — Bundle A satisfies the discon.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(RequestorCard));
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await toOverview(tester);
 
   final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsOneWidget);
+  await openChangePage(tester);
+  expect(cardsFinder, findsNWidgets(2));
 
-  // The two cards that go together are one tile.
+  // The set is one card on the change page, with a head per card.
   await evaluateCredentialCard(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Root + Demo Name",
+    cardsFinder.at(0),
+    credentialName: "Demo Root",
     issuerName: "Demo MijnOverheid.nl",
-    attributes: [
-      ("BSN", "999999990"),
-      ("First name", "Willeke"),
-      ("Family name", "Bruijn"),
-    ],
+    attributes: [("BSN", "999999990")],
+    style: IrmaCardStyle.normal,
+  );
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(1),
+    credentialName: "Demo Name",
+    issuerName: "Demo MijnOverheid.nl",
+    attributes: [("First name", "Willeke"), ("Family name", "Bruijn")],
     style: IrmaCardStyle.normal,
   );
 
   // Bundle B remains obtainable -> the Change button is there.
-  expect(find.byKey(const Key("share_change_0")), findsOneWidget);
+  await expectCanChange(tester, 0, true);
 
   await tapShare(tester);
   await evaluateFeedback(tester);

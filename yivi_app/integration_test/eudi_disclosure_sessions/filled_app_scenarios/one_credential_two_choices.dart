@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
 import "../../helpers/eudi_issuance_helpers.dart";
@@ -51,15 +51,15 @@ Future<void> oneCredentialTwoChoicesTest(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await waitForRequest(tester);
 
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
 
-  // The default is the first owned email.
+  // The default is irmago's first candidate: the newest e-mail address.
   await evaluateCredentialCard(
     tester,
     findShareSlot(0),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [("Email", "one@example.com")],
+    attributes: [("Email", "two@template.com")],
   );
 
   await tapChangeChoicesButton(tester);
@@ -69,14 +69,14 @@ Future<void> oneCredentialTwoChoicesTest(
   expect(sheetOwnedRowsWith("one@example.com"), findsOneWidget);
   expect(sheetOwnedRowsWith("two@template.com"), findsOneWidget);
 
-  // Pick the second owned cred: the sheet closes, the share screen shows it.
-  await pickOwned(tester, "two@template.com");
+  // Pick the other owned cred: "Choose" applies it.
+  await pickOwned(tester, "one@example.com");
   await evaluateCredentialCard(
     tester,
     findShareSlot(0),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [("Email", "two@template.com")],
+    attributes: [("Email", "one@example.com")],
   );
 
   await shareAndFinishEudiDisclosure(tester);
@@ -87,7 +87,7 @@ Future<void> oneCredentialTwoChoicesTest(
       (
         credentialName: "Email Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [("Email", "two@template.com")],
+        attributes: [("Email", "one@example.com")],
       ),
     ],
   );

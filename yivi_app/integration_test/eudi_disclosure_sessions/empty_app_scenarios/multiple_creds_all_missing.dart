@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
@@ -52,7 +52,7 @@ Future<void> multipleCredsAllMissingTest(
   await waitForRequest(tester);
 
   // One empty spot per missing credential.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   expect(findEmptySpot(0), findsOneWidget);
   expect(findEmptySpot(1), findsOneWidget);
 

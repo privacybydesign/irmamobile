@@ -11,6 +11,11 @@ Future<void> tapChangeChoicesButton(WidgetTester tester, [int item = 0]) =>
 /// `share_add_optional_` → the requested item that row adds. The order of
 /// the requested items follows irmago's plan, so tests look it up.
 int keyIndex(WidgetTester tester, String prefix) {
+  // Optional data that is not shared: the overview's hint carries
+  // `share_add_optional_<i>`, the change page `change_optional_link_<i>`.
+  if (prefix == "share_add_optional_" && onChangePage()) {
+    prefix = "change_optional_link_";
+  }
   final widgets = tester
       .widgetList(
         find.byWidgetPredicate(

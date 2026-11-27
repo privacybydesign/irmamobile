@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 
 import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
@@ -39,10 +39,11 @@ Future<void> filledDefaultLastSharedTest(
   /// Starts the request and checks the card it starts on.
   Future<void> startsOn(String email) async {
     await irmaBinding.repository.startTestSession(sessionRequest);
-    await tester.waitFor(find.byType(DisclosureShareScreen));
+    await tester.waitFor(find.byType(DisclosureFlow));
     // The activity is looked up as the screen opens.
     await tester.pumpAndSettle(const Duration(milliseconds: 100));
     final cards = findCredentialCards();
+    await openChangePage(tester);
     expect(cards, findsOneWidget);
     await evaluateCredentialCard(
       tester,

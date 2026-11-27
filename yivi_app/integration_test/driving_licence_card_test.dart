@@ -3,7 +3,7 @@ import "package:integration_test/integration_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/issuance/issuance_permission.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
@@ -233,7 +233,9 @@ void main() {
 
 /// The shared AM, B and C of the last test, wherever the card is shown.
 Future<void> _expectSharedCategories(WidgetTester tester) async {
-  // A tile in the disclosure overview, a card in the activity details.
+  // A card on the change page of the disclosure, a card in the activity
+  // details.
+  await openChangePage(tester);
   final card = findCredentialCards();
   expect(
     find.descendant(of: card, matching: find.text("Document number")),
@@ -364,7 +366,7 @@ Future<void> _startDisclosure(
       "disclose": [[[ $requested ]]]
     }
   ''');
-  await tester.waitFor(find.byType(DisclosureShareScreen));
+  await tester.waitFor(find.byType(DisclosureFlow));
   await tester.ensureVisible(_table);
   await tester.pumpAndSettle();
 }

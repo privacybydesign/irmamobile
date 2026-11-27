@@ -53,17 +53,26 @@ Future<void> specificAttributeValuesTest(
     "irma-demo.ideal.ideal.bic": "INGBNL2A",
   });
 
-  // The card is in the app but doesn't count: it shows in place (no
-  // dialog), its BIC in red with what they ask beside it, and Share keeps
-  // waiting.
+  // The card is in the app with another BIC than asked: the row says what
+  // is in the app and what is asked, with the help text under the list, and
+  // no dialog. Share keeps waiting.
   final notCounted = findNotCounted(1);
-  await tester.waitFor(notCounted);
+  await tester.waitFor(
+    find.descendant(
+      of: notCounted,
+      matching: find.textContaining("In your app:"),
+    ),
+  );
   expect(find.byType(Dialog), findsNothing);
   expect(
-    find.descendant(of: notCounted, matching: find.text("Asked: RABONL2U")),
+    find.descendant(of: notCounted, matching: find.textContaining("INGBNL2A")),
     findsOneWidget,
   );
-  expect(shareReason(tester), "Your card does not count for this request");
+  expect(
+    find.descendant(of: notCounted, matching: find.textContaining("Asked: ")),
+    findsOneWidget,
+  );
+  expect(find.byKey(const Key("add_step_help")), findsOneWidget);
   expect(shareButtonEnabled(tester), isFalse);
 
   // Now issue the credential with requested BIC

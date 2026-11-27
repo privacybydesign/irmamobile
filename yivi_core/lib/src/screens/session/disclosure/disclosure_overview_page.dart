@@ -133,7 +133,10 @@ class _DisclosureOverviewPageState
     final cards = usedCards(plan, selection, sharesOf: sharesOf);
     final hint = optionalHint(plan, selection, sharesOf: sharesOf);
     final kept = keptNames(plan, selection, sharesOf: sharesOf);
-    final risky = requestorTrustOf(session.requestor).risky;
+    final unknown = requestorTrustOf(session.requestor).risky;
+    // The warning before sharing is about data: sharing nothing needs none
+    // (the wash still says who this is).
+    final risky = unknown && cards.isNotEmpty;
     final layout = SessionLayout.of(context);
     if (!layout.split) afterFrame(_checkHeader);
 
@@ -218,13 +221,19 @@ class _DisclosureOverviewPageState
           onTap: change == null ? null : () => change(null),
         ),
       if (hint.isNotEmpty)
-        _HintRow(
-          text: t(
-            "share.optional.hint_${hint.length == 1 ? "one" : "many"}"
-            "${signing ? "_sign" : ""}",
-            {"count": countWord(context, hint.length)},
+        // Keyed by each optional choice it counts, for tests that look one
+        // up by its index.
+        hint.reversed.fold<Widget>(
+          _HintRow(
+            text: t(
+              "share.optional.hint_${hint.length == 1 ? "one" : "many"}"
+              "${signing ? "_sign" : ""}",
+              {"count": countWord(context, hint.length)},
+            ),
+            onTap: change == null ? null : () => change(hint.first),
           ),
-          onTap: change == null ? null : () => change(hint.first),
+          (child, i) =>
+              KeyedSubtree(key: Key("share_add_optional_$i"), child: child),
         ),
       if (kept.isNotEmpty)
         _KeepCard(
@@ -233,7 +242,7 @@ class _DisclosureOverviewPageState
         ),
       if (offered.isNotEmpty) ...[
         _Gap.section,
-        _SectionLabel(t("share.receive.section")),
+        _SectionLabel(t("share.section.you_receive")),
         for (final (n, card) in offered.indexed)
           Padding(
             padding: const EdgeInsets.only(top: YiviSpace.x8),
@@ -303,7 +312,7 @@ class _DisclosureOverviewPageState
         scrollsUnderBars: true,
         cornerClose: true,
         body: TrustWash(
-          on: risky,
+          on: unknown,
           washKey: DisclosureKeys.trustWash,
           height: 300,
           fill: true,
@@ -328,7 +337,7 @@ class _DisclosureOverviewPageState
       onDismiss: widget.onDismiss,
       scrollsUnderBars: true,
       bottomNavigationBar: bar,
-      edgeColor: risky ? palette.errorSurface : null,
+      edgeColor: unknown ? palette.errorSurface : null,
       startBar: CompactBarDropIn(
         shown: _scrolledPast,
         bar: (o) => RequestorCompactBar(
@@ -339,7 +348,7 @@ class _DisclosureOverviewPageState
         ),
       ),
       body: TrustWash(
-        on: risky,
+        on: unknown,
         washKey: DisclosureKeys.trustWash,
         fill: true,
         child: Builder(

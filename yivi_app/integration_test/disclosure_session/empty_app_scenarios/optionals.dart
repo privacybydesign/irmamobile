@@ -42,15 +42,19 @@ Future<void> optionalsTest(
   expectEmptySpot(
     0,
     "Demo Address or Demo iDIN",
-    hint: "You pick one when adding",
+    hint: "One is enough. Choose one.",
   );
-  expect(find.text("IF YOU LIKE"), findsOneWidget);
-  expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
+  // Optional data is never part of the add step.
+  expect(findEmptySpot(1), findsNothing);
   expectShareWaitsFor(tester, "Demo Address or Demo iDIN");
 
-  // The address comes in without the sheet; it lands in its spot.
+  // The address comes in without the sheet; its row gets the check.
   await issueMunicipalityAddress(tester, irmaBinding);
   await expectAddedInPlace(tester, 0);
+
+  // On the overview the optional data is only the hint, not shared.
+  await toOverview(tester);
+  expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
   expect(findShareSlot(1), findsNothing);
 
   // Add the e-mail address as optional data.
@@ -58,15 +62,15 @@ Future<void> optionalsTest(
   await startAdding(tester, "irma-demo.sidn-pbdf.email");
   await issueEmailAddress(tester, irmaBinding);
 
-  // Back from adding it, it is included, with "Change choice".
+  // Back from adding it, it is shared, with a link to change it.
   await tester.waitFor(findShareSlot(1));
   expect(findCardText(findShareSlot(1), "Demo Email address"), findsOneWidget);
-  expect(find.byKey(const Key("share_change_1")), findsOneWidget);
+  await expectCanChange(tester, 1, true);
 
-  // Leave it out again ("Share nothing" in its sheet): the row is back.
+  // Leave it out again ("Don't share" on its card): its link is back.
   await removeOptional(tester, 1);
   expect(findShareSlot(1), findsNothing);
-  expect(find.byKey(const Key("share_add_optional_1")), findsOneWidget);
+  expect(find.byKey(const Key("change_optional_link_1")), findsOneWidget);
 
   // This time add the mobile number: the row opens the sheet, with the
   // e-mail address in the app now and a mobile number to add.

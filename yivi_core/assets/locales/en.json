@@ -1648,7 +1648,6 @@
       "marker_label": "kept by {requestor}"
     },
     "receive": {
-      "section": "You get in return",
       "button": "Share and receive",
       "button_only": "Receive",
       "done_text": "{name} is now in your app. You'll find this in Activity."

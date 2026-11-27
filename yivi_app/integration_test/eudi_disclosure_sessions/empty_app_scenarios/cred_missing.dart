@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 
 import "../../disclosure_session/disclosure_helpers.dart";
@@ -54,7 +54,7 @@ Future<void> credMissingTest(
   // One empty spot, named from VCT type metadata. The bridge payload
   // returns `issuer.name == null` for missing-cred descriptors, so no issuer
   // assertion is meaningful here.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
+  expect(find.byType(DisclosureFlow), findsOneWidget);
   expectEmptySpot(0, "Email Credential (SD-JWT)");
   expect(findEmptySpot(1), findsNothing);
 

@@ -276,19 +276,25 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
       if (sheet.addable.isNotEmpty)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: ChangeLinkRow(
-            key: const Key("which_card_add"),
-            label: sheet.addable.length == 1
-                ? t("share.pick.add_another", {
-                    "another": anotherOf(
-                      context,
-                      slotName(sheet.addable.single),
-                    ),
-                    "name": slotName(sheet.addable.single),
-                  })
-                : t("share.pick.add_card"),
-            disc: Icons.add_rounded,
-            onTap: add,
+          child: KeyedSubtree(
+            // For tests: the type(s) it adds.
+            key: Key(
+              "sheet_add_${[for (final s in sheet.addable) slotType(s)].join("+")}",
+            ),
+            child: ChangeLinkRow(
+              key: const Key("which_card_add"),
+              label: sheet.addable.length == 1
+                  ? t("share.pick.add_another", {
+                      "another": anotherOf(
+                        context,
+                        slotName(sheet.addable.single),
+                      ),
+                      "name": slotName(sheet.addable.single),
+                    })
+                  : t("share.pick.add_card"),
+              disc: Icons.add_rounded,
+              onTap: add,
+            ),
           ),
         ),
     ];

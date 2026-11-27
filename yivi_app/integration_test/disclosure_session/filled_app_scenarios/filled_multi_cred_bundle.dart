@@ -1,13 +1,10 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:material_ui/material_ui.dart";
-import "package:yivi_core/src/screens/session/disclosure/disclosure_share_screen.dart";
-import "package:yivi_core/src/screens/session/requestor/requestor_card.dart";
+import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
-import "../../util.dart";
 import "../disclosure_helpers.dart";
 
 /// All three credentials pre-issued. The inner con on the first discon spans
@@ -42,30 +39,35 @@ Future<void> filledMultiCredBundleTest(
   await waitForRequest(tester);
 
   // Straight to overview — nothing needs to be obtained.
-  expect(find.byType(DisclosureShareScreen), findsOneWidget);
-  await tester.waitFor(find.byType(RequestorCard));
+  expect(find.byType(DisclosureFlow), findsOneWidget);
+  await toOverview(tester);
 
-  // Two tiles on the share screen: root + fullName (a bundle), and email.
+  // On the change page: the root and the name (one set), and the e-mail.
   final cardsFinder = findCredentialCards();
-  expect(cardsFinder, findsNWidgets(2));
+  await openChangePage(tester);
+  expect(cardsFinder, findsNWidgets(3));
 
-  // The two cards that go together are one tile.
+  // The set is one card on the change page, with a head per card.
   await evaluateCredentialCard(
     tester,
-    cardsFinder.first,
-    credentialName: "Demo Root + Demo Name",
+    cardsFinder.at(0),
+    credentialName: "Demo Root",
     issuerName: "Demo MijnOverheid.nl",
-    attributes: [
-      ("BSN", "999999990"),
-      ("First name", "Willeke"),
-      ("Family name", "Bruijn"),
-    ],
+    attributes: [("BSN", "999999990")],
+    style: IrmaCardStyle.normal,
+  );
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(1),
+    credentialName: "Demo Name",
+    issuerName: "Demo MijnOverheid.nl",
+    attributes: [("First name", "Willeke"), ("Family name", "Bruijn")],
     style: IrmaCardStyle.normal,
   );
 
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
+    cardsFinder.at(2),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: [("Email address", "test@example.com")],
@@ -74,8 +76,8 @@ Future<void> filledMultiCredBundleTest(
 
   // First discon has one bundle, no alternatives -> no Change.
   // Second discon has 1 owned (email) + 1 obtainable (mobile) -> Change.
-  expect(find.byKey(const Key("share_change_0")), findsNothing);
-  expect(find.byKey(const Key("share_change_1")), findsOneWidget);
+  await expectCanChange(tester, 0, false);
+  await expectCanChange(tester, 1, true);
 
   await tapShare(tester);
   await evaluateFeedback(tester);

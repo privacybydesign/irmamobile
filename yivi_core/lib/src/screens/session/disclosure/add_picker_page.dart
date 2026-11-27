@@ -275,6 +275,13 @@ class _AddSheetState extends ConsumerState<AddSheet> {
             context.tr("share.sheet.stop_text", {"requestor": _requestor}),
         beforeAdd: _beforeAdd,
         successAction: _successAction,
+        successLink: (cards) => _nextOf(cards) == null
+            ? null
+            : (
+                key: const Key("sheet_together_later"),
+                label: context.tr("share.sheet.later"),
+                onTap: () => closeIssueSheet(context, ref, _config),
+              ),
         successText: _successText,
         onSucceeded: _onSucceeded,
         hasOtherChoices: widget.ways.length > 1,
@@ -323,18 +330,24 @@ class _AddSheetState extends ConsumerState<AddSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (final (n, way) in widget.ways.indexed)
-                  _WayRow(
-                    key: DisclosureKeys.addPickerRow(way.option),
-                    way: way,
-                    names: [
-                      for (final s
-                          in choice?.options[way.option].slots ?? way.todo)
-                        if (way.todo.contains(s))
-                          addableFor(s)?.name ?? slotName(s),
-                    ],
-                    line: n > 0,
-                    artKey: _wayKey(way.option),
-                    onTap: () => _pick(way),
+                  KeyedSubtree(
+                    // For tests: the types this way adds.
+                    key: Key(
+                      "sheet_add_${[for (final d in _descriptors(way)) d.credentialId].join("+")}",
+                    ),
+                    child: _WayRow(
+                      key: DisclosureKeys.addPickerRow(way.option),
+                      way: way,
+                      names: [
+                        for (final s
+                            in choice?.options[way.option].slots ?? way.todo)
+                          if (way.todo.contains(s))
+                            addableFor(s)?.name ?? slotName(s),
+                      ],
+                      line: n > 0,
+                      artKey: _wayKey(way.option),
+                      onTap: () => _pick(way),
+                    ),
                   ),
               ],
             ),
