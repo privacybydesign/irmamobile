@@ -18,6 +18,7 @@ import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
 import "../models/disclosure_plan_view.dart";
+import "add_picker_page.dart";
 import "card_spots.dart";
 import "disclosure_change_page.dart" show CardHead, ChangeLinkRow;
 import "disclosure_value_list.dart";
@@ -25,13 +26,15 @@ import "which_card_sheet.dart" show PickRow;
 
 /// "Welke combinatie deel je?" (2.5.2) for [choice]: one block per option,
 /// complete ones first, each written out card by card; an option that can
-/// still be completed has "Toevoegen" ([onAdd]) instead of a radio. A tap
-/// selects; "Kies" applies; closing discards.
+/// still be completed has "Toevoegen" instead of a radio, which adds its
+/// cards in this same sheet, over it; once added the card lands at
+/// [landing] as the sheet goes. A tap selects; "Kies" applies; closing
+/// discards.
 Future<void> showWhichCombinationSheet({
   required BuildContext context,
   required int sessionId,
   required int choice,
-  required void Function(int choice, AddWay? way) onAdd,
+  GlobalKey? landing,
   CardSpots? spots,
   void Function(Map<String, Rect> boxes)? onLeave,
   bool carried = false,
@@ -39,13 +42,19 @@ Future<void> showWhichCombinationSheet({
   context: context,
   // A card carried over its edge: it comes up under the card.
   motion: carried ? SheetMotion.carried : SheetMotion.share,
-  builder: (_) => WhichCombinationSheetView(
-    key: const Key("which_combination_sheet"),
+  builder: (_) => AddSheet(
     sessionId: sessionId,
     choice: choice,
-    onAdd: onAdd,
-    spots: spots,
-    onLeave: onLeave,
+    ways: const [],
+    landing: landing,
+    base: (context, add) => WhichCombinationSheetView(
+      key: const Key("which_combination_sheet"),
+      sessionId: sessionId,
+      choice: choice,
+      onAdd: (_, way) => add([?way]),
+      spots: spots,
+      onLeave: onLeave,
+    ),
   ),
 );
 
@@ -155,7 +164,6 @@ class _WhichCombinationSheetState
             onAdd: b.complete
                 ? null
                 : () {
-                    Navigator.of(context).pop();
                     widget.onAdd(
                       widget.choice,
                       addWays(
@@ -167,9 +175,11 @@ class _WhichCombinationSheetState
         ),
     ];
 
+    // Under adding when the sheet goes: its cards stay where they are.
+    final top = SheetPages.maybeOf(context)?.isTop ?? true;
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) {
+        if (didPop && top) {
           widget.onLeave?.call(
             widget.spots?.boxes(context, "sheet") ?? const {},
           );

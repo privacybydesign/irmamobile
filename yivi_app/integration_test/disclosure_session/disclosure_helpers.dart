@@ -537,18 +537,19 @@ Finder findSheetOwnedRows() => find.descendant(
 
 /// The row of the open sheet that adds [credentialId]: "＋ Another …" in a
 /// sheet, or a way in "Choose what to add".
-Finder findSheetAddRow(String credentialId) => find.descendant(
-  of: findChoiceSheet(),
-  matching: find.byWidgetPredicate((w) {
-    final key = w.key;
-    if (key is! ValueKey<String> || !key.value.startsWith("sheet_add_")) {
-      return false;
-    }
-    // "sheet_add_<id>+<id>", in "Choose what to add" followed by "#<option>".
-    final ids = key.value.substring(10).split("#").first;
-    return ids == credentialId || ids.split("+").contains(credentialId);
-  }),
-);
+Finder findSheetAddRow(String credentialId) =>
+    find.descendant(of: findChoiceSheet(), matching: _addRowOf(credentialId));
+
+/// A "sheet_add_…" row or link that adds [credentialId].
+Finder _addRowOf(String credentialId) => find.byWidgetPredicate((w) {
+  final key = w.key;
+  if (key is! ValueKey<String> || !key.value.startsWith("sheet_add_")) {
+    return false;
+  }
+  // "sheet_add_<id>+<id>", in "Choose what to add" followed by "#<option>".
+  final ids = key.value.substring(10).split("#").first;
+  return ids == credentialId || ids.split("+").contains(credentialId);
+});
 
 /// Checks the open sheet's row that adds [credentialId]: its [name] (or
 /// "Another {name}") and, in "Choose what to add", its [issuer].
@@ -625,9 +626,10 @@ Future<void> chooseInSheet(WidgetTester tester) async {
   await tester.waitUntilDisappeared(findChoiceSheet());
 }
 
-/// Adds [credentialId] from the open sheet: "＋ Another …" (which closes
-/// the sheet and opens adding), the way in "Choose what to add", then
-/// "Next" and the issuer's step on its details.
+/// Adds [credentialId] from the open sheet: "＋ Another …" (adding goes on
+/// in the same sheet, or opens one from the add step), the way in "Choose
+/// what to add" when that comes, then "Next" and the issuer's step on its
+/// details.
 ///
 /// In tests the website does not open (see [pumpYiviApp]); tests then issue
 /// the card directly, as the website would. That issuance shows in the
@@ -635,14 +637,24 @@ Future<void> chooseInSheet(WidgetTester tester) async {
 /// selected; [issueCredentials] does both.
 Future<void> startAdding(WidgetTester tester, String credentialId) async {
   // Two ways can add the same type: the first.
+  final picker = find.byKey(const Key("add_picker"));
+  final details = find.byKey(const Key("sheet_go_button"));
   var rows = findSheetAddRow(credentialId);
-  if (rows.evaluate().isNotEmpty &&
-      find.byKey(const Key("add_sheet")).evaluate().isEmpty) {
+  if (rows.evaluate().isNotEmpty && picker.evaluate().isEmpty) {
     await tester.ensureVisible(rows.first);
     await tester.pumpAndSettle();
     await tester.tapAndSettle(rows.first);
-    await tester.waitFor(find.byKey(const Key("add_sheet")));
-    rows = findSheetAddRow(credentialId);
+    // Next: "Choose what to add", or straight the card's details.
+    await tester.waitFor(
+      find.byWidgetPredicate(
+        (w) =>
+            w.key == const Key("add_picker") ||
+            w.key == const Key("sheet_go_button"),
+      ),
+    );
+    rows = details.evaluate().isNotEmpty
+        ? find.byKey(const Key("no_row"))
+        : find.descendant(of: picker, matching: _addRowOf(credentialId));
   }
   if (rows.evaluate().isNotEmpty) {
     await tester.ensureVisible(rows.first);

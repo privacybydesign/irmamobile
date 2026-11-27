@@ -219,6 +219,14 @@ void main() {
     expect(find.byKey(DisclosureKeys.overview), findsOneWidget);
   });
 
+  testWidgets("back returns to the overview", (tester) async {
+    await _pump(tester, _session(drie()));
+    await tester.tap(find.byKey(const Key("change_back")));
+    await tester.pumpAndSettle();
+    expect(_page, findsNothing);
+    expect(find.byKey(DisclosureKeys.overview), findsOneWidget);
+  });
+
   testWidgets("signing", (tester) async {
     await _pump(tester, _session(drie(), type: SessionType.signature));
     expect(find.text("Kies waarmee je ondertekent"), findsWidgets);

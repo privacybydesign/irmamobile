@@ -374,10 +374,9 @@ Future<void> issueCredentials(
 
   // Check whether all attributes are displayed (order-independent).
   // Without the tag beside a value the request asks otherwise ("Asked: …").
-  final attributeTexts = attributeRowTexts(find.byType(CardAttributeList))
-      .map((t) => t.data!)
-      .where((t) => !t.startsWith("Asked: "))
-      .toList();
+  final attributeTexts = attributeRowTexts(
+    find.byType(CardAttributeList),
+  ).map((t) => t.data!).where((t) => !t.startsWith("Asked: ")).toList();
 
   // Build a map of displayed attribute name -> value pairs.
   final displayedAttributes = <String, String>{};
@@ -439,7 +438,17 @@ Future<void> issueCredentials(
       findsOneWidget,
     );
     await tester.tapAndSettle(back);
-    await tester.waitUntilDisappeared(find.byKey(const Key("add_sheet")));
+    // The sheet adding was in: its own, or "Which card"/"Which
+    // combination" it went on from.
+    await tester.waitUntilDisappeared(
+      find.byWidgetPredicate(
+        (w) =>
+            w.key == const Key("add_sheet") ||
+            w.key == const Key("which_card_sheet") ||
+            w.key == const Key("which_combination_sheet"),
+        skipOffstage: false,
+      ),
+    );
     return;
   }
 

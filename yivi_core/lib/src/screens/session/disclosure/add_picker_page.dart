@@ -57,6 +57,14 @@ class AddSheet extends ConsumerStatefulWidget {
   final AddWay? way;
   final GlobalKey? landing;
 
+  /// The sheet's first page, when adding starts from a sheet ("Welk kaartje
+  /// deel je?"): it is built with how to start adding, and adding goes on
+  /// in this same sheet, over it ("Kies wat je toevoegt" first when there
+  /// is more than one way). Without it the sheet opens on [way], or on the
+  /// choice between [ways].
+  final Widget Function(BuildContext context, void Function(List<AddWay>) add)?
+  base;
+
   /// The picture the sheet opened from (a row of the add step): it rises
   /// into the first page's picture.
   final GlobalKey? liftFrom;
@@ -69,6 +77,7 @@ class AddSheet extends ConsumerStatefulWidget {
     this.way,
     this.landing,
     this.liftFrom,
+    this.base,
   });
 
   @override
@@ -82,6 +91,26 @@ class _AddSheetState extends ConsumerState<AddSheet> {
   );
   final _keys = IssueSheetKeys();
   final _title = GlobalKey(debugLabel: "add_picker_title");
+
+  /// The ways to choose from: [AddSheet.ways], or those [_startAdding] got.
+  late List<AddWay> _ways = widget.ways;
+
+  /// Over [AddSheet.base]: "Kies wat je toevoegt" is open.
+  bool _picking = false;
+
+  /// From [AddSheet.base]: on to adding, over it in this sheet; straight to
+  /// the card when there is one way.
+  void _startAdding(List<AddWay> ways) {
+    if (ways.isEmpty) return;
+    setState(() {
+      _ways = ways;
+      _picking = ways.length > 1;
+    });
+    if (ways.length == 1) _pick(ways.single);
+  }
+
+  /// Back from "Kies wat je toevoegt" to [AddSheet.base].
+  void _closePicker() => setState(() => _picking = false);
 
   /// The cards of the way being added, in order.
   late List<CredentialDescriptor> _queue = widget.way == null
@@ -284,12 +313,27 @@ class _AddSheetState extends ConsumerState<AddSheet> {
               ),
         successText: _successText,
         onSucceeded: _onSucceeded,
-        hasOtherChoices: widget.ways.length > 1,
+        hasOtherChoices: _ways.length > 1,
       ),
       rootKey: "pick",
-      root: flow.direct && flow.adding != null
+      root: widget.base != null
+          ? (_picking ? _picker(session) : null)
+          : flow.direct && flow.adding != null
           ? const SizedBox.shrink()
           : _picker(session),
+      below: [
+        if (widget.base case final base?)
+          KeyedSubtree(
+            key: const ValueKey("base"),
+            child: base(context, _startAdding),
+          ),
+      ],
+      // Back on "Kies wat je toevoegt" over the base: to the base.
+      onBack: () {
+        if (_picking && ref.read(issueFlowProvider(_config)).stack.isEmpty) {
+          _closePicker();
+        }
+      },
       rootShift: 0.28,
     );
   }
@@ -304,7 +348,14 @@ class _AddSheetState extends ConsumerState<AddSheet> {
     final title = t("share.addpicker.title");
     return SheetPage.scroll(
       title: SheetTitle(title, reveal: SheetTitleReveal.under(_title)),
-      fit: true,
+      // Over the sheet adding started from: back to it.
+      exits: widget.base == null
+          ? const SheetExits()
+          : SheetExits(onBack: _closePicker),
+      // As high as its rows when it opens the sheet; over the sheet adding
+      // started from it keeps that sheet's height (a sheet never gets
+      // lower and then higher again on the way in).
+      fit: widget.base == null,
       padding: const EdgeInsets.fromLTRB(
         YiviSpace.x16,
         0,
@@ -329,7 +380,7 @@ class _AddSheetState extends ConsumerState<AddSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final (n, way) in widget.ways.indexed)
+                for (final (n, way) in _ways.indexed)
                   KeyedSubtree(
                     // For tests: the types this way adds, and the option
                     // (two ways can add the same type).

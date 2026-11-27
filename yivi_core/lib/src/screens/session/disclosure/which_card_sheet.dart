@@ -16,6 +16,7 @@ import "../../../widgets/sheet/sheet.dart";
 import "../../../widgets/sheet/sheet_actions.dart";
 import "../../../widgets/sheet/sheet_heading.dart";
 import "../models/disclosure_plan_view.dart";
+import "add_picker_page.dart";
 import "card_spots.dart";
 import "disclosure_change_page.dart" show CardHead, ChangeLinkRow;
 import "disclosure_value_list.dart";
@@ -24,15 +25,16 @@ import "disclosure_words.dart";
 /// "Welk kaartje deel je?" (2.5.1): for small choice [choice], or for [slot]
 /// of the option in use of [choice] (a slot in a big choice, or one that
 /// takes several cards). A tap only selects; "Kies" (or "Klaar" where
-/// several can be ticked) applies it; closing discards it. [onAdd] adds
-/// another card ("＋ Ander … toevoegen"), after the sheet has closed: one
-/// way per kind the sheet can add, also kinds already in the app.
+/// several can be ticked) applies it; closing discards it. Another card
+/// ("＋ Ander … toevoegen", one way per kind the sheet can add, also kinds
+/// already in the app) is added in this same sheet, over it; once added it
+/// lands at [landing] as the sheet goes.
 Future<void> showWhichCardSheet({
   required BuildContext context,
   required int sessionId,
   required int choice,
   DisclosureSlot? slot,
-  required void Function(int choice, List<AddWay> ways) onAdd,
+  GlobalKey? landing,
   CardSpots? spots,
   void Function(Map<String, Rect> boxes)? onLeave,
   bool carried = false,
@@ -40,14 +42,20 @@ Future<void> showWhichCardSheet({
   context: context,
   // A card carried over its edge: it comes up under the card.
   motion: carried ? SheetMotion.carried : SheetMotion.share,
-  builder: (_) => WhichCardSheetView(
-    key: const Key("which_card_sheet"),
+  builder: (_) => AddSheet(
     sessionId: sessionId,
     choice: choice,
-    slot: slot,
-    onAdd: onAdd,
-    spots: spots,
-    onLeave: onLeave,
+    ways: const [],
+    landing: landing,
+    base: (context, add) => WhichCardSheetView(
+      key: const Key("which_card_sheet"),
+      sessionId: sessionId,
+      choice: choice,
+      slot: slot,
+      onAdd: (_, ways) => add(ways),
+      spots: spots,
+      onLeave: onLeave,
+    ),
   ),
 );
 
@@ -182,7 +190,6 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
             const [],
           ),
       ];
-      Navigator.of(context).pop();
       widget.onAdd(widget.choice, ways);
     }
 
@@ -304,9 +311,11 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
         ),
     ];
 
+    // Under adding when the sheet goes: its cards stay where they are.
+    final top = SheetPages.maybeOf(context)?.isTop ?? true;
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) {
+        if (didPop && top) {
           widget.onLeave?.call(
             widget.spots?.boxes(context, "sheet") ?? const {},
           );

@@ -136,7 +136,7 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         context: context,
         sessionId: _id,
         choice: i,
-        onAdd: _addFromSheet,
+        landing: _landingKey(i),
         spots: _spots,
         onLeave: _sheetLeft,
         carried: carried,
@@ -149,7 +149,7 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         sessionId: _id,
         choice: i,
         slot: slot,
-        onAdd: _addFromSheet,
+        landing: _landingKey(i),
         spots: _spots,
         onLeave: _sheetLeft,
         carried: carried,
@@ -161,7 +161,7 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         context: context,
         sessionId: _id,
         choice: i,
-        onAdd: _add,
+        landing: _landingKey(i),
         spots: _spots,
         onLeave: _sheetLeft,
         carried: carried,
@@ -183,26 +183,20 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
   int get _id => widget.session.id;
 
   /// Adds for [choice]: straight on [way], else from "Kies wat je
-  /// toevoegt" with [ways] (by default the ways to complete it).
-  void _add(int choice, AddWay? way, {List<AddWay>? ways}) {
+  /// toevoegt" with the ways to complete it.
+  void _add(int choice, AddWay? way) {
     final plan = widget.session.disclosurePlan;
     if (plan == null || choice >= plan.choices.length) return;
     showAddSheet(
       context: context,
       sessionId: _id,
       choice: choice,
-      ways: ways ?? addWays(plan.choices[choice]),
+      ways: addWays(plan.choices[choice]),
       way: way,
       landing: _landingKey(choice),
       liftFrom: way == null ? null : _landingKey(choice),
     );
   }
-
-  /// "＋ Ander … toevoegen" in "Welk kaartje deel je?": a card of a kind in
-  /// the sheet, also one already in the app (not a singleton: irmago leaves
-  /// that out).
-  void _addFromSheet(int choice, List<AddWay> ways) =>
-      _add(choice, ways.length == 1 ? ways.single : null, ways: ways);
 
   @override
   Widget build(BuildContext context) {

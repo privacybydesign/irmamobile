@@ -5,9 +5,11 @@ import "package:yivi_core/src/models/session_state.dart";
 import "package:yivi_core/src/providers/last_shared_provider.dart";
 import "package:yivi_core/src/providers/session_state_provider.dart";
 import "package:yivi_core/src/providers/wallet_cards_provider.dart";
+import "package:yivi_core/src/screens/session/disclosure/add_picker_page.dart";
 import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/disclosure/disclosure_keys.dart";
 import "package:yivi_core/src/screens/session/models/disclosure_plan_view.dart";
+import "package:yivi_core/src/widgets/bars/app_bar.dart";
 
 import "disclosure_fixtures.dart";
 import "support/test_app.dart";
@@ -182,6 +184,41 @@ void main() {
       expect(addRow("passport"), findsOneWidget);
       expect(addRow("idcard"), findsOneWidget);
       expect(addRow("driving"), findsOneWidget);
+      // In the same sheet: "Welk kaartje deel je?" is under it, and back
+      // goes to it.
+      expect(find.byType(AddSheet), findsOneWidget);
+      expect(
+        find.byKey(const Key("which_card_sheet"), skipOffstage: false),
+        findsOneWidget,
+      );
+      await _tap(tester, find.byType(YiviBackButton).hitTestable().last);
+      expect(find.text("Kies wat je toevoegt"), findsNothing);
+      expect(
+        find.text("Ander kaartje toevoegen").hitTestable(),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("one kind to add: its details, in the same sheet", (
+      tester,
+    ) async {
+      await _open(tester, eenvoudig(), "change_pick_0");
+      await _tap(tester, find.byKey(const Key("which_card_add")));
+      expect(find.byType(AddSheet), findsOneWidget);
+      expect(find.text("Kies wat je toevoegt"), findsNothing);
+      expect(
+        find.byKey(const Key("which_card_sheet"), skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key("which_card_add")).hitTestable(),
+        findsNothing,
+      );
+      await _tap(tester, find.byType(YiviBackButton).hitTestable().last);
+      expect(
+        find.byKey(const Key("which_card_add")).hitTestable(),
+        findsOneWidget,
+      );
     });
 
     testWidgets("one card: no radio, no Kies, the add link", (tester) async {

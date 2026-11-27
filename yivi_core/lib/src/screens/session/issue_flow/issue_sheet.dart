@@ -222,13 +222,17 @@ void closeIssueSheet(
 ///
 /// The sheet's own [root] page (under the key [rootKey]) comes first, then
 /// the flow's pages ([issueFlowPages]). Opened on one card, the flow's
-/// first page takes the root's place.
+/// first page takes the root's place. [below]: pages under the root, each
+/// with a key of its own (the sheet adding was started from, as "Welk
+/// kaartje deel je?"); without a [root] the flow's pages go straight on
+/// them.
 class IssueSheet extends StatelessWidget {
   final IssueFlowConfig config;
   final IssueSheetHost host;
   final IssueSheetKeys keys;
   final String rootKey;
-  final Widget root;
+  final Widget? root;
+  final List<Widget> below;
 
   /// Called on back in the sheet, before it goes back.
   final VoidCallback? onBack;
@@ -243,6 +247,7 @@ class IssueSheet extends StatelessWidget {
     required this.keys,
     required this.rootKey,
     required this.root,
+    this.below = const [],
     this.onBack,
     this.rootShift,
   });
@@ -255,6 +260,7 @@ class IssueSheet extends StatelessWidget {
     builder: (context, flow) => flow._sheet(
       rootKey: rootKey,
       root: root,
+      below: below,
       onBack: onBack,
       rootShift: rootShift,
     ),
@@ -587,7 +593,8 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
 
   Widget _sheet({
     required String rootKey,
-    required Widget root,
+    required Widget? root,
+    required List<Widget> below,
     required VoidCallback? onBack,
     required double? rootShift,
   }) {
@@ -633,7 +640,8 @@ class IssueSheetFlow extends ConsumerState<IssueFlowScope>
                   pages: closing && _shownPages != null
                       ? _shownPages!
                       : _shownPages = [
-                          if (!s.direct || s.adding == null)
+                          ...below,
+                          if (root != null && (!s.direct || s.adding == null))
                             KeyedSubtree(key: ValueKey(rootKey), child: root),
                           ...issueFlowPages(this),
                         ],

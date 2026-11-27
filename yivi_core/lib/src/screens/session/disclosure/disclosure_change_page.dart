@@ -225,6 +225,11 @@ class _DisclosureChangePageState extends ConsumerState<DisclosureChangePage> {
       ),
     ];
     final split = SessionLayout.of(context).split;
+    // Back to the share screen, as "Klaar" and the system back do.
+    final back = YiviBackButton(
+      key: const Key("change_back"),
+      onTap: widget.onDone,
+    );
 
     return PopScope(
       canPop: false,
@@ -238,6 +243,7 @@ class _DisclosureChangePageState extends ConsumerState<DisclosureChangePage> {
               wide: true,
               scrollsUnderBars: true,
               cornerClose: true,
+              leading: back,
               body: SidewaysLayout(
                 panel: SessionPanel(
                   key: DisclosureKeys.panel,
@@ -259,6 +265,7 @@ class _DisclosureChangePageState extends ConsumerState<DisclosureChangePage> {
                   : "share.change.title",
               barTitleVisibility: _titleUnder,
               scrollsUnderBars: true,
+              leading: back,
               bottomNavigationBar: ActionBar(actions: [done]),
               body: Builder(
                 builder: (context) {
