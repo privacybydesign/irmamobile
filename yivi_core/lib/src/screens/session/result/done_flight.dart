@@ -37,9 +37,11 @@ class DoneFlight {
         : r;
     _captured = _Captured(
       cards: [
+        // Unturned around its middle, with its turn: a card in the share
+        // screen's fanned pile starts as it lies.
         for (final (key, hash) in cards)
-          if (key.currentContext.rectIn(overlay) case final r?)
-            (hash, clamp(r)),
+          if (key.currentContext.placeIn(overlay) case final p?)
+            (hash, clamp(p.rect), p.turn),
       ],
       message: messageKey?.currentContext.rectIn(overlay),
       logo: logoKey?.currentContext.rectIn(overlay),
@@ -71,7 +73,7 @@ class DoneFlight {
     final pairs =
         <
           (
-            Rect,
+            (Rect, double),
             ({GlobalKey key, String hash, int z, double turn, Widget picture}),
           )
         >[];
@@ -82,20 +84,22 @@ class DoneFlight {
           .firstOrNull;
       if (i == null) continue;
       used.add(i);
-      pairs.add((captured.cards[i].$2, c));
+      final (_, rect, turn) = captured.cards[i];
+      pairs.add(((rect, turn), c));
     }
     // The bottom card first: each lands on top of the one before.
     pairs.sort((a, b) => a.$2.z.compareTo(b.$2.z));
     const duration = Duration(milliseconds: 560);
-    for (final (n, (from, c)) in pairs.indexed) {
+    for (final (n, ((from, fromTurn), c)) in pairs.indexed) {
       flying.add(c.key);
       Flight.start(
         context,
         fromRect: from,
         to: Flight.boxOf(c.key),
-        // Ends on the place's own turn; the key is on its unturned box.
+        // From the turn it had to the place's own; the key is on its
+        // unturned box.
         keys: [
-          const FlightKey(0, FlightKey.start),
+          FlightKey(0, FlightKey.start, turn: fromTurn),
           FlightKey(1, FlightKey.end, turn: c.turn),
         ],
         duration: duration,
@@ -173,7 +177,8 @@ class DoneFlight {
 }
 
 class _Captured {
-  final List<(String, Rect)> cards;
+  /// Per card: its hash, its box unturned and its turn.
+  final List<(String, Rect, double)> cards;
   final Rect? message;
   final Rect? logo;
 

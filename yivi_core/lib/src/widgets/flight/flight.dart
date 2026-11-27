@@ -50,16 +50,19 @@ class FlightKey {
   /// The keys of a card carried from one place to another in three beats:
   /// picked up where it is, carried while lifted, put down; [lift] and [hold]
   /// are where the beats meet.
+  /// [startTurn] and [endTurn]: how the card lies where it is picked up and
+  /// where it is put down (a card in a fanned pile).
   static List<FlightKey> carry({
     double lift = 0.22,
     double hold = 0.82,
     double startOpacity = 1,
     double startTurn = 0,
+    double endTurn = 0,
   }) => [
     FlightKey(0, start, opacity: startOpacity, turn: startTurn),
     FlightKey(lift, start, lifted: true, turn: startTurn),
-    FlightKey(hold, end, lifted: true),
-    const FlightKey(1, end),
+    FlightKey(hold, end, lifted: true, turn: endTurn),
+    FlightKey(1, end, turn: endTurn),
   ];
 }
 

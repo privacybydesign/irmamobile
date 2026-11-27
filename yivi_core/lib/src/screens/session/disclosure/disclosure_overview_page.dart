@@ -598,8 +598,10 @@ class _PileRow extends StatelessWidget {
                   height: 38,
                   child: Stack(
                     clipBehavior: Clip.none,
+                    // The first card on top, as in the done screen's
+                    // stack the cards fly into: none changes places.
                     children: [
-                      for (final (i, card) in shown.indexed)
+                      for (final (i, card) in shown.indexed.toList().reversed)
                         Positioned(
                           left: 8 + _fan[i].$1.dx,
                           top: 6 + _fan[i].$1.dy,

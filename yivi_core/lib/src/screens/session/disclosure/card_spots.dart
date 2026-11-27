@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/credential.dart";
 import "../../../models/session_state.dart";
+import "../../../util/laid_out_box.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/flight/flight.dart";
 import "../../../widgets/sheet/sheet.dart";
@@ -12,6 +13,10 @@ import "../models/disclosure_plan_view.dart";
 /// (2.8): it is never drawn at its new place first.
 class CardSpots {
   final _keys = <(String, String), GlobalKey>{};
+
+  /// How the cards lay when [boxes] last measured them (a fanned pile), by
+  /// page and hash: where a flight from there starts turned.
+  final _turns = <(String, String), double>{};
 
   /// Where the card with [hash] is drawn on [page] ("add", "overview",
   /// "change", "sheet").
@@ -24,22 +29,49 @@ class CardSpots {
   GlobalKey? firstOf(String page, String hash, Set<String> drawn) =>
       drawn.add(hash) ? of(page, hash) : null;
 
-  /// The boxes of the cards on [page] that are on screen now, by hash.
+  /// The boxes of the cards on [page] that are on screen now, by hash: as
+  /// they would lie unturned, around the same middle (see [_placeOf]).
   Map<String, Rect> boxes(BuildContext context, String page) {
     final overlay =
         Overlay.of(context, rootOverlay: true).context.findRenderObject()
             as RenderBox?;
     if (overlay == null) return const {};
-    return {
-      for (final MapEntry(:key, :value) in _keys.entries)
-        if (key.$1 == page) key.$2: ?_rectOf(value, overlay),
-    };
+    final result = <String, Rect>{};
+    for (final MapEntry(:key, :value) in _keys.entries) {
+      if (key.$1 != page) continue;
+      final place = _placeOf(value, overlay);
+      if (place == null) continue;
+      result[key.$2] = place.rect;
+      _turns[key] = place.turn;
+    }
+    return result;
   }
 
-  static Rect? _rectOf(GlobalKey key, RenderBox overlay) {
-    final box = key.currentContext?.findRenderObject();
-    if (box is! RenderBox || !box.hasSize || !box.attached) return null;
-    return box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
+  /// Where the card at [key] is in [overlay], unturned, and its turn: a
+  /// flight to that box with that turn ends exactly on the card.
+  static ({Rect rect, double turn})? _placeOf(
+    GlobalKey key,
+    RenderBox overlay,
+  ) => key.currentContext.placeIn(overlay);
+
+  /// [keys] in the order they are painted under [root]: the last is on top.
+  static List<GlobalKey> _paintOrder(
+    Iterable<GlobalKey> keys,
+    RenderObject root,
+  ) {
+    final byBox = <RenderObject, GlobalKey>{
+      for (final k in keys)
+        if (k.currentContext?.findRenderObject() case final RenderObject r)
+          r: k,
+    };
+    final order = <GlobalKey>[];
+    void visit(RenderObject node) {
+      if (byBox[node] case final k?) order.add(k);
+      if (order.length < byBox.length) node.visitChildren(visit);
+    }
+
+    visit(root);
+    return order;
   }
 
   /// Flies the cards at [from] (boxes by hash, taken before the page
@@ -47,7 +79,10 @@ class CardSpots {
   /// Their places on [fromPage] are hidden while they fly, so a card is
   /// never seen twice (one going down with a sheet). [path]: carried over a
   /// sheet's edge; into a sheet ([FlightPath.into]) it flies to where its
-  /// place will be once the sheet is up, not after the sheet as it slides. Call before the change that builds [page]; the flights
+  /// place will be once the sheet is up, not after the sheet as it slides.
+  /// It lands turned as its place is, and the cards lie on top of each
+  /// other in the order they are drawn there. Call [boxes] for [fromPage]
+  /// first. Call before the change that builds [page]; the flights
   /// start once it has laid out. A card without a place on [page] does not
   /// fly. Whether any card flies.
   bool carry(
@@ -68,7 +103,20 @@ class CardSpots {
     };
     Flight.hide([...keys.values, ...leaving.values]);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      var z = 0;
+      if (!context.mounted) return;
+      final overlay =
+          Overlay.of(context, rootOverlay: true).context.findRenderObject()
+              as RenderBox?;
+      // On top of each other as they will lie where they land, so none
+      // changes places as it is put down.
+      final painted = overlay == null
+          ? keys.values.toList()
+          : _paintOrder(keys.values, overlay);
+      int zOf(GlobalKey k) {
+        final i = painted.indexOf(k);
+        return i < 0 ? painted.length : i;
+      }
+
       for (final MapEntry(key: hash, value: rect) in from.entries) {
         final to = keys[hash]!;
         final c = card(hash);
@@ -76,20 +124,26 @@ class CardSpots {
           Flight.show([to, ?leaving[hash]]);
           continue;
         }
+        final landing = overlay == null ? null : _placeOf(to, overlay);
         Flight.start(
           context,
           fromRect: rect,
           to: path?.into ?? false
               ? (overlay) => Sheet.settledBox(to, overlay)
-              : Flight.boxOf(to),
-          keys: FlightKey.carry(lift: 0.2, hold: 0.8),
+              : (overlay) => _placeOf(to, overlay)?.rect,
+          keys: FlightKey.carry(
+            lift: 0.2,
+            hold: 0.8,
+            startTurn: fromPage == null ? 0 : _turns[(fromPage, hash)] ?? 0,
+            endTurn: landing?.turn ?? 0,
+          ),
           path: path,
           duration: duration,
           lift: Flight.liftCarried,
           shadow: Flight.shadowCarried,
           radius: const BorderRadius.all(Radius.circular(4)),
           hide: [to, ?leaving[hash]],
-          z: z++,
+          z: zOf(to),
           copyKey: Key("spot_flight_$hash"),
           copy: (context, frame) => CredentialCardArt(
             credential: sharedCardFor(c, wallet),

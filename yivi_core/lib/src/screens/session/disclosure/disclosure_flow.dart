@@ -68,6 +68,7 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
       context,
       from: boxes,
       page: to,
+      fromPage: from,
       card: (h) => candidateOf(widget.session.disclosurePlan, h),
       wallet: ref.read(walletCardsProvider),
     );
