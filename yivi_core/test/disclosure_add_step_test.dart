@@ -107,7 +107,7 @@ void main() {
         find.text("Nog één kaartje, dan zie je wat je deelt"),
         findsOneWidget,
       );
-      expect(find.text("E-mailadres toevoegen"), findsOneWidget);
+      expect(find.bySemanticsLabel("E-mailadres toevoegen"), findsOneWidget);
       // The row of a choice that was fine is not there.
       expect(_row(0), findsNothing);
     });
@@ -129,7 +129,10 @@ void main() {
         find.text("Nog twee kaartjes, dan zie je wat je deelt"),
         findsOneWidget,
       );
-      expect(find.text("Persoonsgegevens toevoegen"), findsOneWidget);
+      expect(
+        find.bySemanticsLabel("Persoonsgegevens toevoegen"),
+        findsOneWidget,
+      );
     });
 
     testWidgets("a set with part in the app", (tester) async {
@@ -167,7 +170,10 @@ void main() {
         ),
       );
       expect(_inRow(0, "Verlopen. Voeg het opnieuw toe."), findsOneWidget);
-      expect(find.text("Paspoort opnieuw toevoegen"), findsOneWidget);
+      expect(
+        find.bySemanticsLabel("Paspoort opnieuw toevoegen"),
+        findsOneWidget,
+      );
     });
 
     testWidgets("revoked, one of several ways", (tester) async {
@@ -181,7 +187,10 @@ void main() {
     testWidgets("a revoked card one can add again", (tester) async {
       await _pump(tester, _session(ingetrokken()));
       expect(_inRow(0, "Ingetrokken. Voeg het opnieuw toe."), findsOneWidget);
-      expect(find.text("Persoonsgegevens opnieuw toevoegen"), findsOneWidget);
+      expect(
+        find.bySemanticsLabel("Persoonsgegevens opnieuw toevoegen"),
+        findsOneWidget,
+      );
     });
 
     testWidgets("a value is asked: the blue tag", (tester) async {
@@ -213,7 +222,7 @@ void main() {
       expect(_inRow(0, "In je app: Woonplaats Utrecht"), findsOneWidget);
       expect(_inRow(0, "Gevraagd: Woonplaats Rijnstad"), findsOneWidget);
       expect(find.byKey(DisclosureKeys.addStepHelp), findsOneWidget);
-      expect(find.text("Adres opnieuw ophalen"), findsOneWidget);
+      expect(find.bySemanticsLabel("Adres opnieuw ophalen"), findsOneWidget);
       expect(find.textContaining("telt niet mee"), findsNothing);
     });
 
@@ -339,7 +348,7 @@ void main() {
 
     testWidgets("one way: the sheet opens on the card", (tester) async {
       await _pump(tester, _session(ontbreekt()));
-      await tester.tap(find.text("E-mailadres toevoegen"));
+      await tester.tap(find.bySemanticsLabel("E-mailadres toevoegen"));
       await tester.pumpAndSettle();
       expect(find.byKey(DisclosureKeys.addPicker), findsNothing);
       expect(find.byType(AddSheet), findsOneWidget);

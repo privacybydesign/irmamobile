@@ -10,6 +10,7 @@ import "../../../theme/yivi_palette.dart";
 import "../../../theme/yivi_space.dart";
 import "../../../util/after_frame.dart";
 import "../../../util/i18n.dart";
+import "../../../util/text_fit.dart";
 import "../../../widgets/bars/action_bar.dart";
 import "../../../widgets/bars/app_bar.dart";
 import "../../../widgets/bars/compact_bar.dart";
@@ -372,6 +373,9 @@ class _ChoiceCard extends ConsumerWidget {
                   label: link == ChangeLink.pickSeveral
                       ? t("share.change.pick_several")
                       : kindLink(slot),
+                  shortLabel: link == ChangeLink.pickSeveral
+                      ? null
+                      : t("share.change.pick_card"),
                   onTap: () => actions.pickSlot(i, slot),
                 ),
             ],
@@ -391,6 +395,9 @@ class _ChoiceCard extends ConsumerWidget {
           ChangeLink.pickSeveral => t("share.change.pick_several"),
           ChangeLink.pickCombination => t("share.change.pick_combination"),
         },
+        shortLabel: link == ChangeLink.pickKind
+            ? t("share.change.pick_card")
+            : null,
         onTap: () => switch (link) {
           ChangeLink.pickCombination => actions.pickCombination(i),
           ChangeLink.pickSeveral => actions.pickSlot(i, change.slots.single),
@@ -522,6 +529,9 @@ class _OptionalCard extends ConsumerWidget {
                   }),
                   OptionalLink.add => t("share.optional.add_card"),
                 },
+                shortLabel: link == OptionalLink.addOne
+                    ? t("share.optional.add_card")
+                    : null,
                 disc: switch (link) {
                   OptionalLink.addOne || OptionalLink.add => Icons.add_rounded,
                   _ => null,
@@ -630,12 +640,18 @@ class ChangeLinkRow extends StatelessWidget {
   final bool chevron;
   final VoidCallback? onTap;
 
+  /// Shown instead of [label] when that does not fit on one line (a link
+  /// that names a card falls back to a generic one). Screen readers still
+  /// hear [label].
+  final String? shortLabel;
+
   const ChangeLinkRow({
     super.key,
     required this.label,
     this.disc,
     bool? chevron,
     required this.onTap,
+    this.shortLabel,
   }) : chevron = chevron ?? disc == null;
 
   @override
@@ -666,7 +682,22 @@ class ChangeLinkRow extends StatelessWidget {
                   ),
                   child: Icon(icon, size: 14, color: palette.link),
                 ),
-              Flexible(child: Text(label, style: style)),
+              Flexible(
+                child: shortLabel == null
+                    ? Text(label, style: style)
+                    : LayoutBuilder(
+                        builder: (context, constraints) => Text(
+                          labelThatFits(
+                            context,
+                            full: label,
+                            short: shortLabel,
+                            style: style,
+                            width: constraints.maxWidth,
+                          ),
+                          style: style,
+                        ),
+                      ),
+              ),
               if (chevron)
                 Icon(
                   Icons.chevron_right_rounded,

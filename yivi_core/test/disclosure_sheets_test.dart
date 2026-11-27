@@ -72,6 +72,17 @@ Finder _row(String hash) => find.byKey(Key("which_card_row_$hash"));
 Finder get _sheet => find.byKey(const Key("which_card_sheet"));
 Finder get _choose => find.byKey(const Key("which_card_choose"));
 
+/// Whether the bar of [sheet] shows its title (it stays there, see-through,
+/// for screen readers while the page's heading says it).
+bool _barTitleShown(WidgetTester tester, Finder sheet) {
+  final title = find.descendant(
+    of: sheet,
+    matching: find.byKey(const Key("glass_sheet_title")),
+  );
+  final fade = find.ancestor(of: title, matching: find.byType(AnimatedOpacity));
+  return tester.widget<AnimatedOpacity>(fade.first).opacity > 0;
+}
+
 Future<void> _tap(WidgetTester tester, Finder f) async {
   await tester.ensureVisible(f);
   await tester.tap(f);
@@ -133,10 +144,53 @@ void main() {
       );
     });
 
+    testWidgets("the title once: the bar's only after scrolling", (
+      tester,
+    ) async {
+      await _open(tester, drie(), "change_pick_0");
+      expect(find.text("Welk kaartje deel je?"), findsWidgets);
+      expect(_barTitleShown(tester, _sheet), isFalse);
+    });
+
+    testWidgets("rows not picked are not greyed", (tester) async {
+      await _open(tester, drie(), "change_pick_0");
+      for (final hash in ["pp-1", "pp-2", "dr-1"]) {
+        expect(
+          find.descendant(
+            of: _row(hash),
+            matching: find.byWidgetPredicate(
+              (w) => w is Opacity && w.opacity < 1,
+            ),
+          ),
+          findsNothing,
+          reason: hash,
+        );
+      }
+    });
+
+    testWidgets("adding another card offers kinds already in the app too", (
+      tester,
+    ) async {
+      await _open(tester, drie(), "change_pick_0");
+      await _tap(tester, find.text("Ander kaartje toevoegen"));
+      Finder addRow(String kind) => find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith("sheet_add_$kind#"),
+      );
+      expect(find.text("Kies wat je toevoegt"), findsWidgets);
+      expect(addRow("passport"), findsOneWidget);
+      expect(addRow("idcard"), findsOneWidget);
+      expect(addRow("driving"), findsOneWidget);
+    });
+
     testWidgets("one card: no radio, no Kies, the add link", (tester) async {
       await _open(tester, eenvoudig(), "change_pick_0");
       expect(_choose, findsNothing);
-      expect(find.text("Ander e-mailadres toevoegen"), findsOneWidget);
+      expect(
+        find.bySemanticsLabel("Ander e-mailadres toevoegen"),
+        findsOneWidget,
+      );
     });
 
     testWidgets("optional: Niet delen first, selected while off", (
@@ -185,6 +239,14 @@ void main() {
     testWidgets("complete first, the incomplete one to add", (tester) async {
       await _open(tester, opties(), "change_combination_0");
       expect(find.text("Welke combinatie deel je?"), findsWidgets);
+      // The title once: the bar's only after scrolling.
+      expect(
+        _barTitleShown(
+          tester,
+          find.byKey(const Key("which_combination_sheet")),
+        ),
+        isFalse,
+      );
       final ys = [
         for (final o in [0, 1, 2])
           tester.getTopLeft(find.byKey(Key("combination_option_$o"))).dy,

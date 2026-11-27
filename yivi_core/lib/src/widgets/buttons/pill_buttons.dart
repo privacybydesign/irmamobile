@@ -8,6 +8,7 @@ import "../../theme/yivi_corners.dart";
 import "../../theme/yivi_motion.dart";
 import "../../theme/yivi_palette.dart";
 import "../../theme/yivi_space.dart";
+import "../../util/text_fit.dart";
 import "../surfaces/count_badge.dart";
 import "press_scale.dart";
 
@@ -49,12 +50,18 @@ class PrimaryPillButton extends StatelessWidget {
   final PillSize size;
   final Widget? leading;
 
+  /// Shown instead of [label] when that does not fit on one line (a label
+  /// that names a card falls back to a generic one). Screen readers still
+  /// hear [label].
+  final String? shortLabel;
+
   const PrimaryPillButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.size = PillSize.large,
     this.leading,
+    this.shortLabel,
   });
 
   @override
@@ -62,19 +69,33 @@ class PrimaryPillButton extends StatelessWidget {
     final palette = YiviPalette.of(context);
     final enabled = onPressed != null;
     final bar = size == PillSize.bar;
-    final text = AnimatedDefaultTextStyle(
+    final style = palette
+        .display(bar ? 15 : 16, weight: FontWeight.w700)
+        .copyWith(color: enabled ? Colors.white : palette.secondaryText);
+    Widget textOf(String shown) => AnimatedDefaultTextStyle(
       duration: enableFade,
       curve: Curves.easeOut,
-      style: palette
-          .display(bar ? 15 : 16, weight: FontWeight.w700)
-          .copyWith(color: enabled ? Colors.white : palette.secondaryText),
+      style: style,
       child: Text(
-        label,
+        shown,
         textAlign: TextAlign.center,
         maxLines: bar ? 1 : null,
         overflow: bar ? TextOverflow.ellipsis : null,
       ),
     );
+    final text = shortLabel == null
+        ? textOf(label)
+        : LayoutBuilder(
+            builder: (context, constraints) => textOf(
+              labelThatFits(
+                context,
+                full: label,
+                short: shortLabel,
+                style: style,
+                width: constraints.maxWidth,
+              ),
+            ),
+          );
     return _Tap(
       onTap: onPressed,
       label: label,

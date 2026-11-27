@@ -1625,8 +1625,11 @@
       "line_things": "Noch {count} Sachen, dann siehst du, was du teilst",
       "line_done": "Alles ist in deiner App",
       "add": "{name} hinzufügen",
+      "add_short": "Hinzufügen",
       "add_again": "{name} erneut hinzufügen",
+      "add_again_short": "Erneut hinzufügen",
       "fetch_again": "{name} erneut holen",
+      "fetch_again_short": "Erneut holen",
       "choose": "Wähle, was du hinzufügst",
       "review": "Ansehen, was du teilst",
       "review_sign": "Ansehen, was du unterschreibst"

@@ -25,13 +25,14 @@ import "disclosure_words.dart";
 /// of the option in use of [choice] (a slot in a big choice, or one that
 /// takes several cards). A tap only selects; "Kies" (or "Klaar" where
 /// several can be ticked) applies it; closing discards it. [onAdd] adds
-/// another card ("＋ Ander … toevoegen"), after the sheet has closed.
+/// another card ("＋ Ander … toevoegen"), after the sheet has closed: one
+/// way per kind the sheet can add, also kinds already in the app.
 Future<void> showWhichCardSheet({
   required BuildContext context,
   required int sessionId,
   required int choice,
   DisclosureSlot? slot,
-  required void Function(int choice, AddWay? way) onAdd,
+  required void Function(int choice, List<AddWay> ways) onAdd,
   CardSpots? spots,
   void Function(Map<String, Rect> boxes)? onLeave,
 }) => showSheet<void>(
@@ -52,7 +53,7 @@ class WhichCardSheetView extends ConsumerStatefulWidget {
   final int sessionId;
   final int choice;
   final DisclosureSlot? slot;
-  final void Function(int choice, AddWay? way) onAdd;
+  final void Function(int choice, List<AddWay> ways) onAdd;
 
   /// Where the cards are drawn: the rows' pictures are the "sheet" places.
   final CardSpots? spots;
@@ -85,6 +86,7 @@ class _Pick {
 
 class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
   _Pick? _pick;
+  final _title = GlobalKey(debugLabel: "which_card_title");
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +181,7 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
           ),
       ];
       Navigator.of(context).pop();
-      widget.onAdd(widget.choice, ways.length == 1 ? ways.single : null);
+      widget.onAdd(widget.choice, ways);
     }
 
     final title = t(
@@ -200,9 +202,7 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
             t("share.change.not_sharing"),
             style: palette
                 .display(15, weight: FontWeight.w600)
-                .copyWith(
-                  color: nothingPicked ? palette.text : palette.secondaryText,
-                ),
+                .copyWith(color: palette.text),
           ),
         ),
       if (sheet.oneKind && first != null)
@@ -229,7 +229,7 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
           radio: sheet.radios && r.problem == null,
           multiple: sheet.multiple,
           selected: picked(r),
-          muted: r.problem != null || (sheet.radios && !picked(r)),
+          muted: r.problem != null,
           onTap: r.problem != null || !sheet.radios ? null : () => tap(r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -292,6 +292,9 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
                       "name": slotName(sheet.addable.single),
                     })
                   : t("share.pick.add_card"),
+              shortLabel: sheet.addable.length == 1
+                  ? t("share.pick.add_card")
+                  : null,
               disc: Icons.add_rounded,
               onTap: add,
             ),
@@ -308,7 +311,7 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
         }
       },
       child: SheetPage.scroll(
-        title: SheetTitle(title),
+        title: SheetTitle(title, reveal: SheetTitleReveal.under(_title)),
         padding: const EdgeInsets.fromLTRB(
           YiviSpace.x16,
           0,
@@ -331,6 +334,7 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
           children: [
             SheetHeading(
               title: title,
+              titleKey: _title,
               // A slot that takes several: not "only needs one".
               lead: sheet.multiple
                   ? null
@@ -381,7 +385,7 @@ class _WhichCardSheetState extends ConsumerState<WhichCardSheetView> {
 }
 
 /// A row with a radio (or a tick) at its end, top aligned with the first
-/// line; what is not chosen is greyed.
+/// line; [muted] greys a row that cannot be picked.
 class PickRow extends StatelessWidget {
   final bool radio;
   final bool multiple;

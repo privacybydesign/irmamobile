@@ -1625,8 +1625,11 @@
       "line_things": "Encore {count} choses, puis vous verrez ce que vous partagez",
       "line_done": "Tout est dans votre appli",
       "add": "Ajouter {name}",
+      "add_short": "Ajouter",
       "add_again": "Ajouter {name} à nouveau",
+      "add_again_short": "Ajouter à nouveau",
       "fetch_again": "Récupérer {name} à nouveau",
+      "fetch_again_short": "Récupérer à nouveau",
       "choose": "Choisir quoi ajouter",
       "review": "Voir ce que vous partagez",
       "review_sign": "Voir ce que vous signez"

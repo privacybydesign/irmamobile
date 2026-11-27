@@ -120,6 +120,13 @@ class AddFirstPage extends ConsumerWidget {
       NextKind.review => t("share.addstep.review$sign"),
       NextKind.close => t("share.button.close"),
     };
+    // When the names make it too long for one line.
+    final shortLabel = switch (next.kind) {
+      NextKind.add => t("share.addstep.add_short"),
+      NextKind.addAgain => t("share.addstep.add_again_short"),
+      NextKind.fetchAgain => t("share.addstep.fetch_again_short"),
+      _ => null,
+    };
     void go() => switch (next.kind) {
       NextKind.review => onReview(),
       NextKind.close => onClose(),
@@ -154,7 +161,11 @@ class AddFirstPage extends ConsumerWidget {
         ),
         KeyedSubtree(
           key: DisclosureKeys.next,
-          child: PrimaryPillButton(label: label, onPressed: go),
+          child: PrimaryPillButton(
+            label: label,
+            shortLabel: shortLabel,
+            onPressed: go,
+          ),
         ),
       ],
     );

@@ -1625,8 +1625,11 @@
       "line_things": "{count} more things, then you'll see what you share",
       "line_done": "Everything is in your app",
       "add": "Add {name}",
+      "add_short": "Add",
       "add_again": "Add {name} again",
+      "add_again_short": "Add again",
       "fetch_again": "Get {name} again",
+      "fetch_again_short": "Get again",
       "choose": "Choose what to add",
       "review": "See what you share",
       "review_sign": "See what you sign"

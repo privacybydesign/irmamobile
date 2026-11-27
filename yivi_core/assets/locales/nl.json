@@ -1625,8 +1625,11 @@
       "line_things": "Nog {count} dingen, dan zie je wat je deelt",
       "line_done": "Alles staat in je app",
       "add": "{name} toevoegen",
+      "add_short": "Toevoegen",
       "add_again": "{name} opnieuw toevoegen",
+      "add_again_short": "Opnieuw toevoegen",
       "fetch_again": "{name} opnieuw ophalen",
+      "fetch_again_short": "Opnieuw ophalen",
       "choose": "Kies wat je toevoegt",
       "review": "Bekijk wat je deelt",
       "review_sign": "Bekijk wat je ondertekent"

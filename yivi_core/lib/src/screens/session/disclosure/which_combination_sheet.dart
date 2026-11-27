@@ -76,6 +76,7 @@ class _WhichCombinationSheetState
     extends ConsumerState<WhichCombinationSheetView> {
   /// The option picked in the sheet; -1: "Niet delen"; null: what is in use.
   int? _pick;
+  final _title = GlobalKey(debugLabel: "which_combination_title");
 
   @override
   Widget build(BuildContext context) {
@@ -132,9 +133,7 @@ class _WhichCombinationSheetState
               t("share.change.not_sharing"),
               style: palette
                   .display(15, weight: FontWeight.w600)
-                  .copyWith(
-                    color: pick < 0 ? palette.text : palette.secondaryText,
-                  ),
+                  .copyWith(color: palette.text),
             ),
           ),
         ),
@@ -175,7 +174,7 @@ class _WhichCombinationSheetState
         }
       },
       child: SheetPage.scroll(
-        title: SheetTitle(title),
+        title: SheetTitle(title, reveal: SheetTitleReveal.under(_title)),
         padding: const EdgeInsets.fromLTRB(
           YiviSpace.x16,
           0,
@@ -195,6 +194,7 @@ class _WhichCombinationSheetState
           children: [
             SheetHeading(
               title: title,
+              titleKey: _title,
               lead: t(
                 choice.optional
                     ? "share.pick.optional"
@@ -265,7 +265,6 @@ class _OptionBlock extends StatelessWidget {
       radio: radio,
       multiple: false,
       selected: selected,
-      muted: radio && !selected,
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
