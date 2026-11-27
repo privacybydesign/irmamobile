@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- A new flow for adding a passport, ID card, residence permit or driving licence ([#748](https://github.com/privacybydesign/irmamobile/issues/748)). Tapping the document in the list of data to add goes straight to a screen that shows how to hold it, without the page about the data first; Start then opens the camera, or manual entry in a build without text recognition. Reading the chip keeps one layout from start to end: put the phone on the document, a ring with the progress while it is read, and a check when it is done, without texts that change while reading. On Android the reading starts as soon as the screen opens; on iOS one tap on Start opens Apple's NFC sheet, which shows the same text and the progress. With NFC turned off, Android offers to open the NFC settings and carries on once NFC is on. The face check intro shows a still picture and one button, and the screen that adds the document shows only the document's card
+- Age attributes (`over12`, `over18` and so on) are one row on a credential card, such as "Age: Older than 21, not older than 65". "Show all ages" shows a pill for every age. A card that compares the data with what an organisation asks for keeps a row per age
+- The Dutch texts of the document screens say "je" instead of "u", and the NFC screen titles all start with "Lees", such as "Lees identiteitskaart"
+
+### Fixed
+- When the connection with the chip dropped while reading a document, an ID card in particular, the app showed a red and grey error screen instead of the reading: it did not know vcmrtd's reconnecting state. Now the progress stays where it was, the screen says the connection was lost and asks to put the phone back, and the reading carries on. A reading that fails after losing the chip asks the same, with a retry. A reader state the app does not know shows the reading screen instead of an error
 
 ## [8.5.0] - 2026-11-24
 ### Added

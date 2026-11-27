@@ -7,8 +7,8 @@ import "package:permission_handler/permission_handler.dart";
 import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
 import "../../../util/test_detection.dart";
+import "../../../widgets/document_flow_footer.dart";
 import "../../../widgets/irma_app_bar.dart";
-import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "widgets/mrz_scanner.dart";
 
@@ -131,14 +131,23 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
             backgroundColor: theme.backgroundTertiary,
             appBar: IrmaAppBar(
               titleTranslationKey: widget.translationKeys.title,
+              hasBorder: false,
             ),
             body: body,
-            bottomNavigationBar: IrmaBottomBar(
-              primaryButtonLabel: widget.translationKeys.manualEntryButton,
-              onPrimaryPressed: widget.onManualAdd,
-              secondaryButtonLabel: "ui.cancel",
-              onSecondaryPressed: widget.onCancel,
-              alignment: .vertical,
+            bottomNavigationBar: DocumentFlowFooter(
+              buttons: [
+                DocumentFlowButton(
+                  key: DocumentFlowButton.primaryKey,
+                  labelKey: widget.translationKeys.manualEntryButton,
+                  onPressed: widget.onManualAdd,
+                ),
+                DocumentFlowButton(
+                  key: DocumentFlowButton.secondaryKey,
+                  labelKey: "document_flow.cancel",
+                  onPressed: widget.onCancel,
+                  style: .outline,
+                ),
+              ],
             ),
           );
         }

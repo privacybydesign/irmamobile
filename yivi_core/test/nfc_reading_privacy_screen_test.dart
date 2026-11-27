@@ -10,6 +10,7 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/util/test_detection.dart";
 
 import "helpers/test_translation_loader.dart";
 
@@ -80,28 +81,10 @@ NfcReadingTranslationKeys _translationKeys() {
     error: key,
     errorGeneric: key,
     title: key,
-    nfcDisabled: key,
-    nfcEnabled: key,
-    introduction: key,
-    startScanning: key,
-    nfcDisabledExplanation: key,
-    holdNearPhotoPage: key,
-    tip1: key,
-    tip2: key,
-    tip3: key,
-    successExplanation: key,
     cancelledByUser: key,
     cancelled: key,
     cancelling: key,
-    connecting: key,
-    readingCardSecurity: key,
-    readingDocumentData: key,
-    authenticating: key,
-    performingSecurityVerification: key,
-    timeoutWaitingForTag: key,
-    tagLostTryAgain: key,
     failedToInitiateSession: key,
-    success: key,
   );
 }
 
@@ -111,18 +94,24 @@ Widget _testWidget(_RecordingReader reader) {
       passportReaderProvider.overrideWith2((mrz) => reader),
       passportIssuerProvider.overrideWithValue(_StubIssuer()),
     ],
-    child: IrmaTheme(
-      builder: (_) => MaterialApp(
-        localizationsDelegates: [
-          FlutterI18nDelegate(
-            translationLoader: TestTranslationLoader(
-              basePath: "assets/locales",
-              forcedLocale: const Locale("en", "US"),
+    // TestContext stops the waiting picture from looping on a ticker.
+    child: TestContext(
+      child: IrmaTheme(
+        builder: (_) => MaterialApp(
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: TestTranslationLoader(
+                basePath: "assets/locales",
+                forcedLocale: const Locale("en", "US"),
+              ),
             ),
+            ...GlobalMaterialLocalizations.delegates,
+          ],
+          home: NfcReadingScreen(
+            mrz: _mrz,
+            translationKeys: _translationKeys(),
           ),
-          ...GlobalMaterialLocalizations.delegates,
-        ],
-        home: NfcReadingScreen(mrz: _mrz, translationKeys: _translationKeys()),
+        ),
       ),
     ),
   );
@@ -149,10 +138,8 @@ void main() {
     );
 
     final reader = _RecordingReader(privacyScreenCalls);
+    // On Android the read starts as soon as the screen is up.
     await tester.pumpWidget(_testWidget(reader));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
     await tester.pumpAndSettle();
 
     expect(reader.readCount, 1);
@@ -160,10 +147,5 @@ void main() {
     // this the blur sits over the scanning animation and its progress text.
     expect(reader.callsDuringRead, ["suspendPrivacyScreen"]);
     expect(privacyScreenCalls, ["suspendPrivacyScreen", "resumePrivacyScreen"]);
-
-    // The scanning animation loops on a Future.delayed; tear the tree down and
-    // let the last delay elapse, or the test fails on a pending timer.
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(seconds: 3));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 }

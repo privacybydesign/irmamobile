@@ -36,7 +36,6 @@ import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
-import "../providers/ocr_processor_provider.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
@@ -797,11 +796,8 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
 
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushPassportMrzReaderScreen();
-      } else {
-        context.pushPassportManualEntryScreen();
-      }
+      // How to hold the document first, then the camera or manual entry.
+      context.pushDocumentInstructionScreen(.passport);
     }
   }
 
@@ -818,11 +814,8 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
 
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushIdCardMrzReaderScreen();
-      } else {
-        context.pushIdCardManualEntryScreen();
-      }
+      // How to hold the document first, then the camera or manual entry.
+      context.pushDocumentInstructionScreen(.identityCard);
     }
   }
 
@@ -843,11 +836,8 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
 
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushResidencePermitMrzReaderScreen();
-      } else {
-        context.pushResidencePermitManualEntryScreen();
-      }
+      // How to hold the document first, then the camera or manual entry.
+      context.pushDocumentInstructionScreen(.residencePermit);
     }
   }
 
@@ -868,11 +858,8 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
 
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushDrivingLicenceMrzReaderScreen();
-      } else {
-        context.pushDrivingLicenceManualEntryScreen();
-      }
+      // How to hold the document first, then the camera or manual entry.
+      context.pushDocumentInstructionScreen(.drivingLicence);
     }
   }
 

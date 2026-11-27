@@ -6,6 +6,7 @@ import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:rxdart/rxdart.dart";
+import "package:vcmrtd/vcmrtd.dart" show DocumentType;
 
 import "src/data/irma_repository.dart";
 import "src/models/enrollment_status.dart";
@@ -16,6 +17,7 @@ import "src/models/version_information.dart";
 import "src/providers/app_integrity_provider.dart";
 import "src/providers/device_security_provider.dart";
 import "src/providers/irma_repository_provider.dart";
+import "src/providers/ocr_processor_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/add_data/schemaless_add_data_details_screen.dart";
@@ -28,6 +30,7 @@ import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/debug/debug_screen.dart";
 import "src/screens/device_lock/device_lock_required_screen.dart";
 import "src/screens/device_lock/device_security.dart";
+import "src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -312,6 +315,22 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: "/mrz",
         builder: (context, state) => Container(),
         routes: [
+          GoRoute(
+            path: "/instructions/:type",
+            builder: (context, state) {
+              final documentType = DocumentType.values.byName(
+                state.pathParameters["type"]!,
+              );
+              return DocumentInstructionScreen(
+                documentType: documentType,
+                onCancel: context.pop,
+                onStart: () => context.pushDocumentCapture(
+                  documentType,
+                  ocrProcessor: ref.read(ocrProcessorProvider),
+                ),
+              );
+            },
+          ),
           GoRoute(
             path: "/manual_entry",
             builder: (context, state) => Container(),
@@ -599,34 +618,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   error: "driving_licence.nfc.error",
                   errorGeneric: "driving_licence.nfc.error_generic",
                   title: "driving_licence.nfc.title",
-                  nfcDisabled: "driving_licence.nfc.nfc_disabled",
-                  nfcEnabled: "driving_licence.nfc.nfc_enabled",
-                  introduction: "driving_licence.nfc.introduction",
-                  startScanning: "driving_licence.nfc.start_scanning",
-                  nfcDisabledExplanation:
-                      "driving_licence.nfc.nfc_disabled_explanation",
-                  holdNearPhotoPage: "driving_licence.nfc.hold_near_photo_page",
-                  tip1: "driving_licence.nfc.tip_1",
-                  tip2: "driving_licence.nfc.tip_2",
-                  tip3: "driving_licence.nfc.tip_3",
-                  successExplanation: "driving_licence.nfc.success_explanation",
                   cancelledByUser: "driving_licence.nfc.cancelled_by_user",
                   cancelled: "driving_licence.nfc.cancelled",
                   cancelling: "driving_licence.nfc.cancelling",
-                  connecting: "driving_licence.nfc.connecting",
-                  readingCardSecurity:
-                      "driving_licence.nfc.reading_card_security",
-                  readingDocumentData:
-                      "driving_licence.nfc.reading_passport_data",
-                  authenticating: "driving_licence.nfc.authenticating",
-                  performingSecurityVerification:
-                      "driving_licence.nfc.performing_security_verification",
-                  timeoutWaitingForTag:
-                      "driving_licence.nfc.timeout_waiting_for_tag",
-                  tagLostTryAgain: "driving_licence.nfc.tag_lost_try_again",
                   failedToInitiateSession:
-                      "driving_licence.nfc.failed_to_initiate_session",
-                  success: "driving_licence.nfc.success",
+                      "driving_licence.nfc.failed_initiate_session",
                 ),
                 mrz: ScannedDrivingLicenceMrz(
                   documentNumber: args.documentNumber,
@@ -655,31 +651,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   error: "passport.nfc.error",
                   errorGeneric: "passport.nfc.error_generic",
                   title: "passport.nfc.title",
-                  nfcDisabled: "passport.nfc.nfc_disabled",
-                  nfcEnabled: "passport.nfc.nfc_enabled",
-                  introduction: "passport.nfc.introduction",
-                  startScanning: "passport.nfc.start_scanning",
-                  nfcDisabledExplanation:
-                      "passport.nfc.nfc_disabled_explanation",
-                  holdNearPhotoPage: "passport.nfc.hold_near_photo_page",
-                  tip1: "passport.nfc.tip_1",
-                  tip2: "passport.nfc.tip_2",
-                  tip3: "passport.nfc.tip_3",
-                  successExplanation: "passport.nfc.success_explanation",
                   cancelledByUser: "passport.nfc.cancelled_by_user",
                   cancelled: "passport.nfc.cancelled",
                   cancelling: "passport.nfc.cancelling",
-                  connecting: "passport.nfc.connecting",
-                  readingCardSecurity: "passport.nfc.reading_card_security",
-                  readingDocumentData: "passport.nfc.reading_passport_data",
-                  authenticating: "passport.nfc.authenticating",
-                  performingSecurityVerification:
-                      "passport.nfc.performing_security_verification",
-                  timeoutWaitingForTag: "passport.nfc.timeout_waiting_for_tag",
-                  tagLostTryAgain: "passport.nfc.tag_lost_try_again",
                   failedToInitiateSession:
-                      "passport.nfc.failed_to_initiate_session",
-                  success: "passport.nfc.success",
+                      "passport.nfc.failed_initiate_session",
                 ),
                 mrz: ScannedPassportMrz(
                   documentNumber: args.documentNumber,
@@ -707,31 +683,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   error: "id_card.nfc.error",
                   errorGeneric: "id_card.nfc.error_generic",
                   title: "id_card.nfc.title",
-                  nfcDisabled: "id_card.nfc.nfc_disabled",
-                  nfcEnabled: "id_card.nfc.nfc_enabled",
-                  introduction: "id_card.nfc.introduction",
-                  startScanning: "id_card.nfc.start_scanning",
-                  nfcDisabledExplanation:
-                      "id_card.nfc.nfc_disabled_explanation",
-                  holdNearPhotoPage: "id_card.nfc.hold_near_photo_page",
-                  tip1: "id_card.nfc.tip_1",
-                  tip2: "id_card.nfc.tip_2",
-                  tip3: "id_card.nfc.tip_3",
-                  successExplanation: "id_card.nfc.success_explanation",
                   cancelledByUser: "id_card.nfc.cancelled_by_user",
                   cancelled: "id_card.nfc.cancelled",
                   cancelling: "id_card.nfc.cancelling",
-                  connecting: "id_card.nfc.connecting",
-                  readingCardSecurity: "id_card.nfc.reading_card_security",
-                  readingDocumentData: "id_card.nfc.reading_passport_data",
-                  authenticating: "id_card.nfc.authenticating",
-                  performingSecurityVerification:
-                      "id_card.nfc.performing_security_verification",
-                  timeoutWaitingForTag: "id_card.nfc.timeout_waiting_for_tag",
-                  tagLostTryAgain: "id_card.nfc.tag_lost_try_again",
                   failedToInitiateSession:
-                      "id_card.nfc.failed_to_initiate_session",
-                  success: "id_card.nfc.success",
+                      "id_card.nfc.failed_initiate_session",
                   wrongDocument: "id_card.nfc.wrong_document",
                   wrongDocumentTip: "id_card.nfc.wrong_document_tip",
                 ),
@@ -763,36 +719,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   error: "residence_permit.nfc.error",
                   errorGeneric: "residence_permit.nfc.error_generic",
                   title: "residence_permit.nfc.title",
-                  nfcDisabled: "residence_permit.nfc.nfc_disabled",
-                  nfcEnabled: "residence_permit.nfc.nfc_enabled",
-                  introduction: "residence_permit.nfc.introduction",
-                  startScanning: "residence_permit.nfc.start_scanning",
-                  nfcDisabledExplanation:
-                      "residence_permit.nfc.nfc_disabled_explanation",
-                  holdNearPhotoPage:
-                      "residence_permit.nfc.hold_near_photo_page",
-                  tip1: "residence_permit.nfc.tip_1",
-                  tip2: "residence_permit.nfc.tip_2",
-                  tip3: "residence_permit.nfc.tip_3",
-                  successExplanation:
-                      "residence_permit.nfc.success_explanation",
                   cancelledByUser: "residence_permit.nfc.cancelled_by_user",
                   cancelled: "residence_permit.nfc.cancelled",
                   cancelling: "residence_permit.nfc.cancelling",
-                  connecting: "residence_permit.nfc.connecting",
-                  readingCardSecurity:
-                      "residence_permit.nfc.reading_card_security",
-                  readingDocumentData:
-                      "residence_permit.nfc.reading_passport_data",
-                  authenticating: "residence_permit.nfc.authenticating",
-                  performingSecurityVerification:
-                      "residence_permit.nfc.performing_security_verification",
-                  timeoutWaitingForTag:
-                      "residence_permit.nfc.timeout_waiting_for_tag",
-                  tagLostTryAgain: "residence_permit.nfc.tag_lost_try_again",
                   failedToInitiateSession:
-                      "residence_permit.nfc.failed_to_initiate_session",
-                  success: "residence_permit.nfc.success",
+                      "residence_permit.nfc.failed_initiate_session",
                   wrongDocument: "residence_permit.nfc.wrong_document",
                   wrongDocumentTip: "residence_permit.nfc.wrong_document_tip",
                 ),

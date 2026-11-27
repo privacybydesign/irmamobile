@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_riverpod/misc.dart" show ProviderListenable;
 import "package:flutter_svg/svg.dart";
 import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/vcmrtd.dart";
@@ -12,6 +13,8 @@ import "../../../../routing.dart";
 import "../../../../yivi_core.dart";
 import "../../../models/session.dart";
 import "../../../providers/document_reader_providers.dart";
+import "../../../providers/nfc_availability_provider.dart";
+import "../../../providers/nfc_settings_provider.dart";
 import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/handle_pointer.dart";
@@ -20,14 +23,18 @@ import "../../../util/privacy_screen.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
-import "../../../widgets/irma_linear_progresss_indicator.dart";
 import "../../../widgets/translated_text.dart";
+import "document_translation_keys.dart";
 import "face_verification_intro_screen.dart";
 import "widgets/driving_licence_nfc_scanning_animation.dart";
 import "widgets/id_card_nfc_scanning_animation.dart";
 import "widgets/nfc_error_dialog.dart";
-import "widgets/passport_nfc_scanning_animation.dart";
+import "widgets/nfc_stage_pictures.dart";
+import "widgets/nfc_stage_view.dart";
 
+/// The document specific texts of the NFC screen: the app bar title, the
+/// cancel dialog and the texts of a read that failed or was cancelled. The
+/// stages of a read that goes well share their texts (`document_flow.nfc.*`).
 class NfcReadingTranslationKeys {
   final String cancelDialogTitle;
   final String cancelDialogExplanation;
@@ -36,28 +43,10 @@ class NfcReadingTranslationKeys {
   final String error;
   final String errorGeneric;
   final String title;
-  final String nfcDisabled;
-  final String nfcEnabled;
-  final String introduction;
-  final String startScanning;
-  final String nfcDisabledExplanation;
-  final String holdNearPhotoPage;
-  final String tip1;
-  final String tip2;
-  final String tip3;
-  final String successExplanation;
   final String cancelledByUser;
   final String cancelled;
   final String cancelling;
-  final String connecting;
-  final String readingCardSecurity;
-  final String readingDocumentData;
-  final String authenticating;
-  final String performingSecurityVerification;
-  final String timeoutWaitingForTag;
-  final String tagLostTryAgain;
   final String failedToInitiateSession;
-  final String success;
 
   /// Shown when the chip turns out to be the other card in ID-card format: a
   /// residence permit read as an ID card, or the other way round. Only the ID
@@ -73,28 +62,10 @@ class NfcReadingTranslationKeys {
     required this.error,
     required this.errorGeneric,
     required this.title,
-    required this.nfcDisabled,
-    required this.nfcEnabled,
-    required this.introduction,
-    required this.startScanning,
-    required this.nfcDisabledExplanation,
-    required this.holdNearPhotoPage,
-    required this.tip1,
-    required this.tip2,
-    required this.tip3,
-    required this.successExplanation,
     required this.cancelledByUser,
     required this.cancelled,
     required this.cancelling,
-    required this.connecting,
-    required this.readingCardSecurity,
-    required this.readingDocumentData,
-    required this.authenticating,
-    required this.performingSecurityVerification,
-    required this.timeoutWaitingForTag,
-    required this.tagLostTryAgain,
     required this.failedToInitiateSession,
-    required this.success,
     this.wrongDocument,
     this.wrongDocumentTip,
   });
@@ -132,8 +103,24 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
 
+/// How long the done stage stays up after a successful read. Tests that do not
+/// look at it set it to zero.
+final nfcDoneHoldProvider = Provider<Duration>(
+  (ref) => NfcDoneCheck.holdDuration,
+);
+
+/// What the screen shows while nothing went wrong. A failed or cancelled read
+/// has its own layout, with a retry.
+enum _NfcStage { waiting, reading, reconnecting, done, nfcOff }
+
+const _stageKeys = "document_flow.nfc";
+
+/// Asks the user to put the phone back on the document, both while the reader
+/// retries a lost connection and when it gave up.
+const _repositionTipKey = "$_stageKeys.reposition_tip";
+
 class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
-    with RouteAware {
+    with RouteAware, WidgetsBindingObserver {
   String? issuanceError;
 
   /// True when the current [issuanceError] is the issuer rejecting the face
@@ -151,11 +138,27 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// the wrong credential.
   DocumentType? _wrongDocument;
 
-  Widget _getAnimation() {
+  /// The read failed while the reader was retrying a lost connection. vcmrtd
+  /// reports such a failure as [DocumentReadingError.unknown], so this is how
+  /// the screen knows the user should put the phone back.
+  bool _failedAfterConnectionLoss = false;
+
+  /// The progress of the last state vcmrtd could place, kept for a state it
+  /// cannot (one a later vcmrtd adds), so the ring does not jump.
+  double _lastProgress = 0;
+
+  DocumentType get _documentType => widget.mrz.documentType;
+
+  // Android polls for the tag as soon as the screen opens. iOS needs a tap
+  // first, because that opens Apple's own NFC sheet.
+  bool get _listensAtOnce => defaultTargetPlatform == .android;
+
+  /// The picture of the card documents while the phone is not on them yet.
+  /// The passport has its own drawing, see [_waitingPicture].
+  Widget _cardAnimation() {
     return switch (widget.mrz) {
-      ScannedPassportMrz() => PassportNfcScanningAnimation(),
       ScannedDrivingLicenceMrz() => DrivingLicenceNfcScanningAnimation(),
-      ScannedIdCardMrz() => IdCardNfcScanningAnimation(),
+      _ => IdCardNfcScanningAnimation(),
     };
   }
 
@@ -184,6 +187,40 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _autoStartScanning());
+  }
+
+  /// Starts the read without a tap, on Android.
+  void _autoStartScanning() {
+    if (!mounted || !_listensAtOnce) return;
+    if (_readDocumentReaderState() is! DocumentReaderPending) return;
+
+    _startScanning();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == .resumed) _recheckNfc();
+  }
+
+  /// Back from the system settings: carry on once NFC is on. The reader keeps
+  /// reporting NFC as unavailable until it is reset.
+  Future<void> _recheckNfc() async {
+    if (!mounted) return;
+    if (_readDocumentReaderState() is! DocumentReaderNfcUnavailable) return;
+
+    final status = await ref
+        .read(nfcStatusReaderProvider)()
+        .catchError((_) => NfcStatus.notSupported);
+    if (!mounted || status != NfcStatus.enabled) return;
+
+    _getDocumentReader().reset();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
@@ -194,6 +231,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -204,6 +242,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       _issuanceErrorIsFaceMatch = false;
       _preparingIssuance = false;
       _wrongDocument = null;
+      _failedAfterConnectionLoss = false;
+      _lastProgress = 0;
     });
     // Capture the root navigator context up front, outside the try. The Regula
     // liveness UI is a native screen that backgrounds — and on some devices
@@ -239,8 +279,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           : ref.read(regulaFaceServiceProvider);
 
       // The iOS reader sheet resigns the app active for the whole read, which
-      // would put the privacy-screen blur over the scanning animation and its
-      // progress text. Hold it back until the sheet is gone.
+      // would put the privacy-screen blur over the stage and its text. Hold it
+      // back until the sheet is gone.
       final result = await PrivacyScreen.suspendDuring(
         () => _getDocumentReader().readDocument(
           iosNfcMessages: _createIosNfcMessageMapper(),
@@ -255,6 +295,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           if (mounted) setState(() => _wrongDocument = wrongDocument);
           return;
         }
+
+        // The check draws itself and stays a moment before the flow moves on
+        // to the face check or issuance.
+        await Future<void>.delayed(ref.read(nfcDoneHoldProvider));
+        if (!mounted) return;
+
         var toIssue = rawDocData;
         final faceVerification = faceService != null;
         // When face verification is enabled, show the Yivi intro after the
@@ -263,14 +309,20 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         // issuer can match the live face against the document chip portrait.
         // Disabled (null service) skips straight to issuance.
         if (faceVerification) {
-          if (!mounted) return;
           // Switch the screen behind the intro to a loader now, so the readout
           // page is not revealed again after the intro/liveness — instead the
           // user sees a loader that leads into issuance.
           setState(() => _preparingIssuance = true);
           final proceed = await FaceVerificationIntroScreen.show(context);
           if (!proceed) {
-            if (mounted) setState(() => _preparingIssuance = false);
+            if (mounted) {
+              setState(() => _preparingIssuance = false);
+              // The reader was dropped while the loader showed. The new one
+              // starts in Pending, which ref.listen does not report.
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => _autoStartScanning(),
+              );
+            }
             return;
           }
           if (!mounted) return;
@@ -388,12 +440,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     if (issuanceError != null) {
       return _buildError(
         context,
-        _UiState(
-          stateKey: widget.translationKeys.error,
-          tipKey: widget.translationKeys.errorGeneric,
-          progress: 0,
-        ),
-        issuanceError!,
+        titleKey: widget.translationKeys.error,
+        tipKey: widget.translationKeys.errorGeneric,
+        logs: issuanceError!,
         illustrationAsset: _issuanceErrorIsFaceMatch
             ? "error/failed_face_verification.svg"
             : "error/general_error_illustration.svg",
@@ -403,17 +452,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     if (_wrongDocument case final wrongDocument?) {
       return _buildError(
         context,
-        _UiState(
-          stateKey:
-              widget.translationKeys.wrongDocument ??
-              widget.translationKeys.error,
-          tipKey:
-              widget.translationKeys.wrongDocumentTip ??
-              widget.translationKeys.errorGeneric,
-          progress: 0,
-        ),
-        "Picked ${widget.mrz.documentType.name}, "
-        "but the chip shows a ${wrongDocument.name}.",
+        titleKey:
+            widget.translationKeys.wrongDocument ??
+            widget.translationKeys.error,
+        tipKey:
+            widget.translationKeys.wrongDocumentTip ??
+            widget.translationKeys.errorGeneric,
+        logs:
+            "Picked ${widget.mrz.documentType.name}, "
+            "but the chip shows a ${wrongDocument.name}.",
       );
     }
 
@@ -423,36 +470,182 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       return _buildPreparing(context);
     }
 
-    final passportState = _watchDocumentReaderState();
+    final readerState = _watchDocumentReaderState();
 
-    if (passportState is DocumentReaderNfcUnavailable) {
-      return _buildNfcUnavailableScreen(context);
+    ref.listen(_readerStateProvider, (previous, next) {
+      if (next is DocumentReaderFailed) {
+        _failedAfterConnectionLoss = previous is DocumentReaderReconnecting;
+      }
+      if (next is DocumentReaderPending && previous is! DocumentReaderPending) {
+        _autoStartScanning();
+      }
+    });
+
+    if (_stageFor(readerState) case final stage?) {
+      return _buildStage(context, stage, readerState);
     }
-    if (passportState is DocumentReaderPending) {
-      return _buildIntroductionScreen(context);
-    }
 
-    final uiState = passportReadingStateToUiState(passportState);
-
-    if (passportState case DocumentReaderFailed(
+    if (readerState case DocumentReaderFailed(
+      :final error,
       :final logs,
       :final sensitiveLogs,
     )) {
-      return _buildError(context, uiState, logs, sensitiveLogs: sensitiveLogs);
+      final (tipKey, tipParams) = _failureTip(error);
+      return _buildError(
+        context,
+        titleKey: widget.translationKeys.error,
+        tipKey: tipKey,
+        tipParams: tipParams,
+        logs: logs,
+        sensitiveLogs: sensitiveLogs,
+      );
     }
 
-    if (passportState is DocumentReaderCancelled) {
-      return _buildCancelled(context, uiState);
-    }
+    return _buildCancelled(
+      context,
+      titleKey: readerState is DocumentReaderCancelling
+          ? widget.translationKeys.cancelling
+          : widget.translationKeys.cancelled,
+    );
+  }
 
-    return _NfcScaffold(
-      titleTranslationKey: widget.translationKeys.title,
-      instruction: _buildStatus(context, uiState),
-      illustration: _getAnimation(),
-      bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: "ui.cancel",
-        onSecondaryPressed: cancel,
+  /// The stage for [state], or null for a failed or cancelled read. Every
+  /// state that is neither is a read in progress, including one a later vcmrtd
+  /// adds: it shows the reading stage rather than an error.
+  _NfcStage? _stageFor(DocumentReaderState state) => switch (state) {
+    DocumentReaderNfcUnavailable() => .nfcOff,
+    // Connecting is the wait for the tag, so the phone has not touched the
+    // document yet.
+    DocumentReaderPending() || DocumentReaderConnecting() => .waiting,
+    // The connection dropped and the reader retries. The screen stays at the
+    // step it was on: before contact that is still the wait for the tag, after
+    // it the ring keeps its progress and the text asks for the phone to go
+    // back.
+    DocumentReaderReconnecting(:final previousState) =>
+      _stageFor(previousState) == .waiting ? .waiting : .reconnecting,
+    DocumentReaderSuccess() => .done,
+    DocumentReaderFailed() ||
+    DocumentReaderCancelling() ||
+    DocumentReaderCancelled() => null,
+    _ => .reading,
+  };
+
+  /// vcmrtd's progress for [state]; for a reconnect, that of the step it
+  /// retries. vcmrtd throws for a state it does not know, which then keeps the
+  /// last progress.
+  double _progressFor(DocumentReaderState state) {
+    try {
+      return _lastProgress = progressForState(state);
+    } on Exception {
+      return _lastProgress;
+    }
+  }
+
+  /// Fills the `{document}` placeholder of the shared stage texts.
+  Map<String, String> _documentParams(BuildContext context) => {
+    "document": FlutterI18n.translate(context, _documentType.nameKey),
+  };
+
+  /// The hint under a failed read. A lost connection gets the same request to
+  /// put the phone back as the reconnecting stage.
+  (String, Map<String, String>) _failureTip(DocumentReadingError error) {
+    final reposition = (_repositionTipKey, _documentParams(context));
+    return switch (error) {
+      .tagLost || .timeoutWaitingForTag => reposition,
+      .unknown when _failedAfterConnectionLoss => reposition,
+      .unknown => (widget.translationKeys.errorGeneric, const {}),
+      .failedToInitiateSession => (
+        widget.translationKeys.failedToInitiateSession,
+        const {},
       ),
+      .invalidatedByUser => ("", const {}),
+    };
+  }
+
+  Widget _buildStage(
+    BuildContext context,
+    _NfcStage stage,
+    DocumentReaderState state,
+  ) {
+    final cancelAction = NfcStageAction.secondary(
+      labelKey: "document_flow.cancel",
+      onPressed: cancel,
+    );
+    NfcProgressRing ring() => NfcProgressRing(
+      progress: _progressFor(state),
+      label: FlutterI18n.translate(context, _documentType.readingLabelKey),
+    );
+
+    final (picture, titleKey, bodyKey, actions) = switch (stage) {
+      .waiting => (
+        _waitingPicture(context),
+        "$_stageKeys.waiting_title",
+        _documentType == .passport
+            ? "$_stageKeys.waiting_body_passport"
+            : "$_stageKeys.waiting_body_card",
+        [
+          if (state is DocumentReaderPending && !_listensAtOnce)
+            NfcStageAction.primary(
+              labelKey: "document_flow.start",
+              onPressed: _startScanning,
+            )
+          else
+            cancelAction,
+        ],
+      ),
+      .reading => (
+        ring(),
+        "$_stageKeys.reading_title",
+        "$_stageKeys.reading_body",
+        [cancelAction],
+      ),
+      .reconnecting => (
+        ring(),
+        "$_stageKeys.reconnecting_title",
+        _repositionTipKey,
+        [cancelAction],
+      ),
+      .done => (
+        const NfcDoneCheck(),
+        "$_stageKeys.done_title",
+        "$_stageKeys.done_body",
+        <NfcStageAction>[],
+      ),
+      .nfcOff => (
+        const NfcOffIllustration(),
+        "$_stageKeys.off_title",
+        "$_stageKeys.off_body",
+        [
+          if (defaultTargetPlatform == .android)
+            NfcStageAction.primary(
+              labelKey: "$_stageKeys.open_settings",
+              onPressed: () => ref.read(nfcSettingsOpenerProvider).open(),
+            ),
+          cancelAction,
+        ],
+      ),
+    };
+
+    return NfcStageScaffold(
+      appBarTitleKey: widget.translationKeys.title,
+      picture: picture,
+      // Nothing to go back to once the read is done.
+      leading: stage == .done ? null : const YiviBackButton(),
+      titleKey: titleKey,
+      bodyKey: bodyKey,
+      textParams: _documentParams(context),
+      actions: actions,
+    );
+  }
+
+  Widget _waitingPicture(BuildContext context) {
+    if (_documentType != .passport) {
+      return SizedBox.square(dimension: 300, child: _cardAnimation());
+    }
+    return Semantics(
+      image: true,
+      label: FlutterI18n.translate(context, "$_stageKeys.waiting_image_alt"),
+      child: const NfcPhoneOnPassport(),
     );
   }
 
@@ -483,9 +676,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   Widget _buildError(
-    BuildContext context,
-    _UiState uiState,
-    String logs, {
+    BuildContext context, {
+    required String titleKey,
+    required String tipKey,
+    Map<String, String> tipParams = const {},
+    required String logs,
     String? sensitiveLogs,
     String illustrationAsset = "error/general_error_illustration.svg",
   }) {
@@ -499,12 +694,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         mainAxisAlignment: .center,
         mainAxisSize: .min,
         children: [
-          _OrientationAwareTranslatedText(
-            uiState.stateKey,
-            style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
-          ),
+          _OrientationAwareTranslatedText(titleKey, style: theme.bodyHeading),
           SizedBox(height: theme.defaultSpacing),
-          _OrientationAwareTranslatedText(uiState.tipKey),
+          _OrientationAwareTranslatedText(tipKey, translationParams: tipParams),
           SizedBox(height: theme.defaultSpacing),
           GestureDetector(
             onTap: () {
@@ -537,13 +729,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     );
   }
 
-  Widget _buildCancelled(BuildContext context, _UiState uiState) {
+  Widget _buildCancelled(BuildContext context, {required String titleKey}) {
     final theme = IrmaTheme.of(context);
     return _NfcScaffold(
       titleTranslationKey: widget.translationKeys.title,
       instruction: _TitleAndBody(
-        titleKey: uiState.stateKey,
-        bodyKey: uiState.tipKey,
+        titleKey: titleKey,
+        bodyKey: widget.translationKeys.cancelledByUser,
       ),
       illustration: Padding(
         padding: .all(theme.defaultSpacing),
@@ -560,156 +752,24 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     );
   }
 
-  Widget _buildNfcSection(
-    BuildContext context,
-    EdgeInsets padding, {
-    bool disabled = false,
-  }) {
-    final theme = IrmaTheme.of(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.backgroundTertiary,
-        borderRadius: .circular(20),
-        border: .all(color: theme.tertiary),
-      ),
-      child: Padding(
-        padding: padding,
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            Flexible(
-              child: Icon(
-                Icons.nfc,
-                size: 100,
-                color: disabled ? theme.error : theme.link,
-              ),
-            ),
-            SizedBox(height: theme.mediumSpacing),
-            Row(
-              mainAxisSize: .min,
-              crossAxisAlignment: .center,
-              mainAxisAlignment: .center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: disabled ? theme.error : theme.success,
-                    shape: .circle,
-                  ),
-                  width: 40,
-                  height: 40,
-                  alignment: .center,
-                  child: Icon(
-                    disabled ? Icons.close : Icons.check,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                TranslatedText(
-                  disabled
-                      ? widget.translationKeys.nfcDisabled
-                      : widget.translationKeys.nfcEnabled,
-                ),
-              ],
-            ),
-          ],
+  ProviderListenable<DocumentReaderState> get _readerStateProvider =>
+      switch (widget.mrz) {
+        ScannedPassportMrz() => passportReaderProvider(
+          widget.mrz as ScannedPassportMrz,
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatus(BuildContext context, _UiState uiState) {
-    final theme = IrmaTheme.of(context);
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
-      child: Padding(
-        padding: .all(theme.defaultSpacing),
-        child: _ScanningContent(
-          tipKey: uiState.tipKey,
-          progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
-          statusKey: uiState.stateKey,
-          key: ValueKey("scanning-${uiState.tipKey}-${uiState.progress}"),
+        ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
+          widget.mrz as ScannedDrivingLicenceMrz,
         ),
-      ),
-    );
-  }
-
-  Widget _buildIntroductionScreen(BuildContext context) {
-    return _NfcScaffold(
-      titleTranslationKey: widget.translationKeys.title,
-      instruction: _OrientationAwareTranslatedText(
-        widget.translationKeys.introduction,
-      ),
-      illustration: _getAnimation(),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: widget.translationKeys.startScanning,
-        onPrimaryPressed: _startScanning,
-        secondaryButtonLabel: "ui.cancel",
-        onSecondaryPressed: cancel,
-      ),
-    );
-  }
-
-  Widget _buildNfcUnavailableScreen(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return _NfcScaffold(
-      titleTranslationKey: widget.translationKeys.title,
-      instruction: _OrientationAwareTranslatedText(
-        widget.translationKeys.nfcDisabledExplanation,
-      ),
-      illustration: Padding(
-        padding: .all(theme.defaultSpacing),
-        child: _buildNfcSection(
-          context,
-          .symmetric(horizontal: theme.largeSpacing),
-          disabled: true,
+        ScannedIdCardMrz() => idCardReaderProvider(
+          widget.mrz as ScannedIdCardMrz,
         ),
-      ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: "ui.retry",
-        onPrimaryPressed: retry,
-        secondaryButtonLabel: "ui.cancel",
-        onSecondaryPressed: cancel,
-      ),
-    );
-  }
+      };
 
-  _UiState passportReadingStateToUiState(DocumentReaderState state) {
-    final progress = progressForState(state);
-    final stateKey = _getTranslationKeyForState(state);
-    final tipKey = _getTipKeyForState(state);
+  DocumentReaderState _readDocumentReaderState() =>
+      ref.read(_readerStateProvider);
 
-    return _UiState(tipKey: tipKey, progress: progress, stateKey: stateKey);
-  }
-
-  DocumentReaderState _readDocumentReaderState() {
-    return ref.read(switch (widget.mrz) {
-      ScannedPassportMrz() => passportReaderProvider(
-        widget.mrz as ScannedPassportMrz,
-      ),
-      ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
-        widget.mrz as ScannedDrivingLicenceMrz,
-      ),
-      ScannedIdCardMrz() => idCardReaderProvider(
-        widget.mrz as ScannedIdCardMrz,
-      ),
-    });
-  }
-
-  DocumentReaderState _watchDocumentReaderState() {
-    return ref.watch(switch (widget.mrz) {
-      ScannedPassportMrz() => passportReaderProvider(
-        widget.mrz as ScannedPassportMrz,
-      ),
-      ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
-        widget.mrz as ScannedDrivingLicenceMrz,
-      ),
-      ScannedIdCardMrz() => idCardReaderProvider(
-        widget.mrz as ScannedIdCardMrz,
-      ),
-    });
-  }
+  DocumentReaderState _watchDocumentReaderState() =>
+      ref.watch(_readerStateProvider);
 
   DocumentReader _getDocumentReader() {
     return ref.read(
@@ -727,71 +787,35 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     );
   }
 
-  String _getTipKeyForState(DocumentReaderState state) {
-    return switch (state) {
-      DocumentReaderPending() => widget.translationKeys.holdNearPhotoPage,
-      DocumentReaderConnecting() => widget.translationKeys.tip2,
-      DocumentReaderAuthenticating() => widget.translationKeys.tip2,
-      DocumentReaderReadingCOM() => widget.translationKeys.tip3,
-      DocumentReaderReadingCardAccess() => widget.translationKeys.tip3,
-      DocumentReaderReadingDataGroup() => widget.translationKeys.tip1,
-      DocumentReaderReadingSOD() => widget.translationKeys.tip2,
-      DocumentReaderActiveAuthentication() => widget.translationKeys.tip1,
-      DocumentReaderSuccess() => widget.translationKeys.successExplanation,
-      DocumentReaderFailed(:final error) => _readingErrorToHintKey(error),
-      DocumentReaderCancelling() => widget.translationKeys.cancelledByUser,
-      DocumentReaderCancelled() => widget.translationKeys.cancelledByUser,
-      _ => throw Exception("unexpected state: $state"),
-    };
-  }
-
-  String _getTranslationKeyForState(DocumentReaderState state) {
-    return switch (state) {
-      DocumentReaderPending() => widget.translationKeys.holdNearPhotoPage,
-      DocumentReaderCancelled() => widget.translationKeys.cancelled,
-      DocumentReaderCancelling() => widget.translationKeys.cancelledByUser,
-      DocumentReaderFailed() => widget.translationKeys.error,
-      DocumentReaderConnecting() => widget.translationKeys.connecting,
-      DocumentReaderReadingCardAccess() =>
-        widget.translationKeys.readingCardSecurity,
-      DocumentReaderReadingCOM() => widget.translationKeys.readingDocumentData,
-      DocumentReaderAuthenticating() => widget.translationKeys.authenticating,
-      DocumentReaderReadingDataGroup() =>
-        widget.translationKeys.readingDocumentData,
-      DocumentReaderReadingSOD() => widget.translationKeys.readingDocumentData,
-      DocumentReaderActiveAuthentication() =>
-        widget.translationKeys.performingSecurityVerification,
-      DocumentReaderSuccess() => widget.translationKeys.success,
-      _ => "",
-    };
-  }
-
+  /// The text on Apple's NFC sheet, in step with the on-screen stage, e.g.
+  /// "Niet bewegen · 62%" while reading.
   IosNfcMessageMapper _createIosNfcMessageMapper() {
-    String progressFormatter(double progress) {
-      const numStages = 10;
-      final prog = (progress * numStages).toInt();
-      return "🟢" * prog + "⚪️" * (numStages - prog);
-    }
-
     return (state) {
-      final progress = progressFormatter(progressForState(state));
+      // vcmrtd calls this during the read, which can outlive the screen.
+      if (!mounted) return "";
 
-      final message = FlutterI18n.translate(
+      String translate(String key) => FlutterI18n.translate(
         context,
-        _getTranslationKeyForState(state),
+        key,
+        translationParams: _documentParams(context),
       );
-      return "$progress\n$message";
-    };
-  }
 
-  String _readingErrorToHintKey(DocumentReadingError error) {
-    return switch (error) {
-      .unknown => widget.translationKeys.errorGeneric,
-      .timeoutWaitingForTag => widget.translationKeys.timeoutWaitingForTag,
-      .tagLost => widget.translationKeys.tagLostTryAgain,
-      .failedToInitiateSession =>
-        widget.translationKeys.failedToInitiateSession,
-      .invalidatedByUser => "",
+      return switch (_stageFor(state)) {
+        .waiting => translate("$_stageKeys.waiting_title"),
+        .reading =>
+          "${translate("$_stageKeys.reading_title")} · "
+              "${(_progressFor(state) * 100).round()}%",
+        .reconnecting =>
+          "${translate("$_stageKeys.reconnecting_title")}\n"
+              "${translate(_repositionTipKey)}",
+        .done => translate("$_stageKeys.done_title"),
+        .nfcOff => translate("$_stageKeys.off_title"),
+        null => translate(switch (state) {
+          DocumentReaderCancelling() => widget.translationKeys.cancelling,
+          DocumentReaderCancelled() => widget.translationKeys.cancelled,
+          _ => widget.translationKeys.error,
+        }),
+      };
     };
   }
 }
@@ -824,10 +848,7 @@ class _TitleAndBody extends StatelessWidget {
       mainAxisAlignment: .center,
       mainAxisSize: .min,
       children: [
-        _OrientationAwareTranslatedText(
-          titleKey,
-          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
-        ),
+        _OrientationAwareTranslatedText(titleKey, style: theme.bodyHeading),
         SizedBox(height: theme.defaultSpacing),
         _OrientationAwareTranslatedText(bodyKey),
       ],
@@ -835,6 +856,8 @@ class _TitleAndBody extends StatelessWidget {
   }
 }
 
+/// The layout of a failed or cancelled read: an illustration, the text and a
+/// bar with retry and cancel.
 class _NfcScaffold extends StatelessWidget {
   const _NfcScaffold({
     required this.titleTranslationKey,
@@ -888,10 +911,15 @@ class _NfcScaffold extends StatelessWidget {
 }
 
 class _OrientationAwareTranslatedText extends StatelessWidget {
-  const _OrientationAwareTranslatedText(this.translationKey, {this.style});
+  const _OrientationAwareTranslatedText(
+    this.translationKey, {
+    this.style,
+    this.translationParams = const {},
+  });
 
   final String translationKey;
   final TextStyle? style;
+  final Map<String, String> translationParams;
 
   @override
   Widget build(BuildContext context) {
@@ -904,6 +932,7 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
           : .zero,
       child: TranslatedText(
         translationKey,
+        translationParams: translationParams,
         textAlign: isPortrait ? .center : .start,
         style: style,
       ),
@@ -932,75 +961,4 @@ Future<bool> _showCancelDialog(
         },
       ) ??
       false;
-}
-
-class _ScanningContent extends StatelessWidget {
-  const _ScanningContent({
-    required this.tipKey,
-    required this.progressPercent,
-    required this.statusKey,
-    super.key,
-  });
-
-  final String tipKey;
-  final double progressPercent;
-  final String statusKey;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final isLandscape = MediaQuery.orientationOf(context) == .landscape;
-
-    final textAlign = isLandscape ? TextAlign.start : TextAlign.center;
-
-    return Column(
-      mainAxisAlignment: .start,
-      mainAxisSize: .min,
-      crossAxisAlignment: isLandscape ? .start : .center,
-      children: [
-        TranslatedText(
-          statusKey,
-          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
-          textAlign: textAlign,
-        ),
-        SizedBox(height: theme.smallSpacing),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 350),
-          transitionBuilder: (child, anim) =>
-              FadeTransition(opacity: anim, child: child),
-          child: TranslatedText(
-            tipKey,
-            key: ValueKey(tipKey),
-            textAlign: textAlign,
-            maxLines: 3,
-            style: TextStyle(
-              color: theme.secondary,
-              fontSize: 16,
-              height: 1.4,
-              overflow: .visible,
-            ),
-          ),
-        ),
-        SizedBox(height: theme.largeSpacing),
-        Padding(
-          padding: isLandscape
-              ? .zero
-              : .symmetric(horizontal: theme.defaultSpacing),
-          child: IrmaLinearProgressIndicator(filledPercentage: progressPercent),
-        ),
-      ],
-    );
-  }
-}
-
-class _UiState {
-  final String tipKey;
-  final double progress;
-  final String stateKey;
-
-  _UiState({
-    required this.tipKey,
-    required this.progress,
-    required this.stateKey,
-  });
 }

@@ -2,12 +2,15 @@ import "dart:async";
 import "dart:typed_data";
 
 import "package:cupertino_ui/cupertino_ui.dart";
+import "package:flutter/foundation.dart" show defaultTargetPlatform;
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/yivi_core.dart";
@@ -139,12 +142,53 @@ Future<void> navigateToPassportNfcReadingScreen(
   await tester.pump(const Duration(seconds: 1));
 }
 
-Future<void> openDrivingLicenceDetailsScreen(
+/// Waits for the NFC screen and starts the read. Android starts listening as
+/// soon as the screen opens; iOS waits for a tap on Start, which opens Apple's
+/// NFC sheet. Without [settle] the tap is not followed by a settle.
+Future<void> startNfcReading(WidgetTester tester, {bool settle = true}) async {
+  await tester.waitFor(find.byType(NfcReadingScreen));
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    final start = find.byKey(const Key("bottom_bar_primary"));
+    settle ? await tester.tapAndSettle(start) : await tester.tap(start);
+  } else if (settle) {
+    await tester.pumpAndSettle();
+  }
+}
+
+/// Taps the document in the add-data list, which goes straight to the screen
+/// that shows how to hold it.
+Future<void> openDocumentInstructionScreen(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding, {
+  required String fullCredentialId,
+  List<Override> overrides = const [],
+}) async {
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    providerOverrides: overrides.isEmpty ? null : overrides,
+  );
+
+  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
+  await tester.tapAndSettle(addDataButton);
+
+  final addCredentialTile = find.byKey(Key("${fullCredentialId}_tile"));
+  await tester.scrollUntilVisible(
+    addCredentialTile,
+    300,
+    scrollable: find.byType(Scrollable).last,
+  );
+  await tester.tapAndSettle(addCredentialTile);
+
+  await tester.waitFor(find.byType(DocumentInstructionScreen));
+}
+
+Future<void> openDrivingLicenceInstructionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await openAddCredentialDetailsScreen(
+  await openDocumentInstructionScreen(
     tester,
     binding,
     fullCredentialId: "pbdf-staging.pbdf.drivinglicence",
@@ -152,12 +196,12 @@ Future<void> openDrivingLicenceDetailsScreen(
   );
 }
 
-Future<void> openIdCardDetailsScreen(
+Future<void> openIdCardInstructionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await openAddCredentialDetailsScreen(
+  await openDocumentInstructionScreen(
     tester,
     binding,
     fullCredentialId: "pbdf-staging.pbdf.idcard",
@@ -165,12 +209,12 @@ Future<void> openIdCardDetailsScreen(
   );
 }
 
-Future<void> openPassportDetailsScreen(
+Future<void> openPassportInstructionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await openAddCredentialDetailsScreen(
+  await openDocumentInstructionScreen(
     tester,
     binding,
     fullCredentialId: "pbdf-staging.pbdf.passport",
