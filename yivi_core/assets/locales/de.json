@@ -1023,6 +1023,8 @@
       "waiting_body_card": "Halten Sie die Rückseite Ihres Telefons an die Karte.",
       "reading_title": "Nicht bewegen",
       "reading_body": "Ihr {document} wird gelesen.",
+      "reconnecting_title": "Verbindung unterbrochen",
+      "reposition_tip": "Heben Sie Ihr Telefon kurz von Ihrem {document} ab und legen Sie es wieder auf. Halten Sie es dann still.",
       "done_title": "Ihr {document} wurde gelesen",
       "done_body": "Sie können Ihr Telefon wieder aufnehmen.",
       "off_title": "NFC einschalten",

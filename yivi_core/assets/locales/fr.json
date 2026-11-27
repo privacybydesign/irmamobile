@@ -1023,6 +1023,8 @@
       "waiting_body_card": "Placez le dos de votre téléphone contre la carte.",
       "reading_title": "Ne bougez pas",
       "reading_body": "Lecture de votre {document} en cours.",
+      "reconnecting_title": "Connexion perdue",
+      "reposition_tip": "Soulevez un instant votre téléphone, puis reposez-le sur votre {document} sans le bouger.",
       "done_title": "Lecture de votre {document} terminée",
       "done_body": "Vous pouvez reprendre votre téléphone.",
       "off_title": "Activez le NFC",

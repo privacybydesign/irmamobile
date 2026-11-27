@@ -111,9 +111,13 @@ final nfcDoneHoldProvider = Provider<Duration>(
 
 /// What the screen shows while nothing went wrong. A failed or cancelled read
 /// has its own layout, with a retry.
-enum _NfcStage { waiting, reading, done, nfcOff }
+enum _NfcStage { waiting, reading, reconnecting, done, nfcOff }
 
 const _stageKeys = "document_flow.nfc";
+
+/// Asks the user to put the phone back on the document, both while the reader
+/// retries a lost connection and when it gave up.
+const _repositionTipKey = "$_stageKeys.reposition_tip";
 
 class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     with RouteAware, WidgetsBindingObserver {
@@ -133,6 +137,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   /// the read is then not sent to the issuer, so it can never be issued as
   /// the wrong credential.
   DocumentType? _wrongDocument;
+
+  /// The read failed while the reader was retrying a lost connection. vcmrtd
+  /// reports such a failure as [DocumentReadingError.unknown], so this is how
+  /// the screen knows the user should put the phone back.
+  bool _failedAfterConnectionLoss = false;
 
   /// The progress of the last state vcmrtd could place, kept for a state it
   /// cannot (one a later vcmrtd adds), so the ring does not jump.
@@ -233,6 +242,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       _issuanceErrorIsFaceMatch = false;
       _preparingIssuance = false;
       _wrongDocument = null;
+      _failedAfterConnectionLoss = false;
       _lastProgress = 0;
     });
     // Capture the root navigator context up front, outside the try. The Regula
@@ -463,6 +473,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     final readerState = _watchDocumentReaderState();
 
     ref.listen(_readerStateProvider, (previous, next) {
+      if (next is DocumentReaderFailed) {
+        _failedAfterConnectionLoss = previous is DocumentReaderReconnecting;
+      }
       if (next is DocumentReaderPending && previous is! DocumentReaderPending) {
         _autoStartScanning();
       }
@@ -477,10 +490,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       :final logs,
       :final sensitiveLogs,
     )) {
+      final (tipKey, tipParams) = _failureTip(error);
       return _buildError(
         context,
         titleKey: widget.translationKeys.error,
-        tipKey: _failureTipKey(error),
+        tipKey: tipKey,
+        tipParams: tipParams,
         logs: logs,
         sensitiveLogs: sensitiveLogs,
       );
@@ -502,6 +517,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     // Connecting is the wait for the tag, so the phone has not touched the
     // document yet.
     DocumentReaderPending() || DocumentReaderConnecting() => .waiting,
+    // The connection dropped and the reader retries. The screen stays at the
+    // step it was on: before contact that is still the wait for the tag, after
+    // it the ring keeps its progress and the text asks for the phone to go
+    // back.
+    DocumentReaderReconnecting(:final previousState) =>
+      _stageFor(previousState) == .waiting ? .waiting : .reconnecting,
     DocumentReaderSuccess() => .done,
     DocumentReaderFailed() ||
     DocumentReaderCancelling() ||
@@ -525,14 +546,21 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     "document": FlutterI18n.translate(context, _documentType.nameKey),
   };
 
-  /// The hint under a failed read.
-  String _failureTipKey(DocumentReadingError error) => switch (error) {
-    .unknown ||
-    .tagLost ||
-    .timeoutWaitingForTag => widget.translationKeys.errorGeneric,
-    .failedToInitiateSession => widget.translationKeys.failedToInitiateSession,
-    .invalidatedByUser => "",
-  };
+  /// The hint under a failed read. A lost connection gets the same request to
+  /// put the phone back as the reconnecting stage.
+  (String, Map<String, String>) _failureTip(DocumentReadingError error) {
+    final reposition = (_repositionTipKey, _documentParams(context));
+    return switch (error) {
+      .tagLost || .timeoutWaitingForTag => reposition,
+      .unknown when _failedAfterConnectionLoss => reposition,
+      .unknown => (widget.translationKeys.errorGeneric, const {}),
+      .failedToInitiateSession => (
+        widget.translationKeys.failedToInitiateSession,
+        const {},
+      ),
+      .invalidatedByUser => ("", const {}),
+    };
+  }
 
   Widget _buildStage(
     BuildContext context,
@@ -569,6 +597,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ring(),
         "$_stageKeys.reading_title",
         "$_stageKeys.reading_body",
+        [cancelAction],
+      ),
+      .reconnecting => (
+        ring(),
+        "$_stageKeys.reconnecting_title",
+        _repositionTipKey,
         [cancelAction],
       ),
       .done => (
@@ -645,6 +679,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     BuildContext context, {
     required String titleKey,
     required String tipKey,
+    Map<String, String> tipParams = const {},
     required String logs,
     String? sensitiveLogs,
     String illustrationAsset = "error/general_error_illustration.svg",
@@ -661,7 +696,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         children: [
           _OrientationAwareTranslatedText(titleKey, style: theme.bodyHeading),
           SizedBox(height: theme.defaultSpacing),
-          _OrientationAwareTranslatedText(tipKey),
+          _OrientationAwareTranslatedText(tipKey, translationParams: tipParams),
           SizedBox(height: theme.defaultSpacing),
           GestureDetector(
             onTap: () {
@@ -770,6 +805,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         .reading =>
           "${translate("$_stageKeys.reading_title")} · "
               "${(_progressFor(state) * 100).round()}%",
+        .reconnecting =>
+          "${translate("$_stageKeys.reconnecting_title")}\n"
+              "${translate(_repositionTipKey)}",
         .done => translate("$_stageKeys.done_title"),
         .nfcOff => translate("$_stageKeys.off_title"),
         null => translate(switch (state) {
@@ -873,10 +911,15 @@ class _NfcScaffold extends StatelessWidget {
 }
 
 class _OrientationAwareTranslatedText extends StatelessWidget {
-  const _OrientationAwareTranslatedText(this.translationKey, {this.style});
+  const _OrientationAwareTranslatedText(
+    this.translationKey, {
+    this.style,
+    this.translationParams = const {},
+  });
 
   final String translationKey;
   final TextStyle? style;
+  final Map<String, String> translationParams;
 
   @override
   Widget build(BuildContext context) {
@@ -889,6 +932,7 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
           : .zero,
       child: TranslatedText(
         translationKey,
+        translationParams: translationParams,
         textAlign: isPortrait ? .center : .start,
         style: style,
       ),

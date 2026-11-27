@@ -1023,6 +1023,8 @@
       "waiting_body_card": "Leg de achterkant van je telefoon tegen de kaart.",
       "reading_title": "Niet bewegen",
       "reading_body": "Je {document} wordt gelezen.",
+      "reconnecting_title": "Verbinding verbroken",
+      "reposition_tip": "Til je telefoon even van je {document} en leg hem terug. Houd hem dan stil.",
       "done_title": "Je {document} is gelezen",
       "done_body": "Je kunt je telefoon weer oppakken.",
       "off_title": "Zet NFC aan",

@@ -1023,6 +1023,8 @@
       "waiting_body_card": "Hold the back of your phone against the card.",
       "reading_title": "Don't move",
       "reading_body": "Your {document} is being read.",
+      "reconnecting_title": "Connection lost",
+      "reposition_tip": "Lift your phone off your {document} for a moment and put it back. Then hold it still.",
       "done_title": "Your {document} has been read",
       "done_body": "You can pick up your phone again.",
       "off_title": "Turn on NFC",
