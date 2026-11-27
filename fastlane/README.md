@@ -24,9 +24,10 @@ Development certificates are bound to individual developers and can be used to b
 The distribution certificate belongs to the organization and is needed for ad-hoc and app store builds.
 For integration tests builds that you want to upload to Google Firebase, using a development certificate is sufficient.
 
-Note: provisioning profiles can only be used to sign app builds. To upload the builds to Apple,
-you additionally need your personal App Store Connect account with the right permissions.
-Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/app/transporter/id1450874784?mt=12).
+Note: provisioning profiles can only be used to sign app builds. Uploading is done by the `ios_upload_testflight`
+lane (see [Store upload](#store-upload)), or by hand with
+[Transporter for MacOS](https://apps.apple.com/us/app/transporter/id1450874784?mt=12) and your personal App Store
+Connect account with the right permissions.
 
 ## Generating new certificates
 Below we describe how to generate these assets. For distribution certificates, this can only be done by users with the
@@ -126,6 +127,16 @@ Below we describe how you can generate a Java Keystore for signing.
     `keytool -export -rfc -keystore $KEY_ALIAS.jks -alias $KEY_ALIAS -file $KEY_ALIAS.pem`
  4. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
     i.e. `cat $KEY_ALIAS.jks | base64 > $KEY_ALIAS.jks.base64`
+
+# Store upload
+The `ios_upload_testflight`, `ios_verify_app_store` and `android_upload_play_store` lanes (see
+[below](#ios_upload_testflight)) upload a production build to the stores, or check that it would be accepted. The
+delivery workflow runs them; the [workflow README](../.github/workflows/README.md) lists the secrets they need.
+
+- For Apple: an App Store Connect API key with the 'App Manager' role (App Store Connect → Users and Access →
+  Integrations → Team Keys). You need its key ID, the issuer ID and the `.p8` file, which can only be downloaded once.
+- For Google: the JSON key of a Google Cloud service account that is invited in the Play Console with permission to
+  release to testing tracks.
 
 # Available Actions
 
@@ -291,6 +302,36 @@ If the certificate bundle contains a development certificate, then the code sign
 ```sh
 [bundle exec] fastlane ios_build_integration_test code_signing_identity:"iPhone Developer" provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
 ```
+
+### ios_upload_testflight
+
+```sh
+[bundle exec] fastlane ios_upload_testflight key_id:<VALUE> issuer_id:<VALUE> key_filepath:<VALUE>
+```
+
+Uploads the IPA in the `build` directory to TestFlight, for internal testers only. It does not wait for Apple to process
+the build, and does not give it to external testers or send it to review. `key_id`, `issuer_id` and `key_filepath` (the
+`.p8` file) belong to an App Store Connect API key, see [Store upload](#store-upload). Use `ipa_path:<VALUE>` to upload
+another IPA.
+
+### ios_verify_app_store
+
+```sh
+[bundle exec] fastlane ios_verify_app_store key_id:<VALUE> issuer_id:<VALUE> key_filepath:<VALUE>
+```
+
+Has App Store Connect validate the IPA in the `build` directory without uploading it, so no build number is used. Takes
+the same parameters as `ios_upload_testflight`.
+
+### android_upload_play_store
+
+```sh
+[bundle exec] fastlane android_upload_play_store json_key_path:<VALUE>
+```
+
+Uploads the app bundle in the `build` directory to the internal track of Google Play, without touching the store listing.
+`json_key_path` is the JSON key of a Google Cloud service account, see [Store upload](#store-upload). Use
+`aab_path:<VALUE>` to upload another app bundle, and `validate_only:true` to only have Google Play validate it.
 
 ----
 

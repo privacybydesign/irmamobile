@@ -318,6 +318,82 @@ lane :ios_build_integration_test do |options|
   end
 end
 
+# Uploads the app store IPA to TestFlight, for internal testers only. Sending the
+# build to external testers or to App Store review stays a manual step in
+# App Store Connect.
+#
+# Signs in with an App Store Connect API key (role App Manager), so CI needs no
+# Apple ID with a 2FA session.
+lane :ios_upload_testflight do |options|
+  upload_to_testflight(
+    api_key: app_store_connect_key(options),
+    ipa: build_file(options[:ipa_path], "*.ipa"),
+    # Apple can take half an hour to process a build; waiting for it would only
+    # burn macOS runner minutes.
+    skip_waiting_for_build_processing: true,
+    skip_submission: true,
+    distribute_external: false
+  )
+end
+
+# Runs Apple's own validation over the IPA without uploading it, so nothing is
+# submitted and no build number is used. Catches what otherwise only shows on a
+# real upload: a missing privacy manifest, entitlements that disagree with the
+# provisioning profile, a build number that was already used.
+#
+# upload_to_testflight has no dry-run mode, so this goes through deliver.
+lane :ios_verify_app_store do |options|
+  upload_to_app_store(
+    api_key: app_store_connect_key(options),
+    ipa: build_file(options[:ipa_path], "*.ipa"),
+    verify_only: true,
+    skip_metadata: true,
+    skip_screenshots: true,
+    run_precheck_before_submit: false,
+    force: true
+  )
+end
+
+# Uploads the app bundle to the Play Store's internal track, the closest thing to
+# TestFlight. Promoting it to closed/open testing or production stays a manual
+# step in the Play Console.
+#
+# The store listing is never touched, so the listing text and screenshots in the
+# Play Console stay as they are.
+lane :android_upload_play_store do |options|
+  upload_to_play_store(
+    package_name: "org.irmacard.cardemu",
+    json_key: File.absolute_path(options[:json_key_path]),
+    aab: build_file(options[:aab_path], "*.aab"),
+    track: "internal",
+    release_status: "completed",
+    # Arrives as a string from the command line.
+    validate_only: options[:validate_only].to_s == "true",
+    skip_upload_apk: true,
+    skip_upload_metadata: true,
+    skip_upload_changelogs: true,
+    skip_upload_images: true,
+    skip_upload_screenshots: true
+  )
+end
+
+def app_store_connect_key(options)
+  app_store_connect_api_key(
+    key_id: options[:key_id],
+    issuer_id: options[:issuer_id],
+    key_filepath: File.absolute_path(options[:key_filepath])
+  )
+end
+
+# The given path, or else the only file in fastlane/build that matches the pattern.
+def build_file(path, pattern)
+  return File.absolute_path(path) if path
+
+  files = Dir[File.absolute_path("build/#{pattern}")]
+  UI.user_error!("Expected one #{pattern} in fastlane/build, found #{files.length}") unless files.length == 1
+  files.first
+end
+
 # Keeps the symbols of an obfuscated build, as fastlane/build/dart-symbols-<name>.zip.
 # A stack trace of that build only shows addresses; `flutter symbolize -i <trace>
 # -d <symbols file>` turns it back into function names, and needs the symbols of

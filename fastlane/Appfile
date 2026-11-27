@@ -1,0 +1,4 @@
+# Read by pilot/deliver (App Store Connect) and supply (Google Play).
+app_identifier("foundation.privacybydesign.irmamob")
+package_name("org.irmacard.cardemu")
+team_id("T5VXGLDWLZ")

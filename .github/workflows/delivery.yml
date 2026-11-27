@@ -234,21 +234,41 @@ jobs:
     runs-on: ubuntu-latest
     needs: bundle-app-alpha
     outputs:
-      version-changed: ${{ steps.detection.outcome == 'success' }}
+      version-changed: ${{ steps.detection.outputs.increased }}
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Detect version bump
+      # The stores key a release on the build number (the +N suffix) and refuse one
+      # they have already seen. So the beta builds, which are uploaded to the stores,
+      # only run when that number goes up; a change to only the semver would give a
+      # build both stores refuse.
+      - name: Detect build number increase
         id: detection
         env:
           BEFORE_SHA: ${{ github.event.before }}
         run: |
-          git diff -U0 "$BEFORE_SHA" -- ./yivi_app/pubspec.yaml | grep -E "^\+version: [0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$"
+          build_number() {
+            sed -n 's/^version: [0-9]*\.[0-9]*\.[0-9]*+\([0-9]*\)$/\1/p' | head -n1
+          }
+          before=$(git show "$BEFORE_SHA:yivi_app/pubspec.yaml" 2>/dev/null | build_number)
+          after=$(build_number < ./yivi_app/pubspec.yaml)
+          echo "before=${before:-<none>} after=${after:-<none>}"
+
+          if [ -z "$after" ]; then
+            echo "::error::No build number found in yivi_app/pubspec.yaml"
+            exit 1
+          fi
+          # Without a previous revision (first push, force push) we cannot tell, and
+          # guessing wrong would use up a build number, so that counts as no increase.
+          if [ -n "$before" ] && [ "$after" -gt "$before" ]; then
+            echo "increased=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "increased=false" >> "$GITHUB_OUTPUT"
+          fi
         shell: bash
-        continue-on-error: true
   build-app-ios-beta:
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     needs: version-check
@@ -295,6 +315,21 @@ jobs:
           name: dart-symbols-beta-ios
           path: ./fastlane/build/dart-symbols-*.zip
           if-no-files-found: error
+      # After the artifacts, so a refused upload still leaves the IPA and its symbols
+      # on the run. Before Sentry, so Sentry being unreachable does not hold up a release.
+      - name: Decode App Store Connect API key
+        env:
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+        run: echo "$APP_STORE_CONNECT_KEY" | base64 --decode > ./fastlane/profiles/app_store_connect_key.p8
+      - name: Upload to TestFlight
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: >
+          bundle exec fastlane ios_upload_testflight
+          key_id:"$APP_STORE_CONNECT_KEY_ID"
+          issuer_id:"$APP_STORE_CONNECT_ISSUER_ID"
+          key_filepath:profiles/app_store_connect_key.p8
       # After the artifact, so the symbols are kept when Sentry cannot be reached.
       - name: Upload Dart symbols to Sentry
         uses: ./.github/actions/upload-dart-symbols
@@ -304,7 +339,7 @@ jobs:
           project: ${{ vars.SENTRY_PROJECT }}
           url: ${{ vars.SENTRY_URL }}
   build-app-android-beta:
-    # The Android builds are only signed with a development key. Signing needs to be done manually still.
+    # Signed with the upload key that Google Play has registered for this app.
     runs-on: ubuntu-latest
     needs: version-check
     if: needs.version-check.outputs.version-changed == 'true'
@@ -359,6 +394,15 @@ jobs:
           name: dart-symbols-beta-android
           path: ./fastlane/build/dart-symbols-*.zip
           if-no-files-found: error
+      # See build-app-ios-beta for the order of these steps.
+      - name: Decode Google Play service account key
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" | base64 --decode > ./fastlane/profiles/play_service_account.json
+      - name: Upload to the Play Store internal track
+        run: >
+          bundle exec fastlane android_upload_play_store
+          json_key_path:profiles/play_service_account.json
       # After the artifact, so the symbols are kept when Sentry cannot be reached.
       - name: Upload Dart symbols to Sentry
         uses: ./.github/actions/upload-dart-symbols
