@@ -10,6 +10,7 @@ import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/widgets/buttons/pill_buttons.dart";
 import "package:yivi_core/src/widgets/credential_card/card_art/credential_card_art.dart";
 
+import "../helpers/helpers.dart";
 import "../util.dart";
 
 // The disclosure screens (2.1–2.5 of the build plan): "Eerst toevoegen"
@@ -540,10 +541,12 @@ Finder findSheetAddRow(String credentialId) => find.descendant(
   of: findChoiceSheet(),
   matching: find.byWidgetPredicate((w) {
     final key = w.key;
-    return key is ValueKey<String> &&
-        key.value.startsWith("sheet_add_") &&
-        (key.value.substring(10) == credentialId ||
-            key.value.substring(10).split("+").contains(credentialId));
+    if (key is! ValueKey<String> || !key.value.startsWith("sheet_add_")) {
+      return false;
+    }
+    // "sheet_add_<id>+<id>", in "Choose what to add" followed by "#<option>".
+    final ids = key.value.substring(10).split("#").first;
+    return ids == credentialId || ids.split("+").contains(credentialId);
   }),
 );
 
@@ -631,19 +634,20 @@ Future<void> chooseInSheet(WidgetTester tester) async {
 /// sheet (step 3), and "Continue sharing" closes it with the new card
 /// selected; [issueCredentials] does both.
 Future<void> startAdding(WidgetTester tester, String credentialId) async {
-  var row = findSheetAddRow(credentialId);
-  if (row.evaluate().isNotEmpty &&
+  // Two ways can add the same type: the first.
+  var rows = findSheetAddRow(credentialId);
+  if (rows.evaluate().isNotEmpty &&
       find.byKey(const Key("add_sheet")).evaluate().isEmpty) {
-    await tester.ensureVisible(row);
+    await tester.ensureVisible(rows.first);
     await tester.pumpAndSettle();
-    await tester.tapAndSettle(row);
+    await tester.tapAndSettle(rows.first);
     await tester.waitFor(find.byKey(const Key("add_sheet")));
-    row = findSheetAddRow(credentialId);
+    rows = findSheetAddRow(credentialId);
   }
-  if (row.evaluate().isNotEmpty) {
-    await tester.ensureVisible(row);
+  if (rows.evaluate().isNotEmpty) {
+    await tester.ensureVisible(rows.first);
     await tester.pumpAndSettle();
-    await tester.tapAndSettle(row);
+    await tester.tapAndSettle(rows.first);
   }
   await tapAddOnDetails(tester);
 }
@@ -703,4 +707,21 @@ Future<void> expectCanChange(WidgetTester tester, int i, bool can) async {
         v == "change_optional_off_$i";
   }, skipOffstage: false);
   expect(links.evaluate().isNotEmpty, can, reason: "a change link for item $i");
+}
+
+/// Which of [values] the change page shows: the card a request starts on
+/// when irmago cannot order them (IRMA cards of one type issued in the same
+/// week tie, and the hash decides).
+Future<String> shownOf(WidgetTester tester, List<String> values) async {
+  await openChangePage(tester);
+  final shown = [
+    for (final v in values)
+      if (find
+          .descendant(of: findCredentialCards(), matching: find.text(v))
+          .evaluate()
+          .isNotEmpty)
+        v,
+  ];
+  expect(shown, hasLength(1), reason: "one of $values on the change page");
+  return shown.single;
 }

@@ -75,7 +75,11 @@ void expectSheet(
               ),
             )
             .evaluate())
-      ...(e.widget.key! as ValueKey<String>).value.substring(10).split("+"),
+      ...(e.widget.key! as ValueKey<String>).value
+          .substring(10)
+          .split("#")
+          .first
+          .split("+"),
   };
   expect(offered, unorderedEquals(addable));
 }

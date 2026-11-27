@@ -9,7 +9,8 @@ import "../disclosure_helpers.dart";
 
 /// The card a request starts on is the one last shared with this requestor,
 /// from the activity log (#657): with two e-mail addresses in the app, a
-/// request starts on the first, then on whichever was shared last time.
+/// request starts on one (irmago cannot order two cards issued in the same
+/// week), then on whichever was shared last time.
 Future<void> filledDefaultLastSharedTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -54,22 +55,27 @@ Future<void> filledDefaultLastSharedTest(
     );
   }
 
-  // Nothing shared yet: the first address.
-  await startsOn("first-email@example.com");
+  const emails = ["first-email@example.com", "second-email@example.com"];
+
+  // Nothing shared yet: one of the two; share the other.
+  await irmaBinding.repository.startTestSession(sessionRequest);
+  await tester.waitFor(find.byType(DisclosureFlow));
+  final first = await shownOf(tester, emails);
+  final other = emails.firstWhere((e) => e != first);
   await changeChoice(tester, 0);
-  await pickOwned(tester, "second-email@example.com");
+  await pickOwned(tester, other);
   await tapShare(tester);
   await evaluateFeedback(tester);
 
-  // The second was shared with this requestor last time: it starts on it.
-  await startsOn("second-email@example.com");
+  // That one was shared with this requestor last time: it starts on it.
+  await startsOn(other);
   await changeChoice(tester, 0);
-  await pickOwned(tester, "first-email@example.com");
+  await pickOwned(tester, first);
   await tapShare(tester);
   await evaluateFeedback(tester);
 
   // And back to the first, which was shared last.
-  await startsOn("first-email@example.com");
+  await startsOn(first);
   await tapShare(tester);
   await evaluateFeedback(tester);
 }

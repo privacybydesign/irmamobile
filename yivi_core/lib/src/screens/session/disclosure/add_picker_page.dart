@@ -331,9 +331,10 @@ class _AddSheetState extends ConsumerState<AddSheet> {
               children: [
                 for (final (n, way) in widget.ways.indexed)
                   KeyedSubtree(
-                    // For tests: the types this way adds.
+                    // For tests: the types this way adds, and the option
+                    // (two ways can add the same type).
                     key: Key(
-                      "sheet_add_${[for (final d in _descriptors(way)) d.credentialId].join("+")}",
+                      "sheet_add_${[for (final d in _descriptors(way)) d.credentialId].join("+")}#${way.option}",
                     ),
                     child: _WayRow(
                       key: DisclosureKeys.addPickerRow(way.option),

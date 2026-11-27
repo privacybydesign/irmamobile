@@ -41,33 +41,32 @@ Future<void> filledNoChoiceSameCredsTest(
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // The share screen starts with the first e-mail address.
+  // The share screen starts with one of the two addresses (both issued
+  // this week: irmago's order does not tell them apart).
   await tester.waitFor(find.byType(DisclosureFlow));
   final credentialCardsFinder = findCredentialCards();
   const demoEmailCredentialName = "Demo Email address";
   const demoEmailIssuerName = "Demo Privacy by Design Foundation via SIDN";
-  await openChangePage(tester);
+  const emails = ["first-email@example.com", "second-email@example.com"];
+  final first = await shownOf(tester, emails);
+  final other = emails.firstWhere((e) => e != first);
   expect(credentialCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
     credentialCardsFinder.first,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: [("Email address", "first-email@example.com")],
+    attributes: [("Email address", first)],
   );
 
   // Change it: both addresses are in the app, told apart by their value.
   await changeChoice(tester, 0);
-  expectSheet(
-    tester,
-    owned: ["first-email@example.com", "second-email@example.com"],
-    selected: "first-email@example.com",
-  );
+  expectSheet(tester, owned: emails, selected: first);
 
-  // Pick the second one: the sheet closes.
-  await pickOwned(tester, "second-email@example.com");
+  // Pick the other one: the sheet closes.
+  await pickOwned(tester, other);
 
-  // The only card on the share screen is now the second address.
+  // The only card on the share screen is now the other address.
   expect(find.byType(DisclosureFlow), findsOneWidget);
   await openChangePage(tester);
   expect(credentialCardsFinder, findsOneWidget);
@@ -76,7 +75,7 @@ Future<void> filledNoChoiceSameCredsTest(
     credentialCardsFinder.first,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: [("Email address", "second-email@example.com")],
+    attributes: [("Email address", other)],
   );
 
   // Finish the flow

@@ -1,5 +1,7 @@
 import "activity_test.dart" as activity_test;
 import "biometric_test.dart" as biometric_test;
+import "complex_disclosure_sessions/complex_disclosure_sessions_test.dart"
+    as complex_disclosure_sessions;
 import "data_search_test.dart" as search_test;
 import "disclose_sdjwt_over_openid4vp_test.dart" as openid4vp_test;
 import "disclosure_session/disclosure_session_test_all.dart"
@@ -65,6 +67,7 @@ void main() {
   driving_licence_card_test.main();
   store_review_test.main();
   disclosure_session.main();
+  complex_disclosure_sessions.main();
   notifications_test.main();
   passport_test.main();
   driving_licence_test.main();
