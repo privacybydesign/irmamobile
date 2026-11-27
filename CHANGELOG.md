@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Internal
+- Release builds are uploaded to TestFlight (internal testers) and to the internal track of Google Play by the delivery workflow, when a merge to `master` raises the build number. Moving a build further stays a manual step in App Store Connect and the Play Console. The new "Distribution dry run" workflow, started by hand, has both stores validate a release build without uploading it
+- The release builds of the delivery workflow only start when the build number in `pubspec.yaml` goes up, no longer on any change to the version line: the stores refuse a build number they have already seen
 
 ## [8.5.0] - 2026-11-24
 ### Added

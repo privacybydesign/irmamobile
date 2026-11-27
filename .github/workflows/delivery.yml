@@ -253,7 +253,9 @@ jobs:
           build_number() {
             sed -n 's/^version: [0-9]*\.[0-9]*\.[0-9]*+\([0-9]*\)$/\1/p' | head -n1
           }
-          before=$(git show "$BEFORE_SHA:yivi_app/pubspec.yaml" 2>/dev/null | build_number)
+          # git show fails when the previous revision is not in the clone; under
+          # pipefail that would end the step, so it falls through to an empty value.
+          before=$(git show "$BEFORE_SHA:yivi_app/pubspec.yaml" 2>/dev/null | build_number || true)
           after=$(build_number < ./yivi_app/pubspec.yaml)
           echo "before=${before:-<none>} after=${after:-<none>}"
 
