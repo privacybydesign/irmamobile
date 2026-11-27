@@ -7,6 +7,12 @@ source 'https://github.com/regulaforensics/podspecs.git'
 
 platform :ios, '15.6'
 
+# The schemes in irma_configuration/ are git submodules. An app built without
+# them cannot start, so stop here with an explanation instead.
+unless system(File.expand_path('../../check_irma_configuration.sh', File.dirname(File.realpath(__FILE__))))
+  abort('irma_configuration/ is incomplete, see the error above')
+end
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 

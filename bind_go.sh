@@ -68,6 +68,12 @@ esac
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# Warn early when the scheme submodules are missing: the bridge builds without
+# them (CI does so), but an app built from it cannot start. The app builds
+# themselves (Gradle, pod install) stop on it.
+SCHEMES_MISSING=false
+"${SCRIPT_DIR}/check_irma_configuration.sh" || SCHEMES_MISSING=true
+
 SQLCIPHER_VERSION="4.14.0"
 PREBUILT_DIR="${SCRIPT_DIR}/build/sqlcipher-prebuilt"
 PREBUILT_BASE_URL="https://github.com/privacybydesign/yivi-sqlcipher-prebuilt/releases/download/v${SQLCIPHER_VERSION}"
@@ -290,4 +296,11 @@ if [ "$BUILD_ANDROID" = true ] && [ ! -e "./android/src/main/assets/irma_configu
         ln -s "../../../../../irma_configuration" "./android/src/main/assets/irma_configuration"
         ;;
     esac
+fi
+
+# Repeat the scheme warning last, where it is seen after the long build output.
+if [ "$SCHEMES_MISSING" = true ]; then
+  echo >&2
+  "${SCRIPT_DIR}/check_irma_configuration.sh" || true
+  echo "warning: the Go bridge is built, but building the app will stop until the schemes are checked out." >&2
 fi

@@ -32,6 +32,42 @@ subprojects {
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 
+// The schemes in irma_configuration/ are git submodules, which `git clone`
+// without --recursive and `git worktree add` leave empty, and bind_go.sh links
+// them into the assets. Without them the app builds fine but cannot start
+// ("expected default keyshare scheme pbdf could not be found in
+// configuration"), so stop the build instead. Same check as
+// check_irma_configuration.sh, in Groovy so it also runs on Windows.
+def irmaRepoRoot = file("${projectDir}/../..")
+def irmaAssets = file("${projectDir}/src/main/assets/irma_configuration")
+def checkIrmaConfiguration = tasks.register("checkIrmaConfiguration") {
+    doLast {
+        def gitmodules = new File(irmaRepoRoot, ".gitmodules")
+        def schemes = gitmodules.readLines()
+                .collect { it.trim() }
+                .findAll { it.startsWith("path = irma_configuration/") }
+                .collect { it.substring("path = irma_configuration/".length()) }
+        def notCheckedOut = schemes.findAll { !new File(irmaRepoRoot, "irma_configuration/${it}/index").exists() }
+        if (!notCheckedOut.isEmpty()) {
+            throw new GradleException(
+                    "These schemes in irma_configuration/ are not checked out: ${notCheckedOut.join(', ')}.\n" +
+                    "They are git submodules, which 'git clone' without --recursive and 'git worktree add' leave empty.\n" +
+                    "An app built without them cannot start. Check them out with:\n\n" +
+                    "    git -C \"${irmaRepoRoot.canonicalPath}\" submodule update --init\n")
+        }
+        def notLinked = schemes.findAll { !new File(irmaAssets, "${it}/index").exists() }
+        if (!notLinked.isEmpty()) {
+            throw new GradleException(
+                    "The schemes are not linked into the Android assets (${irmaAssets}).\n" +
+                    "An app built without them cannot start. Build the Go bridge, which also links them:\n\n" +
+                    "    ./bind_go.sh android\n")
+        }
+    }
+}
+// On the asset merge, not preBuild: the JVM unit tests and the Go bridge build
+// in CI do not need the schemes and run without the submodules.
+tasks.matching { it.name ==~ /merge.*Assets/ }.configureEach { dependsOn(checkIrmaConfiguration) }
+
 android {
     namespace = "foundation.privacybydesign.yivi_core"
 

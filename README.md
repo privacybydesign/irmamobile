@@ -43,11 +43,13 @@ Most commands below should be run from one of these subdirectories. The [`just`]
 
       git clone --recursive git@github.com:privacybydesign/irmamobile.git
 
-* If you forgot to include `--recursive` in your `git clone`, make sure to init and update the submodules:
+* If you forgot to include `--recursive` in your `git clone`, or work in a `git worktree` (which does not check out
+  submodules either), check out the submodules:
 
-      cd irmamobile
-      git submodule init
-      git submodule update
+      git submodule update --init
+
+  `just get` does this too. Without them an app would build but not start, so the Android build and `pod install`
+  stop with an error when they are missing, and `bind_go.sh` warns.
 
 * Install Java development kit. Java 21 is required (the Android Gradle Plugin needs it).
 
@@ -203,7 +205,10 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
 
 ## Troubleshooting
 
-* Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.
+* "expected default keyshare scheme pbdf could not be found in configuration", or a "IRMA wordt Yivi" screen whose
+  button does nothing: the app was built without the schemes in `irma_configuration/`. Run
+  `git submodule update --init`, then `./bind_go.sh` and build again. `./check_irma_configuration.sh` tells you which
+  schemes are missing.
 * If something has changed in the `irmagobridge` or in `irmago` then rerunning `./bind_go.sh` is required.
 * In case you get the warning that the `ndk-bundle` cannot be found, please set the `ANDROID_NDK_HOME`
   environment variable to the right ndk version directory. These version directories can be found in `$ANDROID_HOME/ndk`.

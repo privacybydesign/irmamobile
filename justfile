@@ -68,6 +68,7 @@ lint: check-fmt
 
 # Fetches or updates all Go and Flutter dependencies
 get:
+    git submodule update --init
     cd yivi_core && go mod tidy
     cd yivi_core && flutter pub get
     cd yivi_app && flutter pub get
