@@ -1326,9 +1326,7 @@
     "step_count": "Stap {step} van {total}",
     "problem": {
       "revoked": "Ingetrokken",
-      "revoked_note": "Dit kaartje is ingetrokken en kan niet meer gebruikt worden.",
       "expired": "Verlopen",
-      "expired_note": "Dit kaartje is verlopen en kan niet meer gebruikt worden.",
       "add_again": "{problem}. Voeg het opnieuw toe.",
       "one_of_bad": "{name} is {problem}. Kies er één om toe te voegen.",
       "cant_share": "{problem}. Dit kaartje kun je niet meer delen.",
@@ -1344,54 +1342,26 @@
     "button": {
       "share": "Delen",
       "sign_and_share": "Ondertekenen",
-      "share_and_add": "Delen en kaartje toevoegen",
-      "share_without_data": "Delen zonder gegevens",
       "close": "Sluiten"
-    },
-    "reason": {
-      "cant_renew": "{requestor} heeft een kaartje nodig dat je niet in Yivi kunt vernieuwen. Vraag {issuer} om een nieuwe.",
-      "cant_add": "Yivi kan {name} niet toevoegen. Haal het eerst bij {issuer} en scan dan de QR-code opnieuw.",
-      "cant_add_unknown": "Yivi kan {name} niet toevoegen. Haal het eerst bij de uitgever en scan dan de QR-code opnieuw.",
-      "fix_one": "Nog één ding regelen, dan kun je delen",
-      "fix_many": "Nog {count} dingen regelen, dan kun je delen"
     },
     "section": {
       "you_share": "Dit deel je",
       "with_signature": "Dit zet je eronder",
-      "optional": "Als je wil",
-      "you_receive": "Dit krijg je terug",
-      "nothing_required_text": "{requestor} vraagt niets wat je moet delen."
+      "you_receive": "Dit krijg je terug"
     },
-    "not_in_app_yet": "Nog niet in je app",
     "or": " of ",
     "message_label": "Het bericht",
     "sheet": {
-      "pick_card": "Welk kaartje deel je?",
       "subtitle_one": "{requestor} heeft er maar één nodig.",
-      "subtitle_one_add": "{requestor} heeft er maar één nodig.",
       "for_requestor": "Voor {requestor}",
       "for_requestor_set": "Voor {requestor} · kaartje {n} van {total}",
       "stop_title": "Stoppen met {name} toevoegen?",
       "stop_text": "Wat je tot nu toe deed gaat verloren en er wordt niets toegevoegd. {requestor} vraagt er nog steeds om.",
       "stop_confirm": "Stoppen",
       "keep_going": "Doorgaan",
-      "together_title": "Allebei toevoegen",
-      "together_intro": "{requestor} accepteert deze alleen samen. Voeg ze een voor een toe; dit verzoek wacht op je.",
-      "together_step": "Kaartje {n} van {total}",
       "together_added": "{name} staat in je app. {requestor} heeft ook {next} nodig: voeg die nu toe.",
       "together_add_next": "{next} toevoegen",
       "later": "Later",
-      "optional_title": "Wil je dit ook delen?",
-      "optional_intro": "{requestor} vraagt hierom, maar het hoeft niet.",
-      "share_nothing": "Niet delen",
-      "share_nothing_sub": "{requestor} krijgt dit niet",
-      "subtitle_one_docs": "{requestor} heeft er maar één nodig.",
-      "add_other": "Een ander kaartje toevoegen",
-      "optional_intro_many": "{requestor} vraagt om een van deze kaartjes, maar het hoeft niet.",
-      "optional_intro_none": "{requestor} vraagt hierom, maar het hoeft niet.",
-      "optional_intro_many_none": "{requestor} vraagt om een van deze kaartjes, maar het hoeft niet.",
-      "or_add_one": "Of voeg er een toe",
-      "or_add_it": "Of voeg het toe",
       "added_one": "Het kaartje staat nu in je app. Ga terug om je gegevens te delen.",
       "added_many": "De {count} kaartjes staan nu in je app. Ga terug om je gegevens te delen.",
       "added_one_sign": "Het kaartje staat nu in je app. Ga terug om het bericht te ondertekenen.",
@@ -1412,7 +1382,6 @@
         "back_text": "Tik linksboven in je scherm op ◀ met de naam van de app waar je vandaan kwam."
       },
       "cards": "{count} kaartjes",
-      "signed_with": "Je hebt dit bericht ondertekend met {what}.",
       "shared_one": "{name} is gedeeld.",
       "shared_many": "{count} kaartjes zijn gedeeld.",
       "other_device": "Ga verder op je andere apparaat.",
@@ -1427,12 +1396,6 @@
       "button": "Bel {requestor}"
     },
     "spot": {
-      "many": "Je kiest er één bij het toevoegen",
-      "cant": "Kan niet in Yivi worden toegevoegd. Haal het eerst bij {issuer}.",
-      "cant_unknown": "Kan niet in Yivi worden toegevoegd.",
-      "must_be": "{field} moet {value} zijn",
-      "together_both": "{requestor} heeft ze allebei nodig, samen. Je voegt ze een voor een toe.",
-      "together_one_left": "{name} staat in je app. Voeg ook {other} toe: {requestor} heeft ze allebei nodig.",
       "asked": "Gevraagd"
     },
     "trust": {
@@ -1566,14 +1529,8 @@
       "sign": "vraagt je iets te ondertekenen",
       "share_receive": "vraagt om je gegevens en geeft je een kaartje"
     },
-    "change_choice": "Wijzig keuze",
-    "new_chip": "Nieuw",
-    "together": "Deze horen bij elkaar. {requestor} krijgt ze allebei, of geen van beide.",
-    "add_both": "Allebei toevoegen",
     "and": " en ",
     "optional": {
-      "also": "Deel je wel",
-      "not_shared": "Deel je niet",
       "chip": "Niet verplicht",
       "hint_one": "Je kunt nog één ding delen als je wil",
       "hint_many": "Je kunt nog {count} dingen delen als je wil",
@@ -1593,22 +1550,6 @@
       "sign": "Je ondertekent een bericht voor",
       "share_receive": "Je deelt gegevens met"
     },
-    "next": {
-      "add_again": "Opnieuw toevoegen",
-      "fetch_again": "Opnieuw ophalen",
-      "pick": "Kies wat je toevoegt",
-      "add_card": "{card} toevoegen",
-      "add_short": "Kaartje toevoegen"
-    },
-    "also_choose": "Je hebt er nog een",
-    "also_add": "Staat in je app",
-    "match_tag": "Precies wat ze vragen",
-    "how": {
-      "email": "Je krijgt een code per e-mail",
-      "phone": "Je krijgt een code per sms",
-      "document": "Je scant het document met je telefoon",
-      "via": "{issuer} · via {host}"
-    },
     "offer": {
       "add": "Toevoegen",
       "add_many": "{count} kaartjes toevoegen",
@@ -1621,13 +1562,6 @@
       "other_value_sign": "Dit kaartje heeft een andere waarde dan {requestor} vraagt. Je kunt het toevoegen, maar je kunt dit er niet mee ondertekenen.",
       "dont_add": "Niet toevoegen",
       "wrong_kind": "{name} staat nu in je app, maar is niet wat {requestor} vraagt."
-    },
-    "progress": {
-      "add_one": "Nog één kaartje toevoegen, dan kun je delen",
-      "add_many": "Nog {count} kaartjes toevoegen, dan kun je delen",
-      "add_one_sign": "Nog één kaartje toevoegen, dan kun je ondertekenen",
-      "add_many_sign": "Nog {count} kaartjes toevoegen, dan kun je ondertekenen",
-      "ready": "Alles staat klaar"
     },
     "message_sheet": {
       "lead": "Dit onderteken je voor {requestor}.",

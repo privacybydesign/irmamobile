@@ -1326,9 +1326,7 @@
     "step_count": "Étape {step} sur {total}",
     "problem": {
       "revoked": "Révoquée",
-      "revoked_note": "Cette carte a été révoquée et ne peut plus être utilisée.",
       "expired": "Expirée",
-      "expired_note": "Cette carte a expiré et ne peut plus être utilisée.",
       "add_again": "{problem}. Ajoutez-la à nouveau.",
       "one_of_bad": "{name} est {problem}. Choisissez-en une à ajouter.",
       "cant_share": "{problem}. Vous ne pouvez plus partager cette carte.",
@@ -1344,54 +1342,26 @@
     "button": {
       "share": "Partager",
       "sign_and_share": "Signer",
-      "share_and_add": "Partager et ajouter la carte",
-      "share_without_data": "Partager sans données",
       "close": "Fermer"
-    },
-    "reason": {
-      "cant_renew": "{requestor} a besoin d'une carte que vous ne pouvez pas renouveler dans Yivi. Demandez-en une nouvelle à {issuer}.",
-      "cant_add": "Yivi ne peut pas ajouter {name}. Obtenez-la d'abord auprès de {issuer}, puis scannez à nouveau le code QR.",
-      "cant_add_unknown": "Yivi ne peut pas ajouter {name}. Obtenez-la d'abord auprès de son émetteur, puis scannez à nouveau le code QR.",
-      "fix_one": "Encore une chose à régler, puis vous pourrez partager",
-      "fix_many": "Encore {count} choses à régler, puis vous pourrez partager"
     },
     "section": {
       "you_share": "Vous partagez ceci",
       "with_signature": "Vous signez avec",
-      "optional": "Si vous le souhaitez",
-      "you_receive": "Vous recevez ceci en retour",
-      "nothing_required_text": "{requestor} ne demande rien que vous soyez obligé de partager."
+      "you_receive": "Vous recevez ceci en retour"
     },
-    "not_in_app_yet": "Pas encore dans votre appli",
     "or": " ou ",
     "message_label": "Le message",
     "sheet": {
-      "pick_card": "Quelle carte partagez-vous ?",
       "subtitle_one": "{requestor} n'en a besoin que d'une.",
-      "subtitle_one_add": "{requestor} n'en a besoin que d'une.",
       "for_requestor": "Pour {requestor}",
       "for_requestor_set": "Pour {requestor} · carte {n} sur {total}",
       "stop_title": "Arrêter d'ajouter {name} ?",
       "stop_text": "Ce que vous avez fait jusqu'ici est perdu et rien n'est ajouté. {requestor} le demande toujours.",
       "stop_confirm": "Arrêter",
       "keep_going": "Continuer",
-      "together_title": "Ajouter les deux",
-      "together_intro": "{requestor} n'accepte ces cartes qu'ensemble. Ajoutez-les une par une ; cette demande vous attend.",
-      "together_step": "Carte {n} sur {total}",
       "together_added": "{name} est dans votre appli. {requestor} a aussi besoin de {next} : ajoutez-la maintenant.",
       "together_add_next": "Ajouter {next}",
       "later": "Plus tard",
-      "optional_title": "Voulez-vous aussi partager ceci ?",
-      "optional_intro": "{requestor} le demande, mais vous n'y êtes pas obligé.",
-      "share_nothing": "Ne pas partager",
-      "share_nothing_sub": "{requestor} ne reçoit pas ceci",
-      "subtitle_one_docs": "{requestor} n'en a besoin que d'une.",
-      "add_other": "Ajouter une autre carte",
-      "optional_intro_many": "{requestor} demande l'une de ces cartes, mais vous n'y êtes pas obligé.",
-      "optional_intro_none": "{requestor} le demande, mais vous n'y êtes pas obligé.",
-      "optional_intro_many_none": "{requestor} demande l'une de ces cartes, mais vous n'y êtes pas obligé.",
-      "or_add_one": "Ou ajoutez-en une",
-      "or_add_it": "Ou ajoutez-la",
       "added_one": "La carte est maintenant dans votre appli. Revenez en arrière pour partager vos données.",
       "added_many": "Les {count} cartes sont maintenant dans votre appli. Revenez en arrière pour partager vos données.",
       "added_one_sign": "La carte est maintenant dans votre appli. Revenez en arrière pour signer le message.",
@@ -1412,7 +1382,6 @@
         "back_text": "Appuyez sur ◀ suivi du nom de l'appli d'où vous venez, en haut à gauche de votre écran."
       },
       "cards": "{count} cartes",
-      "signed_with": "Vous avez signé ce message avec {what}.",
       "shared_one": "{name} a été partagé.",
       "shared_many": "{count} cartes ont été partagées.",
       "other_device": "Continuez sur votre autre appareil.",
@@ -1427,12 +1396,6 @@
       "button": "Appeler {requestor}"
     },
     "spot": {
-      "many": "Vous en choisissez une en l'ajoutant",
-      "cant": "Ne peut pas être ajoutée dans Yivi. Obtenez-la d'abord auprès de {issuer}.",
-      "cant_unknown": "Ne peut pas être ajoutée dans Yivi.",
-      "must_be": "{field} doit être {value}",
-      "together_both": "{requestor} a besoin des deux, ensemble. Vous les ajoutez une par une.",
-      "together_one_left": "{name} est dans votre appli. Ajoutez aussi {other} : {requestor} a besoin des deux.",
       "asked": "Demandé"
     },
     "trust": {
@@ -1566,14 +1529,8 @@
       "sign": "vous demande de signer quelque chose",
       "share_receive": "demande vos données et vous donne une carte"
     },
-    "change_choice": "Modifier le choix",
-    "new_chip": "Nouveau",
-    "together": "Ces cartes vont ensemble. {requestor} reçoit les deux, ou aucune.",
-    "add_both": "Ajouter les deux",
     "and": " et ",
     "optional": {
-      "also": "Vous partagez ceci",
-      "not_shared": "Vous ne partagez pas ceci",
       "chip": "Facultatif",
       "hint_one": "Vous pouvez encore partager une chose si vous voulez",
       "hint_many": "Vous pouvez encore partager {count} choses si vous voulez",
@@ -1593,22 +1550,6 @@
       "sign": "Vous signez un message pour",
       "share_receive": "Vous partagez des données avec"
     },
-    "next": {
-      "add_again": "Ajouter à nouveau",
-      "fetch_again": "L'obtenir à nouveau",
-      "pick": "Choisir quoi ajouter",
-      "add_card": "Ajouter {card}",
-      "add_short": "Ajouter la carte"
-    },
-    "also_choose": "Vous en avez une autre",
-    "also_add": "Dans votre appli",
-    "match_tag": "Exactement ce qui est demandé",
-    "how": {
-      "email": "Vous recevez un code par e-mail",
-      "phone": "Vous recevez un code par SMS",
-      "document": "Vous scannez le document avec votre téléphone",
-      "via": "{issuer} · via {host}"
-    },
     "offer": {
       "add": "Ajouter",
       "add_many": "Ajouter {count} cartes",
@@ -1621,13 +1562,6 @@
       "other_value_sign": "Cette carte a une autre valeur que celle demandée par {requestor}. Vous pouvez l'ajouter, mais pas signer ceci avec elle.",
       "dont_add": "Ne pas ajouter",
       "wrong_kind": "{name} est maintenant dans votre appli, mais ce n'est pas ce que {requestor} demande."
-    },
-    "progress": {
-      "add_one": "Encore une carte à ajouter, puis vous pourrez partager",
-      "add_many": "Encore {count} cartes à ajouter, puis vous pourrez partager",
-      "add_one_sign": "Encore une carte à ajouter, puis vous pourrez signer",
-      "add_many_sign": "Encore {count} cartes à ajouter, puis vous pourrez signer",
-      "ready": "Tout est prêt"
     },
     "message_sheet": {
       "lead": "Vous signez ceci pour {requestor}.",

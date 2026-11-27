@@ -1326,9 +1326,7 @@
     "step_count": "Schritt {step} von {total}",
     "problem": {
       "revoked": "Widerrufen",
-      "revoked_note": "Diese Karte wurde widerrufen und kann nicht mehr verwendet werden.",
       "expired": "Abgelaufen",
-      "expired_note": "Diese Karte ist abgelaufen und kann nicht mehr verwendet werden.",
       "add_again": "{problem}. Füge sie erneut hinzu.",
       "one_of_bad": "{name} ist {problem}. Wähle eine zum Hinzufügen.",
       "cant_share": "{problem}. Diese Karte kannst du nicht mehr teilen.",
@@ -1344,54 +1342,26 @@
     "button": {
       "share": "Teilen",
       "sign_and_share": "Unterschreiben",
-      "share_and_add": "Teilen und Karte hinzufügen",
-      "share_without_data": "Ohne Daten teilen",
       "close": "Schließen"
-    },
-    "reason": {
-      "cant_renew": "{requestor} braucht eine Karte, die du in Yivi nicht erneuern kannst. Bitte {issuer} um eine neue.",
-      "cant_add": "Yivi kann {name} nicht hinzufügen. Hol es zuerst bei {issuer} und scanne dann den QR-Code erneut.",
-      "cant_add_unknown": "Yivi kann {name} nicht hinzufügen. Hol es zuerst beim Herausgeber und scanne dann den QR-Code erneut.",
-      "fix_one": "Noch eine Sache erledigen, dann kannst du teilen",
-      "fix_many": "Noch {count} Dinge erledigen, dann kannst du teilen"
     },
     "section": {
       "you_share": "Das teilst du",
       "with_signature": "Darunter setzt du",
-      "optional": "Wenn du möchtest",
-      "you_receive": "Das bekommst du zurück",
-      "nothing_required_text": "{requestor} fragt nichts, was du teilen musst."
+      "you_receive": "Das bekommst du zurück"
     },
-    "not_in_app_yet": "Noch nicht in deiner App",
     "or": " oder ",
     "message_label": "Die Nachricht",
     "sheet": {
-      "pick_card": "Welche Karte teilst du?",
       "subtitle_one": "{requestor} braucht nur eine.",
-      "subtitle_one_add": "{requestor} braucht nur eine.",
       "for_requestor": "Für {requestor}",
       "for_requestor_set": "Für {requestor} · Karte {n} von {total}",
       "stop_title": "Hinzufügen von {name} abbrechen?",
       "stop_text": "Was du bisher getan hast, geht verloren, und es wird nichts hinzugefügt. {requestor} fragt weiterhin danach.",
       "stop_confirm": "Abbrechen",
       "keep_going": "Weitermachen",
-      "together_title": "Beide hinzufügen",
-      "together_intro": "{requestor} akzeptiert diese nur zusammen. Fügen Sie sie nacheinander hinzu; diese Anfrage wartet auf Sie.",
-      "together_step": "Karte {n} von {total}",
       "together_added": "{name} ist in Ihrer App. {requestor} braucht auch {next}: Fügen Sie es jetzt hinzu.",
       "together_add_next": "{next} hinzufügen",
       "later": "Später",
-      "optional_title": "Möchtest du das auch teilen?",
-      "optional_intro": "{requestor} fragt danach, aber du musst nicht.",
-      "share_nothing": "Nicht teilen",
-      "share_nothing_sub": "{requestor} bekommt das nicht",
-      "subtitle_one_docs": "{requestor} braucht nur eine.",
-      "add_other": "Eine andere Karte hinzufügen",
-      "optional_intro_many": "{requestor} fragt nach einer dieser Karten, aber du musst nicht.",
-      "optional_intro_none": "{requestor} fragt danach, aber du musst nicht.",
-      "optional_intro_many_none": "{requestor} fragt nach einer dieser Karten, aber du musst nicht.",
-      "or_add_one": "Oder füge eine hinzu",
-      "or_add_it": "Oder füge es hinzu",
       "added_one": "Die Karte ist jetzt in deiner App. Geh zurück, um deine Daten zu teilen.",
       "added_many": "Die {count} Karten sind jetzt in deiner App. Geh zurück, um deine Daten zu teilen.",
       "added_one_sign": "Die Karte ist jetzt in deiner App. Geh zurück, um die Nachricht zu unterschreiben.",
@@ -1412,7 +1382,6 @@
         "back_text": "Tippe oben links auf ◀ mit dem Namen der App, aus der du gekommen bist."
       },
       "cards": "{count} Karten",
-      "signed_with": "Du hast diese Nachricht mit {what} unterschrieben.",
       "shared_one": "{name} wurde geteilt.",
       "shared_many": "{count} Karten wurden geteilt.",
       "other_device": "Mach auf deinem anderen Gerät weiter.",
@@ -1427,12 +1396,6 @@
       "button": "{requestor} anrufen"
     },
     "spot": {
-      "many": "Du wählst beim Hinzufügen eine aus",
-      "cant": "Kann nicht in Yivi hinzugefügt werden. Hol es zuerst bei {issuer}.",
-      "cant_unknown": "Kann nicht in Yivi hinzugefügt werden.",
-      "must_be": "{field} muss {value} sein",
-      "together_both": "{requestor} braucht beide zusammen. Sie fügen sie nacheinander hinzu.",
-      "together_one_left": "{name} ist in Ihrer App. Fügen Sie auch {other} hinzu: {requestor} braucht beide.",
       "asked": "Angefragt"
     },
     "trust": {
@@ -1566,14 +1529,8 @@
       "sign": "bittet dich, etwas zu unterschreiben",
       "share_receive": "fragt nach deinen Daten und gibt dir eine Karte"
     },
-    "change_choice": "Auswahl ändern",
-    "new_chip": "Neu",
-    "together": "Diese gehören zusammen. {requestor} bekommt beide oder keine.",
-    "add_both": "Beide hinzufügen",
     "and": " und ",
     "optional": {
-      "also": "Teilst du",
-      "not_shared": "Teilst du nicht",
       "chip": "Nicht erforderlich",
       "hint_one": "Du kannst noch eine Sache teilen, wenn du willst",
       "hint_many": "Du kannst noch {count} Sachen teilen, wenn du willst",
@@ -1593,22 +1550,6 @@
       "sign": "Du unterschreibst eine Nachricht für",
       "share_receive": "Du teilst Daten mit"
     },
-    "next": {
-      "add_again": "Erneut hinzufügen",
-      "fetch_again": "Erneut abrufen",
-      "pick": "Wähle, was du hinzufügst",
-      "add_card": "{card} hinzufügen",
-      "add_short": "Karte hinzufügen"
-    },
-    "also_choose": "Du hast noch eine",
-    "also_add": "In deiner App",
-    "match_tag": "Genau, was sie fragen",
-    "how": {
-      "email": "Du bekommst einen Code per E-Mail",
-      "phone": "Du bekommst einen Code per SMS",
-      "document": "Du scannst das Dokument mit deinem Telefon",
-      "via": "{issuer} · über {host}"
-    },
     "offer": {
       "add": "Hinzufügen",
       "add_many": "{count} Karten hinzufügen",
@@ -1621,13 +1562,6 @@
       "other_value_sign": "Diese Karte hat einen anderen Wert, als {requestor} fragt. Du kannst sie hinzufügen, aber damit nicht unterschreiben.",
       "dont_add": "Nicht hinzufügen",
       "wrong_kind": "{name} ist jetzt in deiner App, aber nicht das, wonach {requestor} fragt."
-    },
-    "progress": {
-      "add_one": "Noch eine Karte hinzufügen, dann kannst du teilen",
-      "add_many": "Noch {count} Karten hinzufügen, dann kannst du teilen",
-      "add_one_sign": "Noch eine Karte hinzufügen, dann kannst du unterschreiben",
-      "add_many_sign": "Noch {count} Karten hinzufügen, dann kannst du unterschreiben",
-      "ready": "Alles bereit"
     },
     "message_sheet": {
       "lead": "Das unterschreibst du für {requestor}.",

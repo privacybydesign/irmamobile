@@ -8,12 +8,12 @@ import "../../theme/yivi_space.dart";
 import "../surfaces/dashed_outline_painter.dart";
 import "card_art/credential_card_art.dart";
 
-/// A card as a tile, the way the share screen shows what is shared: small
-/// card art, the name and issuer, an optional chip and trailing control, and
-/// below that the values (and anything else in [body]).
+/// A card as a tile: small card art, the name and issuer, an optional chip
+/// and trailing control, and below that the values (and anything else in
+/// [body]).
 ///
-/// Plain data only: the share screen's `SharedCardTile` and the activity
-/// details both build one.
+/// Plain data only: the activity details and the cards received in a
+/// session both build one.
 class CardTile extends StatelessWidget {
   /// Width of the small card art, at the card's 358:226 ratio.
   static const double miniWidth = 58;

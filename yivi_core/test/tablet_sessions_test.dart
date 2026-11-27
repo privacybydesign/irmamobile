@@ -131,7 +131,7 @@ void main() {
             child: TextButton(
               onPressed: () => showTitledSheet(
                 context: context,
-                titleKey: "share.sheet.pick_card",
+                titleKey: "share.pick.title",
                 child: const SizedBox(height: 200, child: Text("options")),
               ),
               child: const Text("open"),
