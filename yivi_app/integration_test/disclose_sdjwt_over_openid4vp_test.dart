@@ -13,7 +13,6 @@ import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_parts.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/disclosure_flow.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
@@ -209,10 +208,8 @@ Future<void> testDisclosePassportOpensPassportScanner(
 
   await tester.pumpAndSettle();
 
-  // Wait for NFC screen and press "Start scanning" button
-  await tester.waitFor(find.byType(NfcReadingScreen));
-  final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
-  await tester.tapAndSettle(startScanningButton);
+  // The chip read: Android starts it by itself, iOS on "Start scanning".
+  await startNfcRead(tester);
 
   expect(fakeReader.readCallCount, greaterThanOrEqualTo(1));
   expect(fakeReader.lastDocumentNumber, fakeMrz.documentNumber);

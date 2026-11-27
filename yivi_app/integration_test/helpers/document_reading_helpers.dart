@@ -2,6 +2,8 @@ import "dart:async";
 import "dart:typed_data";
 
 import "package:cupertino_ui/cupertino_ui.dart";
+import "package:flutter/foundation.dart"
+    show TargetPlatform, defaultTargetPlatform;
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:vcmrtd/extensions.dart";
@@ -200,12 +202,18 @@ Future<void> openPassportInstructionScreen(
 /// Starts the chip read once the NFC screen is up. Android starts it by
 /// itself; iOS waits for a tap on Start, which opens Apple's NFC sheet.
 Future<void> startNfcRead(WidgetTester tester) async {
-  await tester.waitFor(find.byType(NfcReadingScreen));
-  final start = find.byKey(const Key("bottom_bar_primary"));
-  if (start.evaluate().isNotEmpty) {
-    await tester.tap(start);
-  }
+  await tapNfcStartOnIos(tester);
   await tester.pumpAndSettle();
+}
+
+/// On iOS: waits for the NFC screen and taps its Start. On Android nothing:
+/// the read starts as the screen opens and a fake read can be over (the
+/// screen gone) before a wait sees it; a primary button on screen then is
+/// the next step's (Retry, the face check's Start).
+Future<void> tapNfcStartOnIos(WidgetTester tester) async {
+  if (defaultTargetPlatform != TargetPlatform.iOS) return;
+  await tester.waitFor(find.byType(NfcReadingScreen));
+  await tester.tap(find.byKey(const Key("bottom_bar_primary")));
 }
 
 class FakePassportIssuer implements PassportIssuer {

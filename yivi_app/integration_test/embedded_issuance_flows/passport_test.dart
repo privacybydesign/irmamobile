@@ -210,9 +210,7 @@ void main() {
       );
 
       // Android starts the read by itself; iOS waits for a tap on Start.
-      await tester.waitFor(find.byType(NfcReadingScreen));
-      final start = find.byKey(const Key("bottom_bar_primary"));
-      if (start.evaluate().isNotEmpty) await tester.tap(start);
+      await tapNfcStartOnIos(tester);
       // The read runs behind a privacy-screen suspension, so it takes a
       // platform-channel round trip to get going — more than the microtasks
       // the tap itself drains.
