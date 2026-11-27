@@ -3,9 +3,11 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/theme.dart";
+import "../../../util/nfc_credentials.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
+import "document_issuance_permission.dart";
 import "session_scaffold.dart";
 
 class IssuancePermission extends StatelessWidget {
@@ -21,12 +23,26 @@ class IssuancePermission extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SessionScaffold(
-    appBarTitle: "issuance.title",
-    bottomNavigationBar: _buildNavigationBar(context),
-    body: _buildBody(context),
-    onDismiss: onDismiss,
-  );
+  Widget build(BuildContext context) {
+    // A document read from its chip gets its own screen.
+    final isDocument =
+        issuedCredentials.isNotEmpty &&
+        issuedCredentials.every((c) => credentialRequiresNfc(c.credentialId));
+    if (isDocument) {
+      return DocumentIssuancePermission(
+        issuedCredentials: issuedCredentials,
+        onDismiss: onDismiss,
+        onGivePermission: onGivePermission,
+      );
+    }
+
+    return SessionScaffold(
+      appBarTitle: "issuance.title",
+      bottomNavigationBar: _buildNavigationBar(context),
+      body: _buildBody(context),
+      onDismiss: onDismiss,
+    );
+  }
 
   Widget _buildNavigationBar(BuildContext context) {
     return onGivePermission != null

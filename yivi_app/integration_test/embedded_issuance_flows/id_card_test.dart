@@ -1,16 +1,16 @@
 import "dart:async";
 
 import "package:cupertino_ui/cupertino_ui.dart";
+import "package:flutter/foundation.dart" show defaultTargetPlatform;
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
-import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/document_instruction_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "../helpers/document_reading_helpers.dart";
@@ -33,7 +33,7 @@ void main() {
     testWidgets("adding id_card credential opens MRZ scanner screen", (
       tester,
     ) async {
-      await openIdCardDetailsScreen(tester, irmaBinding);
+      await openIdCardInstructionScreen(tester, irmaBinding);
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
@@ -57,7 +57,7 @@ void main() {
       );
       final fakeIssuer = FakePassportIssuer();
 
-      await openIdCardDetailsScreen(
+      await openIdCardInstructionScreen(
         tester,
         irmaBinding,
         overrides: [
@@ -92,10 +92,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Wait for NFC screen and press "Start scanning" button
-      await tester.waitFor(find.byType(NfcReadingScreen));
-      final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
-      await tester.tapAndSettle(startScanningButton);
+      await startNfcReading(tester);
 
       expect(fakeReader.readCallCount, greaterThanOrEqualTo(1));
       expect(fakeReader.lastDocumentNumber, fakeMrz.documentNumber);
@@ -104,10 +101,10 @@ void main() {
       expect(fakeReader.lastCountryCode, fakeMrz.countryCode);
     });
 
-    testWidgets("user can cancel MRZ scanning and return to add data details", (
+    testWidgets("user can cancel MRZ scanning and return to the instructions", (
       tester,
     ) async {
-      await openIdCardDetailsScreen(tester, irmaBinding);
+      await openIdCardInstructionScreen(tester, irmaBinding);
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
       await tester.waitFor(find.byType(MrzReaderScreen<IdCardMrzParser>));
@@ -115,7 +112,7 @@ void main() {
       final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
       await tester.tapAndSettle(cancelButton);
 
-      await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
+      await tester.waitFor(find.byType(DocumentInstructionScreen));
     });
 
     testWidgets("nfc failure after MRZ scan shows retry option", (
@@ -134,7 +131,7 @@ void main() {
       );
       final fakeIssuer = FakePassportIssuer();
 
-      await openIdCardDetailsScreen(
+      await openIdCardInstructionScreen(
         tester,
         irmaBinding,
         overrides: [
@@ -169,14 +166,15 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Start scanning
-      await tester.waitFor(find.byType(NfcReadingScreen));
-      await tester.tapAndSettle(find.text("Start scanning"));
+      await startNfcReading(tester);
 
       await tester.waitFor(
         find.text("Could not read ID-card. Please try again."),
       );
-      await tester.waitFor(find.text("Timeout while waiting for ID-card tag"));
+      // A lost tag asks to put the phone back.
+      await tester.waitFor(
+        find.textContaining("Lift your phone off your ID-card"),
+      );
 
       expect(fakeReader.readCallCount, 1);
 
@@ -213,10 +211,7 @@ void main() {
         fakeIssuer,
       );
 
-      // Wait for NFC screen and press "Start scanning" button
-      await tester.waitFor(find.byType(NfcReadingScreen));
-      final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
-      await tester.tap(startScanningButton);
+      await startNfcReading(tester, settle: false);
       // The read runs behind a privacy-screen suspension, so it takes a
       // platform-channel round trip to get going — more than the microtasks
       // the tap itself drains.
@@ -226,45 +221,41 @@ void main() {
       expect(fakeReader.readCalled, isTrue);
 
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text("Success"), findsOneWidget);
-      expect(
-        find.text("Reading ID-card completed successfully"),
-        findsOneWidget,
-      );
+      expect(find.text("Your ID-card has been read"), findsOneWidget);
 
       readCompleter.complete();
     });
 
-    testWidgets(
-      "nfc disabled shows disabled UI and retry cancels current attempt",
-      (tester) async {
-        final fakeReader = FakePassportReader(
-          mrzResult: fakeIdCardMrz,
-          initialState: DocumentReaderNfcUnavailable(),
-        );
-        final fakeIssuer = FakePassportIssuer();
+    testWidgets("nfc disabled asks to turn NFC on", (tester) async {
+      final fakeReader = FakePassportReader(
+        mrzResult: fakeIdCardMrz,
+        initialState: DocumentReaderNfcUnavailable(),
+      );
+      final fakeIssuer = FakePassportIssuer();
 
-        await navigateToIdCardNfcReadingScreen(
-          tester,
-          irmaBinding,
-          fakeReader,
-          fakeIssuer,
-        );
+      await navigateToIdCardNfcReadingScreen(
+        tester,
+        irmaBinding,
+        fakeReader,
+        fakeIssuer,
+      );
 
-        expect(find.text("NFC disabled"), findsOneWidget);
-        expect(
-          find.text(
-            "NFC is disabled. Please enable NFC in the system settings and try again.",
-          ),
-          findsOneWidget,
-        );
-
-        final retryButton = find.byKey(const Key("bottom_bar_primary"));
-        await tester.tapAndSettle(retryButton);
-
-        expect(fakeReader.cancelCount, 1);
-      },
-    );
+      expect(find.text("Turn on NFC"), findsOneWidget);
+      expect(
+        find.text("Your phone uses it to read the chip in your ID-card."),
+        findsOneWidget,
+      );
+      // Android can open the NFC settings; iOS has none to open. The test
+      // does not tap it, as that would leave the app.
+      expect(
+        find.text("Open NFC settings"),
+        defaultTargetPlatform == TargetPlatform.android
+            ? findsOneWidget
+            : findsNothing,
+      );
+      expect(find.byKey(const Key("bottom_bar_secondary")), findsOneWidget);
+      expect(fakeReader.readCallCount, 0);
+    });
 
     testWidgets("user can cancel NFC reading flow", (tester) async {
       final cancelCompleter = Completer<void>();
@@ -283,12 +274,9 @@ void main() {
         fakeIssuer,
       );
 
-      // Wait for NFC screen and press "Start scanning" button
-      await tester.waitFor(find.byType(NfcReadingScreen));
-      final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
-      await tester.tapAndSettle(startScanningButton);
+      await startNfcReading(tester);
 
-      await tester.waitFor(find.text("Connecting to ID-card..."));
+      await tester.waitFor(find.text("Place your phone on your ID-card"));
 
       final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
       await tester.tapAndSettle(cancelButton);
@@ -326,10 +314,7 @@ void main() {
         fakeIssuer,
       );
 
-      // Wait for NFC screen and press "Start scanning" button
-      await tester.waitFor(find.byType(NfcReadingScreen));
-      final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
-      await tester.tapAndSettle(startScanningButton);
+      await startNfcReading(tester);
 
       await tester.waitFor(
         find.text("Could not read ID-card. Please try again."),

@@ -199,29 +199,10 @@ NfcReadingTranslationKeys _passportKeys() => NfcReadingTranslationKeys(
   error: "passport.nfc.error",
   errorGeneric: "passport.nfc.error_generic",
   title: "passport.nfc.title",
-  nfcDisabled: "passport.nfc.nfc_disabled",
-  nfcEnabled: "passport.nfc.nfc_enabled",
-  introduction: "passport.nfc.introduction",
-  startScanning: "passport.nfc.start_scanning",
-  nfcDisabledExplanation: "passport.nfc.nfc_disabled_explanation",
-  holdNearPhotoPage: "passport.nfc.hold_near_photo_page",
-  tip1: "passport.nfc.tip_1",
-  tip2: "passport.nfc.tip_2",
-  tip3: "passport.nfc.tip_3",
-  successExplanation: "passport.nfc.success_explanation",
   cancelledByUser: "passport.nfc.cancelled_by_user",
   cancelled: "passport.nfc.cancelled",
   cancelling: "passport.nfc.cancelling",
-  connecting: "passport.nfc.connecting",
-  readingCardSecurity: "passport.nfc.reading_card_security",
-  readingDocumentData: "passport.nfc.reading_passport_data",
-  authenticating: "passport.nfc.authenticating",
-  performingSecurityVerification:
-      "passport.nfc.performing_security_verification",
-  timeoutWaitingForTag: "passport.nfc.timeout_waiting_for_tag",
-  tagLostTryAgain: "passport.nfc.tag_lost_try_again",
-  failedToInitiateSession: "passport.nfc.failed_to_initiate_session",
-  success: "passport.nfc.success",
+  failedToInitiateSession: "passport.nfc.failed_initiate_session",
 );
 
 /// Pumps the NFC reading screen on a router that also owns the `/error` route
@@ -260,6 +241,8 @@ Future<GoRouter> _pumpNfcScreen(
         ),
         passportIssuerProvider.overrideWithValue(issuer),
         regulaFaceServiceProvider.overrideWithValue(faceService),
+        // The pause on the done stage has its own test.
+        nfcDoneHoldProvider.overrideWithValue(Duration.zero),
       ],
       // TestContext disables the scanning animation's repeating ticker so
       // pumpAndSettle does not hang.
@@ -281,6 +264,8 @@ Future<GoRouter> _pumpNfcScreen(
       ),
     ),
   );
+  // On Android (the test platform) the read starts as soon as the screen is
+  // up, without a tap.
   await tester.pumpAndSettle();
   return router;
 }
@@ -325,8 +310,6 @@ Future<Set<String>> _illustrationForIssuanceError(
     faceService: _PassingFaceService(),
   );
 
-  await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-  await tester.pumpAndSettle();
   await tester.tap(
     find.descendant(
       of: find.byType(FaceVerificationIntroScreen),
@@ -366,9 +349,7 @@ void main() {
       faceService: _GatedFaceService(gate),
     );
 
-    // Read the document, which lands on the face verification intro.
-    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-    await tester.pumpAndSettle();
+    // The document is read, which lands on the face verification intro.
     expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
 
     // Continue into the liveness session, which blocks on the gate.
@@ -403,10 +384,8 @@ void main() {
     final gate = Completer<StartValidationResult>();
     final router = await _pumpNfcScreen(tester, _GatedPassportIssuer(gate));
 
-    // Start the flow; it blocks on the issuer's start-validation call, which
-    // runs before any liveness UI exists.
-    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-    await tester.pumpAndSettle();
+    // The flow has started; it blocks on the issuer's start-validation call,
+    // which runs before any liveness UI exists.
 
     // Here the user leaves the route themselves — nothing has torn the screen
     // down for them.
@@ -453,9 +432,6 @@ void main() {
   ) async {
     final gate = Completer<StartValidationResult>();
     await _pumpNfcScreen(tester, _GatedPassportIssuer(gate));
-
-    await tester.tap(find.byKey(const Key("bottom_bar_primary")));
-    await tester.pumpAndSettle();
 
     gate.completeError(Exception("issuer unreachable"));
     await tester.pumpAndSettle();

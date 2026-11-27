@@ -350,12 +350,15 @@ class _GlareHintBanner extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: theme.defaultSpacing,
-                vertical: theme.smallSpacing,
+                vertical: theme.smallSpacing + theme.tinySpacing,
               ),
               child: TranslatedText(
                 "mrz_scanner.glare_hint",
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: Colors.white,
+                  height: 22 / 16,
+                ),
               ),
             ),
           ),

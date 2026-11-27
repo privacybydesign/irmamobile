@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/credential_store.dart";
+import "../../providers/irma_repository_provider.dart";
 import "../../providers/nfc_availability_provider.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
 import "../../theme/theme.dart";
@@ -121,6 +122,20 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                                     onTap: nfcBlocked
                                         ? () =>
                                               _showNfcUnsupportedDialog(context)
+                                        // A document goes straight to how to
+                                        // hold it, without the details page.
+                                        : credentialRequiresNfc(
+                                            credential.credentialId,
+                                          )
+                                        ? () =>
+                                              IrmaRepositoryProvider.of(
+                                                context,
+                                              ).openIssueURL(
+                                                context,
+                                                credential.credentialId,
+                                                credential.issueURL,
+                                                ref,
+                                              )
                                         : () => context
                                               .pushSchemalessDataDetailsScreen(
                                                 AddDataDetailsRouteParams(
