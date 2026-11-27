@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Internal
+- A build stops with an explanation when the scheme submodules in `irma_configuration/` are not checked out, as after `git clone` without `--recursive` or `git worktree add`. Such an app built fine but could not start ("expected default keyshare scheme pbdf could not be found in configuration"). `pod install` runs the new `check_irma_configuration.sh`, and the Android build checks the same in Gradle when it merges the assets, along with the link of the schemes into the assets. `bind_go.sh` only warns, because the Go bridge builds without the schemes (CI does so), and the JVM unit tests do not need them either. `just get` checks the submodules out
 
 ## [8.5.0] - 2026-11-24
 ### Added
