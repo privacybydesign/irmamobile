@@ -7,6 +7,7 @@ import "../../../providers/last_shared_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../providers/wallet_cards_provider.dart";
 import "../../../theme/yivi_motion.dart";
+import "../../../widgets/flight/flight.dart";
 import "../models/disclosure_plan_view.dart";
 import "add_first_page.dart";
 import "add_picker_page.dart";
@@ -83,15 +84,22 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
     context,
     from: boxes,
     page: "change",
+    fromPage: "sheet",
+    path: const FlightPath.outOf(),
+    duration: _overEdge,
     card: (h) => candidateOf(widget.session.disclosurePlan, h),
     wallet: ref.read(walletCardsProvider),
   );
 
+  /// How long a card carried over a sheet's edge flies: until the sheet
+  /// ([SheetMotion.carried], its wait and its slide) has settled under it.
+  static const _overEdge = Duration(milliseconds: 640);
+
   /// Opens a sheet over the change page: the cards of [choice] in use fly
-  /// from their heads into it.
-  void _intoSheet(int choice) {
+  /// from their heads into it. Whether any does.
+  bool _intoSheet(int choice) {
     final plan = widget.session.disclosurePlan;
-    if (plan == null) return;
+    if (plan == null) return false;
     final chosen = resolve(
       plan,
       ref.read(disclosureSelectionProvider(_id)),
@@ -107,10 +115,13 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
           in _spots.boxes(context, "change").entries)
         if (hashes.contains(key)) key: value,
     };
-    _spots.carry(
+    return _spots.carry(
       context,
       from: boxes,
       page: "sheet",
+      fromPage: "change",
+      path: const FlightPath.into(),
+      duration: _overEdge,
       card: (h) => candidateOf(plan, h),
       wallet: ref.read(walletCardsProvider),
     );
@@ -119,7 +130,7 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
   /// The sheets of the change page (2.5).
   late final _actions = ChangeActions(
     pickCard: (i) {
-      _intoSheet(i);
+      final carried = _intoSheet(i);
       showWhichCardSheet(
         context: context,
         sessionId: _id,
@@ -127,10 +138,11 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         onAdd: _addFromSheet,
         spots: _spots,
         onLeave: _sheetLeft,
+        carried: carried,
       );
     },
     pickSlot: (i, slot) {
-      _intoSheet(i);
+      final carried = _intoSheet(i);
       showWhichCardSheet(
         context: context,
         sessionId: _id,
@@ -139,10 +151,11 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         onAdd: _addFromSheet,
         spots: _spots,
         onLeave: _sheetLeft,
+        carried: carried,
       );
     },
     pickCombination: (i) {
-      _intoSheet(i);
+      final carried = _intoSheet(i);
       showWhichCombinationSheet(
         context: context,
         sessionId: _id,
@@ -150,6 +163,7 @@ class _DisclosureFlowState extends ConsumerState<DisclosureFlow> {
         onAdd: _add,
         spots: _spots,
         onLeave: _sheetLeft,
+        carried: carried,
       );
     },
     add: _add,

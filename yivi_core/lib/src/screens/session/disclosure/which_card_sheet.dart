@@ -35,9 +35,11 @@ Future<void> showWhichCardSheet({
   required void Function(int choice, List<AddWay> ways) onAdd,
   CardSpots? spots,
   void Function(Map<String, Rect> boxes)? onLeave,
+  bool carried = false,
 }) => showSheet<void>(
   context: context,
-  motion: SheetMotion.share,
+  // A card carried over its edge: it comes up under the card.
+  motion: carried ? SheetMotion.carried : SheetMotion.share,
   builder: (_) => WhichCardSheetView(
     key: const Key("which_card_sheet"),
     sessionId: sessionId,

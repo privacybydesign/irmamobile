@@ -4,6 +4,7 @@ import "../../../models/credential.dart";
 import "../../../models/session_state.dart";
 import "../../../widgets/credential_card/card_art/credential_card_art.dart";
 import "../../../widgets/flight/flight.dart";
+import "../../../widgets/sheet/sheet.dart";
 import "../models/disclosure_plan_view.dart";
 
 /// The places of the disclosure screens where a card's picture is drawn,
@@ -43,38 +44,51 @@ class CardSpots {
 
   /// Flies the cards at [from] (boxes by hash, taken before the page
   /// changed) to their places on [page], which are hidden until they land.
-  /// Call before the change that builds [page]; the flights start once it
-  /// has laid out. A card without a place on [page] does not fly.
-  void carry(
+  /// Their places on [fromPage] are hidden while they fly, so a card is
+  /// never seen twice (one going down with a sheet). [path]: carried over a
+  /// sheet's edge; into a sheet ([FlightPath.into]) it flies to where its
+  /// place will be once the sheet is up, not after the sheet as it slides. Call before the change that builds [page]; the flights
+  /// start once it has laid out. A card without a place on [page] does not
+  /// fly. Whether any card flies.
+  bool carry(
     BuildContext context, {
     required Map<String, Rect> from,
     required String page,
+    String? fromPage,
+    FlightPath? path,
     required SelectableCredentialInstance? Function(String hash) card,
     required List<Credential> wallet,
     Duration duration = const Duration(milliseconds: 560),
   }) {
-    if (from.isEmpty || MediaQuery.disableAnimationsOf(context)) return;
+    if (from.isEmpty || MediaQuery.disableAnimationsOf(context)) return false;
     final keys = {for (final h in from.keys) h: of(page, h)};
-    Flight.hide(keys.values);
+    final leaving = {
+      if (fromPage != null)
+        for (final h in from.keys) h: of(fromPage, h),
+    };
+    Flight.hide([...keys.values, ...leaving.values]);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var z = 0;
       for (final MapEntry(key: hash, value: rect) in from.entries) {
         final to = keys[hash]!;
         final c = card(hash);
         if (c == null || to.currentContext == null || !context.mounted) {
-          Flight.show([to]);
+          Flight.show([to, ?leaving[hash]]);
           continue;
         }
         Flight.start(
           context,
           fromRect: rect,
-          to: Flight.boxOf(to),
+          to: path?.into ?? false
+              ? (overlay) => Sheet.settledBox(to, overlay)
+              : Flight.boxOf(to),
           keys: FlightKey.carry(lift: 0.2, hold: 0.8),
+          path: path,
           duration: duration,
           lift: Flight.liftCarried,
           shadow: Flight.shadowCarried,
           radius: const BorderRadius.all(Radius.circular(4)),
-          hide: [to],
+          hide: [to, ?leaving[hash]],
           z: z++,
           copyKey: Key("spot_flight_$hash"),
           copy: (context, frame) => CredentialCardArt(
@@ -84,6 +98,7 @@ class CardSpots {
         );
       }
     });
+    return true;
   }
 }
 
