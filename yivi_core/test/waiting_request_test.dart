@@ -276,8 +276,10 @@ void main() {
       );
       final room = key(tester, 1).top - 48;
       // The block (announcement to dots) has as much room above as below.
+      // The room kept under the dots for "Checking…" or a wrong PIN makes
+      // the block a little taller.
       final above = block.top;
-      expect(above, greaterThan(40));
+      expect(above, greaterThan(32));
       expect(block.top, lessThan(room / 2));
     });
 

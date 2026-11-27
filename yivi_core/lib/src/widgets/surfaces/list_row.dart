@@ -39,6 +39,10 @@ class ListRow extends StatelessWidget {
   final int? titleMaxLines;
   final int subtitleMaxLines;
 
+  /// The title's weight when it names something (a card in Add data);
+  /// regular otherwise.
+  final FontWeight? titleWeight;
+
   /// Read out instead of the row's texts.
   final String? semanticsLabel;
 
@@ -68,6 +72,7 @@ class ListRow extends StatelessWidget {
     this.indent = 0,
     this.titleMaxLines,
     this.subtitleMaxLines = 1,
+    this.titleWeight,
     this.semanticsLabel,
     this.subtitleKey,
     this.below,
@@ -122,7 +127,9 @@ class ListRow extends StatelessWidget {
                     style: palette
                         .body(
                           16,
-                          weight: danger ? FontWeight.w600 : FontWeight.w400,
+                          weight: danger
+                              ? FontWeight.w600
+                              : titleWeight ?? FontWeight.w400,
                         )
                         .copyWith(
                           color: danger ? palette.danger : palette.text,

@@ -216,6 +216,63 @@ void main() {
     expect(find.byType(Dialog), findsNothing);
   });
 
+  group("nothing moves when a line shows under the title", () {
+    for (final (name, size, centre) in const [
+      ("upright", Size(390, 844), false),
+      ("upright, small", Size(375, 667), false),
+      ("upright, 16e", Size(390, 750), false),
+      ("upright, centred (a sheet)", Size(390, 782), true),
+      ("held sideways", Size(874, 402), false),
+      ("on a tablet", Size(1024, 1366), false),
+    ]) {
+      testWidgets(name, (tester) async {
+        _phone(tester, size);
+        Future<({Rect dot, Rect title})> dots({
+          String? detail,
+          bool busy = false,
+        }) async {
+          await pumpTranslated(
+            tester,
+            _app(
+              YiviPinScaffold(
+                body: YiviPinScreen(
+                  instructionKey: "pin.subtitle",
+                  maxPinSize: 5,
+                  centreUpper: centre,
+                  onSubmit: (_) {},
+                  detail: detail,
+                  detailKind: PinDetailKind.error,
+                  pinError: detail != null,
+                  busy: busy,
+                ),
+              ),
+            ),
+          );
+          await tester.pump(const Duration(seconds: 1));
+          return (
+            dot: tester.getRect(find.byKey(const ValueKey("pin_dot_0"))),
+            title: tester.getRect(find.text("Enter your PIN")),
+          );
+        }
+
+        final plain = await dots();
+        final wrong = await dots(
+          // Two lines also in the test font (square glyphs).
+          detail: "Wrong PIN. Two tries left.",
+        );
+        final checking = await dots(busy: true);
+        for (final other in [wrong, checking]) {
+          expect(other.dot.top, moreOrLessEquals(plain.dot.top, epsilon: 0.5));
+          // Nor does the title above it.
+          expect(
+            other.title.top,
+            moreOrLessEquals(plain.title.top, epsilon: 0.5),
+          );
+        }
+      });
+    }
+  });
+
   group("fast typing", () {
     Widget enter(List<String> committed) => YiviPinScaffold(
       body: YiviPinScreen(

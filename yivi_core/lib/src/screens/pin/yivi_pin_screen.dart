@@ -127,7 +127,8 @@ class YiviPinScreen extends ConsumerStatefulWidget {
   /// The instruction as the heading, or as a line under [header].
   final PinInstructionStyle instructionStyle;
 
-  /// Upright: the room between the PIN field and the keypad.
+  /// Upright: the room between the PIN field and the keypad. The field's
+  /// line ("Checking…", a wrong PIN) takes its room out of it.
   final double upperGap;
 
   /// Upright: everything above the keypad in the middle of the room left
@@ -447,11 +448,29 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
         const SizedBox(height: YiviSpace.x8),
       ],
       _buildInstructionText(context),
-      ?_buildDetail(context),
       const SizedBox(height: YiviSpace.x24),
       _buildPinField(context),
+      // Under the field: "Checking…", a wrong PIN. Room for two lines is
+      // kept, also while it is empty, so nothing moves when it comes or
+      // goes.
+      ConstrainedBox(
+        constraints: BoxConstraints(minHeight: _lineRoom(context)),
+        child: Align(
+          alignment: Alignment.topCenter,
+          heightFactor: 1,
+          child: _buildDetail(context) ?? const SizedBox.shrink(),
+        ),
+      ),
     ];
   }
+
+  /// The room under the PIN field for its line: two lines and the space
+  /// above them.
+  double _lineRoom(BuildContext context) =>
+      _lineGap + 2 * MediaQuery.textScalerOf(context).scale(20);
+
+  /// Between the PIN field and its line.
+  static const double _lineGap = YiviSpace.x8;
 
   /// Entering the chosen PIN again, on the same screen: the lock folds away,
   /// the title moves up and becomes the new one, the chosen PIN moves up out
@@ -579,7 +598,8 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
         children: [
           if (!headerApart) const SizedBox(height: YiviSpace.x16),
           ..._upperPart(context, withHeader: !headerApart),
-          SizedBox(height: widget.upperGap),
+          // The line's room under the field is part of the gap.
+          SizedBox(height: max(YiviSpace.x16, widget.upperGap - YiviSpace.x24)),
           _sinking(_buildKeypad()),
         ],
       ),
@@ -822,7 +842,7 @@ class _YiviPinScreenState extends ConsumerState<YiviPinScreen>
         : null;
     return Padding(
       key: const Key("pin_screen_detail"),
-      padding: const EdgeInsets.only(top: YiviSpace.x4),
+      padding: const EdgeInsets.only(top: _lineGap),
       child: Semantics(
         liveRegion: true,
         child: Text.rich(

@@ -54,6 +54,7 @@ class AddDataRow extends StatelessWidget {
           greyedOut: nfcBlocked,
         ),
         title: credential.name,
+        titleWeight: FontWeight.w600,
         subtitle: subtitle,
         subtitleKey: Key("${credential.credentialId}_subtitle"),
         subtitleMaxLines: nfcBlocked ? 3 : 1,
